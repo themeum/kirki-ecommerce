@@ -958,6 +958,48 @@ class RecalculateCartActionTest extends TestCase
     }
 
     /**
+     * The tax destination stored on the order wins over the current setting when tax is calculated again.
+     *
+     * @return void
+     */
+    public function test_the_stored_tax_destination_wins_over_the_current_setting(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'billing']);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'billing_address' => ['country' => 'AU'],
+        ]);
+        $context->stored = $this->make_stored_terms(['tax_destination' => OrderTaxDestination::SHIPPING]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(OrderTaxDestination::SHIPPING, $result->tax_destination);
+        $this->assertSame(1500, $result->base_tax_total);
+    }
+
+    /**
+     * An edited order with no stored destination uses the current setting.
+     *
+     * @return void
+     */
+    public function test_the_current_setting_is_used_when_the_order_stored_no_tax_destination(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'billing']);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'billing_address' => ['country' => 'AU'],
+        ]);
+        $context->stored = $this->make_stored_terms(['tax_destination' => null]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(OrderTaxDestination::BILLING, $result->tax_destination);
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
+    /**
      * A line added in the edit has no stored rate, so the current rate applies to it.
      *
      * @return void
@@ -1028,6 +1070,23 @@ class RecalculateCartActionTest extends TestCase
         $coupon_service->expects($this->once())->method('find_by_codes')->with(['NEWONE'])->willReturn(collection());
 
         $context = $this->make_context([$this->make_item(1, 10000)], ['coupon_codes' => ['STORED', 'NEWONE']]);
+        $context->stored = $this->make_stored_terms(['coupons' => ['STORED' => new OrderCoupon()]]);
+
+        $this->make_action(['coupon_service' => $coupon_service])->execute($context);
+    }
+
+    /**
+     * A stored coupon sent in another letter case is not asked of the coupon service as a new coupon.
+     *
+     * @return void
+     */
+    public function test_a_stored_coupon_sent_in_another_letter_case_is_not_looked_up_again(): void
+    {
+        $this->bind_default_region(0, 0, false);
+        $coupon_service = $this->createMock(CouponService::class);
+        $coupon_service->expects($this->once())->method('find_by_codes')->with(['NEWONE'])->willReturn(collection());
+
+        $context = $this->make_context([$this->make_item(1, 10000)], ['coupon_codes' => ['stored', 'NEWONE']]);
         $context->stored = $this->make_stored_terms(['coupons' => ['STORED' => new OrderCoupon()]]);
 
         $this->make_action(['coupon_service' => $coupon_service])->execute($context);

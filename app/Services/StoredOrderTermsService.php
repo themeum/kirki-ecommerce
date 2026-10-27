@@ -71,14 +71,15 @@ class StoredOrderTermsService
      *
      * @param Order                 $order   Order being edited.
      * @param CalculationContextDTO $context Context of the edit.
-     * @return array<string, OrderCoupon> Keyed by code.
+     * @return array<string, OrderCoupon> Keyed by the code as stored. A code is matched without regard to letter case.
      */
     protected function get_kept_coupons(Order $order, CalculationContextDTO $context)
     {
         $kept_coupons = [];
+        $sent_codes = array_map('strtolower', $context->coupon_codes);
 
         foreach ($order->order_coupons as $order_coupon) {
-            if (in_array($order_coupon->code, $context->coupon_codes, true)) {
+            if (in_array(strtolower($order_coupon->code), $sent_codes, true)) {
                 $kept_coupons[$order_coupon->code] = $order_coupon;
             }
         }

@@ -196,11 +196,21 @@ which lines it discounted.
 | Order-wide coupon, fixed amount | The stored total, capped at what is left, shared over all lines. | The new line gets a share of the same total. |
 | Free shipping | Waives the shipping charge. | - |
 
-A stored coupon is priced **before** a new coupon in each step (product
-coupons, then order-wide coupons, then free shipping). A new coupon takes only
-what the stored coupons leave. So adding a coupon never shrinks the discount
-that a stored coupon promised. For example, with a subtotal of 100.00, a stored
-10% order-wide coupon and a new 20% order-wide coupon give 10.00 and 18.00.
+Coupons are priced in three steps: product coupons, then order-wide coupons,
+then free shipping. In each step a stored coupon is priced **before** a new
+coupon, and a new coupon takes only what the stored coupons leave. A step
+works on what the earlier steps left. So a new coupon never lowers a stored
+coupon of the **same** step, but a new coupon of an **earlier** step can.
+
+| Stored coupon | New coupon | Subtotal | Stored coupon gives | New coupon gives |
+|---|---|---|---|---|
+| 10% order-wide | 20% order-wide (same step) | 100.00 | 10.00 | 18.00 |
+| 10% order-wide | $20 fixed product coupon (earlier step) | 100.00 | 8.00 | 20.00 |
+
+In the second row the product coupon takes 20.00 first. The stored coupon is
+then priced on the 80.00 that is left. The total discount is 28.00, which is
+more than the 10.00 before the edit. The stored coupon keeps its terms (10%),
+but its amount is smaller.
 
 A fixed coupon stores the amount it was set to when it was first applied (for
 example $10), one value on the order coupon. A product coupon gives up to that
@@ -216,9 +226,16 @@ current discount is zero.
 |---|---|
 | Coupon kept | Its use is not counted again. |
 | Coupon removed (code left out) | One use is given back. |
+| Code that is on the order, in other letter case (`spring10` for `SPRING10`) | Same as the stored coupon. It is kept with its stored terms. |
 | Code that is not on the order | Treated as a **new** coupon: checked and priced from the coupon record, and one use is counted. The save fails if the coupon reached its limit in the meantime. |
 | Code that matches no coupon | Not applied. It is not an error. |
 | Coupon deleted from the store | Stays on the order while the order keeps it. Once an admin removes it, the code matches no coupon, so it cannot be applied again. |
+
+A fixed product coupon on an order that has no stored fixed amount
+(`base_max_discount_amount` is empty, for example on an order that an old
+version saved) gives each line the amount that line already has. It cannot
+return to the full amount after an edit capped it. Orders placed now always
+store the amount.
 
 ---
 
@@ -244,6 +261,18 @@ settings only in these cases:
 
 Street, city, postcode, names and phone numbers never count as a new address.
 When tax follows the store address, the tax rates are never quoted again.
+
+The address that tax follows comes from the order's `tax_destination`, also
+when the tax rates are quoted again. A change of the store's tax destination
+setting does not change an order that is already placed.
+
+One value is still read from the current shipping settings: whether the
+shipping method is taxable. It matters only when tax follows the **billing**
+address, the billing country or state changes, and the stored shipping charge
+is kept. Then the shipping tax is calculated again with the current shipping
+method. If an admin deleted that method or made it not taxable, the shipping tax
+can be lower or zero. A change of the shipping address or method quotes the
+shipping again, so this does not apply to it.
 
 Free shipping sets the shipping tax amount to zero but keeps its saved rate.
 Removing free shipping later restores tax at that saved rate, even if the live
@@ -283,8 +312,17 @@ cannot be edited (section 2). `GET /orders/{id}` does not have these keys.
 `POST /calculate/order` calculates an order without saving it. With no
 `order_id` it previews a new order. With an `order_id` it previews an **edit** of
 that order with the terms in sections 3 to 7. Send the same payload that you
-will send to `PUT /orders/{id}`, plus `order_id`. The preview calculates in
-exactly the same way as the save.
+will send to `PUT /orders/{id}`, plus `order_id`. The preview uses the same
+inputs as the save and refuses the same faults with 422:
+
+- a `currency_code` that is not the order's currency (section 7)
+- a shipping method that is not available when the shipping is quoted again
+  (section 7)
+- a line, quantity, per-order limit or stock fault (sections 4 and 5)
+
+When the stored shipping charge is kept, the method is not checked. The preview
+does not reserve stock, and it does not claim a coupon use. Only the save does
+these.
 
 The preview fails with 404 when the order does not exist, and with 422 when
 the order cannot be edited (section 2).
@@ -314,17 +352,16 @@ customer paid.
 |---|---|
 | 404 | The order does not exist, or a `variant_id` does not exist. |
 | 422 | The order cannot be edited (section 2). |
-| 422 | `currency_code` differs from the order's currency. |
+| 422 | `currency_code` differs from the order's currency. The preview gives it too. |
 | 422 | A line has neither `id` nor `variant_id`. |
 | 422 | An item `id` is not on the order or is sent twice. |
 | 422 | A variant is on more than one line, or a new line is for a variant the order already holds. |
 | 422 | A new line's product is not published, or its variant is hidden. |
 | 422 | The quantity of a locked line (section 4) changed. |
 | 422 | A raised quantity, or a new line, is above the variant's `max_per_order`. |
-| 422 | Stock is short for an added quantity, or for a new line ("Not enough stock for variant: N"). The preview and the save both give it. |
-| 422 | The shipping method is not available for a new shipping address or a new method ("Invalid shipping method"). |
+| 422 | Stock is short for an added quantity, or for a new line ("Not enough stock for variant: N"). The preview and the save both give it. The save also gives it when another request takes the stock after the preview. |
+| 422 | The shipping method is not available for a new shipping address or a new method ("Invalid shipping method"). The preview gives it too. |
 | 422 | Stock was taken by another request between the check and the reservation ("Insufficient stock to reserve."). |
-| 500 | Stock was taken by another request after the check in the preview or in the first step of the save, and before the save's own check ("Not enough stock for variant: N"). This is the same status that order creation gives. |
 
 When a save fails, nothing on the order changes: not the lines, the stock, the
 coupons nor the totals.
@@ -361,7 +398,7 @@ coupons nor the totals.
 - **Stock shortage gives HTTP 422 in a preview and in a save.** WooCommerce
   has no preview of an edit. Here the preview checks stock and the per-order
   limit too, so the admin sees the same error before the save. A stock
-  shortage that appears only in the save's own check gives HTTP 500
+  shortage that appears only in the save's own check also gives HTTP 422
   (section 10).
 - **No manual price or custom discount.** You cannot set a line price by hand
   or add a discount that is not a coupon.

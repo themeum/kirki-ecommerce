@@ -113,7 +113,7 @@ class RecalculateCartAction
     protected function get_discount_result(CalculationContextDTO $context): DiscountCalculationResultDTO
     {
         $stored_codes = $context->stored ? array_keys($context->stored->coupons) : [];
-        $coupons = $this->resolve_coupons(array_values(array_diff($context->coupon_codes, $stored_codes)));
+        $coupons = $this->resolve_coupons(array_values(array_udiff($context->coupon_codes, $stored_codes, 'strcasecmp')));
 
         $discount_result = $this->discount_service->calculate($context, $coupons);
 
@@ -246,7 +246,7 @@ class RecalculateCartAction
      */
     protected function resolve_tax_strategy(CalculationContextDTO $context, TaxCalculationContextDTO $tax_context)
     {
-        $destination = $this->resolve_tax_destination($tax_context);
+        $destination = $this->resolve_tax_destination($context, $tax_context);
 
         if (!$destination) {
             return null;
@@ -258,17 +258,19 @@ class RecalculateCartAction
     }
 
     /**
-     * Pick the address type tax is calculated from: the one the tax destination
-     * setting names, else the store when that address has no country.
+     * Pick the address type tax is calculated from: the one the edited order stored,
+     * else the one the tax destination setting names, else the store when that
+     * address has no country.
      *
      * @since 1.0.0
      *
+     * @param CalculationContextDTO    $context     Calculation context.
      * @param TaxCalculationContextDTO $tax_context Addresses and items to tax.
      * @return string|null An OrderTaxDestination value, null when neither address has a country.
      */
-    protected function resolve_tax_destination(TaxCalculationContextDTO $tax_context)
+    protected function resolve_tax_destination(CalculationContextDTO $context, TaxCalculationContextDTO $tax_context)
     {
-        $destination = Tax::get_tax_destination();
+        $destination = ($context->stored && $context->stored->tax_destination) ? $context->stored->tax_destination : Tax::get_tax_destination();
 
         if (!empty($tax_context->address_for($destination)['country'])) {
             return $destination;

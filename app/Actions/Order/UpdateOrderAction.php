@@ -128,11 +128,11 @@ class UpdateOrderAction
 
             throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
             throw_if(!$order->is_editable(), __('This order can no longer be edited.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
-            throw_if(!empty($dto->currency_code) && $dto->currency_code !== $order->currency_code, __('The currency of an order cannot be changed.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
-            $context = $this->context_service->build($dto->to_calculation_input(), $order);
+            $input = $dto->to_calculation_input();
+            $context = $this->context_service->build($input, $order);
 
-            throw_if(!$context->uses_stored_shipping() && !$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+            $this->context_service->validate_edit($order, $input, $context);
 
             $calculated_result = $this->recalculate_cart_action->execute($context);
             $currency_code = $order->currency_code;
@@ -173,7 +173,7 @@ class UpdateOrderAction
      * @param string               $currency_code     Order currency code.
      * @param float                $exchange_rate     Rate from the base currency to the order currency.
      * @return array<int|string, OrderItem> Saved items, keyed by the line key they were calculated under.
-     * @throws \Exception When stock is short for a new or increased item quantity.
+     * @throws ValidationException When stock is short for a new or increased item quantity.
      */
     protected function sync_order_items(Order $order, CalculationResultDTO $calculated_result, string $currency_code, float $exchange_rate)
     {
@@ -219,12 +219,12 @@ class UpdateOrderAction
      * @param string             $currency_code   Order currency code.
      * @param float              $exchange_rate   Rate from the base currency to the order currency.
      * @return OrderItem The saved line.
-     * @throws \Exception When stock is short.
+     * @throws ValidationException When stock is short.
      */
     protected function add_order_item(Order $order, CalculationItemDTO $calculated_item, string $currency_code, float $exchange_rate)
     {
         /* translators: %s: variant ID */
-        throw_if(!$this->inventory_service->has_stock($calculated_item->variant_id, $calculated_item->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $calculated_item->variant_id));
+        throw_if(!$this->inventory_service->has_stock($calculated_item->variant_id, $calculated_item->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $calculated_item->variant_id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $variant = $this->context_service->get_variants_map()[$calculated_item->variant_id];
         $item_dto = $this->fill_order_item_snapshot(new CreateOrderItemDTO(), $variant);
@@ -250,14 +250,14 @@ class UpdateOrderAction
      * @param string             $currency_code   Order currency code.
      * @param float              $exchange_rate   Rate from the base currency to the order currency.
      * @return void
-     * @throws \Exception When stock is short for an increased quantity.
+     * @throws ValidationException When stock is short for an increased quantity.
      */
     protected function update_order_item(Order $order, OrderItem $stored_item, CalculationItemDTO $calculated_item, string $currency_code, float $exchange_rate)
     {
         $quantity_difference = $calculated_item->quantity - $stored_item->quantity;
 
         /* translators: %s: variant ID */
-        throw_if($quantity_difference > 0 && !$this->inventory_service->has_stock($stored_item->variant_id, $quantity_difference), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $stored_item->variant_id));
+        throw_if($quantity_difference > 0 && !$this->inventory_service->has_stock($stored_item->variant_id, $quantity_difference), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $stored_item->variant_id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         if ($quantity_difference > 0) {
             $this->inventory_service->reserve_stock($stored_item->variant_id, $quantity_difference);

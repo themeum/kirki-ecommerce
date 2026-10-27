@@ -42,11 +42,14 @@ class OrderCalculationContextService
     /** @var InventoryService */
     protected $inventory_service;
 
+    /** @var ShippingService */
+    protected $shipping_service;
+
     /** @var array<int, Variant> Variants loaded by the last build, keyed by variant ID. */
     protected $variants_map = [];
 
     /**
-     * Create the service with the variant, customer and inventory services.
+     * Create the service with the variant, customer, inventory and shipping services.
      *
      * @since 1.0.0
      *
@@ -54,13 +57,15 @@ class OrderCalculationContextService
      * @param CustomerService         $customer_service     Buyer email lookup.
      * @param StoredOrderTermsService $stored_terms_service Reads the terms an edited order keeps.
      * @param InventoryService        $inventory_service    Stock check for a quantity.
+     * @param ShippingService         $shipping_service     Shipping method check for an edit.
      */
-    public function __construct(VariantService $variant_service, CustomerService $customer_service, StoredOrderTermsService $stored_terms_service, InventoryService $inventory_service)
+    public function __construct(VariantService $variant_service, CustomerService $customer_service, StoredOrderTermsService $stored_terms_service, InventoryService $inventory_service, ShippingService $shipping_service)
     {
         $this->variant_service = $variant_service;
         $this->customer_service = $customer_service;
         $this->stored_terms_service = $stored_terms_service;
         $this->inventory_service = $inventory_service;
+        $this->shipping_service = $shipping_service;
     }
 
     /**
@@ -88,6 +93,26 @@ class OrderCalculationContextService
         $context->stored = $order ? $this->stored_terms_service->build($order, $context) : null;
 
         return $context;
+    }
+
+    /**
+     * Check an edit against the rules that no payload line can show: the order keeps its
+     * currency, and a shipping method that is quoted again must be available.
+     *
+     * The preview and the save both call it, so the preview refuses what the save refuses.
+     *
+     * @since 1.0.0
+     *
+     * @param Order                    $order   Order being edited.
+     * @param OrderCalculationInputDTO $input   Order payload.
+     * @param CalculationContextDTO    $context Context built for the payload and the order.
+     * @return void
+     * @throws ValidationException When the currency differs from the order's, or the shipping method is not available.
+     */
+    public function validate_edit(Order $order, OrderCalculationInputDTO $input, CalculationContextDTO $context)
+    {
+        throw_if(!empty($input->currency_code) && $input->currency_code !== $order->currency_code, __('The currency of an order cannot be changed.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+        throw_if(!$context->uses_stored_shipping() && !$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
 
     /**

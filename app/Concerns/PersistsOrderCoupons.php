@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Concerns;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
@@ -82,7 +83,7 @@ trait PersistsOrderCoupons
 
             if ($coupon_result->coupon->discount_type === DiscountType::AMOUNT_OFF && $coupon_result->coupon->discount_value_type === DiscountValueType::FIXED) {
                 $order_coupon_dto->base_max_discount_amount = $kept_order_coupon
-                    ? ($kept_order_coupon->base_max_discount_amount ?? $kept_order_coupon->base_discount_amount)
+                    ? $this->get_kept_max_discount_amount($kept_order_coupon)
                     : $coupon_result->coupon->base_discount_amount_fixed;
             }
 
@@ -111,6 +112,27 @@ trait PersistsOrderCoupons
         );
 
         return $order_coupons;
+    }
+
+    /**
+     * Get the fixed amount a kept coupon was set to.
+     *
+     * A row without the amount falls back to the total the coupon gave, but only for an
+     * order-wide coupon. A product coupon gives that amount to each line, so its total
+     * would be too large for a line: it stays empty and each line keeps its own stored share.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderCoupon $kept_order_coupon Order coupon as stored.
+     * @return int|null Amount in base currency minor units.
+     */
+    protected function get_kept_max_discount_amount(OrderCoupon $kept_order_coupon)
+    {
+        if ($kept_order_coupon->base_max_discount_amount !== null) {
+            return $kept_order_coupon->base_max_discount_amount;
+        }
+
+        return $kept_order_coupon->discount_target === DiscountTarget::PRODUCTS ? null : $kept_order_coupon->base_discount_amount;
     }
 
     /**

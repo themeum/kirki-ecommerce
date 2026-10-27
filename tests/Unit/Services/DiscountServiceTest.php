@@ -235,6 +235,17 @@ class DiscountServiceTest extends TestCase
         $this->assertSame([1 => 500], $this->service->calculate($context, [])->item_discounts);
     }
 
+    public function test_a_stored_fixed_product_coupon_without_a_set_amount_keeps_each_lines_own_amount(): void
+    {
+        $context = $this->make_stored_context([
+            $this->make_stored_coupon('STORED', DiscountTarget::PRODUCTS, ['base_discount_amount' => 700], [10 => 300, 11 => 400]),
+        ], [$this->make_line(1, 1000, 1, 10), $this->make_line(2, 1000, 1, 11)]);
+
+        $result = $this->service->calculate($context, []);
+
+        $this->assertSame([1 => 300, 2 => 400], $result->item_discounts);
+    }
+
     public function test_a_stored_fixed_product_coupon_that_was_capped_gives_up_to_its_set_amount_when_the_line_grows(): void
     {
         $context = $this->make_stored_context([
@@ -327,6 +338,21 @@ class DiscountServiceTest extends TestCase
         // The stored coupon takes 10% of 10000 first, then the new coupon takes 20% of the 9000 that is left.
         $this->assertSame(['STORED', 'NEW'], array_map(fn($coupon_result) => $coupon_result->coupon->code, $result->coupon_results));
         $this->assertSame([1000, 1800], array_map(fn($coupon_result) => $coupon_result->total_discount, $result->coupon_results));
+        $this->assertSame([1 => 2800], $result->item_discounts);
+    }
+
+    public function test_a_new_product_coupon_is_priced_before_a_stored_order_coupon_and_lowers_what_it_gives(): void
+    {
+        $context = $this->make_stored_context([
+            $this->make_stored_coupon('STORED', DiscountTarget::ORDER, ['discount_rate' => 10], [10 => 1000]),
+        ], [$this->make_line(1, 10000, 1, 10)]);
+
+        $result = $this->service->calculate($context, [
+            $this->make_amount_off_coupon('NEW', DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 2000),
+        ]);
+
+        $this->assertSame(['NEW', 'STORED'], array_map(fn($coupon_result) => $coupon_result->coupon->code, $result->coupon_results));
+        $this->assertSame([2000, 800], array_map(fn($coupon_result) => $coupon_result->total_discount, $result->coupon_results));
         $this->assertSame([1 => 2800], $result->item_discounts);
     }
 

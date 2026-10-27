@@ -33,6 +33,16 @@ class OrderCalculationInputDTOTest extends TestCase
         $this->assertFalse(property_exists($input, 'payment_provider'));
     }
 
+    public function test_it_reads_the_currency_code_of_a_payload_and_of_an_update_payload(): void
+    {
+        $this->assertSame('USD', OrderCalculationInputDTO::from_payload(['currency_code' => 'USD'])->currency_code);
+        $this->assertNull(OrderCalculationInputDTO::from_payload([])->currency_code);
+
+        $update_payload = UpdateOrderPayloadDTO::from_array(['id' => 1, 'currency_code' => 'EUR', 'items' => []]);
+
+        $this->assertSame('EUR', $update_payload->to_calculation_input()->currency_code);
+    }
+
     public function test_it_keeps_the_keys_of_the_lines(): void
     {
         $input = OrderCalculationInputDTO::from_payload(['items' => [3 => ['variant_id' => 3, 'quantity' => 1], 'b' => ['id' => 8, 'quantity' => 2]]]);

@@ -22,23 +22,18 @@ use function Kirki\Ecommerce\Framework\response;
  */
 class OrderCalculationController
 {
-    /** @var OrderCalculationContextService */
-    protected $context_service;
-
     /** @var OrderService */
     protected $order_service;
 
     /**
-     * Create the controller with the context builder and the order service.
+     * Create the controller with the order service.
      *
      * @since 1.0.0
      *
-     * @param OrderCalculationContextService $context_service Builds the calculation input from the payload.
-     * @param OrderService                   $order_service   Order lookup.
+     * @param OrderService $order_service Order lookup.
      */
-    public function __construct(OrderCalculationContextService $context_service, OrderService $order_service)
+    public function __construct(OrderService $order_service)
     {
-        $this->context_service = $context_service;
         $this->order_service = $order_service;
     }
 
@@ -46,27 +41,35 @@ class OrderCalculationController
      * Calculate subtotal, discounts, tax, shipping and grand total for the submitted order details.
      *
      * With an `order_id`, the payload is an edit of that order: it is priced with the
-     * terms the order was placed with, the same as when the edit is saved.
+     * terms the order was placed with, the same as when the edit is saved, and it is refused
+     * for the same currency and shipping method faults.
      *
      * @since 1.0.0
      *
-     * @param OrderCalculationRequest $request
-     * @param RecalculateCartAction   $action
+     * @param OrderCalculationRequest        $request
+     * @param RecalculateCartAction          $action
+     * @param OrderCalculationContextService $context_service Builds the calculation input from the payload.
      * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The calculation result, in the store's base currency.
      * @throws NotFoundException When the order to edit does not exist.
-     * @throws ValidationException When the order to edit can no longer be edited.
+     * @throws ValidationException When the order to edit can no longer be edited, its currency would change, or its shipping method is not available.
      */
-    public function get(OrderCalculationRequest $request, RecalculateCartAction $action)
+    public function get(OrderCalculationRequest $request, RecalculateCartAction $action, OrderCalculationContextService $context_service)
     {
         $order = $this->find_editable_order($request->input('order_id'));
-        $context = $this->context_service->build(OrderCalculationInputDTO::from_payload($request->all()), $order);
+        $input = OrderCalculationInputDTO::from_payload($request->all());
+        $context = $context_service->build($input, $order);
+
+        if ($order) {
+            $context_service->validate_edit($order, $input, $context);
+        }
+
         $result = $action->execute($context);
 
         return response()->json([
             'data' => OrderCalculationResource::make([
                 'result' => $result,
                 'context' => $context,
-                'variants' => $this->context_service->get_variants_map(),
+                'variants' => $context_service->get_variants_map(),
             ])
         ]);
     }
