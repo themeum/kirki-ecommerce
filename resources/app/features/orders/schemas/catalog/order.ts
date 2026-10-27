@@ -199,16 +199,46 @@ export const OrderLineItemSchema = z.object({
 export type OrderLineItem = z.infer<typeof OrderLineItemSchema>;
 
 export const OrderCalculationItemSchema = z.object({
-  id: z.number(),
+  id: z.number().nullish(),
+  is_reachable: z.boolean(),
   quantity: z.number(),
   base_subtotal_money_object: MoneyObjectSchema,
   base_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
   base_unit_price_money_object: MoneyObjectSchema,
   base_unit_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
   applied_product_coupons: z.array(OrderCalculationAppliedCouponSchema).default([]),
+  allow_back_order: z.boolean().nullish(),
+  track_inventory: z.boolean().nullish(),
+  available_quantity: z.number().nullish(),
+  in_stock: z.boolean().nullish(),
+  has_limit_per_order: z.boolean().nullish(),
+  max_per_order: z.number().nullish(),
 });
 
 export type OrderCalculationItem = z.infer<typeof OrderCalculationItemSchema>;
+
+export const OrderShippingMethodSchema = z.object({
+  id: z.union([z.number(), z.string()]),
+  name: z.string(),
+  type: ShippingTypeSchema,
+  base_cost_money_object: MoneyObjectSchema,
+});
+
+export type OrderShippingMethod = z.infer<typeof OrderShippingMethodSchema>;
+
+export const OrderEditLineItemSchema = OrderLineItemSchema.extend(
+  OrderCalculationItemSchema.pick({
+    is_reachable: true,
+    allow_back_order: true,
+    track_inventory: true,
+    available_quantity: true,
+    in_stock: true,
+    has_limit_per_order: true,
+    max_per_order: true,
+  }).shape,
+);
+
+export type OrderEditLineItem = z.infer<typeof OrderEditLineItemSchema>;
 
 export const OrderSchema = z.object({
   id: z.number(),
@@ -228,9 +258,11 @@ export const OrderSchema = z.object({
   status: OrderStatusSchema,
   fulfillment_status: FulfillmentStatusSchema,
   is_refund_initiated: z.boolean(),
+  is_editable: z.boolean(),
   is_manual: z.boolean(),
   currency_code: z.string(),
   is_tax_inclusive: z.boolean(),
+  tax_destination: z.string().nullish(),
 
   totals: z.object({
     invoiced_items_subtotal_money_object: MoneyObjectSchema,
@@ -282,6 +314,13 @@ export const OrderSchema = z.object({
 
 export type Order = z.infer<typeof OrderSchema>;
 
+export const OrderEditInfoSchema = OrderSchema.extend({
+  items: z.array(OrderEditLineItemSchema).default([]),
+  available_shipping_methods: z.array(OrderShippingMethodSchema).default([]),
+});
+
+export type OrderEditInfo = z.infer<typeof OrderEditInfoSchema>;
+
 export const OrderListItemSchema = OrderSchema.pick({
   id: true,
   uuid: true,
@@ -330,16 +369,7 @@ export const OrderCalculationSchema = z.object({
   items_count: z.number(),
   items: z.array(OrderCalculationItemSchema).default([]),
 
-  available_shipping_methods: z
-    .array(
-      z.object({
-        id: z.union([z.number(), z.string()]),
-        name: z.string(),
-        type: ShippingTypeSchema,
-        base_cost_money_object: MoneyObjectSchema,
-      }),
-    )
-    .default([]),
+  available_shipping_methods: z.array(OrderShippingMethodSchema).default([]),
 
   shipping_method: z.union([z.number(), z.string()]).nullish(),
 });

@@ -6,9 +6,13 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
+use Kirki\Ecommerce\App\DTO\Calculation\OrderCalculationInputDTO;
+use Kirki\Ecommerce\App\Resources\Order\OrderEditResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderListResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
+use Kirki\Ecommerce\App\Services\OrderCalculationContextService;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -123,6 +127,34 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($order),
+            'message' => __('Order retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Return an order opened for an edit, by the route ID.
+     *
+     * It is the order with each line's reachability and live stock values, and the
+     * shipping methods that can be chosen for the order as it is stored.
+     *
+     * @since 1.0.0
+     *
+     * @param Request                        $request
+     * @param OrderCalculationContextService $context_service
+     * @param ShippingService                $shipping_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The order edit resource.
+     * @throws \Kirki\Ecommerce\Framework\Exceptions\NotFoundException When the order does not exist.
+     * @throws \Kirki\Ecommerce\Framework\Exceptions\ValidationException When the order can no longer be edited.
+     */
+    public function edit(Request $request, OrderCalculationContextService $context_service, ShippingService $shipping_service)
+    {
+        $order = $this->service->find_editable_order_or_fail($request->int('id'));
+        $order->load_missing('items.variant.product');
+
+        $context = $context_service->build(OrderCalculationInputDTO::from_order($order), $order);
+
+        return response()->json([
+            'data' => OrderEditResource::make($order, $shipping_service->get_final_available_shipping_options($context)),
             'message' => __('Order retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -262,7 +294,7 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($order),
-            'message' => __('Order updated', 'kirki-ecommerce'),
+            'message' => $action->get_message($dto),
         ]);
     }
 

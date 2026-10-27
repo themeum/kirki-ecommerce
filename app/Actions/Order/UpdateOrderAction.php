@@ -7,14 +7,14 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;
+use Kirki\Ecommerce\App\Concerns\PreparesOrderItems;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Services\CouponService;
-use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Services\InventoryService;
+use Kirki\Ecommerce\App\Services\OrderCalculationContextService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
-use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
@@ -22,20 +22,24 @@ use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
-use Kirki\Ecommerce\Framework\Supports\Arr;
-use Kirki\Ecommerce\App\Supports\Currency;
-use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Throwable;
 
 use function Kirki\Ecommerce\App\base_currency;
-use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
  * Edits an existing order: recalculates totals, syncs items and stock, coupons and taxes.
+ *
+ * An edit keeps what the customer was promised. Lines already on the order keep their
+ * prices, stored coupons keep their terms, and the exchange rate, tax mode, shipping
+ * charge and tax rates stay as stored. Only a new delivery address (or shipping method)
+ * quotes shipping and tax again from the current settings.
  *
  * @since 1.0.0
  */
@@ -43,12 +47,16 @@ class UpdateOrderAction
 {
     use PersistsOrderCoupons;
     use PersistsOrderTaxes;
+    use PreparesOrderItems;
+
+    /** Snapshot fields of an order item, written when the line is added and never rewritten by an edit. */
+    const ITEM_SNAPSHOT_FIELDS = ['product_id', 'variant_id', 'product_name', 'variant_name', 'sku', 'barcode', 'product_image', 'is_physical_product', 'weight', 'weight_unit', 'product_data'];
 
     /** @var RecalculateCartAction */
     protected $recalculate_cart_action;
 
-    /** @var VariantService */
-    protected $variant_service;
+    /** @var OrderCalculationContextService */
+    protected $context_service;
 
     /** @var OrderService */
     protected $order_service;
@@ -62,12 +70,6 @@ class UpdateOrderAction
     /** @var CouponService */
     protected $coupon_service;
 
-    /** @var CustomerService */
-    protected $customer_service;
-
-    /** @var array<int, \Kirki\Ecommerce\App\Models\Variant> Variants loaded while building the calculation items, keyed by variant ID. */
-    protected $variants_map = [];
-
     /** @var string */
     protected $base_currency_code;
 
@@ -76,72 +78,75 @@ class UpdateOrderAction
      *
      * @since 1.0.0
      *
-     * @param RecalculateCartAction $recalculate_cart_action Totals calculator.
-     * @param VariantService        $variant_service         Variant lookup service.
-     * @param OrderService          $order_service           Order persistence service.
-     * @param InventoryService      $inventory_service       Stock checks and reservation.
-     * @param ShippingService       $shippingService         Shipping method validation.
-     * @param CouponService         $coupon_service          Coupon service.
-     * @param CustomerService       $customer_service        Buyer email lookup.
+     * @param RecalculateCartAction          $recalculate_cart_action Totals calculator.
+     * @param OrderCalculationContextService $context_service         Builds the calculation input from the payload.
+     * @param OrderService                   $order_service           Order persistence service.
+     * @param InventoryService               $inventory_service       Stock checks and reservation.
+     * @param ShippingService                $shippingService         Shipping method validation.
+     * @param CouponService                  $coupon_service          Coupon service.
      */
     public function __construct(
         RecalculateCartAction $recalculate_cart_action,
-        VariantService $variant_service,
+        OrderCalculationContextService $context_service,
         OrderService $order_service,
         InventoryService $inventory_service,
         ShippingService $shippingService,
-        CouponService $coupon_service,
-        CustomerService $customer_service
+        CouponService $coupon_service
     ) {
         $this->recalculate_cart_action = $recalculate_cart_action;
-        $this->variant_service = $variant_service;
+        $this->context_service = $context_service;
         $this->order_service = $order_service;
         $this->inventory_service = $inventory_service;
         $this->shipping_service = $shippingService;
         $this->coupon_service = $coupon_service;
-        $this->customer_service = $customer_service;
         $this->base_currency_code = base_currency()->code;
     }
 
     /**
      * Update an order from the payload.
      *
-     * Totals are recalculated server-side, order items are added, changed or removed with
-     * matching stock reservation, and coupons and taxes are re-synced in one transaction.
-     * Fails when the shipping method is invalid or stock is short.
+     * Everything runs after the order is locked, in one transaction. Fails when the order
+     * can no longer be edited, the currency is changed, the shipping method is invalid for
+     * a new quote, a quantity rule is broken, or stock is short.
      *
      * @since 1.0.0
      *
      * @param UpdateOrderPayloadDTO $dto Order ID with the new addresses, items, coupons and shipping method.
      * @return Order The updated order with its items and coupons loaded.
+     * @throws NotFoundException When the order does not exist.
+     * @throws ValidationException When the order cannot be edited or its currency would change.
      * @throws Throwable When persisting the update fails; the transaction is rolled back.
      */
     public function execute(UpdateOrderPayloadDTO $dto)
     {
-        // @todo Should we allow to edit the order if its status is cancelled or refunded?
-        $context = $this->prepare_calculation_context_dto($dto);
-
-        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'));
-
-        $calculated_result = $this->recalculate_cart_action->execute($context);
-
         DB::begin_transaction();
 
         try {
             // Wait for any edit or cancel of this order already running, then read the order as it is now.
             $this->order_service->lock_order($dto->id);
-            $order = $this->order_service->find_order_or_fail($dto->id);
+            $order = $this->order_service->find_order($dto->id);
 
-            $exchange_rate = Currency::exchange_rate($dto->currency_code);
-            $this->inventory_service->collect_stock_alerts(fn() => $this->sync_order_items($order, $calculated_result, $dto->currency_code, $exchange_rate));
+            throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+            throw_if(!$order->is_editable(), __('This order can no longer be edited.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+
+            $input = $dto->to_calculation_input();
+            $context = $this->context_service->build($input, $order);
+
+            $this->context_service->validate_edit($order, $input, $context);
+
+            $calculated_result = $this->recalculate_cart_action->execute($context);
+            $currency_code = $order->currency_code;
+            $exchange_rate = (float) $order->exchange_rate;
+
+            $order_items_by_line_key = $this->inventory_service->collect_stock_alerts(fn() => $this->sync_order_items($order, $calculated_result, $currency_code, $exchange_rate));
 
             $order_dto = $this->prepare_update_order_dto($order, $calculated_result, $dto, $context, $exchange_rate);
             $this->order_service->update_order($order_dto);
 
-            $order_with_items = $order->fresh('items');
+            $saved_order = $order->fresh();
 
-            $this->sync_order_coupons($order_with_items, $calculated_result, $dto->currency_code, $exchange_rate);
-            $this->sync_order_taxes($order_with_items, $calculated_result, $dto->currency_code, $exchange_rate);
+            $this->sync_order_coupons($saved_order, $calculated_result, $order_items_by_line_key, $currency_code, $exchange_rate);
+            $this->sync_order_taxes($saved_order, $calculated_result, $order_items_by_line_key, $currency_code, $exchange_rate);
 
             DB::commit();
 
@@ -153,72 +158,118 @@ class UpdateOrderAction
     }
 
     /**
-     * Bring the order's items in line with the recalculated items.
+     * Bring the order's items in line with the calculated items.
      *
-     * Adds new items, updates changed quantities, and removes items no longer present,
-     * reserving or releasing stock for the difference. Fails when stock is short.
+     * A line already on the order is updated in place: its quantity and amounts change, and
+     * its snapshot of the product stays. A new line gets a full snapshot of its variant as
+     * it is now. A stored line that is no longer sent is removed. Stock moves only by the
+     * quantity difference of a kept line, and a removed line gives its stock back unless
+     * its variant was deleted. Fails when stock is short.
      *
      * @since 1.0.0
      *
      * @param Order                $order             Order with its items loaded.
-     * @param CalculationResultDTO $calculated_result Recalculated totals and items.
+     * @param CalculationResultDTO $calculated_result Calculated totals and items.
      * @param string               $currency_code     Order currency code.
      * @param float                $exchange_rate     Rate from the base currency to the order currency.
-     * @return void
-     * @throws \Exception When stock is short for a new or increased item quantity.
+     * @return array<int|string, OrderItem> Saved items, keyed by the line key they were calculated under.
+     * @throws ValidationException When stock is short for a new or increased item quantity.
      */
     protected function sync_order_items(Order $order, CalculationResultDTO $calculated_result, string $currency_code, float $exchange_rate)
     {
-        $existing_items_map = [];
-        $order->items->each(function ($item) use (&$existing_items_map) {
-            $existing_items_map[$item->variant_id] = $item;
-        });
+        $stored_items_by_id = [];
 
-        $processed_variant_ids = [];
-
-        foreach ($calculated_result->items as $variant_id => $calculated_item) {
-            $processed_variant_ids[] = $variant_id;
-
-            if (isset($existing_items_map[$variant_id])) {
-                $existing_item = $existing_items_map[$variant_id];
-                $old_quantity = $existing_item->quantity;
-                $new_quantity = $calculated_item->quantity;
-                $diff = $new_quantity - $old_quantity;
-
-                if ($new_quantity === 0) {
-                    $this->order_service->delete_order_item($existing_item->id);
-                    $this->inventory_service->release_reserved_stock($variant_id, $old_quantity);
-                    continue;
-                }
-
-                /* translators: %s: variant ID */
-                throw_if($diff > 0 && !$this->inventory_service->has_stock($variant_id, $diff), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id));
-
-                if ($diff < 0) {
-                    $this->inventory_service->release_reserved_stock($variant_id, abs($diff));
-                } else {
-                    $this->inventory_service->reserve_stock($variant_id, $diff);
-                }
-
-                $item_update_dto = $this->prepare_update_order_item_dto($existing_item, $calculated_item, $currency_code, $exchange_rate);
-
-                $this->order_service->update_order_item($item_update_dto);
-            } else {
-                /* translators: %s: variant ID */
-                throw_if(!$this->inventory_service->has_stock($variant_id, $calculated_item->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id));
-
-                $item_create_dto = $this->prepare_order_item_dto($order->id, $calculated_item, $currency_code, $exchange_rate);
-                $this->order_service->create_order_item($item_create_dto);
-                $this->inventory_service->reserve_stock($variant_id, $calculated_item->quantity);
-            }
+        foreach ($order->items as $stored_item) {
+            $stored_items_by_id[$stored_item->id] = $stored_item;
         }
 
-        foreach ($order->items as $existing_item) {
-            if (!in_array($existing_item->variant_id, $processed_variant_ids)) {
-                $this->inventory_service->release_reserved_stock($existing_item->variant_id, $existing_item->quantity);
-                $this->order_service->delete_order_item($existing_item->id);
+        $order_items_by_line_key = [];
+
+        foreach ($calculated_result->items as $line_key => $calculated_item) {
+            if ($calculated_item->order_item_id === null) {
+                $order_items_by_line_key[$line_key] = $this->add_order_item($order, $calculated_item, $currency_code, $exchange_rate);
+                continue;
             }
+
+            $stored_item = $stored_items_by_id[$calculated_item->order_item_id];
+            unset($stored_items_by_id[$calculated_item->order_item_id]);
+
+            $this->update_order_item($order, $stored_item, $calculated_item, $currency_code, $exchange_rate);
+            $order_items_by_line_key[$line_key] = $stored_item;
         }
+
+        foreach ($stored_items_by_id as $removed_item) {
+            if (!empty($removed_item->variant_id)) {
+                $this->inventory_service->release_reserved_stock($removed_item->variant_id, $removed_item->quantity);
+            }
+
+            $this->order_service->delete_order_item($removed_item->id);
+        }
+
+        return $order_items_by_line_key;
+    }
+
+    /**
+     * Add a line to the order and reserve its stock.
+     *
+     * @since 1.0.0
+     *
+     * @param Order              $order           Order the line is added to.
+     * @param CalculationItemDTO $calculated_item Calculated item of the new line.
+     * @param string             $currency_code   Order currency code.
+     * @param float              $exchange_rate   Rate from the base currency to the order currency.
+     * @return OrderItem The saved line.
+     * @throws ValidationException When stock is short.
+     */
+    protected function add_order_item(Order $order, CalculationItemDTO $calculated_item, string $currency_code, float $exchange_rate)
+    {
+        /* translators: %s: variant ID */
+        throw_if(!$this->inventory_service->has_stock($calculated_item->variant_id, $calculated_item->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $calculated_item->variant_id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+
+        $variant = $this->context_service->get_variants_map()[$calculated_item->variant_id];
+        $item_dto = $this->fill_order_item_snapshot(new CreateOrderItemDTO(), $variant);
+        $this->fill_order_item_amounts($item_dto, $order->id, $calculated_item, $currency_code, $exchange_rate);
+
+        $order_item = $this->order_service->create_order_item($item_dto);
+        $this->inventory_service->reserve_stock($calculated_item->variant_id, $calculated_item->quantity);
+
+        return $order_item;
+    }
+
+    /**
+     * Update a line already on the order and move its stock by the quantity difference.
+     *
+     * Only the quantity and the amounts are written. The context service has already refused
+     * a quantity change on a line that is not reachable, so a stock move here always has a variant.
+     *
+     * @since 1.0.0
+     *
+     * @param Order              $order           Order the line is on.
+     * @param OrderItem          $stored_item     Line as stored.
+     * @param CalculationItemDTO $calculated_item Calculated item of the line.
+     * @param string             $currency_code   Order currency code.
+     * @param float              $exchange_rate   Rate from the base currency to the order currency.
+     * @return void
+     * @throws ValidationException When stock is short for an increased quantity.
+     */
+    protected function update_order_item(Order $order, OrderItem $stored_item, CalculationItemDTO $calculated_item, string $currency_code, float $exchange_rate)
+    {
+        $quantity_difference = $calculated_item->quantity - $stored_item->quantity;
+
+        /* translators: %s: variant ID */
+        throw_if($quantity_difference > 0 && !$this->inventory_service->has_stock($stored_item->variant_id, $quantity_difference), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $stored_item->variant_id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+
+        if ($quantity_difference > 0) {
+            $this->inventory_service->reserve_stock($stored_item->variant_id, $quantity_difference);
+        } elseif ($quantity_difference < 0) {
+            $this->inventory_service->release_reserved_stock($stored_item->variant_id, abs($quantity_difference));
+        }
+
+        $item_dto = (new UpdateOrderItemDTO())->exclude(static::ITEM_SNAPSHOT_FIELDS);
+        $this->fill_order_item_amounts($item_dto, $order->id, $calculated_item, $currency_code, $exchange_rate);
+        $item_dto->id = $stored_item->id;
+
+        $this->order_service->update_order_item($item_dto);
     }
 
     /**
@@ -244,34 +295,35 @@ class UpdateOrderAction
         $order_dto->customer_id = $context->customer_id ?: null;
         $order_dto->is_manual = $dto->is_manual;
 
-        $order_dto->currency_code = $dto->currency_code;
+        $order_dto->currency_code = $order->currency_code;
         $order_dto->base_currency_code = $this->base_currency_code;
         $order_dto->exchange_rate = $exchange_rate;
 
-        $order_dto->invoiced_subtotal = $this->convert_amount($calculated_result->base_subtotal, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->invoiced_subtotal = $this->convert_amount($calculated_result->base_subtotal, $order->currency_code, $order_dto->exchange_rate);
         $order_dto->base_subtotal = $calculated_result->base_subtotal;
 
-        $order_dto->invoiced_shipping_total = $this->convert_amount($calculated_result->base_shipping_total, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->invoiced_shipping_total = $this->convert_amount($calculated_result->base_shipping_total, $order->currency_code, $order_dto->exchange_rate);
         $order_dto->base_shipping_total = $calculated_result->base_shipping_total;
 
-        $order_dto->invoiced_discount_total = $this->convert_amount($calculated_result->base_discount_total, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->invoiced_discount_total = $this->convert_amount($calculated_result->base_discount_total, $order->currency_code, $order_dto->exchange_rate);
         $order_dto->base_discount_total = $calculated_result->base_discount_total;
 
-        $order_dto->invoiced_tax_total = $this->convert_amount($calculated_result->base_tax_total, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->invoiced_tax_total = $this->convert_amount($calculated_result->base_tax_total, $order->currency_code, $order_dto->exchange_rate);
         $order_dto->base_tax_total = $calculated_result->base_tax_total;
 
-        $order_dto->invoiced_shipping_tax_amount = $this->convert_amount($calculated_result->base_shipping_tax, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->invoiced_shipping_tax_amount = $this->convert_amount($calculated_result->base_shipping_tax, $order->currency_code, $order_dto->exchange_rate);
         $order_dto->base_shipping_tax_amount = $calculated_result->base_shipping_tax;
 
-        $order_dto->is_tax_inclusive = Tax::is_tax_inclusive();
+        $order_dto->is_tax_inclusive = $context->stored->is_tax_inclusive;
         $order_dto->tax_destination = $calculated_result->tax_destination;
 
-        $order_dto->invoiced_total = $this->convert_amount($calculated_result->base_total, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->invoiced_total = $this->convert_amount($calculated_result->base_total, $order->currency_code, $order_dto->exchange_rate);
         $order_dto->base_total = $calculated_result->base_total;
 
         $order_dto->items_count = $calculated_result->items_count;
 
         $order_dto->shipping_method = $dto->shipping_method;
+        $order_dto->shipping_metadata = $context->uses_stored_shipping() ? $order->shipping_metadata : $this->shipping_service->get_selected_shipping_method_snapshot($context);
 
         $order_dto->shipping_first_name = $dto->shipping_first_name;
         $order_dto->shipping_last_name = $dto->shipping_last_name;
@@ -305,234 +357,6 @@ class UpdateOrderAction
         $order_dto->flags = $dto->flags;
 
         return $order_dto;
-    }
-
-    /**
-     * Build the price calculation context from the payload.
-     *
-     * @since 1.0.0
-     *
-     * @param UpdateOrderPayloadDTO $dto Update payload.
-     * @return CalculationContextDTO Context ready for RecalculateCartAction.
-     */
-    protected function prepare_calculation_context_dto(UpdateOrderPayloadDTO $dto)
-    {
-        $context = new CalculationContextDTO();
-        $context->order_id = $dto->id;
-        $context->customer_id = $dto->customer_id;
-        $context->customer_email = $this->customer_service->resolve_buyer_email($context->customer_id, null, $dto->customer_email);
-        $context->shipping_address = [
-            'first_name' => $dto->shipping_first_name,
-            'last_name' => $dto->shipping_last_name,
-            'address_line1' => $dto->shipping_address_line1,
-            'address_line2' => $dto->shipping_address_line2,
-            'city' => $dto->shipping_city,
-            'state' => $dto->shipping_state,
-            'postal_code' => $dto->shipping_postal_code,
-            'country' => $dto->shipping_country,
-        ];
-        $context->billing_address = [
-            'first_name' => $dto->billing_first_name,
-            'last_name' => $dto->billing_last_name,
-            'address_line1' => $dto->billing_address_line1,
-            'address_line2' => $dto->billing_address_line2,
-            'city' => $dto->billing_city,
-            'state' => $dto->billing_state,
-            'postal_code' => $dto->billing_postal_code,
-            'country' => $dto->billing_country,
-        ];
-        $context->coupon_codes = $dto->coupon_codes;
-        $context->shipping_method_id = $dto->shipping_method ?? null;
-
-        $context->items = $this->prepare_context_items($dto);
-
-        return $context;
-    }
-
-    /**
-     * Build the calculation items for the payload's line items.
-     *
-     * Records each variant in the variants map. Fails when a variant is missing.
-     *
-     * @since 1.0.0
-     *
-     * @param UpdateOrderPayloadDTO $dto Update payload.
-     * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of CalculationItemDTO.
-     * @throws \Exception When a variant is missing.
-     */
-    protected function prepare_context_items(UpdateOrderPayloadDTO $dto)
-    {
-        $items = collection();
-
-        foreach ($dto->items as $item_data) {
-            $variant = $this->variant_service->find($item_data['variant_id']);
-
-            /* translators: %s: JSON-encoded item data */
-            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)));
-
-            $product = $variant->product->load('categories');
-
-            $this->variants_map[$variant->id] = $variant;
-
-            $item_dto = new CalculationItemDTO();
-            $item_dto->variant_id = $variant->id;
-            $item_dto->product_id = $product->id;
-            $item_dto->quantity = $item_data['quantity'];
-            $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
-            $item_dto->base_product_total = $variant->base_price;
-            $item_dto->weight = $variant->weight;
-            $item_dto->shipping_profile_id = $variant->shipping_profile_id;
-            $item_dto->product_categories = $product->categories->pluck('id')->to_array();
-
-            $items->push($item_dto);
-        }
-
-        return $items;
-    }
-
-    /**
-     * Build an order item DTO for an item newly added to the order.
-     *
-     * Snapshots the product and variant data, and stores amounts in both the base and order currency.
-     *
-     * @since 1.0.0
-     *
-     * @param int                $order_id        ID of the order the item belongs to.
-     * @param CalculationItemDTO $calculated_item Recalculated item.
-     * @param string             $currency_code   Order currency code.
-     * @param float              $exchange_rate   Rate from the base currency to the order currency.
-     * @return CreateOrderItemDTO Order item data ready to persist.
-     */
-    protected function prepare_order_item_dto(int $order_id, CalculationItemDTO $calculated_item, $currency_code, $exchange_rate)
-    {
-        $variant = $this->variants_map[$calculated_item->variant_id];
-        $product = $variant->product;
-
-        $item_dto = new CreateOrderItemDTO();
-        $item_dto->order_id = $order_id;
-        $item_dto->product_id = $product->id;
-        $item_dto->variant_id = $variant->id;
-        $item_dto->product_name = $product->title;
-        $item_dto->variant_name = $variant->attribute_values->pluck('value')->join(', ');
-        $item_dto->sku = $variant->sku;
-        $item_dto->barcode = $variant->barcode;
-        $item_dto->product_image = $variant->media ?? $product->media->first()->id ?? null;
-
-        $item_dto->invoiced_price = $this->convert_amount($calculated_item->base_unit_price, $currency_code, $exchange_rate);
-        $item_dto->base_price = $calculated_item->base_unit_price;
-
-        $item_dto->invoiced_regular_price = $this->convert_amount($calculated_item->base_regular_unit_price, $currency_code, $exchange_rate);
-        $item_dto->base_regular_price = $calculated_item->base_regular_unit_price;
-
-        $item_dto->invoiced_regular_tax_total = $this->convert_amount($calculated_item->base_regular_tax_amount, $currency_code, $exchange_rate);
-        $item_dto->base_regular_tax_total = $calculated_item->base_regular_tax_amount;
-
-        $item_dto->invoiced_catalog_regular_price = $this->convert_amount($calculated_item->base_catalog_regular_price, $currency_code, $exchange_rate);
-        $item_dto->base_catalog_regular_price = $calculated_item->base_catalog_regular_price;
-
-        $item_dto->invoiced_catalog_sale_price = $this->convert_amount($calculated_item->base_catalog_sale_price, $currency_code, $exchange_rate);
-        $item_dto->base_catalog_sale_price = $calculated_item->base_catalog_sale_price;
-
-        $item_dto->invoiced_catalog_product_coupon_discounted_subtotal = $this->convert_amount($calculated_item->base_catalog_product_coupon_discounted_subtotal, $currency_code, $exchange_rate);
-        $item_dto->base_catalog_product_coupon_discounted_subtotal = $calculated_item->base_catalog_product_coupon_discounted_subtotal;
-
-        $item_dto->invoiced_discount_tax_total = $this->convert_amount($calculated_item->base_discount_tax_amount, $currency_code, $exchange_rate);
-        $item_dto->base_discount_tax_total = $calculated_item->base_discount_tax_amount;
-
-        $item_dto->quantity = $calculated_item->quantity;
-
-        $item_dto->invoiced_subtotal = $this->convert_amount($calculated_item->base_subtotal, $currency_code, $exchange_rate);
-        $item_dto->base_subtotal = $calculated_item->base_subtotal;
-
-        $item_dto->invoiced_discount_amount = $this->convert_amount($calculated_item->base_discount_amount, $currency_code, $exchange_rate);
-        $item_dto->base_discount_amount = $calculated_item->base_discount_amount;
-
-        $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
-        $item_dto->base_tax_total = $calculated_item->base_tax_amount;
-
-        $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
-        $item_dto->base_total = $calculated_item->base_total;
-
-        $item_dto->is_physical_product = $variant->is_physical_product ?? true;
-        $item_dto->weight = $variant->weight;
-        $item_dto->weight_unit = $variant->weight_unit;
-
-        $item_dto->product_data = [
-            'product' => $product->to_array(),
-            'variant' => $variant->to_array()
-        ];
-
-        return $item_dto;
-    }
-
-    /**
-     * Build an order item update DTO for an item already on the order.
-     *
-     * Keeps the item's original product and price snapshot and refreshes quantity and totals.
-     *
-     * @since 1.0.0
-     *
-     * @param OrderItem          $existing_item   Item currently on the order.
-     * @param CalculationItemDTO $calculated_item Recalculated item.
-     * @param string             $currency_code   Order currency code.
-     * @param float              $exchange_rate   Rate from the base currency to the order currency.
-     * @return UpdateOrderItemDTO Order item data ready to persist.
-     */
-    protected function prepare_update_order_item_dto(OrderItem $existing_item, CalculationItemDTO $calculated_item, $currency_code, $exchange_rate)
-    {
-        $item_dto = new UpdateOrderItemDTO();
-        $item_dto->id = $existing_item->id;
-        $item_dto->order_id = $existing_item->order_id;
-        $item_dto->product_id = $existing_item->product_id;
-        $item_dto->variant_id = $existing_item->variant_id;
-        $item_dto->product_name = $existing_item->product_name;
-        $item_dto->variant_name = $existing_item->variant_name;
-        $item_dto->sku = $existing_item->sku;
-        $item_dto->barcode = $existing_item->barcode;
-        $item_dto->product_image = $existing_item->product_image;
-
-        $item_dto->invoiced_price = $existing_item->invoiced_price;
-        $item_dto->base_price = $existing_item->base_price;
-
-        $item_dto->invoiced_regular_price = $existing_item->invoiced_regular_price;
-        $item_dto->base_regular_price = $existing_item->base_regular_price;
-
-        $item_dto->invoiced_regular_tax_total = $this->convert_amount($calculated_item->base_regular_tax_amount, $currency_code, $exchange_rate);
-        $item_dto->base_regular_tax_total = $calculated_item->base_regular_tax_amount;
-
-        $item_dto->invoiced_catalog_regular_price = $this->convert_amount($calculated_item->base_catalog_regular_price, $currency_code, $exchange_rate);
-        $item_dto->base_catalog_regular_price = $calculated_item->base_catalog_regular_price;
-
-        $item_dto->invoiced_catalog_sale_price = $this->convert_amount($calculated_item->base_catalog_sale_price, $currency_code, $exchange_rate);
-        $item_dto->base_catalog_sale_price = $calculated_item->base_catalog_sale_price;
-
-        $item_dto->invoiced_catalog_product_coupon_discounted_subtotal = $this->convert_amount($calculated_item->base_catalog_product_coupon_discounted_subtotal, $currency_code, $exchange_rate);
-        $item_dto->base_catalog_product_coupon_discounted_subtotal = $calculated_item->base_catalog_product_coupon_discounted_subtotal;
-
-        $item_dto->invoiced_discount_tax_total = $this->convert_amount($calculated_item->base_discount_tax_amount, $currency_code, $exchange_rate);
-        $item_dto->base_discount_tax_total = $calculated_item->base_discount_tax_amount;
-
-        $item_dto->quantity = $calculated_item->quantity;
-
-        $item_dto->invoiced_subtotal = $this->convert_amount($calculated_item->base_subtotal, $currency_code, $exchange_rate);
-        $item_dto->base_subtotal = $calculated_item->base_subtotal;
-
-        $item_dto->invoiced_discount_amount = $this->convert_amount($calculated_item->base_discount_amount, $currency_code, $exchange_rate);
-        $item_dto->base_discount_amount = $calculated_item->base_discount_amount;
-
-        $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
-        $item_dto->base_tax_total = $calculated_item->base_tax_amount;
-
-        $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
-        $item_dto->base_total = $calculated_item->base_total;
-
-        $item_dto->is_physical_product = $existing_item->is_physical_product;
-        $item_dto->weight = $existing_item->weight;
-        $item_dto->weight_unit = $existing_item->weight_unit;
-
-        $item_dto->product_data = $existing_item->product_data;
-
-        return $item_dto;
     }
 
     /**

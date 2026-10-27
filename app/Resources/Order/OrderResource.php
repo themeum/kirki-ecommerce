@@ -66,9 +66,10 @@ class OrderResource extends Resource
             'status' => $this->order_status,
             'fulfillment_status' => $this->fulfillment_status,
             'is_refund_initiated' => $this->is_refund_initiated,
+            'is_editable' => $this->is_editable(),
             'is_manual' => $this->is_manual,
             'currency_code' => $this->currency_code,
-            'is_tax_inclusive' => (bool) $this->is_tax_inclusive,
+            'is_tax_inclusive' => $this->is_tax_inclusive,
             'tax_destination' => $this->tax_destination,
 
             'totals' => [

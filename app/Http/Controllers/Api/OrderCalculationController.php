@@ -5,137 +5,87 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
-use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
-use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
-use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\OrderCalculationInputDTO;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCalculationRequest;
 use Kirki\Ecommerce\App\Resources\Order\OrderCalculationResource;
+use Kirki\Ecommerce\App\Services\OrderCalculationContextService;
+use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 
-use Kirki\Ecommerce\App\Services\CustomerService;
-use Kirki\Ecommerce\App\Services\VariantService;
-use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\response;
 
 /**
- * REST controller that calculates order totals for a draft order without saving it.
+ * REST controller that calculates order totals for a new order, or for an edit of an existing one, without saving.
  *
  * @since 1.0.0
  */
 class OrderCalculationController
 {
-    /** @var VariantService */
-    protected $variant_service;
-
-    /** @var CustomerService */
-    protected $customer_service;
+    /** @var OrderService */
+    protected $order_service;
 
     /**
-     * Create the controller with the variant and customer services.
+     * Create the controller with the order service.
      *
      * @since 1.0.0
      *
-     * @param VariantService  $variant_service
-     * @param CustomerService $customer_service Buyer email lookup.
+     * @param OrderService $order_service Order lookup.
      */
-    public function __construct(VariantService $variant_service, CustomerService $customer_service)
+    public function __construct(OrderService $order_service)
     {
-        $this->variant_service = $variant_service;
-        $this->customer_service = $customer_service;
+        $this->order_service = $order_service;
     }
 
     /**
      * Calculate subtotal, discounts, tax, shipping and grand total for the submitted order details.
      *
+     * With an `order_id`, the payload is an edit of that order: it is priced with the
+     * terms the order was placed with, the same as when the edit is saved, and it is refused
+     * for the same currency and shipping method faults.
+     *
      * @since 1.0.0
      *
-     * @param OrderCalculationRequest $request
-     * @param RecalculateCartAction   $action
+     * @param OrderCalculationRequest        $request
+     * @param RecalculateCartAction          $action
+     * @param OrderCalculationContextService $context_service Builds the calculation input from the payload.
      * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The calculation result, in the store's base currency.
+     * @throws NotFoundException When the order to edit does not exist.
+     * @throws ValidationException When the order to edit can no longer be edited, its currency would change, or its shipping method is not available.
      */
-    public function get(OrderCalculationRequest $request, RecalculateCartAction $action)
+    public function get(OrderCalculationRequest $request, RecalculateCartAction $action, OrderCalculationContextService $context_service)
     {
-        $context = $this->prepare_context_dto($request->all());
+        $order = $this->find_editable_order($request->input('order_id'));
+        $input = OrderCalculationInputDTO::from_payload($request->all());
+        $context = $context_service->build($input, $order);
+
+        if ($order) {
+            $context_service->validate_edit($order, $input, $context);
+        }
+
+        $result = $action->execute($context);
 
         return response()->json([
             'data' => OrderCalculationResource::make([
-                'result' => $action->execute($context),
+                'result' => $result,
                 'context' => $context,
+                'variants' => $context_service->get_variants_map(),
             ])
         ]);
     }
 
     /**
-     * Build the calculation context from the flattened request data.
+     * Find the order an edit preview is for.
      *
      * @since 1.0.0
      *
-     * @param array<string, mixed> $data Calculation request data.
-     * @return CalculationContextDTO
+     * @param int|null $order_id Order ID from the payload.
+     * @return \Kirki\Ecommerce\App\Models\Order|null Null when no order ID was sent.
+     * @throws NotFoundException When the order does not exist.
+     * @throws ValidationException When the order can no longer be edited.
      */
-    protected function prepare_context_dto($data)
+    protected function find_editable_order($order_id)
     {
-        $context = CalculationContextDTO::from_array([
-            'items' => $this->prepare_items($data['items']),
-            'shipping_address' => [
-                'first_name' => $data['shipping_first_name'],
-                'last_name' => $data['shipping_last_name'],
-                'email' => $data['shipping_email'],
-                'phone' => $data['shipping_phone'],
-                'address_line1' => $data['shipping_address_line1'],
-                'address_line2' => $data['shipping_address_line2'],
-                'city' => $data['shipping_city'],
-                'state' => $data['shipping_state'],
-                'postal_code' => $data['shipping_postal_code'],
-                'country' => $data['shipping_country']
-            ],
-            'billing_address' => [
-                'first_name' => $data['billing_first_name'] ?? null,
-                'last_name' => $data['billing_last_name'] ?? null,
-                'email' => $data['billing_email'] ?? null,
-                'phone' => $data['billing_phone'] ?? null,
-                'address_line1' => $data['billing_address_line1'] ?? null,
-                'address_line2' => $data['billing_address_line2'] ?? null,
-                'city' => $data['billing_city'] ?? null,
-                'state' => $data['billing_state'] ?? null,
-                'postal_code' => $data['billing_postal_code'] ?? null,
-                'country' => $data['billing_country'] ?? null
-            ],
-            'customer_id' => $data['customer_id'],
-            'customer_email' => $this->customer_service->resolve_buyer_email($data['customer_id'], null, $data['customer_email'] ?? null),
-            'coupon_codes' => $data['coupon_codes'] ?? [],
-            'shipping_method_id' => $data['shipping_method'] ?? null,
-        ]);
-
-        return $context;
-    }
-
-    /**
-     * Convert the submitted line items into calculation item DTOs, filled from their variants.
-     *
-     * @since 1.0.0
-     *
-     * @param array<int, array<string, mixed>>|null $items Submitted items with `variant_id` and `quantity`.
-     * @return \Kirki\Ecommerce\Framework\Collections\Collection Calculation item DTOs keyed like the input.
-     */
-    protected function prepare_items($items)
-    {
-        return collection($items ?? [])->map(function ($item, $key) {
-            $item_dto = new CalculationItemDTO();
-            $item_dto->id = $key;
-            $item_dto->variant_id = $item['variant_id'];
-            $item_dto->quantity = $item['quantity'];
-
-            $variant = $this->variant_service->find($item_dto->variant_id)->load('product.categories');
-
-            $item_dto->product_id = $variant->product_id;
-            $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
-            $item_dto->base_product_total = $variant->base_price;
-            $item_dto->weight = $variant->weight;
-            $item_dto->shipping_profile_id = $variant->shipping_profile_id;
-            $item_dto->tax_profile_id = $variant->tax_profile_id ?: $variant->product->tax_profile_id;
-            $item_dto->product_categories = $variant->product->categories->pluck('id')->to_array() ?? [];
-
-            return $item_dto;
-        });
+        return empty($order_id) ? null : $this->order_service->find_editable_order_or_fail($order_id);
     }
 }

@@ -4,12 +4,17 @@ namespace Kirki\Ecommerce\App\Concerns;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
+use Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderCouponDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemCouponDTO;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
+use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Exception;
@@ -42,99 +47,62 @@ trait PersistsOrderCoupons
      * Replace an order's coupon-attribution rows with a fresh set built from
      * the given calculation result, keeping `coupons.current_usage_count` and
      * each row's `usage_reversed_at` consistent with what actually changed:
-     * a coupon present before and after this sync keeps its prior usage
-     * state untouched, a newly-applied coupon increments usage (or, if the
-     * order is currently cancelled, is recorded as already-reversed so it
-     * never counted), and a coupon that's no longer applied decrements
-     * usage unless it was already reversed.
+     * a coupon that stays on the order keeps its stored terms and its prior
+     * usage state untouched, a newly-applied coupon increments usage (or, if
+     * the order is currently cancelled, is recorded as already-reversed so it
+     * never counted), and a coupon that's no longer applied decrements usage
+     * unless it was already reversed.
      *
      * @since 1.0.0
      *
-     * @param Order                $order             Order whose coupon rows are rebuilt.
-     * @param CalculationResultDTO $calculated_result Latest calculation for the order.
-     * @param string               $currency_code     Order's transaction currency code.
-     * @param float                $exchange_rate     Rate from the base currency to the transaction currency.
+     * @param Order                        $order                   Order whose coupon rows are rebuilt.
+     * @param CalculationResultDTO         $calculated_result       Latest calculation for the order.
+     * @param array<int|string, OrderItem> $order_items_by_line_key Saved order items, keyed by the line key they were calculated under.
+     * @param string                       $currency_code           Order's transaction currency code.
+     * @param float                        $exchange_rate           Rate from the base currency to the transaction currency.
      * @return OrderCoupon[] The newly created order coupons.
-     * @throws Exception When a discounted variant has no matching order item, or the rows do not reconcile with the calculation.
+     * @throws Exception When a discounted line has no matching order item, or the rows do not reconcile with the calculation.
      */
-    protected function sync_order_coupons(Order $order, CalculationResultDTO $calculated_result, string $currency_code, float $exchange_rate)
+    protected function sync_order_coupons(Order $order, CalculationResultDTO $calculated_result, array $order_items_by_line_key, string $currency_code, float $exchange_rate)
     {
-        $existing_order_coupons_by_coupon_id = [];
-
-        foreach ($order->order_coupons as $existing_order_coupon) {
-            $existing_order_coupons_by_coupon_id[$existing_order_coupon->coupon_id] = $existing_order_coupon;
-        }
+        $previous_order_coupons = $order->order_coupons;
 
         $this->order_service->delete_order_coupons($order->id);
 
-        $order_items_by_variant_id = [];
-
-        foreach ($order->items as $item) {
-            $order_items_by_variant_id[$item->variant_id] = $item;
-        }
-
         $order_coupons = [];
-        $synced_coupon_ids = [];
+        $kept_order_coupon_ids = [];
 
         foreach ($calculated_result->coupon_results as $coupon_result) {
-            $coupon = $coupon_result->coupon;
-            $synced_coupon_ids[] = $coupon->id;
-            $existing_order_coupon = $existing_order_coupons_by_coupon_id[$coupon->id] ?? null;
+            $kept_order_coupon = $coupon_result->order_coupon;
 
-            $order_coupon_dto = new CreateOrderCouponDTO();
-            $order_coupon_dto->order_id = $order->id;
-            $order_coupon_dto->coupon_id = $coupon->id;
-            $order_coupon_dto->customer_id = $order->customer_id;
-            $order_coupon_dto->code = $coupon->code;
-            $order_coupon_dto->title = $coupon->title;
-            $order_coupon_dto->discount_type = $coupon->discount_type;
-            $order_coupon_dto->discount_target = $coupon->discount_target;
-            $order_coupon_dto->coupon_snapshot = $coupon->to_array();
+            $order_coupon_dto = $kept_order_coupon
+                ? $this->prepare_kept_order_coupon_dto($kept_order_coupon)
+                : $this->prepare_new_order_coupon_dto($order, $coupon_result->coupon);
             $order_coupon_dto->invoiced_discount_amount = $this->convert_amount($coupon_result->total_discount, $currency_code, $exchange_rate);
             $order_coupon_dto->base_discount_amount = $coupon_result->total_discount;
 
-            if ($existing_order_coupon) {
-                $order_coupon_dto->usage_reversed_at = $existing_order_coupon->usage_reversed_at;
-            } elseif (!empty($order->cancelled_at)) {
-                $order_coupon_dto->usage_reversed_at = Date::now();
-            } else {
-                $this->claim_coupon_usage($coupon, $order);
+            if ($coupon_result->coupon->discount_type === DiscountType::AMOUNT_OFF && $coupon_result->coupon->discount_value_type === DiscountValueType::FIXED) {
+                $order_coupon_dto->base_max_discount_amount = $kept_order_coupon
+                    ? $this->get_kept_max_discount_amount($kept_order_coupon)
+                    : $coupon_result->coupon->base_discount_amount_fixed;
             }
 
             $order_coupon = $this->order_service->create_order_coupon($order_coupon_dto);
+            $order_coupons[] = $order_coupon;
 
-            foreach ($coupon_result->item_discounts as $variant_id => $amount) {
-                if (empty($amount)) {
-                    continue;
-                }
-
-                throw_if(
-                    empty($order_items_by_variant_id[$variant_id]),
-                    sprintf(
-                        /* translators: %s: variant ID */
-                        __('Order coupon attribution failed: no order item found for variant %s.', 'kirki-ecommerce'),
-                        $variant_id
-                    )
-                );
-
-                $item_coupon_dto = new CreateOrderItemCouponDTO();
-                $item_coupon_dto->order_item_id = $order_items_by_variant_id[$variant_id]->id;
-                $item_coupon_dto->order_coupon_id = $order_coupon->id;
-                $item_coupon_dto->invoiced_discount_amount = $this->convert_amount($amount, $currency_code, $exchange_rate);
-                $item_coupon_dto->base_discount_amount = $amount;
-
-                $this->order_service->create_order_item_coupon($item_coupon_dto);
+            if ($kept_order_coupon) {
+                $kept_order_coupon_ids[] = $kept_order_coupon->id;
             }
 
-            $order_coupons[] = $order_coupon;
+            $this->sync_order_item_coupons($order_coupon, $coupon_result, $order_items_by_line_key, $currency_code, $exchange_rate);
         }
 
-        foreach ($existing_order_coupons_by_coupon_id as $coupon_id => $existing_order_coupon) {
-            if (in_array($coupon_id, $synced_coupon_ids, true) || !empty($existing_order_coupon->usage_reversed_at)) {
+        foreach ($previous_order_coupons as $previous_order_coupon) {
+            if (empty($previous_order_coupon->coupon_id) || !empty($previous_order_coupon->usage_reversed_at) || in_array($previous_order_coupon->id, $kept_order_coupon_ids, true)) {
                 continue;
             }
 
-            $this->coupon_service->release_usage($coupon_id);
+            $this->coupon_service->release_usage($previous_order_coupon->coupon_id);
         }
 
         $this->assert_order_coupons_reconcile(
@@ -144,6 +112,141 @@ trait PersistsOrderCoupons
         );
 
         return $order_coupons;
+    }
+
+    /**
+     * Get the fixed amount a kept coupon was set to.
+     *
+     * A row without the amount falls back to the total the coupon gave, but only for an
+     * order-wide coupon. A product coupon gives that amount to each line, so its total
+     * would be too large for a line: it stays empty and each line keeps its own stored share.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderCoupon $kept_order_coupon Order coupon as stored.
+     * @return int|null Amount in base currency minor units.
+     */
+    protected function get_kept_max_discount_amount(OrderCoupon $kept_order_coupon)
+    {
+        if ($kept_order_coupon->base_max_discount_amount !== null) {
+            return $kept_order_coupon->base_max_discount_amount;
+        }
+
+        return $kept_order_coupon->discount_target === DiscountTarget::PRODUCTS ? null : $kept_order_coupon->base_discount_amount;
+    }
+
+    /**
+     * Prepare the order coupon of a coupon that stays on the order, with the terms and usage state it already has.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderCoupon $kept_order_coupon Order coupon as stored.
+     * @return CreateOrderCouponDTO Stored terms; the discount amounts are left for the caller.
+     */
+    protected function prepare_kept_order_coupon_dto(OrderCoupon $kept_order_coupon)
+    {
+        $order_coupon_dto = new CreateOrderCouponDTO();
+        $order_coupon_dto->order_id = $kept_order_coupon->order_id;
+        $order_coupon_dto->coupon_id = $kept_order_coupon->coupon_id;
+        $order_coupon_dto->customer_id = $kept_order_coupon->customer_id;
+        $order_coupon_dto->code = $kept_order_coupon->code;
+        $order_coupon_dto->title = $kept_order_coupon->title;
+        $order_coupon_dto->discount_type = $kept_order_coupon->discount_type;
+        $order_coupon_dto->discount_target = $kept_order_coupon->discount_target;
+        $order_coupon_dto->discount_rate = $kept_order_coupon->discount_rate;
+        $order_coupon_dto->base_max_discount_amount = $kept_order_coupon->base_max_discount_amount;
+        $order_coupon_dto->coupon_snapshot = $kept_order_coupon->coupon_snapshot ?: [];
+        $order_coupon_dto->usage_reversed_at = $kept_order_coupon->usage_reversed_at;
+
+        return $order_coupon_dto;
+    }
+
+    /**
+     * Prepare the order coupon of a coupon that is new to the order, and count its use.
+     *
+     * @since 1.0.0
+     *
+     * @param Order  $order  Order the coupon is applied to.
+     * @param Coupon $coupon Coupon as it is now.
+     * @return CreateOrderCouponDTO Coupon terms; the discount amounts are left for the caller.
+     * @throws ValidationException When the coupon's usage limit is reached.
+     */
+    protected function prepare_new_order_coupon_dto(Order $order, Coupon $coupon)
+    {
+        $order_coupon_dto = new CreateOrderCouponDTO();
+        $order_coupon_dto->order_id = $order->id;
+        $order_coupon_dto->coupon_id = $coupon->id;
+        $order_coupon_dto->customer_id = $order->customer_id;
+        $order_coupon_dto->code = $coupon->code;
+        $order_coupon_dto->title = $coupon->title;
+        $order_coupon_dto->discount_type = $coupon->discount_type;
+        $order_coupon_dto->discount_target = $coupon->discount_target;
+        $order_coupon_dto->discount_rate = $coupon->discount_value_type === DiscountValueType::PERCENTAGE ? $coupon->discount_amount_percentage : null;
+        $order_coupon_dto->coupon_snapshot = $coupon->to_array();
+
+        if (!empty($order->cancelled_at)) {
+            $order_coupon_dto->usage_reversed_at = Date::now();
+        } else {
+            $this->claim_coupon_usage($coupon, $order);
+        }
+
+        return $order_coupon_dto;
+    }
+
+    /**
+     * Record the share of a coupon's discount that each line received.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderCoupon                  $order_coupon            Order coupon the shares belong to.
+     * @param CouponDiscountResultDTO      $coupon_result           Discount the coupon gave.
+     * @param array<int|string, OrderItem> $order_items_by_line_key Saved order items, keyed by the line key they were calculated under.
+     * @param string                       $currency_code           Order's transaction currency code.
+     * @param float                        $exchange_rate           Rate from the base currency to the transaction currency.
+     * @return void
+     * @throws Exception When a discounted line has no matching order item.
+     */
+    protected function sync_order_item_coupons(OrderCoupon $order_coupon, CouponDiscountResultDTO $coupon_result, array $order_items_by_line_key, string $currency_code, float $exchange_rate)
+    {
+        $stored_item_coupons = [];
+        $item_discounts = $coupon_result->item_discounts;
+
+        if ($coupon_result->order_coupon) {
+            foreach ($coupon_result->order_coupon->order_item_coupons as $stored_item_coupon) {
+                $stored_item_coupons[$stored_item_coupon->order_item_id] = $stored_item_coupon;
+            }
+
+            foreach ($order_items_by_line_key as $line_key => $order_item) {
+                if (isset($stored_item_coupons[$order_item->id]) && !isset($item_discounts[$line_key])) {
+                    $item_discounts[$line_key] = 0;
+                }
+            }
+        }
+
+        foreach ($item_discounts as $line_key => $amount) {
+            throw_if(
+                empty($order_items_by_line_key[$line_key]),
+                sprintf(
+                    /* translators: %s: line key of the discounted item */
+                    __('Order coupon attribution failed: no order item found for line %s.', 'kirki-ecommerce'),
+                    $line_key
+                )
+            );
+
+            $stored_item_coupon = $stored_item_coupons[$order_items_by_line_key[$line_key]->id] ?? null;
+
+            if (empty($amount) && !$stored_item_coupon) {
+                continue;
+            }
+
+            $item_coupon_dto = new CreateOrderItemCouponDTO();
+            $item_coupon_dto->order_item_id = $order_items_by_line_key[$line_key]->id;
+            $item_coupon_dto->order_coupon_id = $order_coupon->id;
+            $item_coupon_dto->invoiced_discount_amount = $this->convert_amount($amount, $currency_code, $exchange_rate);
+            $item_coupon_dto->base_discount_amount = $amount;
+
+            $this->order_service->create_order_item_coupon($item_coupon_dto);
+        }
     }
 
     /**

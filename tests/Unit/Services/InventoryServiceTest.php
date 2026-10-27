@@ -2,12 +2,16 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Services;
 
+use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+
+use function Kirki\Ecommerce\Framework\collection;
 
 class InventoryServiceTest extends TestCase
 {
@@ -88,5 +92,19 @@ class InventoryServiceTest extends TestCase
         $this->variant_service->method('find_or_null')->willReturn(null);
 
         $this->assertSame(3, $this->service->max_purchasable_quantity(1, 3));
+    }
+
+    public function test_release_all_reserved_stock_skips_lines_whose_variant_was_deleted(): void
+    {
+        $order = new Order();
+        $order->set_relation('items', collection([
+            new OrderItem(['variant_id' => null, 'quantity' => 4]),
+            new OrderItem(['variant_id' => 7, 'quantity' => 2]),
+        ]));
+
+        $this->stub_variant(['track_inventory' => true]);
+        $this->variant_service->expects($this->once())->method('release_committed')->with(7, 2)->willReturn(true);
+
+        $this->service->release_all_reserved_stock($order);
     }
 }

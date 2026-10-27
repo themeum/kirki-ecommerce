@@ -60,9 +60,9 @@ settings:
 
 examples:
   - name: 200 Response
-    description: Success
+    description: Success, a new-order preview
     request:
-      url: "{{baseUrl}}/orders"
+      url: "{{baseUrl}}/calculate/order"
       method: POST
       body:
         type: json
@@ -142,11 +142,18 @@ examples:
               "items_count": 4,
               "items": [
                 {
-                  "id": 1,
+                  "id": null,
+                  "is_reachable": true,
                   "quantity": 4,
                   "base_subtotal_money_object": { "raw": 63.20, "display": "$63.20", "currency": { "code": "USD", "symbol": "$" } },
                   "base_strikethrough_price_money_object": null,
-                  "applied_product_coupons": []
+                  "applied_product_coupons": [],
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 12,
+                  "in_stock": true,
+                  "has_limit_per_order": false,
+                  "max_per_order": null
                 }
               ],
               "available_shipping_methods": [
@@ -161,67 +168,11 @@ examples:
             },
             "message": "Order totals calculated successfully."
           }
-  - name: 404 Response
-    description: Failure
-    request:
-      url: "{{baseUrl}}/orders"
-      method: POST
-      body:
-        type: json
-        data: |-
-          {
-            "items": [
-              {
-                "variant_id": 1,
-                "quantity": 4
-              }
-            ],
-            "currency_code": "USD",
-            "payment_provider": "stripe",
-            "coupon_codes": ["WINTER20"],
-            "shipping_method": "fsdfdsfsdfsdf343432jh4",
-            "shipping_first_name": "Sunny",
-            "shipping_last_name": "Doe",
-            "shipping_address_line1": "Nikunja 2, Khilket",
-            "shipping_address_line2": "",
-            "shipping_city": "Dhaka",
-            "shipping_state": "5665",
-            "shipping_postal_code": "5665",
-            "shipping_country": "BD",
-            "shipping_phone": "+1 555-000-2000",
-            "shipping_email": "jane.shipping@example.com",
-            "shipping_company": null,
-            "billing_first_name": "Jane",
-            "billing_last_name": "Doe",
-            "billing_address_line1": "78 Sunset Blvd",
-            "billing_address_line2": "",
-            "billing_city": "Los Angeles",
-            "billing_state": "CA",
-            "billing_postal_code": "90001",
-            "billing_country": "US",
-            "billing_phone": "+1 555-000-2000",
-            "billing_email": "jane.shipping@example.com",
-            "billing_company": null,
-            "customer_email": "jane.shipping@example.com",
-            "customer_phone": "+1 555-000-2000",
-            "order_notes": null
-          }
-    response:
-      status: 404
-      statusText: Not Found
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "message": "deserunt tempor voluptate",
-            "success": "true"
-          }
 
 docs: |-
-  # Create Order
+  ## Calculate Order Totals
+  Calculates a new order without saving it. Send `items` with `variant_id` and `quantity`.
+  Each item in the response also gives `is_reachable` and the live variant values
+  `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order`.
 
-  ## 1. Detailed description of the API function
-  This API is designed to create orders.
+  To preview the edit of an existing order, use the request "Calculate Order Edit Preview".

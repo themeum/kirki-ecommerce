@@ -19,6 +19,7 @@ export const RouteConfig = {
 
   Orders: defineRoute('/orders', {
     CreateOrder: defineRoute('/create'),
+    OrderEdit: defineRoute('/:id/edit'),
     OrderDetail: defineRoute('/:id'),
   }),
 

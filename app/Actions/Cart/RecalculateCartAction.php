@@ -17,6 +17,8 @@ use Kirki\Ecommerce\App\DTO\Tax\TaxableItemDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
 use Kirki\Ecommerce\App\Supports\Tax;
+use Kirki\Ecommerce\App\Tax\Strategies\AbstractTaxStrategy;
+use Kirki\Ecommerce\App\Tax\Strategies\StoredRateTaxStrategy;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
@@ -83,13 +85,13 @@ class RecalculateCartAction
         $discount_result = $this->get_discount_result($context);
         $tax_result = $this->get_tax_result($context, $discount_result);
         $undiscounted_tax_result = $this->get_tax_result($context, new DiscountCalculationResultDTO());
-        $is_inclusive_tax = $this->is_tax_inclusive_price();
+        $is_inclusive_tax = $this->is_tax_inclusive_price($context);
 
         $items = [];
         $items_count = 0;
 
         foreach ($context->items as $item) {
-            $items[$item->variant_id] = $this->build_item_result($item, $discount_result, $tax_result, $undiscounted_tax_result, $is_inclusive_tax);
+            $items[$item->line_key] = $this->build_item_result($item, $discount_result, $tax_result, $undiscounted_tax_result, $is_inclusive_tax);
             $items_count += $item->quantity;
         }
 
@@ -110,7 +112,8 @@ class RecalculateCartAction
      */
     protected function get_discount_result(CalculationContextDTO $context): DiscountCalculationResultDTO
     {
-        $coupons = $this->resolve_coupons($context->coupon_codes);
+        $stored_codes = $context->stored ? array_keys($context->stored->coupons) : [];
+        $coupons = $this->resolve_coupons(array_values(array_udiff($context->coupon_codes, $stored_codes, 'strcasecmp')));
 
         $discount_result = $this->discount_service->calculate($context, $coupons);
 
@@ -145,10 +148,14 @@ class RecalculateCartAction
      * @since 1.0.0
      *
      * @param CalculationContextDTO $context Calculation context.
-     * @return int Shipping cost in base currency minor units; 0 until a shipping address and method are chosen.
+     * @return int Shipping cost in base currency minor units; 0 until a shipping address and method are chosen. The stored charge of an edited order when it is kept.
      */
     protected function get_shipping_total(CalculationContextDTO $context)
     {
+        if ($context->uses_stored_shipping()) {
+            return $context->stored->shipping_subtotal;
+        }
+
         if (empty($context->shipping_address) || empty($context->shipping_method_id)) {
             return 0;
         }
@@ -174,14 +181,19 @@ class RecalculateCartAction
     }
 
     /**
-     * Check whether product prices in the store already include tax.
+     * Check whether prices already include tax.
      *
      * @since 1.0.0
      *
-     * @return bool The tax settings' is_tax_inclusive_price flag.
+     * @param CalculationContextDTO $context Calculation context.
+     * @return bool The stored setting of an edited order, otherwise the tax settings' is_tax_inclusive_price flag.
      */
-    protected function is_tax_inclusive_price(): bool
+    protected function is_tax_inclusive_price(CalculationContextDTO $context): bool
     {
+        if ($context->stored) {
+            return $context->stored->is_tax_inclusive;
+        }
+
         $tax_settings = Settings::get(OptionKeys::TAX_SETTINGS);
 
         return $tax_settings->get('is_tax_inclusive_price') ?? false;
@@ -202,20 +214,19 @@ class RecalculateCartAction
      */
     protected function get_tax_result(CalculationContextDTO $context, DiscountCalculationResultDTO $discount_result): TaxCalculationResultDTO
     {
-        $should_calculate_tax = Tax::should_calculate_tax() && $context->should_calculate_tax;
+        $uses_stored_tax = $context->stored && $context->stored->has_stored_tax();
+        $should_calculate_tax = $context->should_calculate_tax && ($uses_stored_tax || Tax::should_calculate_tax());
 
         if (!$should_calculate_tax) {
             return new TaxCalculationResultDTO();
         }
 
         $tax_context = $this->build_tax_context($context, $discount_result);
-        $destination = $this->resolve_tax_destination($tax_context);
+        $tax_strategy = $this->resolve_tax_strategy($context, $tax_context);
 
-        if (!$destination) {
-            return new TaxCalculationResultDTO();
+        if ($uses_stored_tax) {
+            $tax_strategy = new StoredRateTaxStrategy($context->stored, $tax_strategy, $context->stored->is_tax_inclusive);
         }
-
-        $tax_strategy = Tax::get_tax_strategy($tax_context->address_for($destination)['country'], $destination);
 
         if (!$tax_strategy) {
             return new TaxCalculationResultDTO();
@@ -225,17 +236,41 @@ class RecalculateCartAction
     }
 
     /**
-     * Pick the address type tax is calculated from: the one the tax destination
-     * setting names, else the store when that address has no country.
+     * Resolve the tax strategy for the address tax is calculated from, with the context's tax-inclusive setting.
      *
      * @since 1.0.0
      *
+     * @param CalculationContextDTO    $context     Calculation context.
+     * @param TaxCalculationContextDTO $tax_context Addresses and items to tax.
+     * @return AbstractTaxStrategy|null Null when no address has a country or no tax region matches it.
+     */
+    protected function resolve_tax_strategy(CalculationContextDTO $context, TaxCalculationContextDTO $tax_context)
+    {
+        $destination = $this->resolve_tax_destination($context, $tax_context);
+
+        if (!$destination) {
+            return null;
+        }
+
+        $is_tax_inclusive_price = $context->stored ? $context->stored->is_tax_inclusive : null;
+
+        return Tax::get_tax_strategy($tax_context->address_for($destination)['country'], $destination, $is_tax_inclusive_price);
+    }
+
+    /**
+     * Pick the address type tax is calculated from: the one the edited order stored,
+     * else the one the tax destination setting names, else the store when that
+     * address has no country.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO    $context     Calculation context.
      * @param TaxCalculationContextDTO $tax_context Addresses and items to tax.
      * @return string|null An OrderTaxDestination value, null when neither address has a country.
      */
-    protected function resolve_tax_destination(TaxCalculationContextDTO $tax_context)
+    protected function resolve_tax_destination(CalculationContextDTO $context, TaxCalculationContextDTO $tax_context)
     {
-        $destination = Tax::get_tax_destination();
+        $destination = ($context->stored && $context->stored->tax_destination) ? $context->stored->tax_destination : Tax::get_tax_destination();
 
         if (!empty($tax_context->address_for($destination)['country'])) {
             return $destination;
@@ -266,7 +301,7 @@ class RecalculateCartAction
 
         foreach ($context->items as $item) {
             $items[] = TaxableItemDTO::from_array([
-                'item_id' => $item->variant_id,
+                'item_id' => $item->line_key,
                 'taxable_amount' => $this->calculate_item_taxable_amount($item, $discount_result)->getMinorAmount()->toInt(),
                 'tax_profile_id' => $item->tax_profile_id,
                 'product_categories' => $item->product_categories,
@@ -309,7 +344,7 @@ class RecalculateCartAction
      */
     protected function calculate_item_discount(CalculationItemDTO $item, $item_net_total_money, DiscountCalculationResultDTO $discount_result)
     {
-        $item_discount_money = Money::of_minor($discount_result->item_discounts[$item->variant_id] ?? 0);
+        $item_discount_money = Money::of_minor($discount_result->item_discounts[$item->line_key] ?? 0);
 
         if ($item_discount_money->isGreaterThan($item_net_total_money)) {
             return $item_net_total_money;
@@ -415,11 +450,11 @@ class RecalculateCartAction
         $net_total_money = $this->calculate_item_net_total($item);
         $discount_money = $this->calculate_item_discount($item, $net_total_money, $discount_result);
         $taxable_amount_money = $net_total_money->minus($discount_money);
-        $product_coupon_discount_money = Money::of_minor($discount_result->product_item_discounts[$item->variant_id] ?? 0);
+        $product_coupon_discount_money = Money::of_minor($discount_result->product_item_discounts[$item->line_key] ?? 0);
 
-        $tax_lines = $tax_result->items[$item->variant_id] ?? [];
+        $tax_lines = $tax_result->items[$item->line_key] ?? [];
         $tax_amount_money = $this->sum_tax_amount($tax_lines);
-        $undiscounted_tax_amount_money = $this->sum_tax_amount($undiscounted_tax_result->items[$item->variant_id] ?? []);
+        $undiscounted_tax_amount_money = $this->sum_tax_amount($undiscounted_tax_result->items[$item->line_key] ?? []);
 
         $item_total_money = $taxable_amount_money;
 
@@ -534,7 +569,7 @@ class RecalculateCartAction
      *
      * @since 1.0.0
      *
-     * @param array<int, CalculationItemDTO> $items           Priced items keyed by variant ID.
+     * @param array<int|string, CalculationItemDTO> $items       Priced items keyed by line key.
      * @param int                            $items_count     Total quantity across all items.
      * @param array<string, mixed>           $shipping        Shipping subtotal, discount, tax, tax_lines and total, as built by build_shipping_result().
      * @param DiscountCalculationResultDTO   $discount_result Discounts for the whole cart.
