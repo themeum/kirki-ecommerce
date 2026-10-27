@@ -154,7 +154,7 @@ const OrderFormContent = () => {
                   isShippingEditable
                 />
               )}
-              {isEdit && order && <Timeline orderId={order.id} />}
+              {isEdit && isDefined(order) && <Timeline orderId={order.id} />}
             </Flex>
 
             <Flex
@@ -167,7 +167,7 @@ const OrderFormContent = () => {
                 alignSelf: 'flex-start',
               }}
             >
-              <CustomerCard mode={isEdit ? 'edit' : 'create'} />
+              <CustomerCard mode={isEdit ? 'edit' : 'create'} isGuest={order?.is_guest} />
               {isEdit && <FlagCard />}
               <NotesCard />
             </Flex>
