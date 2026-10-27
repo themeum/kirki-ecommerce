@@ -18,6 +18,7 @@ class AdminApiAccessTest extends RestTestCase
         return [
             'list orders' => ['GET', 'orders'],
             'create order' => ['POST', 'orders'],
+            'patch order' => ['PATCH', 'orders/1'],
             'create refund' => ['POST', 'orders/1/refunds'],
             'list customers' => ['GET', 'customers'],
             'update settings' => ['PUT', 'settings'],

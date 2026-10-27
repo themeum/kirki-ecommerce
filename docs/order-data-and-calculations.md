@@ -559,6 +559,22 @@ The line now says "3 × $25.00" but its subtotal is $84.00. The old price is not
 - An edit does not change `payment_status`. If a paid order gets more expensive, the order still says "paid" and nothing asks for the difference. If it gets cheaper, nothing refunds the difference.
 - An edit does not write an activity entry and does not keep the old totals.
 
+### Change only the note or flags
+
+To change only the order note or the flags, use `PATCH /orders/{id}`. It does **not** run the edit above. It does not calculate again and does not touch items, stock, coupons, taxes, addresses or statuses.
+
+| Item | Rule |
+|---|---|
+| Body | `order_notes` (text or `null`), `flags` (list of text or `null`). Send one or both. |
+| Keys not sent | Not changed. |
+| `null` or empty value | Clears the field. |
+| Empty body | Error 422. |
+| Order not found | Error 404. |
+| Order status | Any. A cancelled or refunded order can get a new note. |
+| Response | The updated order, the same as `GET /orders/{id}`. |
+
+The note is saved as plain text. Line breaks are kept. This request writes no activity entry.
+
 ---
 
 ## 8. Cancel, stock and refunds
@@ -608,6 +624,7 @@ Cancelling does **not** change any money on the order. It:
 | G9 | **`charge_taxes` on the variant is not used** by the calculation. A "no tax" item is still taxed. |
 | G10 | **Original shipping fee is not saved.** Only the total after discount and tax is. The free-shipping discount is mixed into `discount_total`. |
 | G11 | **Rounding:** `invoiced_` amounts are converted one by one. A sum of parts can differ from the total by a cent or two. |
+| G12 | **Note and flag changes have no history.** `PATCH /orders/{id}` writes no activity entry, so the timeline does not show who changed a note or a flag, or when. |
 
 ### Decisions we need from the business
 

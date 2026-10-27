@@ -1143,6 +1143,210 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * Spec scenario: Note only.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_updates_note_and_keeps_flags(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Old note']);
+        $this->order_id = $order['id'];
+        Order::find($this->order_id)->update(['flags' => ['gift']]);
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'order_notes' => 'New note',
+        ]));
+
+        $this->assertSame('New note', $payload['data']['order_notes']);
+        $this->assertEquals(['gift'], $payload['data']['flags']);
+        $this->assertSame('New note', Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Flags only.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_updates_flags_and_keeps_note(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Keep me']);
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'flags' => ['gift', 'priority'],
+        ]));
+
+        $this->assertEquals(['gift', 'priority'], $payload['data']['flags']);
+        $this->assertSame('Keep me', $payload['data']['order_notes']);
+    }
+
+    /**
+     * Spec scenario: Note and flags together.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_updates_note_and_flags_together(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'order_notes' => 'Both',
+            'flags' => ['urgent'],
+        ]));
+
+        $this->assertSame('Both', $payload['data']['order_notes']);
+        $this->assertEquals(['urgent'], $payload['data']['flags']);
+    }
+
+    /**
+     * Spec scenario: Clear the note.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_clears_the_note_with_null_or_empty_text(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Will be cleared']);
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => null]));
+        $this->assertNull($payload['data']['order_notes']);
+        $this->assertNull(Order::find($this->order_id)->order_notes);
+
+        Order::find($this->order_id)->update(['order_notes' => 'Again']);
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => '']));
+        $this->assertNull($payload['data']['order_notes']);
+        $this->assertNull(Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Clear the flags.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_clears_the_flags_with_null_or_empty_list(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        Order::find($this->order_id)->update(['flags' => ['gift']]);
+        $this->assertNotNull(Order::find($this->order_id)->get_attributes()['flags']);
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['flags' => []]));
+        $this->assertNull(Order::find($this->order_id)->get_attributes()['flags']);
+
+        Order::find($this->order_id)->update(['flags' => ['gift']]);
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['flags' => null]));
+        $this->assertNull(Order::find($this->order_id)->get_attributes()['flags']);
+    }
+
+    /**
+     * Spec scenario: Line breaks and plain text.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_keeps_line_breaks_and_strips_tags(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'order_notes' => "First <b>line</b>\nSecond line<script>alert(1)</script>",
+        ]));
+
+        $note = Order::find($this->order_id)->order_notes;
+        $this->assertStringContainsString("\n", $note);
+        $this->assertStringNotContainsString('<b>', $note);
+        $this->assertStringNotContainsString('<script>', $note);
+    }
+
+    /**
+     * Spec scenario: Other order data is not touched.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_does_not_change_other_order_data(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $before = Order::find($this->order_id);
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => 'Only this']));
+
+        $after = Order::find($this->order_id);
+        $this->assertSame($before->total, $after->total);
+        $this->assertSame($before->order_status, $after->order_status);
+        $this->assertSame($before->shipping_first_name, $after->shipping_first_name);
+        $this->assertCount(count($order['items']), $after->items);
+    }
+
+    /**
+     * Spec scenario: Empty request.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_without_note_or_flags_returns_422(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Unchanged']);
+        $this->order_id = $order['id'];
+
+        $this->assert_validation_error($this->request('PATCH', 'orders/' . $this->order_id, []));
+
+        $this->assertSame('Unchanged', Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Invalid flags value.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_with_invalid_flags_returns_422(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assert_validation_error($this->request('PATCH', 'orders/' . $this->order_id, ['flags' => 'gift']));
+    }
+
+    /**
+     * Spec scenario: Order not found.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_returns_404_for_a_missing_order(): void
+    {
+        $this->assert_api_error($this->request('PATCH', 'orders/999999', ['order_notes' => 'x']), 404);
+    }
+
+    /**
+     * Spec scenario: Order in any status.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_works_on_a_cancelled_order(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        Order::find($this->order_id)->update(['order_status' => OrderStatus::UNPAID_CANCELLED]);
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => 'After cancel']));
+
+        $this->assertSame('After cancel', $payload['data']['order_notes']);
+    }
+
+    /**
      * Delete order removes record.
      *
      * @return void

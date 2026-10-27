@@ -22,6 +22,7 @@ use function Kirki\Ecommerce\Framework\user;
 class CheckoutController
 {
     use HasCartToken;
+
     /**
      * Place an order for the current shopper from the validated checkout request.
      *

@@ -227,6 +227,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::post('/orders/{order_id}/activities', [OrderActivityController::class, 'store']);
     Route::delete('/orders/{order_id}/activities/{id}', [OrderActivityController::class, 'delete']);
     Route::patch('/orders/{id}/action', [OrderController::class, 'action'])->where('id', '[\d]+');
+    Route::patch('/orders/{id}', [OrderController::class, 'patch'])->where('id', '[\d]+');
     Route::put('/orders/{id}', [OrderController::class, 'update']);
     Route::delete('/orders/{id}', [OrderController::class, 'delete']);
     Route::post('/orders/bulk', [OrderController::class, 'bulk_actions']);

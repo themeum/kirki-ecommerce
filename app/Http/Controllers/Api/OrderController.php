@@ -28,11 +28,14 @@ use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderListRequest;
+use Kirki\Ecommerce\App\Http\Requests\Order\OrderPatchRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundUpdateRequest;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\response;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 /**
@@ -141,6 +144,44 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($order),
+            'message' => __('Order updated', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Update only the note and flags of an order.
+     *
+     * Only the keys in the request change; a null or empty value clears that field.
+     * Totals, items, addresses and statuses are not touched.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderPatchRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated order.
+     * @throws NotFoundException When the order does not exist.
+     */
+    public function patch(OrderPatchRequest $request)
+    {
+        $id = $request->int('id');
+        $input = $request->all();
+        $data = [];
+
+        $order = $this->service->find_order($id);
+
+        throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        if (array_key_exists('order_notes', $input)) {
+            $data['order_notes'] = $input['order_notes'] === '' ? null : $input['order_notes'];
+        }
+
+        if (array_key_exists('flags', $input)) {
+            $data['flags'] = $input['flags'];
+        }
+
+        $this->service->partial_update_order($id, $data);
+
+        return response()->json([
+            'data' => OrderResource::make($this->service->find_order($id)),
             'message' => __('Order updated', 'kirki-ecommerce'),
         ]);
     }
