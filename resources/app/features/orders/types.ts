@@ -1,10 +1,12 @@
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
 import type { ProductVariantSelection } from '@/features/products';
+import type { MoneyObject } from '@/schemas/shared/api';
 
 export type OrderRowDisplay = ProductVariantSelection & {
   productId: number;
   productTitle: string;
   storedQuantity?: number;
+  storedSubtotal?: MoneyObject;
   isReachable?: boolean;
 };
 

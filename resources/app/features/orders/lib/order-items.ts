@@ -73,6 +73,7 @@ const toStoredRowDisplay = (item: OrderEditLineItem): OrderRowDisplay => {
     regularPrice: strikethroughPrice ?? unitPrice,
     salePrice: isDefined(strikethroughPrice) ? unitPrice : null,
     storedQuantity: item.quantity,
+    storedSubtotal: item.base_subtotal_money_object,
     isReachable: item.is_reachable,
   };
 };

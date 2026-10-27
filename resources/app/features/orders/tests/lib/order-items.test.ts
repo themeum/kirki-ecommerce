@@ -460,6 +460,7 @@ describe('toStoredRowDisplay', () => {
       hasLimitPerOrder: true,
       maxPerOrder: 3,
       isReachable: true,
+      storedSubtotal: money(40),
     });
     expect(getQuantityLimit(display, display.storedQuantity)?.max).toBe(4);
   });

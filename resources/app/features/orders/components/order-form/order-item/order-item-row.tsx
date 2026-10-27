@@ -31,7 +31,7 @@ const OrderItemRow = ({ row, onQuantityChange, onRemove }: OrderItemRowProps) =>
   const isLocked = (calculationItem?.is_reachable ?? display.isReachable) === false;
   const lineTotal = calculationItem
     ? calculationItem.base_subtotal_money_object.display
-    : EMPTY_AMOUNT;
+    : (display.storedSubtotal?.display ?? EMPTY_AMOUNT);
 
   return (
     <TableRow>
