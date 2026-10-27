@@ -19,7 +19,8 @@ quote and new tax, because the store never quoted those.
 - [7. Shipping, tax, currency and exchange rate](#7-shipping-tax-currency-and-exchange-rate)
 - [8. Previewing an edit](#8-previewing-an-edit)
 - [9. Errors](#9-errors)
-- [10. Where this differs from WooCommerce](#10-where-this-differs-from-woocommerce)
+- [10. The admin edit screen](#10-the-admin-edit-screen)
+- [11. Where this differs from WooCommerce](#11-where-this-differs-from-woocommerce)
 
 ---
 
@@ -309,7 +310,45 @@ coupons nor the totals.
 
 ---
 
-## 10. Where this differs from WooCommerce
+## 10. The admin edit screen
+
+The admin app edits an order at `#/orders/{id}/edit`. It is the same screen as
+*New order*, and it reads the order ID from the address.
+
+- **Entry.** The order detail page shows the *Edit* button only when
+  `is_editable` is `true`. If the edit address is opened for an order that is
+  not editable, the screen shows a "This order can't be edited" state and no
+  form.
+- **Start.** The screen reads `GET /orders/{id}` and fills the form from it:
+  lines, coupons, customer, addresses, shipping method, notes and flags. It sends
+  `order_id` with every preview.
+- **Lines.** A line already on the order is sent with its `id`. A line added
+  with the product picker is sent with its `variant_id` and no `id`. A stored
+  line shows the name, label, image and price stored on the order, not the
+  current product data.
+- **Locked line.** When the preview says `is_reachable` is `false`, the row
+  shows the quantity as text and only the remove button works.
+- **Quantity ceiling.** The ceiling comes from the preview values of the line:
+  - The stock ceiling is `available_quantity`. It applies only when
+    `track_inventory` is `true` and `allow_back_order` is `false`. When
+    `in_stock` is `false`, the message says "Out of stock".
+  - The per-order ceiling is `max_per_order`. It applies only when
+    `has_limit_per_order` is `true`.
+  - When both apply, the smaller one is used.
+  - A stored line is never limited below its stored quantity. The admin can
+    always lower it, and can raise it back up to the stored quantity.
+- **Pairing.** Preview items are matched to form lines by `id`. New lines are
+  matched in the order they were added.
+- **Timeline.** The screen shows the order timeline below the payment summary,
+  as the detail page does. A comment is saved at once, not with *Save changes*.
+- **Flags.** The screen shows the flag card above the notes. Flags are sent
+  with *Save changes*, not at once as on the detail page.
+- **Save.** *Save changes* sends `PUT /orders/{id}` and then opens the order
+  detail page. A server error stays on the screen with the admin's changes.
+
+---
+
+## 11. Where this differs from WooCommerce
 
 - **Prices and coupons are frozen on purpose.** WooCommerce keeps a line's
   price until you press *Recalculate*, and then it re-prices and re-applies
@@ -343,3 +382,9 @@ coupons nor the totals.
   (section 9).
 - **No manual price or custom discount.** You cannot set a line price by hand
   or add a discount that is not a coupon.
+- **Stored coupons show their stored terms.** In the discount popover, a coupon
+  that is already on the order is built from the terms stored on the order. It
+  shows as active even when the live coupon has expired or was deleted.
+- **The customer cannot be changed in the screen.** The customer card still
+  lists *Remove customer* in edit. Using it makes the save fail with "Customer
+  is required".

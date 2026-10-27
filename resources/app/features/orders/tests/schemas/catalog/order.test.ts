@@ -251,6 +251,7 @@ describe('OrderSchema', () => {
     status: 'pending',
     fulfillment_status: 'unfulfilled',
     is_refund_initiated: false,
+    is_editable: true,
     is_manual: false,
     currency_code: 'BDT',
     is_tax_inclusive: false,
@@ -491,6 +492,7 @@ describe('OrderCalculationSchema', () => {
     items_count: 4,
     items: [
       {
+        is_reachable: true,
         quantity: 4,
         base_subtotal_money_object: baseMoney(5308.68),
         base_strikethrough_price_money_object: null,

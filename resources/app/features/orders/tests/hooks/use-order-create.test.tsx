@@ -6,8 +6,8 @@ import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
 import { endpoints } from '@/config/endpoints';
-import { OrderCreateProvider } from '@/features/orders/contexts/order-create-context';
-import { useOrderCreate } from '@/features/orders/hooks/use-order-create';
+import { OrderCreateProvider } from '@/features/orders/contexts/order-edit-context';
+import { useOrderCreate } from '@/features/orders/hooks/use-order-edit';
 import type { ProductSelection } from '@/features/products';
 import type { MoneyObject } from '@/schemas/shared/api';
 import { server } from '@/tests/msw/server';
@@ -34,6 +34,7 @@ const buildCalculationResponse = (itemsCount: number, overrides: Record<string, 
   items_count: itemsCount,
   items: [
     {
+      is_reachable: true,
       quantity: 1,
       base_subtotal_money_object: money(0),
       base_unit_price_money_object: money(0),
@@ -260,6 +261,7 @@ describe('useOrderCreate calculation reconciliation', () => {
       buildCalculationResponse(1, {
         items: [
           {
+            is_reachable: true,
             quantity: 1,
             base_subtotal_money_object: money(0),
             base_unit_price_money_object: money(0),
@@ -336,6 +338,7 @@ describe('useOrderCreate calculation reconciliation', () => {
 
       return buildCalculationResponse(items.length, {
         items: items.map(() => ({
+          is_reachable: true,
           quantity: 1,
           base_subtotal_money_object: money(0),
           base_unit_price_money_object: money(0),
@@ -376,6 +379,7 @@ describe('useOrderCreate calculation reconciliation', () => {
 
       return buildCalculationResponse(items.length, {
         items: items.map((item) => ({
+          is_reachable: true,
           quantity: item.variant_id === 101 ? 1 : item.quantity,
           base_subtotal_money_object: money(0),
           base_unit_price_money_object: money(0),

@@ -15,15 +15,16 @@ import { Form } from '@/components/ui/form';
 import { Page, PAGE_HEADING_HEIGHT, PageContent, PageHeading } from '@/components/ui/page';
 import QueryErrorState from '@/components/ui/query-error-state';
 import Text from '@/components/ui/text';
-import CustomerCard from '@/features/orders/components/order-create/customer-card';
-import NotesCard from '@/features/orders/components/order-create/notes-card';
-import PaymentSummaryCard from '@/features/orders/components/order-create/payment-summary-card';
+import { RouteConfig } from '@/config/route-config';
 import AddTrackingDialog from '@/features/orders/components/order-details/add-tracking-dialog';
 import FlagCard from '@/features/orders/components/order-details/flag-card';
 import ItemsTable from '@/features/orders/components/order-details/items-table';
 import MarkAsPaidDialog from '@/features/orders/components/order-details/mark-as-paid-dialog';
 import TakeActionCard from '@/features/orders/components/order-details/take-action-card';
 import Timeline from '@/features/orders/components/order-details/timeline';
+import CustomerCard from '@/features/orders/components/order-form/customer-card';
+import NotesCard from '@/features/orders/components/order-form/notes-card';
+import PaymentSummaryCard from '@/features/orders/components/order-form/payment-summary-card';
 import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import { getActionLabel } from '@/features/orders/lib/order-actions';
 import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
@@ -84,13 +85,23 @@ const OrderDetails = () => {
       <Form {...form}>
         <PageHeading
           sticky
-          text={`${__('Order', 'kirki-ecommerce')} ${order.order_number}`}
+          text={sprintf(
+            /* translators: %s: order number */
+            __('Order %s', 'kirki-ecommerce'),
+            order.order_number ?? '',
+          )}
           actions={
             <>
-              {/* @todo: Edit is not workable now, implement it later */}
-              {/* <Button variant="ghost">
-                {__('Edit', 'kirki-ecommerce')}
-              </Button> */}
+              {order.is_editable && (
+                <Button
+                  variant="tertiary"
+                  onClick={() =>
+                    void navigate(RouteConfig.Orders.get('OrderEdit').buildLink({ id: order.id }))
+                  }
+                >
+                  {__('Edit', 'kirki-ecommerce')}
+                </Button>
+              )}
               {orderActions.length > 0 && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

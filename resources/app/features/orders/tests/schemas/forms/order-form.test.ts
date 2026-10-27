@@ -110,6 +110,27 @@ describe('OrderFormSchema', () => {
     },
   );
 
+  it('keeps the id of an existing line and sends a new line without one', () => {
+    const result = OrderFormSchema.parse({
+      ...base,
+      items: [
+        { id: 7, variant_id: 12, quantity: 2 },
+        { variant_id: 15, quantity: 1 },
+      ],
+    });
+
+    expect(result.items).toEqual([
+      { id: 7, variant_id: 12, quantity: 2 },
+      { variant_id: 15, quantity: 1 },
+    ]);
+  });
+
+  it('does not put order_id in the save payload', () => {
+    const result = OrderFormSchema.parse({ ...base, order_id: 41 });
+
+    expect(result).not.toHaveProperty('order_id');
+  });
+
   it('copies the shipping address into the billing fields when billing is same as shipping', () => {
     const result = OrderFormSchema.parse({ ...separateBilling, is_billing_same_as_shipping: true });
 
@@ -435,6 +456,7 @@ describe('OrderCalculationRequestSchema', () => {
     const result = OrderCalculationRequestSchema.parse({});
 
     expect(result).toEqual({
+      order_id: null,
       customer_id: null,
       items: [],
       currency_code: null,
@@ -483,6 +505,22 @@ describe('OrderCalculationRequestSchema', () => {
     expect(result.customer_id).toBeNull();
     expect(result.shipping_method).toBeNull();
     expect(result.items).toEqual([{ variant_id: 12, quantity: 2 }]);
+  });
+
+  it('forwards order_id and the id of an existing line, and leaves a new line without id', () => {
+    const result = OrderCalculationRequestSchema.parse({
+      order_id: 41,
+      items: [
+        { id: 7, variant_id: 12, quantity: 2 },
+        { variant_id: 15, quantity: 1 },
+      ],
+    });
+
+    expect(result.order_id).toBe(41);
+    expect(result.items).toEqual([
+      { id: 7, variant_id: 12, quantity: 2 },
+      { variant_id: 15, quantity: 1 },
+    ]);
   });
 
   it('sends null for an optional field left as an empty string', () => {

@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import NewAddressDialog from '@/features/orders/components/order-create/customer/new-address-dialog';
+import NewAddressDialog from '@/features/orders/components/order-form/customer/new-address-dialog';
 import type { AddressLines } from '@/features/orders/lib/customer-address';
 import type { OrderAddressFormPayload } from '@/features/orders/schemas/forms/order-address-form';
 import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';

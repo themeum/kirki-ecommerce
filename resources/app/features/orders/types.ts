@@ -8,6 +8,7 @@ import { __ } from '@/wpi18n';
 export type OrderRowDisplay = ProductVariantSelection & {
   productId: number;
   productTitle: string;
+  storedQuantity?: number;
 };
 
 export type OrderItem = {

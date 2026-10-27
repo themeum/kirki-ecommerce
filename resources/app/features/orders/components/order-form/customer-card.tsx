@@ -15,11 +15,11 @@ import { FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useCustomerQuery } from '@/features/customers';
-import AddCustomerDialog from '@/features/orders/components/order-create/customer/add-customer-dialog';
-import AddressDialog from '@/features/orders/components/order-create/customer/address-dialog';
-import ContactInfoDialog from '@/features/orders/components/order-create/customer/customer-info-dialog';
-import CustomerSearchDropdown from '@/features/orders/components/order-create/customer/customer-search-dropdown';
-import CustomerSummary from '@/features/orders/components/order-create/customer/customer-summary';
+import AddCustomerDialog from '@/features/orders/components/order-form/customer/add-customer-dialog';
+import AddressDialog from '@/features/orders/components/order-form/customer/address-dialog';
+import ContactInfoDialog from '@/features/orders/components/order-form/customer/customer-info-dialog';
+import CustomerSearchDropdown from '@/features/orders/components/order-form/customer/customer-search-dropdown';
+import CustomerSummary from '@/features/orders/components/order-form/customer/customer-summary';
 import {
   formatBillingAddress,
   formatShippingAddress,

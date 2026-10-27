@@ -199,12 +199,20 @@ export const OrderLineItemSchema = z.object({
 export type OrderLineItem = z.infer<typeof OrderLineItemSchema>;
 
 export const OrderCalculationItemSchema = z.object({
+  id: z.number().nullish(),
+  is_reachable: z.boolean(),
   quantity: z.number(),
   base_subtotal_money_object: MoneyObjectSchema,
   base_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
   base_unit_price_money_object: MoneyObjectSchema,
   base_unit_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
   applied_product_coupons: z.array(OrderCalculationAppliedCouponSchema).default([]),
+  allow_back_order: z.boolean().nullish(),
+  track_inventory: z.boolean().nullish(),
+  available_quantity: z.number().nullish(),
+  in_stock: z.boolean().nullish(),
+  has_limit_per_order: z.boolean().nullish(),
+  max_per_order: z.number().nullish(),
 });
 
 export type OrderCalculationItem = z.infer<typeof OrderCalculationItemSchema>;
@@ -227,9 +235,11 @@ export const OrderSchema = z.object({
   status: OrderStatusSchema,
   fulfillment_status: FulfillmentStatusSchema,
   is_refund_initiated: z.boolean(),
+  is_editable: z.boolean(),
   is_manual: z.boolean(),
   currency_code: z.string(),
   is_tax_inclusive: z.boolean(),
+  tax_destination: z.string().nullish(),
 
   totals: z.object({
     invoiced_items_subtotal_money_object: MoneyObjectSchema,
