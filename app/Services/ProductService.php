@@ -206,32 +206,9 @@ class ProductService
 
         $data_array = $data->all();
         $data_array['updated_by'] = user()->get_id();
+        $data_array = array_merge($data_array, $this->status_columns($product, $data->status, $data_array['scheduled_at'] ?? null));
 
-        if ($product->status !== $data->status) {
-            if ($data->status === ProductStatus::PUBLISHED) {
-                $data_array['published_at'] = Date::now()->set_timezone('UTC');
-                $data_array['trashed_at'] = null;
-            } elseif ($data->status === ProductStatus::TRASHED) {
-                $data_array['published_at'] = null;
-                $data_array['trashed_at'] = Date::now()->set_timezone('UTC');
-            } else {
-                $data_array['published_at'] = null;
-                $data_array['trashed_at'] = null;
-            }
-        }
-
-        if ($data->status !== ProductStatus::SCHEDULED) {
-            $data_array['scheduled_at'] = null;
-        } elseif (!empty($data_array['scheduled_at'])) {
-            $data_array['scheduled_at'] = Date::parse($data_array['scheduled_at'])->set_timezone('UTC');
-        }
-
-        $is_schedule_changed = $data->status === ProductStatus::SCHEDULED
-            && (
-                $product->status !== ProductStatus::SCHEDULED
-                || empty($product->scheduled_at)
-                || $product->scheduled_at->get_timestamp() !== $data_array['scheduled_at']->get_timestamp()
-            );
+        $is_schedule_changed = $this->is_schedule_changed($product, $data->status, $data_array['scheduled_at'] ?? null);
 
         $is_updated = (bool) $product->update($data_array);
 
@@ -259,6 +236,63 @@ class ProductService
         $product->attribute_values()->sync($this->format_ordering($attribute_values));
 
         return $product;
+    }
+
+    /**
+     * Update only the given columns of a product.
+     *
+     * The product's variants, media, taxonomies and status do not change.
+     *
+     * @since 1.0.0
+     *
+     * @param int                  $id     Product ID.
+     * @param array<string, mixed> $fields Column values to update.
+     * @return Product The reloaded product.
+     * @throws NotFoundException When the product does not exist or could not be updated.
+     */
+    public function update_fields(int $id, array $fields)
+    {
+        $product = Product::find($id);
+
+        throw_if(empty($product), __('Product could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        $fields['updated_by'] = user()->get_id();
+
+        throw_if(!$product->update($fields), __('Product could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        return $this->find($id);
+    }
+
+    /**
+     * Change the status of a product, with the same timestamps and schedule as update().
+     *
+     * @since 1.0.0
+     *
+     * @param int         $id           Product ID.
+     * @param string      $status       One of the ProductStatus constants.
+     * @param string|null $scheduled_at Publish time in ISO 8601, for the scheduled status.
+     * @return Product The reloaded product.
+     * @throws NotFoundException When the product does not exist or could not be updated.
+     */
+    public function change_status(int $id, string $status, ?string $scheduled_at = null)
+    {
+        $product = Product::find($id);
+
+        throw_if(empty($product), __('Product could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        $columns = $this->status_columns($product, $status, $scheduled_at);
+        $columns['status'] = $status;
+        $columns['updated_by'] = user()->get_id();
+
+        $is_schedule_changed = $this->is_schedule_changed($product, $status, $columns['scheduled_at'] ?? null);
+
+        throw_if(!$product->update($columns), __('Product could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        if ($is_schedule_changed) {
+            PublishScheduledProductJob::dispatch($product->id)->delay($columns['scheduled_at']);
+        }
+
+        return $this->find($id);
     }
 
     /**
@@ -413,6 +447,65 @@ class ProductService
                 'published_at' => null,
                 'updated_by' => user()->get_id(),
             ]);
+    }
+
+    /**
+     * Get the timestamp columns that a status change sets.
+     *
+     * A new status sets or clears the published and trashed times. Any status other than
+     * scheduled clears the schedule, and a scheduled status takes the given time in UTC.
+     *
+     * @since 1.0.0
+     *
+     * @param Product     $product      Product before the change.
+     * @param string      $status       New status.
+     * @param mixed       $scheduled_at Publish time for the scheduled status, or null.
+     * @return array<string, mixed>
+     */
+    protected function status_columns(Product $product, string $status, $scheduled_at)
+    {
+        $columns = [];
+
+        if ($product->status !== $status) {
+            if ($status === ProductStatus::PUBLISHED) {
+                $columns['published_at'] = Date::now()->set_timezone('UTC');
+                $columns['trashed_at'] = null;
+            } elseif ($status === ProductStatus::TRASHED) {
+                $columns['published_at'] = null;
+                $columns['trashed_at'] = Date::now()->set_timezone('UTC');
+            } else {
+                $columns['published_at'] = null;
+                $columns['trashed_at'] = null;
+            }
+        }
+
+        if ($status !== ProductStatus::SCHEDULED) {
+            $columns['scheduled_at'] = null;
+        } elseif (!empty($scheduled_at)) {
+            $columns['scheduled_at'] = Date::parse($scheduled_at)->set_timezone('UTC');
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Tell if a change sets a new publish schedule, which needs a publish job.
+     *
+     * @since 1.0.0
+     *
+     * @param Product $product      Product before the change.
+     * @param string  $status       New status.
+     * @param mixed   $scheduled_at New publish time in UTC.
+     * @return bool
+     */
+    protected function is_schedule_changed(Product $product, string $status, $scheduled_at)
+    {
+        return $status === ProductStatus::SCHEDULED
+            && (
+                $product->status !== ProductStatus::SCHEDULED
+                || empty($product->scheduled_at)
+                || $product->scheduled_at->get_timestamp() !== $scheduled_at->get_timestamp()
+            );
     }
 
     /**

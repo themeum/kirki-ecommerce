@@ -229,6 +229,31 @@ class CreateOrderAction
     }
 
     /**
+     * Calculate a manual order without creating it: items, discounts, shipping, tax and total.
+     *
+     * Runs the same provider, address, shipping method and price rules as execute().
+     * The payload must name an existing customer or no customer.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Manual order data, modified in place like in execute().
+     * @return CalculationResultDTO
+     * @throws ValidationException When the payment provider is not valid.
+     * @throws \Exception When the shipping method is not valid for the order.
+     */
+    public function calculate(CreateOrderPayloadDTO $dto)
+    {
+        $this->validate_payment_provider($dto);
+        $this->resolve_billing_and_shipping_addresses($dto);
+
+        $context = $this->prepare_calculation_context_dto($dto);
+
+        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'));
+
+        return $this->recalculate_cart_action->execute($context);
+    }
+
+    /**
      * If the order is marked as "billing same as shipping", copy the
      * shipping address fields to the billing address fields.
      *

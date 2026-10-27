@@ -133,9 +133,16 @@ const Timeline = ({ orderId }: TimelineProps) => {
                         <div css={scoped(styles.avatar)}>{acronym}</div>
                       </Flex>
                       <Flex direction="column" gap={1} grow={1}>
-                        <Text variant="small" weight="medium">
-                          {entry.author_name}
-                        </Text>
+                        <Flex gap={2} align="center">
+                          <Text variant="small" weight="medium">
+                            {entry.author_name}
+                          </Text>
+                          {entry.via_ai_assistant && (
+                            <Text variant="tiny" color="subdued">
+                              {__('via AI assistant', 'kirki-ecommerce')}
+                            </Text>
+                          )}
+                        </Flex>
                         <Text variant="small" color="secondary">
                           {entry.description}
                         </Text>
@@ -174,6 +181,11 @@ const Timeline = ({ orderId }: TimelineProps) => {
                     <Text variant="small" weight="medium" cssOverride={{ flexGrow: 1 }}>
                       {entry.description}
                     </Text>
+                    {entry.via_ai_assistant && (
+                      <Text variant="tiny" color="subdued">
+                        {__('via AI assistant', 'kirki-ecommerce')}
+                      </Text>
+                    )}
                     <Text variant="tiny" color="subdued">
                       {entry.created_at}
                     </Text>

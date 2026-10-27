@@ -19,6 +19,8 @@ use Kirki\Ecommerce\App\Managers\OrderActivityManager;
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity refund_deleted(\Kirki\Ecommerce\App\Models\Order $order, array $refund_snapshot)
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity comment(int $order_id, string $message, int|null $created_by = null, bool $notify_customer = false)
  * @method static string describe(\Kirki\Ecommerce\App\Models\OrderActivity $activity)
+ * @method static mixed as_assistant(callable $callback)
+ * @method static bool is_from_assistant(\Kirki\Ecommerce\App\Models\OrderActivity $activity)
  *
  * @see \Kirki\Ecommerce\App\Managers\OrderActivityManager
  */

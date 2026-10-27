@@ -5,7 +5,7 @@ server. An AI client such as Claude Code or Claude Desktop connects to it and
 can then answer questions about the store, for example "give me sales for the
 last 7 days", with the real numbers of the store.
 
-The server has 11 tools. All of them only read store data:
+The server has 29 tools. 11 tools only read store data:
 
 - Analytics: **sales report**, **sales trend**, **product performance** and
   **sales breakdown**. They read the same numbers as the Analytics page.
@@ -13,6 +13,17 @@ The server has 11 tools. All of them only read store data:
 - Catalog: **find products** and **stock levels**.
 - Customers and coupons: **find customers** and **find coupons**.
 - Setup: **setup status**.
+
+18 tools change store data. Most of them first show a preview, and they do
+the change only in a second call that brings the token of the preview:
+
+- Orders: **add order note**, **update fulfillment**, **mark order paid**,
+  **resend order email**, **cancel order** and **create manual order**.
+- Catalog: **update product content**, **create draft product**, **duplicate
+  product**, **change product status**, **adjust stock** and **update prices**.
+- Customers and coupons: **update customer tags**, **create coupon**, **set
+  coupon state** and **update coupon**.
+- Setup: **fix store pages** and **update email notification**.
 
 It also has 7 resources (store-wide context that a client can attach, such as
 the store profile and the order lifecycle) and 6 prompts (ready-made routines,
@@ -32,12 +43,17 @@ MCP Adapter plugin.
 - [7. Catalog tools](#7-catalog-tools)
 - [8. Customer and coupon tools](#8-customer-and-coupon-tools)
 - [9. The setup status tool](#9-the-setup-status-tool)
-- [10. Resources](#10-resources)
-- [11. Prompts](#11-prompts)
-- [12. Time zone](#12-time-zone)
-- [13. Checking a site by hand](#13-checking-a-site-by-hand)
-- [14. Adding a tool](#14-adding-a-tool)
-- [15. Where this differs from the admin screens](#15-where-this-differs-from-the-admin-screens)
+- [10. Write tools: preview and confirmation](#10-write-tools-preview-and-confirmation)
+- [11. Order write tools](#11-order-write-tools)
+- [12. Catalog write tools](#12-catalog-write-tools)
+- [13. Customer and coupon write tools](#13-customer-and-coupon-write-tools)
+- [14. Store setup write tools](#14-store-setup-write-tools)
+- [15. Resources](#15-resources)
+- [16. Prompts](#16-prompts)
+- [17. Time zone](#17-time-zone)
+- [18. Checking a site by hand](#18-checking-a-site-by-hand)
+- [19. Adding a tool](#19-adding-a-tool)
+- [20. Where this differs from the admin screens](#20-where-this-differs-from-the-admin-screens)
 
 ---
 
@@ -89,9 +105,9 @@ not shipped yet?", "What must I reorder?", "Who are my best customers?",
 | STDIO | `wp mcp-adapter serve --server=kirki-ecommerce --user=<admin>` |
 | Who | The server has no capability check of its own. HTTP requests pass the MCP Adapter's default gate, which needs a signed-in user. Each tool then checks the capability that it needs. |
 | Rate limit | 60 HTTP requests per minute for each user. Over the limit: status `429` with `Retry-After`. STDIO is not limited. |
-| Tools | `kirki-ecommerce-sales-report`, `kirki-ecommerce-sales-trend`, `kirki-ecommerce-product-performance`, `kirki-ecommerce-sales-breakdown`, `kirki-ecommerce-find-orders`, `kirki-ecommerce-get-order`, `kirki-ecommerce-find-products`, `kirki-ecommerce-stock-levels`, `kirki-ecommerce-find-customers`, `kirki-ecommerce-find-coupons`, `kirki-ecommerce-setup-status` |
+| Tools | `kirki-ecommerce-sales-report`, `kirki-ecommerce-sales-trend`, `kirki-ecommerce-product-performance`, `kirki-ecommerce-sales-breakdown`, `kirki-ecommerce-find-orders`, `kirki-ecommerce-get-order`, `kirki-ecommerce-find-products`, `kirki-ecommerce-stock-levels`, `kirki-ecommerce-find-customers`, `kirki-ecommerce-find-coupons`, `kirki-ecommerce-setup-status`, and the 18 write tools of sections 11 to 14 |
 
-Each tool checks `manage_options` over HTTP and over STDIO. A signed-in user
+Each tool, also each write tool, checks `manage_options` over HTTP and over STDIO. A signed-in user
 without that capability can list the tools and their schemas, but a call to a
 tool gets a permission error. The tools are offered only by this server. They
 are not public, so the adapter's default server and the core Abilities REST
@@ -192,7 +208,7 @@ These rules apply to all 11 tools.
 - **Money** is `{ amount, display, currency }`. Fields named `base_*` are in
   the store currency. Fields named `invoiced_*` are in the order currency.
 - **Dates and times** are ISO 8601 with the offset of the site time zone (see
-  [section 12](#12-time-zone)), for example `2026-10-21T16:00:00+06:00`.
+  [section 17](#17-time-zone)), for example `2026-10-21T16:00:00+06:00`.
 - **IDs** are integers. Each row has the ID that the next tool needs, for
   example `order_id` for `get-order`.
 
@@ -504,7 +520,126 @@ Code: `app/Mcp/Tools/SetupStatusTool.php`, on `SetupChecklistService`.
 
 ---
 
-## 10. Resources
+## 10. Write tools: preview and confirmation
+
+A write tool changes store data. The client must ask the merchant before it
+calls one, and the server also makes each change that is not additive go in
+two calls:
+
+1. **Preview.** The client calls the tool without `confirmation_token`. The
+   tool checks the arguments and the store rules, changes nothing, sends no
+   email, and returns:
+
+   ```json
+   {
+     "status": "preview",
+     "changes": { "order_status": { "current": "paid_processing", "new": "paid_shipped" }, "emails": [ … ] },
+     "confirmation_token": "Xq3…",
+     "expires_at": "2026-10-27T10:10:00+06:00"
+   }
+   ```
+
+2. **Confirmation.** The assistant shows the preview to the merchant. When the
+   merchant agrees, the client calls the tool again with the **same
+   arguments** and the token. The tool does the change and returns
+   `"status": "done"` with the values as stored after the change.
+
+The token works **one time**, for **10 minutes**, for the **same user**, the
+**same tool** and the **same arguments**, and only while the target record
+did not change after the preview (for example, an order that a person
+cancelled in the admin in the meantime). Otherwise the call returns an error
+that asks for a new preview, and nothing changes. A token is used up also when
+the change then fails.
+
+`create-draft-product` and `duplicate-product` only add a draft, so they run
+in **one call** without a token. A store rule that refuses the change (for
+example an action that the order status does not allow) is a tool error in
+the preview, and no token is given.
+
+| Annotation | Tools |
+|---|---|
+| `readOnlyHint` false | All 18 write tools. |
+| `destructiveHint` false | `create-draft-product`, `duplicate-product`, `create-coupon` (they only add a record). All other write tools are `true`. |
+| `openWorldHint` true | `add-order-note`, `update-fulfillment`, `resend-order-email`, `cancel-order`, `create-manual-order` (they can send emails). |
+| `idempotentHint` true | `fix-store-pages`. |
+| `_meta["anthropic/requiresUserInteraction"]` | `cancel-order`, `create-manual-order`, `update-prices`, `update-coupon`, `update-email-notification`. Claude Code then asks the merchant on each call. |
+
+**AI-assistant mark.** Each order activity that a write tool causes (a note,
+a status change, a payment, a new manual order) stores
+`metadata.source = "ai-assistant"`. The admin order timeline shows **via AI
+assistant** next to the entry. The author stays the user who signed in. The
+customer's order page does not show the mark.
+
+**Money.** Money arguments are decimal amounts in the store's base currency,
+such as `19.99`, with no more decimals than the currency has. Results show
+money as `{ amount, display, currency }`, the same as the read tools.
+
+Code: `app/Mcp/Tools/StoreWriteTool.php` (the flow),
+`app/Mcp/ConfirmationTokens.php` (tokens in transients),
+`OrderActivityManager::as_assistant()` (the mark).
+
+---
+
+## 11. Order write tools
+
+Each tool except `create-manual-order` finds the order by `order_id` or
+`order_number`. The lifecycle tools run the same `PerformOrderAction` as the
+admin order page, so the order state matrix decides which action is allowed.
+The preview gives the current and the next status and the emails that the
+action sends, with the masked address and whether the email is on.
+
+| Tool | Arguments | What it does |
+|---|---|---|
+| `kirki-ecommerce-add-order-note` | `message` (1 to 2000 characters), `notify_customer` (default false) | Adds a comment to the timeline. With `notify_customer`, the order-note email sends it to the customer. |
+| `kirki-ecommerce-update-fulfillment` | `action`: `mark-as-processing`, `mark-as-shipped`, `add-tracking`, `mark-as-delivered`, `mark-as-hold` or `resume-fulfillment`; for `add-tracking` also `carrier`, `tracking_number` and an optional `tracking_url` | Moves the order to the next fulfillment step, or stores the tracking data. |
+| `kirki-ecommerce-mark-order-paid` | `payment_provider` (optional, a registered provider) | Records the payment of an unpaid order, for example a bank transfer. Sends no email. |
+| `kirki-ecommerce-resend-order-email` | none | Sends the new-order email to the customer again. |
+| `kirki-ecommerce-cancel-order` | `reason` (1 to 500 characters) | Cancels the order and stores the reason. A cancelled order allows no more actions. **No payment is refunded.** |
+| `kirki-ecommerce-create-manual-order` | `items` (1 to 50, each `variant_id` and `quantity`), `customer_id` or `customer_email`, customer names, shipping address, `is_billing_same_as_shipping` and a billing address, `shipping_method`, `coupon_codes`, `payment_provider` | Creates a manual order in the base currency. The preview has each line and the subtotal, discount, shipping, tax and total, as the store calculates them, and the coupons that did not apply. A change of a price, the stock, a total or a coupon after the preview makes the token not valid. |
+
+Code: `app/Mcp/Tools/OrderActionTool.php` and the tools that extend it,
+`AddOrderNoteTool.php`, `CreateManualOrderTool.php`
+(`CreateOrderAction::calculate()` gives the preview totals).
+
+---
+
+## 12. Catalog write tools
+
+| Tool | Arguments | What it does |
+|---|---|---|
+| `kirki-ecommerce-update-product-content` | `product_id` and at least one of `short_description`, `description`, `additional_info`, `seo_title`, `seo_description`, `seo_keywords`, `og_title`, `og_description`, `ribbon`, `ribbon_color` | Changes only these fields. The title, prices, variants, images, taxonomies and status do not change. Text is plain text, the same as in the admin form. |
+| `kirki-ecommerce-create-draft-product` | `title`, the text fields above, `category_ids`, `tag_ids`, `brand_id`; for one variant `sku`, `base_price`, `base_sale_price`, `base_cost_of_goods`, `track_inventory`, `available_quantity`; for variants `attributes` and `variants` | Creates a draft in one call, with the rules of the admin product form. The status is always `draft`. Images are added in the admin. |
+| `kirki-ecommerce-duplicate-product` | `product_id` | Copies the product and its variants as a draft, in one call. |
+| `kirki-ecommerce-change-product-status` | `product_id`, `status` (`draft`, `published`, `scheduled`, `trashed`), `scheduled_at` (future ISO 8601, for `scheduled`) | Publishes, schedules, hides or trashes the product, with the same timestamps and publish job as the admin. A product with a variant at price 0 cannot be published or scheduled. **Never deletes a product for good.** |
+| `kirki-ecommerce-adjust-stock` | `variant_id`, `quantity_change` (not 0), `expected_quantity` | Adds or removes stock of a variant that tracks inventory. One SQL statement changes the stock only when it is still `expected_quantity`, so an order placed at the same time is not lost. The stock cannot go below 0. |
+| `kirki-ecommerce-update-prices` | `variants` (1 to 100, each `variant_id` and at least one of `base_price`, `base_sale_price` (null ends a sale), `base_cost_of_goods`) | Changes the prices in one transaction. The preview shows each current and new price. A sale price higher than the price is refused. |
+
+Code: `app/Mcp/Tools/`, with `ProductService::update_fields()`,
+`ProductService::change_status()` and `VariantService::adjust_available()`.
+
+---
+
+## 13. Customer and coupon write tools
+
+| Tool | Arguments | What it does |
+|---|---|---|
+| `kirki-ecommerce-update-customer-tags` | `customer_id` and at least one of `add_tags`, `remove_tags`, `notes` (null removes the note) | Changes only the tags and the private note. Tags are compared without case. The current note is in `notes_text`, cleaned and cut to 500 characters. |
+| `kirki-ecommerce-create-coupon` | The fields of the admin coupon form: `method`, `title`, `code`, `discount_type`, `discount_target`, `eligible_item_type`, `discount_value_type`, `discount_amount`, dates, limits, products, categories, countries and customer eligibility | Creates the coupon with the rules of the admin form. The preview gives the rules in plain words. Without `code` for a code coupon, the preview gives a new code, which the confirmed call must send. Without `start_datetime`, the coupon starts now. |
+| `kirki-ecommerce-set-coupon-state` | `coupon_id`, `action` (`activate`, `deactivate`, `duplicate`) | Turns the coupon on or off, or copies it with a new code and " - Copy" after the title. |
+| `kirki-ecommerce-update-coupon` | `coupon_id` and any fields of `create-coupon` | Puts the sent fields over the stored coupon and checks the result with the rules of the admin form. The preview shows each changed field and the usage count. |
+
+---
+
+## 14. Store setup write tools
+
+| Tool | Arguments | What it does |
+|---|---|---|
+| `kirki-ecommerce-fix-store-pages` | none | Does what the Fix action on **Settings → Advanced** does: creates and links each missing store page, and publishes each linked page that is not published. When all pages are fine, it returns `"status": "nothing_to_do"` without a token. |
+| `kirki-ecommerce-update-email-notification` | `recipient` (`customer` or `admin`), `group`, `key`, and at least one of `is_enabled`, `subject`, `heading` | Changes one notification, for example `customer` / `order_notifications` / `order_on_hold`. The message body, the template and the other notifications do not change. An unknown notification gets an error that lists the valid ones. |
+
+---
+
+## 15. Resources
 
 A resource is store-wide context with a fixed URI. A client shows the
 resources, and the merchant attaches one (in Claude Code, with an `@`
@@ -538,7 +673,7 @@ Code: `app/Mcp/Resources/`. Each resource extends `StoreResource`.
 
 ---
 
-## 11. Prompts
+## 16. Prompts
 
 A prompt is a ready-made routine. Clients show prompts as commands (Claude
 Code shows them as slash commands with the name that the merchant gave the
@@ -575,7 +710,7 @@ Code: `app/Mcp/Prompts/`. Each prompt extends `StorePrompt`.
 
 ---
 
-## 12. Time zone
+## 17. Time zone
 
 The analytics tools put each order on a day in the **site time zone**
 (**Settings → General → Timezone** in WordPress). The other tools give their
@@ -586,13 +721,14 @@ analytics tools says which one was used.
 
 ---
 
-## 13. Checking a site by hand
+## 18. Checking a site by hand
 
 The test suite has no MCP Adapter, so these checks need a site that has it:
 
-1. `tools/list` with an administrator's application password lists the 11
+1. `tools/list` with an administrator's application password lists the 29
    tools. Each read-only tool has `readOnlyHint` true and `destructiveHint`
-   false.
+   false. The write tools have the annotations and `_meta` of
+   [section 10](#10-write-tools-preview-and-confirmation).
 2. A sales report call with `{"range": "last_7"}` returns the same totals as
    the Analytics page for **Last 7 days** with **No comparison**, in the same
    time zone.
@@ -607,15 +743,20 @@ The test suite has no MCP Adapter, so these checks need a site that has it:
 7. `resources/list` lists the 7 resources, and a read of each one returns
    JSON. `prompts/list` lists the 6 prompts with their arguments, and each
    prompt runs once in the client.
+8. A write tool without `confirmation_token` returns a preview and changes
+   nothing. A second call with the same arguments and the token does the
+   change. A third call with the same token gets an error. For an order
+   change, the admin timeline shows **via AI assistant**.
 
 ---
 
-## 14. Adding a tool
+## 19. Adding a tool
 
 1. Create a class in `app/Mcp/Tools/`. A tool that only reads store data
    extends `StoreReadTool`, which sets the read-only annotations, checks
    `manage_options`, and has the helpers `validate_arguments()`, `reject()`,
-   `money()`, `datetime()` and `store_text()`. Any other tool extends
+   `money()`, `datetime()` and `store_text()`. A tool that changes store data
+   extends `StoreWriteTool` (see below). Any other tool extends
    `Kirki\Ecommerce\Ahamed\FrameworkMcp\Tool`, with a `permission()` that checks
    the capability the tool needs. The server has no check of its own, so a tool
    without `permission()` gets the package default (`read`).
@@ -623,6 +764,18 @@ The test suite has no MCP Adapter, so these checks need a site that has it:
    The traits in `app/Mcp/Concerns/` add paging (`PagesResults`), masking
    (`MasksPersonalData`) and the analytics range (`ReadsAnalyticsRange`).
 3. Add it to `$tools` in `StoreServer`.
+
+A write tool extends `StoreWriteTool` and does not override `handle()`. It
+gives `arguments()` (the schema without the token), `validate()`, `target()`
+(the record, or an error response), `preview()` (the planned change; throw or
+return an error for a store rule), `fingerprint()` (a hash of the target data
+that the change depends on) and `apply()` (the change, through the same
+service or action as the admin; return the stored values). Set
+`$requires_confirmation = false` only for a tool that adds a record and
+changes nothing else. Set `$open_world` when the change can send an email,
+and `$meta` with `anthropic/requiresUserInteraction` for a risky change. To
+use the rules of an admin request class, call `form_request()`. Order changes
+are marked as made by the AI assistant without more code.
 
 A resource extends `StoreResource` in `app/Mcp/Resources/`, declares `$uri`,
 and returns `Response::structured()` from `handle()`. Build the output one
@@ -641,7 +794,7 @@ this plugin.
 
 ---
 
-## 15. Where this differs from the admin screens
+## 20. Where this differs from the admin screens
 
 - **No comparison by default.** The Analytics page compares with the previous
   period unless you change it. The analytics tools compare only when `compare`
@@ -669,8 +822,28 @@ this plugin.
   default sort.
 - **No exports and no bulk data.** A list tool gives at most 100 rows in one
   call. There is no "all rows" option.
-- **Read only.** No tool can change an order, a product, a customer, a coupon
-  or a setting.
+- **The token does not prove that a person agreed.** The server makes sure
+  that a preview came first and that the record did not change, but an
+  assistant can send the preview call and the confirmed call without a stop.
+  The person check is the client's prompt before a destructive tool. Use a
+  client that asks before each write.
+- **No switch to turn off the write tools.** Each write needs
+  `manage_options` and a preview, but the store has no setting that hides the
+  write tools. Use an application password of a user that should make
+  changes, or remove the password.
+- **No audit log.** Order changes are marked on the order timeline. Changes to
+  products, stock, prices, customers, coupons, pages and emails are not
+  logged anywhere by the store.
+- **Fewer writes than the admin.** There are no refunds, no hard deletes, no
+  bulk "all" actions, no order edits, no customer creation, no invoices or
+  payment links, and no changes to the other settings. `create-draft-product`
+  adds no images, and `update-product-content` does not change the title.
+- **Stricter in a few places.** `change-product-status` refuses to publish a
+  product with a variant at price 0; the admin form accepts it.
+  `update-fulfillment` offers 6 of the fulfillment actions; cancel fulfillment
+  and archive have no tool.
+- **Manual orders in the base currency only.** `create-manual-order` has no
+  currency argument.
 - **Resources and prompts in some clients only.** Claude, Claude Code, VS Code
   and Cursor show resources and prompts. ChatGPT supports tools only, so it
   gets no resources and no prompts. There is no `get-store-settings` tool yet,

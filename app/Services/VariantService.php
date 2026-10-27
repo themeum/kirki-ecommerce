@@ -269,6 +269,32 @@ class VariantService
     }
 
     /**
+     * Change the available quantity of a variant by an amount, in one statement.
+     *
+     * The statement only matches a variant that tracks inventory and still holds the
+     * expected quantity, so a change made at the same time by an order is not lost.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id       Variant ID.
+     * @param int $change   Amount to add; negative to remove.
+     * @param int $expected Quantity that the variant must hold now.
+     * @return bool False when the new quantity is below zero or no row matched.
+     */
+    public function adjust_available(int $id, int $change, int $expected)
+    {
+        if ($expected + $change < 0) {
+            return false;
+        }
+
+        return (bool) Variant::query()
+            ->where('id', $id)
+            ->where('track_inventory', 1)
+            ->where('available_quantity', $expected)
+            ->update(['available_quantity' => $expected + $change]);
+    }
+
+    /**
      * Decrease the available quantity of a variant in one statement.
      *
      * When stock is required, the statement only matches a row that still holds

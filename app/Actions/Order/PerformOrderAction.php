@@ -148,7 +148,7 @@ class PerformOrderAction
      * @return void
      * @throws ValidationException When a refund is in progress or the order's status does not allow the action.
      */
-    protected function guard(Order $order, string $action)
+    public function guard(Order $order, string $action)
     {
         // @todo: refund-cluster order statuses are not part of OrderStatus::get_transition_matrix()
         // yet, so every action is blocked until the refund state machine is defined.

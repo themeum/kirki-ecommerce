@@ -9,6 +9,7 @@ use Kirki\Ecommerce\Ahamed\FrameworkMcp\Request;
 use Kirki\Ecommerce\Ahamed\FrameworkMcp\Response;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
+use Kirki\Ecommerce\App\Mcp\Concerns\FindsOrders;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
@@ -22,6 +23,8 @@ use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
  */
 class GetOrderTool extends StoreReadTool
 {
+    use FindsOrders;
+
     const ACTIVITY_LIMIT = 50;
 
     /** @var string */
@@ -57,12 +60,7 @@ class GetOrderTool extends StoreReadTool
      */
     public function input_schema(JsonSchema $schema)
     {
-        return [
-            'order_id' => $schema->integer()
-                ->min(1)
-                ->description('Order ID, from the find-orders tool. Send this or "order_number".'),
-            'order_number' => $schema->string()
-                ->description('Order number, as the customer sees it. Send this or "order_id".'),
+        return $this->order_identifier_schema($schema) + [
             'include_activity' => $schema->boolean()
                 ->default(false)
                 ->description('Also return the order timeline, newest first, at most 50 entries.'),
@@ -81,28 +79,18 @@ class GetOrderTool extends StoreReadTool
      */
     public function handle(Request $request)
     {
-        $identifier_message = __('Send "order_id" (an integer) or "order_number".', 'kirki-ecommerce');
-
-        $params = $this->validate_arguments($request->all(), [
-            'order_id' => 'nullable|integer|min:1',
-            'order_number' => 'nullable|string|max:100',
+        $params = $this->validate_arguments($request->all(), $this->order_identifier_rules() + [
             'include_activity' => 'nullable|boolean',
-        ], [
-            'order_id.integer' => $identifier_message,
-            'order_id.min' => $identifier_message,
-            'order_number.string' => $identifier_message,
-            'order_number.max' => $identifier_message,
+        ], $this->order_identifier_messages() + [
             'include_activity.boolean' => __('The "include_activity" must be true or false.', 'kirki-ecommerce'),
         ]);
 
-        if (empty($params['order_id']) && empty($params['order_number'])) {
-            $this->reject(['order_id' => [$identifier_message], 'order_number' => [$identifier_message]]);
-        }
+        $this->require_order_identifier($params);
 
         $order = $this->find_order($params);
 
         if ($order === null) {
-            return Response::error(__('The order was not found. Check the "order_id" or "order_number", or use the find-orders tool.', 'kirki-ecommerce'));
+            return Response::error($this->order_not_found_message());
         }
 
         $result = $this->order_details($order);
@@ -112,27 +100,6 @@ class GetOrderTool extends StoreReadTool
         }
 
         return Response::structured($result);
-    }
-
-    /**
-     * Find the order by ID, else by order number.
-     *
-     * @since 1.0.0
-     *
-     * @param array<string, mixed> $params Validated arguments.
-     *
-     * @return Order|null
-     */
-    protected function find_order(array $params)
-    {
-        $order_id = $params['order_id'] ?? null;
-
-        if (empty($order_id)) {
-            $match = Order::query()->where('order_number', (string) $params['order_number'])->first(['id']);
-            $order_id = $match === null ? null : $match->id;
-        }
-
-        return empty($order_id) ? null : $this->order_service->find_order((int) $order_id);
     }
 
     /**

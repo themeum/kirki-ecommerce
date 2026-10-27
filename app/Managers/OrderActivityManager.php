@@ -32,8 +32,13 @@ use function Kirki\Ecommerce\Framework\user;
  */
 class OrderActivityManager
 {
+    const ASSISTANT_SOURCE = 'ai-assistant';
+
     /** @var OrderActivityService */
     protected $order_activity_service;
+
+    /** @var int */
+    protected $assistant_depth = 0;
 
     /**
      * Create the manager with the service that persists activities.
@@ -340,7 +345,7 @@ class OrderActivityManager
             $order_id,
             OrderActivityType::COMMENT_ADDED,
             $message,
-            $notify_customer ? ['notify_customer' => true] : null,
+            $this->with_source($notify_customer ? ['notify_customer' => true] : null),
             $this->resolve_author($created_by)
         );
 
@@ -424,7 +429,56 @@ class OrderActivityManager
      */
     protected function record(int $order_id, string $type, array $metadata, ?int $created_by)
     {
-        return $this->order_activity_service->create($order_id, $type, null, $metadata, $created_by);
+        return $this->order_activity_service->create($order_id, $type, null, $this->with_source($metadata), $created_by);
+    }
+
+    /**
+     * Run a callback and mark each activity that it records as made by the AI assistant.
+     *
+     * @since 1.0.0
+     *
+     * @param callable $callback Code that changes orders.
+     * @return mixed What the callback returns.
+     */
+    public function as_assistant(callable $callback)
+    {
+        $this->assistant_depth++;
+
+        try {
+            return $callback();
+        } finally {
+            $this->assistant_depth--;
+        }
+    }
+
+    /**
+     * Tell if the AI assistant made an activity.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderActivity $activity
+     * @return bool
+     */
+    public function is_from_assistant(OrderActivity $activity)
+    {
+        return ($activity->metadata['source'] ?? null) === static::ASSISTANT_SOURCE;
+    }
+
+    /**
+     * Add the AI-assistant source to the metadata while as_assistant() runs.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed>|null $metadata Activity metadata.
+     * @return array<string, mixed>|null
+     */
+    protected function with_source(?array $metadata)
+    {
+        if ($this->assistant_depth === 0) {
+            return $metadata;
+        }
+
+        return array_merge($metadata ?? [], ['source' => static::ASSISTANT_SOURCE]);
     }
 
     /**

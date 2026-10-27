@@ -6,17 +6,35 @@ use Kirki\Ecommerce\Ahamed\FrameworkMcp\Facades\Mcp;
 use Kirki\Ecommerce\Ahamed\FrameworkMcp\Registrar\AbilityRegistrar;
 use Kirki\Ecommerce\App\Mcp\Resources\StoreProfileResource;
 use Kirki\Ecommerce\App\Mcp\Servers\StoreServer;
+use Kirki\Ecommerce\App\Mcp\Tools\AddOrderNoteTool;
+use Kirki\Ecommerce\App\Mcp\Tools\AdjustStockTool;
+use Kirki\Ecommerce\App\Mcp\Tools\CancelOrderTool;
+use Kirki\Ecommerce\App\Mcp\Tools\ChangeProductStatusTool;
+use Kirki\Ecommerce\App\Mcp\Tools\CreateCouponTool;
+use Kirki\Ecommerce\App\Mcp\Tools\CreateDraftProductTool;
+use Kirki\Ecommerce\App\Mcp\Tools\CreateManualOrderTool;
+use Kirki\Ecommerce\App\Mcp\Tools\DuplicateProductTool;
 use Kirki\Ecommerce\App\Mcp\Tools\FindCouponsTool;
 use Kirki\Ecommerce\App\Mcp\Tools\FindCustomersTool;
 use Kirki\Ecommerce\App\Mcp\Tools\FindOrdersTool;
 use Kirki\Ecommerce\App\Mcp\Tools\FindProductsTool;
+use Kirki\Ecommerce\App\Mcp\Tools\FixStorePagesTool;
 use Kirki\Ecommerce\App\Mcp\Tools\GetOrderTool;
+use Kirki\Ecommerce\App\Mcp\Tools\MarkOrderPaidTool;
 use Kirki\Ecommerce\App\Mcp\Tools\ProductPerformanceTool;
+use Kirki\Ecommerce\App\Mcp\Tools\ResendOrderEmailTool;
 use Kirki\Ecommerce\App\Mcp\Tools\SalesBreakdownTool;
 use Kirki\Ecommerce\App\Mcp\Tools\SalesReportTool;
 use Kirki\Ecommerce\App\Mcp\Tools\SalesTrendTool;
+use Kirki\Ecommerce\App\Mcp\Tools\SetCouponStateTool;
 use Kirki\Ecommerce\App\Mcp\Tools\SetupStatusTool;
 use Kirki\Ecommerce\App\Mcp\Tools\StockLevelsTool;
+use Kirki\Ecommerce\App\Mcp\Tools\UpdateCouponTool;
+use Kirki\Ecommerce\App\Mcp\Tools\UpdateCustomerTagsTool;
+use Kirki\Ecommerce\App\Mcp\Tools\UpdateEmailNotificationTool;
+use Kirki\Ecommerce\App\Mcp\Tools\UpdateFulfillmentTool;
+use Kirki\Ecommerce\App\Mcp\Tools\UpdatePricesTool;
+use Kirki\Ecommerce\App\Mcp\Tools\UpdateProductContentTool;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -30,7 +48,7 @@ use function Kirki\Ecommerce\Framework\app;
 class McpServerTest extends RestTestCase
 {
     /**
-     * Scenario "HTTP client lists the tools": the server is registered as kirki-ecommerce and lists the 11 tools.
+     * Scenario "HTTP client lists the tools": the server is registered as kirki-ecommerce and lists the 11 read tools, then the write tools.
      *
      * @return void
      * @since 1.0.0
@@ -41,9 +59,12 @@ class McpServerTest extends RestTestCase
         $tools = (new StoreServer())->tools();
 
         $this->assertSame(StoreServer::class, $servers['kirki-ecommerce'] ?? null);
-        $this->assertCount(11, $tools);
+        $this->assertCount(11 + count(static::write_tools()), $tools);
         $this->assertSame(SalesReportTool::class, $tools[0]);
-        $this->assertSame(array_column(static::read_only_tools(), 0), array_slice($tools, 1));
+        $this->assertSame(array_column(static::read_only_tools(), 0), array_slice($tools, 1, 10));
+        $this->assertSame(array_column(static::write_tools(), 0), array_slice($tools, 11));
+        $this->assertCount(29, $tools);
+        $this->assertStringContainsString('Tools read or change store data', (new StoreServer())->description());
     }
 
     /**
@@ -66,6 +87,64 @@ class McpServerTest extends RestTestCase
             'find-coupons' => [FindCouponsTool::class, 'kirki-ecommerce/find-coupons'],
             'setup-status' => [SetupStatusTool::class, 'kirki-ecommerce/setup-status'],
         ];
+    }
+
+    /**
+     * Get the write tools with their ability names.
+     *
+     * @return array<string, array{0: string, 1: string}>
+     * @since 1.0.0
+     */
+    public static function write_tools(): array
+    {
+        return [
+            'add-order-note' => [AddOrderNoteTool::class, 'kirki-ecommerce/add-order-note'],
+            'update-fulfillment' => [UpdateFulfillmentTool::class, 'kirki-ecommerce/update-fulfillment'],
+            'mark-order-paid' => [MarkOrderPaidTool::class, 'kirki-ecommerce/mark-order-paid'],
+            'resend-order-email' => [ResendOrderEmailTool::class, 'kirki-ecommerce/resend-order-email'],
+            'cancel-order' => [CancelOrderTool::class, 'kirki-ecommerce/cancel-order'],
+            'create-manual-order' => [CreateManualOrderTool::class, 'kirki-ecommerce/create-manual-order'],
+            'update-product-content' => [UpdateProductContentTool::class, 'kirki-ecommerce/update-product-content'],
+            'create-draft-product' => [CreateDraftProductTool::class, 'kirki-ecommerce/create-draft-product'],
+            'duplicate-product' => [DuplicateProductTool::class, 'kirki-ecommerce/duplicate-product'],
+            'change-product-status' => [ChangeProductStatusTool::class, 'kirki-ecommerce/change-product-status'],
+            'adjust-stock' => [AdjustStockTool::class, 'kirki-ecommerce/adjust-stock'],
+            'update-prices' => [UpdatePricesTool::class, 'kirki-ecommerce/update-prices'],
+            'update-customer-tags' => [UpdateCustomerTagsTool::class, 'kirki-ecommerce/update-customer-tags'],
+            'create-coupon' => [CreateCouponTool::class, 'kirki-ecommerce/create-coupon'],
+            'set-coupon-state' => [SetCouponStateTool::class, 'kirki-ecommerce/set-coupon-state'],
+            'update-coupon' => [UpdateCouponTool::class, 'kirki-ecommerce/update-coupon'],
+            'fix-store-pages' => [FixStorePagesTool::class, 'kirki-ecommerce/fix-store-pages'],
+            'update-email-notification' => [UpdateEmailNotificationTool::class, 'kirki-ecommerce/update-email-notification'],
+        ];
+    }
+
+    /**
+     * Scenarios "Not offered to other servers" and "Editor cannot change an order": each write tool is not read-only,
+     * only the store server offers it, and only an administrator can run it.
+     *
+     * @dataProvider write_tools
+     *
+     * @param string $tool Tool class.
+     * @param string $name Ability name.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_write_tool_annotations_and_access(string $tool, string $name): void
+    {
+        $instance = app()->make($tool);
+
+        $this->assertSame($name, $instance->name());
+        $this->assertFalse($instance->read_only());
+        $this->assertFalse($instance->is_public());
+        $this->assertFalse($instance->shows_in_rest());
+
+        wp_set_current_user(static::factory()->user->create(['role' => 'administrator']));
+        $this->assertTrue($instance->permission());
+
+        wp_set_current_user(static::factory()->user->create(['role' => 'editor']));
+        $this->assertFalse($instance->permission());
     }
 
     /**
