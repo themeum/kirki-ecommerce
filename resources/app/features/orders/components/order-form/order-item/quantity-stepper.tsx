@@ -1,7 +1,6 @@
-import { PlusIcon } from 'lucide-react';
+import { MinusIcon, PlusIcon } from 'lucide-react';
 
 import { InputGroup, InputGroupButton, InputGroupInput } from '@/components/ui/input-group';
-import { MinusIcon } from '@/icons/common';
 import { defineStyles } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
@@ -10,6 +9,7 @@ type QuantityStepperProps = {
   value: number;
   min?: number;
   max?: number;
+  disabled?: boolean;
   disabledMessage?: string;
   onChange: (value: number) => void;
 };
@@ -18,6 +18,7 @@ const QuantityStepper = ({
   value,
   min = 1,
   max,
+  disabled,
   disabledMessage,
   onChange,
 }: QuantityStepperProps) => {
@@ -28,7 +29,7 @@ const QuantityStepper = ({
     <InputGroup cssOverride={styles.group}>
       <InputGroupButton
         size="icon-xs"
-        disabled={value <= min}
+        disabled={value <= min || disabled}
         onClick={() => onChange(Math.max(min, value - 1))}
         aria-label="Decrease quantity"
       >
@@ -56,6 +57,7 @@ const QuantityStepper = ({
         size="icon-xs"
         aria-disabled={isAtMax || undefined}
         cssOverride={isAtMax ? styles.disabledLook : undefined}
+        disabled={disabled}
         onClick={() => {
           if (isAtMax) {
             dispatchToastMessage('warning', {

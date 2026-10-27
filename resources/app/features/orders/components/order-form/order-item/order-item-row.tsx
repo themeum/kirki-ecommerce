@@ -52,16 +52,13 @@ const OrderItemRow = ({ row, onQuantityChange, onRemove }: OrderItemRowProps) =>
         <PriceText salePrice={display.salePrice} regularPrice={display.regularPrice} />
       </TableCell>
       <TableCell cssOverride={{ width: '88px' }}>
-        {isLocked ? (
-          <Text variant="small">{quantity}</Text>
-        ) : (
-          <QuantityStepper
-            value={quantity}
-            max={quantityLimit?.max}
-            disabledMessage={quantityLimit?.reason}
-            onChange={(nextQuantity) => onQuantityChange(index, nextQuantity)}
-          />
-        )}
+        <QuantityStepper
+          value={quantity}
+          max={quantityLimit?.max}
+          disabledMessage={quantityLimit?.reason}
+          onChange={(nextQuantity) => onQuantityChange(index, nextQuantity)}
+          disabled={isLocked}
+        />
       </TableCell>
       <TableCell alignment="right" cssOverride={{ width: '88px' }}>
         <Text variant="small">{lineTotal}</Text>

@@ -42,6 +42,7 @@ import { useDebounce } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
+import { toastMutationError } from '@/services/helpers';
 import { isDefined } from '@/utils/object';
 import { _n, sprintf } from '@/wpi18n';
 
@@ -116,6 +117,8 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
   const isFormFilledRef = useRef(false);
   const isApplyingCorrectionRef = useRef(false);
   const pendingCouponCorrectionRef = useRef<string[] | null>(null);
+  const lastValidValuesRef = useRef<OrderFormInput | null>(null);
+  const lastValidSelectionsRef = useRef<ProductSelection[]>([]);
   const [rejectedCouponCodes, setRejectedCouponCodes] = useState<string[]>([]);
   const [paymentSummary, setPaymentSummary] = useState<PaymentSummary>({});
   const [availableShippingMethods, setAvailableShippingMethods] = useState<OrderShippingMethod[]>(
@@ -179,13 +182,19 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
       shippingMethodName: order.shipping_method_name,
     });
     setAvailableShippingMethods(order.available_shipping_methods);
+    lastValidValuesRef.current = form.getValues();
 
     isApplyingCorrectionRef.current = false;
   }, [order, form]);
 
   const debouncedCalculationRequest = useDebounce(calculationRequest, CALCULATION_DEBOUNCE_DELAY);
 
-  const { data: calculation, isFetching: isCalculating } = useOrderCalculationQuery(
+  const {
+    data: calculation,
+    isFetching: isCalculating,
+    error: calculationError,
+    errorUpdatedAt: calculationErrorUpdatedAt,
+  } = useOrderCalculationQuery(
     debouncedCalculationRequest ?? calculationPayload,
     isDefined(debouncedCalculationRequest),
   );
@@ -195,6 +204,26 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
     correct();
     isApplyingCorrectionRef.current = false;
   };
+
+  useEffect(() => {
+    if (!calculationError) {
+      return;
+    }
+
+    toastMutationError(calculationError);
+
+    const lastValidValues = lastValidValuesRef.current;
+
+    if (!isDefined(lastValidValues)) {
+      return;
+    }
+
+    applyCorrection(() => form.reset(lastValidValues));
+    setSelections(lastValidSelectionsRef.current);
+    setCalculationRequest(OrderCalculationRequestSchema.parse(lastValidValues));
+    // Revert must run once per failed request, not whenever `form` identity changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calculationError, calculationErrorUpdatedAt]);
 
   const calculationItems = pairCalculationItems(pickedItems, calculation?.items ?? []);
 
@@ -290,6 +319,8 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
       )?.name,
     });
     setAvailableShippingMethods(calculation.available_shipping_methods);
+    lastValidValuesRef.current = form.getValues();
+    lastValidSelectionsRef.current = selections;
 
     // Reconciliation must run only when a new calculation result arrives, reading the
     // current form state fresh each time - re-running it for every keystroke that
