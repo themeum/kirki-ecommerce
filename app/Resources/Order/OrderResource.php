@@ -69,7 +69,7 @@ class OrderResource extends Resource
             'is_editable' => $this->is_editable(),
             'is_manual' => $this->is_manual,
             'currency_code' => $this->currency_code,
-            'is_tax_inclusive' => (bool) $this->is_tax_inclusive,
+            'is_tax_inclusive' => $this->is_tax_inclusive,
             'tax_destination' => $this->tax_destination,
 
             'totals' => [

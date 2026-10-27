@@ -12,10 +12,8 @@ use Kirki\Ecommerce\App\Services\OrderCalculationContextService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
-use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\response;
-use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
  * REST controller that calculates order totals for a new order, or for an edit of an existing one, without saving.
@@ -85,15 +83,6 @@ class OrderCalculationController
      */
     protected function find_editable_order($order_id)
     {
-        if (empty($order_id)) {
-            return null;
-        }
-
-        $order = $this->order_service->find_order($order_id);
-
-        throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
-        throw_if(!$order->is_editable(), __('This order can no longer be edited.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
-
-        return $order;
+        return empty($order_id) ? null : $this->order_service->find_editable_order_or_fail($order_id);
     }
 }

@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\DTO\Calculation;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\Framework\DTO;
 
 /**
@@ -111,6 +112,36 @@ class OrderCalculationInputDTO extends DTO
         $input->items = array_map(fn($item) => OrderCalculationLineDTO::from_array($item), $payload['items'] ?? []);
 
         return $input;
+    }
+
+    /**
+     * Make the input from a stored order, as the payload that would send the order back unchanged.
+     *
+     * Lines are sent as the order item `id` and `quantity`, and the coupon codes are those of the
+     * order's coupons.
+     *
+     * @since 1.0.0
+     *
+     * @param Order $order Order with its items and order coupons loaded.
+     * @return static
+     */
+    public static function from_order(Order $order)
+    {
+        $payload = [
+            'customer_id' => $order->customer_id,
+            'customer_email' => $order->customer_email,
+            'shipping_method' => $order->shipping_method,
+            'coupon_codes' => $order->order_coupons->pluck('code')->all(),
+            'items' => $order->items->map(fn($item) => ['id' => $item->id, 'quantity' => $item->quantity])->all(),
+        ];
+
+        foreach (['shipping', 'billing'] as $type) {
+            foreach (static::ADDRESS_FIELDS as $field) {
+                $payload[$type . '_' . $field] = $order->{$type . '_' . $field};
+            }
+        }
+
+        return static::from_payload($payload);
     }
 
     /**

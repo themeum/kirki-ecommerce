@@ -1101,6 +1101,66 @@ class OrderEditApiTest extends RestTestCase
         $this->assertSame(3, $preview['items_count']);
     }
 
+    public function test_the_edit_read_carries_the_stock_values_and_shipping_methods_of_a_preview_of_the_unchanged_order(): void
+    {
+        $draft_product = $this->create_product();
+        $deleted_product = $this->create_product();
+        $order = $this->create_order(['items' => [
+            ['variant_id' => $this->variant_id, 'quantity' => 1],
+            ['variant_id' => $this->default_variant_id($draft_product), 'quantity' => 1],
+            ['variant_id' => $this->default_variant_id($deleted_product), 'quantity' => 1],
+        ]]);
+
+        $this->track_stock($this->variant_id, 7);
+        Product::query()->where('id', $draft_product['id'])->update(['status' => ProductStatus::DRAFT]);
+        $this->delete_product($deleted_product['id']);
+
+        $edit = $this->read_edit($order['id']);
+        $preview = $this->preview(['order_id' => $order['id'], 'items' => [$this->line($order, 1, 0), $this->line($order, 1, 1), $this->line($order, 1, 2)]]);
+
+        $stock_keys = array_flip(['is_reachable', 'allow_back_order', 'track_inventory', 'available_quantity', 'in_stock', 'has_limit_per_order', 'max_per_order']);
+
+        foreach ($preview['items'] as $index => $preview_item) {
+            $this->assertSame(array_intersect_key($preview_item, $stock_keys), array_intersect_key($edit['items'][$index], $stock_keys), 'item ' . $index);
+        }
+
+        $this->assertSame([true, false, false], array_column($edit['items'], 'is_reachable'));
+        $this->assertSame(7, $edit['items'][0]['available_quantity']);
+        $this->assertNotEmpty($edit['available_shipping_methods']);
+        $this->assertSame($preview['available_shipping_methods'], $edit['available_shipping_methods']);
+    }
+
+    public function test_the_edit_read_is_the_order_detail_with_the_edit_only_fields_added(): void
+    {
+        $order = $this->create_order();
+
+        $detail = $this->normalize_response_data($this->assert_api_success($this->request('GET', 'orders/' . $order['id']))['data']);
+        $edit = $this->read_edit($order['id']);
+
+        $this->assertArrayNotHasKey('available_shipping_methods', $detail);
+        $this->assertArrayNotHasKey('is_reachable', $detail['items'][0]);
+        $this->assertArrayNotHasKey('available_quantity', $detail['items'][0]);
+
+        unset($edit['available_shipping_methods']);
+
+        $edit['items'] = array_map(fn($item) => array_diff_key($item, array_flip(['is_reachable', 'allow_back_order', 'track_inventory', 'available_quantity', 'in_stock', 'has_limit_per_order', 'max_per_order'])), $edit['items']);
+
+        $this->assertSame($detail, $edit);
+    }
+
+    public function test_the_edit_read_of_an_order_that_cannot_be_edited_is_refused(): void
+    {
+        $order = $this->create_order();
+        Order::find($order['id'])->update(['payment_status' => PaymentStatus::PAID]);
+
+        $this->assert_api_error($this->request('GET', 'orders/' . $order['id'] . '/edit'), 422);
+    }
+
+    public function test_the_edit_read_of_an_unknown_order_is_not_found(): void
+    {
+        $this->assert_api_error($this->request('GET', 'orders/999999/edit'), 404);
+    }
+
     public function test_the_preview_and_the_save_both_refuse_a_quantity_over_the_per_order_limit(): void
     {
         Variant::query()->where('id', $this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => 3]);
@@ -1243,6 +1303,11 @@ class OrderEditApiTest extends RestTestCase
      * @param array<string, mixed> $overrides Payload overrides.
      * @return array<string, mixed>
      */
+    protected function read_edit(int $order_id): array
+    {
+        return $this->normalize_response_data($this->assert_api_success($this->request('GET', 'orders/' . $order_id . '/edit'))['data']);
+    }
+
     protected function preview(array $overrides = []): array
     {
         $response = $this->request('POST', 'calculate/order', $this->order_payload($overrides));
