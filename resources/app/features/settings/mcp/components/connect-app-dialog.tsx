@@ -31,7 +31,6 @@ import { __, sprintf } from '@/wpi18n';
 type ConnectAppDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  isMcpEnabled: boolean;
   serverUrl: string;
   userLogin: string;
   profileUrl: string;
@@ -57,7 +56,6 @@ const ConnectAppDialog = (props: ConnectAppDialogProps) => {
   const {
     open,
     onOpenChange,
-    isMcpEnabled,
     serverUrl,
     userLogin,
     profileUrl,
@@ -83,16 +81,6 @@ const ConnectAppDialog = (props: ConnectAppDialogProps) => {
         </DialogHeader>
 
         <DialogBody cssOverride={styles.dialogBody}>
-          {!isMcpEnabled && (
-            <Alert
-              type="warning"
-              text={__(
-                'MCP is off. Turn on Kirki eCommerce MCP on the MCP settings page before the app can connect.',
-                'kirki-ecommerce',
-              )}
-            />
-          )}
-
           <Flex direction="column" gap={2}>
             <Text weight="semibold">{__('1. Choose your app', 'kirki-ecommerce')}</Text>
             <div

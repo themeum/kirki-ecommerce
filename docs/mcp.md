@@ -799,7 +799,9 @@ The test suite has no MCP Adapter, so these checks need a site that has it:
   **Settings → MCP → Abilities**. While read-only mode is on, a
   "Read-only mode is on" banner shows below the card.
 - **Connections**: the "Connect your AI app" card, with the logos of the
-  apps (hover a logo to see its name) and the **+ Connect app** dialog. Pick
+  apps (hover a logo to see its name) and the **+ Connect app** dialog. While
+  MCP is off, the card is faded and shows "Turn on Kirki eCommerce MCP above
+  to connect an app." in place of the button. Pick
   Claude Desktop, Claude Code, Cursor, VS Code, Codex, Gemini CLI, Windsurf or
   another MCP client, copy the config, and follow the steps to make the
   application password. The dialog does not ask for the password and does not

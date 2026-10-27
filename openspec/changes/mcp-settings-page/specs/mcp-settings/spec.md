@@ -192,8 +192,8 @@ The dialog SHALL NOT ask for, store or send an application password.
 
 #### Scenario: MCP is off
 
-- **WHEN** MCP is off and an administrator selects "+ Connect app"
-- **THEN** the dialog still opens, and it says that MCP must be turned on before the app can connect
+- **WHEN** MCP is off
+- **THEN** the Connections card is faded, it has no "+ Connect app" button, and it shows a lock icon with the text "Turn on Kirki eCommerce MCP above to connect an app."
 
 ### Requirement: Abilities sub-page
 

@@ -1,4 +1,4 @@
-import { Bot, ChevronRight, Eye, Plus } from 'lucide-react';
+import { Bot, ChevronRight, Eye, Lock, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
@@ -184,10 +184,8 @@ const McpSettings = () => {
           >
             <CardContent>
               <Flex direction="column" gap={3} align="flex-start">
-                <Flex direction="column">
-                  <Text weight="semibold">
-                    {__('Connect your AI app', 'kirki-ecommerce')}
-                  </Text>
+                <Flex direction="column" cssOverride={switches.enabled ? undefined : styles.faded}>
+                  <Text weight="semibold">{__('Connect your AI app', 'kirki-ecommerce')}</Text>
                   <Text variant="small" color="secondary">
                     {__(
                       'Pick the app you use. We show the config for that app and how to get its application password.',
@@ -195,15 +193,27 @@ const McpSettings = () => {
                     )}
                   </Text>
                 </Flex>
-                <Flex gap={2} wrap="wrap">
+                <Flex gap={2} wrap="wrap" cssOverride={switches.enabled ? undefined : styles.faded}>
                   {MCP_CLIENT_IDS.filter(hasDistinctClientLogo).map((id) => (
                     <ClientLogo key={id} clientId={id} title={getClientName(id)} />
                   ))}
                 </Flex>
-                <Button size="sm" onClick={() => setIsConnectOpen(true)}>
-                  <Plus size={14} />
-                  {__('Connect app', 'kirki-ecommerce')}
-                </Button>
+                {switches.enabled ? (
+                  <Button size="sm" onClick={() => setIsConnectOpen(true)}>
+                    <Plus size={14} />
+                    {__('Connect app', 'kirki-ecommerce')}
+                  </Button>
+                ) : (
+                  <Flex align="center" gap={2} cssOverride={styles.lockedNote}>
+                    <Lock size={14} aria-hidden="true" />
+                    <Text variant="small" color="secondary">
+                      {__(
+                        'Turn on Kirki eCommerce MCP above to connect an app.',
+                        'kirki-ecommerce',
+                      )}
+                    </Text>
+                  </Flex>
+                )}
               </Flex>
             </CardContent>
           </Card>
@@ -213,7 +223,6 @@ const McpSettings = () => {
       <ConnectAppDialog
         open={isConnectOpen}
         onOpenChange={setIsConnectOpen}
-        isMcpEnabled={switches.enabled}
         serverUrl={serverUrl}
         userLogin={settings?.user_login ?? ''}
         profileUrl={settings?.profile_url ?? ''}
@@ -230,6 +239,12 @@ export default McpSettings;
 const styles = defineStyles({
   sectionTitle: {
     paddingInline: theme.spacing[2],
+  },
+  faded: {
+    opacity: 0.5,
+  },
+  lockedNote: {
+    color: theme.colors.icon.secondary,
   },
   rowText: {
     minWidth: 0,
