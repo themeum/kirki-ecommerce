@@ -25,6 +25,8 @@ import {
   formatShippingAddress,
   toOrderAddresses,
 } from '@/features/orders/lib/customer-address';
+import { toOrderFormAddresses } from '@/features/orders/lib/order-address';
+import type { Order } from '@/features/orders/schemas/catalog/order';
 import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
 import { OrderFormSchema } from '@/features/orders/schemas/forms/order-form';
 import { ShowMoreIcon } from '@/icons/common';
@@ -40,6 +42,7 @@ type CustomerCardProps = {
   isSaving?: boolean;
   isGuest?: boolean | null;
   mode: 'create' | 'edit' | 'view';
+  order?: Order;
 };
 
 const WATCHED_ADDRESS_FIELDS = [
@@ -62,7 +65,7 @@ const WATCHED_ADDRESS_FIELDS = [
   'billing_country',
 ] as const satisfies readonly (keyof OrderFormInput)[];
 
-const CustomerCard = ({ onSave, isSaving, isGuest, mode }: CustomerCardProps) => {
+const CustomerCard = ({ onSave, isSaving, isGuest, mode, order }: CustomerCardProps) => {
   const form = useFormContext<OrderFormInput>();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
@@ -128,7 +131,7 @@ const CustomerCard = ({ onSave, isSaving, isGuest, mode }: CustomerCardProps) =>
     billing_country,
   ] = useWatch({ control: form.control, name: WATCHED_ADDRESS_FIELDS });
 
-  const values = {
+  const watchedValues = {
     customer_first_name,
     customer_last_name,
     customer_email,
@@ -147,6 +150,8 @@ const CustomerCard = ({ onSave, isSaving, isGuest, mode }: CustomerCardProps) =>
     billing_postal_code,
     billing_country,
   };
+
+  const values = mode === 'view' && order ? toOrderFormAddresses(order) : watchedValues;
 
   const shippingAddress = formatShippingAddress(values, countries);
   const billingAddress = formatBillingAddress(values, countries);

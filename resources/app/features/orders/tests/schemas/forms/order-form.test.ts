@@ -3,6 +3,7 @@ import { assert, beforeEach, describe, expect, it } from 'vitest';
 import {
   OrderCalculationRequestSchema,
   OrderFormSchema,
+  OrderPartialFormSchema,
 } from '@/features/orders/schemas/forms/order-form';
 import { cacheAddressRules } from '@/libs/address-rules';
 import { getDefaults } from '@/libs/zod';
@@ -629,5 +630,41 @@ describe('OrderCalculationRequestSchema', () => {
 
     expect(result.billing_first_name).toBeNull();
     expect(result.billing_city).toBeNull();
+  });
+});
+
+describe('OrderPartialFormSchema', () => {
+  it('keeps notes and flags', () => {
+    expect(OrderPartialFormSchema.parse({ order_notes: 'Call first', flags: ['Urgent'] })).toEqual({
+      order_notes: 'Call first',
+      flags: ['Urgent'],
+    });
+  });
+
+  it('keeps a single key and leaves the other out', () => {
+    expect(OrderPartialFormSchema.parse({ order_notes: 'Call first' })).toEqual({
+      order_notes: 'Call first',
+    });
+    expect(OrderPartialFormSchema.parse({ flags: ['Urgent'] })).toEqual({ flags: ['Urgent'] });
+  });
+
+  it('keeps a null so the field is cleared', () => {
+    expect(OrderPartialFormSchema.parse({ order_notes: null })).toEqual({ order_notes: null });
+    expect(OrderPartialFormSchema.parse({ flags: null })).toEqual({ flags: null });
+  });
+
+  it('drops every other order field', () => {
+    const result = OrderPartialFormSchema.parse({
+      order_notes: 'x',
+      flags: [],
+      customer_id: 7,
+      items: [],
+    });
+
+    expect(Object.keys(result).sort()).toEqual(['flags', 'order_notes']);
+  });
+
+  it('rejects non-string flags', () => {
+    expect(OrderPartialFormSchema.safeParse({ flags: [1] }).success).toBe(false);
   });
 });

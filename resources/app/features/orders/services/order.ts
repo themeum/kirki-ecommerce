@@ -16,6 +16,7 @@ import {
 import type {
   OrderCalculationRequestPayload,
   OrderFormPayload,
+  OrderPartialPayload,
 } from '@/features/orders/schemas/forms/order-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
@@ -71,6 +72,12 @@ const getOrderEditInfo = (id: string | number) => {
 const updateOrder = ({ id, data }: { id: number; data: OrderFormPayload }) => {
   return apiClient
     .put(endpoints.ORDER(id), data)
+    .then((response) => parseResponse(OrderSchema, response));
+};
+
+const partialUpdateOrder = ({ id, data }: { id: number; data: Partial<OrderPartialPayload> }) => {
+  return apiClient
+    .patch(endpoints.ORDER(id), data)
     .then((response) => parseResponse(OrderSchema, response));
 };
 
@@ -134,7 +141,22 @@ const useUpdateOrderMutation = () => {
       void queryClient.invalidateQueries({
         queryKey: orderKeys.editInfo(variables.id),
       });
-      void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const usePartialUpdateOrderMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: partialUpdateOrder,
+    onSuccess(response, variables) {
+      toastMutationSuccess(response.message || __('Order updated', 'kirki-ecommerce'));
+      void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
@@ -152,7 +174,6 @@ const useOrderActionMutation = () => {
       void queryClient.invalidateQueries({
         queryKey: orderKeys.editInfo(variables.id),
       });
-      void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
@@ -176,6 +197,7 @@ export {
   useOrderEditInfoQuery,
   useOrderQuery,
   useOrdersQuery,
+  usePartialUpdateOrderMutation,
   useShippingMethodsQuery,
   useUpdateOrderMutation,
 };

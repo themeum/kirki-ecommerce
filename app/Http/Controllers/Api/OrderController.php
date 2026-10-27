@@ -32,7 +32,7 @@ use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderListRequest;
-use Kirki\Ecommerce\App\Http\Requests\Order\OrderPatchRequest;
+use Kirki\Ecommerce\App\Http\Requests\Order\OrderPartialRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundUpdateRequest;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
@@ -188,11 +188,11 @@ class OrderController
      *
      * @since 1.0.0
      *
-     * @param OrderPatchRequest $request
+     * @param OrderPartialRequest $request
      * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated order.
      * @throws NotFoundException When the order does not exist.
      */
-    public function patch(OrderPatchRequest $request)
+    public function partial(OrderPartialRequest $request)
     {
         $id = $request->int('id');
         $input = $request->all();

@@ -7,7 +7,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
+import type { OrderPartialFormInput } from '@/features/orders/schemas/forms/order-form';
 import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
@@ -18,7 +18,7 @@ type NotesCardProps = {
 };
 
 const NotesCard = ({ mode = 'create', onSave, isSaving = false }: NotesCardProps) => {
-  const form = useFormContext<OrderFormInput>();
+  const form = useFormContext<OrderPartialFormInput>();
   const savedNotes = useWatch({ control: form.control, name: 'order_notes' });
   const [isEditing, setIsEditing] = useState(false);
 

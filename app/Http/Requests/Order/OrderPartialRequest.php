@@ -13,7 +13,7 @@ use Kirki\Ecommerce\Framework\Http\Request;
  *
  * @since 1.0.0
  */
-class OrderPatchRequest extends Request
+class OrderPartialRequest extends Request
 {
     /**
      * @inheritDoc
