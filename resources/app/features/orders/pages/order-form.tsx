@@ -97,9 +97,12 @@ const OrderFormContent = () => {
               <Button
                 variant="secondary"
                 onClick={() =>
-                  void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: Number(orderId) }), {
-                    replace: true,
-                  })
+                  void navigate(
+                    RouteConfig.Orders.get('OrderDetail').buildLink({ id: Number(orderId) }),
+                    {
+                      replace: true,
+                    },
+                  )
                 }
               >
                 {__('Back to order', 'kirki-ecommerce')}
