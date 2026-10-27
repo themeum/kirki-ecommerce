@@ -17,18 +17,19 @@ quote and new tax, because the store never quoted those.
 - [5. Stock and per-order limits](#5-stock-and-per-order-limits)
 - [6. Coupons](#6-coupons)
 - [7. Shipping, tax, currency and exchange rate](#7-shipping-tax-currency-and-exchange-rate)
-- [8. Previewing an edit](#8-previewing-an-edit)
-- [9. Errors](#9-errors)
-- [10. Where this differs from WooCommerce](#10-where-this-differs-from-woocommerce)
+- [8. Reading an order for an edit](#8-reading-an-order-for-an-edit)
+- [9. Previewing an edit](#9-previewing-an-edit)
+- [10. Errors](#10-errors)
+- [11. Where this differs from WooCommerce](#11-where-this-differs-from-woocommerce)
 
 ---
 
 ## 1. Quick start
 
-1. Read the order with `GET /orders/{id}`. Do not show an edit screen when
-   `is_editable` is `false`.
+1. Read the order with `GET /orders/{id}/edit` (section 8). It fails with 422
+   when the order cannot be edited, so do not show an edit screen then.
 2. After each change on the screen, send the full order with its `order_id`
-   to `POST /calculate/order` to show the new totals (section 8).
+   to `POST /calculate/order` to show the new totals (section 9).
 3. To save, send the full order to `PUT /orders/{id}`. The payload has the same
    shape as `POST /orders`: `items`, `coupon_codes`, `shipping_method`, the
    `shipping_*`, `billing_*` and `customer_*` fields, `order_notes` and
@@ -155,7 +156,7 @@ only for the **difference**:
 Variants that do not track inventory, or that allow back orders, are not
 limited by stock.
 
-The preview and the save check these rules in the same way (section 8). The
+The preview and the save check these rules in the same way (section 9). The
 preview only reads the stock, so it cannot hold it. The save checks the stock
 again and reserves it while the order is locked. If another order takes the
 stock after your preview, the save fails.
@@ -256,7 +257,28 @@ not checked against today's settings.
 
 ---
 
-## 8. Previewing an edit
+## 8. Reading an order for an edit
+
+`GET /orders/{id}/edit` returns everything `GET /orders/{id}` returns, plus what
+the screen needs before the first preview:
+
+| Key | Meaning |
+|---|---|
+| `items[].is_reachable` | `false` when the line is locked (section 4). Disable its quantity buttons. |
+| `items[].allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order` | The variant's live values. All `null` when the variant was deleted. |
+| `available_shipping_methods` | The shipping methods you can choose for the order's address, each with `base_cost_money_object`. Same list as the preview gives (section 9). |
+
+The values are read when the response is built. They are not saved on the order,
+and they change when the stock or the shipping settings change. For a line that
+has not changed, the preview gives the same values. The saved shipping method can
+be missing from `available_shipping_methods` when the store no longer offers it.
+
+It fails with 404 when the order does not exist, and with 422 when the order
+cannot be edited (section 2). `GET /orders/{id}` does not have these keys.
+
+---
+
+## 9. Previewing an edit
 
 `POST /calculate/order` calculates an order without saving it. With no
 `order_id` it previews a new order. With an `order_id` it previews an **edit** of
@@ -286,7 +308,7 @@ customer paid.
 
 ---
 
-## 9. Errors
+## 10. Errors
 
 | Status | When |
 |---|---|
@@ -309,7 +331,7 @@ coupons nor the totals.
 
 ---
 
-## 10. Where this differs from WooCommerce
+## 11. Where this differs from WooCommerce
 
 - **Prices and coupons are frozen on purpose.** WooCommerce keeps a line's
   price until you press *Recalculate*, and then it re-prices and re-applies
@@ -340,6 +362,6 @@ coupons nor the totals.
   has no preview of an edit. Here the preview checks stock and the per-order
   limit too, so the admin sees the same error before the save. A stock
   shortage that appears only in the save's own check gives HTTP 500
-  (section 9).
+  (section 10).
 - **No manual price or custom discount.** You cannot set a line price by hand
   or add a discount that is not a coupon.

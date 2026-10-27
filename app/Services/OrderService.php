@@ -30,6 +30,7 @@ use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
 use Kirki\Ecommerce\App\Supports\ListPaginator;
 use Kirki\Ecommerce\App\Supports\OrderNumberGenerator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
@@ -311,7 +312,26 @@ class OrderService
     {
         $order = $this->find_order($id);
 
-        throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        return $order;
+    }
+
+    /**
+     * Find an order that can still be edited, or throw an exception.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id Order ID.
+     * @return Order
+     * @throws NotFoundException When the order does not exist.
+     * @throws ValidationException When the order can no longer be edited.
+     */
+    public function find_editable_order_or_fail($id)
+    {
+        $order = $this->find_order_or_fail($id);
+
+        throw_if(!$order->is_editable(), __('This order can no longer be edited.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         return $order;
     }

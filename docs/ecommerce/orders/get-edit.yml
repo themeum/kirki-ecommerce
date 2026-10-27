@@ -1,0 +1,208 @@
+info:
+  name: Get Order For Edit
+  type: http
+  seq: 15
+  tags:
+    - orders
+
+http:
+  method: GET
+  url: "{{baseUrl}}/orders/29/edit"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/orders/29/edit"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": "29",
+              "uuid": "d9249ee1-b100-4f2e-b34b-a5caf2ef9725",
+              "order_number": "ORD-695CEA20C3A9D",
+              "invoice_number": "INV-695CEA20C3A9D",
+              "customer_id": "2",
+              "customer": {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "email": "jane.shipping@example.com",
+                "phone": "+1 555-000-2000"
+              },
+              "status": "pending",
+              "fulfillment_status": "unfulfilled",
+              "is_refund_initiated": false,
+              "is_manual": false,
+              "currency_code": "BDT",
+              "is_tax_inclusive": false,
+              "tax_destination": "shipping",
+              "totals": {
+                "invoiced_items_subtotal_money_object": { "raw": 3256.00, "display": "৳3,256.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_items_subtotal_money_object": { "raw": 29.60, "display": "$29.60", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_order_discount_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_order_discount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_order_total_money_object": { "raw": 3256.00, "display": "৳3,256.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_order_total_money_object": { "raw": 29.60, "display": "$29.60", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_tax_total_money_object": { "raw": 325.60, "display": "৳325.60", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_tax_total_money_object": { "raw": 2.96, "display": "$2.96", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_shipping_amount_money_object": { "raw": 7040.00, "display": "৳7,040.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_shipping_amount_money_object": { "raw": 64.00, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_shipping_strikethrough_money_object": { "raw": 7040.00, "display": "৳7,040.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_shipping_strikethrough_money_object": { "raw": 64.00, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_total_money_object": { "raw": 10621.60, "display": "৳10,621.60", "currency": { "code": "BDT", "symbol": "৳" } },
+                "base_total_money_object": { "raw": 96.56, "display": "$96.56", "currency": { "code": "USD", "symbol": "$" } },
+                "tax_lines": [
+                  { "name": "Tax", "rate": 10, "invoiced_amount_money_object": { "raw": 325.60, "display": "৳325.60", "currency": { "code": "BDT", "symbol": "৳" } }, "base_amount_money_object": { "raw": 2.96, "display": "$2.96", "currency": { "code": "USD", "symbol": "$" } } }
+                ]
+              },
+              "coupons": [
+                {
+                  "id": "4",
+                  "coupon_id": "11",
+                  "code": "SAVE10",
+                  "title": "Save $2 on T-Shirts",
+                  "discount_type": "amount-off",
+                  "discount_target": "products",
+                  "invoiced_discount_amount_money_object": { "raw": 220.00, "display": "৳220.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "base_discount_amount_money_object": { "raw": 2.00, "display": "$2.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "usage_reversed_at": null,
+                  "discount_value_type": "fixed",
+                  "discount_amount_percentage": null,
+                  "invoiced_discount_amount_fixed_money_object": { "raw": 220.00, "display": "৳220.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "base_discount_amount_fixed_money_object": { "raw": 2.00, "display": "$2.00", "currency": { "code": "USD", "symbol": "$" } }
+                }
+              ],
+              "items_count": 2,
+              "items": [
+                {
+                  "id": "35",
+                  "is_reachable": true,
+                  "product_id": "12",
+                  "variant_id": "18",
+                  "product_name": "Classic Cotton T-Shirt",
+                  "variant_name": "Red, Red",
+                  "sku": "T-SHIRT-1-4",
+                  "image": null,
+                  "quantity": 2,
+                  "invoiced_subtotal_money_object": { "raw": 3256.00, "display": "৳3,256.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "base_subtotal_money_object": { "raw": 29.60, "display": "$29.60", "currency": { "code": "USD", "symbol": "$" } },
+                  "invoiced_strikethrough_price_money_object": { "raw": 3476.00, "display": "৳3,476.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "base_strikethrough_price_money_object": { "raw": 31.60, "display": "$31.60", "currency": { "code": "USD", "symbol": "$" } },
+                  "invoiced_tax_total_money_object": { "raw": 325.60, "display": "৳325.60", "currency": { "code": "BDT", "symbol": "৳" } },
+                  "base_tax_total_money_object": { "raw": 2.96, "display": "$2.96", "currency": { "code": "USD", "symbol": "$" } },
+                  "tax_lines": [
+                    { "name": "Tax", "rate": 10, "invoiced_amount_money_object": { "raw": 325.60, "display": "৳325.60", "currency": { "code": "BDT", "symbol": "৳" } }, "base_amount_money_object": { "raw": 2.96, "display": "$2.96", "currency": { "code": "USD", "symbol": "$" } } }
+                  ],
+                  "applied_product_coupons": [
+                    {
+                      "code": "SAVE10",
+                      "title": "Save $2 on T-Shirts",
+                      "invoiced_discount_amount_money_object": { "raw": 220.00, "display": "৳220.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                      "base_discount_amount_money_object": { "raw": 2.00, "display": "$2.00", "currency": { "code": "USD", "symbol": "$" } },
+                      "discount_value_type": "fixed",
+                      "discount_amount_percentage": null,
+                      "invoiced_discount_amount_fixed_money_object": { "raw": 220.00, "display": "৳220.00", "currency": { "code": "BDT", "symbol": "৳" } },
+                      "base_discount_amount_fixed_money_object": { "raw": 2.00, "display": "$2.00", "currency": { "code": "USD", "symbol": "$" } }
+                    }
+                  ],
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 12,
+                  "in_stock": true,
+                  "has_limit_per_order": false,
+                  "max_per_order": null
+                }
+              ],
+              "shipping_address": {
+                "first_name": "Sunny",
+                "last_name": "Doe",
+                "address_line1": "Nikunja 2, Khilket",
+                "address_line2": "",
+                "city": "Dhaka",
+                "state": "5665",
+                "country": "BD",
+                "postal_code": "5665",
+                "phone": "+1 555-000-2000",
+                "email": "jane.shipping@example.com"
+              },
+              "billing_address": {
+                "first_name": "Jane",
+                "last_name": "Doe",
+                "address_line1": "78 Sunset Blvd",
+                "address_line2": "",
+                "city": "Los Angeles",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90001",
+                "phone": "+1 555-000-2000",
+                "email": "jane.shipping@example.com"
+              },
+              "payment_provider": "stripe",
+              "payment_provider_name": "Stripe",
+              "payment_provider_icon": "{{baseUrl}}/payments/kirki-stripe/assets/logo.svg",
+              "payment_provider_is_offline": false,
+              "payment_status": "unpaid",
+              "shipping_method": "fsdfdsfsdfsdf343432jh4",
+              "shipping_method_name": "Standard Delivery",
+              "shipping_method_type": "flat_rate",
+              "order_notes": "Please leave the package at the front door.",
+              "flags": [],
+              "shipping_tracking": {
+                "carrier": null,
+                "tracking_number": null,
+                "tracking_url": null
+              },
+              "refunds": [],
+              "archived_at": null,
+              "created_at": "2026-01-07 17:19:56",
+              "available_shipping_methods": [
+                {
+                  "id": "fsdfdsfsdfsdf343432jh4",
+                  "name": "Standard Delivery",
+                  "description": null,
+                  "is_taxable": false,
+                  "type": "flat_rate",
+                  "base_cost_money_object": { "raw": 64.00, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } }
+                }
+              ]
+            },
+            "message": "Order retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/orders/29/edit"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order not found."
+          }
+
+docs: |-
+  # Get Order For Edit
+  Returns the order for the edit screen: everything `GET /orders/{id}` returns, plus `is_reachable` and the variant's live stock values on each item, and `available_shipping_methods`. Fails with 404 when the order does not exist and with 422 when it can no longer be edited. See docs/order-editing.md.

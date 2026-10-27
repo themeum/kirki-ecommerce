@@ -4,6 +4,8 @@ namespace Kirki\Ecommerce\App\Resources\Order;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Concerns\FormatsShippingOptions;
+use Kirki\Ecommerce\App\Concerns\FormatsVariantStock;
 use Kirki\Ecommerce\App\Concerns\ResolvesLineItemPricing;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Services\ShippingService;
@@ -20,6 +22,8 @@ use function Kirki\Ecommerce\Framework\app;
  */
 class OrderCalculationResource extends Resource
 {
+    use FormatsShippingOptions;
+    use FormatsVariantStock;
     use ResolvesLineItemPricing;
 
     /**
@@ -80,12 +84,7 @@ class OrderCalculationResource extends Resource
             'items_count' => $result->items_count,
             'items' => $this->prepare_items($result->items, $result),
 
-            'available_shipping_methods' => array_map(function ($method) {
-                $cost = $method['base_cost'];
-                unset($method['base_cost']);
-                $method['base_cost_money_object'] = Money::prepare_amount_object_from_minor($cost);
-                return $method;
-            }, $shipping_options),
+            'available_shipping_methods' => $this->format_shipping_options($shipping_options),
 
             'shipping_method' => $selected_shipping_method['id'] ?? null,
         ];
@@ -121,7 +120,7 @@ class OrderCalculationResource extends Resource
                 'base_unit_price_money_object' => $this->prepare_unit_amount_object($subtotal, $item->quantity),
                 'base_unit_strikethrough_price_money_object' => $this->prepare_unit_amount_object($strikethrough, $item->quantity),
                 'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->line_key),
-            ], $this->prepare_stock_values($item->variant_id ? ($variants[$item->variant_id] ?? null) : null));
+            ], $this->format_variant_stock_fields($item->variant_id ? ($variants[$item->variant_id] ?? null) : null));
         }
 
         return $cart_items;
@@ -152,26 +151,6 @@ class OrderCalculationResource extends Resource
                 'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($coupon_result->total_discount),
             ];
         }, $coupon_results);
-    }
-
-    /**
-     * Get a variant's current stock and per-order limit values.
-     *
-     * @since 1.0.0
-     *
-     * @param \Kirki\Ecommerce\App\Models\Variant|null $variant Variant; null when it was deleted.
-     * @return array<string, bool|int|null> Every value is null when there is no variant.
-     */
-    protected function prepare_stock_values($variant)
-    {
-        return [
-            'allow_back_order' => $variant ? (bool) $variant->allow_back_order : null,
-            'track_inventory' => $variant ? (bool) $variant->track_inventory : null,
-            'available_quantity' => $variant ? (int) $variant->available_quantity : null,
-            'in_stock' => $variant ? (bool) $variant->in_stock : null,
-            'has_limit_per_order' => $variant ? (bool) $variant->has_limit_per_order : null,
-            'max_per_order' => $variant && $variant->max_per_order !== null ? (int) $variant->max_per_order : null,
-        ];
     }
 
     /**
