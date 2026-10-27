@@ -66,7 +66,7 @@ const OrderItemRow = ({ row, onQuantityChange, onRemove }: OrderItemRowProps) =>
       <TableCell alignment="right" cssOverride={{ width: '88px' }}>
         <Text variant="small">{lineTotal}</Text>
       </TableCell>
-      <TableCell onlyCheckbox>
+      <TableCell onlyCheckbox cssOverride={{ paddingLeft: '0px !important' }}>
         <ActionGroup>
           <Button
             variant="ghost"
