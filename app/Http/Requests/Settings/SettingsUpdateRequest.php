@@ -24,6 +24,7 @@ use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Constants\ThousandSeparator;
 use Kirki\Ecommerce\App\Constants\UpdateFrequency;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Supports\TrackingUrl;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 use function Kirki\Ecommerce\Framework\deep_get;
@@ -38,7 +39,7 @@ class SettingsUpdateRequest extends Request
     /**
      * Normalize the shipping and tax settings payload before validation.
      *
-     * Shipping method and range amounts are converted to minor units. Non-EU tax regions with central tax enabled get their state list emptied.
+     * Shipping method and range amounts are converted to minor units, zones that never held carriers are seeded with the preset carriers, and the derived carrier logo URL is dropped. Non-EU tax regions with central tax enabled get their state list emptied.
      *
      * @since 1.0.0
      *
@@ -54,7 +55,17 @@ class SettingsUpdateRequest extends Request
                     return;
                 }
 
+                unset($data['shipping_carrier_presets']);
+
                 foreach ($data['shipping_zones'] as $zone_index => $zone) {
+                    if (is_array($zone) && is_array($zone['shipping_carriers'] ?? null)) {
+                        foreach ($zone['shipping_carriers'] as $carrier_index => $carrier) {
+                            if (is_array($carrier)) {
+                                unset($data['shipping_zones'][$zone_index]['shipping_carriers'][$carrier_index]['logo_url']);
+                            }
+                        }
+                    }
+
                     if (!is_array($zone) || !isset($zone['shipping_methods']) || !is_array($zone['shipping_methods'])) {
                         continue;
                     }
@@ -328,7 +339,7 @@ class SettingsUpdateRequest extends Request
     }
 
     /**
-     * Return the validation rules for the shipping zones and their shipping methods.
+     * Return the validation rules for the shipping zones, their shipping methods and their carriers.
      *
      * Flat rate and weight based methods must also provide `is_taxable`.
      *
@@ -418,26 +429,20 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.action' => 'array',
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.action.type' => 'required|string',
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.action.value' => 'nullable',
-            // 'data.shipping_zones.*.shipping_carriers' => 'nullable|array',
-            // 'data.shipping_zones.*.shipping_carriers.*.is_enabled' => 'required|boolean',
-            // 'data.shipping_zones.*.shipping_carriers.*.name' => 'required|string',
-            // 'data.shipping_zones.*.shipping_carriers.*.type' => 'required|string',
-            // 'data.shipping_zones.*.shipping_carriers.*.rate' => 'required|number',
-            // 'data.shipping_zones.*.shipping_carriers.*.is_taxable' => 'required|boolean',
-            // 'data.shipping_zones.*.shipping_carriers.*.description' => 'nullable|string',
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules' => 'nullable|array',
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.condition' => 'array',
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.condition.*.type' => 'required|string',
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.condition.*.operator' => 'required|string',
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.condition.*.value' => 'required|string',
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.action' => 'array',
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.action.*.type' => 'required|string',
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.action.*.value' => 'required|string',
+            'data.shipping_zones.*.shipping_carriers' => 'nullable|array',
+            'data.shipping_zones.*.shipping_carriers.*.id' => 'required|string',
+            'data.shipping_zones.*.shipping_carriers.*.preset' => 'nullable|string',
+            'data.shipping_zones.*.shipping_carriers.*.name' => 'required|string',
+            'data.shipping_zones.*.shipping_carriers.*.tracking_url' => ['required', 'string', function ($url) {
+                return TrackingUrl::validate_template($url);
+            }],
+            'data.shipping_zones.*.shipping_carriers.*.logo' => 'nullable|integer',
+            'data.shipping_zones.*.shipping_carriers.*.is_enabled' => 'required|boolean',
         ];
     }
 
     /**
-     * Return the sanitizers for the shipping zones and their shipping methods.
+     * Return the sanitizers for the shipping zones, their shipping methods and their carriers.
      *
      * @since 1.0.0
      *
@@ -486,22 +491,15 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.action.type' => Sanitizer::TEXT,
             'data.shipping_zones.*.shipping_methods.*.shipping_rules.*.action.value' => Sanitizer::TEXT,
 
-            //@todo: implement later
-            // 'data.shipping_zones.*.shipping_carriers' => Sanitizer::ARRAY ,
-            // 'data.shipping_zones.*.shipping_carriers.*.is_enabled' => Sanitizer::BOOL,
-            // 'data.shipping_zones.*.shipping_carriers.*.name' => Sanitizer::TEXT,
-            // 'data.shipping_zones.*.shipping_carriers.*.type' => Sanitizer::TEXT,
-            // 'data.shipping_zones.*.shipping_carriers.*.rate' => Sanitizer::FLOAT,
-            // 'data.shipping_zones.*.shipping_carriers.*.is_taxable' => Sanitizer::BOOL,
-            // 'data.shipping_zones.*.shipping_carriers.*.description' => Sanitizer::TEXT,
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules' => Sanitizer::ARRAY ,
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.condition' => Sanitizer::ARRAY ,
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.condition.*.type' => Sanitizer::TEXT,
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.condition.*.operator' => Sanitizer::TEXT,
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.condition.*.value' => Sanitizer::TEXT,
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.action' => Sanitizer::ARRAY ,
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.action.*.type' => Sanitizer::TEXT,
-            // 'data.shipping_zones.*.shipping_carriers.*.shipping_rules.*.action.*.value' => Sanitizer::TEXT,
+            'data.shipping_zones.*.shipping_carriers' => Sanitizer::ARRAY,
+            'data.shipping_zones.*.shipping_carriers.*.id' => Sanitizer::TEXT,
+            'data.shipping_zones.*.shipping_carriers.*.preset' => Sanitizer::TEXT,
+            'data.shipping_zones.*.shipping_carriers.*.name' => Sanitizer::TEXT,
+            'data.shipping_zones.*.shipping_carriers.*.tracking_url' => function ($url) {
+                return TrackingUrl::sanitize_template($url);
+            },
+            'data.shipping_zones.*.shipping_carriers.*.logo' => Sanitizer::INT,
+            'data.shipping_zones.*.shipping_carriers.*.is_enabled' => Sanitizer::BOOL,
         ];
     }
 

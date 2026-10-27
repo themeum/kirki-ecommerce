@@ -218,6 +218,7 @@ const OrderDetails = () => {
           <AddTrackingDialog
             open
             onOpenChange={setIsTrackingDialogOpen}
+            orderId={order.id}
             tracking={order.shipping_tracking}
             isSaving={isActionPending}
             onSubmit={handleAddTracking}

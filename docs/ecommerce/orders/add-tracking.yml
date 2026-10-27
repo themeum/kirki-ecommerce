@@ -1,0 +1,124 @@
+info:
+  name: Add Tracking (Order Action)
+  type: http
+  seq: 17
+  tags:
+    - orders
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/orders/29/action"
+  body:
+    type: json
+    data: |-
+      {
+        "action": "add-tracking",
+        "carrier_id": "ups",
+        "tracking_number": "1Z999AA10123456784"
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response (listed carrier)
+    description: "`carrier_id` names an enabled carrier of the order's shipping zone. The server fills the carrier's `{tracking_number}` template with the URL-encoded number and stores the carrier name, number and resolved link on the order. A `tracking_url` sent with a `carrier_id` is ignored."
+    request:
+      url: "{{baseUrl}}/orders/29/action"
+      method: PATCH
+      body:
+        type: json
+        data: |-
+          {
+            "action": "add-tracking",
+            "carrier_id": "ups",
+            "tracking_number": "1Z999AA10123456784"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 29,
+              "shipping_tracking": {
+                "carrier": "UPS",
+                "tracking_number": "1Z999AA10123456784",
+                "tracking_url": "https://www.ups.com/track?loc=en_US&tracknum=1Z999AA10123456784"
+              }
+            },
+            "message": "Tracking number added."
+          }
+  - name: 200 Response (Other, ad-hoc template)
+    description: "Without `carrier_id`, send `carrier` (the name) and a `tracking_url` template holding `{tracking_number}`. A plain http(s) `tracking_url` without the placeholder is stored as sent."
+    request:
+      url: "{{baseUrl}}/orders/29/action"
+      method: PATCH
+      body:
+        type: json
+        data: |-
+          {
+            "action": "add-tracking",
+            "carrier": "Local Courier",
+            "tracking_number": "AB 12",
+            "tracking_url": "https://track.example.com/?n={tracking_number}"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 29,
+              "shipping_tracking": {
+                "carrier": "Local Courier",
+                "tracking_number": "AB 12",
+                "tracking_url": "https://track.example.com/?n=AB%2012"
+              }
+            },
+            "message": "Tracking number added."
+          }
+  - name: 422 Response (carrier not available)
+    description: The carrier id is unknown, disabled, or belongs to another zone. Also returned for a `tracking_url` that is not http(s), a missing carrier name, or an order that is not shipped.
+    request:
+      url: "{{baseUrl}}/orders/29/action"
+      method: PATCH
+      body:
+        type: json
+        data: |-
+          {
+            "action": "add-tracking",
+            "carrier_id": "unknown",
+            "tracking_number": "123"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Validation failed!",
+            "errors": {
+              "carrier_id": ["This carrier is not available for the order's shipping zone."]
+            }
+          }

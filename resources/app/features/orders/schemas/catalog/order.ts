@@ -61,6 +61,15 @@ export const OrderTrackingSchema = z.object({
 
 export type OrderTracking = z.infer<typeof OrderTrackingSchema>;
 
+export const OrderShippingCarrierSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  tracking_url: z.string(),
+  logo_url: z.string().nullish(),
+});
+
+export type OrderShippingCarrier = z.infer<typeof OrderShippingCarrierSchema>;
+
 export const RefundStatusSchema = z.enum(['pending', 'completed', 'cancelled']);
 
 export type RefundStatus = z.infer<typeof RefundStatusSchema>;

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { ShippingBoxSchema, ShippingProfileSchema, ShippingZoneSchema } from '@/features/settings/shipping/schemas/catalog/shipping';
+import {
+  ShippingBoxSchema,
+  ShippingCarrierPresetSchema,
+  ShippingProfileSchema,
+  ShippingZoneSchema,
+} from '@/features/settings/shipping/schemas/catalog/shipping';
 
 describe('ShippingProfileSchema', () => {
   it('accepts the documented list item (shipping-profiles/list-10.yml)', () => {
@@ -106,13 +111,13 @@ describe('ShippingZoneSchema', () => {
     ],
     shipping_carriers: [
       {
+        id: 'dhl',
+        preset: 'dhl',
         is_enabled: true,
         name: 'DHL',
-        type: 'flat_rate',
-        rate: 10,
-        is_taxable: true,
-        description: null,
-        shipping_rules: [],
+        tracking_url: 'https://www.dhl.com/track?id={tracking_number}',
+        logo: null,
+        logo_url: 'https://example.test/dhl.svg',
       },
     ],
   };
@@ -134,5 +139,35 @@ describe('ShippingZoneSchema', () => {
   it('accepts a zone with only its identity field', () => {
     const result = ShippingZoneSchema.safeParse({ id: 1 });
     expect(result.success).toBe(true);
+  });
+});
+
+describe('ShippingCarrierPresetSchema', () => {
+  it('accepts a catalog entry (settings/shipping.yml)', () => {
+    const result = ShippingCarrierPresetSchema.safeParse({
+      key: 'ups',
+      name: 'UPS',
+      tracking_url: 'https://www.ups.com/track?tracknum={tracking_number}',
+      logo_url: 'https://example.test/ups.svg',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts an entry without a logo', () => {
+    const result = ShippingCarrierPresetSchema.safeParse({
+      key: 'ups',
+      name: 'UPS',
+      tracking_url: 'https://www.ups.com/track?tracknum={tracking_number}',
+      logo_url: null,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an entry without a key', () => {
+    const result = ShippingCarrierPresetSchema.safeParse({
+      name: 'UPS',
+      tracking_url: 'https://www.ups.com/track?tracknum={tracking_number}',
+    });
+    expect(result.success).toBe(false);
   });
 });

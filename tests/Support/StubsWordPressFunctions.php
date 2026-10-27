@@ -106,6 +106,15 @@ if (!function_exists('esc_url')) {
     }
 }
 
+if (!function_exists('sanitize_url')) {
+    function sanitize_url($url, $protocols = null)
+    {
+        $url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\[\]\x80-\xff]|i', '', (string) $url);
+
+        return preg_match('#^https?://#i', $url) ? $url : '';
+    }
+}
+
 if (!function_exists('get_permalink')) {
     function get_permalink($post = 0, $leavename = false)
     {

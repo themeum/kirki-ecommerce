@@ -12,6 +12,7 @@ import {
   OrderEditInfoSchema,
   OrderListItemSchema,
   OrderSchema,
+  OrderShippingCarrierSchema,
 } from '@/features/orders/schemas/catalog/order';
 import type {
   OrderCalculationRequestPayload,
@@ -67,6 +68,12 @@ const getOrderEditInfo = (id: string | number) => {
   return apiClient
     .get(endpoints.ORDER_EDIT(id))
     .then((response) => parseData(OrderEditInfoSchema, response));
+};
+
+const getOrderShippingCarriers = (orderId: string | number) => {
+  return apiClient
+    .get(endpoints.ORDER_SHIPPING_CARRIERS(orderId))
+    .then((response) => parseData(z.array(OrderShippingCarrierSchema), response));
 };
 
 const updateOrder = ({ id, data }: { id: number; data: OrderFormPayload }) => {
@@ -181,6 +188,13 @@ const useOrderActionMutation = () => {
   });
 };
 
+const useOrderShippingCarriersQuery = (orderId: string | number) => {
+  return useQuery({
+    queryKey: orderKeys.shippingCarriers(orderId),
+    queryFn: () => getOrderShippingCarriers(orderId),
+  });
+};
+
 const useOrderCalculationQuery = (payload: OrderCalculationRequestPayload, enabled = true) => {
   return useQuery({
     queryKey: orderKeys.calculation(payload),
@@ -196,6 +210,7 @@ export {
   useOrderCalculationQuery,
   useOrderEditInfoQuery,
   useOrderQuery,
+  useOrderShippingCarriersQuery,
   useOrdersQuery,
   usePartialUpdateOrderMutation,
   useShippingMethodsQuery,

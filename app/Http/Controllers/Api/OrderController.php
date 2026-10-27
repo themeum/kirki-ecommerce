@@ -160,6 +160,31 @@ class OrderController
     }
 
     /**
+     * Return the enabled carriers of the shipping zone that covers an order's shipping address.
+     *
+     * The list is empty when no enabled zone covers the address.
+     *
+     * @since 1.0.0
+     *
+     * @param Request         $request
+     * @param ShippingService $shipping_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The carriers with their id, name, tracking URL template and logo URL.
+     * @throws \Kirki\Ecommerce\Framework\Exceptions\NotFoundException When the order does not exist.
+     */
+    public function shipping_carriers(Request $request, ShippingService $shipping_service)
+    {
+        $order = $this->service->find_order_or_fail($request->int('id'));
+
+        return response()->json([
+            'data' => $shipping_service->get_carriers_for_address([
+                'country' => $order->shipping_country,
+                'state' => $order->shipping_state,
+            ]),
+            'message' => __('Shipping carriers retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
      * Update an order from the validated request.
      *
      * @since 1.0.0

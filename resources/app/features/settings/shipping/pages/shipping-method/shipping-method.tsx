@@ -118,7 +118,7 @@ export const ShippingMethod = ({
               'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
               'kirki-ecommerce',
             )}
-            buttonText={__('Add Method', 'kirki-ecommerce')}
+            buttonText={__('Add', 'kirki-ecommerce')}
             onAdd={handleAddMethod}
           />
 
