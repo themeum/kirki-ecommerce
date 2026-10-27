@@ -2,6 +2,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\Ahamed\FrameworkMcp\McpServiceProvider;
 use Kirki\Ecommerce\App\Providers\AppServiceProvider;
 use Kirki\Ecommerce\App\Providers\DecisionServiceProvider;
 use Kirki\Ecommerce\App\Providers\ShippingServiceProvider;
@@ -11,6 +12,7 @@ use Kirki\Ecommerce\App\Providers\PaymentServiceProvider;
 use Kirki\Ecommerce\App\Providers\CurrencyServiceProvider;
 use Kirki\Ecommerce\App\Providers\OrderActivityServiceProvider;
 use Kirki\Ecommerce\App\Providers\RateLimiterServiceProvider;
+use Kirki\Ecommerce\Framework\Queue\QueueServiceProvider;
 
 return [
     AppServiceProvider::class,
@@ -22,4 +24,6 @@ return [
     CurrencyServiceProvider::class,
     OrderActivityServiceProvider::class,
     RateLimiterServiceProvider::class,
+    QueueServiceProvider::class,
+    McpServiceProvider::class,
 ];

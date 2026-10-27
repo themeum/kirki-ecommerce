@@ -1,40 +1,40 @@
+import { PlusIcon } from 'lucide-react';
+
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import OrderItemRow from '@/features/orders/components/order-create/order-item/order-item-row';
-import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
-import type { OrderItem } from '@/features/orders/types';
-import { PlusIcon, ProductIcon } from '@/icons';
+import { useOrderCreate } from '@/features/orders/hooks/use-order-create';
+import { ProductSelectionIcon } from '@/icons/common';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 type ProductSelectionCardProps = {
-  rows: OrderItem[];
-  calculationItems?: OrderCalculation['items'];
   onOpenPicker: () => void;
   onQuantityChange: (index: number, quantity: number) => void;
   onRemoveItem: (index: number) => void;
 };
 
 const ProductSelectionCard = ({
-  rows,
-  calculationItems,
   onOpenPicker,
   onQuantityChange,
   onRemoveItem,
 }: ProductSelectionCardProps) => {
+  const { rows } = useOrderCreate();
+
   if (rows.length === 0) {
     return (
       <Card cssOverride={mergeCss(cardStyles.formCard, styles.emptyCard)}>
         <CardContent>
-          <Flex direction="column" gap={3} align="center" justify="center">
-            <ProductIcon />
-            <Button variant="secondary" onClick={onOpenPicker}>
-              <PlusIcon />
-              <Text variant="small" weight="medium">{__('Select Product', 'kirki-ecommerce')}</Text>
+          <Flex direction="column" gap={9} align="center" justify="center">
+            <ProductSelectionIcon />
+            <Button size="sm" variant="secondary" onClick={onOpenPicker}>
+              <PlusIcon size={16} />
+              {__('Add products', 'kirki-ecommerce')}
             </Button>
           </Flex>
         </CardContent>
@@ -43,26 +43,31 @@ const ProductSelectionCard = ({
   }
 
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card cssOverride={mergeCss(cardStyles.formCard, { rowGap: theme.spacing[3] })}>
       <CardHeader cssOverride={styles.headerRow}>
         <CardTitle>
-          <Text variant="heading6" weight="semibold">{__('Items', 'kirki-ecommerce')}({rows.length})</Text>
+          <Text variant="heading6" weight="semibold">
+            {sprintf(
+              /* translators: %s: number of items */
+              __('Products (%s)', 'kirki-ecommerce'),
+              rows.length,
+            )}
+          </Text>
         </CardTitle>
         <Button variant="secondary" onClick={onOpenPicker}>
-          <PlusIcon />
-          {__('Select More', 'kirki-ecommerce')}
+          <PlusIcon size={16} />
+          {__('Add more', 'kirki-ecommerce')}
         </Button>
       </CardHeader>
       <CardContent>
-        <Card cssOverride={cardStyles.innerCard}>
+        <Card cssOverride={mergeCss(cardStyles.innerCard, { overflow: 'hidden' })}>
           <CardContent cssOverride={styles.zeroPadding}>
-            <Table>
+            <Table cssOverride={styles.itemsTable}>
               <TableBody>
                 {rows.map((row) => (
                   <OrderItemRow
                     key={row.display.variantId}
                     row={row}
-                    calculationItem={calculationItems?.[row.index]}
                     onQuantityChange={onQuantityChange}
                     onRemove={onRemoveItem}
                   />
@@ -82,8 +87,8 @@ export default ProductSelectionCard;
 
 const styles = defineStyles({
   emptyCard: {
-    borderStyle: 'dashed',
-    paddingBlock: '48px',
+    paddingBlock: theme.spacing[12],
+    border: 'none',
   },
   headerRow: {
     flexDirection: 'row',
@@ -92,5 +97,13 @@ const styles = defineStyles({
   },
   zeroPadding: {
     padding: 0,
+  },
+  itemsTable: {
+    '& th, & td': {
+      padding: '10px',
+    },
+    '& tbody tr:last-child': {
+      borderBottom: 'none',
+    },
   },
 });

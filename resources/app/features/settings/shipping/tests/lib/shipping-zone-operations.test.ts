@@ -8,6 +8,7 @@ const buildMethod = (overrides: Partial<ShippingMethodData>): ShippingMethodData
   type: 'flat_rate',
   name: 'Standard',
   is_enabled: true,
+  zoneId: 'zone-1',
   ...overrides,
 });
 

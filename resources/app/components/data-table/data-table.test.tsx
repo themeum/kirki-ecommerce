@@ -4,6 +4,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import type { DataTableProps } from '@/components/data-table/data-table';
 import DataTable from '@/components/data-table/data-table';
+import DataTableEmptyState from '@/components/data-table/data-table-empty-state';
 import type { DataTableItem } from '@/components/data-table/types';
 import { noop } from '@/utils/function';
 
@@ -183,21 +184,52 @@ describe('DataTable empty state', () => {
   it('shows the default empty state when there are no rows and nothing is loading', () => {
     render(<DataTable {...baseProps({ data: [] })} />);
 
-    expect(screen.getByText('No items found')).toBeInTheDocument();
+    expect(screen.getByText('No records found')).toBeInTheDocument();
+    expect(screen.getByText('Try a different search or clear your filters.')).toBeInTheDocument();
   });
 
   it('shows a supplied empty state instead of the default', () => {
     render(<DataTable {...baseProps({ data: [], emptyState: <div>Nothing here</div> })} />);
 
     expect(screen.getByText('Nothing here')).toBeInTheDocument();
-    expect(screen.queryByText('No items found')).not.toBeInTheDocument();
+    expect(screen.queryByText('No records found')).not.toBeInTheDocument();
+  });
+
+  it('shows a supplied title, description and action while keeping the toolbar and headers', () => {
+    render(
+      <DataTable
+        {...baseProps({
+          data: [],
+          toolbar: <div>My Toolbar</div>,
+          emptyState: (
+            <DataTableEmptyState
+              title="No brands found"
+              description="Nothing matches that search."
+              actions={<button type="button">Clear Search</button>}
+            />
+          ),
+        })}
+      />,
+    );
+
+    expect(screen.getByText('No brands found')).toBeInTheDocument();
+    expect(screen.getByText('Nothing matches that search.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Clear Search' })).toBeInTheDocument();
+    expect(screen.queryByText('No records found')).not.toBeInTheDocument();
+    expect(screen.getByText('My Toolbar')).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
   });
 
   it('shows skeletons instead of the empty state while loading with no rows', () => {
-    render(<DataTable {...baseProps({ data: [], isLoading: true })} />);
+    render(
+      <DataTable
+        {...baseProps({ data: [], isLoading: true, emptyState: <div>Nothing here</div> })}
+      />,
+    );
 
     expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true');
-    expect(screen.queryByText('No items found')).not.toBeInTheDocument();
+    expect(screen.queryByText('Nothing here')).not.toBeInTheDocument();
+    expect(screen.queryByText('No records found')).not.toBeInTheDocument();
   });
 });
 

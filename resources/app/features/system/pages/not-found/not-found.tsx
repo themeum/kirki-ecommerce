@@ -6,7 +6,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import NotFoundIllustration from '@/features/system/pages/not-found/not-found-illustration/not-found-illustration';
-import { ArrowLeftIcon, BoxIcon } from '@/icons';
+import { ArrowLeftIcon, BoxIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -36,11 +36,15 @@ const NotFound = () => {
 
             <Flex direction="column" gap={2} cssOverride={styles.copy}>
               <Flex direction="column" gap={2}>
-                <Text weight="semibold" cssOverride={styles.copyText}>{__('Page not found', 'kirki-ecommerce')}</Text>
-                <Text color="secondary">{__(
-                  'Sorry, the page you are looking for could not be found. It may have been moved or never existed.',
-                  'kirki-ecommerce',
-                )}</Text>
+                <Text weight="semibold" cssOverride={styles.copyText}>
+                  {__('Page not found', 'kirki-ecommerce')}
+                </Text>
+                <Text color="secondary">
+                  {__(
+                    'Sorry, the page you are looking for could not be found. It may have been moved or never existed.',
+                    'kirki-ecommerce',
+                  )}
+                </Text>
               </Flex>
             </Flex>
 
@@ -194,8 +198,7 @@ const styles = defineStyles({
     display: 'block',
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-    fontFamily:
-      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
     ...theme.typography.small(),
     color: theme.colors.text.primary,
     backgroundColor: theme.colors.background.fill,

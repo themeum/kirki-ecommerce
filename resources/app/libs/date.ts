@@ -4,8 +4,9 @@ export const DATE_FORMATS = {
   ATOM: "yyyy-MM-dd'T'HH:mm:ssxxx",
   YEAR_MONTH_DAY: 'yyyy/MM/dd',
   HUMAN_READABLE: 'MMMM d, yyyy',
+  HUMAN_READABLE_MIDIUM: 'do MMM, yyyy',
   HUMAN_READABLE_SHORT: 'd MMM, yy',
-  HUMAN_READABLE_WITH_TIME: 'MMMM d, yyyy HH:mm a',
+  HUMAN_READABLE_WITH_TIME: 'MMM do, yyyy hh:mm a',
   DATE_TIME_INPUT: 'yyyy-MM-dd HH:mm',
   DATE_INPUT: 'yyyy-MM-dd',
   TIME_INPUT: 'HH:mm',
@@ -87,10 +88,7 @@ export const mergeDateAndTime = (date: string, time: string): Date | null => {
   return Number.isNaN(merged.getTime()) ? null : merged;
 };
 
-export const applyTimeToDate = (
-  date: Date | null | undefined,
-  time: string,
-): Date | null => {
+export const applyTimeToDate = (date: Date | null | undefined, time: string): Date | null => {
   const datePart = formatDateValue(date);
 
   if (!datePart) {

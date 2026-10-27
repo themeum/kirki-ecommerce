@@ -28,6 +28,8 @@ const ActivitySchema = z.object({
   description: z.string(),
   created_by: z.number().nullish(),
   author_name: z.string().nullish(),
+  notify_customer: z.boolean().optional(),
+  via_ai_assistant: z.boolean().optional(),
   created_at: z.string().nullish(),
 });
 

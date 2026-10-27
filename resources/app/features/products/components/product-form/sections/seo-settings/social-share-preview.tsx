@@ -1,19 +1,19 @@
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
+import Skeleton from '@/components/ui/skeleton';
 import Text from '@/components/ui/text';
 import useSeoPreviewData from '@/features/products/components/product-form/sections/seo-settings/use-seo-preview-data';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 
+const BREADCRUMB_SKELETON_WIDTH = 180;
+const BREADCRUMB_SKELETON_HEIGHT = 20;
+
 const SocialSharePreview = () => {
-  const {
-    breadcrumbUrl,
-    previewTitle,
-    previewDescription,
-    previewImageUrl,
-  } = useSeoPreviewData('social');
+  const { breadcrumbUrl, isBreadcrumbLoading, previewTitle, previewDescription, previewImageUrl } =
+    useSeoPreviewData('social');
 
   return (
     <Card cssOverride={mergeCss(cardStyles.innerCard, styles.card)}>
@@ -26,9 +26,13 @@ const SocialSharePreview = () => {
           cssOverride={styles.imageArea}
         />
         <Flex direction="column" gap={2} cssOverride={styles.meta}>
-          <Text variant="small" cssOverride={styles.breadcrumb}>
-            {breadcrumbUrl}
-          </Text>
+          {isBreadcrumbLoading ? (
+            <Skeleton width={BREADCRUMB_SKELETON_WIDTH} height={BREADCRUMB_SKELETON_HEIGHT} />
+          ) : (
+            <Text variant="small" cssOverride={styles.breadcrumb}>
+              {breadcrumbUrl}
+            </Text>
+          )}
           {previewTitle ? (
             <Text weight="semibold" cssOverride={styles.title}>
               {previewTitle}

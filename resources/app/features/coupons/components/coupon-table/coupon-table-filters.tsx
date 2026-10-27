@@ -24,6 +24,7 @@ const CouponTableFilter = memo(() => {
           onChange={(value) => handleSearchChange(value as string)}
           value={params.search || ''}
           delay={500}
+          clearable
         />
       </div>
       <ActionGroup>

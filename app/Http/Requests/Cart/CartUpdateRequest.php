@@ -2,11 +2,23 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Cart;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for updating the cart's addresses, shipping method and notes.
+ *
+ * @since 1.0.0
+ */
 class CartUpdateRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -41,11 +53,16 @@ class CartUpdateRequest extends Request
             'billing_address.company' => 'string|nullable',
 
             'shipping_method' => 'string|nullable',
-            'customer_notes' => 'string|nullable',
-            'admin_notes' => 'string|nullable',
+            'customer_email' => 'email|nullable',
+            'order_notes' => 'string|nullable',
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [
@@ -80,8 +97,8 @@ class CartUpdateRequest extends Request
             'billing_address.company' => Sanitizer::TEXT,
 
             'shipping_method' => Sanitizer::TEXT,
-            'customer_notes' => Sanitizer::TEXT,
-            'admin_notes' => Sanitizer::TEXT,
+            'customer_email' => Sanitizer::EMAIL,
+            'order_notes' => Sanitizer::TEXTAREA,
         ];
     }
 }

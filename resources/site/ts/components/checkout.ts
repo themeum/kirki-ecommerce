@@ -7,7 +7,13 @@ import { buildCartApi } from '../api/cart';
 import { checkoutApi } from '../api/checkout';
 import { emit, EVENTS, listen, waitForEvent } from '../events';
 import { toastManager } from '../services/toast/runtime';
-import type { CartCoupon, CartPricing, CheckoutRequest, ShippingMethod } from '../types';
+import type {
+  AddressRule,
+  CartCoupon,
+  CartPricing,
+  CheckoutRequest,
+  ShippingMethod,
+} from '../types';
 import { config } from '../utils';
 import { debounce } from '../utils/debounce';
 import { scrollToFirstError } from '../utils/dom';
@@ -16,24 +22,39 @@ import { type CountryState, createAddressModal } from './address-modal';
 import {
   type CheckoutAddress,
   formatAddressPayload,
+  getAddressRule,
   getStatesForCountry,
   initAddress,
   toBillingOrderFields,
   toShippingOrderFields,
   validateAddress,
 } from './checkout-address';
+import { EMAIL_PATTERN } from './form';
 
 const cartApi = buildCartApi({ skipTax: false });
 
-export type { CheckoutAddress };
 export { stateField } from './state-field';
+export type { CheckoutAddress };
 
 /** Subset of Alpine $data() returned for the form component */
 type AlpineFormData = {
   values: Record<string, string>;
   setError: (field: string, message: string) => void;
+  setValue: (field: string, value: unknown) => void;
   clearErrors: () => void;
 };
+
+/** The guest contact form's Alpine data, or null for signed-in shoppers, who have no contact form. */
+function getContactForm(): AlpineFormData | null {
+  const contactFormElement = document.querySelector('#contact-form');
+  return contactFormElement ? window.Alpine.$data(contactFormElement) : null;
+}
+
+/** The guest contact email, only when the contact form holds a valid one. */
+function getValidContactEmail(): string | null {
+  const email = String(getContactForm()?.values.customer_email || '').trim();
+  return EMAIL_PATTERN.test(email) ? email : null;
+}
 
 /** Alpine magic properties available inside x-data component objects */
 type AlpineContext = {
@@ -128,6 +149,17 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       return getStatesForCountry(this.billingAddress.country, this.countries);
     },
 
+    // Which address fields this country actually uses. A hidden field is left
+    // out of the form rather than rendered empty, and the subdivision field
+    // carries the country's own term for it.
+    get shippingRule(): AddressRule {
+      return getAddressRule(this.shippingAddress.country);
+    },
+
+    get billingRule(): AddressRule {
+      return getAddressRule(this.billingAddress.country);
+    },
+
     get selectedShippingAddress(): CheckoutAddress {
       return this.shippingAddress;
     },
@@ -161,10 +193,14 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
     shippingMethodError: null as string | null,
 
+    orderNotes: '',
+
     consents: {} as Record<string, boolean>,
     consentError: null as string | null,
 
     init() {
+      this.orderNotes = this.cartData?.order_notes ?? '';
+
       // Seed a key per consent so x-model binds to a reactive property.
       for (const consent of config.checkout_consents ?? []) {
         this.consents[consent.id] = false;
@@ -205,6 +241,37 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       const debouncedUpdateCart = debounce(() => this.updateCart(), 400);
 
       listen(EVENTS.ADDRESS_CHANGED, () => debouncedUpdateCart());
+
+      // Save the guest contact email to the cart once it is valid, so email-based
+      // coupon rules can be checked before the order is placed.
+      const debouncedSyncContactEmail = debounce(() => {
+        if (this.hasUnsyncedContactEmail()) {
+          void this.updateCart();
+        }
+      }, 400);
+
+      document
+        .querySelector('#contact-form')
+        ?.addEventListener('input', () => debouncedSyncContactEmail());
+
+      document.querySelector('#checkout-order-notes')?.addEventListener('blur', () => {
+        if (this.orderNotes !== (this.cartData?.order_notes ?? '')) {
+          void this.updateCart();
+        }
+      });
+
+      // The contact form is a child component, so it is only ready on the next tick.
+      (this as unknown as AlpineContext).$nextTick(() => {
+        const contactForm = getContactForm();
+        if (contactForm && !contactForm.values.customer_email && this.cartData?.customer_email) {
+          contactForm.setValue('customer_email', this.cartData.customer_email);
+        }
+      });
+    },
+
+    hasUnsyncedContactEmail(): boolean {
+      const email = getValidContactEmail();
+      return email !== null && email !== this.cartData?.customer_email;
     },
 
     // ── Address State Setters & Helpers ───────────────────────────────────
@@ -220,19 +287,25 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     },
 
     validateShipping(): boolean {
-      this.shippingErrors = validateAddress(this.shippingAddress, this.shippingStates);
+      this.shippingErrors = validateAddress(this.shippingAddress);
       return Object.keys(this.shippingErrors).length === 0;
     },
 
     validateBilling(): boolean {
-      this.billingErrors = validateAddress(this.billingAddress, this.billingStates);
+      this.billingErrors = validateAddress(this.billingAddress);
       return Object.keys(this.billingErrors).length === 0;
     },
 
     onShippingCountryChange() {
       this.shippingAddress.state = '';
+      // A field the new country does not use must not carry a value over from
+      // the old one, or a hidden input would be submitted unseen.
+      if (this.shippingRule.postal_code.mode === 'hidden') {
+        this.shippingAddress.postal_code = '';
+      }
       delete this.shippingErrors.country;
       delete this.shippingErrors.state;
+      delete this.shippingErrors.postal_code;
       void this.updateCart();
     },
 
@@ -243,8 +316,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     onBillingCountryChange() {
       this.billingAddress.state = '';
+      if (this.billingRule.postal_code.mode === 'hidden') {
+        this.billingAddress.postal_code = '';
+      }
       delete this.billingErrors.country;
       delete this.billingErrors.state;
+      delete this.billingErrors.postal_code;
     },
 
     onBillingStateChange() {
@@ -315,10 +392,13 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     async updateCart() {
       try {
+        const customerEmail = getValidContactEmail();
         const cartData = {
+          ...(customerEmail ? { customer_email: customerEmail } : {}),
           shipping_address: formatAddressPayload(this.shippingAddress),
           is_billing_same_as_shipping: this.billingSameAsShipping,
           shipping_method: this.selectedShippingMethod,
+          order_notes: this.orderNotes,
           ...(!this.billingSameAsShipping
             ? { billing_address: formatAddressPayload(this.billingAddress) }
             : {}),
@@ -364,6 +444,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       this.error = null;
 
       try {
+        // Coupons limited by buyer are checked against the cart's email, so save
+        // a contact email the debounced sync has not sent yet.
+        if (this.hasUnsyncedContactEmail()) {
+          await this.updateCart();
+        }
+
         const response = await cartApi.applyCoupon(this.couponCode);
         this.cartData = response.data;
         const coupons = response.data.pricing?.coupons ?? [];
@@ -522,11 +608,8 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         // Start loading after validation passes
         this.loading = true;
 
-        const contactForm: AlpineFormData | null = contactFormElement
-          ? window.Alpine.$data(contactFormElement)
-          : null;
-        const customerEmail = contactForm
-          ? String(contactForm.values.customer_email || '').trim()
+        const customerEmail = contactFormElement
+          ? (getValidContactEmail() ?? '')
           : (config.current_user?.email ?? '');
 
         const shippingFields = toShippingOrderFields(this.shippingAddress);
@@ -550,7 +633,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           ...billingFields,
           customer_email: customerEmail,
           customer_phone: customerPhone,
-          customer_notes: null,
+          order_notes: this.orderNotes || null,
           consents: Object.keys(this.consents).filter((id) => this.consents[id]),
         };
 

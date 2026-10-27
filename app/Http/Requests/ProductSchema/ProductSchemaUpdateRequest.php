@@ -2,11 +2,23 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\ProductSchema;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for updating a product schema.
+ *
+ * @since 1.0.0
+ */
 class ProductSchemaUpdateRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -17,6 +29,11 @@ class ProductSchemaUpdateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

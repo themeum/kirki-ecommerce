@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Currency\DTO;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for a currency provider's API quota usage.
+ *
+ * @since 1.0.0
+ */
 class APIUsageDTO extends DTO
 {
     /**

@@ -8,6 +8,8 @@ const customerKeys = {
   details: () => [...customerKeys.all, 'detail'] as const,
   detail: (id: string | number) => [...customerKeys.details(), String(id)] as const,
   locations: (country?: string) => [...customerKeys.all, 'locations', country ?? null] as const,
+  checkEmail: (email: string, id?: number) =>
+    [...customerKeys.all, 'check-email', email, id ?? null] as const,
 };
 
 export { customerKeys };

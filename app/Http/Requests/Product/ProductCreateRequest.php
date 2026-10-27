@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Product;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\ValidatesVariantMatrix;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
@@ -11,17 +13,37 @@ use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Supports\Somoy;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
+/**
+ * Validates and sanitizes the payload for creating a product with its variants.
+ *
+ * @since 1.0.0
+ */
 class ProductCreateRequest extends Request
 {
     use ValidatesVariantMatrix;
 
+    /**
+     * Check the variant matrix once the field rules have passed.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function passed_validation()
     {
         $this->validate_variant_matrix();
     }
 
+    /**
+     * Convert variant prices and cost of goods to minor units before validation.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $variants = $this->input('variants') ?? [];
@@ -43,6 +65,11 @@ class ProductCreateRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -50,8 +77,9 @@ class ProductCreateRequest extends Request
             'title' => 'required|string|max:500',
             'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug',
             'status' => 'string|nullable|in:' . ProductStatus::join(),
+            'scheduled_at' => 'required_if:status,' . ProductStatus::SCHEDULED . '|date|format:' . Somoy::ATOM . '|after:now|nullable',
             'ribbon' => 'string|nullable|max:100',
-            'currency_id' => 'integer|nullable',
+            'ribbon_color' => 'string|nullable|max:20',
             'brand_id' => 'integer|nullable',
             'short_description' => 'string|nullable',
             'description' => 'string|nullable',
@@ -66,7 +94,6 @@ class ProductCreateRequest extends Request
             'og_description' => 'string|nullable',
             'og_image' => 'integer|nullable',
             'schema_id' => 'integer|nullable',
-            'llm_instructions' => 'string|nullable',
             'has_variants' => 'boolean|nullable',
 
             //media
@@ -101,8 +128,7 @@ class ProductCreateRequest extends Request
             'variants.*.sku' => 'string|nullable|max:100|unique:' . Variant::get_table_name() . ',sku',
             'variants.*.barcode' => 'string|nullable|max:100',
 
-            'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . '|nullable|number',
-            'variants.*.show_unit_price' => 'boolean|nullable',
+            'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . ',' . ProductStatus::SCHEDULED . '|nullable|number',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
             'variants.*.total_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
@@ -144,6 +170,11 @@ class ProductCreateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [
@@ -151,8 +182,9 @@ class ProductCreateRequest extends Request
             'title' => Sanitizer::TEXT,
             'slug' => Sanitizer::TEXT,
             'status' => Sanitizer::TEXT,
+            'scheduled_at' => Sanitizer::TEXT,
             'ribbon' => Sanitizer::TEXT,
-            'currency_id' => Sanitizer::INT,
+            'ribbon_color' => Sanitizer::TEXT,
             'brand_id' => Sanitizer::INT,
             'short_description' => Sanitizer::TEXT,
             'description' => Sanitizer::TEXT,
@@ -165,7 +197,6 @@ class ProductCreateRequest extends Request
             'og_description' => Sanitizer::TEXT,
             'og_image' => Sanitizer::INT,
             'schema_id' => Sanitizer::INT,
-            'llm_instructions' => Sanitizer::TEXT,
             'has_variants' => Sanitizer::BOOL,
 
             // relations
@@ -188,7 +219,6 @@ class ProductCreateRequest extends Request
             'variants.*.sku' => Sanitizer::TEXT,
             'variants.*.barcode' => Sanitizer::TEXT,
             'variants.*.base_price' => Sanitizer::INT,
-            'variants.*.show_unit_price' => Sanitizer::BOOL,
             'variants.*.base_unit' => Sanitizer::TEXT,
             'variants.*.base_unit_amount' => Sanitizer::INT,
             'variants.*.total_unit' => Sanitizer::TEXT,

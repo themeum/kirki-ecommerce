@@ -1,3 +1,4 @@
+import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -8,7 +9,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import AddOrEditInfo from '@/features/products/components/product-form/sections/additional-info/add-or-edit-info';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
-import { EditIcon, PlusIcon, TrashIcon } from '@/icons';
+import { EditIcon, TrashIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -80,11 +81,7 @@ const AdditionalInfo = () => {
                         cssOverride={styles.actionGroup}
                         data-additional-info-action-group="true"
                       >
-                        <Button
-                          variant="secondary"
-                          cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
-                          onClick={() => remove(index)}
-                        >
+                        <Button variant="secondary" onClick={() => remove(index)}>
                           <TrashIcon />
                         </Button>
                         <Button variant="secondary" onClick={() => handleEditInfo(index)}>
@@ -98,7 +95,7 @@ const AdditionalInfo = () => {
             </div>
           )}
           <Button variant="secondary" onClick={() => setShowInfoForm(true)}>
-            <PlusIcon />
+            <PlusIcon size={16} />
             {__('Add an Info Section', 'kirki-ecommerce')}
           </Button>
         </Flex>

@@ -7,12 +7,17 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Settings\SettingsFactory;
 use Kirki\Ecommerce\Framework\ServiceProvider;
 
+/**
+ * Registers the settings factory singleton and its alias.
+ *
+ * @since 1.0.0
+ */
 class SettingsServiceProvider extends ServiceProvider
 {
     /**
-     * Register the settings services.
+     * @inheritDoc
      *
-     * @return void
+     * @since 1.0.0
      */
     public function register()
     {

@@ -3,14 +3,21 @@
 namespace Kirki\Ecommerce\Tests\Unit\Resources;
 
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
+use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\App\Models\Coupon;
+use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\collection;
 
 class CartResourceCouponFormattingTest extends TestCase
 {
@@ -59,6 +66,49 @@ class CartResourceCouponFormattingTest extends TestCase
         return $result;
     }
 
+    protected function make_cart_item(int $variant_id, string $product_status, bool $is_visible): CartItem
+    {
+        $product = new Product(['title' => 'Widget', 'slug' => 'widget', 'status' => $product_status]);
+        $product->set_relation('categories', collection([]));
+        $product->set_relation('media', collection([]));
+
+        $variant = new Variant([
+            'base_price' => 1000,
+            'base_sale_price' => null,
+            'media' => null,
+            'available_quantity' => 10,
+            'in_stock' => true,
+            'track_inventory' => true,
+            'allow_back_order' => false,
+            'has_limit_per_order' => false,
+            'max_per_order' => null,
+            'is_visible' => $is_visible,
+        ]);
+        $variant->set_relation('product', $product);
+        $variant->set_relation('attribute_values', collection([]));
+
+        $item = new CartItem(['variant_id' => $variant_id, 'quantity' => 1]);
+        $item->set_relation('product', $product);
+        $item->set_relation('variant', $variant);
+
+        return $item;
+    }
+
+    protected function make_calculation_result(int $variant_id, int $catalog_regular_price = 1000, int $catalog_sale_price = 1000, ?int $catalog_product_coupon_discounted_subtotal = null): CalculationResultDTO
+    {
+        $calculated_item = new CalculationItemDTO();
+        $calculated_item->variant_id = $variant_id;
+        $calculated_item->quantity = 1;
+        $calculated_item->base_catalog_regular_price = $catalog_regular_price;
+        $calculated_item->base_catalog_sale_price = $catalog_sale_price;
+        $calculated_item->base_catalog_product_coupon_discounted_subtotal = $catalog_product_coupon_discounted_subtotal ?? $catalog_sale_price;
+
+        $result = new CalculationResultDTO();
+        $result->items = [$variant_id => $calculated_item];
+
+        return $result;
+    }
+
     protected function call(string $method, ...$arguments)
     {
         $reflection = new \ReflectionClass(CartResource::class);
@@ -66,66 +116,6 @@ class CartResourceCouponFormattingTest extends TestCase
         $method_reflection->setAccessible(true);
 
         return $method_reflection->invoke($this->resource, ...$arguments);
-    }
-
-    // get_product_coupon_discount_for_item
-
-    public function test_sums_only_product_scoped_coupon_discounts_for_the_item(): void
-    {
-        $product_coupon = $this->make_coupon('PRODUCT10', DiscountTarget::PRODUCTS);
-        $order_coupon = $this->make_coupon('ORDER10', DiscountTarget::ORDER);
-
-        $coupon_results = [
-            $this->make_coupon_result($product_coupon, [101 => 500]),
-            $this->make_coupon_result($order_coupon, [101 => 300]),
-        ];
-
-        $this->assertSame(500, $this->call('get_product_coupon_discount_for_item', $coupon_results, 101));
-    }
-
-    public function test_sums_multiple_stacked_product_coupons_on_the_same_item(): void
-    {
-        $coupon_a = $this->make_coupon('A', DiscountTarget::PRODUCTS);
-        $coupon_b = $this->make_coupon('B', DiscountTarget::PRODUCTS);
-
-        $coupon_results = [
-            $this->make_coupon_result($coupon_a, [101 => 200]),
-            $this->make_coupon_result($coupon_b, [101 => 150]),
-        ];
-
-        $this->assertSame(350, $this->call('get_product_coupon_discount_for_item', $coupon_results, 101));
-    }
-
-    public function test_returns_zero_when_only_an_order_scoped_coupon_discounts_the_item(): void
-    {
-        $order_coupon = $this->make_coupon('ORDER10', DiscountTarget::ORDER);
-        $coupon_results = [$this->make_coupon_result($order_coupon, [101 => 300])];
-
-        $this->assertSame(0, $this->call('get_product_coupon_discount_for_item', $coupon_results, 101));
-    }
-
-    public function test_returns_zero_when_item_has_no_discount_at_all(): void
-    {
-        $product_coupon = $this->make_coupon('PRODUCT10', DiscountTarget::PRODUCTS);
-        $coupon_results = [$this->make_coupon_result($product_coupon, [999 => 500])];
-
-        $this->assertSame(0, $this->call('get_product_coupon_discount_for_item', $coupon_results, 101));
-    }
-
-    public function test_ignores_free_shipping_coupon_results_which_carry_no_item_discounts(): void
-    {
-        $free_shipping = $this->make_coupon('FREESHIP', DiscountTarget::ORDER);
-        $result = new CouponDiscountResultDTO();
-        $result->coupon = $free_shipping;
-        $result->shipping_discount = 500;
-        $result->total_discount = 500;
-
-        $this->assertSame(0, $this->call('get_product_coupon_discount_for_item', [$result], 101));
-    }
-
-    public function test_returns_zero_for_an_empty_coupon_results_list(): void
-    {
-        $this->assertSame(0, $this->call('get_product_coupon_discount_for_item', [], 101));
     }
 
     // get_applied_product_coupons_for_item
@@ -231,5 +221,100 @@ class CartResourceCouponFormattingTest extends TestCase
 
         $this->assertSame(10.0, $product_breakdown[0]['display_amount_money_object']->raw);
         $this->assertSame(1.0, $shipping_breakdown[0]['display_amount_money_object']->raw);
+    }
+
+    // prepare_items - is_available
+
+    public function test_reports_item_as_available_when_product_published_and_variant_visible(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, true);
+        $result = $this->make_calculation_result(101);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertTrue($items[0]['product']['is_available']);
+    }
+
+    public function test_reports_item_as_unavailable_when_product_is_draft(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::DRAFT, true);
+        $result = $this->make_calculation_result(101);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertFalse($items[0]['product']['is_available']);
+    }
+
+    public function test_reports_item_as_unavailable_when_product_is_trashed(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::TRASHED, true);
+        $result = $this->make_calculation_result(101);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertFalse($items[0]['product']['is_available']);
+    }
+
+    public function test_reports_item_as_unavailable_when_variant_is_not_visible(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, false);
+        $result = $this->make_calculation_result(101);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertFalse($items[0]['product']['is_available']);
+    }
+
+    // prepare_items - subtotal and strikethrough read the catalog figures
+
+    public function test_order_coupon_under_tax_inclusive_pricing_does_not_change_the_item_subtotal(): void
+    {
+        // 110.00 including 10% tax with a 50% order-wide coupon: the engine
+        // lowers the tax to 5.00, but the item's catalog figures stay 110.00.
+        $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, true);
+        $result = $this->make_calculation_result(101, 11000, 11000);
+        $result->items[101]->base_subtotal = 10000;
+        $result->items[101]->base_tax_amount = 500;
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertSame(110.0, $items[0]['display_subtotal_money_object']->raw);
+        $this->assertNull($items[0]['display_strikethrough_price_money_object']);
+        $this->assertSame(11000, $this->call('get_items_subtotal', $result->items));
+    }
+
+    public function test_subtotal_is_the_total_after_product_coupons(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, true);
+        $result = $this->make_calculation_result(101, 6000, 5000, 4500);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertSame(45.0, $items[0]['display_subtotal_money_object']->raw);
+        // A product coupon strikes through the sale total, not the regular total.
+        $this->assertSame(50.0, $items[0]['display_strikethrough_price_money_object']->raw);
+    }
+
+    public function test_strikethrough_is_the_regular_total_when_only_a_sale_applied(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, true);
+        $result = $this->make_calculation_result(101, 6000, 5000);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertSame(50.0, $items[0]['display_subtotal_money_object']->raw);
+        $this->assertSame(60.0, $items[0]['display_strikethrough_price_money_object']->raw);
+    }
+
+    // get_items_subtotal
+
+    public function test_items_subtotal_sums_every_items_total_after_product_coupons(): void
+    {
+        $item_a = new CalculationItemDTO();
+        $item_a->base_catalog_product_coupon_discounted_subtotal = 4500;
+        $item_b = new CalculationItemDTO();
+        $item_b->base_catalog_product_coupon_discounted_subtotal = 1000;
+
+        $this->assertSame(5500, $this->call('get_items_subtotal', [$item_a, $item_b]));
     }
 }

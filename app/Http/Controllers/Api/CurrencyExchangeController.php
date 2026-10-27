@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
@@ -12,12 +14,20 @@ use function Kirki\Ecommerce\Framework\response;
 
 use Kirki\Ecommerce\App\Resources\CurrencyExchange\CurrencyProviderResource;
 
+/**
+ * REST controller for currency exchange rate providers and rate syncing.
+ *
+ * @since 1.0.0
+ */
 class CurrencyExchangeController
 {
     /**
-     * Get all available currency exchange providers.
+     * List the currency exchange providers that can be configured.
+     *
+     * @since 1.0.0
      *
      * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Provider collection with a success message.
      */
     public function get_providers(Request $request)
     {
@@ -32,9 +42,15 @@ class CurrencyExchangeController
     /**
      * Pull fresh exchange rates from the configured provider on demand.
      *
-     * @param Request $request
+     * Responds with 400 when no provider is configured or the sync fails. A
+     * successful sync clears the error of the last failed automatic sync. With
+     * automatic updates on, the next automatic sync moves to one interval after
+     * this one, whether this sync succeeds or fails.
      *
-     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The last sync time, next sync time and usage, or a 400 response on failure.
      */
     public function sync(Request $request)
     {
@@ -46,10 +62,15 @@ class CurrencyExchangeController
 
         try {
             CurrencyExchange::sync();
+            CurrencyExchange::clear_sync_error();
         } catch (\Throwable $e) {
             return response()->json([
                 'message' => $e->getMessage(),
             ], Response::BAD_REQUEST);
+        } finally {
+            if (CurrencyExchange::is_automatic_update_active()) {
+                CurrencyExchange::reschedule_after_sync();
+            }
         }
 
         $currency_settings = Settings::get(OptionKeys::CURRENCY_SETTINGS);

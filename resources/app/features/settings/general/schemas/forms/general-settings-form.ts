@@ -25,6 +25,7 @@ const GeneralSettingsFormShape = z.object({
   store_email: z.string().nullish().default(''),
   store_logo: mediaId(),
   store_phone: z.string().nullish().default(''),
+  store_tax_id: z.string().nullish().default(''),
   store_address: StoreAddressFormShape.nullish(),
   selling_location_type: z.string().nullish().default('all-countries'),
   selling_countries: z.array(z.string()).default([]),
@@ -57,6 +58,7 @@ export const GeneralSettingsFormSchema = prepareFormSchema(GeneralSettingsFormSh
     store_email: values.store_email || null,
     store_logo: values.store_logo,
     store_phone: values.store_phone || null,
+    store_tax_id: values.store_tax_id?.trim() || null,
     store_address: {
       address_line_1: values.store_address?.address_line_1 || null,
       address_line_2: values.store_address?.address_line_2 || null,

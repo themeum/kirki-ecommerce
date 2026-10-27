@@ -36,7 +36,9 @@ const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
             </Link>
           </Fragment>
         ))}
-        {hasBreadcrumbs && <ChevronLeft css={scoped(styles.separator)} aria-hidden="true" />}
+        {hasBreadcrumbs && title && (
+          <ChevronLeft css={scoped(styles.separator)} aria-hidden="true" />
+        )}
         <Text
           variant="heading6"
           weight="semibold"
@@ -58,6 +60,7 @@ export type { SettingsBreadcrumb };
 const styles = defineStyles({
   wrapper: {
     width: '100%',
+    minHeight: '28px',
   },
   separator: {
     width: 16,

@@ -16,6 +16,8 @@ const pageEnterKeyframes = keyframes({
 
 const NOT_FOUND_SELECTOR = '[data-not-found="true"]';
 
+const TOAST_CLOSE_BUTTON_CLASS = 'kirki-ecommerce-toast-close-button';
+
 /**
  * WordPress admin shell styles ported from global.scss.
  *
@@ -27,13 +29,19 @@ const getShellStyles = (theme: Theme): CSSObject => {
   const surfaceTertiary = theme.colors.background.surfaceTertiary;
 
   return {
+    body: {
+      backgroundColor: theme.colors.background.solidSurfaceSecondary,
+    },
     '#wpcontent': {
-      backgroundColor: surfaceTertiary,
+      backgroundColor: theme.colors.background.solidSurfaceSecondary,
     },
     [APP_ROOT_SELECTOR]: {
       marginLeft: '-20px',
     },
     [WP_MEDIA_FRAME_SELECTOR]: {
+      pointerEvents: 'auto',
+    },
+    '.mce-floatpanel': {
       pointerEvents: 'auto',
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR})`]: {
@@ -57,7 +65,21 @@ const getShellStyles = (theme: Theme): CSSObject => {
       minHeight: 'calc(100vh - 32px - 41px)',
       backgroundColor: surfaceTertiary,
     },
+    [`[data-sonner-toast][data-styled="true"] [data-close-button="true"]`]: {
+      left: 'auto',
+      right: 20,
+      top: '50%',
+      transform: 'translate(35%, -50%)',
+    },
+    [`.kirki-ecommerce-root .${TOAST_CLOSE_BUTTON_CLASS}`]: {
+      borderRadius: `${theme.radius.md} !important`,
+      backgroundColor: 'transparent !important',
+      color: `${theme.colors.icon.primary} !important`,
+      '&:hover': {
+        backgroundColor: `${theme.colors.background.surfaceAlt} !important`,
+      },
+    },
   };
 };
 
-export { getShellStyles, pageEnterKeyframes };
+export { getShellStyles, pageEnterKeyframes, TOAST_CLOSE_BUTTON_CLASS };

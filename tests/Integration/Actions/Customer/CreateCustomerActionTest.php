@@ -161,6 +161,62 @@ class CreateCustomerActionTest extends RestTestCase
         $this->assertFalse($second_row->is_default_billing);
     }
 
+    /**
+     * When the submitted email already belongs to an existing WordPress user,
+     * the customer is linked to that user instead of creating a new one -
+     * even when a new one was also requested.
+     *
+     * @return void
+     */
+    public function test_existing_wordpress_user_by_email_is_attached_not_duplicated(): void
+    {
+        $email = 'existing-' . wp_generate_password(8, false) . '@example.com';
+        $existing_user_id = static::factory()->user->create(['user_email' => $email]);
+
+        $user_count_before = count(get_users(['fields' => 'ID']));
+
+        $customer_payload = $this->make_customer_dto([]);
+        $customer_payload->email = $email;
+        $customer_payload->create_wordpress_user = true;
+
+        $customer = $this->execute($customer_payload);
+
+        $this->assertSame($existing_user_id, $customer->user_id);
+        $this->assertSame($user_count_before, count(get_users(['fields' => 'ID'])));
+    }
+
+    /**
+     * When no WordPress user matches the submitted email and one is
+     * requested, a new WordPress user is created and linked.
+     *
+     * @return void
+     */
+    public function test_no_matching_user_and_creation_requested_creates_new_user(): void
+    {
+        $customer_payload = $this->make_customer_dto([]);
+        $customer_payload->create_wordpress_user = true;
+
+        $customer = $this->execute($customer_payload);
+
+        $this->assertNotEmpty($customer->user_id);
+        $user = get_userdata($customer->user_id);
+        $this->assertNotFalse($user);
+        $this->assertSame($customer_payload->email, $user->user_email);
+    }
+
+    /**
+     * When no WordPress user matches the submitted email and none is
+     * requested, the customer is created with no linked WordPress user.
+     *
+     * @return void
+     */
+    public function test_no_matching_user_and_none_requested_leaves_customer_unlinked(): void
+    {
+        $customer = $this->execute($this->make_customer_dto([]));
+
+        $this->assertEmpty($customer->user_id);
+    }
+
     protected function execute(CreateCustomerDTO $customer_payload)
     {
         return app()->make(CreateCustomerAction::class)->execute($customer_payload);

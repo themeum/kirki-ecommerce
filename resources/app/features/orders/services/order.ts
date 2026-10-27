@@ -6,11 +6,11 @@ import { endpoints } from '@/config/endpoints';
 import type { OrderListFilter } from '@/features/orders';
 import { orderKeys } from '@/features/orders';
 import type { OrderActionPayload } from '@/features/orders/lib/order-actions';
-import type { OrderItem } from '@/features/orders/schemas/catalog/order';
+import type { Order } from '@/features/orders/schemas/catalog/order';
 import {
   OrderCalculationSchema,
-  OrderItemSchema,
   OrderListItemSchema,
+  OrderSchema,
 } from '@/features/orders/schemas/catalog/order';
 import type {
   OrderCalculationRequestPayload,
@@ -31,7 +31,7 @@ import { __ } from '@/wpi18n';
 const createOrder = (data: OrderFormPayload) => {
   return apiClient
     .post(endpoints.ORDERS, data)
-    .then((response) => unwrapResponse<OrderItem>(response));
+    .then((response) => unwrapResponse<Order>(response));
 };
 
 const ShippingMethodOptionSchema = z.object({
@@ -62,19 +62,19 @@ const getOrders = (params: ListParams<OrderListFilter> = {}) => {
 const getOrder = (id: string | number) => {
   return apiClient
     .get(endpoints.ORDER(id))
-    .then((response) => parseData(OrderItemSchema, response));
+    .then((response) => parseData(OrderSchema, response));
 };
 
 const updateOrder = ({ id, data }: { id: number; data: OrderFormPayload }) => {
   return apiClient
     .put(endpoints.ORDER(id), data)
-    .then((response) => parseResponse(OrderItemSchema, response));
+    .then((response) => parseResponse(OrderSchema, response));
 };
 
 const performOrderAction = ({ id, ...payload }: OrderActionPayload & { id: number }) => {
   return apiClient
     .patch(endpoints.ORDER_ACTION(id), payload)
-    .then((response) => parseResponse(OrderItemSchema, response));
+    .then((response) => parseResponse(OrderSchema, response));
 };
 
 const calculateOrder = (data: OrderCalculationRequestPayload) => {

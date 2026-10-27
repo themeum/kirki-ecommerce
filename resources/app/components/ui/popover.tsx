@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import type {ComponentRef} from 'react';
+import type { ComponentRef } from 'react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
@@ -53,15 +53,13 @@ const styles = defineStyles({
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
-    boxShadow: theme.shadow.md,
+    boxShadow: theme.shadow.popover,
     ...theme.typography.small(),
     color: theme.colors.text.primary,
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing[1],
-    ...getOverlayMotionStyles(
-      'var(--radix-popover-content-transform-origin)',
-    ),
+    ...getOverlayMotionStyles('var(--radix-popover-content-transform-origin)'),
     '&:focus, &:focus-visible': {
       outline: 'none',
     },

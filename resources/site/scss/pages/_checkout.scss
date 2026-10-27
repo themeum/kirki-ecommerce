@@ -489,7 +489,7 @@
 
 .kecom-consent-section {
   @include flex-column();
-  gap: $spacing-3;
+  gap: $spacing-6;
   margin-bottom: $spacing-4;
 
   .kecom-consent-text,
@@ -499,7 +499,11 @@
   }
 
   .kecom-consent {
-    align-items: center;
+    align-items: flex-start;
+
+    input {
+      margin-top: $spacing-1;
+    }
 
     a {
       color: $text-primary;

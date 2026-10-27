@@ -48,10 +48,6 @@ Route::site(function () {
         ->middleware(SiteAuthMiddleware::class)
         ->name('checkout')
         ->match_page();
-
-    if (app()->is_dev_mode()) {
-        Route::get('design-system', [SiteController::class, 'design_system_page']);
-    }
 });
 
 // Customer account routes.

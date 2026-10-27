@@ -1,5 +1,4 @@
-import { InfoCircledIcon } from '@radix-ui/react-icons';
-import { Check, CircleSlashIcon, MoreVertical, RefreshCcw, Trash2 } from 'lucide-react';
+import { Check, CircleSlashIcon, Info, MoreVertical, RefreshCcw, Trash2 } from 'lucide-react';
 import { useFormContext, useFormState } from 'react-hook-form';
 import { useOutletContext } from 'react-router';
 
@@ -7,14 +6,12 @@ import NumberField from '@/components/form/number-field';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import Flex from '@/components/ui/flex';
 import InfoTooltip from '@/components/ui/info-tooltip';
 import {
   StackedItem,
@@ -31,9 +28,7 @@ import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-c
 import { useSyncCurrencyRatesMutation } from '@/features/settings/multi-currency/services/currency';
 import type { SettingsOutletContext } from '@/features/settings/types';
 import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import { dateFormatter } from '@/utils/common';
 import { __, sprintf } from '@/wpi18n';
 
 type CurrencyRateInputProps = {
@@ -121,13 +116,14 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
           ? __('Activate currency?', 'kirki-ecommerce')
           : __('Deactivate currency?', 'kirki-ecommerce'),
         subtitle: sprintf(
-          /* translators: %s: unsaved changes note */
           !item.is_active
-            ? __(
+            ? /* translators: %s: unsaved changes note */
+              __(
                 'Are you sure you want to deactivate this currency? This action cannot be undone. %s',
                 'kirki-ecommerce',
               )
-            : __(
+            : /* translators: %s: unsaved changes note */
+              __(
                 'Are you sure you want to activate this currency? This action cannot be undone. %s',
                 'kirki-ecommerce',
               ),
@@ -182,86 +178,99 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
 };
 
 export const AvailableCurrencyList = () => {
-  const { currencyList, showApiProviderStatus, lastSyncAt, handleAction } =
-    useAvailableCurrencyList();
+  const { currencyList, syncStatus, handleAction } = useAvailableCurrencyList();
   const { mutate: syncRates, isPending: isSyncing } = useSyncCurrencyRatesMutation();
+  const hasMultipleCurrencies = currencyList.length > 1;
 
   return (
-    <Card
+    <StackedItems
       data-search-id="currency.available-currencies"
       data-search-keywords="multi currency, usd, eur, gbp, exchange"
-      cssOverride={mergeCss(cardStyles.innerCard, { border: 'none', overflow: 'hidden' })}
     >
-      <CardContent cssOverride={styles.innerCardContent}>
-        <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
+      <StackedItem id="header" cssOverride={mergeCss(styles.staticRow, styles.headerRow)}>
+        <StackedItemContent>
           <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
-          <Button
-            variant="ghost"
-            loading={isSyncing}
-            disabled={isSyncing}
-            onClick={() => syncRates()}
-          >
-            <RefreshCcw size="12" />
-            <Text variant="tiny"> {__('Sync Now', 'kirki-ecommerce')}</Text>
-          </Button>
-        </Flex>
-        <StackedItems>
-          {currencyList.map((item, index) => {
-            const isActive = item.is_active;
-
-            return (
-              <StackedItem
-                key={item.id}
-                id={String(item.id)}
-                cssOverride={mergeCss(!item.is_action_disabled && styles.itemRow)}
-              >
-                {item.symbol && <StackedItemMedia>{item.symbol}</StackedItemMedia>}
-                <StackedItemContent>
-                  <StackedItemTitle>
-                    <Text variant="small" weight="medium">
-                      {item.name}
-                    </Text>
-                    {item.is_base && (
-                      <Badge variant="secondary">{__('Base currency', 'kirki-ecommerce')}</Badge>
-                    )}
-                    {isActive === false && (
-                      <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
-                    )}
-                  </StackedItemTitle>
-                </StackedItemContent>
-                <StackedItemActions cssOverride={{ paddingRight: theme.spacing[3] }}>
-                  {item.is_base ? (
-                    <Text variant="small" color="subdued">
-                      {__('1.00', 'kirki-ecommerce')}
-                    </Text>
-                  ) : (
-                    <>
-                      <Text variant="small" color="subdued" data-right-text>
-                        {item.exchange_rate || '--'}
-                      </Text>
-                      {!item.is_action_disabled && (
-                        <CurrencyRowActions item={item} index={index} onAction={handleAction} />
-                      )}
-                    </>
-                  )}
-                </StackedItemActions>
-              </StackedItem>
-            );
-          })}
-        </StackedItems>
-        {showApiProviderStatus && (
-          <Flex gap={2} cssOverride={{ marginTop: theme.spacing[4] }} align="center">
-            <InfoCircledIcon width={16} height={16} />
-            <Text variant="small" color="subdued">
-              {sprintf(
-                __('API connection active. Last sync: %s', 'kirki-ecommerce'),
-                dateFormatter(lastSyncAt, 'relative'),
-              )}
-            </Text>
-          </Flex>
+        </StackedItemContent>
+        {hasMultipleCurrencies && (
+          <StackedItemActions>
+            <Button
+              variant="ghost"
+              loading={isSyncing}
+              disabled={isSyncing}
+              onClick={() => syncRates()}
+            >
+              <RefreshCcw />
+              {__('Sync now', 'kirki-ecommerce')}
+            </Button>
+          </StackedItemActions>
         )}
-      </CardContent>
-    </Card>
+      </StackedItem>
+      {currencyList.map((item, index) => {
+        const isInactive = item.is_active === false;
+
+        return (
+          <StackedItem
+            key={item.id}
+            id={String(item.id)}
+            cssOverride={mergeCss(!item.is_action_disabled && styles.itemRow)}
+          >
+            {item.symbol && (
+              <StackedItemMedia cssOverride={styles.symbol}>
+                <Text variant="small" color={isInactive ? 'subdued' : 'secondary'}>
+                  {item.symbol}
+                </Text>
+              </StackedItemMedia>
+            )}
+            <StackedItemContent>
+              <StackedItemTitle>
+                <Text variant="small" weight="medium" color={isInactive ? 'subdued' : 'primary'}>
+                  {item.code}
+                </Text>
+                <Text variant="small" color={isInactive ? 'subdued' : 'secondary'}>
+                  {item.name}
+                </Text>
+                {item.is_base && <Badge>{__('Base Currency', 'kirki-ecommerce')}</Badge>}
+                {isInactive && (
+                  <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
+                )}
+              </StackedItemTitle>
+            </StackedItemContent>
+            <StackedItemActions cssOverride={{ paddingRight: theme.spacing[3] }}>
+              {item.is_base ? (
+                <Text variant="small" weight="medium">
+                  {__('1.00', 'kirki-ecommerce')}
+                </Text>
+              ) : (
+                <>
+                  {!isInactive && (
+                    <Text variant="small" weight="medium" data-right-text>
+                      {item.exchange_rate || '--'}
+                    </Text>
+                  )}
+                  {!item.is_action_disabled && (
+                    <CurrencyRowActions item={item} index={index} onAction={handleAction} />
+                  )}
+                </>
+              )}
+            </StackedItemActions>
+          </StackedItem>
+        );
+      })}
+      {hasMultipleCurrencies && (
+        <StackedItem id="footer" cssOverride={mergeCss(styles.staticRow, styles.footerRow)}>
+          <StackedItemMedia
+            cssOverride={syncStatus.tone === 'warning' ? styles.warningIcon : styles.infoIcon}
+          >
+            <Info />
+          </StackedItemMedia>
+          <StackedItemContent>
+            <Text variant="small" color={syncStatus.tone === 'warning' ? 'warning' : 'subdued'}>
+              {syncStatus.message}
+            </Text>
+          </StackedItemContent>
+        </StackedItem>
+      )}
+    </StackedItems>
   );
 };
 
@@ -271,9 +280,51 @@ const styles = defineStyles({
       paddingRight: 0,
     },
   },
-  innerCardContent: {
-    padding: theme.spacing[3],
-    backgroundColor: theme.colors.background.surfaceAlt,
+  staticRow: {
+    height: 'auto',
+    '&:hover': {
+      backgroundColor: 'transparent',
+    },
+  },
+  headerRow: {
+    minHeight: '48px',
+    paddingRight: theme.spacing[2],
+    '& button:not([role="switch"])': {
+      width: 'auto',
+      paddingInline: theme.spacing[2],
+      color: theme.colors.text.brand,
+
+      '& svg': {
+        color: theme.colors.icon.brand,
+      },
+    },
+  },
+  footerRow: {
+    minHeight: '34px',
+    paddingTop: theme.spacing[2],
+    paddingBottom: theme.spacing[2],
+  },
+  symbol: {
+    minWidth: '16px',
+    justifyContent: 'center',
+  },
+  infoIcon: {
+    alignSelf: 'flex-start',
+    marginTop: '2px',
+    color: theme.colors.icon.secondary,
+    '& svg': {
+      width: '16px',
+      height: '16px',
+    },
+  },
+  warningIcon: {
+    alignSelf: 'flex-start',
+    color: theme.colors.text.warning,
+    marginTop: '2px',
+    '& svg': {
+      width: '16px',
+      height: '16px',
+    },
   },
   rateInput: {
     width: '120px',

@@ -5,7 +5,6 @@ import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import Flex from '@/components/ui/flex';
 import {
   StackedItem,
   StackedItemActions,
@@ -23,10 +22,10 @@ import {
   useTaxProfilesQuery,
 } from '@/features/settings/tax/shared/services/tax';
 import { useConfirmDelete } from '@/hooks';
-import { BoxClosedIcon, BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
+import { BoxClosedIcon, EditPenIcon, TrashIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type TaxProfileListItem = TaxProfileType & {
@@ -90,19 +89,12 @@ const TaxProfile = () => {
             />
           </TaxProfilePopover>
 
-          <div css={scoped({ marginTop: theme.spacing[5] })}>
-            {!taxProfileList?.length ? (
-              <Card cssOverride={cardStyles.innerDarkCard}>
-                <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
-                  <Flex direction="column" gap={2} align="center">
-                    <BoxOpenIcon />
-                    <span css={scoped(styles.emptyStateText)}>
-                      {__('Added shipping profiles will appear here', 'kirki-ecommerce')}
-                    </span>
-                  </Flex>
-                </CardContent>
-              </Card>
-            ) : (
+          <div
+            css={scoped({
+              marginTop: taxProfileList.length === 0 ? theme.spacing[0] : theme.spacing[5],
+            })}
+          >
+            {taxProfileList.length > 0 && (
               <StackedItems>
                 {taxProfileList.map((item) => (
                   <StackedItem key={item.id} id={String(item.id)}>
@@ -112,9 +104,7 @@ const TaxProfile = () => {
                         <Text variant="small" weight="medium">
                           {item.name}
                         </Text>
-                        {item.is_default && (
-                          <Badge variant="secondary">{__('Default', 'kirki-ecommerce')}</Badge>
-                        )}
+                        {item.is_default && <Badge>{__('Default', 'kirki-ecommerce')}</Badge>}
                       </StackedItemTitle>
                     </StackedItemContent>
                     <StackedItemActions>
@@ -123,9 +113,7 @@ const TaxProfile = () => {
                           variant="outline"
                           size="icon-sm"
                           aria-label={__('Delete', 'kirki-ecommerce')}
-                          cssOverride={mergeCss(styles.actionButton, {
-                            '& svg': { color: theme.colors.icon.critical },
-                          })}
+                          cssOverride={styles.actionButton}
                           onClick={() => handleDeleteTaxProfile(item)}
                         >
                           <TrashIcon />
@@ -166,12 +154,6 @@ TaxProfile.displayName = 'TaxProfile';
 export default TaxProfile;
 
 const styles = defineStyles({
-  emptyState: {
-    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  },
-  emptyStateText: {
-    color: theme.colors.text.subdued,
-  },
   actionButton: {
     padding: theme.spacing[1],
   },

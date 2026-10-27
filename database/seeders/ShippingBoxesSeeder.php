@@ -2,16 +2,24 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\ShippingBox;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 
+/**
+ * Seeds the standard shipping box sizes.
+ *
+ * @since 1.0.0
+ */
 class ShippingBoxesSeeder extends Seeder
 {
     /**
      * Seed standard shipping box sizes.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -21,8 +29,9 @@ class ShippingBoxesSeeder extends Seeder
     /**
      * Curated shipping box definitions.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Box rows with name, description, dimensions in cm and default flag.
      */
     protected function get_shipping_boxes()
     {

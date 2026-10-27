@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Calculation;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Result of a price calculation: per-item amounts and order-level base-currency totals.
+ *
+ * @since 1.0.0
+ */
 class CalculationResultDTO extends DTO
 {
     /** @var array<int, CalculationItemDTO> Keyed by item ID */
@@ -29,6 +36,8 @@ class CalculationResultDTO extends DTO
     public $base_shipping_total = 0;
     /** @var int */
     public $base_tax_total = 0;
+    /** @var string|null Address the tax was calculated from; null when no tax was calculated */
+    public $tax_destination;
     /** @var int */
     public $base_total = 0;
     /** @var int */

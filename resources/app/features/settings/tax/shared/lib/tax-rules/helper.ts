@@ -1,5 +1,11 @@
-import { taxRuleConditionOptions } from '@/features/settings/tax/shared/lib/utils';
-import type { TaxProfile, TaxRuleCondition } from '@/features/settings/tax/shared/schemas/catalog/tax';
+import {
+  type TaxRegionState,
+  taxRuleConditionOptions,
+} from '@/features/settings/tax/shared/lib/utils';
+import type {
+  TaxProfile,
+  TaxRuleCondition,
+} from '@/features/settings/tax/shared/schemas/catalog/tax';
 import { __ } from '@/wpi18n';
 
 /**
@@ -27,27 +33,38 @@ export const resolveSelectedDestinations = (value: unknown): (string | number)[]
   return [];
 };
 
-export const getDestinationDisplayValue = (value: unknown): string => {
-  const list = resolveSelectedDestinations(value);
+export const resolveDestinationLabels = (
+  value: unknown,
+  destinations: TaxRegionState[],
+): string[] =>
+  resolveSelectedDestinations(value).map((id) => {
+    const match = destinations.find((item) => String(item.id) === String(id));
+
+    return match?.name ?? match?.title ?? String(id);
+  });
+
+export const getDestinationDisplayValue = (
+  value: unknown,
+  destinations: TaxRegionState[] = [],
+): string => {
+  const list = resolveDestinationLabels(value, destinations);
 
   if (list.length === 0) {
-    return __('Select regions', 'kirki-ecommerce');
+    return __('Select destinations', 'kirki-ecommerce');
   }
 
-  if (list.length === 1) {
-    return String(list[0]);
-  }
-
-  return `${list[0]} +${list.length - 1}…`;
+  return `${list[0]}, +${list.length - 1}`;
 };
 
 /**
- * Read-only label for a rule condition's value. A `tax_profile` condition stores
- * the profile id; resolve it back to the profile name for display.
+ * Read-only label for a rule condition's value. A `tax_profile` or
+ * `product_categories` condition stores the profile/category id; resolve it
+ * back to its name for display.
  */
 export const resolveConditionDisplayValue = (
   condition: TaxRuleCondition | undefined,
   taxProfiles: TaxProfile[] = [],
+  categories: { id: number | string; name: string }[] = [],
 ): string => {
   const value = condition?.value;
 
@@ -55,6 +72,12 @@ export const resolveConditionDisplayValue = (
     const profile = taxProfiles.find((item) => String(item.id) === String(value));
 
     return profile?.name ?? String(value);
+  }
+
+  if (condition?.type === 'product_categories') {
+    const category = categories.find((item) => String(item.id) === String(value));
+
+    return category?.name ?? String(value);
   }
 
   return String(value);
@@ -102,6 +125,10 @@ export const resolveOperatorLabel = (operator: string | null | undefined): strin
 export const resolveActionLabel = (type: string | null | undefined): string => {
   if (type === 'set_product_tax_rate') {
     return __('product tax rate is', 'kirki-ecommerce');
+  }
+
+  if (type === 'set_shipping_tax_rate') {
+    return __('shipping tax rate is', 'kirki-ecommerce');
   }
 
   if (type === 'set_product_tax_exempt') {

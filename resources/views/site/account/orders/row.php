@@ -44,7 +44,7 @@ $items_images = $order['items_images'] ?? [];
     <td class="kecom-orders-table-col-info">
         <div class="kecom-account-order-info">
             <a href="<?php echo esc_url($order_url); ?>" class="kecom-account-order-number">
-                #<?php echo esc_html($order_number); ?>
+                <?php echo esc_html($order_number); ?>
             </a>
             <span class="kecom-account-order-items">
                 <?php /* translators: %d: number of items */ ?>
@@ -78,9 +78,9 @@ $items_images = $order['items_images'] ?? [];
             <?php
             //TODO: later will be added.
             if (false) :
-                ?>
+            ?>
                 <a href="<?php echo esc_url(Url::get_checkout_url() . '?order_pay=' . $order['order_number']); ?>" class="kecom-btn kecom-btn-secondary kecom-btn-sm">
-                <?php esc_html_e('Pay', 'kirki-ecommerce'); ?>
+                    <?php esc_html_e('Pay', 'kirki-ecommerce'); ?>
                 </a>
             <?php endif; ?>
             <a href="<?php echo esc_url($order_url); ?>" class="kecom-btn kecom-btn-outline kecom-btn-sm">

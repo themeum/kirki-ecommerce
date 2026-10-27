@@ -2,25 +2,38 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
+use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\App\DTO\AttributeValue\BatchAttributeValuesDTO;
 use Kirki\Ecommerce\App\DTO\AttributeValue\CreateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\AttributeValue\UpdateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
+use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Manages the values that belong to product attributes.
+ *
+ * @since 1.0.0
+ */
 class AttributeValueService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -35,11 +48,13 @@ class AttributeValueService
     }
 
     /**
-     * Return all attribute values
+     * Get the values of an attribute, optionally searched and sorted.
      *
-     * @param int $attribute_id
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param int           $attribute_id Attribute ID.
+     * @param ListFilterDTO $filters      Search term and sorting.
+     * @return Collection Collection of AttributeValue models.
      */
     public function all(int $attribute_id, ListFilterDTO $filters)
     {
@@ -51,11 +66,12 @@ class AttributeValueService
     }
 
     /**
-     * Retrieve the IDs of all attribute values associated with a given attribute ID.
+     * Get the IDs of all values belonging to an attribute.
      *
-     * @param int $id The ID of the attribute.
+     * @since 1.0.0
      *
-     * @return array An array of IDs of attribute values associated with the given attribute ID.
+     * @param int $id Attribute ID.
+     * @return int[] Attribute value IDs.
      */
     public function get_ids_by_attribute_id(int $id)
     {
@@ -63,11 +79,13 @@ class AttributeValueService
     }
 
     /**
-     * Find a attribute value by ID.
+     * Find an attribute value by ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Attribute value ID.
      * @return AttributeValue
-     * @throws NotFoundException
+     * @throws NotFoundException When the attribute value does not exist.
      */
     public function find(int $id)
     {
@@ -79,9 +97,11 @@ class AttributeValueService
     }
 
     /**
-     * Create multiple attribute values.
+     * Insert one or more attribute value rows in a single query.
      *
-     * @param array $values
+     * @since 1.0.0
+     *
+     * @param array $values A row of column values, or a list of such rows.
      * @return bool
      */
     public function insert(array $values)
@@ -92,7 +112,9 @@ class AttributeValueService
     /**
      * Create a new attribute value.
      *
-     * @param CreateAttributeValueDTO $data
+     * @since 1.0.0
+     *
+     * @param CreateAttributeValueDTO $data Attribute value data.
      * @return AttributeValue
      */
     public function create(CreateAttributeValueDTO $data)
@@ -101,11 +123,51 @@ class AttributeValueService
     }
 
     /**
-     * Updates a attribute value.
+     * Create and recolor several values of one attribute in a single transaction.
      *
-     * @param UpdateAttributeValueDTO $data
-     * @throws NotFoundException
-     * @return AttributeValue
+     * @since 1.0.0
+     *
+     * @param BatchAttributeValuesDTO $data Rows to create and rows to recolor.
+     * @return Attribute The attribute with all of its values after the batch.
+     * @throws Throwable When persisting fails; the transaction is rolled back first.
+     */
+    public function batch(BatchAttributeValuesDTO $data)
+    {
+        DB::begin_transaction();
+
+        try {
+            foreach ($data->create ?? [] as $row) {
+                AttributeValue::create([
+                    'attribute_id' => $data->attribute_id,
+                    'value' => $row['value'],
+                    'color' => $row['color'] ?? null,
+                ]);
+            }
+
+            foreach ($data->update ?? [] as $row) {
+                AttributeValue::where('id', (int) $row['id'])
+                    ->where('attribute_id', $data->attribute_id)
+                    ->update(['color' => $row['color'] ?? null]);
+            }
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollback();
+
+            throw $e;
+        }
+
+        return Attribute::with('values')->find($data->attribute_id);
+    }
+
+    /**
+     * Update an attribute value.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateAttributeValueDTO $data Attribute value data including the ID.
+     * @return AttributeValue The refreshed attribute value.
+     * @throws NotFoundException When the attribute value does not exist or cannot be updated.
      */
     public function update(UpdateAttributeValueDTO $data)
     {
@@ -121,11 +183,13 @@ class AttributeValueService
     }
 
     /**
-     * Deletes a attribute by ID.
+     * Delete an attribute value by ID.
      *
-     * @param int $id The ID of the attribute to delete.
-     * @return bool True if the attribute was deleted successfully, false otherwise.
-     * @throws NotFoundException If the attribute could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Attribute value ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When no attribute value was deleted.
      */
     public function delete(int $id)
     {
@@ -137,11 +201,13 @@ class AttributeValueService
     }
 
     /**
-     * Deletes multiple attributes by their IDs.
+     * Delete multiple attribute values by their IDs.
      *
-     * @param array $ids The IDs of the attributes to delete.
-     * @return bool True if the attributes were deleted successfully, false otherwise.
-     * @throws NotFoundException If the attributes could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids Attribute value IDs.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When no attribute value was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -153,10 +219,12 @@ class AttributeValueService
     }
 
     /**
-     * Deletes all attributes values.
+     * Delete every attribute value matching the search filter.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search term.
+     * @return bool True when at least one attribute value was deleted.
      */
     public function delete_all(ListFilterDTO $filters)
     {

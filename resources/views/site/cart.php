@@ -11,6 +11,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
@@ -20,6 +21,7 @@ use function Kirki\Ecommerce\Framework\view_data;
 
 $cart = view_data('cart');
 $items = $cart['items'] ?? [];
+$invalid_items = $cart['invalid_items'] ?? [];
 
 ?>
 <?php Template::get_header(); ?>
@@ -37,8 +39,15 @@ $items = $cart['items'] ?? [];
                         <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-cart-items-header-actions-link"><?php esc_html_e('Continue Shopping', 'kirki-ecommerce'); ?></a>
                     </div>
                 </div>
+                <template x-if="invalidItems.length > 0">
+                    <div class="kecom-alert kecom-alert-warning kecom-mb-10">
+                        <?php Icon::render('information-fill', ['size' => 20]); ?>
+                        <p><?php esc_html_e('Remove unavailable items to complete checkout.', 'kirki-ecommerce'); ?></p>
+                        <a href="#" class="kecom-alert-item-remove" x-text="loading ? '' : removeLinkText" :class="loading ? 'kecom-btn-loading' : ''" @click.prevent="removeInvalidItems()"></a>
+                    </div>
+                </template>
                 <?php foreach ($items as $item) : ?>
-                    <?php include_view('site.cart.parts.cart-item', ['item' => $item]); ?>
+                    <?php include_view('site.cart.parts.cart-item', ['item' => $item, 'invalid_items' => $invalid_items]); ?>
                 <?php endforeach; ?>
             </div>
             <!-- Right Part -->

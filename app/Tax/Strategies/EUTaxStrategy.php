@@ -2,13 +2,28 @@
 
 namespace Kirki\Ecommerce\App\Tax\Strategies;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Facades\Money;
 
+/**
+ * Tax strategy for EU member countries: the destination VAT rate under OSS, the rate of the region's one country for a micro business.
+ *
+ * @since 1.0.0
+ */
 class EUTaxStrategy extends AbstractTaxStrategy
 {
+    const MICRO_BUSINESS = 'micro_business';
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function calculate(TaxCalculationContextDTO $context): TaxCalculationResultDTO
     {
         $result = new TaxCalculationResultDTO();
@@ -29,20 +44,48 @@ class EUTaxStrategy extends AbstractTaxStrategy
         }
 
         $result->shipping = $this->calculate_shipping_tax($context, $rates_by_item);
+        $result->tax_destination = $this->tax_destination();
 
         return $result;
     }
 
+    /**
+     * A micro business charges its own country's rate everywhere in the EU, so the
+     * store sets the tax whatever address the cart has.
+     *
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
+    public function tax_destination(): string
+    {
+        if (static::MICRO_BUSINESS === ($this->settings['type'] ?? null)) {
+            return OrderTaxDestination::STORE;
+        }
+
+        return parent::tax_destination();
+    }
+
+    /**
+     * Resolve the VAT rate for one cart item, letting any matching decision
+     * rules override the destination country's rate.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxableItemDTO $item
+     * @param TaxCalculationContextDTO                    $tax_context
+     * @return float
+     */
     protected function resolve_item_rate($item, TaxCalculationContextDTO $tax_context): float
     {
-        $rate = $this->get_rate();
+        $rate = $this->get_rate($this->tax_address($tax_context));
 
         if (empty($this->settings['rules'])) {
             return $rate;
         }
 
         $decision_context = $this->prepare_decision_context([
-            'shipping_address' => $this->address,
+            'shipping_address' => $tax_context->shipping_address,
             'billing_address' => $tax_context->billing_address,
             'base_product_price' => $item->taxable_amount,
             'product_categories' => $item->product_categories,
@@ -65,9 +108,11 @@ class EUTaxStrategy extends AbstractTaxStrategy
      * shipping tax belongs to; two items that happen to share a rate still
      * produce two separate lines, one per item, rather than being merged.
      *
+     * @since 1.0.0
+     *
      * @param TaxCalculationContextDTO $context
-     * @param array<int|string, float> $rates_by_item
-     * @return TaxLineDTO[]
+     * @param array<int|string, float> $rates_by_item VAT rate of each item, keyed by item ID.
+     * @return TaxLineDTO[] Empty when shipping tax is disabled or shipping is not taxable.
      */
     protected function calculate_shipping_tax(TaxCalculationContextDTO $context, array $rates_by_item): array
     {
@@ -81,13 +126,13 @@ class EUTaxStrategy extends AbstractTaxStrategy
         // shipping-only quote) - fall back to the member country's plain
         // rate, unattributed to any item.
         if (empty($taxable_amounts) || array_sum($taxable_amounts) <= 0) {
-            $rate = $this->get_rate();
+            $rate = $this->get_rate($this->tax_address($context));
 
             return [
                 TaxLineDTO::from_array([
                     'name' => 'VAT',
                     'rate' => $rate,
-                    'base_amount' => $this->calculate_tax_amount($rate, $context->shipping_fee),
+                    'base_amount' => $this->calculate_shipping_tax_amount($rate, $context->shipping_fee),
                 ]),
             ];
         }
@@ -108,7 +153,7 @@ class EUTaxStrategy extends AbstractTaxStrategy
             $lines[] = TaxLineDTO::from_array([
                 'name' => 'VAT',
                 'rate' => $rate,
-                'base_amount' => $this->calculate_tax_amount($rate, $portion),
+                'base_amount' => $this->calculate_shipping_tax_amount($rate, $portion),
                 'item_id' => $item->item_id,
             ]);
         }
@@ -117,24 +162,34 @@ class EUTaxStrategy extends AbstractTaxStrategy
     }
 
     /**
-     * Get the VAT rate configured for the address's member country. A member
-     * country has a single rate that applies to both product and shipping tax.
+     * Get the VAT rate that applies to the shopper. A member country has a
+     * single rate that applies to both product and shipping tax.
      *
-     * @return float
+     * Under OSS the shopper's member country supplies the rate. A micro
+     * business holds one country and charges its rate everywhere in the EU.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $tax_address The address the tax is calculated from.
+     * @return float Zero when that country is unknown or has no configured rate.
      */
-    protected function get_rate(): float
+    protected function get_rate(array $tax_address): float
     {
-        // TODO: honour $this->settings['type'] === 'micro_business' — a micro
-        // business charges its home-country VAT rate, not the destination
-        // member-country rate resolved below. Currently 'oss' and 'micro_business'
-        // behave identically.
-        $address_country = (string) ($this->address['country'] ?? '');
+        $countries = $this->settings['countries'] ?? [];
+
+        if (static::MICRO_BUSINESS === ($this->settings['type'] ?? null)) {
+            $country = reset($countries);
+
+            return is_array($country) ? (float) ($country['rate'] ?? 0) : 0;
+        }
+
+        $address_country = (string) ($tax_address['country'] ?? '');
 
         if ($address_country === '') {
             return 0;
         }
 
-        foreach ($this->settings['countries'] ?? [] as $country) {
+        foreach ($countries as $country) {
             if (is_array($country) && (string) ($country['code'] ?? '') === $address_country) {
                 return (float) ($country['rate'] ?? 0);
             }

@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { assert, describe, expect, it } from 'vitest';
 
 import {
   FulfillmentStatusSchema,
   OrderCalculationSchema,
-  OrderItemSchema,
   OrderListItemSchema,
+  OrderSchema,
   OrderStatusSchema,
   OrderTrackingSchema,
   PaymentStatusSchema,
@@ -145,7 +145,6 @@ describe('RefundTypeSchema', () => {
 describe('RefundSchema', () => {
   const documentedRefund = {
     id: 3,
-    invoiced_amount: 12,
     invoiced_amount_money_object: invoicedMoney(12),
     type: 'partial',
     reason: 'Damaged on arrival',
@@ -155,7 +154,7 @@ describe('RefundSchema', () => {
     created_by: 1,
   };
 
-  it('accepts the refund shape emitted by OrderResource', () => {
+  it('accepts the refund shape emitted by OrderResource, which carries only an invoiced-currency money object', () => {
     expect(RefundSchema.safeParse(documentedRefund).success).toBe(true);
   });
 
@@ -177,110 +176,124 @@ describe('RefundSchema', () => {
   });
 });
 
-describe('OrderItemSchema', () => {
+const documentedAddress = {
+  first_name: 'Sunny',
+  last_name: 'Doe',
+  address_line1: 'Nikunja 2, Khilket',
+  address_line2: '',
+  city: 'Dhaka',
+  state: '5665',
+  country: 'BD',
+  postal_code: '5665',
+  phone: '+1 555-000-2000',
+  email: 'jane.shipping@example.com',
+};
+
+const documentedCoupon = {
+  id: 6,
+  coupon_id: 6,
+  code: 'WINTER20',
+  title: 'Winter Sale',
+  discount_type: 'amount-off',
+  discount_target: 'order',
+  invoiced_discount_amount_money_object: invoicedMoney(531.2),
+  base_discount_amount_money_object: baseMoney(6.32),
+  usage_reversed_at: null,
+  discount_value_type: 'percentage',
+  discount_amount_percentage: 20,
+  invoiced_discount_amount_fixed_money_object: null,
+  base_discount_amount_fixed_money_object: null,
+};
+
+const documentedTaxLine = {
+  name: 'VAT',
+  rate: 7.5,
+  invoiced_amount_money_object: invoicedMoney(19.9),
+  base_amount_money_object: baseMoney(237),
+};
+
+const documentedLineItem = {
+  id: 35,
+  product_id: 4,
+  variant_id: 12,
+  product_name: 'Classic Cotton T-Shirt',
+  variant_name: 'Red, Red',
+  sku: 'T-SHIRT-1-4',
+  image: null,
+  quantity: 2,
+  invoiced_subtotal_money_object: invoicedMoney(2654.34),
+  base_subtotal_money_object: baseMoney(31.6),
+  invoiced_strikethrough_price_money_object: null,
+  base_strikethrough_price_money_object: null,
+  invoiced_unit_price_money_object: invoicedMoney(1327.17),
+  base_unit_price_money_object: baseMoney(15.8),
+  invoiced_unit_strikethrough_price_money_object: null,
+  base_unit_strikethrough_price_money_object: null,
+  invoiced_tax_total_money_object: invoicedMoney(0),
+  base_tax_total_money_object: baseMoney(0),
+  tax_lines: [],
+  applied_product_coupons: [],
+};
+
+describe('OrderSchema', () => {
   const documentedOrder = {
     id: 29,
     uuid: 'd9249ee1-b100-4f2e-b34b-a5caf2ef9725',
     order_number: 'ORD-695CEA20C3A9D',
+    invoice_number: 'INV-695CEA20C3A9D',
     customer_id: 2,
+    customer: {
+      first_name: 'Jane',
+      last_name: 'Doe',
+      email: 'jane@example.com',
+      phone: '+1 555-000-2000',
+    },
     status: 'pending',
     fulfillment_status: 'unfulfilled',
     is_refund_initiated: false,
     is_manual: false,
     currency_code: 'BDT',
+    is_tax_inclusive: false,
     totals: {
-      invoiced_subtotal: 2654.34,
-      invoiced_subtotal_money_object: invoicedMoney(2654.34),
-      base_subtotal: 31.6,
-      base_subtotal_money_object: baseMoney(31.6),
-      invoiced_shipping: 5312,
-      invoiced_shipping_money_object: invoicedMoney(5312),
-      base_shipping: 64,
-      base_shipping_money_object: baseMoney(64),
-      invoiced_discount: 531.2,
-      invoiced_discount_money_object: invoicedMoney(531.2),
-      base_discount: 6.32,
-      base_discount_money_object: baseMoney(6.32),
-      discount_details: { id: 6, code: 'WINTER20', title: 'Winter Sale' },
-      invoiced_tax: 0,
-      invoiced_tax_money_object: invoicedMoney(0),
-      base_tax: 0,
-      base_tax_money_object: baseMoney(0),
-      invoiced_shipping_tax: 0,
-      invoiced_shipping_tax_money_object: invoicedMoney(0),
-      base_shipping_tax: 0,
-      base_shipping_tax_money_object: baseMoney(0),
-      invoiced_total: 7435.14,
+      invoiced_items_subtotal_money_object: invoicedMoney(2654.34),
+      base_items_subtotal_money_object: baseMoney(31.6),
+      invoiced_order_discount_money_object: invoicedMoney(531.2),
+      base_order_discount_money_object: baseMoney(6.32),
+      invoiced_order_total_money_object: invoicedMoney(2123.14),
+      base_order_total_money_object: baseMoney(25.28),
+      invoiced_tax_total_money_object: invoicedMoney(0),
+      base_tax_total_money_object: baseMoney(0),
+      invoiced_shipping_amount_money_object: invoicedMoney(5312),
+      base_shipping_amount_money_object: baseMoney(64),
+      invoiced_shipping_strikethrough_money_object: invoicedMoney(5312),
+      base_shipping_strikethrough_money_object: baseMoney(64),
       invoiced_total_money_object: invoicedMoney(7435.14),
-      base_total: 89.28,
       base_total_money_object: baseMoney(89.28),
     },
+    tax_lines: [],
+    coupons: [documentedCoupon],
     items_count: 2,
-    items: [
-      {
-        id: 35,
-        product_id: 4,
-        variant_id: 12,
-        product_name: 'Classic Cotton T-Shirt',
-        variant_name: 'Red, Red',
-        quantity: 2,
-        invoiced_price: 1327.17,
-        invoiced_price_money_object: invoicedMoney(1327.17),
-        base_price: 15.8,
-        base_price_money_object: baseMoney(15.8),
-        invoiced_subtotal: 2654.34,
-        invoiced_subtotal_money_object: invoicedMoney(2654.34),
-        base_subtotal: 31.6,
-        base_subtotal_money_object: baseMoney(31.6),
-        invoiced_discount_amount: 531.2,
-        invoiced_discount_amount_money_object: invoicedMoney(531.2),
-        base_discount_amount: 6.32,
-        base_discount_amount_money_object: baseMoney(6.32),
-        invoiced_total: 2123.14,
-        invoiced_total_money_object: invoicedMoney(2123.14),
-        base_total: 25.28,
-        base_total_money_object: baseMoney(25.28),
-        invoiced_tax_total: 0,
-        invoiced_tax_total_money_object: invoicedMoney(0),
-        base_tax_total: 0,
-        base_tax_total_money_object: baseMoney(0),
-        tax_lines: [],
-        sku: 'T-SHIRT-1-4',
-        image: null,
-      },
-    ],
-    shipping_tax_lines: [],
-    shipping_address: {
-      first_name: 'Sunny',
-      last_name: 'Doe',
-      address_line1: 'Nikunja 2, Khilket',
-      address_line2: '',
-      city: 'Dhaka',
-      state: '5665',
-      country: 'BD',
-      postal_code: '5665',
-      phone: '+1 555-000-2000',
-      email: 'jane.shipping@example.com',
-    },
+    items: [documentedLineItem],
+    shipping_address: documentedAddress,
     is_billing_same_as_shipping: false,
     billing_address: {
+      ...documentedAddress,
       first_name: 'Jane',
-      last_name: 'Doe',
       address_line1: '78 Sunset Blvd',
-      address_line2: '',
       city: 'Los Angeles',
       state: 'CA',
       country: 'US',
       postal_code: '90001',
-      phone: '+1 555-000-2000',
-      email: 'jane.shipping@example.com',
     },
     payment_provider: 'stripe',
+    payment_provider_name: 'Stripe',
+    payment_provider_icon: 'https://example.com/stripe.png',
+    payment_provider_is_offline: false,
     payment_status: 'unpaid',
     shipping_method: 'fsdfdsfsdfsdf343432jh4',
     shipping_method_name: 'Standard Delivery',
-    customer_notes: null,
-    admin_notes: null,
+    shipping_method_type: 'flat_rate',
+    order_notes: null,
     flags: [],
     shipping_tracking: {
       carrier: null,
@@ -288,16 +301,29 @@ describe('OrderItemSchema', () => {
       tracking_url: null,
     },
     refunds: [],
+    estimated_delivery_date: null,
     archived_at: null,
     created_at: '2026-01-07 17:19:56',
+    cancelled_at: null,
+    paid_at: null,
+    shipped_at: null,
+    fulfilled_at: null,
   };
 
   it('accepts the order shape emitted by OrderResource', () => {
-    expect(OrderItemSchema.safeParse(documentedOrder).success).toBe(true);
+    expect(OrderSchema.safeParse(documentedOrder).success).toBe(true);
+  });
+
+  it('keeps order_notes on the parsed order and has no customer_notes or admin_notes field', () => {
+    const result = OrderSchema.parse({ ...documentedOrder, order_notes: 'Leave at the door' });
+
+    expect(result.order_notes).toBe('Leave at the door');
+    expect(Object.keys(result)).not.toContain('customer_notes');
+    expect(Object.keys(result)).not.toContain('admin_notes');
   });
 
   it('accepts an unrecognized extra field on the order and on a nested item', () => {
-    const result = OrderItemSchema.safeParse({
+    const result = OrderSchema.safeParse({
       ...documentedOrder,
       unexpected: 'value',
       items: [{ ...documentedOrder.items[0], unexpected: 'value' }],
@@ -306,7 +332,7 @@ describe('OrderItemSchema', () => {
   });
 
   it('accepts the nullable columns coming back null (uuid, order_number, customer_id, payment_provider)', () => {
-    const result = OrderItemSchema.safeParse({
+    const result = OrderSchema.safeParse({
       ...documentedOrder,
       uuid: null,
       order_number: null,
@@ -316,32 +342,46 @@ describe('OrderItemSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts an order with no coupon, notes, flags, refunds or shipping method', () => {
-    const result = OrderItemSchema.safeParse({
+  it('accepts an order with no coupons, notes, flags, refunds or shipping method', () => {
+    const result = OrderSchema.safeParse({
       ...documentedOrder,
-      totals: { ...documentedOrder.totals, discount_details: null },
+      coupons: [],
       shipping_method: null,
       shipping_method_name: null,
       flags: null,
-      refunds: null,
+      refunds: [],
     });
     expect(result.success).toBe(true);
   });
 
   it('accepts a persisted set of tax lines, each with its own invoiced and base money objects', () => {
-    const result = OrderItemSchema.safeParse({
+    const result = OrderSchema.safeParse({
+      ...documentedOrder,
+      items: [{ ...documentedOrder.items[0], tax_lines: [documentedTaxLine] }],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts an item with a strikethrough price and applied product coupons', () => {
+    const result = OrderSchema.safeParse({
       ...documentedOrder,
       items: [
         {
           ...documentedOrder.items[0],
-          tax_lines: [
+          base_strikethrough_price_money_object: baseMoney(40),
+          invoiced_strikethrough_price_money_object: invoicedMoney(3400),
+          base_unit_strikethrough_price_money_object: baseMoney(20),
+          invoiced_unit_strikethrough_price_money_object: invoicedMoney(1700),
+          applied_product_coupons: [
             {
-              name: 'Tax',
-              rate: 7.5,
-              invoiced_amount: 19.9,
-              invoiced_amount_money_object: invoicedMoney(19.9),
-              base_amount: 237,
-              base_amount_money_object: baseMoney(237),
+              code: 'PRODCOUPON',
+              title: 'Product coupon',
+              invoiced_discount_amount_money_object: invoicedMoney(100),
+              base_discount_amount_money_object: baseMoney(1.2),
+              discount_value_type: 'fixed',
+              discount_amount_percentage: null,
+              invoiced_discount_amount_fixed_money_object: invoicedMoney(100),
+              base_discount_amount_fixed_money_object: baseMoney(1.2),
             },
           ],
         },
@@ -351,14 +391,9 @@ describe('OrderItemSchema', () => {
   });
 
   it('accepts an item image resolved to a media attachment', () => {
-    const result = OrderItemSchema.safeParse({
+    const result = OrderSchema.safeParse({
       ...documentedOrder,
-      items: [
-        {
-          ...documentedOrder.items[0],
-          image: { id: 42, url: 'https://example.com/shirt.png' },
-        },
-      ],
+      items: [{ ...documentedOrder.items[0], image: { id: 42, url: 'https://example.com/shirt.png' } }],
     });
     expect(result.success).toBe(true);
   });
@@ -366,18 +401,18 @@ describe('OrderItemSchema', () => {
   it('keeps is_manual required, so pickFormValues reads the order instead of defaulting to true', () => {
     const { is_manual, ...withoutIsManual } = documentedOrder;
     expect(is_manual).toBe(false);
-    expect(OrderItemSchema.safeParse(withoutIsManual).success).toBe(false);
+    expect(OrderSchema.safeParse(withoutIsManual).success).toBe(false);
   });
 
   it('rejects a status outside the state machine', () => {
-    const result = OrderItemSchema.safeParse({ ...documentedOrder, status: 'archived' });
+    const result = OrderSchema.safeParse({ ...documentedOrder, status: 'archived' });
     expect(result.success).toBe(false);
   });
 
   it('rejects an order with no totals block', () => {
     const { totals, ...withoutTotals } = documentedOrder;
-    expect(totals.base_total).toBe(89.28);
-    expect(OrderItemSchema.safeParse(withoutTotals).success).toBe(false);
+    expect(totals.base_total_money_object.raw).toBe(89.28);
+    expect(OrderSchema.safeParse(withoutTotals).success).toBe(false);
   });
 });
 
@@ -440,68 +475,29 @@ describe('OrderListItemSchema', () => {
 });
 
 describe('OrderCalculationSchema', () => {
-  const displayMoney = invoicedMoney;
-
   const documentedCalculation = {
-    pricing: {
-      base_subtotal: 5308.68,
-      base_subtotal_money_object: displayMoney(5308.68),
-      display_subtotal: 5308.68,
-      display_subtotal_money_object: displayMoney(5308.68),
-      base_tax_total: 0,
-      base_tax_total_money_object: displayMoney(0),
-      display_tax_total: 0,
-      display_tax_total_money_object: displayMoney(0),
-      discount_details: { id: 6, code: 'WINTER20' },
-      base_discount_total: 12.79,
-      base_discount_total_money_object: displayMoney(12.79),
-      display_discount_total: 12.79,
-      display_discount_total_money_object: displayMoney(12.79),
-      base_shipping_subtotal: 5312,
-      base_shipping_subtotal_money_object: displayMoney(5312),
-      display_shipping_subtotal: 5312,
-      display_shipping_subtotal_money_object: displayMoney(5312),
-      base_shipping_tax: 0,
-      base_shipping_tax_money_object: displayMoney(0),
-      display_shipping_tax: 0,
-      display_shipping_tax_money_object: displayMoney(0),
-      base_shipping_discount: 0,
-      base_shipping_discount_money_object: displayMoney(0),
-      display_shipping_discount: 0,
-      display_shipping_discount_money_object: displayMoney(0),
-      base_shipping_total: 5312,
-      base_shipping_total_money_object: displayMoney(5312),
-      display_shipping_total: 5312,
-      display_shipping_total_money_object: displayMoney(5312),
-      base_total: 9559.11,
-      base_total_money_object: displayMoney(9559.11),
-      display_total: 9559.11,
-      display_total_money_object: displayMoney(9559.11),
-      tax_lines: [],
-      shipping_tax_lines: [],
+    is_tax_inclusive: false,
+    totals: {
+      base_items_subtotal_money_object: baseMoney(5308.68),
+      base_order_discount_money_object: baseMoney(12.79),
+      base_order_total_money_object: baseMoney(4247.11),
+      base_tax_total_money_object: baseMoney(0),
+      base_shipping_amount_money_object: baseMoney(5312),
+      base_shipping_strikethrough_money_object: baseMoney(5312),
+      base_total_money_object: baseMoney(9559.11),
     },
+    tax_lines: [],
+    coupons: [],
     items_count: 4,
     items: [
       {
-        id: 1,
+        id: 0,
         quantity: 4,
-        base_subtotal: 5308.68,
-        base_subtotal_money_object: displayMoney(5308.68),
-        display_subtotal: 5308.68,
-        display_subtotal_money_object: displayMoney(5308.68),
-        base_tax_amount: 0,
-        base_tax_amount_money_object: displayMoney(0),
-        display_tax_amount: 0,
-        display_tax_amount_money_object: displayMoney(0),
-        tax_lines: [],
-        base_discount_amount: 12.79,
-        base_discount_amount_money_object: displayMoney(12.79),
-        display_discount_amount: 12.79,
-        display_discount_amount_money_object: displayMoney(12.79),
-        base_total: 4247.11,
-        base_total_money_object: displayMoney(4247.11),
-        display_total: 4247.11,
-        display_total_money_object: displayMoney(4247.11),
+        base_subtotal_money_object: baseMoney(5308.68),
+        base_strikethrough_price_money_object: null,
+        base_unit_price_money_object: baseMoney(1327.17),
+        base_unit_strikethrough_price_money_object: null,
+        applied_product_coupons: [],
       },
     ],
     available_shipping_methods: [
@@ -509,16 +505,13 @@ describe('OrderCalculationSchema', () => {
         id: 'fsdfdsfsdfsdf343432jh4',
         name: 'Standard Delivery',
         type: 'flat_rate',
-        base_cost: 5312,
-        base_cost_money_object: displayMoney(5312),
-        display_cost: 5312,
-        display_cost_money_object: displayMoney(5312),
+        base_cost_money_object: baseMoney(5312),
       },
     ],
     shipping_method: 'fsdfdsfsdfsdf343432jh4',
   };
 
-  it('accepts the documented calculation (orders/Calculate Order Totals.yml)', () => {
+  it('accepts the documented calculation payload', () => {
     expect(OrderCalculationSchema.safeParse(documentedCalculation).success).toBe(true);
   });
 
@@ -545,30 +538,67 @@ describe('OrderCalculationSchema', () => {
   it('accepts a calculation with no coupon applied', () => {
     const result = OrderCalculationSchema.safeParse({
       ...documentedCalculation,
-      pricing: { ...documentedCalculation.pricing, discount_details: null },
+      coupons: [],
     });
     expect(result.success).toBe(true);
   });
 
-  it('accepts a per-item tax lines list carrying both base and display amounts', () => {
+  it('accepts an applied coupon and a strikethrough item price, since the calculation item id is the submitted-array index', () => {
     const result = OrderCalculationSchema.safeParse({
       ...documentedCalculation,
+      coupons: [
+        {
+          code: 'WINTER20',
+          title: 'Winter Sale',
+          discount_type: 'amount-off',
+          discount_target: 'order',
+          discount_value_type: 'percentage',
+          discount_amount_percentage: 20,
+          base_discount_amount_fixed_money_object: null,
+          base_discount_amount_money_object: baseMoney(12.79),
+        },
+      ],
       items: [
         {
           ...documentedCalculation.items[0],
-          tax_lines: [
+          base_strikethrough_price_money_object: baseMoney(6000),
+          applied_product_coupons: [
             {
-              name: 'VAT',
-              rate: 7.5,
-              base_amount: 398.15,
-              base_amount_money_object: displayMoney(398.15),
-              display_amount: 398.15,
-              display_amount_money_object: displayMoney(398.15),
+              code: 'PRODCOUPON',
+              title: 'Product coupon',
+              discount_value_type: 'fixed',
+              discount_amount_percentage: null,
+              base_discount_amount_fixed_money_object: baseMoney(500),
+              base_discount_amount_money_object: baseMoney(500),
             },
           ],
         },
       ],
     });
     expect(result.success).toBe(true);
+  });
+
+  it('accepts a set of aggregated tax lines, each with only a base money object', () => {
+    const result = OrderCalculationSchema.safeParse({
+      ...documentedCalculation,
+      tax_lines: [
+        {
+          name: 'VAT',
+          rate: 7.5,
+          base_amount_money_object: baseMoney(398.15),
+        },
+      ],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('defaults items, coupons, tax_lines and available_shipping_methods to an empty array when the calculation omits them', () => {
+    const { items, coupons, tax_lines, available_shipping_methods, ...rest } = documentedCalculation;
+    const result = OrderCalculationSchema.safeParse(rest);
+    assert(result.success);
+    expect(result.data.items).toEqual([]);
+    expect(result.data.coupons).toEqual([]);
+    expect(result.data.tax_lines).toEqual([]);
+    expect(result.data.available_shipping_methods).toEqual([]);
   });
 });

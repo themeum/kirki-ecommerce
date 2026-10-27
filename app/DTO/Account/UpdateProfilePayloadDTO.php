@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Account;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for updating a user's profile name.
+ *
+ * @since 1.0.0
+ */
 class UpdateProfilePayloadDTO extends DTO
 {
     /** @var int */

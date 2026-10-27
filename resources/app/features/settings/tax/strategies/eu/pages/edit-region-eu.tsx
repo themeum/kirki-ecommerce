@@ -27,7 +27,7 @@ import {
   TaxRegionEuFormSchema,
 } from '@/features/settings/tax/strategies/eu/schemas/forms/tax-region-eu-form';
 import EUTaxRegionSkeleton from '@/features/settings/tax/strategies/eu/skeletons/eu-tax-region-skeleton';
-import { TaxIcon } from '@/icons';
+import { TaxIcon } from '@/icons/common';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';

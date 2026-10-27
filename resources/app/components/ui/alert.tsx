@@ -28,9 +28,9 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
       {hasHighlight && (
         <div css={scoped(styles.highlight)} data-alert-highlight aria-hidden="true" />
       )}
-      <Flex gap={2} align="flex-start">
+      <Flex gap={2} align="center">
         {icon && (
-          <span css={scoped(styles.icon)} aria-hidden="true">
+          <span css={scoped(styles.icon)} aria-hidden="true" data-icon="true">
             {icon}
           </span>
         )}
@@ -46,30 +46,50 @@ export default Alert;
 
 const alertVariantStyles = defineStyles({
   primary: {
+    color: theme.colors.text.primary,
+    '& [data-icon]': {
+      color: theme.colors.icon.primary,
+    },
     backgroundColor: theme.colors.background.fillSecondary,
     '& [data-alert-highlight]': {
       backgroundColor: theme.colors.background.fillBrand,
     },
   },
   success: {
+    color: theme.colors.text.success,
+    '& [data-icon]': {
+      color: theme.colors.icon.success,
+    },
     backgroundColor: theme.colors.background.fillSuccessSecondary,
     '& [data-alert-highlight]': {
       backgroundColor: theme.colors.background.fillSuccess,
     },
   },
   fail: {
+    color: theme.colors.text.critical,
+    '& [data-icon]': {
+      color: theme.colors.icon.critical,
+    },
     backgroundColor: theme.colors.background.fillCriticalSecondary,
     '& [data-alert-highlight]': {
       backgroundColor: theme.colors.background.fillCritical,
     },
   },
   pending: {
+    color: theme.colors.text.caution,
+    '& [data-icon]': {
+      color: theme.colors.icon.caution,
+    },
     backgroundColor: theme.colors.background.fillCautionSecondary,
     '& [data-alert-highlight]': {
       backgroundColor: theme.colors.background.fillCaution,
     },
   },
   warning: {
+    color: theme.colors.text.warning,
+    '& [data-icon]': {
+      color: theme.colors.icon.warning,
+    },
     backgroundColor: theme.colors.background.fillWarningSecondary,
     '& [data-alert-highlight]': {
       backgroundColor: '#FFC207',
@@ -81,9 +101,12 @@ const styles = defineStyles({
   root: {
     width: '100%',
     padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[5]}`,
-    borderRadius: `${theme.radius.sm} ${theme.radius.xl} ${theme.radius.xl} ${theme.radius.sm}`,
+    borderRadius: theme.radius.xl,
     position: 'relative',
     overflow: 'hidden',
+    '&:has([data-alert-highlight])': {
+      borderRadius: `${theme.radius.sm} ${theme.radius.xl} ${theme.radius.xl} ${theme.radius.sm}`,
+    },
   },
   variants: alertVariantStyles,
   highlight: {
@@ -94,6 +117,7 @@ const styles = defineStyles({
     top: 0,
   },
   icon: {
+    display: 'inline-flex',
     flexShrink: 0,
   },
 });

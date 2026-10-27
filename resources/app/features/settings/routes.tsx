@@ -6,12 +6,15 @@ import { Navigate } from 'react-router';
 import { RouteConfig } from '@/config/route-config';
 import AdvancedSettingsSkeleton from '@/features/settings/advanced/skeletons/advanced-settings-skeleton';
 import CheckoutSettingsSkeleton from '@/features/settings/checkout/skeletons/checkout-settings-skeleton';
+import EditNotificationTemplateSkeleton from '@/features/settings/email/skeletons/edit-notification-template-skeleton';
 import EditTemplateSkeleton from '@/features/settings/email/skeletons/edit-template-skeleton';
 import EmailSettingsSkeleton from '@/features/settings/email/skeletons/email-settings-skeleton';
 import EssentialsSettingsSkeleton from '@/features/settings/essentials/skeletons/essentials-settings-skeleton';
 import VariationDetailSkeleton from '@/features/settings/essentials/skeletons/variation-detail-skeleton';
 import GeneralSettingsSkeleton from '@/features/settings/general/skeletons/general-settings-skeleton';
 import LegalSettingsSkeleton from '@/features/settings/legal/skeletons/legal-settings-skeleton';
+import McpAbilitiesSkeleton from '@/features/settings/mcp/skeletons/mcp-abilities-skeleton';
+import McpSettingsSkeleton from '@/features/settings/mcp/skeletons/mcp-settings-skeleton';
 import MultiCurrencySettingsSkeleton from '@/features/settings/multi-currency/skeletons/multi-currency-settings-skeleton';
 import PaymentSettingsSkeleton from '@/features/settings/payment/skeletons/payment-settings-skeleton';
 import ProductsSettingsSkeleton from '@/features/settings/products/skeletons/products-settings-skeleton';
@@ -39,6 +42,9 @@ const MultiCurrencySettings = lazy(
 );
 const CheckoutSettings = lazy(() => import('@/features/settings/checkout/pages/checkout-settings'));
 const EditTemplate = lazy(() => import('@/features/settings/email/pages/edit-template'));
+const EditNotificationTemplate = lazy(
+  () => import('@/features/settings/email/pages/edit-notification-template'),
+);
 const EssentialsSettings = lazy(
   () => import('@/features/settings/essentials/pages/essential-settings'),
 );
@@ -50,6 +56,8 @@ const ListVariation = lazy(
 );
 const AdvancedSettings = lazy(() => import('@/features/settings/advanced/pages/advanced-settings'));
 const LegalSettings = lazy(() => import('@/features/settings/legal/pages/legal-settings'));
+const McpSettings = lazy(() => import('@/features/settings/mcp/pages/mcp-settings'));
+const McpAbilities = lazy(() => import('@/features/settings/mcp/pages/mcp-abilities'));
 
 const withSuspense = <Props extends object>(
   Component: ComponentType<Props>,
@@ -91,7 +99,9 @@ const settingsRoutes: RouteObject[] = [
         element: withSuspense(ShippingZone, <ShippingZoneSkeleton />),
       },
       {
-        path: SettingsRoutes.get('ShippingSettings').get('ShippingDeliveryMethod').template,
+        path: SettingsRoutes.get('ShippingSettings')
+          .get('ShippingZone')
+          .get('ShippingDeliveryMethod').template,
         element: withSuspense(ShippingDeliveryMethod, <ShippingDeliveryMethodSkeleton />),
       },
       {
@@ -110,10 +120,6 @@ const settingsRoutes: RouteObject[] = [
       {
         path: SettingsRoutes.get('CheckoutSettings').template,
         element: withSuspense(CheckoutSettings, <CheckoutSettingsSkeleton />),
-      },
-      {
-        path: SettingsRoutes.get('EmailSettings').get('EditEmailTemplate').template,
-        element: withSuspense(EditTemplate, <EditTemplateSkeleton />),
       },
       {
         path: SettingsRoutes.get('EssentialsSettings').template,
@@ -135,7 +141,23 @@ const settingsRoutes: RouteObject[] = [
         path: SettingsRoutes.get('LegalSettings').template,
         element: withSuspense(LegalSettings, <LegalSettingsSkeleton />),
       },
+      {
+        path: SettingsRoutes.get('McpSettings').template,
+        element: withSuspense(McpSettings, <McpSettingsSkeleton />),
+      },
+      {
+        path: SettingsRoutes.get('McpSettings').get('McpAbilities').template,
+        element: withSuspense(McpAbilities, <McpAbilitiesSkeleton />),
+      },
     ],
+  },
+  {
+    path: SettingsRoutes.get('EmailSettings').get('EditEmailTemplate').template,
+    element: withSuspense(EditTemplate, <EditTemplateSkeleton />),
+  },
+  {
+    path: SettingsRoutes.get('EmailSettings').get('EditNotificationTemplate').template,
+    element: withSuspense(EditNotificationTemplate, <EditNotificationTemplateSkeleton />),
   },
 ];
 

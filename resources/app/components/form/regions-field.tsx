@@ -2,7 +2,13 @@ import type { CSSObject } from '@emotion/react';
 import { ChevronDownIcon } from '@radix-ui/react-icons';
 import { Minus } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Controller, type FieldPath, type FieldValues, useFormContext, useWatch } from 'react-hook-form';
+import {
+  Controller,
+  type FieldPath,
+  type FieldValues,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form';
 
 import { RegionsDialog } from '@/components/regions-dialog';
 import Button from '@/components/ui/button';
@@ -10,7 +16,7 @@ import Chip from '@/components/ui/chip';
 import ChipField from '@/components/ui/chip-field';
 import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { LocationIcon } from '@/icons';
+import { LocationIcon } from '@/icons/common';
 import type { Region } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
@@ -94,7 +100,8 @@ const RegionsField = <
                     </Button>
                   }
                   chips={
-                    tags.length > 0 && tags.map((tag) => (
+                    tags.length > 0 &&
+                    tags.map((tag) => (
                       <Chip
                         key={tag.id}
                         text={tag.title}
@@ -178,7 +185,7 @@ const styles = defineStyles({
     gap: theme.spacing[2],
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
     marginTop: theme.spacing[2],
-    backgroundColor: theme.colors.background.surfaceSecondary,
+    backgroundColor: theme.colors.background.solidSurfaceAlt,
     borderRadius: theme.radius.lg,
   },
   emptyStateText: {

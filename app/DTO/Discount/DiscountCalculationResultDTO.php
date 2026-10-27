@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Discount;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Combined outcome of applying every coupon: per-coupon results, invalid coupons and summed discounts.
+ *
+ * @since 1.0.0
+ */
 class DiscountCalculationResultDTO extends DTO
 {
     /** @var CouponDiscountResultDTO[] One entry per successfully applied coupon */
@@ -14,6 +21,9 @@ class DiscountCalculationResultDTO extends DTO
 
     /** @var array<int, int> Discount amount per variant_id, summed across every applied coupon */
     public $item_discounts = [];
+
+    /** @var array<int, int> The part of item_discounts that came from product-scoped coupons, per variant_id */
+    public $product_item_discounts = [];
 
     /** @var int Total shipping discount amount in minor units */
     public $shipping_discount = 0;

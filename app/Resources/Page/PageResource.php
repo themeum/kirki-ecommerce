@@ -2,14 +2,23 @@
 
 namespace Kirki\Ecommerce\App\Resources\Page;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 
+/**
+ * API resource for a WordPress page.
+ *
+ * @since 1.0.0
+ */
 class PageResource extends Resource
 {
     /**
      * Convert the page resource to an array.
      *
-     * @return array The page data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The page ID, title, slug, status and dates.
      */
     public function to_array()
     {

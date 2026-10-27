@@ -2,15 +2,24 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for a single product attribute value.
+ *
+ * @since 1.0.0
+ */
 class AttributeValueResource extends Resource
 {
     /**
-     * Convert the tag resource to an array.
+     * Convert the attribute value resource to an array.
      *
-     * @return array The tag data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The attribute value data.
      */
     public function to_array()
     {

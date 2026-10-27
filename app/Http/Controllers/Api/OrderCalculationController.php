@@ -2,28 +2,56 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
-use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCalculationRequest;
 use Kirki\Ecommerce\App\Resources\Order\OrderCalculationResource;
 
+use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Services\VariantService;
-use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller that calculates order totals for a draft order without saving it.
+ *
+ * @since 1.0.0
+ */
 class OrderCalculationController
 {
+    /** @var VariantService */
     protected $variant_service;
 
-    public function __construct(VariantService $variant_service)
+    /** @var CustomerService */
+    protected $customer_service;
+
+    /**
+     * Create the controller with the variant and customer services.
+     *
+     * @since 1.0.0
+     *
+     * @param VariantService  $variant_service
+     * @param CustomerService $customer_service Buyer email lookup.
+     */
+    public function __construct(VariantService $variant_service, CustomerService $customer_service)
     {
         $this->variant_service = $variant_service;
+        $this->customer_service = $customer_service;
     }
 
+    /**
+     * Calculate subtotal, discounts, tax, shipping and grand total for the submitted order details.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderCalculationRequest $request
+     * @param RecalculateCartAction   $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The calculation result, in the store's base currency.
+     */
     public function get(OrderCalculationRequest $request, RecalculateCartAction $action)
     {
         $context = $this->prepare_context_dto($request->all());
@@ -32,11 +60,18 @@ class OrderCalculationController
             'data' => OrderCalculationResource::make([
                 'result' => $action->execute($context),
                 'context' => $context,
-                'currency_code' => $request->input('currency_code')
             ])
         ]);
     }
 
+    /**
+     * Build the calculation context from the flattened request data.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Calculation request data.
+     * @return CalculationContextDTO
+     */
     protected function prepare_context_dto($data)
     {
         $context = CalculationContextDTO::from_array([
@@ -66,18 +101,22 @@ class OrderCalculationController
                 'country' => $data['billing_country'] ?? null
             ],
             'customer_id' => $data['customer_id'],
+            'customer_email' => $this->customer_service->resolve_buyer_email($data['customer_id'], null, $data['customer_email'] ?? null),
             'coupon_codes' => $data['coupon_codes'] ?? [],
             'shipping_method_id' => $data['shipping_method'] ?? null,
-            'customer_order_count' => 0,
         ]);
-
-        if ($context->customer_id) {
-            $context->customer_order_count = $this->get_order_count($context->customer_id);
-        }
 
         return $context;
     }
 
+    /**
+     * Convert the submitted line items into calculation item DTOs, filled from their variants.
+     *
+     * @since 1.0.0
+     *
+     * @param array<int, array<string, mixed>>|null $items Submitted items with `variant_id` and `quantity`.
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection Calculation item DTOs keyed like the input.
+     */
     protected function prepare_items($items)
     {
         return collection($items ?? [])->map(function ($item, $key) {
@@ -98,12 +137,5 @@ class OrderCalculationController
 
             return $item_dto;
         });
-    }
-
-    protected function get_order_count($customer_id)
-    {
-        $customer = customer(null, $customer_id);
-        // @todo: need to update this with order status which are terminal states
-        return $customer->get_customer()->orders()->where_not_in('fulfillment_status', [FulfillmentStatus::CANCELLED, FulfillmentStatus::RETURNED])->count();
     }
 }

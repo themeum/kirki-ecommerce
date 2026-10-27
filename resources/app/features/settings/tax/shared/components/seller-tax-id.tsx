@@ -1,9 +1,10 @@
+import { PlusIcon } from 'lucide-react';
+
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { PlusIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -12,21 +13,25 @@ const SellerTaxID = () => {
   return (
     <div>
       <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
-        <CardContent >
+        <CardContent>
           <Flex direction="column" gap={2}>
             <Flex align="center">
-              <Text weight="semibold" style={{ gap: theme.spacing[3] }}>{__('Seller Tax ID', 'kirki-ecommerce')}</Text>
+              <Text weight="semibold" style={{ gap: theme.spacing[3] }}>
+                {__('Seller Tax ID', 'kirki-ecommerce')}
+              </Text>
               <ActionGroup>
                 <Button variant="secondary">
-                  <PlusIcon />
-                  Add ID
+                  <PlusIcon size={16} />
+                  {__('Add ID', 'kirki-ecommerce')}
                 </Button>
               </ActionGroup>
             </Flex>
-            <Text color="secondary">{__(
-              'This information will be used on invoices where tax is applied, based on buyer region and your registration scope.',
-              'kirki-ecommerce',
-            )}</Text>
+            <Text color="secondary">
+              {__(
+                'This information will be used on invoices where tax is applied, based on buyer region and your registration scope.',
+                'kirki-ecommerce',
+              )}
+            </Text>
           </Flex>
         </CardContent>
       </Card>
@@ -37,4 +42,3 @@ const SellerTaxID = () => {
 SellerTaxID.displayName = 'SellerTaxID';
 
 export default SellerTaxID;
-

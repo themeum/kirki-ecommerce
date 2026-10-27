@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Customer;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 
+/**
+ * Filters for listing customers, adding country and city to the shared list filters.
+ *
+ * @since 1.0.0
+ */
 class CustomerListFilterDTO extends ListFilterDTO
 {
     /** @var string|null */

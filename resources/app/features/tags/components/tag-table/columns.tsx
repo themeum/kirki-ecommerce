@@ -1,21 +1,38 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
 import type { Tag } from '@/features/tags/schemas/catalog/tag';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const styles = defineStyles({
   descriptionCell: {
     maxWidth: '240px',
   },
+  clickable: {
+    padding: 0,
+    border: 'none',
+    background: 'none',
+    font: 'inherit',
+    color: 'inherit',
+    textAlign: 'left',
+    cursor: 'pointer',
+  },
 });
 
-const tagColumns: ColumnDef<Tag>[] = [
+type TagColumnsOptions = {
+  onEdit: (tag: Tag) => void;
+};
+
+const createTagColumns = ({ onEdit }: TagColumnsOptions): ColumnDef<Tag>[] => [
   {
     id: 'name',
     header: __('Name', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => row.original?.name || '--',
+    cell: ({ row }) => (
+      <button type="button" css={scoped(styles.clickable)} onClick={() => onEdit(row.original)}>
+        {row.original?.name || '--'}
+      </button>
+    ),
   },
   {
     id: 'description',
@@ -41,4 +58,4 @@ const tagColumns: ColumnDef<Tag>[] = [
   },
 ];
 
-export { tagColumns };
+export { createTagColumns };

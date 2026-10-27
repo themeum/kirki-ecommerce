@@ -12,7 +12,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import { Page, PageContent, PageHeading } from '@/components/ui/page';
+import { Page, PAGE_HEADING_HEIGHT, PageContent, PageHeading } from '@/components/ui/page';
+import QueryErrorState from '@/components/ui/query-error-state';
 import Text from '@/components/ui/text';
 import CustomerCard from '@/features/orders/components/order-create/customer-card';
 import NotesCard from '@/features/orders/components/order-create/notes-card';
@@ -26,10 +27,10 @@ import Timeline from '@/features/orders/components/order-details/timeline';
 import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import { getActionLabel } from '@/features/orders/lib/order-actions';
 import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
-import { ShowMoreIcon } from '@/icons';
+import { ShowMoreIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderDetails = () => {
@@ -44,6 +45,8 @@ const OrderDetails = () => {
     order,
     isLoading,
     isError,
+    isFetching,
+    refetch,
     form,
     paymentBadge,
     fulfillmentBadge,
@@ -68,17 +71,9 @@ const OrderDetails = () => {
   if (isError || !order || !paymentBadge || !fulfillmentBadge) {
     return (
       <Page containerSize="xl">
-        <PageHeading text={__('Orders', 'kirki-ecommerce')} hasBack onBack={handleBack} />
+        <PageHeading sticky text={__('Order', 'kirki-ecommerce')} hasBack onBack={handleBack} />
         <PageContent>
-          <Card cssOverride={{ marginTop: theme.spacing[12] }}>
-            <CardContent>
-              <Flex justify="center" align="center" cssOverride={{ minHeight: 200 }}>
-                <Text color="secondary" variant="heading4" weight="normal">
-                  {__('Order not found.', 'kirki-ecommerce')}
-                </Text>
-              </Flex>
-            </CardContent>
-          </Card>
+          <QueryErrorState onRetry={refetch} isRetrying={isFetching} />
         </PageContent>
       </Page>
     );
@@ -88,7 +83,8 @@ const OrderDetails = () => {
     <Page containerSize="xl">
       <Form {...form}>
         <PageHeading
-          text={`${__('Order', 'kirki-ecommerce')} #${order.order_number}`}
+          sticky
+          text={`${__('Order', 'kirki-ecommerce')} ${order.order_number}`}
           actions={
             <>
               {/* @todo: Edit is not workable now, implement it later */}
@@ -99,7 +95,7 @@ const OrderDetails = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      variant="ghost"
+                      variant="tertiary"
                       size="icon"
                       aria-label={__('More options', 'kirki-ecommerce')}
                     >
@@ -128,17 +124,20 @@ const OrderDetails = () => {
         <PageContent>
           <Flex gap={4}>
             <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
-              <Card cssOverride={cardStyles.formCard}>
+              <Card cssOverride={{ gap: theme.spacing[2] }}>
                 <CardHeader>
                   <CardTitle>
                     <Text variant="heading6" weight="semibold">
-                      {/* translators: %s: number of items */}
-                      {sprintf(__('Items (%s)', 'kirki-ecommerce'), order.items_count)}
+                      {sprintf(
+                        /* translators: %s: number of items */
+                        __('Items (%s)', 'kirki-ecommerce'),
+                        order.items_count,
+                      )}
                     </Text>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Card cssOverride={cardStyles.innerCard}>
+                  <Card cssOverride={mergeCss(cardStyles.innerCard, { overflow: 'hidden' })}>
                     <CardContent cssOverride={styles.zeroPadding}>
                       <ItemsTable items={order.items} />
                     </CardContent>
@@ -147,16 +146,12 @@ const OrderDetails = () => {
               </Card>
 
               <PaymentSummaryCard
-                amounts={{
-                  itemsCount: order.items_count,
-                  subtotal: order.totals.base_subtotal_money_object.display,
-                  discount: order.totals.base_discount_money_object.display,
-                  shipping: order.totals.base_shipping_money_object.display,
-                  tax: order.totals.base_tax_money_object.display,
-                  total: order.totals.base_total_money_object.display,
-                }}
+                totals={order.totals}
+                coupons={order.coupons}
+                taxLines={order.tax_lines}
+                itemsCount={order.items_count}
                 shippingMethodName={order.shipping_method_name}
-                couponCode={order.totals.discount_details?.code}
+                isTaxInclusive={order.is_tax_inclusive}
                 badge={<Badge variant={paymentBadge.variant}>{paymentBadge.text}</Badge>}
                 actions={
                   paymentActions.length > 0 && (
@@ -179,18 +174,32 @@ const OrderDetails = () => {
               <Timeline orderId={order.id} />
             </Flex>
 
-            <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>
+            <Flex
+              direction="column"
+              gap={4}
+              cssOverride={{
+                width: '30%',
+                position: 'sticky',
+                top: `calc(${PAGE_HEADING_HEIGHT} + ${theme.spacing[8]})`,
+                alignSelf: 'flex-start',
+              }}
+            >
               <TakeActionCard
                 order={order}
                 onAction={handleAction}
                 isPerforming={isActionPending}
               />
 
-              <CustomerCard onSave={handleSaveOrder} isSaving={isSaving} readonly />
+              <CustomerCard
+                onSave={handleSaveOrder}
+                isSaving={isSaving}
+                isGuest={order.is_guest}
+                mode="view"
+              />
 
               <FlagCard onSave={handleSaveOrder} />
 
-              <NotesCard onSave={handleSaveOrder} isSaving={isSaving} />
+              <NotesCard mode="edit" onSave={handleSaveOrder} isSaving={isSaving} />
             </Flex>
           </Flex>
         </PageContent>

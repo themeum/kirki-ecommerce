@@ -2,26 +2,36 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Mcp\McpAbilities;
 use Kirki\Ecommerce\App\Models\Page;
 use Kirki\Ecommerce\App\Supports\Utils;
-use Kirki\Ecommerce\Framework\Contracts\SomoyInterface;
-use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
-use Kirki\Ecommerce\Framework\Supports\Somoy;
 
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
-use function Kirki\Ecommerce\Framework\dd;
 
+/**
+ * API resource for a settings group, shaping the stored values per settings key.
+ *
+ * @since 1.0.0
+ */
 class SettingResource extends Resource
 {
     /**
      * Convert the setting resource to an array.
      *
-     * @return array The setting data as an associative array.
+     * Applies the formatter matching the settings key, and returns the stored values unchanged for other keys.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The formatted settings values.
      */
     public function to_array()
     {
@@ -40,8 +50,14 @@ class SettingResource extends Resource
             case OptionKeys::LEGAL_SETTINGS:
                 $data = $this->get_legal_settings($data);
                 break;
+            case OptionKeys::MCP_SETTINGS:
+                $data = $this->get_mcp_settings($data);
+                break;
             case OptionKeys::CURRENCY_SETTINGS:
                 $data = $this->get_currency_settings($data);
+                break;
+            case OptionKeys::EMAIL_SETTINGS:
+                $data = $this->get_email_settings($data);
             default:
                 break;
         }
@@ -50,11 +66,14 @@ class SettingResource extends Resource
     }
 
     /**
-     * Get the shipping settings.
-     * 
-     * @param array $data
-     * 
-     * @return array
+     * Get the advanced settings.
+     *
+     * Replaces the stored page IDs with page details and an active, inactive or not-found status.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Stored advanced settings.
+     * @return array<string, mixed> Settings with the `pages` entry expanded.
      */
     protected function get_advanced_settings($data)
     {
@@ -104,10 +123,13 @@ class SettingResource extends Resource
 
     /**
      * Get the shipping settings.
-     * 
-     * @param array $data
-     * 
-     * @return array
+     *
+     * Converts stored minor-unit amounts of shipping methods and ranges to decimal amounts, each with a money object.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Stored shipping settings.
+     * @return array<string, mixed> Settings with the amounts converted.
      */
     protected function get_shipping_settings($data)
     {
@@ -144,28 +166,26 @@ class SettingResource extends Resource
 
     /**
      * Get the currency settings.
-     * 
-     * @param array $data
-     * 
-     * @return array
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Stored currency settings.
+     * @return array<string, mixed> Only the whitelisted currency format and exchange rate provider fields.
      */
     protected function get_currency_settings($data)
     {
         return [
-            'currency_format' => $data['currency_format'] ?? null,
-            'currency_position' => $data['currency_position'] ?? null,
-            'thousand_separator' => $data['thousand_separator'] ?? null,
-            'decimal_separator' => $data['decimal_separator'] ?? null,
+            'currency_format' => $data['currency_format'] ?? 'short',
+            'currency_position' => $data['currency_position'] ?? 'before',
+            'thousand_separator' => $data['thousand_separator'] ?? ',',
+            'decimal_separator' => $data['decimal_separator'] ?? '.',
             'is_automatic_update_enabled' => $data['is_automatic_update_enabled'] ?? false,
             'api_provider' => $data['api_provider'] ?? null,
             'last_sync_at' => $data['last_sync_at'] ?? null,
             'next_sync_at' => $data['next_sync_at'] ?? null,
-            'api_config' => !empty($data['api_config']) ? [
-                'api_key' => $data['api_config']['api_key'] ?? null,
-                'update_frequency' => $data['api_config']['update_frequency'] ?? null,
-                'fallback_behaviour' => $data['api_config']['fallback_behaviour'] ?? null,
-                'is_cache_enabled' => $data['api_config']['is_cache_enabled'] ?? false
-            ] : null,
+            'last_sync_error' => $data['last_sync_error'] ?? null,
+            'last_sync_error_at' => $data['last_sync_error_at'] ?? null,
+            'api_configs' => (object) CurrencyExchange::normalize_provider_configs($data['api_configs'] ?? []),
             'base_currency' => $data['base_currency'] ?? null,
             'usage' => !empty($data['usage']) ? [
                 'total' => $data['usage']['total'] ?? null,
@@ -177,20 +197,74 @@ class SettingResource extends Resource
     }
 
     /**
+     * Get the email settings.
+     *
+     * Resolves the header logo media attachment.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Stored email settings.
+     * @return array<string, mixed> Settings with the logo and shortcodes filled in.
+     */
+    protected function get_email_settings($data)
+    {
+        $header_logo = MediaAttachment::make($data['default_template']['logo'] ?? null);
+
+        $data = array_merge($data ?? [], [
+            'default_template' => array_merge($data['default_template'] ?? [], [
+                'logo' => $header_logo
+            ])
+        ]);
+
+        return $data;
+    }
+
+    /**
      * Get the legal settings.
      *
      * Consents are re-indexed so they serialise as a JSON array rather than an
      * object, and the store's registration flag is surfaced so the admin can
      * warn when a signup consent cannot be displayed.
      *
-     * @param array $data
+     * @since 1.0.0
      *
-     * @return array
+     * @param array<string, mixed> $data Stored legal settings.
+     * @return array<string, mixed> Settings with re-indexed consents and the registration flag.
      */
     protected function get_legal_settings($data)
     {
         $data['consents'] = array_values($data['consents'] ?? []);
         $data['is_registration_enabled'] = (bool) Utils::registration_enabled();
+
+        return $data;
+    }
+
+    /**
+     * Get the MCP settings.
+     *
+     * Adds the ability catalog, the server URL, the signed-in user's login and profile URL, and whether application
+     * passwords and the MCP Adapter are available. The group and ability maps stay JSON objects when empty.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Stored MCP settings.
+     * @return array<string, mixed>
+     */
+    protected function get_mcp_settings($data)
+    {
+        $abilities = app()->make(McpAbilities::class);
+        $user = wp_get_current_user();
+
+        $data['enabled'] = (bool) ($data['enabled'] ?? false);
+        $data['read_only'] = (bool) ($data['read_only'] ?? false);
+        $data['groups'] = (object) ($data['groups'] ?? []);
+        $data['abilities'] = (object) ($data['abilities'] ?? []);
+        $data['catalog'] = $abilities->catalog();
+        $data['server_url'] = $abilities->is_adapter_available() ? $abilities->server_url() : null;
+        $data['user_login'] = $user->user_login;
+        $data['profile_url'] = admin_url('profile.php#application-passwords-section');
+        $data['application_passwords_available'] = wp_is_application_passwords_available_for_user($user);
+        $data['adapter_available'] = $abilities->is_adapter_available();
 
         return $data;
     }

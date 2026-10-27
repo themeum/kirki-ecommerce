@@ -11,6 +11,9 @@ window.kirki_ecommerce = {
   rest_nonce: 'test-nonce',
   version: 'test',
   is_dev: true,
+  assets_url: 'https://example.test/wp-content/plugins/kirki-ecommerce/assets',
+  is_onboarded: true,
+  is_setup_complete: false,
 };
 
 window.wp = {
@@ -26,7 +29,7 @@ window.wp = {
     sprintf: (format, ...args) => {
       let nextArgIndex = 0;
 
-      return String(format).replace(/%(?:(\d+)\$)?s/g, (placeholder, position: string) => {
+      return String(format).replace(/%(?:(\d+)\$)?[sd]/g, (placeholder, position: string) => {
         const arg = position ? args[Number(position) - 1] : args[nextArgIndex++];
 
         return arg === undefined ? placeholder : String(arg);

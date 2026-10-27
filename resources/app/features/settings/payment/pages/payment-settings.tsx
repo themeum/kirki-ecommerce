@@ -1,37 +1,27 @@
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import OfflinePayment from '@/features/settings/payment/pages/offline-payment';
-import OnlinePaymentList from '@/features/settings/payment/pages/online-payment-list';
-import {
-  useOfflinePaymentsQuery,
-  useOnlinePaymentsQuery,
-} from '@/features/settings/payment/services/payment';
+import PaymentMethods from '@/features/settings/payment/components/list/payment-methods';
+import { usePaymentMethodsQuery } from '@/features/settings/payment/services/payment';
 import PaymentSettingsSkeleton from '@/features/settings/payment/skeletons/payment-settings-skeleton';
-import { PaymentIcon } from '@/icons';
+import { PaymentIcon } from '@/icons/common';
 import { __ } from '@/wpi18n';
 
 const PaymentSettings = () => {
-  const { data: onlinePaymentList = [], isLoading: isLoadingOnline } = useOnlinePaymentsQuery();
-  const {
-    data: offlinePaymentList = [],
-    refetch: refetchOfflinePayments,
-    isLoading: isLoadingOffline,
-  } = useOfflinePaymentsQuery();
+  const { data: paymentMethods = [], isFetching: isLoading } = usePaymentMethodsQuery();
 
-  const loaded = !isLoadingOnline && !isLoadingOffline;
+  if (isLoading) {
+    return <PaymentSettingsSkeleton />;
+  }
 
-  return loaded ? (
+  return (
     <Container size="sm">
       <Flex direction="column" gap={4}>
         <SettingsPageHeader icon={<PaymentIcon />} title={__('Payments', 'kirki-ecommerce')} />
 
-        <OfflinePayment offlinePaymentList={offlinePaymentList} refetch={refetchOfflinePayments} />
-        <OnlinePaymentList onlinePaymentList={onlinePaymentList} />
+        <PaymentMethods paymentMethods={paymentMethods} />
       </Flex>
     </Container>
-  ) : (
-    <PaymentSettingsSkeleton />
   );
 };
 

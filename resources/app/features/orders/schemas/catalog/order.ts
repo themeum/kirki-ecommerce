@@ -1,8 +1,11 @@
 import { z } from 'zod';
 
-import { CouponSchema } from '@/features/coupons';
-import { CustomerAddressSchema } from '@/features/customers';
-import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
+import {
+  CouponDiscountTargetSchema,
+  CouponDiscountTypeSchema,
+  CouponDiscountValueTypeSchema,
+} from '@/features/coupons';
+import { MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
 export const OrderStatusSchema = z.enum([
@@ -68,7 +71,6 @@ export type RefundType = z.infer<typeof RefundTypeSchema>;
 
 export const RefundSchema = z.object({
   id: z.number(),
-  invoiced_amount: MoneyAmountSchema,
   invoiced_amount_money_object: MoneyObjectSchema,
   type: RefundTypeSchema,
   reason: z.string().nullish(),
@@ -84,218 +86,261 @@ export const ShippingTypeSchema = z.enum(['flat_rate', 'local_pickup', 'weight']
 
 export type ShippingType = z.infer<typeof ShippingTypeSchema>;
 
+export const OrderAddressSchema = z.object({
+  first_name: z.string().nullish(),
+  last_name: z.string().nullish(),
+  address_line1: z.string().nullish(),
+  address_line2: z.string().nullish(),
+  city: z.string().nullish(),
+  state: z.string().nullish(),
+  country: z.string().nullish(),
+  postal_code: z.string().nullish(),
+  phone: z.string().nullish(),
+  email: z.string().nullish(),
+});
+
+export type OrderAddress = z.infer<typeof OrderAddressSchema>;
+
 export const OrderTaxLineSchema = z.object({
   name: z.string(),
   rate: z.number(),
-  invoiced_amount: MoneyAmountSchema,
   invoiced_amount_money_object: MoneyObjectSchema,
-  base_amount: MoneyAmountSchema,
   base_amount_money_object: MoneyObjectSchema,
 });
 
 export type OrderTaxLine = z.infer<typeof OrderTaxLineSchema>;
 
-export const CalculatedTaxLineSchema = z.object({
+export const OrderCalculationTaxLineSchema = z.object({
   name: z.string(),
   rate: z.number(),
-  base_amount: MoneyAmountSchema,
   base_amount_money_object: MoneyObjectSchema,
-  display_amount: MoneyAmountSchema,
-  display_amount_money_object: MoneyObjectSchema,
 });
 
-export type CalculatedTaxLine = z.infer<typeof CalculatedTaxLineSchema>;
+export type OrderCalculationTaxLine = z.infer<typeof OrderCalculationTaxLineSchema>;
 
-export const AggregatedTaxLineSchema = z.object({
-  name: z.string(),
-  rate: z.number(),
-  display_amount_money_object: MoneyObjectSchema,
+export const OrderCouponSchema = z.object({
+  id: z.number(),
+  coupon_id: z.number().nullish(),
+  code: z.string(),
+  title: z.string().nullish(),
+  discount_type: CouponDiscountTypeSchema,
+  discount_target: CouponDiscountTargetSchema.nullish(),
+  invoiced_discount_amount_money_object: MoneyObjectSchema,
+  base_discount_amount_money_object: MoneyObjectSchema,
+  usage_reversed_at: z.string().nullish(),
+  discount_value_type: CouponDiscountValueTypeSchema.nullish(),
+  discount_amount_percentage: z.number().nullish(),
+  invoiced_discount_amount_fixed_money_object: MoneyObjectSchema.nullish(),
+  base_discount_amount_fixed_money_object: MoneyObjectSchema.nullish(),
 });
 
-export type AggregatedTaxLine = z.infer<typeof AggregatedTaxLineSchema>;
+export type OrderCoupon = z.infer<typeof OrderCouponSchema>;
 
-export const OrderItemSchema = z.object({
+export const OrderAppliedProductCouponSchema = z.object({
+  code: z.string(),
+  title: z.string().nullish(),
+  invoiced_discount_amount_money_object: MoneyObjectSchema,
+  base_discount_amount_money_object: MoneyObjectSchema,
+  discount_value_type: CouponDiscountValueTypeSchema.nullish(),
+  discount_amount_percentage: z.number().nullish(),
+  invoiced_discount_amount_fixed_money_object: MoneyObjectSchema.nullish(),
+  base_discount_amount_fixed_money_object: MoneyObjectSchema.nullish(),
+});
+
+export type OrderAppliedProductCoupon = z.infer<typeof OrderAppliedProductCouponSchema>;
+
+export const OrderCalculationCouponSchema = z.object({
+  code: z.string(),
+  title: z.string().nullish(),
+  discount_type: CouponDiscountTypeSchema,
+  discount_target: CouponDiscountTargetSchema.nullish(),
+  discount_value_type: CouponDiscountValueTypeSchema.nullish(),
+  discount_amount_percentage: z.number().nullish(),
+  base_discount_amount_fixed_money_object: MoneyObjectSchema.nullish(),
+  base_discount_amount_money_object: MoneyObjectSchema,
+});
+
+export type OrderCalculationCoupon = z.infer<typeof OrderCalculationCouponSchema>;
+
+export const OrderCalculationAppliedCouponSchema = z.object({
+  code: z.string(),
+  title: z.string().nullish(),
+  discount_value_type: CouponDiscountValueTypeSchema.nullish(),
+  discount_amount_percentage: z.number().nullish(),
+  base_discount_amount_fixed_money_object: MoneyObjectSchema.nullish(),
+  base_discount_amount_money_object: MoneyObjectSchema,
+});
+
+export type OrderCalculationAppliedCoupon = z.infer<typeof OrderCalculationAppliedCouponSchema>;
+
+export const OrderLineItemSchema = z.object({
+  id: z.number(),
+  product_id: z.number(),
+  variant_id: z.number(),
+  product_name: z.string().nullish(),
+  variant_name: z.string().nullish(),
+  sku: z.string().nullish(),
+  image: MediaRefSchema.nullish(),
+  quantity: z.number(),
+  invoiced_subtotal_money_object: MoneyObjectSchema,
+  base_subtotal_money_object: MoneyObjectSchema,
+  invoiced_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
+  base_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
+  invoiced_unit_price_money_object: MoneyObjectSchema,
+  base_unit_price_money_object: MoneyObjectSchema,
+  invoiced_unit_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
+  base_unit_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
+  invoiced_tax_total_money_object: MoneyObjectSchema,
+  base_tax_total_money_object: MoneyObjectSchema,
+  tax_lines: z.array(OrderTaxLineSchema).default([]),
+  applied_product_coupons: z.array(OrderAppliedProductCouponSchema).default([]),
+});
+
+export type OrderLineItem = z.infer<typeof OrderLineItemSchema>;
+
+export const OrderCalculationItemSchema = z.object({
+  id: z.number(),
+  quantity: z.number(),
+  base_subtotal_money_object: MoneyObjectSchema,
+  base_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
+  base_unit_price_money_object: MoneyObjectSchema,
+  base_unit_strikethrough_price_money_object: MoneyObjectSchema.nullish(),
+  applied_product_coupons: z.array(OrderCalculationAppliedCouponSchema).default([]),
+});
+
+export type OrderCalculationItem = z.infer<typeof OrderCalculationItemSchema>;
+
+export const OrderSchema = z.object({
   id: z.number(),
   uuid: z.string().nullish(),
   order_number: z.string().nullish(),
+  invoice_number: z.string().nullish(),
+
   customer_id: z.number().nullish(),
+  customer: z.object({
+    first_name: z.string(),
+    last_name: z.string(),
+    email: z.string().nullish(),
+    phone: z.string().nullish(),
+  }),
+  is_guest: z.boolean().nullish(),
+
   status: OrderStatusSchema,
   fulfillment_status: FulfillmentStatusSchema,
   is_refund_initiated: z.boolean(),
   is_manual: z.boolean(),
   currency_code: z.string(),
+  is_tax_inclusive: z.boolean(),
+
   totals: z.object({
-    invoiced_subtotal: MoneyAmountSchema,
-    invoiced_subtotal_money_object: MoneyObjectSchema,
-    base_subtotal: MoneyAmountSchema,
-    base_subtotal_money_object: MoneyObjectSchema,
-    invoiced_shipping: MoneyAmountSchema,
-    invoiced_shipping_money_object: MoneyObjectSchema,
-    base_shipping: MoneyAmountSchema,
-    base_shipping_money_object: MoneyObjectSchema,
-    invoiced_discount: MoneyAmountSchema,
-    invoiced_discount_money_object: MoneyObjectSchema,
-    base_discount: MoneyAmountSchema,
-    base_discount_money_object: MoneyObjectSchema,
-    discount_details: CouponSchema.partial().nullish(),
-    invoiced_tax: MoneyAmountSchema,
-    invoiced_tax_money_object: MoneyObjectSchema,
-    base_tax: MoneyAmountSchema,
-    base_tax_money_object: MoneyObjectSchema,
-    invoiced_shipping_tax: MoneyAmountSchema,
-    invoiced_shipping_tax_money_object: MoneyObjectSchema,
-    base_shipping_tax: MoneyAmountSchema,
-    base_shipping_tax_money_object: MoneyObjectSchema,
-    invoiced_total: MoneyAmountSchema,
+    invoiced_items_subtotal_money_object: MoneyObjectSchema,
+    base_items_subtotal_money_object: MoneyObjectSchema,
+    invoiced_order_discount_money_object: MoneyObjectSchema,
+    base_order_discount_money_object: MoneyObjectSchema,
+    invoiced_order_total_money_object: MoneyObjectSchema,
+    base_order_total_money_object: MoneyObjectSchema,
+    invoiced_tax_total_money_object: MoneyObjectSchema,
+    base_tax_total_money_object: MoneyObjectSchema,
+    invoiced_shipping_amount_money_object: MoneyObjectSchema,
+    base_shipping_amount_money_object: MoneyObjectSchema,
+    invoiced_shipping_strikethrough_money_object: MoneyObjectSchema,
+    base_shipping_strikethrough_money_object: MoneyObjectSchema,
     invoiced_total_money_object: MoneyObjectSchema,
-    base_total: MoneyAmountSchema,
     base_total_money_object: MoneyObjectSchema,
   }),
+
+  tax_lines: z.array(OrderTaxLineSchema).default([]),
+  coupons: z.array(OrderCouponSchema).default([]),
+
   items_count: z.number(),
-  items: z.array(z.object({
-    id: z.number(),
-    product_id: z.number(),
-    variant_id: z.number(),
-    product_name: z.string().nullish(),
-    variant_name: z.string().nullish(),
-    quantity: z.number(),
-    invoiced_price: MoneyAmountSchema,
-    invoiced_price_money_object: MoneyObjectSchema,
-    base_price: MoneyAmountSchema,
-    base_price_money_object: MoneyObjectSchema,
-    invoiced_subtotal: MoneyAmountSchema,
-    invoiced_subtotal_money_object: MoneyObjectSchema,
-    base_subtotal: MoneyAmountSchema,
-    base_subtotal_money_object: MoneyObjectSchema,
-    invoiced_discount_amount: MoneyAmountSchema,
-    invoiced_discount_amount_money_object: MoneyObjectSchema,
-    base_discount_amount: MoneyAmountSchema,
-    base_discount_amount_money_object: MoneyObjectSchema,
-    invoiced_total: MoneyAmountSchema,
-    invoiced_total_money_object: MoneyObjectSchema,
-    base_total: MoneyAmountSchema,
-    base_total_money_object: MoneyObjectSchema,
-    invoiced_tax_total: MoneyAmountSchema,
-    invoiced_tax_total_money_object: MoneyObjectSchema,
-    base_tax_total: MoneyAmountSchema,
-    base_tax_total_money_object: MoneyObjectSchema,
-    tax_lines: z.array(OrderTaxLineSchema).nullish(),
-    sku: z.string().nullish(),
-    image: MediaRefSchema.nullish(),
-  })),
-  shipping_tax_lines: z.array(OrderTaxLineSchema).nullish(),
-  shipping_address: CustomerAddressSchema.nullish(),
+  items: z.array(OrderLineItemSchema).default([]),
+
+  shipping_address: OrderAddressSchema,
   is_billing_same_as_shipping: z.boolean().nullish(),
-  billing_address: CustomerAddressSchema.nullish(),
+  billing_address: OrderAddressSchema,
+
   payment_provider: z.string().nullable(),
+  payment_provider_name: z.string().nullish(),
+  payment_provider_icon: z.string().nullish(),
+  payment_provider_is_offline: z.boolean().nullish(),
   payment_status: PaymentStatusSchema,
   shipping_method: z.string().nullish(),
   shipping_method_name: z.string().nullish(),
-  customer_notes: z.string().nullish(),
-  admin_notes: z.string().nullish(),
+  shipping_method_type: z.string().nullish(),
+  order_notes: z.string().nullish(),
   flags: z.array(z.string()).nullish(),
   shipping_tracking: OrderTrackingSchema,
-  refunds: z.array(RefundSchema).nullish(),
+  refunds: z.array(RefundSchema).default([]),
+  estimated_delivery_date: z.string().nullish(),
   archived_at: z.string().nullish(),
   created_at: z.string(),
+  cancelled_at: z.string().nullish(),
+  paid_at: z.string().nullish(),
+  shipped_at: z.string().nullish(),
+  fulfilled_at: z.string().nullish(),
 });
 
-export type OrderItem = z.infer<typeof OrderItemSchema>;
+export type Order = z.infer<typeof OrderSchema>;
 
-export const OrderListItemSchema = OrderItemSchema.pick({
+export const OrderListItemSchema = OrderSchema.pick({
   id: true,
   uuid: true,
   order_number: true,
   customer_id: true,
-}).merge(z.object({
-  customer_name: z.string().nullish(),
-  customer_email: z.string().nullish(),
-  is_manual: z.boolean(),
-  quantity: z.number(),
-  invoiced_total: MoneyAmountSchema,
-  invoiced_total_money_object: MoneyObjectSchema,
-  base_total: MoneyAmountSchema,
-  base_total_money_object: MoneyObjectSchema,
-  status: OrderStatusSchema,
-  fulfillment_status: FulfillmentStatusSchema,
-  is_refund_initiated: z.boolean(),
-  payment_status: PaymentStatusSchema,
-  payment_provider: z.string().nullish(),
-  created_at: z.string(),
-}));
+}).merge(
+  z.object({
+    customer_name: z.string().nullish(),
+    customer_email: z.string().nullish(),
+    is_manual: z.boolean(),
+    quantity: z.number(),
+    invoiced_total: z.union([z.number(), z.string()]),
+    invoiced_total_money_object: MoneyObjectSchema,
+    base_total: z.union([z.number(), z.string()]),
+    base_total_money_object: MoneyObjectSchema,
+    status: OrderStatusSchema,
+    fulfillment_status: FulfillmentStatusSchema,
+    is_refund_initiated: z.boolean(),
+    payment_status: PaymentStatusSchema,
+    payment_provider: z.string().nullish(),
+    payment_provider_name: z.string().nullish(),
+    payment_provider_icon: z.string().nullish(),
+    payment_provider_is_offline: z.boolean().nullish(),
+    created_at: z.string(),
+  }),
+);
 
 export type OrderListItem = z.infer<typeof OrderListItemSchema>;
 
 export const OrderCalculationSchema = z.object({
-  pricing: z.object({
-    base_subtotal: MoneyAmountSchema,
-    base_subtotal_money_object: MoneyObjectSchema,
-    display_subtotal: MoneyAmountSchema,
-    display_subtotal_money_object: MoneyObjectSchema,
-    base_tax_total: MoneyAmountSchema,
+  is_tax_inclusive: z.boolean(),
+
+  totals: z.object({
+    base_items_subtotal_money_object: MoneyObjectSchema,
+    base_order_discount_money_object: MoneyObjectSchema,
+    base_order_total_money_object: MoneyObjectSchema,
     base_tax_total_money_object: MoneyObjectSchema,
-    display_tax_total: MoneyAmountSchema,
-    display_tax_total_money_object: MoneyObjectSchema,
-    discount_details: z.unknown().nullish(),
-    base_discount_total: MoneyAmountSchema,
-    base_discount_total_money_object: MoneyObjectSchema,
-    display_discount_total: MoneyAmountSchema,
-    display_discount_total_money_object: MoneyObjectSchema,
-    base_shipping_subtotal: MoneyAmountSchema,
-    base_shipping_subtotal_money_object: MoneyObjectSchema,
-    display_shipping_subtotal: MoneyAmountSchema,
-    display_shipping_subtotal_money_object: MoneyObjectSchema,
-    base_shipping_tax: MoneyAmountSchema,
-    base_shipping_tax_money_object: MoneyObjectSchema,
-    display_shipping_tax: MoneyAmountSchema,
-    display_shipping_tax_money_object: MoneyObjectSchema,
-    base_shipping_discount: MoneyAmountSchema,
-    base_shipping_discount_money_object: MoneyObjectSchema,
-    display_shipping_discount: MoneyAmountSchema,
-    display_shipping_discount_money_object: MoneyObjectSchema,
-    base_shipping_total: MoneyAmountSchema,
-    base_shipping_total_money_object: MoneyObjectSchema,
-    display_shipping_total: MoneyAmountSchema,
-    display_shipping_total_money_object: MoneyObjectSchema,
-    base_total: MoneyAmountSchema,
+    base_shipping_amount_money_object: MoneyObjectSchema,
+    base_shipping_strikethrough_money_object: MoneyObjectSchema,
     base_total_money_object: MoneyObjectSchema,
-    display_total: MoneyAmountSchema,
-    display_total_money_object: MoneyObjectSchema,
-    tax_lines: z.array(AggregatedTaxLineSchema),
-    shipping_tax_lines: z.array(AggregatedTaxLineSchema),
   }),
+
+  tax_lines: z.array(OrderCalculationTaxLineSchema).default([]),
+  coupons: z.array(OrderCalculationCouponSchema).default([]),
+
   items_count: z.number(),
-  items: z.array(z.object({
-    id: z.number(),
-    quantity: z.number(),
-    base_subtotal: MoneyAmountSchema,
-    base_subtotal_money_object: MoneyObjectSchema,
-    display_subtotal: MoneyAmountSchema,
-    display_subtotal_money_object: MoneyObjectSchema,
-    base_tax_amount: MoneyAmountSchema,
-    base_tax_amount_money_object: MoneyObjectSchema,
-    display_tax_amount: MoneyAmountSchema,
-    display_tax_amount_money_object: MoneyObjectSchema,
-    tax_lines: z.array(CalculatedTaxLineSchema),
-    base_discount_amount: MoneyAmountSchema,
-    base_discount_amount_money_object: MoneyObjectSchema,
-    display_discount_amount: MoneyAmountSchema,
-    display_discount_amount_money_object: MoneyObjectSchema,
-    discount_details: CouponSchema.partial().nullish(),
-    base_total: MoneyAmountSchema,
-    base_total_money_object: MoneyObjectSchema,
-    display_total: MoneyAmountSchema,
-    display_total_money_object: MoneyObjectSchema,
-  })),
-  available_shipping_methods: z.array(z.object({
-    id: z.union([z.number(), z.string()]),
-    name: z.string(),
-    type: ShippingTypeSchema,
-    base_cost: MoneyAmountSchema,
-    base_cost_money_object: MoneyObjectSchema,
-    display_cost: MoneyAmountSchema,
-    display_cost_money_object: MoneyObjectSchema,
-  })),
+  items: z.array(OrderCalculationItemSchema).default([]),
+
+  available_shipping_methods: z
+    .array(
+      z.object({
+        id: z.union([z.number(), z.string()]),
+        name: z.string(),
+        type: ShippingTypeSchema,
+        base_cost_money_object: MoneyObjectSchema,
+      }),
+    )
+    .default([]),
+
   shipping_method: z.union([z.number(), z.string()]).nullish(),
 });
 

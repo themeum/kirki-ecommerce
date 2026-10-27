@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT"
+
+PLUGIN_PATH="/var/www/html/wp-content/plugins/kirki-ecommerce"
+WP_TESTS_DIR="/var/www/html/.wp-tests/wordpress-tests-lib"
+WP_CORE_DIR="/var/www/html/.wp-tests/wordpress"
+PHPUNIT="php -d xdebug.mode=off -d auto_prepend_file=bootstrap/abspath.php vendor/bin/phpunit"
+
+usage() {
+	cat <<EOF
+Usage: kirki-ecommerce-test <command> [phpunit options]
+
+Commands:
+  install       One-time WordPress test library install (Docker)
+  unit          Run unit tests in the php container
+  integration   Run integration tests in the php container
+  all           Run all test suites in the php container
+
+Examples:
+  kirki-ecommerce-test install
+  kirki-ecommerce-test unit
+  kirki-ecommerce-test integration
+  kirki-ecommerce-test integration --filter=CartApiTest
+EOF
+}
+
+if [ $# -lt 1 ]; then
+	usage
+	exit 1
+fi
+
+command="$1"
+shift
+
+phpunit_args=""
+if [ $# -gt 0 ]; then
+	phpunit_args="$(printf '%q ' "$@")"
+fi
+
+case "$command" in
+install)
+	docker compose --profile tools run --rm --entrypoint bash wpcli -lc \
+		"cd ${PLUGIN_PATH} && \
+		 WP_TESTS_DIR=${WP_TESTS_DIR} \
+		 WP_CORE_DIR=${WP_CORE_DIR} \
+		 bash bin/install-wp-tests.sh kirki_ecommerce_test wordpress wordpress mariadb latest yes"
+	;;
+unit)
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && ${PHPUNIT} --testsuite Unit --testdox ${phpunit_args}"
+	;;
+integration)
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && \
+		 WP_TESTS_DIR=${WP_TESTS_DIR} \
+		 WP_CORE_DIR=${WP_CORE_DIR} \
+		 DB_HOST=mariadb \
+		 DB_NAME=kirki_ecommerce_test \
+		 ${PHPUNIT} --testsuite Integration --testdox ${phpunit_args}"
+	;;
+all)
+	# One PHPUnit process per suite, on purpose. tests/bootstrap.php only loads
+	# the stub-based Unit bootstrap when it sees --testsuite Unit; a single
+	# combined process would boot real WordPress and run the Unit suite against
+	# an environment it is not written for. This mirrors CI, which runs the two
+	# suites as separate jobs.
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && \
+		 ${PHPUNIT} --testsuite Unit --testdox ${phpunit_args} && \
+		 WP_TESTS_DIR=${WP_TESTS_DIR} \
+		 WP_CORE_DIR=${WP_CORE_DIR} \
+		 DB_HOST=mariadb \
+		 DB_NAME=kirki_ecommerce_test \
+		 ${PHPUNIT} --testsuite Integration --testsuite Integration --testdox ${phpunit_args}"
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && ${PHPUNIT} --testsuite Unit --testdox ${phpunit_args}"
+	;;
+-h | --help | help)
+	usage
+	;;
+*)
+	echo "Unknown command: $command" >&2
+	echo >&2
+	usage
+	exit 1
+	;;
+esac

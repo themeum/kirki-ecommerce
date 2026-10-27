@@ -29,6 +29,8 @@ import { __ } from '@/wpi18n';
 
 const mapSettingsToFormValues = (settings: GeneralSettingsData): GeneralSettingsFormInput => {
   const storeAddress = settings.store_address;
+  const orderNumber = settings.order_number;
+  const invoiceNumber = settings.invoice_number;
 
   return pickFormValues(GeneralSettingsFormSchema, settings, {
     store_address: {
@@ -38,6 +40,17 @@ const mapSettingsToFormValues = (settings: GeneralSettingsData): GeneralSettings
       state: storeAddress?.state ?? storeAddress?.state ?? '',
       postal_code: storeAddress?.postal_code ?? storeAddress?.postal_code ?? '',
       country: storeAddress?.country ?? '',
+    },
+    order_number: {
+      prefix: orderNumber?.prefix ?? '',
+      suffix: orderNumber?.suffix ?? '',
+    },
+    invoice_number: {
+      prefix: invoiceNumber?.prefix ?? '',
+      sequence: invoiceNumber?.sequence ?? '000001',
+      suffix: invoiceNumber?.suffix ?? '',
+      apply_year_prefix: invoiceNumber?.apply_year_prefix ?? false,
+      reset_sequence_every_year: invoiceNumber?.reset_sequence_every_year ?? false,
     },
   });
 };

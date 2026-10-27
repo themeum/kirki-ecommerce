@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for recording a tax line on an order or order item.
+ *
+ * @since 1.0.0
+ */
 class CreateOrderTaxDTO extends DTO
 {
     /** @var int */

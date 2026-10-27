@@ -6,12 +6,15 @@ import type { MediaRef } from '@/schemas/shared/media';
 import { useSettingsQuery } from '@/services/settings';
 import { isDefined } from '@/utils/object';
 
+const DEFAULT_SHOP_PAGE_SLUG = 'shop';
+
 type SeoPreviewMode = 'search' | 'social' | 'schema';
 
 type SeoPreviewData = {
   storeName: string;
   storeLogoUrl: string | null;
   breadcrumbUrl: string;
+  isBreadcrumbLoading: boolean;
   previewTitle: string;
   previewDescription: string;
   previewImageUrl: string | null;
@@ -50,6 +53,7 @@ const resolveMediaUrl = (media: MediaRef[] | undefined): string | null => {
 const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
   const { control } = useFormContext<ProductFormInput>();
   const { data: generalSettings } = useSettingsQuery('general');
+  const { data: advancedSettings, isPending: isBreadcrumbLoading } = useSettingsQuery('advance');
   const baseCurrency = useBaseCurrency();
 
   const seoTitle = useWatch({ control, name: 'seo_title' });
@@ -67,7 +71,9 @@ const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
   const storeLogoUrl = storeLogo && typeof storeLogo === 'object' ? (storeLogo.url ?? null) : null;
   const storeName = generalSettings?.store_name ?? '';
   const siteUrl = window.kirki_ecommerce.site_url.replace(/\/$/, '');
-  const breadcrumbUrl = `${siteUrl} › products › ${slug ?? ''}`;
+  const shopPageSlug =
+    advancedSettings?.pages?.find((page) => page.key === 'shop')?.slug || DEFAULT_SHOP_PAGE_SLUG;
+  const breadcrumbUrl = `${siteUrl} › ${shopPageSlug} › ${slug ?? ''}`;
 
   const previewTitle = mode === 'social' ? ogTitle || title || '' : seoTitle || title || '';
 
@@ -104,6 +110,7 @@ const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
     storeName,
     storeLogoUrl,
     breadcrumbUrl,
+    isBreadcrumbLoading,
     previewTitle,
     previewDescription,
     previewImageUrl,

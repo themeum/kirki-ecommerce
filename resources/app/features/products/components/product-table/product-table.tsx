@@ -1,28 +1,36 @@
 import { useCallback, useMemo } from 'react';
 
 import type { DataTableSelectionState } from '@/components/data-table';
-import DataTable from '@/components/data-table';
+import DataTable, { DataTableEmptyState } from '@/components/data-table';
+import Button from '@/components/ui/button';
 import type { ProductListFilter } from '@/features/products';
 import { productListOptions } from '@/features/products';
 import { productColumns } from '@/features/products/components/product-table/columns';
 import ProductTableFilters from '@/features/products/components/product-table/product-table-filters';
+import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import {
   useBulkDeleteProductsMutation,
   useBulkRestoreProductsMutation,
   useBulkTrashProductsMutation,
-  useProductsQuery,
 } from '@/features/products/services/product';
 import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { resolveBulkRestorePayload } from '@/libs/bulk-restore';
 import { resolveBulkTrashPayload } from '@/libs/bulk-trash';
+import type { ListingTableProps } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
-const ProductTable = () => {
-  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams<ProductListFilter>(productListOptions);
+const ProductTable = ({ data, isLoading = false }: ListingTableProps<ProductListItem>) => {
+  const {
+    params,
+    pagination,
+    sorting,
+    onPaginationChange,
+    onSortingChange,
+    selectionResetKey,
+    clearFilters,
+  } = useDataTableParams<ProductListFilter>(productListOptions);
 
-  const { data, isFetching } = useProductsQuery(params);
   const bulkDeleteMutation = useBulkDeleteProductsMutation();
   const bulkTrashMutation = useBulkTrashProductsMutation();
   const bulkRestoreMutation = useBulkRestoreProductsMutation();
@@ -84,7 +92,13 @@ const ProductTable = () => {
               destructive: true,
             },
           ]
-        : [{ value: 'trash', title: __('Trash', 'kirki-ecommerce'), destructive: true }],
+        : [
+            {
+              value: 'trash',
+              title: __('Move to trash', 'kirki-ecommerce'),
+              destructive: true,
+            },
+          ],
     [params.status],
   );
 
@@ -100,12 +114,22 @@ const ProductTable = () => {
         onPaginationChange={onPaginationChange}
         sorting={sorting}
         onSortingChange={onSortingChange}
-        isLoading={isFetching}
+        isLoading={isLoading}
         enableRowSelection
         selectionResetKey={selectionResetKey}
         bulkActions={productBulkActions}
         onBulkApply={handleBulkApply}
         toolbar={<ProductTableFilters />}
+        emptyState={
+          <DataTableEmptyState
+            title={__('No products found', 'kirki-ecommerce')}
+            actions={
+              <Button variant="secondary" onClick={clearFilters}>
+                {__('Clear Search', 'kirki-ecommerce')}
+              </Button>
+            }
+          />
+        }
       />
       {deleteConfirmation}
     </>

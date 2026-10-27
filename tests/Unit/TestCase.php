@@ -15,10 +15,25 @@ use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\App\Supports\EuropeanCountryChecker;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use Kirki\Ecommerce\Tests\Support\Database\TestWpdb;
+use Kirki\Ecommerce\Tests\Support\FakeSettingsFactory;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * Whatever `$wpdb` the environment provided before a test replaced it.
+     *
+     * @var mixed
+     */
+    protected $original_wpdb;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->original_wpdb = $GLOBALS['wpdb'] ?? null;
+    }
+
     protected function tearDown(): void
     {
         $this->reset_container_instance();
@@ -112,11 +127,20 @@ abstract class TestCase extends BaseTestCase
         return new Structure($table, $this->make_test_connection($config));
     }
 
+    /**
+     * Put back the `$wpdb` the test replaced, rather than nulling it.
+     *
+     * In a Unit-only run there is nothing to restore - WordPress was never
+     * loaded, so this stays null exactly as before. A combined run
+     * (`vendor/bin/phpunit` with no `--testsuite`) does load WordPress, and
+     * nulling the global there strips the real `$wpdb` from every test that
+     * runs afterwards.
+     *
+     * @return void
+     */
     protected function reset_test_wpdb(): void
     {
-        global $wpdb;
-
-        $wpdb = null;
+        $GLOBALS['wpdb'] = $this->original_wpdb;
     }
 
     protected function reset_facade_cache(): void
@@ -127,63 +151,48 @@ abstract class TestCase extends BaseTestCase
         $property->setValue(null, []);
     }
 
-    protected function bind_money_dependencies(string $base_currency = 'USD', array $currency_settings = [], array $symbol_map = []): void
+    /**
+     * @param string $base_currency
+     * @param array<string, mixed> $currency_settings
+     * @param array<string, string> $symbol_map
+     * @param array<string, array<string, mixed>> $settings Extra settings groups keyed by
+     *        group name, e.g. `['product' => ['low_stock_threshold' => 5]]`.
+     * @return void
+     */
+    protected function bind_money_dependencies(string $base_currency = 'USD', array $currency_settings = [], array $symbol_map = [], array $settings = []): void
     {
         $defaults = [
             'decimal_separator' => '.',
             'thousand_separator' => ',',
             'currency_position' => 'before',
         ];
-        $settings = array_merge($defaults, $currency_settings);
 
         $currency = new \stdClass();
         $currency->code = $base_currency;
 
-        $currency_settings_object = new class($settings) {
-            private array $settings;
+        $settings_factory = new FakeSettingsFactory(array_merge(
+            ['currency' => array_merge($defaults, $currency_settings)],
+            $settings
+        ));
 
-            public function __construct(array $settings)
-            {
-                $this->settings = $settings;
-            }
+        $preferences = array_merge(
+            ['currency_format' => 'short'],
+            $defaults,
+            $currency_settings
+        );
 
-            public function get($key = null, $default = null)
-            {
-                if ($key === null) {
-                    return $this->settings;
-                }
+        $currency_service = new class($currency, $symbol_map, $preferences) {
+            protected $currency;
 
-                return $this->settings[$key] ?? $default;
-            }
-        };
+            protected array $symbol_map;
 
-        $settings_factory = new class($currency_settings_object) {
-            private $currency_settings;
+            protected array $preferences;
 
-            public function __construct($currency_settings)
-            {
-                $this->currency_settings = $currency_settings;
-            }
-
-            public function get(string $key)
-            {
-                if ($key === 'currency') {
-                    return $this->currency_settings;
-                }
-
-                throw new \Exception("Invalid settings key: {$key}");
-            }
-        };
-
-        $currency_service = new class($currency, $symbol_map) {
-            private $currency;
-
-            private array $symbol_map;
-
-            public function __construct($currency, array $symbol_map)
+            public function __construct($currency, array $symbol_map, array $preferences)
             {
                 $this->currency = $currency;
                 $this->symbol_map = $symbol_map;
+                $this->preferences = $preferences;
             }
 
             public function get_base_currency()
@@ -194,6 +203,11 @@ abstract class TestCase extends BaseTestCase
             public function get_symbol_map()
             {
                 return $this->symbol_map;
+            }
+
+            public function get_currency_preferences()
+            {
+                return $this->preferences;
             }
         };
 

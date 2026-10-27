@@ -13,8 +13,8 @@ http:
     data: |-
       {
         "data": {
-          "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
-          "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
+          "api_key": "<api_key>",
+          "private_key": "<private_key>",
           "sandbox": true
         }
       }
@@ -37,8 +37,8 @@ examples:
         data: |-
           {
             "data": {
-               "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
-              "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
+               "api_key": "<api_key>",
+              "private_key": "<private_key>",
               "sandbox": true
             }
           }
@@ -60,8 +60,8 @@ examples:
               "is_offline": false,
               "description": "QuickPay payment gateway",
               "settings": {
-              "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
-              "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
+              "api_key": "<api_key>",
+              "private_key": "<private_key>",
               "sandbox": true
               },
               "fields": [
@@ -103,8 +103,8 @@ examples:
         data: |-
           {
            "data": {
-               "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
-              "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
+               "api_key": "<api_key>",
+              "private_key": "<private_key>",
               "sandbox": true
             }
           }

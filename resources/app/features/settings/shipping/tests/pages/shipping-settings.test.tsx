@@ -22,7 +22,14 @@ const initialZones = (): ShippingZone[] => [
     is_enabled: true,
     regions: [{ country: 'US', states: [] }],
     shipping_methods: [
-      { id: 'method-1', type: 'flat_rate', name: 'Flat Rate', is_enabled: true, base_amount: 10 },
+      {
+        id: 'method-1',
+        zoneId: 'zone-1',
+        type: 'flat_rate',
+        name: 'Flat Rate',
+        is_enabled: true,
+        base_amount: 10,
+      },
     ],
     shipping_careers: [],
   },
@@ -127,10 +134,11 @@ describe('ShippingSettings activation toggles', () => {
     fireEvent.click(await screen.findByRole('switch', { name: 'Enable shipping method' }));
     await waitFor(() => expect(savedPayloads).toHaveLength(1));
 
-    fireEvent.pointerDown(
-      document.querySelector('[aria-haspopup="menu"]')!,
-      { button: 0, ctrlKey: false, pointerType: 'mouse' },
-    );
+    fireEvent.pointerDown(document.querySelector('[aria-haspopup="menu"]')!, {
+      button: 0,
+      ctrlKey: false,
+      pointerType: 'mouse',
+    });
 
     fireEvent.click(await screen.findByText('Deactivate'));
 
@@ -164,10 +172,11 @@ describe('ShippingSettings activation toggles', () => {
 });
 
 const openZoneMenu = () => {
-  fireEvent.pointerDown(
-    document.querySelector('[aria-haspopup="menu"]')!,
-    { button: 0, ctrlKey: false, pointerType: 'mouse' },
-  );
+  fireEvent.pointerDown(document.querySelector('[aria-haspopup="menu"]')!, {
+    button: 0,
+    ctrlKey: false,
+    pointerType: 'mouse',
+  });
 };
 
 const menuItemIcon = (label: string) =>
@@ -194,8 +203,7 @@ describe('ShippingSettings zone menu', () => {
   });
 });
 
-const zoneTrigger = (title: string) =>
-  screen.getByText(title).closest('button[data-state]')!;
+const zoneTrigger = (title: string) => screen.getByText(title).closest('button[data-state]')!;
 
 describe('ShippingSettings zone expansion', () => {
   it('does not offer expansion for a zone with no shipping methods', async () => {

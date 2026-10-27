@@ -2,6 +2,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Http\Controllers\Api\AnalyticsController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\AppConfigController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\AttributeController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\AttributeValueController;
@@ -10,7 +11,10 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\OrderCalculationController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CategoryController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OfflinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OnboardingController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\SetupChecklistController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\DashboardController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OnlinePaymentController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\PaymentMethodController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\VariantController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ProductController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\TagController;
@@ -19,11 +23,11 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\CouponController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CurrencyController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CurrencyExchangeController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CustomerController;
-use Kirki\Ecommerce\App\Http\Controllers\Api\TestController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CountryController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\TaxProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingBoxController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingMethodController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\EmailTemplateController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\SettingsController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ProductSchemaController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
@@ -37,10 +41,10 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\OrderActivityController as SiteOrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\WishlistController;
-use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Middlewares\AdminMiddleware;
 use Kirki\Ecommerce\Framework\Middlewares\AuthMiddleware;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
@@ -51,12 +55,21 @@ Route::set_namespace('kirki/ecommerce/v1');
 Route::post('/payment/webhook/{provider_id}', [WebhookController::class, 'handle']);
 Route::get('/payment/webhook/{provider_id}', [WebhookController::class, 'handle_return']);
 
-Route::group(['middleware' => AuthMiddleware::class], function () {
-    // Test route
-    Route::get('/test', [TestController::class, 'test']);
-
+Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], function () {
     // Onboarding
     Route::post('/onboarding', [OnboardingController::class, 'store']);
+    Route::post('/onboarding/sample-data', [OnboardingController::class, 'import_sample_data']);
+
+    // Setup Checklist
+    Route::get('/setup-checklist', [SetupChecklistController::class, 'index']);
+    Route::post('/setup-checklist/{step}/complete', [SetupChecklistController::class, 'complete']);
+
+    // Dashboard
+    Route::get('/dashboard/overview', [DashboardController::class, 'overview']);
+
+    // Analytics
+    Route::get('/analytics/metrics/{key}', [AnalyticsController::class, 'metric']);
+    Route::get('/analytics/regions', [AnalyticsController::class, 'regions']);
 
     // App Config
     Route::get('/app-config', [AppConfigController::class, 'get']);
@@ -108,9 +121,11 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::put('/attributes/{attribute_id}/values/{id}', [AttributeValueController::class, 'update']);
     Route::delete('/attributes/{attribute_id}/values/{id}', [AttributeValueController::class, 'delete']);
     Route::post('/attributes/{attribute_id}/values/bulk', [AttributeValueController::class, 'bulk_actions']);
+    Route::post('/attributes/{attribute_id}/values/batch', [AttributeValueController::class, 'batch']);
 
     // Customers
     Route::get('/customers/locations', [CustomerController::class, 'locations']);
+    Route::get('/customers/check-email', [CustomerController::class, 'check_email']);
     Route::get('/customers', [CustomerController::class, 'get']);
     Route::get('/customers/{id}', [CustomerController::class, 'show']);
     Route::post('/customers', [CustomerController::class, 'create']);
@@ -153,6 +168,8 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/products/bulk', [ProductController::class, 'bulk_actions']);
     Route::post('/products/{id}/duplicate', [ProductController::class, 'duplicate'])->where('id', '[\d]+');
 
+    Route::post('/variants/generate-sku', [VariantController::class, 'generate_sku']);
+    Route::post('/variants/generate-skus', [VariantController::class, 'generate_skus']);
     Route::get('/variants/bulk/{ids}', [VariantController::class, 'get_by_ids']);
     Route::put('/variants/bulk', [VariantController::class, 'bulk_update']);
     Route::get('/variants', [VariantController::class, 'get']);
@@ -181,6 +198,9 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/shipping-boxes/bulk', [ShippingBoxController::class, 'bulk_actions']);
 
     // Settings
+    Route::get('/settings/email/{type}/{group}/{key}/preview', [EmailTemplateController::class, 'preview']);
+    Route::post('/settings/email/{type}/{group}/{key}/preview/test-mail', [EmailTemplateController::class, 'send_test_mail']);
+    Route::post('/settings/email/{type}/{group}/{key}/restore', [EmailTemplateController::class, 'restore']);
     Route::get('/settings/{key}', [SettingsController::class, 'get']);
     Route::put('/settings', [SettingsController::class, 'update']);
 
@@ -199,11 +219,6 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::put('/shipping-profiles/{id}', [ShippingProfileController::class, 'update']);
     Route::delete('/shipping-profiles/{id}', [ShippingProfileController::class, 'delete']);
     Route::post('/shipping-profiles/bulk', [ShippingProfileController::class, 'bulk_actions']);
-
-    // Cart
-    Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
-    Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
-
 
     // Orders
     Route::get('/orders', [OrderController::class, 'get']);
@@ -225,6 +240,10 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::get('/pages', [PageController::class, 'get']);
     Route::post('/pages/fix', [PageController::class, 'run_fix']);
 
+    // Payment Methods
+    Route::get('/payment-methods', [PaymentMethodController::class, 'get']);
+    Route::put('/payment-methods/order', [PaymentMethodController::class, 'reorder']);
+
     // Online Payments
     Route::get('/online-payments/installable', [OnlinePaymentController::class, 'all']);
     Route::post('/online-payments/install', [OnlinePaymentController::class, 'install']);
@@ -238,22 +257,8 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::get('/offline-payments/{id}', [OfflinePaymentController::class, 'show']);
     Route::post('/offline-payments', [OfflinePaymentController::class, 'create']);
     Route::put('/offline-payments/{id}', [OfflinePaymentController::class, 'update']);
+    Route::patch('/offline-payments/{id}', [OfflinePaymentController::class, 'set_enabled']);
     Route::delete('/offline-payments/{id}', [OfflinePaymentController::class, 'delete']);
-});
-
-//@todo remove this later as its just to mock the zip download
-Route::get('/online-payments/download/{id}', [OnlinePaymentController::class, 'download']);
-
-Route::get('/test-public', function (Request $request) {
-    DB::enable_query_log();
-    $posts = Post::with(['categories.term', 'tags.term'])->find(1);
-    $query = DB::get_query_log();
-
-    return response()->json([
-        'message' => 'Hello World',
-        'data' => $posts,
-        'query' => $query,
-    ]);
 });
 
 // Site api endpoints.
@@ -266,7 +271,11 @@ Route::put('/cart/items/{id}', [CartController::class, 'update_item']);
 Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
 Route::delete('/cart', [CartController::class, 'empty_cart']);
 Route::put('/cart', [CartController::class, 'update']);
-Route::post('/checkout', [CheckoutController::class, 'store']);
+Route::post('/checkout', [CheckoutController::class, 'store'])
+    ->throttle(10, 1);
+Route::post('/cart/coupon', [CartController::class, 'apply_coupon'])
+    ->throttle(10, 1);
+Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
 
 // Account api endpoints (self-service, logged-in customer only).
 Route::group([

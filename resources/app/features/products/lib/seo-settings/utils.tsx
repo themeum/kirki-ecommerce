@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { CircleDollarIcon, FlameIcon, ShirtIcon, StarIcon } from '@/icons';
+import { CircleDollarIcon, FlameIcon, ShirtIcon, StarIcon } from '@/icons/common';
 
 type SchemaGroupDetails = Record<
   string,

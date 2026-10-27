@@ -14,8 +14,8 @@ http:
       {
         "data": {
           "publishable_key": "pk_test_51Ssd7hCjeaAiRLwdjA364H9sPKLHHfVdbIvg7tdnXZsq8fvLEVzpe8f7rGe0qwx8aAtjceCLvBtzPrC5QK66u14b00rIsKTNg5",
-          "secret_key": "sk_test_51Ssd7hCjeaAiRLwdNGeXgSAj3EGxTEtHwTQeOEAGuRP0JeyGatuQidGAFVDlnwBGZcdf53qrg2p92z4CE5hcL55i00gdIVXemi",
-          "webhook_secret": "whsec_4KGwdSvS3sx7QYYkFmIwvpjxvFvB0FUe"
+          "secret_key": "<secret_key>",
+          "webhook_secret": "<webhook_secret>"
         }
       }
   auth: inherit
@@ -38,8 +38,8 @@ examples:
           {
             "data": {
               "publishable_key": "pk_test_51Ssd7hCjeaAiRLwdjA364H9sPKLHHfVdbIvg7tdnXZsq8fvLEVzpe8f7rGe0qwx8aAtjceCLvBtzPrC5QK66u14b00rIsKTNg5",
-              "secret_key": "sk_test_51Ssd7hCjeaAiRLwdNGeXgSAj3EGxTEtHwTQeOEAGuRP0JeyGatuQidGAFVDlnwBGZcdf53qrg2p92z4CE5hcL55i00gdIVXemi",
-              "webhook_secret": "whsec_4KGwdSvS3sx7QYYkFmIwvpjxvFvB0FUe"
+              "secret_key": "<secret_key>",
+              "webhook_secret": "<webhook_secret>"
             }
           }
     response:
@@ -61,8 +61,8 @@ examples:
               "description": "Stripe payment gateway",
               "settings": {
                 "publishable_key": "pk_test_51Ssd7hCjeaAiRLwdjA364H9sPKLHHfVdbIvg7tdnXZsq8fvLEVzpe8f7rGe0qwx8aAtjceCLvBtzPrC5QK66u14b00rIsKTNg5",
-                "secret_key": "sk_test_51Ssd7hCjeaAiRLwdNGeXgSAj3EGxTEtHwTQeOEAGuRP0JeyGatuQidGAFVDlnwBGZcdf53qrg2p92z4CE5hcL55i00gdIVXemi",
-                "webhook_secret": "whsec_4KGwdSvS3sx7QYYkFmIwvpjxvFvB0FUe"
+                "secret_key": "<secret_key>",
+                "webhook_secret": "<webhook_secret>"
               },
               "fields": [
                 {
@@ -109,8 +109,8 @@ examples:
           {
             "data": {
               "publishable_key": "pk_test_51Ssd7hCjeaAiRLwdjA364H9sPKLHHfVdbIvg7tdnXZsq8fvLEVzpe8f7rGe0qwx8aAtjceCLvBtzPrC5QK66u14b00rIsKTNg5",
-              "secret_key": "sk_test_51Ssd7hCjeaAiRLwdNGeXgSAj3EGxTEtHwTQeOEAGuRP0JeyGatuQidGAFVDlnwBGZcdf53qrg2p92z4CE5hcL55i00gdIVXemi",
-              "webhook_secret": "whsec_4KGwdSvS3sx7QYYkFmIwvpjxvFvB0FUe"
+              "secret_key": "<secret_key>",
+              "webhook_secret": "<webhook_secret>"
             }
           }
     response:

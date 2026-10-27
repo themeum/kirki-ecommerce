@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Constants;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Keys of the plugin settings groups and other stored options.
+ *
+ * @since 1.0.0
+ */
 class OptionKeys
 {
     use HasConstants;
@@ -17,10 +24,13 @@ class OptionKeys
     const EMAIL_SETTINGS = 'email';
     const ADVANCE_SETTINGS = 'advance';
     const LEGAL_SETTINGS = 'legal';
-
-    const MIGRATIONS = 'migrations'; // @todo: will be handled later
+    const MCP_SETTINGS = 'mcp';
     const ERASE_DATA_UPON_UNINSTALL = 'erase_upon_uninstall';
 
     const LAST_INVOICE_NUMBER = 'last_invoice_number';
     const LAST_INVOICE_NUMBER_RESET_YEAR = 'last_invoice_number_reset_year';
+
+    const ONBOARDING_COMPLETED_AT = 'onboarding_completed_at';
+    const SETUP_CHECKLIST = 'setup_checklist';
+    const PRESETS_APPLIED_AT = 'presets_applied_at';
 }

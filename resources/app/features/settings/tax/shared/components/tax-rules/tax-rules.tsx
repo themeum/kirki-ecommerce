@@ -1,4 +1,3 @@
-import { LightningBoltIcon } from '@radix-ui/react-icons';
 import { Edit3, Trash2 } from 'lucide-react';
 import { memo, useState } from 'react';
 
@@ -7,36 +6,36 @@ import {
   RuleItem,
   RuleItemAction,
   RuleItemActions,
-  RuleItemBadge,
   RuleItemCondition,
   RuleItemConditions,
   RuleItemContent,
   RuleItems,
+  RuleItemValues,
 } from '@/components/shared/rule-items';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { useCategoriesQuery } from '@/features/categories';
 import TaxRuleFormCard from '@/features/settings/tax/shared/components/tax-rules/tax-rule-form-card';
 import {
-  getDestinationDisplayValue,
   resolveActionLabel,
   resolveConditionDisplayValue,
   resolveConditionTypeLabel,
+  resolveDestinationLabels,
   resolveOperatorLabel,
 } from '@/features/settings/tax/shared/lib/tax-rules/helper';
-import type {
-  SelectOption,
-  TaxRegionState,
-  TaxRule,
-} from '@/features/settings/tax/shared/lib/utils';
-import { taxRuleConditionOptions } from '@/features/settings/tax/shared/lib/utils';
+import type { TaxRegionState, TaxRule } from '@/features/settings/tax/shared/lib/utils';
+import { RATE_ACTIONS } from '@/features/settings/tax/shared/schemas/forms/tax-rules-form';
 import { useTaxProfilesQuery } from '@/features/settings/tax/shared/services/tax';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
+
+const toSentenceCase = (text: string): string =>
+  text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 
 type TaxRulesProps = {
   /**
@@ -58,25 +57,14 @@ type TaxRulesProps = {
    */
   destinationCountry?: string;
   updateTaxRules: (rulesList: TaxRule[]) => void;
-  /**
-   * Condition types the rule editor offers. Defaults to Tax Profile plus
-   * Destination; a state's page passes Tax Profile only.
-   */
-  conditionOptions?: SelectOption[];
 };
 
 const TaxRules = (props: TaxRulesProps) => {
-  const {
-    rules,
-    states,
-    destinationLabel,
-    destinationCountry,
-    updateTaxRules,
-    conditionOptions = taxRuleConditionOptions,
-  } = props;
+  const { rules, states, destinationLabel, destinationCountry, updateTaxRules } = props;
   const [addRuleModal, setAddRuleModal] = useState(false);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
   const { data: taxProfiles } = useTaxProfilesQuery();
+  const { data: categoryData } = useCategoriesQuery({ limit: -1 });
 
   const handleDeleteRules = (_item: TaxRule, index: number) => {
     const initialRules = Array.isArray(rules) ? [...rules] : [];
@@ -109,7 +97,6 @@ const TaxRules = (props: TaxRulesProps) => {
                     states={states}
                     destinationLabel={destinationLabel}
                     destinationCountry={destinationCountry}
-                    conditionOptions={conditionOptions}
                   />
                 )}
 
@@ -121,7 +108,6 @@ const TaxRules = (props: TaxRulesProps) => {
                         states={states}
                         destinationLabel={destinationLabel}
                         destinationCountry={destinationCountry}
-                        conditionOptions={conditionOptions}
                         rules={rules}
                         updateTaxRules={updateTaxRules}
                         onClose={() => setEditingRuleIndex(null)}
@@ -131,51 +117,48 @@ const TaxRules = (props: TaxRulesProps) => {
                     ) : (
                       <RuleItem key={index} id={String(index)}>
                         <RuleItemContent>
-                          <RuleItemBadge>
-                            <LightningBoltIcon width={12} height={12} />
-                            <Text variant="small">
-                              {sprintf(__('Rule %d', 'kirki-ecommerce'), index + 1)}
-                            </Text>
-                          </RuleItemBadge>
                           <RuleItemConditions>
                             {(item?.conditions ?? []).map((condition, conditionIndex) => (
                               <RuleItemCondition key={conditionIndex}>
                                 <Text variant="small" weight="medium">
                                   {conditionIndex === 0
-                                    ? sprintf(
-                                        __('IF %1$s %2$s', 'kirki-ecommerce'),
-                                        resolveConditionTypeLabel(condition?.type),
-                                        resolveOperatorLabel(condition?.operator),
-                                      )
-                                    : sprintf(
-                                        __('AND IF %1$s %2$s', 'kirki-ecommerce'),
-                                        resolveConditionTypeLabel(condition?.type),
-                                        resolveOperatorLabel(condition?.operator),
-                                      )}
+                                    ? __('IF', 'kirki-ecommerce')
+                                    : __('AND IF', 'kirki-ecommerce')}
                                 </Text>
-                                <Text
-                                  variant="small"
-                                  weight="medium"
-                                  cssOverride={styles.conditionValue}
-                                >
-                                  {condition?.type === 'destination_region'
-                                    ? __(
-                                        getDestinationDisplayValue(condition?.value),
-                                        'kirki-ecommerce',
-                                      )
-                                    : resolveConditionDisplayValue(condition, taxProfiles)}
+                                <Text variant="small" color="secondary">
+                                  {sprintf(
+                                    __('%1$s %2$s', 'kirki-ecommerce'),
+                                    toSentenceCase(resolveConditionTypeLabel(condition?.type)),
+                                    resolveOperatorLabel(condition?.operator),
+                                  )}
+                                </Text>
+                                <RuleItemValues
+                                  values={
+                                    condition?.type === 'destination_region'
+                                      ? resolveDestinationLabels(condition?.value, states)
+                                      : [
+                                          resolveConditionDisplayValue(
+                                            condition,
+                                            taxProfiles,
+                                            categoryData?.results,
+                                          ),
+                                        ]
+                                  }
+                                />
+                                <Text variant="small" weight="medium">
+                                  ,
                                 </Text>
                               </RuleItemCondition>
                             ))}
                           </RuleItemConditions>
                           <RuleItemAction>
                             <Text variant="small" weight="medium">
-                              {sprintf(
-                                __('Then %s', 'kirki-ecommerce'),
-                                resolveActionLabel(item?.action?.type),
-                              )}
+                              {__('Then', 'kirki-ecommerce')}
                             </Text>
-                            {item?.action?.type === 'set_product_tax_rate' && (
+                            <Text variant="small" color="secondary">
+                              {resolveActionLabel(item?.action?.type)}
+                            </Text>
+                            {RATE_ACTIONS.includes(item?.action?.type ?? '') && (
                               <Text
                                 variant="small"
                                 weight="medium"
@@ -191,7 +174,6 @@ const TaxRules = (props: TaxRulesProps) => {
                             <Button
                               variant="outline"
                               size="icon-sm"
-                              cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                               onClick={() => handleDeleteRules(item, index)}
                             >
                               <Trash2 />

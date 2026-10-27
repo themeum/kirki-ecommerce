@@ -24,13 +24,13 @@ if (empty($order)) {
 
 $payment_gateway = isset($order['payment_provider']) ? Payment::get_provider($order['payment_provider']) : '';
 $payment_provider = $payment_gateway ? $payment_gateway->title() : '';
-$order_items = $order['items']->all();
-$totals = $order['totals'];
+$order_items = $order['items'];
+$pricing = $order['pricing'];
 
-$shipping_money_object = $totals['invoiced_shipping_money_object'];
-$discount_money_object = $totals['invoiced_discount_money_object'];
-$tax_money_object = $totals['invoiced_tax_money_object'];
-$total_money_object = $totals['invoiced_total_money_object'];
+$shipping_money_object = $pricing['invoiced_shipping_amount_money_object'];
+$discount_money_object = $pricing['invoiced_order_discount_money_object'];
+$tax_money_object = $pricing['invoiced_tax_total_money_object'];
+$total_money_object = $pricing['invoiced_total_money_object'];
 ?>
 
 <?php Template::get_header(); ?>
@@ -82,11 +82,11 @@ $total_money_object = $totals['invoiced_total_money_object'];
                             <div class="kecom-order-success-row-key">
                                 <?php echo esc_html($item['product_name']); ?>
                                 <?php if (!empty($item['variant_name'])) :
-                                    ?>• <?php echo esc_html($item['variant_name']); ?><?php
-                                endif; ?>
+                                ?>• <?php echo esc_html($item['variant_name']); ?><?php
+                                                                                endif; ?>
                                 x<?php echo esc_html($item['quantity']); ?>
                             </div>
-                            <div class="kecom-order-success-row-value"><?php echo esc_html($item['invoiced_total_money_object']->display); ?></div>
+                            <div class="kecom-order-success-row-value"><?php echo esc_html($item['invoiced_subtotal_money_object']->display); ?></div>
                         </div>
                     <?php endforeach; ?>
 

@@ -7,15 +7,23 @@ import { z } from 'zod';
  * builds necessarily embeds every section's real schema, so it structurally
  * cannot avoid depending on the settings sub-features. This is the same
  * "genuine wart" design.md records for `services/settings.ts` itself:
- * accepted here rather than duplicating whole schemas (unlike the small
- * `ProductCurrencySchema` case in `app-config.ts`, `ShippingZoneSchema` and
- * `TaxRegionSchema` are large and change with their owning feature — copying
+ * accepted here rather than duplicating whole schemas (`ShippingZoneSchema`
+ * and `TaxRegionSchema` are large and change with their owning feature — copying
  * them would be a maintenance hazard, not a fix). Splitting this file's
  * app-wide pieces from its settings-section pieces is the tidier end state
  * and is deferred with the rest of the `services/settings.ts` split.
  */
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import { EmailDefaultTemplateShape } from '@/features/settings/email/schemas/catalog/email-template';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import {
+  EncryptionOptions,
+  MailerOptions,
+} from '@/features/settings/email/schemas/forms/mail-configuration-form';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { LegalSettingsSchema } from '@/features/settings/legal/schemas/catalog/legal';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import { McpSettingsSchema } from '@/features/settings/mcp/schemas/catalog/mcp';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schemas/catalog/payment';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
@@ -71,19 +79,6 @@ export const GeneralSettingsSchema = z
 
 export type GeneralSettings = z.infer<typeof GeneralSettingsSchema>;
 
-export const BarcodeGenerationSchema = z
-  .object({
-    data_origin: z.string().nullish(),
-    format: z.string().nullish(),
-    country_of_origin: z.string().nullish(),
-    width: z.number().nullish(),
-    height: z.number().nullish(),
-    is_human_readable_text_visible: z.boolean().nullish(),
-    is_product_name_visible: z.boolean().nullish(),
-    is_country_of_origin_visible: z.boolean().nullish(),
-  })
-  .passthrough();
-
 export const ProductSettingsSchema = z
   .object({
     shop_page: z.union([z.string(), z.number()]).nullish(),
@@ -92,9 +87,7 @@ export const ProductSettingsSchema = z
     display_layout: z.string().nullish(),
     is_enabled_reviews: z.boolean().nullish(),
     is_enabled_star_ratings: z.boolean().nullish(),
-    is_unit_price_visible: z.boolean().nullish(),
     low_stock_threshold: z.number().nullish(),
-    barcode_generation: BarcodeGenerationSchema.nullish(),
   })
   .passthrough();
 
@@ -108,6 +101,7 @@ export const CheckoutConfigurationSchema = z
     company_id_validation: z.string().nullish(),
     vat_identification_number_validation: z.string().nullish(),
     has_apply_coupon_code: z.boolean().nullish(),
+    show_customer_note: z.boolean().nullish(),
   })
   .passthrough();
 
@@ -121,37 +115,58 @@ export const CheckoutSettingsSchema = z
 export type CheckoutSettings = z.infer<typeof CheckoutSettingsSchema>;
 
 /**
- * A notification entry's fields vary per notification type beyond
- * `name`/`is_enabled` (subject/heading/message/shortcodes/...) — kept a
- * passthrough record rather than enumerated, matching the form side
- * (`email-settings-form.ts`, `zod-first-type-declarations` design.md
- * Decision on notification records).
+ * Mirrors what the backend actually persists per notification entry in
+ * `email.json` (`is_enabled`/`subject`/`heading`/`message`/`shortcodes`) —
+ * there is no `name` field. `shortcodes` is the read-only per-notification
+ * reference list (`{label, value}[]`, e.g. `{ label: 'Order Number', value:
+ * '{order_number}' }`) shown in the message editor's shortcode picker. `key`
+ * is not part of the stored record — it's the entry's own key within its
+ * `EmailNotificationGroupSchema` record, attached here so list items derived
+ * from that record carry it. Kept `.passthrough()` since notification-specific
+ * extra fields may still appear (matching the form side, `email-settings-form.ts`).
  */
 export const EmailNotificationSchema = z
   .object({
-    name: z.string().nullish(),
+    key: z.string().nullish(),
     is_enabled: z.boolean().nullish(),
+    subject: z.string().nullish(),
+    heading: z.string().nullish(),
+    message: z.string().nullish(),
+    shortcodes: z.array(z.object({ label: z.string(), value: z.string() })).nullish(),
   })
   .passthrough();
+
+export type EmailNotification = z.infer<typeof EmailNotificationSchema>;
 
 export const EmailNotificationGroupSchema = z.record(EmailNotificationSchema);
 
 export const EmailSettingsSchema = z
   .object({
-    default_template: z.record(z.unknown()).nullish(),
+    default_template: EmailDefaultTemplateShape,
     customer_emails: z
       .object({
         order_notifications: EmailNotificationGroupSchema.nullish(),
         user_notifications: EmailNotificationGroupSchema.nullish(),
-        inventory_notifications: EmailNotificationGroupSchema.nullish(),
       })
-      .passthrough()
       .nullish(),
     admin_emails: z
       .object({
         order_notifications: EmailNotificationGroupSchema.nullish(),
         user_notifications: EmailNotificationGroupSchema.nullish(),
         inventory_notifications: EmailNotificationGroupSchema.nullish(),
+      })
+      .nullish(),
+    mail_configuration: z
+      .object({
+        from_email: z.string().nullish(),
+        from_name: z.string().nullish(),
+        mailer: z.enum(MailerOptions).nullish(),
+        host: z.string().nullish(),
+        port: z.number().nullish(),
+        encryption: z.enum(EncryptionOptions).nullish(),
+        is_authentication_enabled: z.boolean().nullish(),
+        username: z.string().nullish(),
+        password: z.string().nullish(),
       })
       .passthrough()
       .nullish(),
@@ -185,8 +200,6 @@ export const CurrencyApiConfigSchema = z
   .object({
     api_key: z.string().nullish(),
     update_frequency: z.string().nullish(),
-    fallback_behaviour: z.string().nullish(),
-    is_cache_enabled: z.boolean().nullish(), // @todo: not yet implemented in backend
   })
   .passthrough();
 
@@ -207,9 +220,11 @@ export const CurrencySettingsSchema = z
     decimal_separator: z.string().nullish(),
     is_automatic_update_enabled: z.boolean().nullish().default(false),
     api_provider: z.string().nullish(),
-    api_config: CurrencyApiConfigSchema.nullish(),
+    api_configs: z.record(z.string(), CurrencyApiConfigSchema).nullish(),
     last_sync_at: z.string().nullish(),
     next_sync_at: z.string().nullish(),
+    last_sync_error: z.string().nullish(),
+    last_sync_error_at: z.string().nullish(),
     usage: CurrencyUsageSchema.nullish(),
   })
   .passthrough();
@@ -261,6 +276,7 @@ export const SettingsSchemaMap = {
   payment: PaymentSettingsSchema,
   advance: AdvanceSettingsSchema,
   legal: LegalSettingsSchema,
+  mcp: McpSettingsSchema,
 } as const;
 
 export type SettingsSectionKey = keyof typeof SettingsSchemaMap;

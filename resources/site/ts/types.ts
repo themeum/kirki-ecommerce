@@ -12,6 +12,13 @@ export type ShippingMethod = {
   };
 };
 
+export type AddressFieldMode = 'hidden' | 'optional' | 'required';
+
+export type AddressRule = {
+  state: { mode: AddressFieldMode; label: string };
+  postal_code: { mode: AddressFieldMode };
+};
+
 export type KirkiEcommerceConfig = {
   checkout_consents?: {
     id: string;
@@ -39,6 +46,8 @@ export type KirkiEcommerceConfig = {
     items: CartItem[];
     pricing: CartPricing;
     shipping_method: ShippingMethod | null;
+    customer_email?: string | null;
+    order_notes?: string | null;
     is_billing_same_as_shipping?: boolean;
     shipping_address?: Record<string, any> | null;
     billing_address?: Record<string, any> | null;
@@ -46,6 +55,7 @@ export type KirkiEcommerceConfig = {
   };
   currency?: string;
   countries?: { code: string; name: string; states: { id: string; name: string }[] }[];
+  address_rules?: Record<string, AddressRule>;
   cart_token_cookie_name: string;
   cart_token_header_name: string;
   header_skip_tax: string;
@@ -119,6 +129,7 @@ export type CartUpdateItem = {
   };
   items: CartItem[];
   formatted_items: Record<number, string> | null;
+  invalid_items: Record<number, string>;
 };
 
 export type MoneyObject = {
@@ -163,6 +174,7 @@ export type CartPricing = {
 export type Cart = {
   id: number;
   customer_id: number | null;
+  customer_email?: string | null;
   cart_token: string;
   currency: {
     code: string;
@@ -175,7 +187,7 @@ export type Cart = {
   billing_address: any;
   available_shipping_methods: any[];
   shipping_method: any;
-  customer_notes: string | null;
+  order_notes: string | null;
   ip_address: string | null;
   user_agent: string | null;
   expires_at: string | null;
@@ -227,7 +239,7 @@ export type CheckoutRequest = {
   billing_company?: string | null;
   customer_email: string;
   customer_phone: string;
-  customer_notes?: string | null;
+  order_notes?: string | null;
 };
 
 export type CheckoutResponse = {

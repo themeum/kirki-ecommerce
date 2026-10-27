@@ -32,20 +32,4 @@ trait SeedsTestCurrency
             ],
         ]);
     }
-
-    /**
-     * Return the base currency identifier.
-     *
-     * @return int
-     * @since 1.0.0
-     */
-    protected function base_currency_id(): int
-    {
-        $this->seed_base_currency();
-
-        $listed = $this->request('GET', 'currencies', ['limit' => 1]);
-        $payload = $this->assert_api_success($listed);
-
-        return (int) $payload['data']['results'][0]['id'];
-    }
 }

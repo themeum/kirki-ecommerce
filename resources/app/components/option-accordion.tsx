@@ -14,20 +14,23 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
   header?: ReactNode;
   titleAdornment?: ReactNode;
   subHeader?: string;
+  meta?: ReactNode;
   leftIcon?: ReactNode;
   children?: ReactNode;
   rightActions?: ReactNode;
-  variant?: 'shipping' | 'inactive';
+  variant?: 'shipping' | 'email' | 'inactive';
   enabled?: boolean;
   disabled?: boolean;
   expandable?: boolean;
   open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   cssOverride?: CSSObject;
 };
 
@@ -36,6 +39,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     header,
     titleAdornment = null,
     subHeader,
+    meta,
     leftIcon,
     children,
     rightActions = null,
@@ -44,10 +48,12 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     disabled = false,
     expandable = true,
     open = false,
+    onOpenChange,
     cssOverride,
   } = props;
 
   const isOpen = open && expandable;
+  const isControlled = isDefined(onOpenChange);
 
   return (
     <div
@@ -60,9 +66,13 @@ const OptionAccordion = (props: OptionAccordionProps) => {
         hideSeparator={true}
         hasBottomSpace={false}
         rightActions={rightActions}
-        defaultValue={isOpen ? 'option-item' : undefined}
+        defaultValue={!isControlled && isOpen ? 'option-item' : undefined}
+        value={isControlled ? (isOpen ? ['option-item'] : []) : undefined}
+        onValueChange={
+          isControlled ? (value) => onOpenChange(value.includes('option-item')) : undefined
+        }
       >
-        <AccordionItem value={isOpen ? 'option-item' : undefined}>
+        <AccordionItem value={isControlled || isOpen ? 'option-item' : undefined}>
           <AccordionTrigger
             cssOverride={mergeCss(styles.trigger, variant === 'shipping' && styles.shippingTrigger)}
             gap={4}
@@ -71,9 +81,9 @@ const OptionAccordion = (props: OptionAccordionProps) => {
           >
             <Flex gap={4} align="center">
               {leftIcon}
-              <Flex direction="column" gap={2}>
-                <Flex gap={1} align="center" cssOverride={{ height: 24 }}>
-                  <Text weight="semibold" variant="heading6" color="primary">
+              <Flex direction="column" gap={1}>
+                <Flex gap={1} align="center" cssOverride={{ minHeight: 24 }}>
+                  <Text weight="semibold" variant="small" color="primary">
                     {header}
                   </Text>
                   {titleAdornment}
@@ -86,6 +96,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                     {subHeader}
                   </Text>
                 )}
+                {meta}
               </Flex>
             </Flex>
           </AccordionTrigger>
@@ -96,6 +107,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                   cardStyles.darkCard,
                   styles.contentCard,
                   variant === 'shipping' && styles.shippingCard,
+                  variant === 'email' && styles.emailCard,
                 )}
                 data-option-accordion-card="true"
               >
@@ -103,6 +115,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                   cssOverride={mergeCss(
                     cardStyles.innerCardContent,
                     variant === 'shipping' && styles.shippingContent,
+                    variant === 'email' && styles.emailContent,
                   )}
                 >
                   {children}
@@ -121,7 +134,7 @@ export default OptionAccordion;
 const styles = defineStyles({
   wrapper: {
     borderRadius: theme.radius.xl,
-    border: `1px solid ${theme.colors.icon.inverse}`,
+    border: `1px solid ${theme.colors.border.secondary}`,
   },
   accordion: {
     width: '100%',
@@ -130,7 +143,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[3]} ${theme.spacing[4]} ${theme.spacing[3]} ${theme.spacing[4]}`,
   },
   contentCard: {
-    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+    borderRadius: theme.radius.xl,
     display: 'flex',
     flexDirection: 'column',
     boxShadow: 'none',
@@ -148,6 +161,13 @@ const styles = defineStyles({
     backgroundColor: 'transparent',
     border: 'none',
     borderRadius: theme.radius.none,
+  },
+  emailCard: {
+    border: 'none',
+    backgroundColor: theme.colors.background.surfaceAlt,
+  },
+  emailContent: {
+    padding: theme.spacing[2],
   },
   shippingTrigger: {
     '&:has(button[data-state="open"])': {

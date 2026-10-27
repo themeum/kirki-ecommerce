@@ -20,6 +20,8 @@ export type ValidationRules = {
   validate?: (value: unknown) => boolean | string | Promise<boolean | string>;
 };
 
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export type FieldError = {
   type: string;
   message: string;
@@ -80,8 +82,7 @@ const ValidationHelpers = {
       return null;
     }
     const message = typeof rule === 'string' ? rule : 'Invalid email address';
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return !emailPattern.test(value) ? message : null;
+    return !EMAIL_PATTERN.test(value) ? message : null;
   },
 
   min(value: number, rule: number | { value: number; message: string }): string | null {

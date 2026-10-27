@@ -2,7 +2,9 @@ import type { BadgeVariant } from '@/components/ui/badge';
 import type { CouponStatus } from '@/features/coupons/schemas/catalog/coupon';
 import { __ } from '@/wpi18n';
 
-export const getCouponBadgeInfo = (status: CouponStatus): { variant: BadgeVariant, text: string } => {
+export const getCouponBadgeInfo = (
+  status: CouponStatus,
+): { variant: BadgeVariant; text: string } => {
   switch (status) {
     case 'active':
       return {
@@ -11,7 +13,7 @@ export const getCouponBadgeInfo = (status: CouponStatus): { variant: BadgeVarian
       };
     case 'expired':
       return {
-        variant: 'caution',
+        variant: 'destructive',
         text: __('Expired', 'kirki-ecommerce'),
       };
     case 'inactive':
@@ -30,4 +32,4 @@ export const getCouponBadgeInfo = (status: CouponStatus): { variant: BadgeVarian
         text: __('Unknown', 'kirki-ecommerce'),
       };
   }
-}
+};

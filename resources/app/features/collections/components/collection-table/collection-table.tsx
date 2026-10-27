@@ -3,35 +3,40 @@ import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
-import type { DataTableBulkAction } from '@/components/data-table';
-import type { DataTableSelectionState } from '@/components/data-table';
-import DataTable from '@/components/data-table';
+import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
+import DataTable, { DataTableEmptyState } from '@/components/data-table';
 import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
+import Button from '@/components/ui/button';
 import { RouteConfig } from '@/config/route-config';
 import CollectionTableFilters from '@/features/collections/components/collection-table/collection-table-filters';
 import { collectionColumns } from '@/features/collections/components/collection-table/columns';
 import type { Collection } from '@/features/collections/schemas/catalog/collection';
 import {
   useBulkDeleteCollectionsMutation,
-  useCollectionsQuery,
   useDeleteCollectionMutation,
 } from '@/features/collections/services/collection';
 import { collectionListOptions } from '@/features/collections/types';
 import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
+import type { ListingTableProps } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 const collectionBulkActions: DataTableBulkAction[] = [
   { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
 ];
 
-const CollectionTable = () => {
+const CollectionTable = ({ data, isLoading = false }: ListingTableProps<Collection>) => {
   const navigate = useNavigate();
-  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams(collectionListOptions);
+  const {
+    pagination,
+    sorting,
+    onPaginationChange,
+    onSortingChange,
+    selectionResetKey,
+    clearFilters,
+  } = useDataTableParams(collectionListOptions);
 
-  const { data, isFetching } = useCollectionsQuery(params);
   const deleteMutation = useDeleteCollectionMutation();
   const bulkDeleteMutation = useBulkDeleteCollectionsMutation();
   const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
@@ -78,29 +83,27 @@ const CollectionTable = () => {
         enableSorting: false,
         meta: actionsColumnMeta,
         cell: ({ row }) => (
-          <div role="presentation" onClick={(event) => event.stopPropagation()}>
-            <DataTableRowActions
-              edit={{ onClick: () => handleRowClick(row.original) }}
-              actions={[
-                {
-                  label: __('Delete', 'kirki-ecommerce'),
-                  icon: <Trash2 size={16} />,
-                  destructive: true,
-                  onClick: () =>
-                    confirmDelete(
-                      {
-                        title: __('Delete collection?', 'kirki-ecommerce'),
-                        description: __(
-                          'This collection will be permanently deleted. The products in it are not deleted. This cannot be undone.',
-                          'kirki-ecommerce',
-                        ),
-                      },
-                      () => deleteMutation.mutate(row.original.id),
-                    ),
-                },
-              ]}
-            />
-          </div>
+          <DataTableRowActions
+            edit={{ onClick: () => handleRowClick(row.original) }}
+            actions={[
+              {
+                label: __('Delete', 'kirki-ecommerce'),
+                icon: <Trash2 size={16} />,
+                destructive: true,
+                onClick: () =>
+                  confirmDelete(
+                    {
+                      title: __('Delete collection?', 'kirki-ecommerce'),
+                      description: __(
+                        'This collection will be permanently deleted. The products in it are not deleted. This cannot be undone.',
+                        'kirki-ecommerce',
+                      ),
+                    },
+                    () => deleteMutation.mutate(row.original.id),
+                  ),
+              },
+            ]}
+          />
         ),
       },
     ],
@@ -119,15 +122,24 @@ const CollectionTable = () => {
         onPaginationChange={onPaginationChange}
         sorting={sorting}
         onSortingChange={onSortingChange}
-        isLoading={isFetching}
+        isLoading={isLoading}
         enableRowSelection
         selectionResetKey={selectionResetKey}
         bulkActions={collectionBulkActions}
         onBulkApply={handleBulkApply}
         columnPinning={{ right: ['actions'] }}
-        fixed
         onRowClick={handleRowClick}
         toolbar={<CollectionTableFilters />}
+        emptyState={
+          <DataTableEmptyState
+            title={__('No collections found', 'kirki-ecommerce')}
+            actions={
+              <Button variant="secondary" onClick={clearFilters}>
+                {__('Clear Search', 'kirki-ecommerce')}
+              </Button>
+            }
+          />
+        }
       />
       {deleteConfirmation}
     </>

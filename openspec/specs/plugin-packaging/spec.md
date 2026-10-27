@@ -4,9 +4,7 @@
 
 Defines the behavior of building a production-only, installable WordPress
 plugin zip from the development repository via a single command.
-
 ## Requirements
-
 ### Requirement: Single command produces an installable plugin zip
 
 The system SHALL provide a single command (`npm run make:package`) that,
@@ -71,9 +69,23 @@ are gitignored in the development repository but required at runtime.
 
 - **WHEN** the package is built
 - **THEN** the resulting plugin directory contains a populated
-  `libraries/` directory (the scoped framework library used by the
-  plugin's autoloader), even though `libraries/` is gitignored in the
-  source repository
+  `vendor/libraries/framework/src/` directory holding the namespace-prefixed
+  framework source, even though the whole `vendor/` tree is gitignored in
+  the source repository
+
+#### Scenario: Scoped framework is loadable from the packaged location
+
+- **WHEN** the produced zip is extracted and its `vendor/autoload.php` is
+  loaded
+- **THEN** classes under the `Kirki\Ecommerce\Framework\` namespace
+  resolve, and the framework's global helper functions are defined,
+  without any file being required from a root-level `libraries/` directory
+
+#### Scenario: No root-level libraries directory ships
+
+- **WHEN** the package is built
+- **THEN** the resulting plugin directory does not contain a top-level
+  `libraries/` directory
 
 #### Scenario: Production PHP dependencies are included, dev ones are not
 
@@ -87,6 +99,54 @@ are gitignored in the development repository but required at runtime.
 - **WHEN** the package is built
 - **THEN** the resulting plugin directory's `assets/` directory contains
   the compiled JS and CSS bundle files produced by the frontend build
+
+### Requirement: Package contains no developer seeders
+
+The packaged plugin SHALL NOT contain the developer seeders, which are the
+demo and test data seeders that developers run from the command line. They
+SHALL NOT ship as files and SHALL NOT be registered in the packaged autoload
+maps. Code that the plugin runs in production, such as store setup and the
+sample data import, SHALL NOT live with the developer seeders, so excluding
+them removes no runtime behavior. The developer seeding command SHALL keep
+working in a development install.
+
+#### Scenario: No seeder files ship
+
+- **WHEN** the package is built
+- **THEN** the resulting plugin directory contains `database/migrations/`
+  and does not contain a `database/seeders/` directory
+
+#### Scenario: Developer seeders are absent from the autoload maps
+
+- **WHEN** the produced zip is extracted and its generated autoload maps
+  are inspected
+- **THEN** no entry maps the developer seeders namespace or any developer
+  seeder class
+
+#### Scenario: Store setup works from the package
+
+- **WHEN** a merchant completes the onboarding wizard on a site that runs
+  the packaged plugin
+- **THEN** store setup succeeds and seeds the category tree, attribute
+  presets, product schema profiles and settings defaults
+
+#### Scenario: Sample data import works from the package
+
+- **WHEN** a merchant loads sample data on a site that runs the packaged
+  plugin
+- **THEN** the sample products and their images are imported
+
+#### Scenario: Seeding command on a packaged install
+
+- **WHEN** an administrator runs the plugin's database seeding command on a
+  site that runs the packaged plugin
+- **THEN** no seeder runs, no data is written, and no fatal error occurs
+
+#### Scenario: Seeding command in development
+
+- **WHEN** a developer runs the plugin's database seeding command in a
+  development install
+- **THEN** the developer seeders run as before
 
 ### Requirement: Package includes a valid readme.txt
 
@@ -128,3 +188,77 @@ mode, independent of the development mode setting in the source repository.
 - **THEN** the working-tree copy of `kirki-ecommerce.php` in the
   repository still has its original development-mode flag values after
   the build completes
+
+### Requirement: Packaged framework carries no unprefixed namespace
+
+The packaged plugin SHALL NOT declare or register any autoload mapping for
+the framework's original unprefixed `Framework\` namespace, so that the
+plugin's autoloader cannot intercept and mis-resolve a `Framework\` class
+belonging to another plugin active on the same site.
+
+#### Scenario: No unprefixed autoload mapping is registered
+
+- **WHEN** the produced zip is extracted and its generated autoload maps
+  are inspected
+- **THEN** no entry maps the bare `Framework\` prefix to any directory
+
+#### Scenario: Framework source declares only prefixed namespaces
+
+- **WHEN** the packaged framework source files are inspected
+- **THEN** every namespace declaration is prefixed with
+  `Kirki\Ecommerce\`, and none declares a bare `Framework` namespace
+
+#### Scenario: Prefixing is applied exactly once
+
+- **WHEN** the packaged framework source files are inspected, including
+  their docblock type annotations
+- **THEN** no symbol or annotation carries the prefix more than once —
+  a repeated prefix such as `Kirki\Ecommerce\Kirki\Ecommerce\Framework\`
+  appears nowhere
+
+### Requirement: Packaged framework excludes its own development files
+
+The packaged copy of the framework dependency SHALL contain only what the
+plugin needs at runtime, plus the license file. The framework's own test
+suite, documentation, examples, and build/CI tooling SHALL NOT ship.
+
+#### Scenario: Framework dev directories are excluded
+
+- **WHEN** the package is built
+- **THEN** the packaged framework directory contains no `tests/`,
+  `docs/`, `example/`, `docker/`, `scripts/`, or `stubs/` directory
+
+#### Scenario: Framework build configs are excluded
+
+- **WHEN** the package is built
+- **THEN** the packaged framework directory contains no `Makefile`,
+  `docker-compose.yml`, `phpunit.xml`, `phpstan.neon.dist`,
+  `phpcs.xml.dist`, or `composer.lock`
+
+#### Scenario: License is retained
+
+- **WHEN** the package is built
+- **THEN** the packaged framework directory still contains its `LICENSE`
+  file
+
+### Requirement: Package ships a search index built from the packaged source
+
+The packaging command SHALL regenerate the settings search index from the current
+settings source before the admin frontend is bundled, so that the shipped plugin
+can never carry an index describing wording that is not in the interface it ships
+with.
+
+#### Scenario: Stale local index at package time
+
+- **WHEN** `npm run make:package` is run while the packaging machine's local search
+  index was generated from older settings copy, or is absent entirely
+- **THEN** the index is regenerated from the current source before the frontend is
+  built
+- **AND** the zip contains the regenerated index rather than the stale one
+
+#### Scenario: Regeneration precedes bundling
+
+- **WHEN** the packaging command builds the admin frontend
+- **THEN** the search index has already been regenerated, so the bundled index and
+  the bundled interface come from the same source
+

@@ -2,11 +2,18 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 
 use function Kirki\Ecommerce\Framework\collection;
 
+/**
+ * Data object for creating an order with its totals, addresses and items.
+ *
+ * @since 1.0.0
+ */
 class CreateOrderDTO extends DTO
 {
     /** @var string */
@@ -66,6 +73,12 @@ class CreateOrderDTO extends DTO
     /** @var int */
     public $base_shipping_tax_amount = 0;
 
+    /** @var bool */
+    public $is_tax_inclusive = false;
+
+    /** @var string|null */
+    public $tax_destination;
+
     /** @var int */
     public $invoiced_total;
 
@@ -91,34 +104,51 @@ class CreateOrderDTO extends DTO
     public $shipping_metadata;
 
     // Shipping Address Fields
+    /** @var string|null */
     public $shipping_first_name;
+    /** @var string|null */
     public $shipping_last_name;
+    /** @var string|null */
     public $shipping_address_line1;
+    /** @var string|null */
     public $shipping_address_line2;
+    /** @var string|null */
     public $shipping_city;
+    /** @var string|null */
     public $shipping_state;
+    /** @var string|null */
     public $shipping_country;
+    /** @var string|null */
     public $shipping_postal_code;
+    /** @var string|null */
     public $shipping_phone;
+    /** @var string|null */
     public $shipping_email;
 
     // Billing Address Fields
+    /** @var string|null */
     public $billing_first_name;
+    /** @var string|null */
     public $billing_last_name;
+    /** @var string|null */
     public $billing_address_line1;
+    /** @var string|null */
     public $billing_address_line2;
+    /** @var string|null */
     public $billing_city;
+    /** @var string|null */
     public $billing_state;
+    /** @var string|null */
     public $billing_country;
+    /** @var string|null */
     public $billing_postal_code;
+    /** @var string|null */
     public $billing_phone;
+    /** @var string|null */
     public $billing_email;
 
     /** @var string|null */
-    public $customer_notes;
-
-    /** @var string|null */
-    public $admin_notes;
+    public $order_notes;
 
     /** @var string|null */
     public $ip_address;
@@ -151,6 +181,11 @@ class CreateOrderDTO extends DTO
     public $customer_phone;
 
 
+    /**
+     * Create the DTO with an empty items collection.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->items = collection();

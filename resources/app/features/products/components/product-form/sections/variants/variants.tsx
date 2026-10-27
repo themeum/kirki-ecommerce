@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import AttributeList from '@/features/products/components/product-form/sections/variants/attribute-list/attribute-list';
 import VariantsTable from '@/features/products/components/product-form/sections/variants/variants-table/variants-table';
@@ -9,10 +9,7 @@ const Variants = () => {
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
-        <CardTitle>{__('Product Variations', 'kirki-ecommerce')}</CardTitle>
-        <CardDescription>
-          {__('Manage the options this product comes in.', 'kirki-ecommerce')}
-        </CardDescription>
+        <CardTitle>{__('Variations', 'kirki-ecommerce')}</CardTitle>
       </CardHeader>
       <CardContent>
         <Flex direction="column" gap={4}>
@@ -27,4 +24,3 @@ const Variants = () => {
 Variants.displayName = 'Variants';
 
 export default Variants;
-

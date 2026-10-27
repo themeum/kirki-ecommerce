@@ -103,7 +103,7 @@ const UnitAmountField = <
                     placeholder={placeholder}
                     value={amountField.value ?? ''}
                     onChange={(event) => {
-                      amountField.onChange(event.target.value);
+                      amountField.onChange(event.target.value === '' ? null : event.target.value);
                       clearErrors([name, unitName]);
                     }}
                     onBlur={amountField.onBlur}

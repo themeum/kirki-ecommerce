@@ -155,14 +155,16 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
     getZoneShippingMethods(shippingZonesObj, zoneId, baseCurrencySymbol);
 
   const handleToggleMethod = async (method: ShippingMethodData) => {
-    await commitZones((prev) => toggleMethod(prev, method.zoneId!, method.id));
+    await commitZones((prev) => toggleMethod(prev, method.zoneId, method.id));
   };
 
   const handleEditMethod = (method: ShippingMethodData) => {
     confirmAction({
       action: () =>
         navigate(
-          `${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?methodId=${method.id}&zoneId=${method.zoneId}`,
+          ShippingRoutes.get('ShippingZone')
+            .get('ShippingDeliveryMethod')
+            .buildLink({ zone_id: method.zoneId, method_id: method.id }),
         ),
     });
   };
@@ -233,7 +235,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
       });
       setShowCreateZonePopup(false);
       void navigate(
-        ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: newZoneIdRef.current }),
+        ShippingRoutes.get('ShippingZone').buildLink({ zone_id: newZoneIdRef.current }),
       );
       newZoneIdRef.current = uuid();
     } catch (error) {

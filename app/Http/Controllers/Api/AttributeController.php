@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Http\Requests\Attribute\AttributeCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Attribute\AttributeUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
@@ -18,19 +20,43 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing attributes.
+ *
+ * @since 1.0.0
+ */
 class AttributeController
 {
+    /** @var AttributeService */
     protected $service;
 
+    /**
+     * Create the controller with its attribute service.
+     *
+     * @since 1.0.0
+     *
+     * @param AttributeService $service
+     */
     public function __construct(AttributeService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List attributes, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated attributes with a success message.
+     */
     public function get(Request $request)
     {
         $params = AttributeListFilterDTO::from_array($request->all());
         $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'name', 'slug', 'type', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_order = 'asc';
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -49,6 +75,14 @@ class AttributeController
         ]);
     }
 
+    /**
+     * Create an attribute from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param AttributeCreateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created attribute with a 201 status.
+     */
     public function create(AttributeCreateRequest $request)
     {
         $attribute = $this->service->create(CreateAttributeDTO::from_request($request));
@@ -59,6 +93,14 @@ class AttributeController
         ], Response::CREATED);
     }
 
+    /**
+     * Return a single attribute by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The attribute resource.
+     */
     public function show(Request $request)
     {
         $attribute = $this->service->find($request->int('id'));
@@ -69,6 +111,14 @@ class AttributeController
         ]);
     }
 
+    /**
+     * Update an attribute from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param AttributeUpdateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated attribute.
+     */
     public function update(AttributeUpdateRequest $request)
     {
         $attribute = $this->service->update(UpdateAttributeDTO::from_request($request));
@@ -79,6 +129,14 @@ class AttributeController
         ]);
     }
 
+    /**
+     * Delete a single attribute by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -89,6 +147,16 @@ class AttributeController
         ]);
     }
 
+    /**
+     * Run a bulk action on attributes.
+     *
+     * Supports deleting the given IDs or deleting every attribute matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $validated = $request->validated();

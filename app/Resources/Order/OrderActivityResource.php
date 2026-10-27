@@ -2,12 +2,26 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
+/**
+ * API resource for an entry in an order's activity timeline (admin).
+ *
+ * @since 1.0.0
+ */
 class OrderActivityResource extends Resource
 {
+    /**
+     * Convert the order activity resource to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The activity data, with a rendered description, author name, AI-assistant mark and relative time.
+     */
     public function to_array()
     {
         return [
@@ -17,10 +31,19 @@ class OrderActivityResource extends Resource
             'description' => OrderActivity::describe($this->resource),
             'created_by' => $this->created_by,
             'author_name' => $this->resolve_author_name(),
+            'notify_customer' => (bool) ($this->metadata['notify_customer'] ?? false),
+            'via_ai_assistant' => OrderActivity::is_from_assistant($this->resource),
             'created_at' => $this->created_at ? $this->human_readable_time_diff($this->created_at) : '',
         ];
     }
 
+    /**
+     * Resolve the display name of the WordPress user who created the activity.
+     *
+     * @since 1.0.0
+     *
+     * @return string|null Null when there is no creator or the user no longer exists.
+     */
     protected function resolve_author_name()
     {
         if (empty($this->created_by)) {
@@ -33,10 +56,12 @@ class OrderActivityResource extends Resource
     }
 
     /**
-     * Get the human readable time difference between the current time and the given date
+     * Get the human readable time difference between the current time and the given date.
      *
-     * @param string $date
-     * @return string
+     * @since 1.0.0
+     *
+     * @param string $date Date-time string to compare with now.
+     * @return string Difference suffixed with "left" for future dates or "ago" otherwise.
      */
     protected function human_readable_time_diff(string $date)
     {

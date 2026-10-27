@@ -6,6 +6,11 @@ use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Ways a consent notice is presented to the shopper.
+ *
+ * @since 1.0.0
+ */
 final class ConsentMethods
 {
     use HasConstants;
@@ -17,7 +22,9 @@ final class ConsentMethods
     /**
      * Get all consent methods with key, label pair.
      *
-     * @return array<string, string>
+     * @since 1.0.0
+     *
+     * @return array<string, string> Translated labels keyed by method.
      */
     public static function get_list()
     {
@@ -29,9 +36,11 @@ final class ConsentMethods
     }
 
     /**
-     * Methods that render an interactive checkbox for the shopper.
+     * Get the methods that render an interactive checkbox for the shopper.
      *
-     * @return string[]
+     * @since 1.0.0
+     *
+     * @return string[] Method keys.
      */
     public static function get_checkbox_methods()
     {

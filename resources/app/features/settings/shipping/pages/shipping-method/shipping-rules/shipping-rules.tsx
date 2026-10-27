@@ -1,72 +1,60 @@
 import { Edit3, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useParams } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import {
   RuleItem,
   RuleItemAction,
   RuleItemActions,
-  RuleItemBadge,
   RuleItemCondition,
   RuleItemConditions,
   RuleItemContent,
   RuleItems,
+  RuleItemValues,
 } from '@/components/shared/rule-items';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { useCategoriesQuery } from '@/features/categories';
 import {
-  actionOptionsArray,
-  conditionOptions,
-  saveShippingZones,
-} from '@/features/settings/shipping/lib/utils';
+  getActionLabel,
+  getActionValue,
+  getConditionLabel,
+  getOperatorLabel,
+  resolveConditionValues,
+} from '@/features/settings/shipping/lib/shipping-rules/helper';
+import { saveShippingZones } from '@/features/settings/shipping/lib/utils';
 import ShippingRuleFormCard from '@/features/settings/shipping/pages/shipping-method/shipping-rules/shipping-rule-form-card';
+import { useShippingProfilesQuery } from '@/features/settings/shipping/services/shipping';
 import type { ShippingRule, ShippingZone } from '@/features/settings/shipping/types';
-import { useConfirmDelete } from '@/hooks';
-import { LighteningIcon } from '@/icons';
+import { useBaseCurrencySymbol, useConfirmDelete } from '@/hooks';
+import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import { toDisplayString } from '@/utils/string';
 import { __, sprintf } from '@/wpi18n';
 
 type ShippingRulesProps = {
   methodId: string | number;
 };
 
-const getConditionLabel = (type?: string): string =>
-  conditionOptions.find((option) => option.value === type)?.title ?? type ?? '';
-
-const getOperatorLabel = (operator?: string): string => {
-  if (operator === '>') {
-    return __('> (Greater than)', 'kirki-ecommerce');
-  }
-  if (operator === '<') {
-    return __('< (Less than)', 'kirki-ecommerce');
-  }
-  if (operator === '=') {
-    return __('= (Equal to)', 'kirki-ecommerce');
-  }
-  return __('is', 'kirki-ecommerce');
-};
-
-const getActionLabel = (type?: string): string =>
-  actionOptionsArray.find((option) => option.value === type)?.title ?? type ?? '';
-
 export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
-  const [searchParams] = useSearchParams();
-  const zoneId = searchParams.get('zoneId');
+  const { zone_id: zoneId } = useParams();
 
   const [showAddCard, setShowAddCard] = useState(false);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
 
   const [rulesObj, setRulesObj] = useState<ShippingRule[]>([]);
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
+  const { data: categoryData } = useCategoriesQuery({ limit: -1 });
+  const { data: shippingProfiles } = useShippingProfilesQuery({ limit: -1 });
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
+  const baseCurrencySymbol = useBaseCurrencySymbol();
+  const { data: countries } = useCountriesQuery({ limit: -1 });
 
   useEffect(() => {
     if (!shippingSettingsData?.shipping_zones || !methodId) {
@@ -173,42 +161,42 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                   ) : (
                     <RuleItem key={index} id={String(index)}>
                       <RuleItemContent>
-                        <RuleItemBadge>
-                          <LighteningIcon />
-                          <Text variant="small">
-                            {sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
-                          </Text>
-                        </RuleItemBadge>
                         <RuleItemConditions>
                           <RuleItemCondition>
                             <Text variant="small" weight="medium">
+                              {__('IF', 'kirki-ecommerce')}
+                            </Text>
+                            <Text variant="small" color="secondary">
                               {sprintf(
-                                __('IF %1$s %2$s', 'kirki-ecommerce'),
+                                __('%1$s %2$s', 'kirki-ecommerce'),
                                 getConditionLabel(item?.conditions[0]?.type),
                                 getOperatorLabel(item?.conditions[0]?.operator),
                               )}
                             </Text>
-                            <Text variant="small" weight="medium" cssOverride={styles.accentText}>
-                              {item?.conditions[0]?.type === 'destination_region'
-                                ? ((item?.conditions[0]?.value as { country?: string })?.country ??
-                                  '')
-                                : toDisplayString(item?.conditions[0]?.value)}
+                            <RuleItemValues
+                              values={resolveConditionValues(
+                                item?.conditions[0],
+                                categoryData?.results ?? [],
+                                shippingProfiles ?? [],
+                                baseCurrencySymbol,
+                                countries ?? [],
+                              )}
+                            />
+                            <Text variant="small" weight="medium">
+                              ,
                             </Text>
                           </RuleItemCondition>
                         </RuleItemConditions>
                         <RuleItemAction>
                           <Text variant="small" weight="medium">
-                            {sprintf(
-                              __('Then %s:', 'kirki-ecommerce'),
-                              getActionLabel(item?.action?.type),
-                            )}
+                            {__('Then', 'kirki-ecommerce')}
                           </Text>
-                          {(item?.action?.type === 'set_shipping_cost' ||
-                            item?.action?.type === 'add_shipping_cost') && (
-                            <Text variant="small" weight="medium" cssOverride={styles.accentText}>
-                              {toDisplayString(item?.action?.value)}
-                            </Text>
-                          )}
+                          <Text variant="small" color="secondary">
+                            {getActionLabel(item?.action?.type)}
+                          </Text>
+                          <Text variant="small" weight="medium" cssOverride={styles.accentText}>
+                            {getActionValue(item?.action, baseCurrencySymbol)}
+                          </Text>
                         </RuleItemAction>
                       </RuleItemContent>
                       <RuleItemActions>
@@ -216,7 +204,6 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                           <Button
                             variant="outline"
                             size="icon-sm"
-                            cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                             onClick={() => handleDeleteRules(index)}
                           >
                             <Trash2 />

@@ -2,19 +2,29 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\PageFilterDTO;
 use Kirki\Ecommerce\App\Models\Page;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
+/**
+ * Queries WordPress pages.
+ *
+ * @since 1.0.0
+ */
 class PageService
 {
     /**
-     * Return all pages
+     * Get pages, newest first, optionally limited to the given statuses.
      *
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param PageFilterDTO|null $filters Filters whose status is a comma-separated list of post statuses.
+     * @return Collection Collection of Page.
      */
-    public function get(PageFilterDTO $filters = null)
+    public function get(?PageFilterDTO $filters = null)
     {
         $query = Page::query()->where('post_type', 'page')->order_by('id', 'desc');
 
@@ -28,9 +38,10 @@ class PageService
     /**
      * Find published pages by their slugs in a single query.
      *
-     * @param string[] $slugs
+     * @since 1.0.0
      *
-     * @return Collection
+     * @param string[] $slugs Page slugs to look up.
+     * @return Collection Collection of Page; empty when no slug is given.
      */
     public function find_published_by_slugs(array $slugs)
     {

@@ -2,31 +2,71 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Tax\Strategies\AbstractTaxStrategy;
 use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Throwable;
 
+/**
+ * Static helpers that read the tax settings and resolve the tax strategy for an address.
+ *
+ * @since 1.0.0
+ */
 class Tax
 {
     /**
-     * Get tax strategy for a given address.
+     * Get tax strategy for a country.
      *
-     * @param array $address
+     * Returns null when the country is empty or no strategy can be made for it.
      *
+     * @since 1.0.0
+     *
+     * @param string $country     Country code of the address the tax is calculated from.
+     * @param string $destination Which of the context's addresses that is: an OrderTaxDestination value.
      * @return AbstractTaxStrategy|null
      */
-    public static function get_tax_strategy($address)
+    public static function get_tax_strategy($country, string $destination = OrderTaxDestination::SHIPPING)
     {
-        if (empty($address)) {
+        if (empty($country)) {
             return null;
         }
 
         try {
-            return TaxStrategyFactory::make($address);
+            return TaxStrategyFactory::make($country, $destination);
         } catch (Throwable $e) {
             return null;
         }
+    }
+
+    /**
+     * Get the store's own address.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> Empty when the store has no address set.
+     */
+    public static function get_store_address()
+    {
+        return (array) Settings::get('general.store_address', []);
+    }
+
+    /**
+     * Get the address tax is set to be calculated from.
+     *
+     * @since 1.0.0
+     *
+     * @return string An OrderTaxDestination value, shipping when the setting is missing or unknown.
+     */
+    public static function get_tax_destination()
+    {
+        $destination = Settings::get('tax.tax_destination', OrderTaxDestination::SHIPPING);
+
+        $allowed = [OrderTaxDestination::SHIPPING, OrderTaxDestination::BILLING, OrderTaxDestination::STORE];
+
+        return in_array($destination, $allowed, true) ? $destination : OrderTaxDestination::SHIPPING;
     }
 
     /**
@@ -46,7 +86,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return bool True when at least one tax region is set up.
      */
     public static function is_tax_configured()
     {
@@ -58,7 +98,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return array
+     * @return array[] Configured tax regions, empty when none exist.
      */
     public static function get_tax_regions()
     {
@@ -70,7 +110,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return bool True when catalog prices already include tax.
      */
 
     public static function is_tax_inclusive()
@@ -83,7 +123,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return bool True when tax is enabled and at least one tax region is configured.
      */
     public static function should_calculate_tax()
     {
@@ -95,7 +135,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return bool True when tax is calculated, prices are tax-inclusive and the inclusive-price display setting is on.
      */
     public static function should_show_incl_tax_on_shop_page()
     {

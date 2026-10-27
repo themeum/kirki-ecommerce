@@ -48,10 +48,13 @@ const styles = defineStyles({
       maxWidth: '752px',
     },
     lg: {
-      maxWidth: '900px',
+      maxWidth: '960px',
     },
     xl: {
       maxWidth: '1024px',
+    },
+    xxl: {
+      maxWidth: '1200px',
     },
     fullWidth: {
       maxWidth: '100%',

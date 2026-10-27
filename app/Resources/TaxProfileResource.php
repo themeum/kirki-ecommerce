@@ -2,14 +2,23 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 
+/**
+ * API resource for a tax profile.
+ *
+ * @since 1.0.0
+ */
 class TaxProfileResource extends Resource
 {
     /**
      * Convert the tax profile resource to an array.
      *
-     * @return array The tax profile data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The tax profile data.
      */
     public function to_array()
     {

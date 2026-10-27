@@ -2,14 +2,23 @@
 
 namespace Kirki\Ecommerce\App\Wordpress;
 
-use Kirki\Ecommerce\App\Constants\HookNames;
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Constants\UserRoles;
-use Kirki\Ecommerce\App\Services\EmailService;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerEmailConfirmationMail;
+use Kirki\Ecommerce\App\Services\MailerService;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Wordpress\Constants\Capabilities;
 use Kirki\Ecommerce\Framework\Wordpress\User as FrameworkUser;
 
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * A WordPress user with the plugin's role checks and email verification handling.
+ *
+ * @since 1.0.0
+ */
 class User extends FrameworkUser
 {
     /**
@@ -49,21 +58,25 @@ class User extends FrameworkUser
     public const META_EMAIL_VERIFICATION_EXPIRES_AT = 'kecom_email_verification_expires_at';
 
     /**
-     * Check if the current user is an admin.
+     * Check if the user can manage the store.
+     *
+     * Uses the same capability as the admin API route gate, so any user the gate admits is an admin here.
+     *
+     * @since 1.0.0
      *
      * @return bool
-     * @since 1.0.0
      */
     public function is_admin()
     {
-        return $this->has_role(UserRoles::ADMIN);
+        return user_can($this->get_id(), Capabilities::MANAGE_OPTIONS);
     }
 
     /**
-     * Check if the current user is a customer.
+     * Check if the user has the customer role.
+     *
+     * @since 1.0.0
      *
      * @return bool
-     * @since 1.0.0
      */
     public function is_customer()
     {
@@ -71,10 +84,11 @@ class User extends FrameworkUser
     }
 
     /**
-     * Get the current user active role.
+     * Get the plugin role the user holds, admin taking precedence.
      *
-     * @return string|null
      * @since 1.0.0
+     *
+     * @return string|null Null when the user has neither role.
      */
     public function get_active_role()
     {
@@ -90,7 +104,7 @@ class User extends FrameworkUser
     }
 
     /**
-     * Check if the current user email is verified.
+     * Check if the user's email is verified.
      *
      * @since 1.0.0
      *
@@ -102,11 +116,11 @@ class User extends FrameworkUser
     }
 
     /**
-     * Mark the current user email as verified.
+     * Mark the user's email as verified and clear any pending verification token.
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return int|bool Result of update_user_meta() for the verified flag.
      */
     public function mark_email_as_verified()
     {
@@ -115,18 +129,18 @@ class User extends FrameworkUser
         $updated = update_user_meta($this->get_id(), static::META_EMAIL_VERIFIED, 1);
 
         if ($updated) {
-            do_action(HookNames::USER_EMAIL_VERIFIED, $this);
+            do_action(DevHookNames::USER_EMAIL_VERIFIED, $this);
         }
 
         return $updated;
     }
 
     /**
-     * Mark the current user email as unverified.
+     * Mark the user's email as unverified.
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return int|bool Result of update_user_meta().
      */
     public function mark_email_as_unverified()
     {
@@ -134,11 +148,11 @@ class User extends FrameworkUser
     }
 
     /**
-     * Get email verification token.
+     * Get the stored email verification token.
      *
      * @since 1.0.0
      *
-     * @return string|null
+     * @return string Empty string when no token is stored.
      */
     public function get_email_verification_token()
     {
@@ -146,12 +160,12 @@ class User extends FrameworkUser
     }
 
     /**
-     * Set email verification token.
+     * Store the email verification token.
+     *
+     * @since 1.0.0
      *
      * @param string $token Verification token.
-     *
-     * @return bool
-     * @since 1.0.0
+     * @return int|bool Result of update_user_meta().
      */
     public function set_email_verification_token(string $token)
     {
@@ -159,11 +173,11 @@ class User extends FrameworkUser
     }
 
     /**
-     * Get email verification sent timestamp.
+     * Get the timestamp the verification email was last sent.
      *
      * @since 1.0.0
      *
-     * @return int|null
+     * @return int Unix timestamp, or 0 when none is stored.
      */
     public function get_email_verification_sent_at()
     {
@@ -173,13 +187,12 @@ class User extends FrameworkUser
     }
 
     /**
-     * Set email verification sent timestamp.
+     * Store the timestamp the verification email was sent.
      *
      * @since 1.0.0
      *
-     * @param int|null $timestamp Timestamp (defaults to current time).
-     *
-     * @return bool
+     * @param int|null $timestamp Unix timestamp; defaults to the current time.
+     * @return int|bool Result of update_user_meta().
      */
     public function set_email_verification_sent_at(?int $timestamp = null)
     {
@@ -187,11 +200,11 @@ class User extends FrameworkUser
     }
 
     /**
-     * Get email verification expiration timestamp.
+     * Get the timestamp the verification token expires at.
      *
      * @since 1.0.0
      *
-     * @return int|null
+     * @return int Unix timestamp, or 0 when none is stored.
      */
     public function get_email_verification_expires_at()
     {
@@ -201,13 +214,12 @@ class User extends FrameworkUser
     }
 
     /**
-     * Set email verification expiration timestamp.
+     * Store the timestamp the verification token expires at.
      *
      * @since 1.0.0
      *
-     * @param int $timestamp Expiry timestamp.
-     *
-     * @return bool
+     * @param int $timestamp Expiry Unix timestamp.
+     * @return int|bool Result of update_user_meta().
      */
     public function set_email_verification_expires_at(int $timestamp)
     {
@@ -215,11 +227,11 @@ class User extends FrameworkUser
     }
 
     /**
-     * Check if email verification token is expired.
+     * Check if the verification token has expired.
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return bool True when it has expired or no expiry is stored.
      */
     public function is_email_verification_expired()
     {
@@ -233,7 +245,7 @@ class User extends FrameworkUser
     }
 
     /**
-     * Clear all email verification token data.
+     * Delete the verification token and its sent and expiry timestamps.
      *
      * @since 1.0.0
      *
@@ -251,8 +263,7 @@ class User extends FrameworkUser
      *
      * @since 1.0.0
      *
-     * @param int|null $expires_in Expiration time in seconds (defaults to 24 hours).
-     *
+     * @param int|null $expires_in Lifetime in seconds; defaults to 24 hours.
      * @return string The generated token.
      */
     public function generate_verification_token(?int $expires_in = null): string
@@ -268,7 +279,7 @@ class User extends FrameworkUser
     }
 
     /**
-     * Resend verification email to the user.
+     * Generate a new verification token and email the user a link to verify with it.
      *
      * @since 1.0.0
      *
@@ -283,17 +294,16 @@ class User extends FrameworkUser
             'token'  => $token,
         ]);
 
-        return app(EmailService::class)->send_verification_email($this, $verify_url);
+        return app(MailerService::class)->send(CustomerEmailConfirmationMail::make($this, $verify_url), $this->get_email());
     }
 
     /**
-     * Verify email with token.
+     * Verify the user's email if the token matches the stored one and has not expired.
      *
      * @since 1.0.0
      *
-     * @param string $token Verification token.
-     *
-     * @return bool
+     * @param string $token Verification token from the link.
+     * @return bool Whether the email is now verified.
      */
     public function verify_email_by_token(string $token)
     {

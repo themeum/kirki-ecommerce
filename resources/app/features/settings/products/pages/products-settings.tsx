@@ -13,7 +13,7 @@ import {
   ProductsSettingsFormSchema,
 } from '@/features/settings/products/schemas/forms/products-settings-form';
 import ProductsSettingsSkeleton from '@/features/settings/products/skeletons/products-settings-skeleton';
-import { ProductSettingsIcon } from '@/icons';
+import { ProductSettingsIcon } from '@/icons/common';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';

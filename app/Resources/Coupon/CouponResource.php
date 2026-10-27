@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Coupon;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
@@ -14,12 +16,19 @@ use Kirki\Ecommerce\App\Resources\Product\ProductListWithVariantsResource;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 
+/**
+ * API resource for a coupon with its eligibility rules and related records.
+ *
+ * @since 1.0.0
+ */
 class CouponResource extends Resource
 {
     /**
      * Convert the coupon resource to an array.
      *
-     * @return array The coupon data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The coupon data, including targeted categories, products and customers.
      */
     public function to_array()
     {

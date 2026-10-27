@@ -1,10 +1,17 @@
 import type { CellContext, Column } from '@tanstack/react-table';
-import { type KeyboardEvent, type ReactNode, useEffect, useRef } from 'react';
+import {
+  type KeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+} from 'react';
 
 import { getPinnedCss, getPinningStyle } from '@/components/data-table/column-styles';
 import type { DataTableItem } from '@/components/data-table/types';
 import { TableCell } from '@/components/ui/table';
 import {
+  AvailabilityControl,
   CheckboxControl,
   MoneyControl,
   NumberControl,
@@ -74,6 +81,8 @@ const renderControl = (
       return <ShippingBoxControl rowIndex={rowIndex} active={active} />;
     case 'weight':
       return <WeightControl rowIndex={rowIndex} active={active} />;
+    case 'availability':
+      return <AvailabilityControl rowIndex={rowIndex} active={active} />;
     case 'tax-profile':
       return gateOpen ? (
         <ProfileSelectControl
@@ -110,6 +119,16 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
   const selection = useCellSelection();
   const options = useBulkEditOptions();
   const gateOpen = useGateOpen(rowIndex, meta?.gatedBy);
+  /**
+   * Availability is the one column whose editable kind is per row rather than
+   * per column: it is a typeable number while the row tracks inventory, and a
+   * dropdown — which has no typed value to seed — while it does not. The
+   * keydown handler in cell-selection-context.tsx reads this attribute off the
+   * DOM, so making it row-derived here is all that path needs.
+   */
+  const tracksInventory = useGateOpen(rowIndex, 'track_inventory');
+  const editableKind =
+    cellKind === 'availability' && !tracksInventory ? 'other' : editableKindOf(cellKind);
 
   const isSelected = useIsCellSelected(field, rowIndex);
   const isFilled = useIsCellFilled(field, rowIndex);
@@ -160,6 +179,34 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
     }
   }, [isSelected, isActive, selectable, cellKind]);
 
+  /**
+   * A press that activates the cell has its default suppressed, because the
+   * browser's default mousedown action is to focus the nearest focusable
+   * ancestor — this `<td>`, which carries `tabIndex={0}`. For a cell whose
+   * activation opens a non-modal overlay (Base price per unit), that focus
+   * shift landed *after* the overlay had opened, so Radix saw focus leave the
+   * layer and dismissed it: the dialog opened and closed within one click, and
+   * only a third click appeared to work. The activation effect above focuses
+   * the right control explicitly, so nothing is lost by suppressing it.
+   *
+   * A press on an already-active cell reports `false` and keeps its default,
+   * which is what still lets the merchant click into an active input to place
+   * a caret.
+   */
+  const handleMouseDown = (event: ReactMouseEvent<HTMLTableCellElement>) => {
+    const activated = selection.onCellMouseDown(
+      field,
+      rowIndex,
+      true,
+      event.shiftKey,
+      event.metaKey || event.ctrlKey,
+    );
+
+    if (activated) {
+      event.preventDefault();
+    }
+  };
+
   const handleKeyDown = (event: KeyboardEvent<HTMLTableCellElement>) => {
     if (!selectable) {
       return;
@@ -182,22 +229,11 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
       tabIndex={selectable ? 0 : undefined}
       data-bulk-row={selectable ? rowIndex : undefined}
       data-bulk-field={selectable ? field : undefined}
-      data-bulk-editable-kind={selectable ? editableKindOf(cellKind) : undefined}
+      data-bulk-editable-kind={selectable ? editableKind : undefined}
       data-bulk-cell={isFilled ? 'fill' : isSelected ? 'selected' : undefined}
       data-bulk-focus={isFocusCell ? 'true' : undefined}
       data-cell-kind={cellKind}
-      onMouseDown={
-        selectable
-          ? (event) =>
-              selection.onCellMouseDown(
-                field,
-                rowIndex,
-                true,
-                event.shiftKey,
-                event.metaKey || event.ctrlKey,
-              )
-          : undefined
-      }
+      onMouseDown={selectable ? handleMouseDown : undefined}
       onMouseEnter={
         selectable ? () => selection.onCellMouseEnter(field, rowIndex, true) : undefined
       }

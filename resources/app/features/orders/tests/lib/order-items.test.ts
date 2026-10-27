@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import {
   flattenSelections,
   getDisplayByVariantId,
+  getMaxQuantity,
   getOrderRows,
+  getQuantityLimit,
   mergeSelections,
   type PickedItem,
 } from '@/features/orders/lib/order-items';
@@ -23,6 +25,11 @@ const productVariant = (
   variantLabel: 'Default',
   thumbnail: null,
   inStock: true,
+  availableQuantity: 10,
+  allowBackOrder: false,
+  trackInventory: true,
+  hasLimitPerOrder: false,
+  maxPerOrder: null,
   regularPrice: money(10),
   salePrice: null,
   ...overrides,
@@ -53,8 +60,8 @@ describe('flattenSelections', () => {
     ];
 
     expect(flattenSelections(selections)).toEqual([
-      { variantId: 101, variantLabel: 'S', thumbnail: null, inStock: true, regularPrice: money(10), salePrice: null, productId: 1, productTitle: 'Shirt' },
-      { variantId: 102, variantLabel: 'M', thumbnail: null, inStock: true, regularPrice: money(10), salePrice: null, productId: 1, productTitle: 'Shirt' },
+      { ...productVariant({ variantId: 101, variantLabel: 'S' }), productId: 1, productTitle: 'Shirt' },
+      { ...productVariant({ variantId: 102, variantLabel: 'M' }), productId: 1, productTitle: 'Shirt' },
     ]);
   });
 });
@@ -145,5 +152,155 @@ describe('mergeSelections', () => {
     const pickedItems: PickedItem[] = [{ variant_id: 101, quantity: 5 }];
 
     expect(mergeSelections(pickedItems, [])).toEqual([]);
+  });
+});
+
+describe('getMaxQuantity', () => {
+  it('caps at available stock when inventory is tracked and backorder is not allowed', () => {
+    const display = flattenSelections([
+      product({ variants: [productVariant({ availableQuantity: 4, trackInventory: true, allowBackOrder: false })] }),
+    ])[0];
+
+    expect(getMaxQuantity(display)).toBe(4);
+  });
+
+  it('is uncapped when the variant is backorder-eligible, even with a stock figure on record', () => {
+    const display = flattenSelections([
+      product({ variants: [productVariant({ availableQuantity: 4, trackInventory: true, allowBackOrder: true })] }),
+    ])[0];
+
+    expect(getMaxQuantity(display)).toBeUndefined();
+  });
+
+  it('is uncapped when inventory is not tracked at all', () => {
+    const display = flattenSelections([
+      product({ variants: [productVariant({ availableQuantity: 4, trackInventory: false, allowBackOrder: false })] }),
+    ])[0];
+
+    expect(getMaxQuantity(display)).toBeUndefined();
+  });
+
+  it('caps at the per-order limit independent of stock', () => {
+    const display = flattenSelections([
+      product({
+        variants: [
+          productVariant({
+            availableQuantity: 100,
+            trackInventory: true,
+            allowBackOrder: false,
+            hasLimitPerOrder: true,
+            maxPerOrder: 3,
+          }),
+        ],
+      }),
+    ])[0];
+
+    expect(getMaxQuantity(display)).toBe(3);
+  });
+
+  it('uses the stricter of the two ceilings when both a stock limit and a per-order limit apply', () => {
+    const display = flattenSelections([
+      product({
+        variants: [
+          productVariant({
+            availableQuantity: 2,
+            trackInventory: true,
+            allowBackOrder: false,
+            hasLimitPerOrder: true,
+            maxPerOrder: 5,
+          }),
+        ],
+      }),
+    ])[0];
+
+    expect(getMaxQuantity(display)).toBe(2);
+  });
+});
+
+/**
+ * `sprintf` is the identity-ish fallback from `@/wpi18n` here (no
+ * `window.wp.i18n` in the test environment: it just joins the format string
+ * and its args with spaces), so these assert the terms that reach the
+ * message rather than the assembled sentence.
+ */
+describe('getQuantityLimit', () => {
+  it('reports a stock-left reason when only the stock ceiling applies', () => {
+    const display = flattenSelections([
+      product({ variants: [productVariant({ availableQuantity: 4, trackInventory: true, allowBackOrder: false })] }),
+    ])[0];
+
+    const result = getQuantityLimit(display);
+    expect(result?.max).toBe(4);
+    expect(result?.reason).toContain('stock');
+    expect(result?.reason).toContain('4');
+  });
+
+  it('reports a per-order reason when only the per-order limit applies', () => {
+    const display = flattenSelections([
+      product({
+        variants: [
+          productVariant({
+            availableQuantity: 100,
+            trackInventory: true,
+            allowBackOrder: false,
+            hasLimitPerOrder: true,
+            maxPerOrder: 3,
+          }),
+        ],
+      }),
+    ])[0];
+
+    const result = getQuantityLimit(display);
+    expect(result?.max).toBe(3);
+    expect(result?.reason).toContain('per order');
+    expect(result?.reason).toContain('3');
+  });
+
+  it('reports the stock reason when both ceilings apply and stock is the stricter (or tied) one', () => {
+    const display = flattenSelections([
+      product({
+        variants: [
+          productVariant({
+            availableQuantity: 2,
+            trackInventory: true,
+            allowBackOrder: false,
+            hasLimitPerOrder: true,
+            maxPerOrder: 5,
+          }),
+        ],
+      }),
+    ])[0];
+
+    const result = getQuantityLimit(display);
+    expect(result?.max).toBe(2);
+    expect(result?.reason).toContain('stock');
+  });
+
+  it('reports the per-order reason when both ceilings apply and the per-order limit is stricter', () => {
+    const display = flattenSelections([
+      product({
+        variants: [
+          productVariant({
+            availableQuantity: 10,
+            trackInventory: true,
+            allowBackOrder: false,
+            hasLimitPerOrder: true,
+            maxPerOrder: 3,
+          }),
+        ],
+      }),
+    ])[0];
+
+    const result = getQuantityLimit(display);
+    expect(result?.max).toBe(3);
+    expect(result?.reason).toContain('per order');
+  });
+
+  it('returns undefined when neither ceiling applies', () => {
+    const display = flattenSelections([
+      product({ variants: [productVariant({ trackInventory: false, allowBackOrder: true, hasLimitPerOrder: false })] }),
+    ])[0];
+
+    expect(getQuantityLimit(display)).toBeUndefined();
   });
 });

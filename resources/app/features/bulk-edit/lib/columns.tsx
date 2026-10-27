@@ -13,12 +13,13 @@ type BulkEditCellKind =
   | 'text'
   | 'shipping-box'
   | 'weight'
+  | 'availability'
   | 'number'
   | 'readonly-number'
   | 'tax-profile'
   | 'shipping-profile';
 
-type BulkEditGate = 'track_inventory' | 'has_limit_per_order' | 'charge_taxes' | 'show_unit_price';
+type BulkEditGate = 'track_inventory' | 'has_limit_per_order' | 'charge_taxes';
 
 type BulkEditColumnGroup = {
   label: string;
@@ -26,6 +27,8 @@ type BulkEditColumnGroup = {
 };
 
 const ROW_HEIGHT = 32;
+
+const SKU_FIELD = 'sku';
 
 const bulkEditColumns: ColumnDef<ProductVariant>[] = [
   {
@@ -72,24 +75,17 @@ const bulkEditColumns: ColumnDef<ProductVariant>[] = [
     cell: BulkEditCell,
   },
   {
-    id: 'show_unit_price',
-    header: __('Unit price', 'kirki-ecommerce'),
-    size: 100,
-    meta: { cellKind: 'checkbox', alignment: 'center' },
-    cell: BulkEditCell,
-  },
-  {
     id: 'base_price_per_unit',
     header: __('Base price per unit', 'kirki-ecommerce'),
     size: 220,
-    meta: { cellKind: 'unit-price', gatedBy: 'show_unit_price' },
+    meta: { cellKind: 'unit-price' },
     cell: BulkEditCell,
   },
   {
-    id: 'sku',
+    id: SKU_FIELD,
     header: __('SKU', 'kirki-ecommerce'),
-    size: 160,
-    meta: { cellKind: 'text' },
+    size: 260,
+    meta: { cellKind: 'text', alignment: 'center' },
     cell: BulkEditCell,
   },
   {
@@ -115,9 +111,13 @@ const bulkEditColumns: ColumnDef<ProductVariant>[] = [
   },
   {
     id: 'available_quantity',
+    // Deliberately not `gatedBy: 'track_inventory'`: the cell is editable in
+    // both states, showing a quantity when the row tracks inventory and an
+    // In Stock / Out of Stock choice when it does not. The gate is read inside
+    // the control instead, to pick which one to render.
     header: __('Availability', 'kirki-ecommerce'),
-    size: 120,
-    meta: { cellKind: 'number', gatedBy: 'track_inventory', alignment: 'right' },
+    size: 140,
+    meta: { cellKind: 'availability', alignment: 'right' },
     cell: BulkEditCell,
   },
   {
@@ -191,7 +191,6 @@ const bulkEditColumnGroups: BulkEditColumnGroup[] = [
       'base_cost_of_goods',
       'profit',
       'margin',
-      'show_unit_price',
       'base_price_per_unit',
     ],
   },
@@ -216,5 +215,5 @@ const bulkEditColumnGroups: BulkEditColumnGroup[] = [
   },
 ];
 
-export { bulkEditColumnGroups, bulkEditColumns, ROW_HEIGHT };
+export { bulkEditColumnGroups, bulkEditColumns, ROW_HEIGHT, SKU_FIELD };
 export type { BulkEditCellKind, BulkEditColumnGroup, BulkEditGate };

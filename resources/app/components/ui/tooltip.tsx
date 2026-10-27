@@ -28,7 +28,7 @@ const Tooltip = ({
   offset = 2,
   style,
   cssOverride,
-  delayDuration = 200,
+  delayDuration = 400,
   ...rest
 }: TooltipProps) => {
   return (

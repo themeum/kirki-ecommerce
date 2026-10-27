@@ -92,7 +92,7 @@ class MollieTransactionBuilder
             return 0;
         }
 
-        return ($item->invoiced_tax_total / $taxable_base) * 100;
+        return round(($item->invoiced_tax_total / $taxable_base) * 100, 2);
     }
 
     /**

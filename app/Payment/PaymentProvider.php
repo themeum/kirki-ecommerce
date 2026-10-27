@@ -21,6 +21,14 @@ use function Kirki\Ecommerce\Framework\app;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Base class for payment providers.
+ *
+ * Holds the shared settings and state, and defaults for the pay, refund and
+ * webhook steps that concrete providers override.
+ *
+ * @since 1.0.0
+ */
 class PaymentProvider
 {
     /**
@@ -86,7 +94,7 @@ class PaymentProvider
     protected $countries;
 
     /**
-     * Available for all counties or specific.
+     * Available for all countries or specific ones.
      *
      * @var string
      */
@@ -95,9 +103,16 @@ class PaymentProvider
     /**
      * Icon for the provider.
      *
-     * @var string
+     * @var string|null
      */
     protected $icon;
+
+    /**
+     * Media attachment of the provider's icon.
+     *
+     * @var array|null
+     */
+    protected $icon_media;
 
     /**
      * Maximum transaction amount, zero does not define a maximum.
@@ -128,7 +143,9 @@ class PaymentProvider
     protected $settings = [];
 
     /**
-     * Constructor.
+     * Create the provider, loading its saved settings and admin fields.
+     *
+     * @since 1.0.0
      */
     public function __construct()
     {
@@ -140,8 +157,11 @@ class PaymentProvider
     }
 
     /**
-     * Get the icon URL.
+     * Get the URL of a provider's bundled logo.
      *
+     * @since 1.0.0
+     *
+     * @param string $name Provider slug used in the payments/kirki-{name} folder.
      * @return string
      */
     public function icon_url(string $name)
@@ -150,7 +170,9 @@ class PaymentProvider
     }
 
     /**
-     * Set the icon.
+     * Set the provider's icon.
+     *
+     * @since 1.0.0
      *
      * @param string $icon
      * @return void
@@ -161,9 +183,11 @@ class PaymentProvider
     }
 
     /**
-     * Create an offline payment provider from an array.
+     * Create an offline payment provider from a stored offline method.
      *
-     * @param array $data
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Offline method data: id, name, instructions, icon (attachment ID), is_enabled and settings_key.
      * @return static
      */
     public static function from_offline(array $data)
@@ -178,6 +202,7 @@ class PaymentProvider
         $provider->title = $data['name'] ?? '';
         $provider->description = $data['instructions'] ?? '';
         $provider->icon = $icon_url;
+        $provider->icon_media = $attachment;
         $provider->is_enabled = $data['is_enabled'] ?? false;
         $provider->is_offline = true;
         $provider->settings_key = $data['settings_key'] ?? $data['id'];
@@ -186,10 +211,11 @@ class PaymentProvider
     }
 
     /**
-     * Create a payment provider from an array.
+     * Create an online payment provider from an array of its attributes.
      *
-     * @param array $data
+     * @since 1.0.0
      *
+     * @param array<string, mixed> $data Provider data: id, name, instructions, is_enabled, is_available and settings_key.
      * @return static
      */
     public static function make(array $data)
@@ -211,6 +237,8 @@ class PaymentProvider
     /**
      * Get the payment provider ID.
      *
+     * @since 1.0.0
+     *
      * @return string
      */
     public function id()
@@ -219,7 +247,9 @@ class PaymentProvider
     }
 
     /**
-     * Check if the payment provider is enabled.
+     * Check whether the payment provider is enabled.
+     *
+     * @since 1.0.0
      *
      * @return bool
      */
@@ -229,7 +259,9 @@ class PaymentProvider
     }
 
     /**
-     * Check if the payment provider is available.
+     * Check whether the payment provider is available.
+     *
+     * @since 1.0.0
      *
      * @return bool
      */
@@ -239,7 +271,9 @@ class PaymentProvider
     }
 
     /**
-     * Set whether the payment provider is enabled.
+     * Set whether the payment provider is enabled and persist its settings.
+     *
+     * @since 1.0.0
      *
      * @param bool $is_enabled
      * @return void
@@ -251,7 +285,9 @@ class PaymentProvider
     }
 
     /**
-     * Check if the payment provider is offline.
+     * Check whether the payment provider is an offline method.
+     *
+     * @since 1.0.0
      *
      * @return bool
      */
@@ -261,7 +297,9 @@ class PaymentProvider
     }
 
     /**
-     * Check if the payment provider has fields.
+     * Check whether the provider shows fields on the checkout.
+     *
+     * @since 1.0.0
      *
      * @return bool
      */
@@ -271,7 +309,9 @@ class PaymentProvider
     }
 
     /**
-     * Return the title.
+     * Get the provider title shown on the frontend.
+     *
+     * @since 1.0.0
      *
      * @return string
      */
@@ -281,7 +321,9 @@ class PaymentProvider
     }
 
     /**
-     * Return the description.
+     * Get the provider description shown on the frontend.
+     *
+     * @since 1.0.0
      *
      * @return string
      */
@@ -291,9 +333,11 @@ class PaymentProvider
     }
 
     /**
-     * Return the icon.
+     * Get the provider icon.
      *
-     * @return string
+     * @since 1.0.0
+     *
+     * @return string|null
      */
     public function icon()
     {
@@ -301,7 +345,21 @@ class PaymentProvider
     }
 
     /**
-     * Return the maximum amount.
+     * Get the provider icon media attachment.
+     *
+     * @since 1.0.0
+     *
+     * @return array|null
+     */
+    public function icon_media()
+    {
+        return $this->icon_media;
+    }
+
+    /**
+     * Get the maximum transaction amount; zero means no maximum.
+     *
+     * @since 1.0.0
      *
      * @return int
      */
@@ -311,7 +369,9 @@ class PaymentProvider
     }
 
     /**
-     * Return the admin fields.
+     * Get the fields shown on the provider's admin settings screen.
+     *
+     * @since 1.0.0
      *
      * @return array
      */
@@ -321,9 +381,12 @@ class PaymentProvider
     }
 
     /**
-     * Set the admin fields.
+     * Set the fields shown on the provider's admin settings screen.
+     *
+     * @since 1.0.0
      *
      * @param array $admin_fields
+     * @return void
      */
     public function set_admin_fields(array $admin_fields)
     {
@@ -331,7 +394,9 @@ class PaymentProvider
     }
 
     /**
-     * Return the settings.
+     * Get the provider's saved settings, without the is_enabled flag.
+     *
+     * @since 1.0.0
      *
      * @return array
      */
@@ -344,15 +409,18 @@ class PaymentProvider
     }
 
     /**
-     * Save the settings.
+     * Sanitize, validate and persist the provider settings.
      *
-     * @param array $settings
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $settings
      * @return bool
-     *
-     * @throws ValidationException
+     * @throws ValidationException When the settings are invalid.
      */
     public function save_settings(array $settings)
     {
+        $settings = $this->sanitize_settings($settings);
+
         $this->validate_settings($settings);
 
         $this->is_enabled = (bool) $this->is_enabled;
@@ -362,18 +430,18 @@ class PaymentProvider
     }
 
     /**
-     * Process Payment.
+     * Process the payment for an order and return the next step for the customer.
      *
-     * Process the payment. Override this in your provider.
-     *
-     * The returned "type" tells the frontend how to consume "value":
+     * Override this in your provider. The returned "type" tells the frontend
+     * how to consume "value":
      * - PaymentActionType::REDIRECT: "value" is a URL to redirect the customer to.
      * - PaymentActionType::HTML: "value" is markup to render inline (e.g. an auto-submitting form).
      *
+     * @since 1.0.0
+     *
      * @param Order $order Order.
      * @return PaymentActionDTO
-     *
-     * @throws Exception
+     * @throws Exception When the provider cannot start the payment.
      */
     public function pay(Order $order)
     {
@@ -384,13 +452,15 @@ class PaymentProvider
     }
 
     /**
-     * Process refund.
+     * Refund a payment through the provider.
      *
-     * If the provider declares 'refunds' support, this will allow it to refund.
-     * a passed in amount.
+     * Providers that support refunds override this to refund the amount of the
+     * given refund. The base implementation reports success without doing anything.
      *
-     * @param  Order        $order Order.
-     * @param  Refund       $refund Refund.
+     * @since 1.0.0
+     *
+     * @param Order  $order  Order.
+     * @param Refund $refund Refund.
      * @return bool|\WP_Error True or false based on success, or a WP_Error object.
      */
     public function refund(Order $order, Refund $refund)
@@ -399,9 +469,11 @@ class PaymentProvider
     }
 
     /**
-     * Validate frontend fields.
+     * Validate the payment fields shown on the checkout.
      *
-     * Validate payment fields on the frontend.
+     * The base implementation accepts everything.
+     *
+     * @since 1.0.0
      *
      * @return bool
      */
@@ -411,10 +483,13 @@ class PaymentProvider
     }
 
     /**
-     * Default payment fields display. Override this in your provider to customize displayed fields.
+     * Render the payment fields shown on the checkout.
      *
-     * By default this renders the payment provider description.
+     * Does nothing by default; override in your provider.
      *
+     * @since 1.0.0
+     *
+     * @return void
      */
     public function payment_fields()
     {
@@ -422,7 +497,12 @@ class PaymentProvider
     }
 
     /**
-     * Webhook handler.
+     * Handle a webhook request sent by the payment gateway.
+     *
+     * The base implementation reports success. Return a WebhookResult to control
+     * the raw response body.
+     *
+     * @since 1.0.0
      *
      * @return bool|WebhookResult
      */
@@ -432,7 +512,12 @@ class PaymentProvider
     }
 
     /**
-     * Get the webhook URL.
+     * Get the URL the gateway should send webhooks to.
+     *
+     * In dev mode, a valid KECOM_WEBHOOK_BASE_URL constant replaces the site's
+     * origin, so a tunnel can reach a local site.
+     *
+     * @since 1.0.0
      *
      * @return string
      */
@@ -458,7 +543,9 @@ class PaymentProvider
     }
 
     /**
-     * Get the webhook events.
+     * Get the names of the webhook events the provider listens for.
+     *
+     * @since 1.0.0
      *
      * @return array
      */
@@ -467,6 +554,15 @@ class PaymentProvider
         return [];
     }
 
+    /**
+     * Define the provider's admin fields.
+     *
+     * Does nothing by default; override in your provider.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function init_admin_fields()
     {
         // Implement this in your provider.
@@ -475,10 +571,11 @@ class PaymentProvider
     /**
      * Validate the settings for admin screens.
      *
-     * @param array $settings
-     * @return bool
+     * @since 1.0.0
      *
-     * @throws ValidationException
+     * @param array<string, mixed> $settings
+     * @return bool
+     * @throws ValidationException When the settings are invalid.
      */
     protected function validate_settings(array $settings)
     {
@@ -488,8 +585,10 @@ class PaymentProvider
     /**
      * Sanitize the settings for admin screens.
      *
-     * @param array $settings
-     * @return array
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $settings
+     * @return array<string, mixed>
      */
     protected function sanitize_settings(array $settings)
     {
@@ -497,7 +596,9 @@ class PaymentProvider
     }
 
     /**
-     * Initialize the settings for admin screens.
+     * Load the saved settings from the options table.
+     *
+     * @since 1.0.0
      *
      * @return void
      */
@@ -507,9 +608,13 @@ class PaymentProvider
     }
 
     /**
-     * Get the return URL for the payment provider.
+     * Get the URL to send the customer to after the payment step.
      *
-     * @param Order $order Order.
+     * Uses the order's checkout success URL, or the home URL without an order.
+     *
+     * @since 1.0.0
+     *
+     * @param Order|null $order Order.
      * @return string
      */
     protected function return_url($order)
@@ -521,6 +626,15 @@ class PaymentProvider
         return home_url();
     }
 
+    /**
+     * Build a pipe-separated summary of an order item's price, quantity, subtotal, discount and tax.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderItem $order_item
+     * @param string|null                           $currency   Currency code used to format the amounts.
+     * @return string
+     */
     protected function get_item_description($order_item, $currency = null)
     {
         $parts = [];
@@ -568,9 +682,11 @@ class PaymentProvider
     }
 
     /**
-     * Format amount.
+     * Format a minor amount as a two-decimal string for gateway APIs.
      *
-     * @param int $amount
+     * @since 1.0.0
+     *
+     * @param int    $amount   Amount in minor units.
      * @param string $currency The order's currency code.
      * @return string
      */
@@ -585,6 +701,8 @@ class PaymentProvider
      * Gateways that return the customer to this URL after payment override this
      * to confirm the result and return where to send them next. Returning null
      * gives a plain 200, which is enough for gateways that only check the URL is reachable.
+     *
+     * @since 1.0.0
      *
      * @param Request $request
      * @return RedirectResponse|null

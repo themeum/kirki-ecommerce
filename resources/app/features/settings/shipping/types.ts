@@ -42,7 +42,7 @@ type ShippingMethodData = {
   type: string;
   name?: string;
   is_enabled?: boolean;
-  zoneId?: string | number;
+  zoneId: string | number;
   icon?: ReactNode;
   subText?: string;
   rightText?: string;

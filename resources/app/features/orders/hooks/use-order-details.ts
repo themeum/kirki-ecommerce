@@ -27,6 +27,8 @@ type UseOrderDetailsResult = {
   order: ReturnType<typeof useOrderQuery>['data'];
   isLoading: boolean;
   isError: boolean;
+  isFetching: boolean;
+  refetch: () => void;
   form: UseFormReturn<OrderFormInput, unknown, OrderFormPayload>;
   paymentBadge: ReturnType<typeof getPaymentBadgeInfo> | undefined;
   fulfillmentBadge: ReturnType<typeof getFulfillmentBadgeInfo> | undefined;
@@ -45,14 +47,20 @@ type UseOrderDetailsResult = {
     tracking_url: string;
   }) => void;
   handleMarkAsPaid: (paymentProvider: string) => void;
-  handleSaveOrder: () => void;
+  handleSaveOrder: () => Promise<boolean>;
 };
 
 export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult => {
   const [isTrackingDialogOpen, setIsTrackingDialogOpen] = useState(false);
   const [isMarkAsPaidDialogOpen, setIsMarkAsPaidDialogOpen] = useState(false);
 
-  const { data: order, isLoading, isError } = useOrderQuery(id!, Boolean(id));
+  const {
+    data: order,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useOrderQuery(id!, Boolean(id));
   const actionMutation = useOrderActionMutation();
   const updateMutation = useUpdateOrderMutation();
 
@@ -122,21 +130,30 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
     );
   };
 
-  const handleSaveOrder = form.handleSubmit(async (payload) => {
-    if (!order) {
-      return;
-    }
-    try {
-      await updateMutation.mutateAsync({ id: order.id, data: payload });
-    } catch (error) {
-      applyServerErrors(form, error as ErrorResponse);
-    }
-  });
+  const handleSaveOrder = async () => {
+    let isSaved = false;
+
+    await form.handleSubmit(async (payload) => {
+      if (!order) {
+        return;
+      }
+      try {
+        await updateMutation.mutateAsync({ id: order.id, data: payload });
+        isSaved = true;
+      } catch (error) {
+        applyServerErrors(form, error as ErrorResponse);
+      }
+    })();
+
+    return isSaved;
+  };
 
   return {
     order,
     isLoading,
     isError,
+    isFetching,
+    refetch: () => void refetch(),
     form,
     paymentBadge: order ? getPaymentBadgeInfo(order.payment_status) : undefined,
     fulfillmentBadge: order ? getFulfillmentBadgeInfo(order.fulfillment_status) : undefined,

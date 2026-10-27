@@ -1,4 +1,4 @@
-import type { FulfillmentStatus, OrderItem, OrderStatus, PaymentStatus } from '@/features/orders/schemas/catalog/order';
+import type { FulfillmentStatus, Order, OrderStatus, PaymentStatus } from '@/features/orders/schemas/catalog/order';
 import { __ } from '@/wpi18n';
 import orderStateMatrix from '@data/order-state-matrix.json';
 
@@ -93,7 +93,7 @@ const getActionLabel = (action: OrderAction): string => {
   return labels[action];
 };
 
-const isActionAvailable = (order: OrderItem, action: OrderAction): boolean => {
+const isActionAvailable = (order: Order, action: OrderAction): boolean => {
   const state = ORDER_STATE_MATRIX[order.status];
 
   if (!state) {
@@ -107,7 +107,7 @@ const isActionAvailable = (order: OrderItem, action: OrderAction): boolean => {
   );
 };
 
-const getAvailableActions = (order: OrderItem, group: OrderAction[]): OrderAction[] =>
+const getAvailableActions = (order: Order, group: OrderAction[]): OrderAction[] =>
   group.filter((action) => isActionAvailable(order, action));
 
 export {

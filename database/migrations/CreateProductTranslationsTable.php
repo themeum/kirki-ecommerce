@@ -2,12 +2,26 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_product_translations table, which stores per-language product content.
+ *
+ * @since 1.0.0
+ */
 class CreateProductTranslationsTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_product_translations table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_product_translations', function (Structure $table) {
@@ -24,20 +38,27 @@ class CreateProductTranslationsTable implements Migration
 
             $table->timestamps();
 
-            $table->unique(['product_id', 'language_code'], 'unique_product_language');
-            $table->index('language_code');
+            $table->unique(['product_id', 'language_code'], 'uq_kecom_product_translations_product_id_language_code');
+            $table->index('language_code', 'idx_kecom_product_translations_language_code');
 
-            $table->foreign('product_id')
+            $table->foreign('product_id', 'fk_kecom_product_translations_product_id')
                 ->references('id')
                 ->on('kirki_ecommerce_products')
                 ->cascade_on_delete();
-            $table->foreign('language_code')
+            $table->foreign('language_code', 'fk_kecom_product_translations_language_code')
                 ->references('code')
                 ->on('kirki_ecommerce_languages')
                 ->cascade_on_delete();
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_product_translations table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_product_translations');

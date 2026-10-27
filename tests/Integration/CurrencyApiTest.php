@@ -3,10 +3,24 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Models\Currency;
+use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CurrencyApiTest extends RestTestCase
 {
+    use CreatesTestProducts;
+
+    /**
+     * Counter that makes every generated currency code unique.
+     *
+     * @var int
+     * @since 1.0.0
+     */
+    protected static $currency_code_sequence = 0;
+
     /**
      * Currency id for the current test.
      *
@@ -153,6 +167,39 @@ class CurrencyApiTest extends RestTestCase
     }
 
     /**
+     * A former base currency can be deleted while products created under it still exist.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_delete_former_base_currency_with_existing_products(): void
+    {
+        // Real ISO codes: creating a product formats its prices in the base currency. MoneyManager
+        // keeps the base currency for the whole process, so reload it after each base change the
+        // way a new request would, and drop it afterwards so later tests don't inherit it.
+        try {
+            $old_base = $this->create_currency(['code' => 'EUR', 'name' => 'Old Base', 'is_base' => true]);
+            Money::load_base_currency();
+            $product = $this->create_product();
+            $new_base = $this->create_currency(['code' => 'GBP', 'name' => 'New Base']);
+
+            $this->assert_api_success($this->request('PUT', 'currencies', [
+                'items' => [$this->currency_row($new_base, true)],
+            ]), 201);
+
+            $response = $this->request('DELETE', 'currencies/' . $old_base['id']);
+            $payload = $this->assert_api_success($response);
+
+            $this->assertTrue($payload['data']);
+
+            Money::load_base_currency();
+            $this->assert_api_success($this->request('GET', 'products/' . $product['id']));
+        } finally {
+            static::forget_singleton(MoneyManager::class);
+        }
+    }
+
+    /**
      * Create currency validation fails without items.
      *
      * @return void
@@ -244,6 +291,216 @@ class CurrencyApiTest extends RestTestCase
     }
 
     /**
+     * Setting a new base with a single-row request demotes the previous base.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_single_row_request_setting_new_base_leaves_exactly_one_base(): void
+    {
+        $old_base = $this->create_currency(['name' => 'Old Base', 'is_base' => true]);
+        $new_base = $this->create_currency(['name' => 'New Base']);
+
+        $response = $this->request('PUT', 'currencies', [
+            'items' => [$this->currency_row($new_base, true)],
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertArrayNotHasKey('errors', $payload);
+        $this->assertSame([$new_base['id']], $this->base_currency_ids());
+        $this->assertNotContains($old_base['id'], $this->base_currency_ids());
+    }
+
+    /**
+     * A whole-list request sending the old base before the new base leaves one base.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_whole_list_request_with_old_base_first_leaves_exactly_one_base(): void
+    {
+        $old_base = $this->create_currency(['name' => 'Old Base', 'is_base' => true]);
+        $new_base = $this->create_currency(['name' => 'New Base']);
+
+        $response = $this->request('PUT', 'currencies', [
+            'items' => [
+                $this->currency_row($old_base, false),
+                $this->currency_row($new_base, true),
+            ],
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertArrayNotHasKey('errors', $payload);
+        $this->assertSame([$new_base['id']], $this->base_currency_ids());
+    }
+
+    /**
+     * A whole-list request sending the new base before the old base leaves one base.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_whole_list_request_with_new_base_first_leaves_exactly_one_base(): void
+    {
+        $old_base = $this->create_currency(['name' => 'Old Base', 'is_base' => true]);
+        $new_base = $this->create_currency(['name' => 'New Base']);
+
+        $response = $this->request('PUT', 'currencies', [
+            'items' => [
+                $this->currency_row($new_base, true),
+                $this->currency_row($old_base, false),
+            ],
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertArrayNotHasKey('errors', $payload);
+        $this->assertSame([$new_base['id']], $this->base_currency_ids());
+    }
+
+    /**
+     * Clearing the flag on the only base keeps it as the base.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_clearing_the_only_base_keeps_it_as_base(): void
+    {
+        $base = $this->create_currency(['name' => 'Only Base', 'is_base' => true]);
+
+        $response = $this->request('PUT', 'currencies', [
+            'items' => [array_merge($this->currency_row($base, false), ['name' => 'Renamed Base'])],
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertTrue($payload['data'][0]['is_base']);
+        $this->assertEquals('Renamed Base', $payload['data'][0]['name']);
+        $this->assertSame([$base['id']], $this->base_currency_ids());
+    }
+
+    /**
+     * Creating a currency as base demotes the previous base.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_creating_a_currency_as_base_leaves_exactly_one_base(): void
+    {
+        $old_base = $this->create_currency(['name' => 'Old Base', 'is_base' => true]);
+        $this->assertSame([$old_base['id']], $this->base_currency_ids());
+
+        $new_base = $this->create_currency(['name' => 'New Base', 'is_base' => true]);
+
+        $this->assertSame([$new_base['id']], $this->base_currency_ids());
+    }
+
+    /**
+     * Creating two base currencies in one request is rejected and inserts nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_creating_two_base_currencies_in_one_request_is_rejected(): void
+    {
+        $existing_base = $this->create_currency(['name' => 'Existing Base', 'is_base' => true]);
+        $first_code = $this->unique_currency_code();
+        $second_code = $this->unique_currency_code();
+
+        $response = $this->request('POST', 'currencies', [
+            'items' => [
+                ['code' => $first_code, 'name' => 'First', 'symbol' => '$', 'exchange_rate' => 1.0, 'is_active' => true, 'is_base' => true],
+                ['code' => $second_code, 'name' => 'Second', 'symbol' => '$', 'exchange_rate' => 1.0, 'is_active' => true, 'is_base' => true],
+            ],
+        ]);
+
+        $this->assert_validation_error($response);
+        $this->assertSame([$existing_base['id']], $this->base_currency_ids());
+
+        foreach ([$first_code, $second_code] as $code) {
+            $list = $this->assert_api_success($this->request('GET', 'currencies', ['search' => $code]));
+            $this->assertCount(0, $list['data']['results']);
+        }
+    }
+
+    /**
+     * Setting a new base recalculates every rate against it and fixes the new base at 1.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_setting_new_base_recalculates_exchange_rates(): void
+    {
+        $old_base = $this->create_currency(['name' => 'Old Base', 'is_base' => true]);
+        $new_base = $this->create_currency(['name' => 'New Base', 'exchange_rate' => 0.5]);
+        $other = $this->create_currency(['name' => 'Other', 'exchange_rate' => 0.25]);
+
+        $response = $this->request('PUT', 'currencies', [
+            'items' => [$this->currency_row($new_base, true)],
+        ]);
+
+        $this->assert_api_success($response, 201);
+        $this->assertSame([$new_base['id']], $this->base_currency_ids());
+        $this->assertEquals(1.0, $this->stored_exchange_rate($new_base['id']));
+        $this->assertEquals(2.0, $this->stored_exchange_rate($old_base['id']));
+        $this->assertEquals(0.5, $this->stored_exchange_rate($other['id']));
+    }
+
+    /**
+     * Updating the base with a rate other than 1 still stores 1 and leaves the other rates.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_updating_the_base_keeps_its_rate_at_one(): void
+    {
+        $base = $this->create_currency(['name' => 'Base', 'is_base' => true]);
+        $other = $this->create_currency(['name' => 'Other', 'exchange_rate' => 0.5]);
+
+        $response = $this->request('PUT', 'currencies', [
+            'items' => [array_merge($this->currency_row($base, true), ['exchange_rate' => 3.0])],
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals(1.0, (float) $payload['data'][0]['exchange_rate']);
+        $this->assertEquals(1.0, $this->stored_exchange_rate($base['id']));
+        $this->assertEquals(0.5, $this->stored_exchange_rate($other['id']));
+    }
+
+    /**
+     * Creating a currency as base recalculates the stored rates against it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_creating_a_currency_as_base_recalculates_exchange_rates(): void
+    {
+        $old_base = $this->create_currency(['name' => 'Old Base', 'is_base' => true]);
+        $other = $this->create_currency(['name' => 'Other', 'exchange_rate' => 0.5]);
+
+        $new_base = $this->create_currency(['name' => 'New Base', 'is_base' => true, 'exchange_rate' => 0.25]);
+
+        $this->assertSame([$new_base['id']], $this->base_currency_ids());
+        $this->assertEquals(1.0, $this->stored_exchange_rate($new_base['id']));
+        $this->assertEquals(4.0, $this->stored_exchange_rate($old_base['id']));
+        $this->assertEquals(2.0, $this->stored_exchange_rate($other['id']));
+    }
+
+    /**
+     * Creating a base currency when the store has no base stores it at rate 1.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_creating_the_first_base_currency_stores_rate_one(): void
+    {
+        Currency::base()->update(['is_base' => 0]);
+
+        $base = $this->create_currency(['name' => 'First Base', 'is_base' => true, 'exchange_rate' => 3.0]);
+
+        $this->assertSame([$base['id']], $this->base_currency_ids());
+        $this->assertEquals(1.0, $this->stored_exchange_rate($base['id']));
+    }
+
+    /**
      * Create currency.
      * @param array $overrides Overrides.
      *
@@ -285,6 +542,63 @@ class CurrencyApiTest extends RestTestCase
     }
 
     /**
+     * Build an update item for a currency from its listed representation.
+     *
+     * @param array $currency Currency as returned by the API.
+     * @param bool  $is_base  Base flag to send.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function currency_row(array $currency, bool $is_base): array
+    {
+        return [
+            'id' => $currency['id'],
+            'code' => $currency['code'],
+            'name' => $currency['name'],
+            'symbol' => $currency['symbol'],
+            'exchange_rate' => (float) $currency['exchange_rate'],
+            'is_active' => true,
+            'is_base' => $is_base,
+        ];
+    }
+
+    /**
+     * IDs of the currencies currently flagged as base.
+     *
+     * @return int[]
+     * @since 1.0.0
+     */
+    protected function base_currency_ids(): array
+    {
+        $response = $this->request('GET', 'currencies', ['limit' => 50]);
+        $payload = $this->assert_api_success($response);
+
+        $ids = [];
+
+        foreach ($payload['data']['results'] as $currency) {
+            if ($currency['is_base']) {
+                $ids[] = $currency['id'];
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Stored exchange rate of a currency.
+     *
+     * @param int $id Currency ID.
+     *
+     * @return float
+     * @since 1.0.0
+     */
+    protected function stored_exchange_rate(int $id): float
+    {
+        return (float) Currency::find($id)->exchange_rate;
+    }
+
+    /**
      * Unique currency code.
      *
      * @return string
@@ -292,6 +606,8 @@ class CurrencyApiTest extends RestTestCase
      */
     protected function unique_currency_code(): string
     {
-        return 'T' . strtoupper(substr(wp_generate_password(4, false), 0, 2));
+        static::$currency_code_sequence++;
+
+        return 'T' . strtoupper(base_convert((string) static::$currency_code_sequence, 10, 36));
     }
 }

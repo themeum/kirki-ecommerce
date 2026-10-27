@@ -34,9 +34,6 @@ export function wishlist(wishlisted: boolean,variantList?: Variant[], context?: 
             if (context === 'account') {
               const wishlistCard = document.getElementById(`${variantId}`);
               const wishlistCount = document.querySelector('.kecom-wishlist-count');
-              if (0 === this.wishlistCount) {
-                window.location.reload();
-              }
               if (wishlistCard) {
                 wishlistCard.parentElement?.remove();
                 if (wishlistCount) {

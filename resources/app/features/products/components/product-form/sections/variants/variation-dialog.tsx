@@ -22,6 +22,7 @@ type VariationPopoverProps = {
   onClose?: () => void;
   onSave?: (variation: ProductVariationPopoverFormPayload) => void;
   initialValues?: ProductVariationPopoverFormPayload | null;
+  withColor?: boolean;
 };
 
 const VariationDialog = ({
@@ -29,6 +30,7 @@ const VariationDialog = ({
   onClose,
   onSave,
   initialValues,
+  withColor = true,
 }: VariationPopoverProps) => {
   const form = useForm<ProductVariationPopoverFormInput, unknown, ProductVariationPopoverFormPayload>({
     resolver: zodResolver(ProductVariationPopoverFormSchema),
@@ -46,19 +48,21 @@ const VariationDialog = ({
     form.reset({
       title: initialValues?.title ?? '',
       color: '',
+      requires_color: withColor,
     });
-  }, [isOpen, form, initialValues]);
+  }, [isOpen, form, initialValues, withColor]);
 
   const handleNewValueSave = (payload: ProductVariationPopoverFormPayload) => {
     onSave?.(payload);
     form.reset({
       title: '',
       color: '',
+      requires_color: withColor,
     });
     onClose?.();
   };
 
-  const btnState: ButtonState = !titleValue || !colorValue ? 'disabled' : '';
+  const btnState: ButtonState = !titleValue || (withColor && !colorValue) ? 'disabled' : '';
 
   return (
     <Dialog
@@ -72,7 +76,9 @@ const VariationDialog = ({
       <DialogContent>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>{__('Add Color', 'kirki-ecommerce')}</DialogTitle>
+          <DialogTitle>
+            {withColor ? __('Add Color', 'kirki-ecommerce') : __('Add Value', 'kirki-ecommerce')}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
@@ -80,13 +86,15 @@ const VariationDialog = ({
               <TextField
                 name="title"
                 label={__('Title', 'kirki-ecommerce')}
-                placeholder={__('Cerulean', 'kirki-ecommerce')}
+                placeholder={withColor ? __('Cerulean', 'kirki-ecommerce') : __('e.g. XL', 'kirki-ecommerce')}
               />
-              <ColorPickerField
-                name="color"
-                label={__('Color', 'kirki-ecommerce')}
-                placeholder={__('#007ba7', 'kirki-ecommerce')}
-              />
+              {withColor && (
+                <ColorPickerField
+                  name="color"
+                  label={__('Color', 'kirki-ecommerce')}
+                  placeholder={__('#007ba7', 'kirki-ecommerce')}
+                />
+              )}
             </Flex>
           </DialogBody>
           <DialogFooter>

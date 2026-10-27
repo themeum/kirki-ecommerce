@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Product;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a product.
+ *
+ * @since 1.0.0
+ */
 class CreateProductDTO extends DTO
 {
     /** @var string */
@@ -16,10 +23,13 @@ class CreateProductDTO extends DTO
     public $status;
 
     /** @var string|null */
+    public $scheduled_at;
+
+    /** @var string|null */
     public $ribbon;
 
-    /** @var int|null */
-    public $currency_id;
+    /** @var string|null */
+    public $ribbon_color;
 
     /** @var int|null */
     public $brand_id;
@@ -30,7 +40,7 @@ class CreateProductDTO extends DTO
     /** @var string|null */
     public $description;
 
-    /** @var string|null */
+    /** @var array|null */
     public $additional_info = [];
 
     /** @var string|null */
@@ -53,9 +63,6 @@ class CreateProductDTO extends DTO
 
     /** @var int|null */
     public $schema_id;
-
-    /** @var string|null */
-    public $llm_instructions;
 
     /** @var bool|null */
     public $has_variants = false;

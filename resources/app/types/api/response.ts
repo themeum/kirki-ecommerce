@@ -22,6 +22,7 @@ type PaginatedData<T> = {
   from?: number | null;
   to?: number | null;
   has_more_pages?: boolean;
+  has_records?: boolean;
 };
 
 type PaginatedResponse<T> = ApiResponse<PaginatedData<T>>;

@@ -4,10 +4,14 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
+use Kirki\Ecommerce\App\Models\Brand;
+use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class BrandApiTest extends RestTestCase
 {
+    use ListsHaveRecords;
+
     use CreatesTestProducts;
 
     /**
@@ -332,5 +336,39 @@ class BrandApiTest extends RestTestCase
         $payload = $this->assert_api_success($response, 201);
 
         return $payload['data'];
+    }
+
+    /**
+     * List brands reports whether the table holds any record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_brands_reports_has_records(): void
+    {
+        Brand::query()->delete();
+
+        $this->assertFalse($this->list_has_records('brands'));
+
+        $this->create_brand(['name' => 'Has Records Brand', 'slug' => 'has-records-brand-' . wp_generate_password(6, false)]);
+
+        $this->assertTrue($this->list_has_records('brands'));
+    }
+
+    /**
+     * List brands keeps has_records true when a search matches nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_brands_has_records_ignores_search(): void
+    {
+        $this->create_brand(['name' => 'Has Records Brand', 'slug' => 'has-records-brand-' . wp_generate_password(6, false)]);
+
+        $response = $this->request('GET', 'brands', ['search' => 'no-such-record-zzz']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame(0, $payload['data']['total']);
+        $this->assertTrue($payload['data']['has_records']);
     }
 }

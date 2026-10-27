@@ -1,4 +1,5 @@
 import {
+  NUMERIC_CONDITIONS,
   type ShippingRuleFormInput,
   type ShippingRuleFormPayload,
   ShippingRuleFormSchema,
@@ -15,11 +16,12 @@ export type ConditionDataMap = Record<
 /**
  * Hydrates the rule form from an existing rule for edit mode, unpacking the
  * `destination_region` condition's `{country, states}` shape into the two
- * form fields it's split across.
+ * form fields it's split across. A new rule starts on the shipping profile
+ * condition.
  */
 export const buildRuleDefaultValues = (initialRule?: ShippingRule): ShippingRuleFormInput => {
   if (!initialRule) {
-    return getDefaults(ShippingRuleFormSchema);
+    return { ...getDefaults(ShippingRuleFormSchema), condition: 'shipping_profile' };
   }
 
   const condition = initialRule.conditions?.[0];
@@ -27,8 +29,8 @@ export const buildRuleDefaultValues = (initialRule?: ShippingRule): ShippingRule
   const isDestination = condition?.type === 'destination_region';
 
   return {
-    condition: condition?.type || 'product_category',
-    operator: condition?.operator || 'is',
+    condition: condition?.type || 'product_categories',
+    operator: condition?.operator || '=',
     condition_value: isDestination
       ? {
         country: (condition.value as { country: string }).country,
@@ -64,12 +66,12 @@ export const getConditionValueOptions = (
   const data = conditionData[selectedCondition || ''];
 
   switch (selectedCondition) {
-    case 'product_category':
+    case 'product_categories':
     case 'shipping_profile':
       return (
         data?.map((item) => ({
           label: item.name,
-          value: item.name,
+          value: String(item.id),
         })) ?? []
       );
 
@@ -81,14 +83,14 @@ export const getConditionValueOptions = (
 export const getOperatorOptions = (
   selectedCondition: string | null | undefined,
 ): { label: string; value: string }[] => {
-  if (selectedCondition === 'cart_weight') {
+  if (NUMERIC_CONDITIONS.includes(selectedCondition ?? '')) {
     return [
       { label: __('> (Greater than)', 'kirki-ecommerce'), value: '>' },
       { label: __('= (Equal to)', 'kirki-ecommerce'), value: '=' },
       { label: __('< (Less than)', 'kirki-ecommerce'), value: '<' },
     ];
   }
-  return [{ label: __('is', 'kirki-ecommerce'), value: 'is' }];
+  return [{ label: __('is', 'kirki-ecommerce'), value: '=' }];
 };
 
 export type DestinationSelection = {
@@ -100,7 +102,9 @@ export type DestinationSelection = {
  * Resolves which country/region a `destination_region` condition should
  * hold: the explicitly picked country if there is one, otherwise the first
  * region on record. `condition_value` is only (re)written outside edit
- * mode, so opening an existing rule for editing doesn't clobber it.
+ * mode, so opening an existing rule for editing doesn't clobber it. A new
+ * rule starts as the whole country; states are chosen in the destination
+ * dialog.
  */
 export const resolveDestinationSelection = (
   selectedCountry: string | null | undefined,
@@ -108,13 +112,9 @@ export const resolveDestinationSelection = (
   mode: 'add' | 'edit',
 ): DestinationSelection => {
   const country = selectedCountry || selectedRegion[0]?.country || '';
-  const regionForCountry = selectedRegion.find((region) => region.country === country);
 
   return {
     selectedCountry: country,
-    conditionValue:
-      country && mode !== 'edit'
-        ? { country, states: regionForCountry?.states ?? [] }
-        : null,
+    conditionValue: country && mode !== 'edit' ? { country, states: [] } : null,
   };
 };

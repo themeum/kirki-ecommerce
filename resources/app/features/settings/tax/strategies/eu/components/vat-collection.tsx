@@ -116,7 +116,6 @@ export const VatCollection = (props: VatCollectionProps) => {
                         <Button
                           variant="outline"
                           size="icon-sm"
-                          cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                           onClick={() => handleDeleteItem(item)}
                         >
                           <Trash2 />

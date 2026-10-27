@@ -1,12 +1,8 @@
-import { useRef } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, useFormContext } from 'react-hook-form';
 
-import CheckboxField from '@/components/form/checkbox-field';
-import CountryField from '@/components/form/country-field';
-import StateField from '@/components/form/state-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   Dialog,
   DialogBody,
@@ -17,181 +13,90 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
+import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
-import Text from '@/components/ui/text';
+import {
+  type OrderContactFormInput,
+  type OrderContactFormPayload,
+  OrderContactFormSchema,
+} from '@/features/orders/schemas/forms/order-contact-form';
 import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
-import { PaymentIcon, ShippingAddressIcon } from '@/icons';
-import { cardStyles } from '@/theme/card-styles';
+import { pickFormValues } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-type CustomerInfoDialogProps = {
+type ContactInfoDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave?: () => void;
   isSaving?: boolean;
 };
 
-const CustomerInfoDialog = ({ open, onOpenChange, onSave, isSaving }: CustomerInfoDialogProps) => {
-  const form = useFormContext<OrderFormInput>();
-  const snapshot = useRef(form.getValues());
-  const isBillingSameAsShipping = useWatch({ control: form.control, name: 'is_billing_same_as_shipping' });
-  const shippingCountry = useWatch({ control: form.control, name: 'shipping_country' });
-  const billingCountry = useWatch({ control: form.control, name: 'billing_country' });
+const ContactInfoDialog = ({ open, onOpenChange, onSave, isSaving }: ContactInfoDialogProps) => {
+  const orderForm = useFormContext<OrderFormInput>();
+
+  const form = useForm<OrderContactFormInput, unknown, OrderContactFormPayload>({
+    resolver: zodResolver(OrderContactFormSchema),
+    defaultValues: pickFormValues(OrderContactFormSchema, {
+      first_name: orderForm.getValues('customer_first_name'),
+      last_name: orderForm.getValues('customer_last_name'),
+      email: orderForm.getValues('customer_email'),
+      phone: orderForm.getValues('customer_phone'),
+    }),
+  });
+
+  const { isDirty } = form.formState;
 
   const handleCancel = () => {
-    form.reset(snapshot.current);
     onOpenChange(false);
   };
 
-  const handleSave = () => {
+  const handleSave = (payload: OrderContactFormPayload) => {
+    const contactEntries = [
+      ['customer_first_name', payload.first_name],
+      ['customer_last_name', payload.last_name],
+      ['customer_email', payload.email],
+      ['customer_phone', payload.phone],
+    ] as const;
+
+    orderForm.setValues(Object.fromEntries(contactEntries), {
+      shouldDirty: true,
+    });
+    orderForm.clearErrors(contactEntries.map(([name]) => name));
+
     onSave?.();
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent cssOverride={{ width: '720px' }}>
+      <DialogContent cssOverride={{ width: '480px' }}>
         <DialogHeader>
-          <DialogTitle>
-            {__('Customer information', 'kirki-ecommerce')}
-          </DialogTitle>
+          <DialogTitle>{__('Edit contact information', 'kirki-ecommerce')}</DialogTitle>
           <DialogCloseButton />
         </DialogHeader>
         <DialogBody>
-          <Flex direction="column" gap={4}>
-            <Card cssOverride={cardStyles.formCard}>
-              <CardHeader>
-                <Flex gap={2} align="center">
-                  <ShippingAddressIcon />
-                  <Text weight="semibold">
-                    {__('Shipping Address', 'kirki-ecommerce')}
-                  </Text>
-                </Flex>
-              </CardHeader>
-              <CardContent>
-                <Flex direction="column" gap={4}>
-                  <Grid>
-                    <TextField<OrderFormInput>
-                      name="shipping_first_name"
-                      label={__('First name', 'kirki-ecommerce')}
-                    />
-                    <TextField<OrderFormInput>
-                      name="shipping_last_name"
-                      label={__('Last name', 'kirki-ecommerce')}
-                    />
-                  </Grid>
-                  <Grid>
-                    <TextField<OrderFormInput>
-                      name="shipping_email"
-                      label={__('Email', 'kirki-ecommerce')}
-                    />
-                    <TextField<OrderFormInput>
-                      name="shipping_phone"
-                      label={__('Phone', 'kirki-ecommerce')}
-                    />
-                  </Grid>
-                  <CountryField<OrderFormInput> name="shipping_country" />
-                  <TextField<OrderFormInput>
-                    name="shipping_address_line1"
-                    label={__('Address', 'kirki-ecommerce')}
-                  />
-                  <TextField<OrderFormInput>
-                    name="shipping_address_line2"
-                    label={__('Apartment, suite, etc. (optional)', 'kirki-ecommerce')}
-                  />
-                  <Grid>
-                    <TextField<OrderFormInput>
-                      name="shipping_city"
-                      label={__('City', 'kirki-ecommerce')}
-                    />
-                    <StateField<OrderFormInput>
-                      country={shippingCountry}
-                      name="shipping_state"
-                      label={__('State / Province', 'kirki-ecommerce')}
-                    />
-                  </Grid>
-                  <TextField<OrderFormInput>
-                    name="shipping_postal_code"
-                    label={__('ZIP / Postal code', 'kirki-ecommerce')}
-                  />
-                </Flex>
-              </CardContent>
-            </Card>
-
-            <Card cssOverride={cardStyles.formCard}>
-              <CardHeader>
-                <Flex gap={2} align="center">
-                  <PaymentIcon />
-                  <Text weight="semibold">
-                    {__('Billing Address', 'kirki-ecommerce')}
-                  </Text>
-                </Flex>
-              </CardHeader>
-              <CardContent>
-                <Flex direction="column" gap={4}>
-                  <CheckboxField<OrderFormInput>
-                    name="is_billing_same_as_shipping"
-                    label={__('Same as shipping address', 'kirki-ecommerce')}
-                  />
-                  {!isBillingSameAsShipping && (
-                    <>
-                      <Grid>
-                        <TextField<OrderFormInput>
-                          name="billing_first_name"
-                          label={__('First name', 'kirki-ecommerce')}
-                        />
-                        <TextField<OrderFormInput>
-                          name="billing_last_name"
-                          label={__('Last name', 'kirki-ecommerce')}
-                        />
-                      </Grid>
-                      <Grid>
-                        <TextField<OrderFormInput>
-                          name="billing_email"
-                          label={__('Email', 'kirki-ecommerce')}
-                        />
-                        <TextField<OrderFormInput>
-                          name="billing_phone"
-                          label={__('Phone', 'kirki-ecommerce')}
-                        />
-                      </Grid>
-                      <CountryField<OrderFormInput> name="billing_country" />
-                      <TextField<OrderFormInput>
-                        name="billing_address_line1"
-                        label={__('Address', 'kirki-ecommerce')}
-                      />
-                      <TextField<OrderFormInput>
-                        name="billing_address_line2"
-                        label={__('Apartment, suite, etc. (optional)', 'kirki-ecommerce')}
-                      />
-                      <Grid>
-                        <TextField<OrderFormInput>
-                          name="billing_city"
-                          label={__('City', 'kirki-ecommerce')}
-                        />
-                        <StateField<OrderFormInput>
-                          country={billingCountry}
-                          name="billing_state"
-                          label={__('State / Province', 'kirki-ecommerce')}
-                        />
-                      </Grid>
-                      <TextField<OrderFormInput>
-                        name="billing_postal_code"
-                        label={__('ZIP / Postal code', 'kirki-ecommerce')}
-                      />
-                    </>
-                  )}
-                </Flex>
-              </CardContent>
-            </Card>
-          </Flex>
+          <Form {...form}>
+            <Flex direction="column" gap={4}>
+              <Grid>
+                <TextField name="first_name" label={__('First Name', 'kirki-ecommerce')} />
+                <TextField name="last_name" label={__('Last Name', 'kirki-ecommerce')} />
+              </Grid>
+              <TextField name="email" label={__('Email', 'kirki-ecommerce')} />
+              <TextField name="phone" label={__('Phone Number', 'kirki-ecommerce')} />
+            </Flex>
+          </Form>
         </DialogBody>
         <DialogFooter>
           <Button variant="ghost" onClick={handleCancel}>
             {__('Cancel', 'kirki-ecommerce')}
           </Button>
-          <Button variant="primary" onClick={handleSave} loading={isSaving}>
-            {__('Save', 'kirki-ecommerce')}
+          <Button
+            variant="primary"
+            onClick={form.handleSubmit(handleSave)}
+            loading={isSaving}
+            disabled={!isDirty}
+          >
+            {__('Update', 'kirki-ecommerce')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -199,6 +104,6 @@ const CustomerInfoDialog = ({ open, onOpenChange, onSave, isSaving }: CustomerIn
   );
 };
 
-CustomerInfoDialog.displayName = 'CustomerInfoDialog';
+ContactInfoDialog.displayName = 'ContactInfoDialog';
 
-export default CustomerInfoDialog;
+export default ContactInfoDialog;

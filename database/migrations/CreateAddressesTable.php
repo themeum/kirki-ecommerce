@@ -2,12 +2,26 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_addresses table, which stores customer addresses.
+ *
+ * @since 1.0.0
+ */
 class CreateAddressesTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_addresses table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_addresses', function (Structure $table) {
@@ -23,16 +37,26 @@ class CreateAddressesTable implements Migration
             $table->string('postal_code', 20);
             $table->string('email', 255)->nullable();
             $table->string('phone', 20)->nullable();
-            $table->enum('type', ['billing', 'shipping'])->default('billing');
+            $table->string('type', 50)->default('home')->comment('Supported values: home, office, others');
+            $table->string('label', 255)->nullable();
+            $table->boolean('is_default_shipping')->default(0);
+            $table->boolean('is_default_billing')->default(0);
             $table->timestamps();
 
-            $table->foreign('customer_id', 'fk_kirki_ecommerce_addresses_customer_id')
+            $table->foreign('customer_id', 'fk_kecom_addresses_customer_id')
                 ->references('id')
                 ->on('kirki_ecommerce_customers')
                 ->cascade_on_delete();
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_addresses table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_addresses');

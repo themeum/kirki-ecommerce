@@ -29,6 +29,8 @@ define('WP_HOME', $wp_url);
 define('WP_SITEURL', $wp_url);
 define('KECOM_WEBHOOK_BASE_URL', getenv('KECOM_WEBHOOK_BASE_URL') ?: 'http://localhost:20100');
 
+define('KECOM_VITE_DEV_SERVER', 'http://localhost:' . (getenv('VITE_PORT') ?: '5173'));
+
 define('FS_METHOD', 'direct');
 
 if (! defined('ABSPATH')) {

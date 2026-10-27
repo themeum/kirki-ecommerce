@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
@@ -39,6 +40,25 @@ const useCustomerLocationsQuery = (country?: string) => {
     queryFn: () => getCustomerLocations(country),
     placeholderData: keepPreviousData,
   });
+};
+
+const checkCustomerEmail = (email: string, id?: number) => {
+  return apiClient
+    .get(endpoints.CUSTOMER_CHECK_EMAIL, { params: { email, id } })
+    .then((response) => parseResponse(z.boolean(), response));
+};
+
+const useCheckCustomerEmail = () => {
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    (email: string, id?: number) =>
+      queryClient.fetchQuery({
+        queryKey: customerKeys.checkEmail(email, id),
+        queryFn: () => checkCustomerEmail(email, id),
+      }),
+    [queryClient],
+  );
 };
 
 const getCustomers = (params: ListParams<CustomerListFilter> = {}) => {
@@ -153,6 +173,7 @@ const useBulkDeleteCustomersMutation = () => {
 
 export {
   bulkDeleteCustomers,
+  checkCustomerEmail,
   createCustomer,
   deleteCustomer,
   getCustomer,
@@ -160,6 +181,7 @@ export {
   getCustomers,
   updateCustomer,
   useBulkDeleteCustomersMutation,
+  useCheckCustomerEmail,
   useCreateCustomerMutation,
   useCustomerLocationsQuery,
   useCustomerQuery,

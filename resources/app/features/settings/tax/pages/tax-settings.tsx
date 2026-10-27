@@ -21,7 +21,7 @@ import {
   TaxSettingsFormSchema,
 } from '@/features/settings/tax/shared/schemas/forms/tax-settings-form';
 import TaxSettingsSkeleton from '@/features/settings/tax/shared/skeletons/tax-settings-skeleton';
-import { TaxIcon } from '@/icons';
+import { TaxIcon } from '@/icons/common';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';

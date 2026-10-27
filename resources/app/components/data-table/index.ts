@@ -12,4 +12,3 @@ export type {
   DataTableRowEditAction,
   DataTableSelectionState,
 } from '@/components/data-table/types';
-

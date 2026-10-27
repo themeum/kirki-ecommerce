@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { type CSSObject } from '@emotion/react';
-import { Trash2, Trash2Icon } from 'lucide-react';
+import { Plus, Trash2, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -26,7 +26,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import { useMediaLibrary } from '@/hooks';
-import { MoveIcon, PlusIcon } from '@/icons';
+import { MoveIcon } from '@/icons/common';
 import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
@@ -150,7 +150,12 @@ const SortableItem = ({
               size="icon-sm"
               aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={onDeleteImage}
-              cssOverride={{ backgroundColor: theme.colors.background.fill }}
+              cssOverride={{
+                backgroundColor: theme.colors.background.fill,
+                '&:hover': {
+                  backgroundColor: theme.colors.background.fill,
+                },
+              }}
             >
               <Trash2Icon color={theme.colors.icon.critical} />
             </Button>
@@ -279,7 +284,7 @@ const MediaGallery = ({
         <>
           {label && (
             <Field data-invalid={error ? true : undefined}>
-              <FieldLabel style={{ minHeight: '23px' }}>{label}</FieldLabel>
+              <FieldLabel style={{ minHeight: '24px' }}>{label}</FieldLabel>
               {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
               {typeof error === 'string' && <FieldError>{error}</FieldError>}
             </Field>
@@ -335,9 +340,8 @@ const MediaGallery = ({
               </button>
             )}
 
-            <div
-              role="button"
-              tabIndex={0}
+            <button
+              type="button"
               css={scopedMerge(styles.galleryItem, styles.addItem)}
               onClick={() => openMediaLibrary(handleOnAddNewImages)}
               aria-label={__('Add images', 'kirki-ecommerce')}
@@ -348,8 +352,8 @@ const MediaGallery = ({
                 }
               }}
             >
-              <PlusIcon height={24} width={24} />
-            </div>
+              <Plus size={24} />
+            </button>
           </div>
         </SortableContext>
       </DndContext>
@@ -442,7 +446,7 @@ const styles = defineStyles({
     background: theme.colors.background.surfaceSecondary,
     ...flexCenter(),
     '&:hover': {
-      background: theme.colors.background.galleryHover,
+      background: theme.colors.background.surfaceSecondary,
     },
     minHeight: '8.5rem',
     minWidth: '8.5rem',

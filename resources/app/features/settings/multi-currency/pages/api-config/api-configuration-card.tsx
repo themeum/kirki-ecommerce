@@ -1,3 +1,4 @@
+import { CheckCircle, Edit } from 'lucide-react';
 import { type Dispatch, type SetStateAction } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -7,8 +8,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import ProgressBar from '@/components/ui/progressbar';
 import Text from '@/components/ui/text';
+import {
+  formatSyncTime,
+  getProviderConfig,
+} from '@/features/settings/multi-currency/lib/currency-list';
+import ProviderLogo from '@/features/settings/multi-currency/pages/api-config/provider-logo';
 import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
-import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
 import type { CurrencySettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -18,12 +23,14 @@ import { __, sprintf } from '@/wpi18n';
 
 type ApiConfigurationCardProps = {
   providerName: string;
+  providerIcon?: string | null;
   setOpenPopup: Dispatch<SetStateAction<boolean>>;
   currencySettings?: CurrencySettings | null;
 };
 
 const ApiConfigurationCard = ({
   providerName,
+  providerIcon,
   setOpenPopup,
   currencySettings,
 }: ApiConfigurationCardProps) => {
@@ -33,10 +40,11 @@ const ApiConfigurationCard = ({
       .replace(/_/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase());
 
-  const apiConfig = useWatch({
+  const [apiProvider, apiConfigs] = useWatch({
     control,
-    name: 'api_config',
+    name: ['api_provider', 'api_configs'],
   });
+  const apiConfig = getProviderConfig(apiConfigs, apiProvider);
 
   const usage = currencySettings?.usage;
 
@@ -45,32 +53,31 @@ const ApiConfigurationCard = ({
       data-search-id="currency.api-status"
       data-search-keywords="connection, sync, quota, usage limit"
       data-search-title={__('Exchange Rate API Status', 'kirki-ecommerce')}
+      noShadow
     >
       <CardContent>
         <Flex direction="column" gap={5}>
           <Flex justify="space-between" align="flex-start">
             <Flex direction="column" gap={2}>
               <Flex gap={2} align="center">
-                <FlagIcon />
+                <ProviderLogo icon={providerIcon} />
                 <Text weight="semibold">{providerName}</Text>
                 <Badge variant="success">
                   <span data-icon="inline-start" aria-hidden="true">
-                    <RadioTickIcon />
+                    <CheckCircle />
                   </span>
                   {__('Configured', 'kirki-ecommerce')}
                 </Badge>
               </Flex>
               <Text color="secondary" variant="small">
                 {sprintf(
-                  __(`Last tested: %s`, 'kirki-ecommerce'),
-                  currencySettings?.last_sync_at
-                    ? dateFormatter(currencySettings?.last_sync_at, 'datetime')
-                    : __('N/A', 'kirki-ecommerce'),
+                  __(`Last synced: %s`, 'kirki-ecommerce'),
+                  formatSyncTime(currencySettings?.last_sync_at) ?? __('N/A', 'kirki-ecommerce'),
                 )}
               </Text>
             </Flex>
-            <Button variant="outline" size="icon" onClick={() => setOpenPopup(true)}>
-              <EditIcon />
+            <Button variant="outline" size="icon-sm" onClick={() => setOpenPopup(true)}>
+              <Edit color={theme.colors.icon.secondary} />
             </Button>
           </Flex>
           {usage && usage !== null && (
@@ -95,14 +102,8 @@ const ApiConfigurationCard = ({
               </Text>
             </Flex>
           )}
-          <Card cssOverride={styles.innerDarkCard}>
+          <Card cssOverride={styles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkContent}>
-              <Flex gap={1}>
-                <Text color="subdued" variant="small">
-                  {__('Fallback Behavior: ', 'kirki-ecommerce')}
-                </Text>
-                <Text variant="small">{formatValue(apiConfig?.fallback_behaviour)}</Text>
-              </Flex>
               <Flex gap={1}>
                 <Text color="subdued" variant="small">
                   {__('Update Frequency: ', 'kirki-ecommerce')}

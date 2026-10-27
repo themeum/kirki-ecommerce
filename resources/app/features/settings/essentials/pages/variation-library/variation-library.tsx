@@ -1,5 +1,4 @@
-import { Box } from 'lucide-react';
-import { type ReactNode, useMemo } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -22,7 +21,7 @@ import { useAttributesQuery, useDeleteAttributeMutation } from '@/features/produ
 import AddVariationPopover from '@/features/settings/essentials/pages/variation-library/add-variation-popover';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
 import { useConfirmDelete } from '@/hooks';
-import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
+import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -32,6 +31,8 @@ type AttributeListItem = Attribute & {
   badge1?: string;
   icon?: ReactNode;
 };
+
+const MAX_ITEMS_TO_SHOW = 10;
 
 const getVariationEditLink = (item: AttributeListItem) => {
   const EssentialsRoutes = RouteConfig.Settings.get('EssentialsSettings');
@@ -48,16 +49,24 @@ const VariationList = () => {
 
   const { data: attributeList = [], isLoading, refetch } = useAttributesQuery({ limit: -1 });
   const { mutate: deleteAttribute } = useDeleteAttributeMutation();
+  const [showAll, setShowAll] = useState<boolean>(false);
 
-  const attributeListArr = useMemo<AttributeListItem[]>(
-    () =>
-      attributeList.map((item) => ({
+  const attributeListArr = useMemo<AttributeListItem[]>(() => {
+    if (showAll) {
+      return attributeList.map((item) => ({
         ...item,
         badge1: `${item.values?.length ?? 0} values`,
         icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
-      })),
-    [attributeList],
-  );
+      }));
+    }
+    return attributeList.slice(0, MAX_ITEMS_TO_SHOW).map((item) => ({
+      ...item,
+      badge1: `${item.values?.length ?? 0} values`,
+      icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
+    }));
+  }, [attributeList, showAll]);
+
+  const hiddenItemCount = Math.max(0, attributeList.length - MAX_ITEMS_TO_SHOW);
 
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
@@ -99,74 +108,81 @@ const VariationList = () => {
             'kirki-ecommerce',
           )}
         </CardDescription>
-        <div css={scoped({ marginTop: theme.spacing[5] })}>
+        <div css={scoped({ marginTop: attributeListArr.length === 0 ? theme.spacing[0] : theme.spacing[5] })}>
           {isLoading ? (
             <StackedListSkeleton />
-          ) : !attributeListArr.length ? (
-            <Card cssOverride={cardStyles.innerDarkCard}>
-              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
-                <Flex direction="column" gap={2} align="center">
-                  <Box />
-                  <span css={scoped(styles.emptyStateText)}>
-                    {__('Added variation library will appear here', 'kirki-ecommerce')}
-                  </span>
-                </Flex>
-              </CardContent>
-            </Card>
           ) : (
-            <StackedItems>
-              {attributeListArr.map((item) => (
-                <StackedItem key={item.id} id={String(item.id)}>
-                  {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
-                  <StackedItemContent>
-                    <StackedItemTitle>
-                      <Flex gap={2} align="center">
-                        <Link to={getVariationEditLink(item)} css={scoped(styles.nameLink)}>
-                          <Text variant="small" weight="medium">
-                            {item.name}
-                          </Text>
-                        </Link>
-                        <Badge variant="secondary">
-                          {sprintf(
-                            _n(
-                              '%d value',
-                              '%d values',
-                              item.values?.length ?? 0,
-                              'kirki-ecommerce',
-                            ),
-                            item.values?.length ?? 0,
-                          )}
-                        </Badge>
-                      </Flex>
-                    </StackedItemTitle>
-                  </StackedItemContent>
-                  <StackedItemActions>
-                    <ActionGroup>
-                      <Button
-                        variant="tertiary"
-                        size="icon-sm"
-                        aria-label={__('Delete', 'kirki-ecommerce')}
-                        cssOverride={mergeCss(styles.actionButton, {
-                          '& svg': { color: theme.colors.icon.critical },
-                        })}
-                        onClick={() => handleDeleteVariation(item)}
-                      >
-                        <TrashIcon />
-                      </Button>
-                      <Button
-                        variant="tertiary"
-                        size="icon-sm"
-                        aria-label={__('Edit', 'kirki-ecommerce')}
-                        cssOverride={styles.actionButton}
-                        onClick={() => handleEditVariation(item)}
-                      >
-                        <EditPenIcon />
-                      </Button>
-                    </ActionGroup>
-                  </StackedItemActions>
-                </StackedItem>
-              ))}
-            </StackedItems>
+            attributeListArr.length > 0 && (
+              <>
+                <StackedItems>
+                  {attributeListArr.map((item) => (
+                    <StackedItem key={item.id} id={String(item.id)}>
+                      {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                      <StackedItemContent>
+                        <StackedItemTitle>
+                          <Flex gap={2} align="center">
+                            <Link to={getVariationEditLink(item)} css={scoped(styles.nameLink)}>
+                              <Text variant="small" weight="medium">
+                                {item.name}
+                              </Text>
+                            </Link>
+                            <Badge>
+                              {sprintf(
+                                _n(
+                                  '%d value',
+                                  '%d values',
+                                  item.values?.length ?? 0,
+                                  'kirki-ecommerce',
+                                ),
+                                item.values?.length ?? 0,
+                              )}
+                            </Badge>
+                          </Flex>
+                        </StackedItemTitle>
+                      </StackedItemContent>
+                      <StackedItemActions>
+                        <ActionGroup>
+                          <Button
+                            variant="tertiary"
+                            size="icon-sm"
+                            aria-label={__('Delete', 'kirki-ecommerce')}
+                            cssOverride={mergeCss(styles.actionButton, {
+                              '& svg': { color: theme.colors.icon.critical },
+                            })}
+                            onClick={() => handleDeleteVariation(item)}
+                          >
+                            <TrashIcon />
+                          </Button>
+                          <Button
+                            variant="tertiary"
+                            size="icon-sm"
+                            aria-label={__('Edit', 'kirki-ecommerce')}
+                            cssOverride={styles.actionButton}
+                            onClick={() => handleEditVariation(item)}
+                          >
+                            <EditPenIcon />
+                          </Button>
+                        </ActionGroup>
+                      </StackedItemActions>
+                    </StackedItem>
+                  ))}
+                </StackedItems>
+                {hiddenItemCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    cssOverride={{
+                      marginTop: theme.spacing[3],
+                      fontWeight: theme.typography.fontWeight.semibold,
+                    }}
+                    onClick={() => setShowAll((prev) => !prev)}
+                  >
+                    {!showAll
+                      ? sprintf(__('+%d more', 'kirki-ecommerce'), hiddenItemCount)
+                      : __('Show less', 'kirki-ecommerce')}
+                  </Button>
+                )}
+              </>
+            )
           )}
         </div>
       </CardContent>
@@ -180,12 +196,6 @@ VariationList.displayName = 'VariationList';
 export default VariationList;
 
 const styles = defineStyles({
-  emptyState: {
-    padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
-  },
-  emptyStateText: {
-    color: theme.colors.text.subdued,
-  },
   actionButton: {
     padding: theme.spacing[1],
   },

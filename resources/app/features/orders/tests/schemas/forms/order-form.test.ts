@@ -1,17 +1,29 @@
-import { assert, describe, expect, it } from 'vitest';
+import { assert, beforeEach, describe, expect, it } from 'vitest';
 
 import {
   OrderCalculationRequestSchema,
   OrderFormSchema,
 } from '@/features/orders/schemas/forms/order-form';
+import { cacheAddressRules } from '@/libs/address-rules';
 import { getDefaults } from '@/libs/zod';
+
+const buildCoupon = (id: number, code: string | null) => ({
+  id,
+  method: 'code' as const,
+  title: `Coupon ${id}`,
+  code,
+  discount_type: 'amount-off' as const,
+  status: 'active' as const,
+});
 
 describe('OrderFormSchema', () => {
   const base = {
     items: [{ variant_id: 12, quantity: 2 }],
     currency_code: 'USD',
-    coupon_code: null,
+    coupon_codes: [],
     customer_id: 7,
+    customer_first_name: 'John',
+    customer_last_name: 'Doe',
     shipping_method: 'flat_rate',
     shipping_first_name: 'John',
     shipping_last_name: 'Doe',
@@ -25,7 +37,7 @@ describe('OrderFormSchema', () => {
     shipping_email: null,
     shipping_company: null,
     is_billing_same_as_shipping: true,
-    admin_notes: null,
+    order_notes: null,
   };
 
   const separateBilling = {
@@ -49,9 +61,15 @@ describe('OrderFormSchema', () => {
 
     expect(result).toEqual({
       customer_id: 7,
+      customer_first_name: 'John',
+      customer_last_name: 'Doe',
+      customer_email: null,
+      customer_phone: null,
+      consents: null,
       items: [{ variant_id: 12, quantity: 2 }],
       currency_code: 'USD',
-      coupon_code: null,
+      coupon_codes: [],
+      payment_provider: null,
       shipping_method: 'flat_rate',
       shipping_first_name: 'John',
       shipping_last_name: 'Doe',
@@ -76,11 +94,21 @@ describe('OrderFormSchema', () => {
       billing_phone: null,
       billing_email: null,
       billing_company: null,
-      admin_notes: null,
+      order_notes: null,
       flags: null,
       is_manual: true,
     });
   });
+
+  it.each(['customer_first_name', 'customer_last_name'] as const)(
+    'rejects an empty %s',
+    (field) => {
+      const result = OrderFormSchema.safeParse({ ...base, [field]: '' });
+
+      assert(!result.success);
+      expect(result.error.issues.map((issue) => issue.path[0])).toContain(field);
+    },
+  );
 
   it('copies the shipping address into the billing fields when billing is same as shipping', () => {
     const result = OrderFormSchema.parse({ ...separateBilling, is_billing_same_as_shipping: true });
@@ -158,18 +186,33 @@ describe('OrderFormSchema', () => {
     expect(result.shipping_address_line2).toBe('Flat 2');
   });
 
-  it('trims the coupon code and nulls a blank one', () => {
-    expect(OrderFormSchema.parse({ ...base, coupon_code: '  SAVE10  ' }).coupon_code).toBe(
-      'SAVE10',
-    );
-    expect(OrderFormSchema.parse({ ...base, coupon_code: '   ' }).coupon_code).toBeNull();
-    expect(OrderFormSchema.parse({ ...base, coupon_code: null }).coupon_code).toBeNull();
+  it('outputs the trimmed code of each selected coupon and drops blank ones', () => {
+    expect(
+      OrderFormSchema.parse({
+        ...base,
+        coupon_codes: [
+          buildCoupon(1, '  SAVE10  '),
+          buildCoupon(2, '  '),
+          buildCoupon(3, null),
+          buildCoupon(4, 'WELCOME'),
+        ],
+      }).coupon_codes,
+    ).toEqual(['SAVE10', 'WELCOME']);
+    expect(OrderFormSchema.parse({ ...base, coupon_codes: [] }).coupon_codes).toEqual([]);
+  });
+
+  it('includes a provided order_notes value in the form payload', () => {
+    const result = OrderFormSchema.parse({ ...base, order_notes: 'Leave at the door' });
+
+    expect(result.order_notes).toBe('Leave at the door');
   });
 
   it('sends null rather than undefined for every omitted optional field', () => {
     const result = OrderFormSchema.parse({
       items: base.items,
       customer_id: base.customer_id,
+      customer_first_name: base.customer_first_name,
+      customer_last_name: base.customer_last_name,
       shipping_method: base.shipping_method,
       shipping_first_name: base.shipping_first_name,
       shipping_last_name: base.shipping_last_name,
@@ -182,12 +225,15 @@ describe('OrderFormSchema', () => {
     });
 
     expect(result.currency_code).toBeNull();
-    expect(result.coupon_code).toBeNull();
+    expect(result.coupon_codes).toEqual([]);
+    expect(result.customer_email).toBeNull();
+    expect(result.consents).toBeNull();
+    expect(result.payment_provider).toBeNull();
     expect(result.shipping_address_line2).toBeNull();
     expect(result.shipping_phone).toBeNull();
     expect(result.shipping_email).toBeNull();
     expect(result.shipping_company).toBeNull();
-    expect(result.admin_notes).toBeNull();
+    expect(result.order_notes).toBeNull();
   });
 
   it('defaults is_manual to true and is_billing_same_as_shipping to false', () => {
@@ -210,20 +256,166 @@ describe('OrderFormSchema', () => {
     expect(OrderFormSchema.safeParse({ ...base, shipping_method: '' }).success).toBe(false);
   });
 
-  it('rejects a blank value in any required shipping field', () => {
+  it('rejects a blank value in any shipping field every country needs', () => {
     const requiredShippingFields = [
       'shipping_first_name',
       'shipping_last_name',
       'shipping_address_line1',
       'shipping_city',
-      'shipping_state',
-      'shipping_postal_code',
       'shipping_country',
     ] as const;
 
     requiredShippingFields.forEach((field) => {
       expect(OrderFormSchema.safeParse({ ...base, [field]: '   ' }).success).toBe(false);
       expect(OrderFormSchema.safeParse({ ...base, [field]: null }).success).toBe(false);
+    });
+  });
+
+  describe('state and postal code follow the country', () => {
+    beforeEach(() => {
+      cacheAddressRules([
+        {
+          name: 'Japan',
+          code: 'JP',
+          states: [],
+          address_rules: {
+            state: { mode: 'required', label: 'Prefecture' },
+            postal_code: { mode: 'required' },
+          },
+        },
+        {
+          name: 'Singapore',
+          code: 'SG',
+          states: [],
+          address_rules: {
+            state: { mode: 'hidden', label: 'Council' },
+            postal_code: { mode: 'required' },
+          },
+        },
+        {
+          name: 'Hong Kong',
+          code: 'HK',
+          states: [],
+          address_rules: {
+            state: { mode: 'required', label: 'Region' },
+            postal_code: { mode: 'hidden' },
+          },
+        },
+      ]);
+    });
+
+    it('accepts an order with no state when the country has none', () => {
+      const result = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'SG',
+        shipping_state: null,
+      });
+
+      assert(result.success);
+      expect(result.data.shipping_state).toBeNull();
+    });
+
+    it('rejects a missing state when the country requires one', () => {
+      expect(
+        OrderFormSchema.safeParse({ ...base, shipping_country: 'JP', shipping_state: null })
+          .success,
+      ).toBe(false);
+    });
+
+    /**
+     * `sprintf` is the identity-ish fallback from `@/wpi18n` here (no
+     * `window.wp.i18n` in the test environment), so this asserts the term
+     * that reaches the message rather than the assembled sentence.
+     */
+    it('names the country term in the error rather than "State"', () => {
+      const result = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'JP',
+        shipping_state: '   ',
+      });
+
+      assert(!result.success);
+      const issue = result.error.issues.find((item) => item.path.join('.') === 'shipping_state');
+      expect(issue?.message).toContain('Prefecture');
+      expect(issue?.message).not.toContain('State');
+    });
+
+    it('accepts an order with no postal code when the country has none', () => {
+      const result = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'HK',
+        shipping_postal_code: null,
+      });
+
+      assert(result.success);
+      expect(result.data.shipping_postal_code).toBeNull();
+    });
+
+    it('sends null for a shipping state or postal code left as an empty string', () => {
+      const withoutState = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'SG',
+        shipping_state: '',
+      });
+      const withoutPostalCode = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'HK',
+        shipping_postal_code: '',
+      });
+
+      assert(withoutState.success);
+      assert(withoutPostalCode.success);
+      expect(withoutState.data.shipping_state).toBeNull();
+      expect(withoutPostalCode.data.shipping_postal_code).toBeNull();
+    });
+
+    it('sends null for a billing state or postal code left as an empty string', () => {
+      const withoutState = OrderFormSchema.safeParse({
+        ...separateBilling,
+        billing_country: 'SG',
+        billing_state: '',
+      });
+      const withoutPostalCode = OrderFormSchema.safeParse({
+        ...separateBilling,
+        billing_country: 'HK',
+        billing_postal_code: '',
+      });
+
+      assert(withoutState.success);
+      assert(withoutPostalCode.success);
+      expect(withoutState.data.billing_state).toBeNull();
+      expect(withoutPostalCode.data.billing_postal_code).toBeNull();
+    });
+
+    it('sends null for the billing state and postal code copied from a blank shipping value', () => {
+      const withoutState = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'SG',
+        shipping_state: '',
+      });
+      const withoutPostalCode = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'HK',
+        shipping_postal_code: '',
+      });
+
+      assert(withoutState.success);
+      assert(withoutPostalCode.success);
+      expect(withoutState.data.billing_state).toBeNull();
+      expect(withoutPostalCode.data.billing_postal_code).toBeNull();
+    });
+
+    it('applies the billing country rules, not the shipping ones', () => {
+      const withoutBillingState = {
+        ...separateBilling,
+        billing_country: 'SG',
+        billing_state: null,
+      };
+
+      expect(OrderFormSchema.safeParse(withoutBillingState).success).toBe(true);
+      expect(
+        OrderFormSchema.safeParse({ ...withoutBillingState, billing_country: 'JP' }).success,
+      ).toBe(false);
     });
   });
 
@@ -246,7 +438,8 @@ describe('OrderCalculationRequestSchema', () => {
       customer_id: null,
       items: [],
       currency_code: null,
-      coupon_code: null,
+      coupon_codes: [],
+      payment_provider: null,
       shipping_method: null,
       shipping_first_name: null,
       shipping_last_name: null,
@@ -258,6 +451,23 @@ describe('OrderCalculationRequestSchema', () => {
       shipping_country: null,
       shipping_phone: null,
       shipping_email: null,
+      shipping_company: null,
+      billing_first_name: null,
+      billing_last_name: null,
+      billing_address_line1: null,
+      billing_address_line2: null,
+      billing_city: null,
+      billing_state: null,
+      billing_postal_code: null,
+      billing_country: null,
+      billing_phone: null,
+      billing_email: null,
+      billing_company: null,
+      customer_first_name: null,
+      customer_last_name: null,
+      customer_email: null,
+      customer_phone: null,
+      is_manual: true,
     });
   });
 
@@ -281,31 +491,105 @@ describe('OrderCalculationRequestSchema', () => {
     expect(result.shipping_address_line2).toBeNull();
   });
 
-  it('maps shipping_postal_code to shipping_postal_code and trims the coupon code', () => {
+  it('sends null for a required field left as an empty string', () => {
+    const result = OrderCalculationRequestSchema.parse({
+      customer_first_name: '',
+      customer_last_name: '   ',
+      shipping_method: '',
+      shipping_first_name: '',
+      shipping_last_name: '',
+      shipping_address_line1: '',
+      shipping_city: '',
+      shipping_state: '',
+      shipping_postal_code: '',
+      shipping_country: '',
+      billing_first_name: '',
+      billing_last_name: '',
+      billing_address_line1: '',
+      billing_city: '',
+      billing_state: '',
+      billing_postal_code: '',
+      billing_country: '',
+    });
+
+    expect(result.customer_first_name).toBeNull();
+    expect(result.customer_last_name).toBeNull();
+    expect(result.shipping_method).toBeNull();
+    expect(result.shipping_first_name).toBeNull();
+    expect(result.shipping_last_name).toBeNull();
+    expect(result.shipping_address_line1).toBeNull();
+    expect(result.shipping_city).toBeNull();
+    expect(result.shipping_state).toBeNull();
+    expect(result.shipping_postal_code).toBeNull();
+    expect(result.shipping_country).toBeNull();
+    expect(result.billing_first_name).toBeNull();
+    expect(result.billing_last_name).toBeNull();
+    expect(result.billing_address_line1).toBeNull();
+    expect(result.billing_city).toBeNull();
+    expect(result.billing_state).toBeNull();
+    expect(result.billing_postal_code).toBeNull();
+    expect(result.billing_country).toBeNull();
+  });
+
+  it('keeps a filled required field as typed', () => {
+    const result = OrderCalculationRequestSchema.parse({
+      shipping_address_line1: '221B Baker Street',
+      shipping_city: 'London',
+      shipping_country: 'GB',
+    });
+
+    expect(result.shipping_address_line1).toBe('221B Baker Street');
+    expect(result.shipping_city).toBe('London');
+    expect(result.shipping_country).toBe('GB');
+  });
+
+  it('maps shipping_postal_code to shipping_postal_code and outputs trimmed coupon codes', () => {
     const result = OrderCalculationRequestSchema.parse({
       shipping_postal_code: 'NW1 6XE',
-      coupon_code: '  SAVE10  ',
+      coupon_codes: [buildCoupon(1, '  SAVE10  '), buildCoupon(2, '  ')],
     });
 
     expect(result.shipping_postal_code).toBe('NW1 6XE');
-    expect(result.coupon_code).toBe('SAVE10');
+    expect(result.coupon_codes).toEqual(['SAVE10']);
   });
 
-  it('omits the billing, notes and manual-order fields from the calculation payload', () => {
+  it('forwards the billing block, shipping_company, payment_provider and customer contact fields, but not shipping_id/billing_id, is_billing_same_as_shipping or order_notes', () => {
     const result = OrderCalculationRequestSchema.parse({
       billing_first_name: 'Jane',
       billing_postal_code: 'SW1A 2AA',
       shipping_company: 'Acme Ltd',
-      admin_notes: 'Leave at the door',
+      shipping_id: 4,
+      billing_id: 9,
+      payment_provider: 'stripe',
+      customer_email: 'jane@example.com',
+      customer_phone: '+44 20 7925 0918',
+      order_notes: 'Leave at the door',
       is_billing_same_as_shipping: false,
-      is_manual: true,
+      is_manual: false,
     });
 
-    expect(Object.keys(result)).not.toContain('billing_first_name');
-    expect(Object.keys(result)).not.toContain('billing_postal_code');
-    expect(Object.keys(result)).not.toContain('shipping_company');
-    expect(Object.keys(result)).not.toContain('admin_notes');
+    expect(result.billing_first_name).toBe('Jane');
+    expect(result.billing_postal_code).toBe('SW1A 2AA');
+    expect(result.shipping_company).toBe('Acme Ltd');
+    expect(result.payment_provider).toBe('stripe');
+    expect(result.customer_email).toBe('jane@example.com');
+    expect(result.customer_phone).toBe('+44 20 7925 0918');
+    expect(result.is_manual).toBe(false);
+
+    expect(Object.keys(result)).not.toContain('shipping_id');
+    expect(Object.keys(result)).not.toContain('billing_id');
     expect(Object.keys(result)).not.toContain('is_billing_same_as_shipping');
-    expect(Object.keys(result)).not.toContain('is_manual');
+    expect(Object.keys(result)).not.toContain('order_notes');
+  });
+
+  it('does not default a billing field from shipping, unlike OrderFormSchema', () => {
+    const result = OrderCalculationRequestSchema.parse({
+      is_billing_same_as_shipping: true,
+      shipping_first_name: 'John',
+      shipping_city: 'London',
+    });
+
+    expect(result.billing_first_name).toBeNull();
+    expect(result.billing_city).toBeNull();
   });
 });

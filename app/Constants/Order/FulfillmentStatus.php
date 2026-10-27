@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Constants\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Fulfillment statuses of an order.
+ *
+ * @since 1.0.0
+ */
 final class FulfillmentStatus
 {
     use HasConstants;
@@ -21,7 +28,7 @@ final class FulfillmentStatus
      *
      * @since 1.0.0
      *
-     * @return array<string, string>
+     * @return array<string, string> Translated labels keyed by status.
      */
     public static function get_list()
     {
@@ -37,13 +44,12 @@ final class FulfillmentStatus
     }
 
     /**
-     * Get the formatted status.
+     * Get the translated label for a fulfillment status.
      *
      * @since 1.0.0
-     * 
-     * @param string $status
      *
-     * @return string
+     * @param string $status Fulfillment status key.
+     * @return string Label, or an empty string for an unknown status.
      */
     public static function get_formatted(string $status)
     {

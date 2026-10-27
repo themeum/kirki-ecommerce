@@ -1,20 +1,27 @@
 import { useNavigate } from 'react-router';
 
-import DataTable from '@/components/data-table';
+import DataTable, { DataTableEmptyState } from '@/components/data-table';
+import Button from '@/components/ui/button';
 import { RouteConfig } from '@/config/route-config';
 import type { OrderListFilter } from '@/features/orders';
 import { orderListOptions } from '@/features/orders';
 import { orderColumns } from '@/features/orders/components/order-table/columns';
 import OrderTableAction from '@/features/orders/components/order-table/order-table-action';
-import { useOrdersQuery } from '@/features/orders/services/order';
+import type { OrderListItem } from '@/features/orders/schemas/catalog/order';
 import { useDataTableParams } from '@/hooks';
+import type { ListingTableProps } from '@/types/pages/common';
+import { __ } from '@/wpi18n';
 
-const OrderTable = () => {
+const OrderTable = ({ data, isLoading = false }: ListingTableProps<OrderListItem>) => {
   const navigate = useNavigate();
-  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams<OrderListFilter>(orderListOptions);
-
-  const { data, isFetching } = useOrdersQuery(params);
+  const {
+    pagination,
+    sorting,
+    onPaginationChange,
+    onSortingChange,
+    selectionResetKey,
+    clearFilters,
+  } = useDataTableParams<OrderListFilter>(orderListOptions);
 
   return (
     <DataTable
@@ -27,13 +34,23 @@ const OrderTable = () => {
       onPaginationChange={onPaginationChange}
       sorting={sorting}
       onSortingChange={onSortingChange}
-      isLoading={isFetching}
+      isLoading={isLoading}
       enableRowSelection
       selectionResetKey={selectionResetKey}
       onRowClick={(item) => {
         void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: item.id }));
       }}
       toolbar={<OrderTableAction />}
+      emptyState={
+        <DataTableEmptyState
+          title={__('No orders found', 'kirki-ecommerce')}
+          actions={
+            <Button variant="secondary" onClick={clearFilters}>
+              {__('Clear Search', 'kirki-ecommerce')}
+            </Button>
+          }
+        />
+      }
     />
   );
 };

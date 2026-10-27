@@ -17,14 +17,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import EmptyState from '@/components/ui/empty-state';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
+import NotFoundState from '@/components/ui/not-found-state';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
-import { SearchIcon } from '@/icons';
+import { SearchIcon } from '@/icons/common';
 import { getDefaults } from '@/libs/zod';
 import type { Country, State } from '@/schemas/reference/country';
 import {
@@ -67,8 +67,7 @@ type RegionsDialogProps = {
 };
 
 type RegionRow =
-  | { type: 'country'; country: Country }
-  | { type: 'state'; country: Country; state: State };
+  { type: 'country'; country: Country } | { type: 'state'; country: Country; state: State };
 
 const emptyDefaultValue: RegionsDialogDefaultValue = {
   countryCodes: [],
@@ -670,7 +669,7 @@ export const RegionsDialog = ({
                       ))}
                     </div>
                   ) : (
-                    <EmptyState
+                    <NotFoundState
                       icon={<SearchIcon />}
                       text={__('No country or state available', 'kirki-ecommerce')}
                     />

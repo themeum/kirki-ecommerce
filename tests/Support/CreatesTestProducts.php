@@ -34,10 +34,12 @@ trait CreatesTestProducts
      */
     protected function product_payload(array $overrides = []): array
     {
+        // Prices are stored and formatted in the base currency, so one must exist.
+        $this->seed_base_currency();
+
         $payload = [
             'title' => 'Test Product',
             'status' => ProductStatus::PUBLISHED,
-            'currency_id' => $this->base_currency_id(),
             'has_variants' => false,
             'variants' => [
                 [

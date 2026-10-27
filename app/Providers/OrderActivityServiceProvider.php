@@ -2,15 +2,22 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\App\Managers\OrderActivityManager;
 
+/**
+ * Registers the order activity manager singleton.
+ *
+ * @since 1.0.0
+ */
 class OrderActivityServiceProvider extends ServiceProvider
 {
     /**
-     * Register the hooks to the application.
+     * @inheritDoc
      *
-     * @return void
+     * @since 1.0.0
      */
     public function register()
     {

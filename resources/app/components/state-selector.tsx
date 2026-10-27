@@ -1,11 +1,12 @@
 import Combobox from '@/components/ui/combobox';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { getStateLabel } from '@/libs/address-rules';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { LabelFieldProps } from '@/types/components/common';
 import { isDefined } from '@/utils/object';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 type StateSelectorProps = LabelFieldProps & {
   country?: string | null;
@@ -34,7 +35,9 @@ const StateSelector = ({
 
   return (
     <Field data-invalid={error ? true : undefined}>
-      <FieldLabel>{label || __('State / Province', 'kirki-ecommerce')}</FieldLabel>
+      <FieldLabel>
+        {country ? getStateLabel(country) : label || __('State / Province', 'kirki-ecommerce')}
+      </FieldLabel>
       <Combobox
         options={options}
         value={value}
@@ -43,7 +46,11 @@ const StateSelector = ({
         disabled={!isDefined(country) || disabled}
         placeholder={
           isDefined(country)
-            ? __('Select state', 'kirki-ecommerce')
+            ? sprintf(
+                /* translators: %s: state label */
+                __('Select %s', 'kirki-ecommerce'),
+                getStateLabel(country),
+              )
             : __('Select a country first', 'kirki-ecommerce')
         }
         emptyText={__('No states found for this country.', 'kirki-ecommerce')}

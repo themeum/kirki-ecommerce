@@ -3,7 +3,9 @@ import { format } from 'date-fns';
 
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
+import { EMPTY_VALUE } from '@/features/inventory/lib/inventory-cells';
 import { getFulfillmentBadgeInfo, getPaymentBadgeInfo } from '@/features/orders/lib/order-badge';
 import type { OrderListItem } from '@/features/orders/schemas/catalog/order';
 import { DATE_FORMATS } from '@/libs/date';
@@ -18,9 +20,7 @@ const OrderCell = ({ item }: { item: OrderListItem }) => {
         <Text variant="tiny" color="subdued">
           {item.order_number}
         </Text>
-        {item.is_manual ? (
-          <Badge variant="secondary">{__('Manual Order', 'kirki-ecommerce')}</Badge>
-        ) : null}
+        {item.is_manual && <Badge>{__('Manual Order', 'kirki-ecommerce')}</Badge>}
       </Flex>
       {customerLabel ? (
         <Text variant="tiny">
@@ -41,21 +41,19 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
     id: 'order_number',
     header: __('Order', 'kirki-ecommerce'),
     enableSorting: true,
-    meta: { cssOverride: { width: '10%' } },
+    meta: { cssOverride: { width: '15%' } },
     cell: ({ row }) => <OrderCell item={row.original} />,
   },
   {
     id: 'quantity',
     header: __('Quantity', 'kirki-ecommerce'),
     enableSorting: true,
-    meta: { alignment: 'center' },
     cell: ({ row }) => <Text variant="small">{row.original.quantity}</Text>,
   },
   {
     id: 'invoiced_total',
     header: __('Price', 'kirki-ecommerce'),
     enableSorting: true,
-    meta: { alignment: 'center' },
     cell: ({ row }) => (
       <Text variant="small">{row.original.invoiced_total_money_object.display}</Text>
     ),
@@ -64,39 +62,48 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
     id: 'status',
     header: __('Status', 'kirki-ecommerce'),
     enableSorting: true,
-    meta: { alignment: 'center' },
     cell: ({ row }) => {
       const fulfillmentBadge = getFulfillmentBadgeInfo(row.original.fulfillment_status);
       const paymentBadge = getPaymentBadgeInfo(row.original.payment_status);
       return (
         <Flex gap={1} align="center">
-          <Badge variant={paymentBadge.variant}>
-            <Text variant="tiny">{paymentBadge.text}</Text>
-          </Badge>
-          <Badge variant={fulfillmentBadge.variant}>
-            <Text variant="tiny">{fulfillmentBadge.text}</Text>
-          </Badge>
+          <Badge variant={paymentBadge.variant}>{paymentBadge.text}</Badge>
+          <Badge variant={fulfillmentBadge.variant}>{fulfillmentBadge.text}</Badge>
         </Flex>
       );
     },
   },
   {
     id: 'payment_provider',
-    header: __('Payment', 'kirki-ecommerce'),
+    header: __('Payment Method', 'kirki-ecommerce'),
     enableSorting: true,
-    meta: { alignment: 'center' },
     cell: ({ row }) =>
       row.original.payment_provider ? (
-        <Text variant="tiny" color="subdued">
-          {row.original.payment_provider.toUpperCase()}
-        </Text>
-      ) : null,
+        <Flex align="center" gap={1}>
+          {row.original.payment_provider_icon && (
+            <Image
+              src={row.original.payment_provider_icon}
+              width={16}
+              height={16}
+              cssOverride={{ border: 'none' }}
+            />
+          )}
+          <Text variant="tiny" color="primary" weight="medium">
+            {row.original.payment_provider_name ?? row.original.payment_provider ?? EMPTY_VALUE}
+          </Text>
+        </Flex>
+      ) : (
+        EMPTY_VALUE
+      ),
   },
   {
     id: 'created_at',
-    header: __('Date', 'kirki-ecommerce'),
+    header: __('Created at', 'kirki-ecommerce'),
     enableSorting: true,
-    meta: { alignment: 'center' },
+    meta: {
+      alignment: 'right',
+      cssOverride: { width: '5%' },
+    },
     cell: ({ row }) =>
       row.original.created_at
         ? format(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE)

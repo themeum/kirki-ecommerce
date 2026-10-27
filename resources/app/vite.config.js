@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
@@ -6,6 +7,17 @@ import { defineConfig } from 'vite';
 import babelPluginScopedAutoLabel from './scripts/babel-plugin-scoped-auto-label.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// bin/dev-up saves this worktree's Docker ports in the root .env.
+const readRootEnv = (key) => {
+  try {
+    const text = fs.readFileSync(path.resolve(__dirname, '../../.env'), 'utf8');
+
+    return text.match(new RegExp(`^${key}=(.+)$`, 'm'))?.[1].trim();
+  } catch {
+    return undefined;
+  }
+};
 
 const EAGER_CORE_PACKAGES = new Set([
   'react',
@@ -69,10 +81,11 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
-    strictPort: false,
+    port: Number(readRootEnv('VITE_PORT') ?? 5173),
+    // Another port would not match the one the plugin loads scripts from.
+    strictPort: true,
     cors: true,
-    origin: 'http://localhost:20100',
+    origin: `http://localhost:${readRootEnv('NGINX_HTTP_PORT') ?? 20100}`,
     fs: {
       allow: [path.resolve(__dirname, '..')],
     },
@@ -85,7 +98,19 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, '../../assets'),
     emptyOutDir: false,
-    manifest: true,
+    // Not the default .vite/manifest.json: wordpress.org does not allow hidden
+    // files or directories in the plugin package.
+    manifest: 'manifest.json',
+    // Keep the i18n calls readable for `wp i18n make-pot`, which
+    // translate.wordpress.org runs over the shipped files: never rename the
+    // i18n functions, never merge `c ? __('A') : __('B')` into `__(c ? 'A' : 'B')`,
+    // and keep the translator comments. See docs/translations.md.
+    minify: 'terser',
+    terserOptions: {
+      compress: { conditionals: false },
+      mangle: { reserved: ['__', '_x', '_n', '_nx'] },
+      format: { comments: /translators:/i },
+    },
     rollupOptions: {
       input: path.resolve(__dirname, 'main.tsx'),
       output: {

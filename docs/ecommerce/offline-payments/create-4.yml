@@ -15,7 +15,7 @@ http:
         "is_enabled": true,
         "is_offline": false,
         "name": "Bkash2",
-        "icon": "cash",
+        "icon": 12,
         "instructions": "Bkash2",
         "config": {}
       }
@@ -39,7 +39,7 @@ examples:
             "is_enabled": true,
             "is_offline": false,
             "name": "Bkash2",
-            "icon": "cash",
+            "icon": 12,
             "instructions": "Bkash2",
             "config": {}
           }
@@ -57,7 +57,11 @@ examples:
             "data": {
               "id": "8ad75f16-92b1-4ef5-bea4-902c8fb66656",
               "name": "Bkash2",
-              "icon": "cash",
+              "icon": "https://example.com/wp-content/uploads/2026/01/bkash.png",
+              "icon_media": {
+                "id": 12,
+                "url": "https://example.com/wp-content/uploads/2026/01/bkash.png"
+              },
               "is_enabled": true,
               "is_offline": false,
               "instructions": "Bkash2",

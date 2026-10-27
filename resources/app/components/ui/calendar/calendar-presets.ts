@@ -30,13 +30,15 @@ type DateRangePresetKey =
 
 type DateRangePresetsPosition = 'left' | 'right' | 'bottom';
 
+type DateRangePresetsInput = boolean | DateRangePresetKey[] | DateRangePreset[];
+
 type PresetRange = {
   from: Date;
   to: Date;
 };
 
 type DateRangePreset = {
-  key: DateRangePresetKey;
+  key: string;
   label: string;
   getRange: (today: Date) => PresetRange;
 };
@@ -116,13 +118,11 @@ const DATE_RANGE_PRESETS: DateRangePreset[] = [
 /**
  * Resolve the picker's `presets` prop into the presets to render.
  *
- * @param presets True for every preset, or the keys to show in the given order.
+ * @param presets True for every preset, the keys to show in the given order, or custom presets.
  *
  * @returns Presets to render, empty when presets are switched off.
  */
-const resolveRangePresets = (
-  presets: boolean | DateRangePresetKey[],
-): DateRangePreset[] => {
+const resolveRangePresets = (presets: DateRangePresetsInput): DateRangePreset[] => {
   if (presets === true) {
     return DATE_RANGE_PRESETS;
   }
@@ -132,7 +132,13 @@ const resolveRangePresets = (
   }
 
   return presets
-    .map((key) => DATE_RANGE_PRESETS.find((preset) => preset.key === key))
+    .map((item) => {
+      if (typeof item !== 'string') {
+        return item;
+      }
+
+      return DATE_RANGE_PRESETS.find((preset) => preset.key === item);
+    })
     .filter((preset): preset is DateRangePreset => Boolean(preset));
 };
 
@@ -168,6 +174,7 @@ export { clampPresetRange, DATE_RANGE_PRESETS, resolveRangePresets };
 export type {
   DateRangePreset,
   DateRangePresetKey,
+  DateRangePresetsInput,
   DateRangePresetsPosition,
   PresetRange,
 };

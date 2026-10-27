@@ -124,8 +124,8 @@ defined('ABSPATH') || exit;
                 <span class="kecom-field-error" x-show="errors.city" x-text="errors.city"></span>
             </div>
 
-            <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.state }">
-                <label for="address_state" class="kecom-field-label"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
+            <div class="kecom-field" x-show="addressRule.state.mode !== 'hidden'" :class="{ 'kecom-field-error-state': errors.state }">
+                <label for="address_state" class="kecom-field-label" x-text="addressRule.state.label"></label>
                 <select
                     id="address_state"
                     name="state"
@@ -135,7 +135,7 @@ defined('ABSPATH') || exit;
                     :disabled="availableStates.length === 0"
                     @change="delete errors.state"
                 >
-                    <option value="" x-text="availableStates.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
+                    <option value="" x-text="availableStates.length ? '<?php esc_attr_e('Select', 'kirki-ecommerce'); ?> ' + addressRule.state.label : '<?php esc_attr_e('Not applicable', 'kirki-ecommerce'); ?>'"></option>
                     <template x-for="state in availableStates" :key="state.id">
                         <option :value="state.id" x-text="state.name"></option>
                     </template>
@@ -143,7 +143,7 @@ defined('ABSPATH') || exit;
                 <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>
             </div>
 
-            <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.postal_code }">
+            <div class="kecom-field" x-show="addressRule.postal_code.mode !== 'hidden'" :class="{ 'kecom-field-error-state': errors.postal_code }">
                 <label for="address_postal_code" class="kecom-field-label"><?php esc_html_e('Postcode / ZIP', 'kirki-ecommerce'); ?></label>
                 <input
                     type="text"

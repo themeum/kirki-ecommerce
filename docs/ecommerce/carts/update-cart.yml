@@ -12,6 +12,7 @@ http:
     type: json
     data: |-
       {
+        "customer_email": "jane@example.com",
         "shipping_address": {
           "first_name": "Sunny",
           "last_name": "Doe",
@@ -57,6 +58,7 @@ examples:
         type: json
         data: |-
           {
+            "customer_email": "jane@example.com",
             "shipping_address": {
               "first_name": "Sunny",
               "last_name": "Doe",
@@ -97,6 +99,7 @@ examples:
             "data": {
               "id": "15",
               "user_id": 2,
+              "customer_email": "jane@example.com",
               "cart_token": "38c51e6c-e936-472c-9cc3-5d90587f9cf6",
               "currency": {
                 "code": "USD",
@@ -189,7 +192,7 @@ examples:
                 }
               ],
               "shipping_method": "fsdfdsfsdfsdf343432jh4",
-              "customer_notes": null,
+              "order_notes": null,
               "ip_address": null,
               "user_agent": null,
               "expires_at": {
@@ -211,6 +214,7 @@ examples:
         type: json
         data: |-
           {
+            "customer_email": "jane@example.com",
             "shipping_address": {
               "first_name": "Sunny",
               "last_name": "Doe",
@@ -255,3 +259,7 @@ examples:
 docs: |-
   # Update the cart
   Update the cart with new data like shipping method, address etc
+
+  `customer_email` (optional, nullable) stores the shopper's contact email on the cart. Guests need it to
+  apply coupons limited to first-time buyers or a number of uses per customer. Omit it to keep the stored
+  value, or send `null` to clear it.

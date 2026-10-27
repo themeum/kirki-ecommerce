@@ -2,26 +2,34 @@
 
 namespace Kirki\Ecommerce\App\Facades;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Facade;
 use Kirki\Ecommerce\App\Managers\OrderActivityManager;
 
 /**
+ * Facade for the order activity manager.
+ *
+ * @since 1.0.0
+ *
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity log(\Kirki\Ecommerce\App\Models\Order $order, string $activity_type)
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity partially_refunded(\Kirki\Ecommerce\App\Models\Order $order, \Kirki\Ecommerce\App\Models\Refund $refund)
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity refunded(\Kirki\Ecommerce\App\Models\Order $order, \Kirki\Ecommerce\App\Models\Refund $refund)
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity refund_requested(\Kirki\Ecommerce\App\Models\Order $order, \Kirki\Ecommerce\App\Models\Refund $refund)
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity refund_deleted(\Kirki\Ecommerce\App\Models\Order $order, array $refund_snapshot)
- * @method static \Kirki\Ecommerce\App\Models\OrderActivity comment(int $order_id, string $message, int|null $created_by = null)
+ * @method static \Kirki\Ecommerce\App\Models\OrderActivity comment(int $order_id, string $message, int|null $created_by = null, bool $notify_customer = false)
  * @method static string describe(\Kirki\Ecommerce\App\Models\OrderActivity $activity)
+ * @method static mixed as_assistant(callable $callback)
+ * @method static bool is_from_assistant(\Kirki\Ecommerce\App\Models\OrderActivity $activity)
  *
  * @see \Kirki\Ecommerce\App\Managers\OrderActivityManager
  */
 class OrderActivity extends Facade
 {
     /**
-     * Get the registered name of the component.
+     * @inheritDoc
      *
-     * @return string
+     * @since 1.0.0
      */
     public static function get_accessor()
     {

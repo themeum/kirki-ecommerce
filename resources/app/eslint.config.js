@@ -29,6 +29,7 @@ const FEATURES = [
   'products',
   'settings',
   'system',
+  'onboarding',
 ];
 
 const SHARED_ROOT_DIRS = [

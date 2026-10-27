@@ -5,7 +5,6 @@ import MediaField from '@/components/form/media-field';
 import TextField from '@/components/form/text-field';
 import TextareaField from '@/components/form/textarea-field';
 import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogBody,
@@ -28,7 +27,6 @@ import { useCreateBrandMutation, useUpdateBrandMutation } from '@/features/brand
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
-import { cardStyles } from '@/theme/card-styles';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -83,35 +81,26 @@ const BrandAddEditPopover = ({ brand, onClose = noop }: BrandAddEditPopoverProps
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
               <Flex direction="column" gap={4}>
-                <Card cssOverride={cardStyles.lightCard}>
-                  <CardContent cssOverride={cardStyles.innerCardContent}>
-                    <Flex direction="column" gap={4}>
-                      <TextField
-                        name="name"
-                        label={__('Name', 'kirki-ecommerce')}
-                        placeholder={__('e.g., apple', 'kirki-ecommerce')}
-                      />
-                      <TextField
-                        name="slug"
-                        label={__('Slug', 'kirki-ecommerce')}
-                        placeholder={__('e.g., fund-raising', 'kirki-ecommerce')}
-                      />
-                      <TextareaField
-                        name="description"
-                        label={__('Description', 'kirki-ecommerce')}
-                        rows={2}
-                        placeholder={__(
-                          'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
-                          'kirki-ecommerce',
-                        )}
-                      />
-                      <MediaField
-                        name="logo"
-                        label={__('Thumb', 'kirki-ecommerce')}
-                      />
-                    </Flex>
-                  </CardContent>
-                </Card>
+                <TextField
+                  name="name"
+                  label={__('Name', 'kirki-ecommerce')}
+                  placeholder={__('e.g., apple', 'kirki-ecommerce')}
+                />
+                <TextField
+                  name="slug"
+                  label={__('Slug', 'kirki-ecommerce')}
+                  placeholder={__('e.g., fund-raising', 'kirki-ecommerce')}
+                />
+                <TextareaField
+                  name="description"
+                  label={__('Description', 'kirki-ecommerce')}
+                  rows={2}
+                  placeholder={__(
+                    'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
+                    'kirki-ecommerce',
+                  )}
+                />
+                <MediaField name="logo" label={__('Thumb', 'kirki-ecommerce')} />
               </Flex>
             </DialogBody>
             <DialogFooter>

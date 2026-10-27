@@ -2,32 +2,29 @@
 
 namespace Kirki\Ecommerce\App\DTO\Cart;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for adding a product variant to a user's or guest's cart.
+ *
+ * @since 1.0.0
+ */
 class AddToCartDTO extends DTO
 {
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $user_id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $token;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $product_id;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $variant_id;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $quantity = 1;
 }

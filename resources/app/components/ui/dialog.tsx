@@ -13,6 +13,7 @@ import { useWordpressMedia } from '@/hooks';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss, scopedMerge } from '@/theme/mixins';
+import { isTinyMceFloatPanelNode } from '@/utils/richtext';
 
 const Dialog = DialogPrimitive.Root;
 
@@ -72,7 +73,9 @@ const DialogContent = forwardRef<ComponentRef<typeof DialogPrimitive.Content>, D
             rest.onEscapeKeyDown?.(event);
           }}
           onInteractOutside={(event) => {
-            if (isWpMediaNode(event.detail.originalEvent.target)) {
+            const target = event.detail.originalEvent.target;
+
+            if (isWpMediaNode(target) || isTinyMceFloatPanelNode(target)) {
               event.preventDefault();
               return;
             }
@@ -272,6 +275,11 @@ const styles = defineStyles({
     '&[data-state="closed"]': {
       animation: `${dialogContentOut} 200ms ease`,
     },
+    '& > form': {
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: 0,
+    },
   },
   closeButton: {
     position: 'absolute',
@@ -281,16 +289,19 @@ const styles = defineStyles({
   header: {
     display: 'flex',
     flexDirection: 'column',
-    rowGap: theme.spacing[2],
+    flexShrink: 0,
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
     paddingRight: theme.spacing[12],
+    borderBottom: `1px solid ${theme.colors.border.default}`,
   },
   footer: {
     display: 'flex',
     alignItems: 'center',
+    flexShrink: 0,
     justifyContent: 'flex-end',
     columnGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
+    borderTop: `1px solid ${theme.colors.border.default}`,
   },
   title: {
     margin: 0,

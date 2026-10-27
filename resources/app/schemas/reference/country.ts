@@ -9,6 +9,21 @@ export const StateSchema = z.object({
 
 export type State = z.infer<typeof StateSchema>;
 
+export const AddressFieldModeSchema = z.enum(['hidden', 'optional', 'required']);
+
+export const AddressRulesSchema = z.object({
+  state: z.object({
+    mode: AddressFieldModeSchema,
+    label: z.string(),
+  }),
+  postal_code: z.object({
+    mode: AddressFieldModeSchema,
+  }),
+});
+
+export type AddressFieldMode = z.infer<typeof AddressFieldModeSchema>;
+export type AddressRules = z.infer<typeof AddressRulesSchema>;
+
 export const CountrySchema = z.object({
   name: z.string(),
   code: z.string(),
@@ -22,6 +37,7 @@ export const CountrySchema = z.object({
     .nullish()
     .transform((value) => value ?? undefined),
   states: z.array(StateSchema).nullish(),
+  address_rules: AddressRulesSchema.nullish(),
 });
 
 export type Country = z.infer<typeof CountrySchema>;

@@ -3,12 +3,14 @@
 /**
  * Finalises `composer scope`.
  *
- * Composer installs `themeum/framework` at `vendor/themeum/framework`, but the
- * plugin runs it from `vendor/libraries/framework` with its namespaces
- * rewritten. This script owns both halves of that:
+ * Composer installs each scoped package at `vendor/<vendor>/<name>` (for
+ * example `vendor/themeum/framework`), but the plugin runs it from
+ * `vendor/libraries/<dir>` with its namespaces rewritten. The packages are
+ * listed in `$packages` below; for each one this script owns both halves of
+ * that:
  *
  *   1. Relocation - move the freshly installed package to
- *      `vendor/libraries/framework` and repoint `install-path` in
+ *      `vendor/libraries/<dir>` and repoint `install-path` in
  *      `vendor/composer/installed.json` so Composer's autoloader resolves the
  *      package's PSR-4 map to the new directory. This must run *before*
  *      anything loads `vendor/autoload.php` - both the root `autoload.files`
@@ -21,7 +23,7 @@
  *      this script swaps it into place and strips files the plugin does not
  *      ship.
  *
- * The package's own `files` autoload is removed rather than kept: Composer
+ * The framework's own `files` autoload is removed rather than kept: Composer
  * emits dependency `files` entries *before* the root package's, so the
  * framework's helpers.php (which starts `defined('ABSPATH') || exit;`) would
  * load before bootstrap/abspath.php and silently exit every CLI process. The
@@ -35,7 +37,7 @@
  * The `--restore` mode exists for bin/make-package.sh. Composer decides whether
  * a package is installed by looking at the path it derives from the package
  * name, not at the `install-path` recorded in installed.json, so every install
- * re-clones an unscoped copy at `vendor/themeum/framework` - and the autoload
+ * re-clones an unscoped copy at `vendor/<vendor>/<name>` - and the autoload
  * generator registers any package directory that exists. With scripts enabled
  * the scope run below relocates that copy away again; `--no-scripts` leaves it,
  * so `--restore` removes it and re-applies the metadata the install reset.
@@ -45,23 +47,47 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__);
 
-// Where Composer puts the package, and where the plugin actually runs it from.
-$installed_dir = $root . '/vendor/themeum/framework';
-$package_dir = $root . '/vendor/libraries/framework';
-$install_path = '../libraries/framework';
-
-$src_dir = $package_dir . '/src';
-$staging_dir = $root . '/vendor/.scoper-staging';
 $installed_json = $root . '/vendor/composer/installed.json';
 
-$package_name = 'themeum/framework';
-$scoped_prefix = 'Kirki\\Ecommerce\\Framework\\';
-$unscoped_prefix = 'Framework\\';
+$scoped_namespace = 'Kirki\\Ecommerce\\';
 
-// Everything else in the package is the framework's own tooling: tests, docs,
-// docker config, build configs. Only src/ is autoloaded; LICENSE is kept
-// because the plugin redistributes the dependency, composer.json because
-// Composer reads it when regenerating metadata.
+/*
+ * The packages to relocate and scope. Each `staging` directory must match the
+ * `--output-dir` of that package's php-scoper pass in composer.json, and each
+ * `sentinel` is a file the scoped src/ must contain before it replaces the
+ * installed one.
+ *
+ * `stubs` names a directory under src/ whose .stub templates php-scoper copies
+ * without rewriting; the package's own bin script prefixes them before the
+ * bin directory is stripped. That script is also exposed as a proxy in
+ * vendor/bin, which points at the unrelocated path, so the proxy is removed.
+ */
+$packages = [
+    [
+        'name' => 'themeum/framework',
+        'dir' => 'framework',
+        'staging' => 'vendor/.scoper-staging',
+        'sentinel' => 'helpers.php',
+        'namespace' => 'Framework\\',
+    ],
+    [
+        'name' => 'ahamed/framework-mcp',
+        'dir' => 'framework-mcp',
+        'staging' => 'vendor/.scoper-staging-framework-mcp',
+        'sentinel' => 'McpServiceProvider.php',
+        'namespace' => 'Ahamed\\FrameworkMcp\\',
+        'stubs' => [
+            'dir' => 'Console/stubs',
+            'bin' => 'bin/framework-mcp-prefix-stubs',
+            'proxy' => 'vendor/bin/framework-mcp-prefix-stubs',
+        ],
+    ],
+];
+
+// Everything else in a package is its own tooling: tests, docs, docker
+// config, build configs. Only src/ is autoloaded; LICENSE is kept because the
+// plugin redistributes the dependency, composer.json because Composer reads it
+// when regenerating metadata.
 $keep = ['src', 'LICENSE', 'composer.json'];
 
 $flags = array_slice($argv, 1);
@@ -127,8 +153,8 @@ function relocate_package(string $installed_dir, string $package_dir): string
         fail("could not move $installed_dir to $package_dir.");
     }
 
-    // Composer recreates vendor/themeum on the next install; leaving it empty
-    // makes it look like the package is still installed there.
+    // Composer recreates the vendor directory on the next install; leaving it
+    // empty makes it look like the package is still installed there.
     @rmdir(dirname($installed_dir));
 
     return 'relocated';
@@ -203,78 +229,109 @@ function rewrite_installed_metadata(
     return 'rewritten';
 }
 
-if ($restore) {
-    // Guarded: only discard the reinstalled copy once the scoped one is proven
-    // present, so a --restore run that follows a failed scope does not leave
-    // the build with no framework at all.
-    if (!is_file($src_dir . '/helpers.php')) {
-        fail("no scoped package at $src_dir - refusing to remove $installed_dir.");
-    }
+foreach ($packages as $package) {
+    // Where Composer puts the package, and where the plugin actually runs it from.
+    $installed_dir = $root . '/vendor/' . $package['name'];
+    $package_dir = $root . '/vendor/libraries/' . $package['dir'];
+    $install_path = '../libraries/' . $package['dir'];
 
-    if (is_dir($installed_dir)) {
-        remove_path($installed_dir);
-        @rmdir(dirname($installed_dir));
-        echo "scope-framework: removed the reinstalled unscoped copy at $installed_dir\n";
-    }
-} elseif (relocate_package($installed_dir, $package_dir) === 'relocated') {
-    echo "scope-framework: relocated the installed package to $package_dir\n";
-}
+    $src_dir = $package_dir . '/src';
+    $staging_dir = $root . '/' . $package['staging'];
+    $sentinel = $package['sentinel'];
 
-if (!$relocate_only && !$restore) {
-    // (a) The staged output must exist and be non-empty before anything is
-    //     deleted. A failed scoping run then leaves the package untouched
-    //     rather than leaving no framework at all.
-    if (!is_dir($staging_dir)) {
-        fail("staging directory $staging_dir not found - did php-scoper run?");
-    }
-
-    $staged_files = iterator_to_array(
-        new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($staging_dir, FilesystemIterator::SKIP_DOTS)
-        )
-    );
-
-    if (count($staged_files) === 0) {
-        remove_path($staging_dir);
-        fail('staging directory is empty - refusing to replace the installed package.');
-    }
-
-    if (!is_file($staging_dir . '/helpers.php')) {
-        remove_path($staging_dir);
-        fail('staged output is missing helpers.php - refusing to replace the installed package.');
-    }
-
-    // (b) and (c) - only now is it safe to swap.
-    remove_path($src_dir);
-
-    if (!rename($staging_dir, $src_dir)) {
-        fail("could not move $staging_dir to $src_dir.");
-    }
-
-    echo "scope-framework: swapped scoped source into $src_dir\n";
-
-    // Strip the framework's own tooling.
-    $stripped = 0;
-
-    foreach (scandir($package_dir) as $entry) {
-        if ($entry === '.' || $entry === '..' || in_array($entry, $keep, true)) {
-            continue;
+    if ($restore) {
+        // Guarded: only discard the reinstalled copy once the scoped one is
+        // proven present, so a --restore run that follows a failed scope does
+        // not leave the build without the package at all.
+        if (!is_file($src_dir . '/' . $sentinel)) {
+            fail("no scoped package at $src_dir - refusing to remove $installed_dir.");
         }
 
-        remove_path($package_dir . '/' . $entry);
-        $stripped++;
+        if (is_dir($installed_dir)) {
+            remove_path($installed_dir);
+            @rmdir(dirname($installed_dir));
+            echo "scope-framework: removed the reinstalled unscoped copy at $installed_dir\n";
+        }
+    } elseif (relocate_package($installed_dir, $package_dir) === 'relocated') {
+        echo "scope-framework: relocated the installed package to $package_dir\n";
     }
 
-    echo "scope-framework: stripped $stripped non-runtime path(s) from the package\n";
-}
+    if (isset($package['stubs'])) {
+        remove_path($root . '/' . $package['stubs']['proxy']);
+        remove_path($root . '/' . $package['stubs']['proxy'] . '.bat');
+    }
 
-switch (rewrite_installed_metadata($installed_json, $package_name, $unscoped_prefix, $scoped_prefix, $install_path)) {
-    case 'rewritten':
-        echo "scope-framework: rewrote $package_name metadata - prefix $scoped_prefix, install-path $install_path\n";
-        break;
-    case 'already-rewritten':
-        echo "scope-framework: $package_name metadata already rewritten, nothing to do\n";
-        break;
-    default:
-        fail("no entry for $package_name found in installed.json.");
+    if (!$relocate_only && !$restore) {
+        // (a) The staged output must exist and be non-empty before anything is
+        //     deleted. A failed scoping run then leaves the package untouched
+        //     rather than leaving no package at all.
+        if (!is_dir($staging_dir)) {
+            fail("staging directory $staging_dir not found - did php-scoper run?");
+        }
+
+        $staged_files = iterator_to_array(
+            new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($staging_dir, FilesystemIterator::SKIP_DOTS)
+            )
+        );
+
+        if (count($staged_files) === 0) {
+            remove_path($staging_dir);
+            fail('staging directory is empty - refusing to replace the installed package.');
+        }
+
+        if (!is_file($staging_dir . '/' . $sentinel)) {
+            remove_path($staging_dir);
+            fail("staged output is missing $sentinel - refusing to replace the installed package.");
+        }
+
+        // (b) and (c) - only now is it safe to swap.
+        remove_path($src_dir);
+
+        if (!rename($staging_dir, $src_dir)) {
+            fail("could not move $staging_dir to $src_dir.");
+        }
+
+        echo "scope-framework: swapped scoped source into $src_dir\n";
+
+        if (isset($package['stubs'])) {
+            $command = escapeshellarg(PHP_BINARY) . ' '
+                . escapeshellarg($package_dir . '/' . $package['stubs']['bin']) . ' '
+                . escapeshellarg($src_dir . '/' . $package['stubs']['dir']) . ' '
+                . escapeshellarg(rtrim($scoped_namespace, '\\'));
+
+            passthru($command, $exit_code);
+
+            if ($exit_code !== 0) {
+                fail("could not prefix the stub templates of {$package['name']}.");
+            }
+        }
+
+        // Strip the package's own tooling.
+        $stripped = 0;
+
+        foreach (scandir($package_dir) as $entry) {
+            if ($entry === '.' || $entry === '..' || in_array($entry, $keep, true)) {
+                continue;
+            }
+
+            remove_path($package_dir . '/' . $entry);
+            $stripped++;
+        }
+
+        echo "scope-framework: stripped $stripped non-runtime path(s) from the package\n";
+    }
+
+    $scoped_prefix = $scoped_namespace . $package['namespace'];
+
+    switch (rewrite_installed_metadata($installed_json, $package['name'], $package['namespace'], $scoped_prefix, $install_path)) {
+        case 'rewritten':
+            echo "scope-framework: rewrote {$package['name']} metadata - prefix $scoped_prefix, install-path $install_path\n";
+            break;
+        case 'already-rewritten':
+            echo "scope-framework: {$package['name']} metadata already rewritten, nothing to do\n";
+            break;
+        default:
+            fail("no entry for {$package['name']} found in installed.json.");
+    }
 }

@@ -1,6 +1,4 @@
-import { PlusCircle } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { type ReactNode, useMemo } from 'react';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,29 +9,44 @@ import Text from '@/components/ui/text';
 import DiscountPopover from '@/features/orders/components/order-create/payment/discount-popover';
 import ShippingPopover from '@/features/orders/components/order-create/payment/shipping-popover';
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
-import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
 import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
-import { __, sprintf } from '@/wpi18n';
+import { __, _n, sprintf } from '@/wpi18n';
 
 const EMPTY_AMOUNT = '—';
 
-type PaymentSummaryAmounts = {
-  itemsCount?: number;
-  subtotal?: string;
-  discount?: string;
-  shipping?: string;
-  tax?: string;
-  total?: string;
-};
+type PaymentSummaryTotals = Pick<
+  OrderCalculation['totals'],
+  | 'base_items_subtotal_money_object'
+  | 'base_order_total_money_object'
+  | 'base_tax_total_money_object'
+  | 'base_shipping_amount_money_object'
+  | 'base_total_money_object'
+>;
+
+type PaymentSummaryCoupon = Pick<
+  OrderCalculation['coupons'][number],
+  | 'code'
+  | 'title'
+  | 'discount_value_type'
+  | 'discount_amount_percentage'
+  | 'base_discount_amount_money_object'
+>;
+
+type PaymentSummaryTaxLine = Pick<
+  OrderCalculation['tax_lines'][number],
+  'name' | 'rate' | 'base_amount_money_object'
+>;
 
 type PaymentSummaryCardProps = {
-  amounts?: PaymentSummaryAmounts;
+  totals?: PaymentSummaryTotals;
+  coupons?: PaymentSummaryCoupon[];
+  taxLines?: PaymentSummaryTaxLine[];
+  itemsCount?: number;
   availableShippingMethods?: OrderCalculation['available_shipping_methods'];
   shippingMethodName?: string | null;
-  couponCode?: string | null;
+  isTaxInclusive?: boolean;
   isCalculating?: boolean;
   isDiscountEditable?: boolean;
   isShippingEditable?: boolean;
@@ -41,36 +54,44 @@ type PaymentSummaryCardProps = {
   actions?: ReactNode;
 };
 
+const getCouponLabel = (coupon: PaymentSummaryCoupon) => {
+  if (coupon.discount_value_type === 'percentage' && isDefined(coupon.discount_amount_percentage)) {
+    return sprintf(
+      /* translators: %1$s: coupon code, %2$s: discount percentage */
+      __('%1$s (%2$s%% off)', 'kirki-ecommerce'),
+      coupon.code,
+      coupon.discount_amount_percentage,
+    );
+  }
+
+  return coupon.title ?? coupon.code;
+};
+
 const PaymentSummaryCard = ({
-  amounts,
+  totals,
+  coupons = [],
+  taxLines = [],
+  itemsCount,
   availableShippingMethods = [],
   shippingMethodName,
-  couponCode,
+  isTaxInclusive,
   isCalculating,
   isDiscountEditable,
   isShippingEditable,
   badge,
   actions,
 }: PaymentSummaryCardProps) => {
-  const { control } = useFormContext<OrderFormInput>();
-  const draftCouponCode = useWatch({ control, name: 'coupon_code' });
-  const shippingMethodId = useWatch({ control, name: 'shipping_method' });
+  const subtotalDisplay = totals ? totals.base_items_subtotal_money_object.display : EMPTY_AMOUNT;
+  const totalDisplay = totals ? totals.base_order_total_money_object.display : EMPTY_AMOUNT;
+  const shippingDisplay = totals?.base_shipping_amount_money_object.display ?? EMPTY_AMOUNT;
+  const orderTotalDisplay = totals?.base_total_money_object.display ?? EMPTY_AMOUNT;
 
-  const appliedCouponCode = draftCouponCode ?? couponCode;
-
-  const selectedShippingMethodName =
-    availableShippingMethods.find((method) => String(method.id) === shippingMethodId)?.name ??
-    shippingMethodName;
-
-  const itemsCount = amounts?.itemsCount;
-  const subtotalDisplay = amounts?.subtotal ?? EMPTY_AMOUNT;
-  const discountDisplay = amounts?.discount ?? EMPTY_AMOUNT;
-  const shippingDisplay = amounts?.shipping ?? EMPTY_AMOUNT;
-  const taxDisplay = amounts?.tax ?? EMPTY_AMOUNT;
-  const totalDisplay = amounts?.total ?? EMPTY_AMOUNT;
+  const isProductSelected = useMemo(() => {
+    return isDefined(itemsCount) && itemsCount > 0;
+  }, [itemsCount]);
 
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card cssOverride={{ gap: theme.spacing[3] }}>
       <CardHeader cssOverride={styles.headerRow}>
         <CardTitle>
           <Text variant="heading6">{__('Payment', 'kirki-ecommerce')}</Text>
@@ -86,11 +107,14 @@ const PaymentSummaryCard = ({
             <Text variant="small" color="secondary" cssOverride={styles.info}>
               {__('Subtotal', 'kirki-ecommerce')}
             </Text>
-            {isDefined(itemsCount) && itemsCount > 0 ? (
+            {isProductSelected ? (
               <Flex justify="space-between" grow={1}>
-                {/* translators: %s: number of items */}
                 <Text variant="small" color="secondary">
-                  {sprintf(__('%s items', 'kirki-ecommerce'), itemsCount)}
+                  {sprintf(
+                    /* translators: %s: number of items */
+                    _n('%s item', '%s items', itemsCount ?? 0, 'kirki-ecommerce'),
+                    itemsCount ?? 0,
+                  )}
                 </Text>
                 <Text>{subtotalDisplay}</Text>
               </Flex>
@@ -98,64 +122,64 @@ const PaymentSummaryCard = ({
               <Text>{subtotalDisplay}</Text>
             )}
           </Flex>
-          <Flex justify="space-between">
-            {isDiscountEditable ? (
-              <DiscountPopover>
-                <Button variant="link" cssOverride={styles.buttonLink}>
-                  <Flex gap={1} align="center" cssOverride={styles.info}>
-                    <PlusCircle color={theme.colors.text.emphasis} size={16} />
-                    <Text variant="tiny" color="emphasis" weight="medium">
+
+          {isProductSelected && coupons.length === 0 ? (
+            <Flex justify="space-between">
+              {isDiscountEditable ? (
+                <DiscountPopover>
+                  <Button variant="link" cssOverride={styles.buttonLink}>
+                    <Flex gap={1} align="center" cssOverride={styles.info}>
+                      <Text variant="tiny" color="emphasis" weight="medium">
+                        {__('Edit Discount', 'kirki-ecommerce')}
+                      </Text>
+                    </Flex>
+                  </Button>
+                </DiscountPopover>
+              ) : (
+                <>
+                  <Text variant="tiny" cssOverride={styles.info}>
+                    {__('Discount', 'kirki-ecommerce')}
+                  </Text>
+                  <Text variant="small">{EMPTY_AMOUNT}</Text>
+                </>
+              )}
+            </Flex>
+          ) : (
+            coupons.map((coupon, index) => (
+              <Flex key={coupon.code ?? index} justify="space-between">
+                {index === 0 ? (
+                  isProductSelected && isDiscountEditable ? (
+                    <DiscountPopover>
+                      <Button variant="link" cssOverride={styles.buttonLink}>
+                        <Flex gap={1} align="center" cssOverride={styles.info}>
+                          <Text variant="tiny" color="emphasis" weight="medium">
+                            {__('Edit Discount', 'kirki-ecommerce')}
+                          </Text>
+                        </Flex>
+                      </Button>
+                    </DiscountPopover>
+                  ) : (
+                    <Text variant="tiny" cssOverride={styles.info}>
                       {__('Discount', 'kirki-ecommerce')}
                     </Text>
-                  </Flex>
-                </Button>
-              </DiscountPopover>
-            ) : (
-              <Text variant="tiny" color="emphasis" cssOverride={styles.info}>
-                {__('Discount', 'kirki-ecommerce')}
-              </Text>
-            )}
-            <Flex justify="space-between" grow={1}>
-              <Text variant="small" color="secondary">
-                {appliedCouponCode}
-              </Text>
-              <Text variant="small">{discountDisplay}</Text>
-            </Flex>
-          </Flex>
-          <Flex justify="space-between">
-            {isShippingEditable ? (
-              <ShippingPopover
-                availableShippingMethods={availableShippingMethods}
-                isLoading={isCalculating}
-              >
-                <Button variant="link" cssOverride={styles.buttonLink}>
-                  <Flex gap={1} align="center" cssOverride={styles.info}>
-                    <PlusCircle color={theme.colors.text.emphasis} size={16} />
-                    <Text variant="tiny" color="emphasis" weight="medium">
-                      {__('Shipping', 'kirki-ecommerce')}
-                    </Text>
-                  </Flex>
-                </Button>
-              </ShippingPopover>
-            ) : (
-              <Text variant="tiny" color="emphasis" weight="medium" cssOverride={styles.info}>
-                {__('Shipping', 'kirki-ecommerce')}
-              </Text>
-            )}
-            <Flex justify="space-between" grow={1}>
-              <Text variant="small" color="secondary">
-                {selectedShippingMethodName}
-              </Text>
-              <Text variant="small">{shippingDisplay}</Text>
-            </Flex>
-          </Flex>
-          <Flex justify="space-between">
-            <Text variant="tiny" color="emphasis" cssOverride={styles.info}>
-              {__('Estimated tax', 'kirki-ecommerce')}
-            </Text>
-            <Text variant="small">{taxDisplay}</Text>
-          </Flex>
-          <Separator />
+                  )
+                ) : (
+                  <Text cssOverride={styles.info} />
+                )}
+                <Flex justify="space-between" grow={1}>
+                  <Text variant="small" color="secondary">
+                    {getCouponLabel(coupon)}
+                  </Text>
+                  <Text variant="small">
+                    {sprintf('-%s', coupon.base_discount_amount_money_object.display)}
+                  </Text>
+                </Flex>
+              </Flex>
+            ))
+          )}
+
+          <Separator color={theme.colors.border.secondary} />
+
           <Flex justify="space-between">
             <Text variant="small" weight="semibold">
               {__('Total', 'kirki-ecommerce')}
@@ -164,6 +188,91 @@ const PaymentSummaryCard = ({
               {totalDisplay}
             </Text>
           </Flex>
+
+          <Flex justify="space-between">
+            {isProductSelected && isShippingEditable ? (
+              <ShippingPopover
+                availableShippingMethods={availableShippingMethods}
+                isLoading={isCalculating}
+              >
+                <Button variant="link" cssOverride={styles.buttonLink}>
+                  <Flex gap={1} align="center" cssOverride={styles.info}>
+                    <Text variant="tiny" color="emphasis" weight="medium">
+                      {__('Edit Shipping', 'kirki-ecommerce')}
+                    </Text>
+                  </Flex>
+                </Button>
+              </ShippingPopover>
+            ) : (
+              <Text variant="tiny" weight="medium" cssOverride={styles.info}>
+                {__('Shipping', 'kirki-ecommerce')}
+              </Text>
+            )}
+            <Flex justify="space-between" grow={1}>
+              <Text variant="small" color="secondary">
+                {shippingMethodName}
+              </Text>
+              <Text variant="small">{shippingDisplay}</Text>
+            </Flex>
+          </Flex>
+
+          {!isTaxInclusive && (
+            <Flex justify="space-between">
+              <Text variant="tiny" color="secondary" cssOverride={styles.info}>
+                {__('Estimated tax', 'kirki-ecommerce')}
+              </Text>
+              {taxLines.length === 0 ? (
+                <Text variant="small">{EMPTY_AMOUNT}</Text>
+              ) : (
+                <Flex direction="column" gap={1} grow={1}>
+                  {taxLines.map((taxLine) => (
+                    <Flex key={`${taxLine.name}-${taxLine.rate}`} justify="space-between">
+                      <Text variant="small" color="secondary">
+                        {sprintf('%s %s%%', taxLine.name, taxLine.rate)}
+                      </Text>
+                      <Text variant="small">{taxLine.base_amount_money_object.display}</Text>
+                    </Flex>
+                  ))}
+                </Flex>
+              )}
+            </Flex>
+          )}
+
+          <Separator color={theme.colors.border.secondary} />
+
+          <Flex justify="space-between">
+            <Text variant="small" weight="semibold">
+              {__('Order total', 'kirki-ecommerce')}
+            </Text>
+            <Text variant="small" weight="semibold">
+              {orderTotalDisplay}
+            </Text>
+          </Flex>
+
+          {isTaxInclusive && totals && taxLines.length > 0 && (
+            <Flex direction="column" gap={1}>
+              <Text variant="tiny" color="secondary" weight="medium">
+                {/* @todo: need to fix the label of incl. tax */}
+                {sprintf(
+                  /* translators: %s: total tax amount included in the order total */
+                  __('Incl. Tax %s', 'kirki-ecommerce'),
+                  totals.base_tax_total_money_object.display,
+                )}
+              </Text>
+              <Flex cssOverride={{ paddingLeft: theme.spacing[3] }} direction="column" gap={1}>
+                {taxLines.map((taxLine, index) => (
+                  <Flex key={index} gap={2}>
+                    <Text variant="tiny" color="subdued">
+                      {sprintf('%s %s%%', taxLine.name, taxLine.rate)}
+                    </Text>
+                    <Text variant="tiny" color="subdued">
+                      {taxLine.base_amount_money_object.display}
+                    </Text>
+                  </Flex>
+                ))}
+              </Flex>
+            </Flex>
+          )}
         </Flex>
       </CardContent>
       {Boolean(actions) && <CardFooter>{actions}</CardFooter>}
@@ -179,7 +288,7 @@ const styles = defineStyles({
   dashedCard: {
     padding: theme.spacing[3],
     border: `1px dashed ${theme.colors.border.alt}`,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.lg,
   },
   buttonLink: {
     color: theme.colors.text.emphasis,

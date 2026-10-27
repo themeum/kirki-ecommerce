@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Constants\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Actions a merchant can perform on an order.
+ *
+ * @since 1.0.0
+ */
 final class OrderAction
 {
     use HasConstants;

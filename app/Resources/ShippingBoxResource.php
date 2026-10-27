@@ -2,14 +2,23 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 
+/**
+ * API resource for a shipping box.
+ *
+ * @since 1.0.0
+ */
 class ShippingBoxResource extends Resource
 {
     /**
      * Convert the shipping box resource to an array.
      *
-     * @return array The shipping box data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The shipping box name, dimensions and default flag.
      */
     public function to_array()
     {

@@ -2,13 +2,28 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Variant;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for updating a single variant.
+ *
+ * @since 1.0.0
+ */
 class UpdateVariantRequest extends Request
 {
+    /**
+     * Convert the price and cost of goods fields to minor units before validation.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $payload = [];
@@ -24,6 +39,11 @@ class UpdateVariantRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -33,10 +53,9 @@ class UpdateVariantRequest extends Request
             'sku' => 'string|nullable|max:100',
 
             'base_price' => 'number|min:0|nullable',
-            'show_unit_price' => 'boolean|nullable',
-            'base_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
+            'base_unit' => 'string|nullable|max:10|in:' . Unit::join(),
             'base_unit_amount' => 'number|min:0|nullable',
-            'total_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
+            'total_unit' => 'string|nullable|max:10|in:' . Unit::join(),
             'total_unit_amount' => 'number|min:0|nullable',
             'base_sale_price' => 'number|min:0|nullable',
             'base_cost_of_goods' => 'number|min:0|nullable',
@@ -60,6 +79,11 @@ class UpdateVariantRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [
@@ -67,7 +91,6 @@ class UpdateVariantRequest extends Request
             'media' => Sanitizer::INT,
             'sku' => Sanitizer::TEXT,
             'base_price' => Sanitizer::INT,
-            'show_unit_price' => Sanitizer::BOOL,
             'base_unit' => Sanitizer::TEXT,
             'base_unit_amount' => Sanitizer::INT,
             'total_unit' => Sanitizer::TEXT,

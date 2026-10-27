@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;
@@ -28,43 +30,91 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\UniqueConstraintViolationException;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Events\Order\OrderPlacedEvent;
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
 use function Kirki\Ecommerce\App\base_currency;
-use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
+/**
+ * Places an order from a checkout or manual-order payload, reserving stock and persisting totals, coupons and taxes.
+ *
+ * @since 1.0.0
+ */
 class CreateOrderAction
 {
     use PersistsOrderCoupons;
     use PersistsOrderTaxes;
 
+    /** @var RecalculateCartAction */
     protected $recalculate_cart_action;
+
+    /** @var VariantService */
     protected $variant_service;
+
+    /** @var OrderService */
     protected $order_service;
+
+    /** @var InventoryService */
     protected $inventory_service;
+
+    /** @var ShippingService */
     protected $shipping_service;
+
+    /** @var CouponService */
     protected $coupon_service;
+
+    /** @var CustomerService */
     protected $customer_service;
+
+    /** @var CreateCustomerAction */
     protected $create_customer_action;
+
+    /** @var CartService */
     protected $cart_service;
+
+    /** @var AddressService */
     protected $address_service;
+
+    /** @var array<int, \Kirki\Ecommerce\App\Models\Variant> Variants loaded while building the calculation items, keyed by variant ID. */
     protected $variants_map = [];
+
+    /** @var string */
     protected $base_currency_code;
 
+    /**
+     * Set up the action and capture the store's base currency code.
+     *
+     * @since 1.0.0
+     *
+     * @param RecalculateCartAction $recalculate_cart_action Totals calculator.
+     * @param VariantService        $variant_service         Variant lookup service.
+     * @param OrderService          $order_service           Order persistence service.
+     * @param InventoryService      $inventory_service       Stock checks and reservation.
+     * @param ShippingService       $shipping_service        Shipping method validation.
+     * @param CouponService         $coupon_service          Coupon service.
+     * @param CustomerService       $customer_service        Customer lookup service.
+     * @param CreateCustomerAction  $create_customer_action  Provisions the checkout customer.
+     * @param CartService           $cart_service            Cart lookup and clearing service.
+     * @param AddressService        $address_service         Address persistence service.
+     */
     public function __construct(
         RecalculateCartAction $recalculate_cart_action,
         VariantService $variant_service,
@@ -91,8 +141,25 @@ class CreateOrderAction
         $this->base_currency_code = base_currency()->code;
     }
 
+    /**
+     * Create an order from the payload.
+     *
+     * For storefront checkouts the items and coupons come from the shopper's cart, which is
+     * emptied after the order is placed. Totals are recalculated server-side, stock is
+     * reserved per item, and everything is written in one transaction. Fails when the
+     * payment provider is not allowed, the shipping method is invalid, the cart is empty,
+     * or stock is short.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Checkout or manual order data; addresses, customer and cart fields may be filled in.
+     * @return Order The created order with its items and coupons loaded.
+     * @throws Throwable When persisting the order fails; the transaction is rolled back.
+     */
     public function execute(CreateOrderPayloadDTO $dto)
     {
+        $this->validate_payment_provider($dto);
+
         $this->resolve_billing_and_shipping_addresses($dto);
 
         if (!$dto->is_manual && (!empty($dto->cart_token) || !empty($dto->user_id))) {
@@ -121,15 +188,17 @@ class CreateOrderAction
             $order = $this->order_service->create_order($create_order_dto);
             $this->sync_address($dto, $order);
 
-            foreach ($dto->items as $item_data) {
-                $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$item_data['variant_id']], $dto->currency_code, $order->exchange_rate);
+            $this->inventory_service->collect_stock_alerts(function () use ($dto, $order, $calculated_result) {
+                foreach ($dto->items as $item_data) {
+                    $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$item_data['variant_id']], $dto->currency_code, $order->exchange_rate);
 
-                /* translators: %s: variant ID */
-                throw_if(!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id));
+                    /* translators: %s: variant ID */
+                    throw_if(!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id));
 
-                $this->order_service->create_order_item($order_item_dto);
-                $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
-            }
+                    $this->order_service->create_order_item($order_item_dto);
+                    $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
+                }
+            });
 
             $order_with_items = $order->fresh('items');
 
@@ -149,19 +218,48 @@ class CreateOrderAction
             OrderActivity::log($order, OrderActivityType::ORDER_PLACED);
 
             DB::commit();
-
-            return $order;
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;
         }
+
+        OrderPlacedEvent::dispatch($order);
+
+        return $order;
+    }
+
+    /**
+     * Calculate a manual order without creating it: items, discounts, shipping, tax and total.
+     *
+     * Runs the same provider, address, shipping method and price rules as execute().
+     * The payload must name an existing customer or no customer.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Manual order data, modified in place like in execute().
+     * @return CalculationResultDTO
+     * @throws ValidationException When the payment provider is not valid.
+     * @throws \Exception When the shipping method is not valid for the order.
+     */
+    public function calculate(CreateOrderPayloadDTO $dto)
+    {
+        $this->validate_payment_provider($dto);
+        $this->resolve_billing_and_shipping_addresses($dto);
+
+        $context = $this->prepare_calculation_context_dto($dto);
+
+        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'));
+
+        return $this->recalculate_cart_action->execute($context);
     }
 
     /**
      * If the order is marked as "billing same as shipping", copy the
      * shipping address fields to the billing address fields.
      *
-     * @param CreateOrderPayloadDTO $dto
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload, modified in place.
      * @return void
      */
     protected function resolve_billing_and_shipping_addresses(CreateOrderPayloadDTO $dto)
@@ -196,13 +294,15 @@ class CreateOrderAction
      * a nested START TRANSACTION would implicitly commit the order insert
      * early.
      *
-     * @param CreateOrderPayloadDTO $dto
-     * @param Order $order
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto   Order payload; its shipping_id and billing_id are filled in.
+     * @param Order                 $order Order that was just created.
      * @return void
      */
     protected function sync_address(CreateOrderPayloadDTO $dto, $order)
     {
-        if (empty($order->customer_id)) {
+        if (empty($order->customer_id) || $dto->is_manual) {
             return;
         }
 
@@ -219,6 +319,43 @@ class CreateOrderAction
         }
     }
 
+    /**
+     * Check the payload's payment provider is one the order may use.
+     *
+     * A provider must be registered. For a shopper's order it must also be enabled, so checkout
+     * accepts exactly the providers the storefront offers. A manual (admin-created) order may
+     * omit the provider and may use a provider that has since been disabled.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return void
+     * @throws ValidationException When the provider is unknown, or disabled for a shopper's order.
+     */
+    protected function validate_payment_provider(CreateOrderPayloadDTO $dto): void
+    {
+        if ($dto->is_manual && empty($dto->payment_provider)) {
+            return;
+        }
+
+        $provider = Payment::get_provider((string) $dto->payment_provider);
+
+        throw_if(!$provider, __('Invalid payment method.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+        throw_if(!$dto->is_manual && !$provider->enabled(), __('This payment method is not available.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+    }
+
+    /**
+     * Load the shopper's cart into the payload.
+     *
+     * Copies the cart's items, coupon codes, cart token and shipping method onto the payload.
+     * Fails when the cart is missing or empty.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload, modified in place.
+     * @return void
+     * @throws \Exception When the cart is missing or empty.
+     */
     protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
     {
         $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
@@ -250,8 +387,11 @@ class CreateOrderAction
      * Customer record (with addresses) for the authenticated user placing
      * the order if one doesn't already exist for their WordPress user_id.
      *
-     * @param CreateOrderPayloadDTO $dto
-     * @return int
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload; its shipping_id and billing_id are filled in when a customer is created.
+     * @return int Customer ID.
+     * @throws UniqueConstraintViolationException When creating the customer fails on a unique constraint and no customer exists for the user.
      */
     protected function resolve_checkout_customer_id(CreateOrderPayloadDTO $dto)
     {
@@ -287,8 +427,10 @@ class CreateOrderAction
      * single address covering both defaults when billing is the same as
      * shipping, otherwise a separate address for each.
      *
-     * @param CreateOrderPayloadDTO $dto
-     * @return CreateAddressDTO[]
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return CreateAddressDTO[] One or two default addresses.
      */
     protected function prepare_checkout_customer_addresses(CreateOrderPayloadDTO $dto)
     {
@@ -307,14 +449,15 @@ class CreateOrderAction
      * Create a new default shipping/billing address for the customer from
      * the checkout request's shipping/billing fields.
      *
-     * @param CreateOrderPayloadDTO $dto
-     * @param int $customer_id
-     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING -
-     * which request field prefix to read and which default flag to set.
-     * Unrelated to the Address's own type (home/office/others), which
-     * defaults to home here.
-     * @return Address
-     * @throws Throwable
+     * The purpose only selects the field prefix and default flag; it is unrelated
+     * to the address's own type (home/office/others), which defaults to home here.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto         Order payload.
+     * @param int                   $customer_id Customer to attach the address to.
+     * @param string                $purpose     AddressPurpose::SHIPPING or AddressPurpose::BILLING, which selects the request field prefix and the default flag to set.
+     * @return Address The created address.
      */
     protected function create_address(CreateOrderPayloadDTO $dto, $customer_id, $purpose)
     {
@@ -324,6 +467,16 @@ class CreateOrderAction
         return $this->address_service->create_without_transaction($address_dto);
     }
 
+    /**
+     * Build the customer payload for the user placing the order.
+     *
+     * Uses the WordPress user's profile, falling back to the billing details.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return CreateCustomerDTO Customer data without addresses.
+     */
     protected function prepare_checkout_customer_dto(CreateOrderPayloadDTO $dto)
     {
         $wp_user = get_userdata($dto->created_by) ?: null;
@@ -339,14 +492,26 @@ class CreateOrderAction
     }
 
     /**
-     * Resolve the order's customer contact snapshot from the placing
+     * Resolve the order's customer contact snapshot. A manual order uses
+     * the posted customer details as-is; otherwise it comes from the placing
      * WordPress user's profile when they have an account, else billing.
      *
-     * @param CreateOrderPayloadDTO $dto
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
      * @return array{first_name: ?string, last_name: ?string, email: ?string, phone: ?string}
      */
     protected function resolve_customer_contact_details(CreateOrderPayloadDTO $dto)
     {
+        if ($dto->is_manual) {
+            return [
+                'first_name' => $dto->customer_first_name,
+                'last_name' => $dto->customer_last_name,
+                'email' => $dto->customer_email,
+                'phone' => $dto->customer_phone,
+            ];
+        }
+
         $wp_user = !empty($dto->created_by) ? (get_userdata($dto->created_by) ?: null) : null;
 
         return [
@@ -357,6 +522,18 @@ class CreateOrderAction
         ];
     }
 
+    /**
+     * Build an address DTO from the payload's shipping or billing fields.
+     *
+     * New addresses are typed as home and flagged as the default for the given prefix.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto       Order payload.
+     * @param string                $prefix    Field prefix to read, shipping or billing.
+     * @param bool                  $is_update Whether to build an update DTO instead of a create DTO.
+     * @return CreateAddressDTO|UpdateAddressDTO Address data.
+     */
     protected function prepare_checkout_address_dto(CreateOrderPayloadDTO $dto, string $prefix, bool $is_update = false)
     {
         $address_payload = $is_update ? new UpdateAddressDTO() : new CreateAddressDTO();
@@ -379,16 +556,22 @@ class CreateOrderAction
         return $address_payload;
     }
 
+    /**
+     * Build the price calculation context from the payload.
+     *
+     * Includes the customer, contact email, addresses, coupon codes,
+     * shipping method and the priced item list.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return CalculationContextDTO Context ready for RecalculateCartAction.
+     */
     protected function prepare_calculation_context_dto(CreateOrderPayloadDTO $dto)
     {
         $context = new CalculationContextDTO();
         $context->customer_id = $dto->customer_id ?? 0;
-
-        if ($context->customer_id) {
-            $context->customer_order_count = $this->customer_service->find($context->customer_id)->orders()
-                ->where_not_in('fulfillment_status', [FulfillmentStatus::CANCELLED, FulfillmentStatus::RETURNED])
-                ->count();
-        }
+        $context->customer_email = $this->customer_service->resolve_buyer_email($context->customer_id, null, $dto->customer_email);
 
         $context->shipping_address = [
             'first_name' => $dto->shipping_first_name,
@@ -418,6 +601,20 @@ class CreateOrderAction
         return $context;
     }
 
+    /**
+     * Build the calculation items for the payload's line items.
+     *
+     * Records each variant in the variants map. Fails when a variant or its
+     * product is missing, the per-order limit is exceeded, or the item is
+     * no longer available for purchase.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of CalculationItemDTO.
+     * @throws \Exception When a variant or its product is missing, or the per-order limit is exceeded.
+     * @throws ValidationException When an item is no longer available for purchase.
+     */
     protected function prepare_context_items(CreateOrderPayloadDTO $dto)
     {
         $items = collection();
@@ -426,15 +623,18 @@ class CreateOrderAction
             $variant = $this->variant_service->find($item_data['variant_id']);
 
             /* translators: %s: JSON-encoded item data */
-            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)));
+            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)), NotFoundException::class, Response::NOT_FOUND);
 
             /* translators: %s: variant ID */
-            throw_if($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity'], sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id));
+            throw_if($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity'], sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
             $product = $variant->product;
 
             /* translators: %s: variant ID */
-            throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
+            throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id), NotFoundException::class, Response::NOT_FOUND);
+
+            /* translators: %s: variant ID */
+            throw_if(!$variant->is_available(), sprintf(__('This item is no longer available: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
             $product->load('categories');
 
@@ -456,6 +656,18 @@ class CreateOrderAction
         return $items;
     }
 
+    /**
+     * Build the order DTO from the calculated totals and payload.
+     *
+     * Stores every amount both in the base currency and converted to the order's currency.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationResultDTO  $calculated_result Recalculated totals.
+     * @param CreateOrderPayloadDTO $dto               Order payload.
+     * @param CalculationContextDTO $context           Calculation context used for the totals.
+     * @return CreateOrderDTO Order data ready to persist.
+     */
     protected function prepare_create_order_dto(CalculationResultDTO $calculated_result, CreateOrderPayloadDTO $dto, CalculationContextDTO $context)
     {
         $target_currency_code = $dto->currency_code;
@@ -485,6 +697,9 @@ class CreateOrderAction
         $order_dto->invoiced_shipping_tax_amount = $this->convert_amount($calculated_result->base_shipping_tax, $target_currency_code, $order_dto->exchange_rate);
         $order_dto->base_shipping_tax_amount = $calculated_result->base_shipping_tax;
 
+        $order_dto->is_tax_inclusive = Tax::is_tax_inclusive();
+        $order_dto->tax_destination = $calculated_result->tax_destination;
+
         $order_dto->invoiced_total = $this->convert_amount($calculated_result->base_total, $target_currency_code, $order_dto->exchange_rate);
         $order_dto->base_total = $calculated_result->base_total;
 
@@ -492,7 +707,7 @@ class CreateOrderAction
 
         $order_dto->payment_status = PaymentStatus::UNPAID;
         $order_dto->payment_provider = $dto->payment_provider;
-        $order_dto->payment_metadata = $this->build_payment_provider_snapshot($dto->payment_provider);
+        $order_dto->payment_metadata = Payment::build_snapshot($dto->payment_provider);
         $order_dto->shipping_method = $dto->shipping_method;
         $order_dto->shipping_metadata = $this->build_shipping_method_snapshot($context);
 
@@ -525,8 +740,7 @@ class CreateOrderAction
         $order_dto->customer_last_name = $customer_contact['last_name'];
         $order_dto->customer_email = $customer_contact['email'];
         $order_dto->customer_phone = $customer_contact['phone'];
-        $order_dto->customer_notes = $dto->customer_notes;
-        $order_dto->admin_notes = $dto->admin_notes;
+        $order_dto->order_notes = $dto->order_notes;
         $order_dto->ip_address = $dto->ip_address;
         $order_dto->user_agent = $dto->user_agent;
         $order_dto->created_by = $dto->created_by;
@@ -534,6 +748,21 @@ class CreateOrderAction
         return $order_dto;
     }
 
+    /**
+     * Build an order item DTO from a calculated item and its variant.
+     *
+     * Snapshots the product and variant data, and stores amounts in both the base and order currency.
+     * Fails when the variant's product is missing.
+     *
+     * @since 1.0.0
+     *
+     * @param int                $order_id        ID of the order the item belongs to.
+     * @param CalculationItemDTO $calculated_item Recalculated item.
+     * @param string             $currency_code   Order currency code.
+     * @param float              $exchange_rate   Rate from the base currency to the order currency.
+     * @return CreateOrderItemDTO Order item data ready to persist.
+     * @throws \Exception When the variant's product is missing.
+     */
     protected function prepare_order_item_dto(int $order_id, CalculationItemDTO $calculated_item, $currency_code, $exchange_rate)
     {
         $variant = $this->variants_map[$calculated_item->variant_id];
@@ -558,8 +787,26 @@ class CreateOrderAction
         $item_dto->barcode = $variant->barcode;
         $item_dto->product_image = $variant->media ?? ($first_media ? $first_media->id : null);
 
-        $item_dto->invoiced_price = $this->convert_amount($variant->base_sale_price ?: $variant->base_price, $currency_code, $exchange_rate);
-        $item_dto->base_price = $variant->base_sale_price ?: $variant->base_price;
+        $item_dto->invoiced_price = $this->convert_amount($calculated_item->base_unit_price, $currency_code, $exchange_rate);
+        $item_dto->base_price = $calculated_item->base_unit_price;
+
+        $item_dto->invoiced_regular_price = $this->convert_amount($calculated_item->base_regular_unit_price, $currency_code, $exchange_rate);
+        $item_dto->base_regular_price = $calculated_item->base_regular_unit_price;
+
+        $item_dto->invoiced_regular_tax_total = $this->convert_amount($calculated_item->base_regular_tax_amount, $currency_code, $exchange_rate);
+        $item_dto->base_regular_tax_total = $calculated_item->base_regular_tax_amount;
+
+        $item_dto->invoiced_catalog_regular_price = $this->convert_amount($calculated_item->base_catalog_regular_price, $currency_code, $exchange_rate);
+        $item_dto->base_catalog_regular_price = $calculated_item->base_catalog_regular_price;
+
+        $item_dto->invoiced_catalog_sale_price = $this->convert_amount($calculated_item->base_catalog_sale_price, $currency_code, $exchange_rate);
+        $item_dto->base_catalog_sale_price = $calculated_item->base_catalog_sale_price;
+
+        $item_dto->invoiced_catalog_product_coupon_discounted_subtotal = $this->convert_amount($calculated_item->base_catalog_product_coupon_discounted_subtotal, $currency_code, $exchange_rate);
+        $item_dto->base_catalog_product_coupon_discounted_subtotal = $calculated_item->base_catalog_product_coupon_discounted_subtotal;
+
+        $item_dto->invoiced_discount_tax_total = $this->convert_amount($calculated_item->base_discount_tax_amount, $currency_code, $exchange_rate);
+        $item_dto->base_discount_tax_total = $calculated_item->base_discount_tax_amount;
 
         $item_dto->quantity = $calculated_item->quantity;
 
@@ -587,6 +834,16 @@ class CreateOrderAction
         return $item_dto;
     }
 
+    /**
+     * Convert a base currency minor amount into the target currency.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $amount               Amount in base currency minor units.
+     * @param string $target_currency_code Currency to convert to.
+     * @param float  $exchange_rate        Rate from the base currency to the target currency.
+     * @return int Amount in the target currency's minor units; unchanged when the target is the base currency.
+     */
     protected function convert_amount($amount, $target_currency_code, $exchange_rate)
     {
         if ($target_currency_code === $this->base_currency_code) {
@@ -596,24 +853,14 @@ class CreateOrderAction
         return Money::convert_to_currency(Money::from_minor($amount, $this->base_currency_code), $target_currency_code, $exchange_rate)->getMinorAmount()->toInt();
     }
 
-    protected function build_payment_provider_snapshot($payment_provider_id)
-    {
-        $provider = Payment::get_provider($payment_provider_id);
-
-        if (!$provider) {
-            return null;
-        }
-
-        return [
-            'payment_provider' => [
-                'id' => $provider->id(),
-                'name' => $provider->title(),
-                'icon' => $provider->icon(),
-                'is_offline' => $provider->is_offline(),
-            ],
-        ];
-    }
-
+    /**
+     * Build the shipping method snapshot stored on the order.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Calculation context with the selected shipping method.
+     * @return array<string, mixed>|null Shipping method id, name and type; null when no method is selected.
+     */
     protected function build_shipping_method_snapshot(CalculationContextDTO $context)
     {
         $method = $this->shipping_service->get_selected_shipping_method($context);

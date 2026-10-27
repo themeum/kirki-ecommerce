@@ -11,10 +11,10 @@ const PaginatedDataSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
     from: z.number().nullish(),
     to: z.number().nullish(),
     has_more_pages: z.boolean().optional(),
+    has_records: z.boolean().optional(),
   });
 
-const ResourceCollectionSchema = <T extends z.ZodTypeAny>(itemSchema: T) =>
-  z.array(itemSchema);
+const ResourceCollectionSchema = <T extends z.ZodTypeAny>(itemSchema: T) => z.array(itemSchema);
 
 const MoneyAmountSchema = z.union([z.number(), z.string()]);
 
@@ -25,7 +25,7 @@ const MoneyObjectSchema = z.object({
     code: z.string(),
     symbol: z.string(),
   }),
-})
+});
 
 /**
  * Shape every `ApiClientResponse<T>` envelope must satisfy before its `data`

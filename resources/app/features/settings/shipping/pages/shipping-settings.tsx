@@ -31,7 +31,7 @@ import ShippingProfile from '@/features/settings/shipping/pages/shipping-profile
 import ShippingZoneActions from '@/features/settings/shipping/pages/shipping-zone-actions';
 import ShippingSettingsSkeleton from '@/features/settings/shipping/skeletons/shipping-settings-skeleton';
 import { useBaseCurrencySymbol } from '@/hooks';
-import { EditPenIcon, LocationIcon, TrashIcon, TruckIcon } from '@/icons';
+import { EditPenIcon, TrashIcon, TruckIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -86,22 +86,9 @@ const ShippingSettings = () => {
                     onAdd={() => setShowCreateZonePopup(true)}
                   />
 
-                  {!shippingZonesObj.length ? (
-                    <Card cssOverride={cardStyles.innerDarkCard}>
-                      <CardContent
-                        cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}
-                      >
-                        <Flex direction="column" gap={2} align="center">
-                          <LocationIcon />
-                          <span css={scoped(styles.emptyStateText)}>
-                            {__('Added shipping zones will appear here', 'kirki-ecommerce')}
-                          </span>
-                        </Flex>
-                      </CardContent>
-                    </Card>
-                  ) : (
+                  {shippingZonesObj.length > 0 && (
                     <Flex direction="column" gap={3}>
-                      {shippingZonesObj?.map((item) => {
+                      {shippingZonesObj.map((item) => {
                         const zoneMethods = getShippingMethodData(item?.id).map((method) => ({
                           ...method,
                           icon: shippingMethodIconMap[method.type] || null,
@@ -166,11 +153,6 @@ const ShippingSettings = () => {
                                         <Text variant="small" weight="medium">
                                           {method.name ?? ''}
                                         </Text>
-                                        {method.subText && (
-                                          <Text variant="tiny" color="subdued">
-                                            {method.subText}
-                                          </Text>
-                                        )}
                                         {method.is_enabled === false && (
                                           <Badge variant="destructive">
                                             {__('Inactive', 'kirki-ecommerce')}
@@ -194,9 +176,7 @@ const ShippingSettings = () => {
                                           variant="outline"
                                           size="icon-sm"
                                           aria-label={__('Delete', 'kirki-ecommerce')}
-                                          cssOverride={mergeCss(styles.deleteButton, {
-                                            '& svg': { color: theme.colors.icon.critical },
-                                          })}
+                                          cssOverride={styles.actionButton}
                                           onClick={() => handleDeleteMethod(method)}
                                         >
                                           <TrashIcon />
@@ -284,11 +264,5 @@ const styles = defineStyles({
   },
   actionButton: {
     padding: theme.spacing[1],
-  },
-  deleteButton: {
-    padding: theme.spacing[1],
-    '& svg': {
-      color: theme.colors.icon.critical,
-    },
   },
 });

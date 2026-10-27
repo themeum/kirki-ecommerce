@@ -2,21 +2,38 @@ import type { ColumnDef } from '@tanstack/react-table';
 
 import Image from '@/components/ui/image';
 import type { Category } from '@/features/categories/schemas/catalog/category';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const styles = defineStyles({
   descriptionCell: {
     maxWidth: '240px',
   },
+  clickable: {
+    padding: 0,
+    border: 'none',
+    background: 'none',
+    font: 'inherit',
+    color: 'inherit',
+    textAlign: 'left',
+    cursor: 'pointer',
+  },
 });
 
-const categoryColumns: ColumnDef<Category>[] = [
+type CategoryColumnsOptions = {
+  onEdit: (category: Category) => void;
+};
+
+const createCategoryColumns = ({ onEdit }: CategoryColumnsOptions): ColumnDef<Category>[] => [
   {
     id: 'name',
     header: __('Name', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => row.original?.name || '--',
+    cell: ({ row }) => (
+      <button type="button" css={scoped(styles.clickable)} onClick={() => onEdit(row.original)}>
+        {row.original?.name || '--'}
+      </button>
+    ),
   },
   {
     id: 'image',
@@ -51,4 +68,4 @@ const categoryColumns: ColumnDef<Category>[] = [
   },
 ];
 
-export { categoryColumns };
+export { createCategoryColumns };

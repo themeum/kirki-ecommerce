@@ -9,4 +9,9 @@ const pickerContentCss: CSSObject = {
   padding: theme.spacing[2],
 };
 
-export { pickerContentCss };
+const pickerPanelCss: CSSObject = {
+  ...pickerContentCss,
+  padding: 0,
+};
+
+export { pickerContentCss, pickerPanelCss };

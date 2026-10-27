@@ -3,6 +3,7 @@ import { type ComponentPropsWithoutRef, forwardRef, type ReactNode, type Ref } f
 
 import { theme, type TypographyWeight } from '@/theme';
 import { scopedMerge } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 
 type TextVariant =
   | 'heading1'
@@ -24,6 +25,7 @@ type TextProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   color?: TextColor;
   weight?: TypographyWeight;
   cssOverride?: CSSObject;
+  truncate?: boolean | number;
 };
 
 const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
@@ -33,15 +35,23 @@ const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
     variant = 'paragraph',
     color = 'primary',
     weight,
+    truncate = false,
     ...rest
   } = props;
 
   const textCss = scopedMerge(
     styles.base,
+    isDefined(truncate) && !!truncate && styles.truncate(truncate),
     styles.variants[variant](weight),
     styles.colors[color],
     cssOverride,
   );
+
+  if (truncate) {
+    rest.title =
+      rest.title ??
+      (typeof children === 'string' || typeof children === 'number' ? String(children) : '');
+  }
 
   if (variant === 'heading1') {
     return (
@@ -103,69 +113,49 @@ Text.displayName = 'Text';
 export default Text;
 export type { TextColor, TextProps, TextVariant };
 
-const variantStyle = (
-  styles: CSSObject,
-): CSSObject => styles;
+const variantStyle = (styles: CSSObject): CSSObject => styles;
 
 const styles = {
+  truncate: (truncate: boolean | number) => {
+    if (typeof truncate === 'boolean') {
+      return {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        minWidth: 0,
+      } satisfies CSSObject;
+    }
+    return {
+      display: '-webkit-box',
+      '-webkit-line-clamp': `${truncate}`,
+      '-webkit-box-orient': 'vertical',
+      overflow: 'hidden',
+    } satisfies CSSObject;
+  },
   base: {
     margin: 0,
   } satisfies CSSObject,
   variants: {
     heading1: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight
-          ? theme.typography.heading1(weight)
-          : theme.typography.heading1(),
-      ),
+      variantStyle(weight ? theme.typography.heading1(weight) : theme.typography.heading1()),
     heading2: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight
-          ? theme.typography.heading2(weight)
-          : theme.typography.heading2(),
-      ),
+      variantStyle(weight ? theme.typography.heading2(weight) : theme.typography.heading2()),
     heading3: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight
-          ? theme.typography.heading3(weight)
-          : theme.typography.heading3(),
-      ),
+      variantStyle(weight ? theme.typography.heading3(weight) : theme.typography.heading3()),
     heading4: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight
-          ? theme.typography.heading4(weight)
-          : theme.typography.heading4(),
-      ),
+      variantStyle(weight ? theme.typography.heading4(weight) : theme.typography.heading4()),
     heading5: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight
-          ? theme.typography.heading5(weight)
-          : theme.typography.heading5(),
-      ),
+      variantStyle(weight ? theme.typography.heading5(weight) : theme.typography.heading5()),
     heading6: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight
-          ? theme.typography.heading6(weight)
-          : theme.typography.heading6(),
-      ),
+      variantStyle(weight ? theme.typography.heading6(weight) : theme.typography.heading6()),
     paragraph: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight
-          ? theme.typography.paragraph(weight)
-          : theme.typography.paragraph(),
-      ),
+      variantStyle(weight ? theme.typography.paragraph(weight) : theme.typography.paragraph()),
     small: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight ? theme.typography.small(weight) : theme.typography.small(),
-      ),
+      variantStyle(weight ? theme.typography.small(weight) : theme.typography.small()),
     tiny: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight ? theme.typography.tiny(weight) : theme.typography.tiny(),
-      ),
+      variantStyle(weight ? theme.typography.tiny(weight) : theme.typography.tiny()),
     lead: (weight?: TypographyWeight) =>
-      variantStyle(
-        weight ? theme.typography.lead(weight) : theme.typography.lead(),
-      ),
+      variantStyle(weight ? theme.typography.lead(weight) : theme.typography.lead()),
   },
   colors: Object.fromEntries(
     (Object.keys(theme.colors.text) as TextColor[]).map((key) => [

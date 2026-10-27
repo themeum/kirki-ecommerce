@@ -14,7 +14,11 @@ http:
       {
         "name": "Material",
         "slug": "material",
-        "type": "list"
+        "type": "list",
+        "values": [
+          { "value": "Cotton" },
+          { "value": "Linen", "color": null }
+        ]
       }
   auth: inherit
 settings:

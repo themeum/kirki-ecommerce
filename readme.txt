@@ -1,11 +1,10 @@
-=== Kirki eCommerce – Fast & Lightweight eCommerce Solution ===
-Contributors: themeum
-Donate link: https://kirki.com/
+=== Kirki eCommerce ===
+Contributors: Kirki
 Tags: ecommerce, online store, shopping cart, checkout, payments
-Requires at least: 5.9
-Tested up to: 6.9
+Requires at least: 6.8
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0-beta.1
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,19 +14,17 @@ WordPress eCommerce plugin for running a complete online store, products, orders
 
 Kirki eCommerce is a lightweight, fully featured eCommerce plugin for WordPress. It gives you everything you need to create and run an online store, products, inventory, orders, checkout, payments, tax, and shipping, without depending on any other third-party plugin.
 
-**Kirki eCommerce is currently a Beta release. Some features may be incomplete or not work as expected. Please do not use it on live sites.**
-
-We're building Kirki eCommerce in the open on GitHub, so it can be tested widely and shaped by real feedback before a stable release.
+Kirki eCommerce is open source and developed in the open on GitHub.
 
 👉 Source Code: [GitHub Repository](https://github.com/themeum/kirki-ecommerce)
 👉 Feedback: [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform)
-👉 Community: [Kirki on Facebook](https://www.facebook.com/groups/557837446451017)
+👉 Community: [Kirki on Facebook](https://www.facebook.com/groups/kirkicommunity)
 
 == Features ==
 
 === Everything You Need to Run Your Store ===
 
-Kirki eCommerce brings the essential parts of running an online shop together in one place. Create your catalog, manage inventory, take payments, handle orders, configure shipping and taxes, and give customers a complete shopping experience without relying on WooCommerce for your core store functionality.
+Kirki eCommerce brings everything you need to run an online store together in one place. Create and organize your products, manage inventory, accept payments, process orders, configure shipping and taxes, offer discounts, and give customers a complete shopping experience from browsing through checkout and beyond.
 
 === Product Creation & Management ===
 
@@ -104,23 +101,9 @@ Get a complete view of every order, from payment through fulfillment. Create ord
 
 Choose the payment methods that work best for your customers with no transaction fees. Kirki eCommerce has a flexible gateway system that lets you add online payment providers through separately installable companion plugins.
 
-The payment gateways includes integrations for:
+The payment gateways include integrations for:
 
 * PayPal
-* Stripe
-* Authorize.net
-* Razorpay
-* Mollie
-* Klarna
-* Square
-* Paystack
-* QuickPay
-* 2Checkout
-* Redsys
-* PayMango
-* PayFast
-* Eway
-* PayU
 
 You can also offer offline payment methods such as Cash on Delivery, Bank Transfer, and custom manual payment methods.
 
@@ -232,13 +215,10 @@ The result is a complete eCommerce foundation that can work on its own while rem
 * Stores that need flexible payment options, from major gateways to offline methods like Cash on Delivery and Bank Transfer
 * Anyone replacing a heavier eCommerce setup with something simpler to manage
 * Developers and agencies building client stores who want a REST API and extension hooks to customize
-* Early adopters and testers who want to help shape a new eCommerce plugin before its stable release
 
-== Help Shape What Ships Next ==
+== Feedback & Support ==
 
-Kirki eCommerce is still an early release. We're continuing to build it in the open, gather feedback, and fix what needs fixing before a stable release.
-
-If something breaks, doesn't work as expected, or is missing, we want to hear about it.
+If something doesn't work as expected, or a feature you need is missing, we want to hear about it.
 
 * Share feedback or feature ideas in the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform) or join the [Kirki eCommerce Facebook community](https://www.facebook.com/groups/557837446451017).
 * Report a bug on [GitHub Issues](https://github.com/themeum/kirki-ecommerce/issues).
@@ -249,12 +229,13 @@ Kirki eCommerce is open source. Find the full source code on [GitHub](https://gi
 
 == Installation ==
 
-1. Download the latest release from the [GitHub Releases page](https://github.com/themeum/kirki-ecommerce/releases), or install directly via Plugins → Add New once listed on WordPress.org.
-2. In your WordPress dashboard, go to Plugins → Add New Plugin → Upload Plugin.
-3. Upload the Kirki eCommerce ZIP file.
-4. Install and activate the plugin.
-5. Go to Kirki eCommerce → Settings to configure your store and payment gateway.
-6. Create your first product and start testing.
+1. In your WordPress dashboard, go to Plugins → Add New Plugin.
+2. Search for "Kirki eCommerce".
+3. Click Install Now, then Activate.
+4. Go to Kirki eCommerce → Settings to configure your store and payment gateway.
+5. Create your first product and start selling.
+
+To install manually, download the plugin ZIP file, go to Plugins → Add New Plugin → Upload Plugin, upload the file, then install and activate it.
 
 == Frequently Asked Questions ==
 
@@ -272,11 +253,7 @@ No. Kirki eCommerce includes its own storefront styling and doesn't depend on yo
 
 = Which payment gateways are supported? =
 
-PayPal, Stripe, Mollie, Authorize.net, Razorpay, Klarna, Square, QuickPay, and PayStack ship with the core plugin. Additional gateways, including 2Checkout, Redsys, PayMango, PayFast, Eway, and PayU, are available as separately installable companion plugins. Offline options include Cash on Delivery, Bank Transfer, and custom manual payment methods.
-
-= Is this plugin production-ready? =
-
-No. Kirki eCommerce is currently a Beta release. Some features may be incomplete or not work as expected. Please do not use it on live sites.
+PayPal ships with the core plugin. Offline options include Cash on Delivery, Bank Transfer, and custom manual payment methods.
 
 = How do I report a bug? =
 
@@ -288,28 +265,41 @@ Fill out the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm
 
 == External Services ==
 
-This plugin connects to third-party payment gateway services depending on which payment method a store owner configures. Data is only transmitted for customers who complete a purchase using a given gateway, and only after a store owner has actively set it up.
+This plugin connects to third-party payment gateway services depending on which payment method a store owner configures. Data is only sent after a store owner has set up a gateway, and only for customers who choose that gateway at checkout.
 
-**PayPal** ships with the core plugin. It processes payments by sending order details, including product ID, amount, currency, and transaction ID, to PayPal's API.
+**PayPal** ([paypal.com](https://www.paypal.com/)) ships with the core plugin. It is used only after the store owner enters PayPal API credentials in the payment settings.
+
+* When a customer pays with PayPal at checkout, the plugin creates a PayPal order. It sends the item names, a description of each item (price, quantity, subtotal, discount and tax), the order number and internal order ID, the order total, item total and shipping total, the currency, the store name (site title), and the return and cancel URLs for the checkout success and failure pages.
+* To get an access token for each request, the plugin sends the store owner's PayPal client ID and client secret.
+* When the customer approves the payment, the plugin asks PayPal to capture it.
+* When the store owner refunds a PayPal order, the plugin sends the refund amount, the currency, the refund reason, and the internal refund ID.
+* When PayPal sends a webhook to the store, the plugin sends the webhook event, its signature headers, and the store's webhook ID back to PayPal to verify it.
 
 - **PayPal:** [Terms](https://www.paypal.com/us/legalhub/paypal/useragreement-full) | [Privacy](https://www.paypal.com/us/legalhub/paypal/privacy-full)
 
-The following gateways are available as separately installable companion plugins. Each carries its own disclosure once installed, listed here for reference:
+The plugin can also connect to a currency exchange rate service to convert displayed prices into other currencies. This only happens after a store owner selects a provider and enters an API key in the currency settings. Rates are then fetched automatically at the configured update frequency, or when the store owner syncs them manually. No customer or order data is sent.
 
--   **Stripe:** [Terms](https://stripe.com/legal/ssa) \| [Privacy](https://stripe.com/privacy)
--   **Mollie:** [Terms & Privacy](https://www.mollie.com/legal/privacy)
--   **Authorize.net:** [Terms](https://www.authorize.net/about-us/terms.html) \| [Privacy](https://www.visa.com/en-us/legal/global-privacy-notice)
--   **Razorpay:** [Terms](https://razorpay.com/tnc/) \| [Privacy](https://razorpay.com/privacy-policy/)
--   **Klarna:** [Terms](https://www.klarna.com/international/terms-and-conditions/) \| [Privacy](https://www.klarna.com/international/privacy-policy/)
--   **Square:** [Terms](https://squareup.com/us/en/legal/general/ua) \| [Privacy](https://squareup.com/us/en/legal/general/privacy)
--   **QuickPay:** [Terms & Privacy](https://quickpay.net/terms-of-service/)
--   **PayStack:** [Terms & Privacy](https://paystack.com/terms)
+**CurrencyApi** ([currencyapi.com](https://currencyapi.com/)) receives the store owner's API key, the store's base currency, and the list of currency codes to fetch rates for. The API key is also sent to read the account's monthly usage quota.
 
-**Note:** Data is only transmitted when a store owner has configured and enabled a given gateway, and only for customers completing a transaction through it. No payment data is sent without an active integration set up by the store owner
+- **CurrencyApi:** [Terms](https://currencyapi.com/terms-of-service/) | [Privacy](https://currencyapi.com/privacy-policy/)
+
+**ExchangeRate-API** ([exchangerate-api.com](https://www.exchangerate-api.com/)) receives the store owner's API key and the store's base currency.
+
+- **ExchangeRate-API:** [Terms](https://www.exchangerate-api.com/terms) | [Privacy](https://www.exchangerate-api.com/terms#privacy)
+
+== Third-Party Libraries ==
+
+Kirki eCommerce is licensed under GPLv2 or later. It bundles the following GPL-compatible libraries. Each keeps its own license.
+
+* themeum/framework: GPL-2.0-or-later
+* brick/math: MIT
+* brick/money: MIT
+
+PayPal is a trademark of PayPal, Inc. CurrencyApi and ExchangeRate-API are trademarks of their respective owners. Kirki eCommerce is not affiliated with or endorsed by these companies. Their names and logos are used only to identify the services the plugin connects to.
 
 == Changelog ==
 
-= 1.0.0-beta.1 =
+= 1.0.0 =
 
 * Initial release
 * Adds Product catalog with variations, variant matrices, categories, tags, brands, and collections
@@ -318,15 +308,14 @@ The following gateways are available as separately installable companion plugins
 * Adds Coupons: percentage and fixed discounts, usage limits, validity windows
 * Adds Tax: profiles, regional rates, EU/OSS support, VAT, reverse charge
 * Adds Shipping: zones, methods, flat rates, local pickup, weight-based rates
-* Adds Payments: PayPal and Stripe out of the box, plus Mollie, Authorize.net, Razorpay
+* Adds Payments: PayPal, Cash on Delivery, Bank Transfer.
 * Adds Storefront: shop, product, cart, account, and checkout pages
 * Adds SEO and web presence tools
 * Adds Transactional emails
 * Adds Full-fledged coupon system: free shipping, targeting by country, region, customer, and product, with usage limits
 * Adds Customer Dashboard: order history, order details, saved addresses, account management
 * Adds Search and filtering across all product listings
-* Adds Klarna and Square payment gateways
-* Adds Cart syncing between guest and logged-in sessions (backend only, frontend pending)
+* Adds Cart syncing between guest and logged-in sessions
 * Adds Bulk Inventory Edit
 * Adds Low Stock Threshold (global, product, variant)
 * Adds Out of Stock Protection
@@ -336,11 +325,6 @@ The following gateways are available as separately installable companion plugins
 * Adds Cart Product Quantity Limits
 * Adds Order Timeline
 * Adds Order Activity Log
-* Adds QuickPay integration
-* Adds PayStack integration
 * Adds Shop Search
 * Adds Product Trash Management
 * Adds Email Verification
-
-== Upgrade Notice ==
-Please update to the latest version of Kirki eCommerce to get the latest features, improvements, and security updates.

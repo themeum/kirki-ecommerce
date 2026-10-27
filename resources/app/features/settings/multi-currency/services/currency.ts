@@ -149,10 +149,12 @@ const useSyncCurrencyRatesMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Exchange rates synced', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
-      void queryClient.invalidateQueries({ queryKey: settingsKeys.section('currency') });
     },
     onError(error) {
       toastMutationError(error);
+    },
+    onSettled() {
+      void queryClient.invalidateQueries({ queryKey: settingsKeys.section('currency') });
     },
   });
 };

@@ -11,11 +11,15 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Cart;
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\AddressRules;
 use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
@@ -26,22 +30,43 @@ use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\view_data;
 
 /**
- * Class PageInlineScript.
+ * Adds route-specific data to the inline window.kirki_ecommerce config for the storefront script.
  *
  * @since 1.0.0
  */
 class PageInlineScript extends BaseHook
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name(): string
     {
-        return 'kirki_ecommerce_config_data';
+        return DevHookNames::CONFIG_DATA;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type(): string
     {
         return HookTypes::FILTER;
     }
 
+    /**
+     * Add cart identifiers and route-specific page data to the config.
+     *
+     * Responds to the kirki_ecommerce_config_data filter. Cart variant IDs and cart token names are added on
+     * every request; checkout, single product, cart or addresses data only on the matching route.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments; the first is the config array.
+     * @return array<string, mixed> Updated config.
+     */
     public function handle(...$args)
     {
         $config = $args[0];
@@ -72,19 +97,19 @@ class PageInlineScript extends BaseHook
      *
      * @since 1.0.0
      *
-     * @param mixed $view_data  Data from the view context.
-     * @param array $config     Existing config array.
-     *
-     * @return array Updated config.
+     * @param mixed                $view_data Data from the view context.
+     * @param array<string, mixed> $config    Existing config array.
+     * @return array<string, mixed> Updated config.
      */
     protected function set_addresses_page_data($view_data, $config)
     {
         $data     = (object) $view_data;
         $customer = $data->customer->get_customer() ?? null;
 
-        $config['countries']   = $data->countries ?? Utils::get_countries();
-        $config['customer_id'] = $customer->id ?? 0;
-        $config['addresses']   = AddressResource::collection($data->addresses ?? []);
+        $config['countries']     = $data->countries ?? Utils::get_countries();
+        $config['address_rules'] = AddressRules::all_for_display();
+        $config['customer_id']   = $customer->id ?? 0;
+        $config['addresses']     = AddressResource::collection($data->addresses ?? []);
 
         return $config;
     }
@@ -94,18 +119,19 @@ class PageInlineScript extends BaseHook
      *
      * @since 1.0.0
      *
-     * @param mixed $view_data  Data from the view context.
-     * @param array $config     Existing config array.
-     *
-     * @return array Updated config.
+     * @param mixed                $view_data Data from the view context.
+     * @param array<string, mixed> $config    Existing config array.
+     * @return array<string, mixed> Updated config.
      */
     protected function set_cart_page_data($view_data, $config)
     {
         $cart = $view_data['cart'];
+
         $cart_config = array(
-            'items_count' => $cart['items_count'] ?? 0,
-            'pricing' => $cart['pricing'] ?? [],
-            'items' => $cart['items'] ?? [],
+            'items_count'      => $cart['items_count'] ?? 0,
+            'pricing'          => $cart['pricing'] ?? [],
+            'items'            => $cart['items'] ?? [],
+            'invalid_items'    => $cart['invalid_items'] ?? [],
         );
         $config['cart'] = $cart_config;
 
@@ -117,10 +143,9 @@ class PageInlineScript extends BaseHook
      *
      * @since 1.0.0
      *
-     * @param mixed $view_data  Data from the view context.
-     * @param array $config     Existing config array.
-     *
-     * @return array Updated config.
+     * @param mixed                $view_data Data from the view context.
+     * @param array<string, mixed> $config    Existing config array.
+     * @return array<string, mixed> Updated config.
      */
     protected function set_checkout_page_data($view_data, $config)
     {
@@ -129,7 +154,8 @@ class PageInlineScript extends BaseHook
 
         $config['checkout_cart'] = [
             'items'                       => $cart['items'] ?? [],
-            'is_billing_same_as_shipping' => (bool) ($cart['is_billing_same_as_shipping'] ?? false),
+            'customer_email'              => $cart['customer_email'] ?? null,
+            'is_billing_same_as_shipping' =>(bool) ($cart['is_billing_same_as_shipping'] ?? false),
             'shipping_address'            => $cart['shipping_address'] ?? null,
             'billing_address'             => $cart['billing_address'] ?? null,
             'pricing'                     => $cart['pricing'] ?? [],
@@ -138,6 +164,7 @@ class PageInlineScript extends BaseHook
         ];
 
         $config['countries'] = $data->countries ?? [];
+        $config['address_rules'] = AddressRules::all_for_display();
         $config['addresses'] = AddressResource::collection($data->addresses ?? []);
 
         $config['is_tax_inclusive_price'] = Tax::is_tax_inclusive();
@@ -174,10 +201,9 @@ class PageInlineScript extends BaseHook
      *
      * @since 1.0.0
      *
-     * @param mixed $view_data  Data from the view context.
-     * @param array $config     Existing config array.
-     *
-     * @return array Updated config.
+     * @param mixed                $view_data Data from the view context.
+     * @param array<string, mixed> $config    Existing config array.
+     * @return array<string, mixed> Updated config.
      */
     protected function set_shop_single_page_data($view_data, $config)
     {
@@ -219,7 +245,6 @@ class PageInlineScript extends BaseHook
             $discount_percentage = (! empty($display_price) && ! empty($display_sale_price))
                 ? round((1 - ($display_sale_price / $display_price)) * 100)
                 : null;
-            $show_unit_price     = (bool) ($variant['show_unit_price'] ?? false);
             $display_unit_price  = $variant['display_unit_price'] ?? null;
             $stock               = intval($variant['available_quantity'] ?? 0);
             $available           = $inventory_service->has_stock($variant_id, 1);
@@ -242,7 +267,6 @@ class PageInlineScript extends BaseHook
                 'product_id'          => $product_id,
                 'price'               => $price,
                 'sale_price'          => $sale_price,
-                'show_unit_price'     => $show_unit_price,
                 'display_unit_price'  => $display_unit_price,
                 'discount_percentage' => $discount_percentage,
                 'stock'               => $stock,

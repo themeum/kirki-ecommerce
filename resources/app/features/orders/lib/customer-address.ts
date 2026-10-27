@@ -7,12 +7,9 @@ export type AddressLines = {
   line2: string;
 };
 
-type AddressFormValues = Partial<Omit<OrderFormInput, 'items'>>;
+type AddressFormValues = Partial<Omit<OrderFormInput, 'items' | 'coupon_codes'>>;
 
-export const getCountryName = (
-  countries: Country[],
-  code?: string | null,
-): string => {
+export const getCountryName = (countries: Country[], code?: string | null): string => {
   if (!code) {
     return '';
   }
@@ -37,12 +34,7 @@ const buildAddressLines = (
 
   return {
     line1: [parts.addressLine1, parts.addressLine2].filter(Boolean).join(', '),
-    line2: [
-      parts.city,
-      parts.state,
-      parts.postalCode,
-      getCountryName(countries, parts.country),
-    ]
+    line2: [parts.city, parts.state, parts.postalCode, getCountryName(countries, parts.country)]
       .filter(Boolean)
       .join(', '),
   };
@@ -85,25 +77,56 @@ export const formatBillingAddress = (
   );
 };
 
-const addressName = (
-  address: CustomerAddress | null | undefined,
-  customer: Customer,
-) => ({
+const addressName = (address: CustomerAddress | null | undefined, customer: Customer) => ({
   firstName: address?.first_name || customer.first_name || '',
   lastName: address?.last_name || customer.last_name || '',
   phone: address?.phone || customer.phone || '',
   email: address?.email || customer.email || '',
 });
 
+const ADDRESS_TYPE_LABELS: Record<string, string> = {
+  home: 'Home',
+  office: 'Office',
+  others: 'Other',
+};
+
+export const getAddressSummaryLabel = (address: CustomerAddress, countries: Country[]): string => {
+  const typeLabel = address.label || ADDRESS_TYPE_LABELS[address.type ?? ''] || 'Address';
+
+  const lines = buildAddressLines(
+    {
+      addressLine1: address.address_line1,
+      addressLine2: address.address_line2,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postal_code,
+      country: address.country,
+    },
+    countries,
+  );
+
+  if (!lines) {
+    return typeLabel;
+  }
+
+  return `${typeLabel} — ${lines.line1}`;
+};
+
 export const toOrderAddresses = (customer: Customer): Partial<OrderFormInput> => {
-  const shipping = customer.shipping_address;
-  const billing = customer.is_billing_same_as_shipping
-    ? customer.shipping_address
-    : customer.billing_address;
+  const addresses = customer.addresses ?? [];
+  const shipping = addresses.find((address) => address.is_default_shipping) ?? null;
+  const billing = addresses.find((address) => address.is_default_billing) ?? null;
+  const isBillingSameAsShipping = Boolean(shipping && billing && shipping.id === billing.id);
+
   const shippingContact = addressName(shipping, customer);
   const billingContact = addressName(billing, customer);
 
   return {
+    customer_first_name: customer.first_name ?? '',
+    customer_last_name: customer.last_name ?? '',
+    customer_email: customer.email ?? '',
+    customer_phone: customer.phone ?? '',
+
     shipping_first_name: shippingContact.firstName,
     shipping_last_name: shippingContact.lastName,
     shipping_address_line1: shipping?.address_line1 ?? '',
@@ -115,7 +138,7 @@ export const toOrderAddresses = (customer: Customer): Partial<OrderFormInput> =>
     shipping_phone: shippingContact.phone,
     shipping_email: shippingContact.email,
 
-    is_billing_same_as_shipping: Boolean(customer.is_billing_same_as_shipping),
+    is_billing_same_as_shipping: isBillingSameAsShipping,
     billing_first_name: billingContact.firstName,
     billing_last_name: billingContact.lastName,
     billing_address_line1: billing?.address_line1 ?? '',

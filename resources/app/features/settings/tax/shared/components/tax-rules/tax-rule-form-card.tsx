@@ -11,16 +11,17 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
+import { useCategoriesQuery } from '@/features/categories';
 import ConditionRow from '@/features/settings/tax/shared/components/tax-rules/condition-row';
 import { resolveSelectedDestinations } from '@/features/settings/tax/shared/lib/tax-rules/helper';
 import type {
-  SelectOption,
   TaxConditionRow,
   TaxRegionState,
   TaxRule,
 } from '@/features/settings/tax/shared/lib/utils';
 import { taxRuleActionOptionsArray } from '@/features/settings/tax/shared/lib/utils';
 import {
+  RATE_ACTIONS,
   type TaxRulesFormInput,
   type TaxRulesFormPayload,
   TaxRulesFormSchema,
@@ -42,7 +43,6 @@ type TaxRuleFormCardProps = {
   destinationLabel?: string;
   /** See `TaxRules` — the country a general-region destination condition targets. */
   destinationCountry?: string;
-  conditionOptions: SelectOption[];
 };
 
 type ConditionOption = {
@@ -61,10 +61,10 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
     states,
     destinationLabel,
     destinationCountry,
-    conditionOptions,
   } = props;
 
   const { data: taxProfiles } = useTaxProfilesQuery();
+  const { data: categoryData } = useCategoriesQuery({ limit: -1 });
 
   const form = useForm<TaxRulesFormInput, unknown, TaxRulesFormPayload>({
     resolver: zodResolver(TaxRulesFormSchema),
@@ -85,6 +85,8 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
   const conditions = form.watch('conditions') as TaxConditionRow[];
   const selectedAction = form.watch('action_type');
   const selectedCountries = form.watch('selectedCountries');
+  const conditionsError =
+    form.formState.errors.conditions?.message ?? form.formState.errors.conditions?.root?.message;
 
   useEffect(() => {
     if (from === 'edit' && ruleIndex !== undefined && rules?.[ruleIndex]) {
@@ -96,6 +98,7 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
         conditions: existingConditions.map((c) => ({
           id: uuid(),
           condition: c.type ?? 'tax_profile',
+          operator: c.operator === '!=' ? '!=' : '=',
           value: c.value ?? null,
         })),
         action_type: existingRule.action?.type || 'set_product_tax_rate',
@@ -151,6 +154,17 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
         })) ?? []
       );
     }
+
+    if (condition === 'product_categories') {
+      return (
+        categoryData?.results?.map((item) => ({
+          title: item.name,
+          value: String(item.id),
+          id: item.id,
+        })) ?? []
+      );
+    }
+
     return [];
   };
 
@@ -160,7 +174,11 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
   }));
 
   return (
-    <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.formCard, styles.dashedCard)}>
+    <Card
+      data-search-skip="true"
+      noShadow
+      cssOverride={mergeCss(cardStyles.formCard, styles.dashedCard)}
+    >
       <CardContent>
         <Form {...form}>
           <Flex direction="column" gap={4}>
@@ -181,7 +199,6 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
                   conditions={conditions}
                   setConditions={setConditions}
                   getConditionValue={getConditionValue}
-                  conditionOptions={conditionOptions}
                   selectedCountries={selectedCountries}
                   setSelectedCountries={setSelectedCountries}
                   from={from}
@@ -190,16 +207,22 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
                   destinationCountry={destinationCountry}
                 />
               ))}
+              {conditionsError && (
+                <Text variant="small" cssOverride={styles.errorText}>
+                  {conditionsError}
+                </Text>
+              )}
             </Flex>
             <Flex direction="column" gap={2}>
               <Text>{__('THEN', 'kirki-ecommerce')}</Text>
               <Grid columns={2}>
-                <SelectField name="action_type" options={actionOptions} />
-                {selectedAction === 'set_product_tax_rate' && (
-                  <TextField
-                    name="action_value"
-                    placeholder={__('e.g., 8.5', 'kirki-ecommerce')}
-                  />
+                <SelectField
+                  name="action_type"
+                  options={actionOptions}
+                  onValueChange={() => form.setValue('action_value', '')}
+                />
+                {RATE_ACTIONS.includes(selectedAction ?? '') && (
+                  <TextField name="action_value" placeholder={__('e.g., 8.5', 'kirki-ecommerce')} />
                 )}
               </Grid>
             </Flex>
@@ -226,7 +249,9 @@ export default TaxRuleFormCard;
 
 const styles = defineStyles({
   dashedCard: {
-    borderStyle: 'dashed',
-    borderColor: theme.colors.border.default,
+    border: `1px dashed ${theme.colors.border.default}`,
+  },
+  errorText: {
+    color: theme.colors.text.critical,
   },
 });

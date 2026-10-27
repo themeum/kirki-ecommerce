@@ -4,11 +4,14 @@ export type { EmailSettingsFormPayload } from './email/schemas/forms/email-setti
 export { useSchemasQuery } from './essentials/services/schema';
 export type { GeneralSettingsFormPayload } from './general/schemas/forms/general-settings-form';
 export type { LegalSettingsFormPayload } from './legal/schemas/forms/legal-settings-form';
+export type { McpSettingsFormPayload } from './mcp/schemas/forms/mcp-settings-form';
 export type { MultiCurrencySettingsFormPayload } from './multi-currency/schemas/forms/multi-currency-settings-form';
+export { useAllCurrenciesQuery } from './multi-currency/services/currency';
 export { useOfflinePaymentsQuery } from './payment/services/payment';
 export type { ProductsSettingsFormPayload } from './products/schemas/forms/products-settings-form';
 export { currencyKeys, paymentKeys, schemaProfileKeys, shippingKeys, taxKeys } from './services/query-keys';
 export { default as ShippingBoxField } from './shipping/components/fields/shipping-box-field';
+export { default as ShippingProfileField } from './shipping/components/fields/shipping-profile-field';
 export { CreateProfilePopup } from './shipping/pages/shipping-profile/create-profile-dialog';
 export type { ShippingSettingsFormPayload } from './shipping/schemas/forms/shipping-settings-form';
 export { useShippingBoxesQuery, useShippingProfilesQuery } from './shipping/services/shipping';

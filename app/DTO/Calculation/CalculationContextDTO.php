@@ -2,14 +2,22 @@
 
 namespace Kirki\Ecommerce\App\DTO\Calculation;
 
-use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Cart;
+use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\DTO;
 
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 
+/**
+ * Input to a cart or order price calculation: items, addresses, customer and coupon codes.
+ *
+ * @since 1.0.0
+ */
 class CalculationContextDTO extends DTO
 {
     /** @var int|null */
@@ -27,6 +35,15 @@ class CalculationContextDTO extends DTO
     /** @var int */
     public $customer_id;
 
+    /** @var int|null WordPress user ID of the signed-in shopper who owns the cart, when there is one */
+    public $user_id;
+
+    /** @var string|null Email identifying the buyer (customer record, then account, then entered), lowercased; null for a guest who has not entered one */
+    public $customer_email;
+
+    /** @var int|null Order being edited, left out of the buyer's own order and coupon-usage counts */
+    public $order_id;
+
     /** @var string[] */
     public $coupon_codes = [];
 
@@ -36,12 +53,16 @@ class CalculationContextDTO extends DTO
     /** @var int Base shipping cost in minor units */
     public $shipping_subtotal = 0;
 
-    /** @var int */
-    public $customer_order_count = 0;
-
     /** @var bool */
     public $should_calculate_tax = true;
 
+    /**
+     * Sum the base unit price times quantity of every item.
+     *
+     * @since 1.0.0
+     *
+     * @return int Subtotal in minor units of the base currency.
+     */
     public function get_subtotal()
     {
         $subtotal = 0;
@@ -51,6 +72,13 @@ class CalculationContextDTO extends DTO
         return $subtotal;
     }
 
+    /**
+     * Sum the quantities of every item.
+     *
+     * @since 1.0.0
+     *
+     * @return int Total number of units across all items.
+     */
     public function get_items_count()
     {
         $count = 0;
@@ -60,17 +88,29 @@ class CalculationContextDTO extends DTO
         return $count;
     }
 
+    /**
+     * Build a calculation context from a cart.
+     *
+     * Copies the cart's owner, addresses, shipping method, coupon codes and items, and resolves
+     * the buyer's email. When the cart belongs to a user with a customer record, also sets the customer ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Cart $cart Cart to read the context from.
+     * @return static
+     */
     public static function from_cart(Cart $cart)
     {
         $dto = new static();
         $dto->cart_id = $cart->id;
+        $dto->user_id = !empty($cart->user_id) ? (int) $cart->user_id : null;
         $dto->customer_id = null;
-        $customer = null;
-
         if (!empty($cart->user_id)) {
             $customer = customer($cart->user_id)->get_customer();
             $dto->customer_id = $customer ? $customer->id : null;
         }
+
+        $dto->customer_email = app()->make(CustomerService::class)->resolve_buyer_email($dto->customer_id, $dto->user_id, $cart->customer_email);
 
         $dto->shipping_address = $cart->shipping_address ? $cart->shipping_address : [];
         $dto->billing_address = $cart->billing_address ? $cart->billing_address : [];
@@ -96,11 +136,6 @@ class CalculationContextDTO extends DTO
 
             return $item_dto;
         }) ?? collection();
-
-        if ($dto->customer_id && $customer) {
-            // @todo: need to update this with order status which are terminal states
-            $dto->customer_order_count = $customer->orders()->where_not_in('fulfillment_status', [FulfillmentStatus::CANCELLED, FulfillmentStatus::RETURNED])->count();
-        }
 
         return $dto;
     }

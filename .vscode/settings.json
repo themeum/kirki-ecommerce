@@ -125,5 +125,5 @@
   "javascript.preferences.importModuleSpecifier": "non-relative",
 
   "phpSniffer.autoDetect": true,
-  "phpSniffer.standard": "./phpcs-wporg.xml.dist"
+  "phpSniffer.standard": "./phpcs-ide.xml.dist"
 }

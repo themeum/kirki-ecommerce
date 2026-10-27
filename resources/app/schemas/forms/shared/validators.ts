@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { MoneyAmountSchema } from '@/schemas/shared/api';
 import { __ } from '@/wpi18n';
 
 /**
@@ -36,11 +35,8 @@ const email = (message?: string) =>
     .min(1, message ?? __('Email is required', 'kirki-ecommerce'))
     .email(__('Please enter a valid email', 'kirki-ecommerce'));
 
-const moneyAmount = MoneyAmountSchema;
-
 export {
   email,
-  moneyAmount,
   optionalNullableString,
   requiredString,
   slug,

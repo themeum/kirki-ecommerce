@@ -10,7 +10,6 @@ use Kirki\Ecommerce\App\Decisions\Actions\SetProductTaxRateAction;
 use Kirki\Ecommerce\App\Decisions\Actions\SetShippingTaxRateAction;
 use Kirki\Ecommerce\App\Decisions\Conditions\DestinationRegionCondition;
 use Kirki\Ecommerce\App\Decisions\Conditions\ProductCategoryCondition;
-use Kirki\Ecommerce\App\Decisions\Conditions\ProductProfileCondition;
 use Kirki\Ecommerce\App\Decisions\Actions\SetFreeShippingAction;
 use Kirki\Ecommerce\App\Decisions\Actions\SetShippingCostAction;
 use Kirki\Ecommerce\App\Decisions\Conditions\CartWeightCondition;
@@ -20,7 +19,6 @@ use Kirki\Ecommerce\App\Decisions\Conditions\TaxProfileCondition;
 
 return [
     'conditions' => [
-        'product_profile' => ProductProfileCondition::class,
         'tax_profile' => TaxProfileCondition::class,
         'destination_region' => DestinationRegionCondition::class,
         'cart_weight' => CartWeightCondition::class,

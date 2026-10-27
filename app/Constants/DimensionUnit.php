@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Constants;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Units of length for product dimensions.
+ *
+ * @since 1.0.0
+ */
 class DimensionUnit
 {
     use HasConstants;

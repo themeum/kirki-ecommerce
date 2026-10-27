@@ -1,3 +1,5 @@
+import type { PaginatedData } from '@/types/api/response';
+
 type FormErrors = Record<string, string | string[] | null | undefined>;
 
 type DateFormatType = 'date' | 'time' | 'datetime' | 'readable' | 'relative';
@@ -31,9 +33,15 @@ type MediaChangePayload = {
   url?: string;
 };
 
+type ListingTableProps<T> = {
+  data?: PaginatedData<T>;
+  isLoading?: boolean;
+};
+
 export type {
   DateFormatType,
   FormErrors,
+  ListingTableProps,
   MediaChangePayload,
   ProfitData,
   SuggestionItem,

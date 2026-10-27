@@ -1,533 +1,946 @@
 {
-    "default_template": {
-        "logo": null,
-        "height": "30px",
-        "position": "center",
-        "colors": {
-            "background": "#000000",
-            "text": "#ffffff",
-            "link": "#f2f2f2",
-            "label": "#111111",
-            "button": "#ffffff",
-            "button_bg": "#000000"
-        }
+  "default_template": {
+    "logo": null,
+    "height": 30,
+    "position": "center",
+    "colors": {
+      "background": {
+        "email_body": "#FFFFFF",
+        "outer_area": "#DBDBE5",
+        "info_cads": "#F5F5F5",
+        "divider": "#E0E0E0"
+      },
+      "typography": {
+        "headings": "#000000",
+        "body": "#000000",
+        "muted": "#474747",
+        "link": "#167BFF",
+        "exceptions": "#0078CE"
+      },
+      "button": {
+        "background": "#167BFF",
+        "text": "#FFFFFF"
+      }
     },
-    "customer_emails": {
-        "order_notifications": {
-            "new_order_email": {
-                "is_enabled": true,
-                "name": "New Order",
-                "subject": "New Order",
-                "heading": "New Order",
-                "message": "<p>Hi there! </p><br /><p>New order on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "cancelled_order_email": {
-                "is_enabled": true,
-                "name": "Cancelled Order",
-                "subject": "Cancelled Order",
-                "heading": "Cancelled Order",
-                "message": "<p>Hi there! </p><br /><p>Cancelled order on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "failed_order_email": {
-                "is_enabled": true,
-                "name": "Failed Order",
-                "subject": "Failed Order",
-                "heading": "Failed Order",
-                "message": "<p>Hi there! </p><br /><p>Failed order on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "order_on_hold_email": {
-                "is_enabled": true,
-                "name": "Order On Hold",
-                "subject": "Order On Hold",
-                "heading": "Order On Hold",
-                "message": "<p>Hi there! </p><br /><p>Order on hold on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "processing_order_email": {
-                "is_enabled": true,
-                "name": "Processing Order",
-                "subject": "Processing Order",
-                "heading": "Processing Order",
-                "message": "<p>Hi there! </p><br /><p>Processing order on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "completed_order_email": {
-                "is_enabled": true,
-                "name": "Completed Order",
-                "subject": "Completed Order",
-                "heading": "Completed Order",
-                "message": "<p>Hi there! </p><br /><p>Completed order on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "order_note_email": {
-                "is_enabled": true,
-                "name": "Order Note",
-                "subject": "Order Note",
-                "heading": "Order Note",
-                "message": "<p>Hi there! </p><br /><p>Order note on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            }
-        },
-        "user_notifications": {
-            "new_customer_registered_email": {
-                "is_enabled": false,
-                "name": "New Customer Registered",
-                "subject": "New Customer Registered",
-                "heading": "New Customer Registered",
-                "message": "<p>Hi there! </p><br /><p>New customer registered on the site {site_name:}</p><br /><p>{customer_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Customer Table",
-                        "value": "{customer_table}"
-                    },
-                    {
-                        "label": "Customer ID",
-                        "value": "{customer_id}"
-                    },
-                    {
-                        "label": "Customer Date",
-                        "value": "{customer_date}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "reset_password_email": {
-                "is_enabled": true,
-                "name": "Reset Password",
-                "subject": "Reset Password",
-                "heading": "Reset Password",
-                "message": "<p>Hi there! </p><br /><p>Reset password on the site {site_name:}</p><br /><p>{customer_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Customer Table",
-                        "value": "{customer_table}"
-                    },
-                    {
-                        "label": "Customer ID",
-                        "value": "{customer_id}"
-                    },
-                    {
-                        "label": "Customer Date",
-                        "value": "{customer_date}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            }
-        }
+    "additional_description": "",
+    "footer": ""
+  },
+  "customer_emails": {
+    "order_notifications": {
+      "new_order": {
+        "is_enabled": true,
+        "subject": "Order Confirmation",
+        "heading": "Thank you for your order!",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span></div><div><span style=\"font-size: 13px;\">We've received it and it's being prepared.</span></div><div>{order_view_button}</div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "cancelled_order": {
+        "is_enabled": true,
+        "subject": "Order cancelled",
+        "heading": "Order cancelled",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">We’re getting in touch to let you know that your order has been cancelled.</span> </div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Cancel Date",
+            "value": "{order_cancel_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "payment_failed": {
+        "is_enabled": true,
+        "subject": "Payment Failed",
+        "heading": "Sorry, your payment was unsuccessful",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">Unfortunately, we couldn't complete your order due to an issue with your payment method.</span></div><div><span style=\"font-size: 13px;\">If you'd like to continue with your purchase, please return to IONI Store and try a different method of payment.</span></div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_on_hold": {
+        "is_enabled": true,
+        "subject": "Order on hold",
+        "heading": "Thank you for your order!",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">We’ve received your order and it’s currently on hold until we can confirm your payment has been processed.</span></div><div>{order_view_button}</div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_processing": {
+        "is_enabled": true,
+        "subject": "Order processing",
+        "heading": "Thank you for your order!",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">Your order has been confirmed and is now being prepared.</span></div><div>{order_view_button}</div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_completed": {
+        "is_enabled": true,
+        "subject": "Order Delivered",
+        "heading": "Your order has been delivered!",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">We have finished processing your order.</span></div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_note": {
+        "is_enabled": true,
+        "subject": "Order Note",
+        "heading": "A note has been added to your order",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">The following note has been added to your order:</span></div><div>{admin_order_note}</div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Order Note",
+            "value": "{admin_order_note}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_shipped": {
+        "is_enabled": true,
+        "subject": "Order shipped",
+        "heading": "Order shipped",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">Your order has shipped and is headed your way.</span></div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      }
     },
-    "admin_emails": {
-        "order_notifications": {
-            "new_order_email": {
-                "is_enabled": false,
-                "name": "New Order",
-                "subject": "New Order",
-                "heading": "New Order",
-                "message": "<p>Hi there! </p><br /><p>New order on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "cancelled_order_email": {
-                "is_enabled": true,
-                "name": "Cancelled Order",
-                "subject": "Cancelled Order",
-                "heading": "Cancelled Order",
-                "message": "<p>Hi there! </p><br /><p>Cancelled order on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "failed_order_email": {
-                "is_enabled": true,
-                "name": "Failed Order",
-                "subject": "Failed Order",
-                "heading": "Failed Order",
-                "message": "<p>Hi there! </p><br /><p>Failed order on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "customer_requested_refund_email": {
-                "is_enabled": true,
-                "name": "Customer Requested Refund",
-                "subject": "Customer Requested Refund",
-                "heading": "Customer Requested Refund",
-                "message": "<p>Hi there! </p><br /><p>Customer requested refund on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            }
-        },
-        "inventory_notifications": {
-            "low_stock_email": {
-                "is_enabled": false,
-                "name": "Low Stock",
-                "subject": "Low Stock",
-                "heading": "Low Stock",
-                "message": "<p>Hi there! </p><br /><p>Low stock on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            },
-            "out_of_stock_email": {
-                "is_enabled": true,
-                "name": "Out of Stock",
-                "subject": "Out of Stock",
-                "heading": "Out of Stock",
-                "message": "<p>Hi there! </p><br /><p>Out of stock on the site {site_name:}</p><br /><p>{order_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Order Table",
-                        "value": "{order_table}"
-                    },
-                    {
-                        "label": "Order ID",
-                        "value": "{order_id}"
-                    },
-                    {
-                        "label": "Order Date",
-                        "value": "{order_date}"
-                    },
-                    {
-                        "label": "Billing Address",
-                        "value": "{billing_address}"
-                    },
-                    {
-                        "label": "Shipping Address",
-                        "value": "{shipping_address}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            }
-        },
-        "user_notifications": {
-            "new_customer_registered_email": {
-                "is_enabled": false,
-                "name": "New Customer Registered",
-                "subject": "New Customer Registered",
-                "heading": "New Customer Registered",
-                "message": "<p>Hi there! </p><br /><p>New customer registered on the site {site_name:}</p><br /><p>{customer_table}</p>",
-                "shortcodes": [
-                    {
-                        "label": "Customer Table",
-                        "value": "{customer_table}"
-                    },
-                    {
-                        "label": "Customer ID",
-                        "value": "{customer_id}"
-                    },
-                    {
-                        "label": "Customer Date",
-                        "value": "{customer_date}"
-                    },
-                    {
-                        "label": "Site Name",
-                        "value": "{site_name}"
-                    }
-                ]
-            }
-        }
+    "user_notifications": {
+      "reset_password": {
+        "is_enabled": true,
+        "subject": "Reset Password",
+        "heading": "Reset your password",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {full_name}</span></div><div><span style=\"font-size: 13px;\">Someone has requested a new password for the following account on {store_name}:</span></div><div>{user_info_table}</div><div>{reset_link_button}</div>",
+        "shortcodes": [
+          {
+            "label": "Full Name",
+            "value": "{full_name}"
+          },
+          {
+            "label": "Email",
+            "value": "{user_email}"
+          },
+          {
+            "label": "Username",
+            "value": "{user_name}"
+          },
+          {
+            "label": "User Table",
+            "value": "{user_info_table}"
+          },
+          {
+            "label": "Reset Link",
+            "value": "{reset_link}"
+          },
+          {
+            "label": "Reset Link Button",
+            "value": "{reset_link_button}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "new_account": {
+        "is_enabled": true,
+        "subject": "New Account",
+        "heading": "Welcome to {store_name}",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {full_name}</span></div><div><span style=\"font-size: 13px;\">Thanks for creating an account on {store_name}. Here’s a copy of your user details.</span></div><div>{user_info_table}</div><div>{set_password_link}</div>",
+        "shortcodes": [
+          {
+            "label": "Full Name",
+            "value": "{full_name}"
+          },
+          {
+            "label": "Email",
+            "value": "{user_email}"
+          },
+          {
+            "label": "Username",
+            "value": "{user_name}"
+          },
+          {
+            "label": "User Table",
+            "value": "{user_info_table}"
+          },
+          {
+            "label": "Set Password Link",
+            "value": "{set_password_link}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "confirm_email_address": {
+        "is_enabled": true,
+        "subject": "Confirm your email address",
+        "heading": "Confirm your email address",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {full_name}</span></div><div><span style=\"font-size: 13px;\">Once you've confirmed that {user_email} is your email address, we'll link any past orders to your account.</span></div><div>{verification_link_button}</div>",
+        "shortcodes": [
+          {
+            "label": "Full Name",
+            "value": "{full_name}"
+          },
+          {
+            "label": "Email",
+            "value": "{user_email}"
+          },
+          {
+            "label": "Username",
+            "value": "{user_name}"
+          },
+          {
+            "label": "Verification Link",
+            "value": "{verification_link}"
+          },
+          {
+            "label": "Verification Link Button",
+            "value": "{verification_link_button}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      }
     }
+  },
+  "admin_emails": {
+    "order_notifications": {
+      "new_order": {
+        "is_enabled": true,
+        "subject": "New Order",
+        "heading": "New order",
+        "message": "<div><span style=\"font-size: 13px;\">You’ve received a new order from {customer_name}</span></div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "cancelled_order": {
+        "is_enabled": true,
+        "subject": "Order cancelled",
+        "heading": "Order cancelled",
+        "message": "<div><span style=\"font-size: 13px;\">We’re getting in touch to let you know that order from {customer_name} has been cancelled.</span></div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "payment_failed": {
+        "is_enabled": true,
+        "subject": "Payment failed",
+        "heading": "Payment failed",
+        "message": "<div><span style=\"font-size: 13px;\">Unfortunately, the payment for order from {customer_name} has failed. </span></div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      }
+    },
+    "inventory_notifications": {
+      "low_stock": {
+        "is_enabled": true,
+        "subject": "Low stock alert",
+        "heading": "Low stock",
+        "message": "<div><span style=\"font-size: 13px;\">The following product is running low on stock.</span></div><div>{product_stock_info}</div><div>{product_restock_link_button}</div>",
+        "shortcodes": [
+          {
+            "label": "Product Name",
+            "value": "{product_name}"
+          },
+          {
+            "label": "SKU",
+            "value": "{sku}"
+          },
+          {
+            "label": "Product Stock Info",
+            "value": "{product_stock_info}"
+          },
+          {
+            "label": "Product Edit Link",
+            "value": "{product_restock_link}"
+          },
+          {
+            "label": "Product Edit Link Button",
+            "value": "{product_restock_link_button}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "out_of_stock": {
+        "is_enabled": true,
+        "subject": "Low stock alert",
+        "heading": "Low stock",
+        "message": "<div><span style=\"font-size: 13px;\">The following product have reached zero stock.</span></div><div>{product_stock_info}</div><div>{product_restock_link_button}</div>",
+        "shortcodes": [
+          {
+            "label": "Product Name",
+            "value": "{product_name}"
+          },
+          {
+            "label": "SKU",
+            "value": "{sku}"
+          },
+          {
+            "label": "Product Stock Info",
+            "value": "{product_stock_info}"
+          },
+          {
+            "label": "Product Edit Link",
+            "value": "{product_restock_link}"
+          },
+          {
+            "label": "Product Edit Link Button",
+            "value": "{product_restock_link_button}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      }
+    },
+    "user_notifications": {
+      "reset_password": {
+        "is_enabled": true,
+        "subject": "Reset Password",
+        "heading": "Reset your password",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {full_name}</span></div><div><span style=\"font-size: 13px;\">Someone has requested a new password for the following account on {store_name}:</span></div><div>{user_info_table}</div><div>{reset_link_button}</div>",
+        "shortcodes": [
+          {
+            "label": "Full Name",
+            "value": "{full_name}"
+          },
+          {
+            "label": "Email",
+            "value": "{user_email}"
+          },
+          {
+            "label": "Username",
+            "value": "{user_name}"
+          },
+          {
+            "label": "User Table",
+            "value": "{user_info_table}"
+          },
+          {
+            "label": "Reset Link",
+            "value": "{reset_link}"
+          },
+          {
+            "label": "Reset Link Button",
+            "value": "{reset_link_button}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      }
+    }
+  }
 }

@@ -2,10 +2,13 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Tax;
 
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\DTO\Tax\TaxableItemDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
 use Kirki\Ecommerce\App\Tax\Strategies\EUTaxStrategy;
+use Kirki\Ecommerce\Framework\Container;
 use Kirki\Ecommerce\Tests\Support\BindsTaxDependencies;
+use Kirki\Ecommerce\Tests\Support\FakeSettingsFactory;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class EUTaxStrategyTest extends TestCase
@@ -27,7 +30,7 @@ class EUTaxStrategyTest extends TestCase
      */
     public function test_member_country_rate_applies_to_product_and_shipping(): void
     {
-        $strategy = $this->make_strategy('AT', $this->eu_region(), false);
+        $strategy = $this->make_strategy($this->eu_region(), false);
         $result = $strategy->calculate($this->tax_context('AT'));
 
         $this->assertSame(2000, $result->items[1][0]->base_amount);
@@ -45,7 +48,7 @@ class EUTaxStrategyTest extends TestCase
      */
     public function test_rates_are_matched_by_country_code(): void
     {
-        $strategy = $this->make_strategy('BE', $this->eu_region(), false);
+        $strategy = $this->make_strategy($this->eu_region(), false);
         $result = $strategy->calculate($this->tax_context('BE'));
 
         $this->assertSame(2100, $result->items[1][0]->base_amount);
@@ -58,7 +61,7 @@ class EUTaxStrategyTest extends TestCase
      */
     public function test_unconfigured_country_is_taxed_at_zero(): void
     {
-        $strategy = $this->make_strategy('DE', $this->eu_region(), false);
+        $strategy = $this->make_strategy($this->eu_region(), false);
         $result = $strategy->calculate($this->tax_context('DE'));
 
         $this->assertSame(0, $result->items[1][0]->base_amount);
@@ -75,7 +78,7 @@ class EUTaxStrategyTest extends TestCase
         $region = $this->eu_region();
         $region['rules'] = [$this->set_product_tax_rate_rule('digital', 7)];
 
-        $strategy = $this->make_strategy('AT', $region, false);
+        $strategy = $this->make_strategy($region, false);
         $result = $strategy->calculate($this->tax_context('AT'));
 
         $this->assertSame(700, $result->items[1][0]->base_amount);
@@ -93,7 +96,7 @@ class EUTaxStrategyTest extends TestCase
             $this->destination_region_rule(['country' => ['AT', 'BE']], 'set_product_tax_rate', 5),
         ];
 
-        $strategy = $this->make_strategy('AT', $region, false);
+        $strategy = $this->make_strategy($region, false);
         $result = $strategy->calculate($this->tax_context('AT'));
 
         $this->assertSame(500, $result->items[1][0]->base_amount);
@@ -112,7 +115,7 @@ class EUTaxStrategyTest extends TestCase
         $region = $this->eu_region();
         $region['rules'] = [$this->set_product_tax_rate_rule('digital', 5)];
 
-        $strategy = $this->make_strategy('AT', $region, false);
+        $strategy = $this->make_strategy($region, false);
 
         $context = TaxCalculationContextDTO::from_array([
             'shipping_address' => ['country' => 'AT'],
@@ -159,7 +162,7 @@ class EUTaxStrategyTest extends TestCase
      */
     public function test_shipping_tax_is_not_merged_across_items_sharing_a_rate(): void
     {
-        $strategy = $this->make_strategy('AT', $this->eu_region(), false);
+        $strategy = $this->make_strategy($this->eu_region(), false);
 
         $context = TaxCalculationContextDTO::from_array([
             'shipping_address' => ['country' => 'AT'],
@@ -195,13 +198,15 @@ class EUTaxStrategyTest extends TestCase
 
     /**
      * Tax-inclusive pricing extracts the tax from the item's base amount
-     * instead of adding it on top.
+     * instead of adding it on top. Shipping is never sold at a
+     * tax-inclusive price, so its tax is still added on top of the
+     * shipping fee even when the store's product pricing is tax-inclusive.
      *
      * @return void
      */
-    public function test_tax_inclusive_pricing_extracts_the_tax(): void
+    public function test_tax_inclusive_pricing_extracts_the_tax_from_items_but_adds_it_on_top_for_shipping(): void
     {
-        $strategy = $this->make_strategy('AT', $this->eu_region(), true);
+        $strategy = $this->make_strategy($this->eu_region(), true);
 
         $context = $this->tax_context('AT');
         $context->items[0]->taxable_amount = 12000;
@@ -209,6 +214,7 @@ class EUTaxStrategyTest extends TestCase
         $result = $strategy->calculate($context);
 
         $this->assertSame(2000, $result->items[1][0]->base_amount);
+        $this->assertSame(2000, $result->shipping[0]->base_amount);
     }
 
     /**
@@ -219,7 +225,7 @@ class EUTaxStrategyTest extends TestCase
      */
     public function test_non_taxable_shipping_produces_no_line(): void
     {
-        $strategy = $this->make_strategy('AT', $this->eu_region(), false);
+        $strategy = $this->make_strategy($this->eu_region(), false);
 
         $context = $this->tax_context('AT');
         $context->is_shipping_taxable = false;
@@ -237,7 +243,7 @@ class EUTaxStrategyTest extends TestCase
      */
     public function test_zero_shipping_fee_produces_no_line(): void
     {
-        $strategy = $this->make_strategy('AT', $this->eu_region(), false);
+        $strategy = $this->make_strategy($this->eu_region(), false);
 
         $context = $this->tax_context('AT');
         $context->shipping_fee = 0;
@@ -256,7 +262,7 @@ class EUTaxStrategyTest extends TestCase
      */
     public function test_shipping_tax_splits_across_three_items_without_losing_a_cent(): void
     {
-        $strategy = $this->make_strategy('AT', $this->eu_region(), false);
+        $strategy = $this->make_strategy($this->eu_region(), false);
 
         $context = TaxCalculationContextDTO::from_array([
             'shipping_address' => ['country' => 'AT'],
@@ -288,7 +294,7 @@ class EUTaxStrategyTest extends TestCase
      */
     public function test_shipping_tax_split_handles_an_uneven_remainder(): void
     {
-        $strategy = $this->make_strategy('AT', $this->eu_region(), false);
+        $strategy = $this->make_strategy($this->eu_region(), false);
 
         $context = TaxCalculationContextDTO::from_array([
             'shipping_address' => ['country' => 'AT'],
@@ -310,6 +316,126 @@ class EUTaxStrategyTest extends TestCase
         $actual_tax_sum = array_sum(array_map(fn($line) => $line->base_amount, $result->shipping));
 
         $this->assertEqualsWithDelta($expected_tax_on_whole, $actual_tax_sum, 3, 'Split tax drifted by more than one cent per line from the tax on the whole shipping fee.');
+    }
+
+    /**
+     * A micro business charges the rate of its one country to a shopper in another member country.
+     *
+     * @return void
+     */
+    public function test_micro_business_charges_the_rate_of_its_one_country(): void
+    {
+        $region = array_merge($this->eu_region(), ['type' => 'micro_business', 'countries' => [['code' => 'AT', 'name' => 'Austria', 'rate' => 20]]]);
+
+        $result = $this->make_strategy($region, false)->calculate($this->tax_context('BE'));
+
+        $this->assertSame(20.0, $result->items[1][0]->rate);
+        $this->assertSame(2000, $result->items[1][0]->base_amount);
+    }
+
+    /**
+     * A micro business charges its country's rate even when the store address is in another country.
+     *
+     * @return void
+     */
+    public function test_micro_business_ignores_the_store_address_country(): void
+    {
+        $this->bind_store_country('AT');
+        $region = array_merge($this->eu_region(), ['type' => 'micro_business', 'countries' => [['code' => 'DE', 'name' => 'Germany', 'rate' => 19]]]);
+
+        $result = $this->make_strategy($region, false)->calculate($this->tax_context('BE'));
+
+        $this->assertSame(19.0, $result->items[1][0]->rate);
+    }
+
+    /**
+     * Under OSS the shopper's member country supplies the rate, whatever the store's country.
+     *
+     * @return void
+     */
+    public function test_oss_charges_the_destination_rate(): void
+    {
+        $this->bind_store_country('AT');
+
+        $result = $this->make_strategy($this->eu_region(), false)->calculate($this->tax_context('BE'));
+
+        $this->assertSame(21.0, $result->items[1][0]->rate);
+    }
+
+    /**
+     * A micro-business region without a country charges nothing.
+     *
+     * @return void
+     */
+    public function test_micro_business_without_a_country_is_taxed_at_zero(): void
+    {
+        $region = array_merge($this->eu_region(), ['type' => 'micro_business', 'countries' => []]);
+
+        $result = $this->make_strategy($region, false)->calculate($this->tax_context('BE'));
+
+        $this->assertSame(0, $result->items[1][0]->base_amount);
+    }
+
+    /**
+     * Under OSS the shopper's address sets the tax, so the strategy reports the address it was given.
+     *
+     * @return void
+     */
+    public function test_oss_reports_the_address_it_was_given(): void
+    {
+        $default = $this->make_strategy($this->eu_region(), false)->calculate($this->tax_context('BE'));
+        $store = (new EUTaxStrategy($this->eu_region(), false, true, OrderTaxDestination::STORE))->calculate($this->tax_context('BE'));
+
+        $this->assertSame(OrderTaxDestination::SHIPPING, $default->tax_destination);
+        $this->assertSame(OrderTaxDestination::STORE, $store->tax_destination);
+    }
+
+    /**
+     * The member country rate comes from the address the destination names, not from the shipping address.
+     *
+     * @return void
+     */
+    public function test_rate_follows_the_destination_address(): void
+    {
+        $strategy = new EUTaxStrategy($this->eu_region(), false, true, OrderTaxDestination::BILLING);
+
+        $result = $strategy->calculate($this->tax_context('BE', ['billing_address' => ['country' => 'AT']]));
+
+        $this->assertSame(2000, $result->items[1][0]->base_amount);
+        $this->assertSame(OrderTaxDestination::BILLING, $result->tax_destination);
+    }
+
+    /**
+     * A micro business charges its own country's rate to everyone, so the store sets the tax.
+     *
+     * @return void
+     */
+    public function test_micro_business_reports_the_store(): void
+    {
+        $region = array_merge($this->eu_region(), ['type' => 'micro_business', 'countries' => [['code' => 'AT', 'name' => 'Austria', 'rate' => 20]]]);
+
+        $result = $this->make_strategy($region, false)->calculate($this->tax_context('BE'));
+
+        $this->assertSame(OrderTaxDestination::STORE, $result->tax_destination);
+    }
+
+    /**
+     * Bind settings whose store address is in the given country.
+     *
+     * @param string $country Store country code.
+     * @return void
+     */
+    protected function bind_store_country(string $country): void
+    {
+        Container::get_instance()->bind('settings', fn() => new FakeSettingsFactory([
+            'currency' => [
+                'decimal_separator' => '.',
+                'thousand_separator' => ',',
+                'currency_position' => 'before',
+            ],
+            'general' => ['store_address' => ['country' => $country]],
+        ]));
+        $this->reset_facade_cache();
     }
 
     /**
@@ -346,19 +472,20 @@ class EUTaxStrategyTest extends TestCase
      *
      * @return EUTaxStrategy
      */
-    protected function make_strategy(string $country, array $region, bool $is_tax_inclusive_price): EUTaxStrategy
+    protected function make_strategy(array $region, bool $is_tax_inclusive_price): EUTaxStrategy
     {
-        return new EUTaxStrategy(['country' => $country], $region, $is_tax_inclusive_price, true);
+        return new EUTaxStrategy($region, $is_tax_inclusive_price, true);
     }
 
     /**
-     * @param string $country The shipping address's country code.
+     * @param string $country   The shipping address's country code.
+     * @param array  $overrides Further context fields, e.g. `billing_address`.
      *
      * @return TaxCalculationContextDTO
      */
-    protected function tax_context(string $country): TaxCalculationContextDTO
+    protected function tax_context(string $country, array $overrides = []): TaxCalculationContextDTO
     {
-        return TaxCalculationContextDTO::from_array([
+        return TaxCalculationContextDTO::from_array(array_merge([
             'shipping_address' => ['country' => $country],
             'billing_address' => [],
             'shipping_fee' => 10000,
@@ -371,6 +498,6 @@ class EUTaxStrategyTest extends TestCase
                     'product_categories' => [],
                 ]),
             ],
-        ]);
+        ], $overrides));
     }
 }

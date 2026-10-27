@@ -23,14 +23,7 @@ const getCategories = (params: ListQueryParams = {}) => {
     .then((response) => parseData(PaginatedDataSchema(CategorySchema), response));
 };
 
-/**
- * The full add/edit dialog sends a complete `CategoryFormPayload`, but the
- * inline "create category" affordance inside the product form only ever
- * sends `name` and `parent_id` — the backend derives the rest server-side.
- */
-const createCategory = (
-  data: CategoryFormPayload | Pick<CategoryFormPayload, 'name' | 'parent_id'>,
-) => {
+const createCategory = (data: CategoryFormPayload) => {
   return apiClient
     .post(endpoints.CATEGORIES, data)
     .then((response) => parseResponse(CategorySchema, response));

@@ -2,21 +2,45 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Constants\ConsentLocations;
 use Kirki\Ecommerce\App\Services\LegalConsentService;
+use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * Validates and sanitizes the payload for creating an order.
+ *
+ * @since 1.0.0
+ */
 class OrderCreateRequest extends Request
 {
+    use ValidatesAddressFields;
+
+    /**
+     * Determine whether the current user may create this order.
+     *
+     * Admins always may. Guests may only when guest checkout is enabled. Other users may not place an order for a different customer or create a manual order.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
     public function authorize()
     {
         if (customer()->is_admin()) {
             return true;
+        }
+
+        if (!customer()->is_logged_in() && !Utils::guest_checkout_enabled()) {
+            return false;
         }
 
         if (!empty($this->input('customer_id')) && (int) $this->input('customer_id') !== customer()->get_customer_id()) {
@@ -26,6 +50,15 @@ class OrderCreateRequest extends Request
         return !$this->input('is_manual');
     }
 
+    /**
+     * Fill in order defaults before validation.
+     *
+     * Defaults billing to match shipping, resolves the customer ID and guest flag, and falls back to the display currency.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $customer = customer(null, $this->input('customer_id') ?? null);
@@ -38,8 +71,15 @@ class OrderCreateRequest extends Request
         ]);
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
+        $shipping_country = (string) $this->input('shipping_country');
+
         return [
             'customer_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
@@ -83,8 +123,8 @@ class OrderCreateRequest extends Request
             'shipping_address_line1' => 'required|string',
             'shipping_address_line2' => 'nullable|string',
             'shipping_city' => 'required|string',
-            'shipping_state' => 'required|string',
-            'shipping_postal_code' => 'required|string',
+            'shipping_state' => static::address_field_rule($shipping_country, 'state'),
+            'shipping_postal_code' => static::address_field_rule($shipping_country, 'postal_code'),
             'shipping_country' => 'required|string',
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
@@ -98,20 +138,61 @@ class OrderCreateRequest extends Request
             'billing_address_line1' => 'required_if:is_billing_same_as_shipping,0|string|nullable',
             'billing_address_line2' => 'nullable|string',
             'billing_city' => 'required_if:is_billing_same_as_shipping,0|string|nullable',
-            'billing_state' => 'required_if:is_billing_same_as_shipping,0|string|nullable',
-            'billing_postal_code' => 'required_if:is_billing_same_as_shipping,0|string|nullable',
+            'billing_state' => $this->billing_address_field_rule('state'),
+            'billing_postal_code' => $this->billing_address_field_rule('postal_code'),
             'billing_country' => 'required_if:is_billing_same_as_shipping,0|string|nullable',
             'billing_phone' => 'nullable|string',
             'billing_email' => 'nullable|email',
             'billing_company' => 'nullable|string',
 
+            'customer_first_name' => 'required_if:is_manual,1|nullable|string',
+            'customer_last_name' => 'required_if:is_manual,1|nullable|string',
             'customer_email' => 'required_if:is_guest,1|nullable|email',
-            'customer_notes' => 'nullable|string',
-            'admin_notes' => 'nullable|string',
+            'customer_phone' => 'nullable|string',
+            'order_notes' => 'nullable|string',
             'is_manual' => 'nullable|boolean',
         ];
     }
 
+    /**
+     * Build a billing field's rule, honouring the "same as shipping" shortcut.
+     *
+     * When billing mirrors shipping the field is not submitted at all, so it stays
+     * nullable; otherwise the billing country's own rules decide whether it is
+     * required, exactly as they do for shipping.
+     *
+     * @since 1.0.0
+     *
+     * @param string $field Either `state` or `postal_code`.
+     * @return string
+     */
+    protected function billing_address_field_rule(string $field)
+    {
+        if (filter_var($this->input('is_billing_same_as_shipping'), FILTER_VALIDATE_BOOLEAN)) {
+            return 'nullable|string';
+        }
+
+        return static::address_field_rule((string) $this->input('billing_country'), $field);
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
+    public function messages()
+    {
+        return [
+            'shipping_state.required' => static::state_required_message((string) $this->input('shipping_country')),
+            'billing_state.required' => static::state_required_message((string) $this->input('billing_country')),
+        ];
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [
@@ -158,9 +239,11 @@ class OrderCreateRequest extends Request
             'billing_email' => Sanitizer::EMAIL,
             'billing_company' => Sanitizer::TEXT,
 
+            'customer_first_name' => Sanitizer::TEXT,
+            'customer_last_name' => Sanitizer::TEXT,
             'customer_email' => Sanitizer::EMAIL,
-            'customer_notes' => Sanitizer::TEXT,
-            'admin_notes' => Sanitizer::TEXT,
+            'customer_phone' => Sanitizer::TEXT,
+            'order_notes' => Sanitizer::TEXTAREA,
             'is_manual' => Sanitizer::BOOL,
         ];
     }

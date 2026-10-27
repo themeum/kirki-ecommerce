@@ -2,9 +2,16 @@
 
 namespace Kirki\Ecommerce\App\DTO\Discount;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Discount amounts one coupon produced for cart items and shipping.
+ *
+ * @since 1.0.0
+ */
 class CouponDiscountResultDTO extends DTO
 {
     /** @var Coupon */

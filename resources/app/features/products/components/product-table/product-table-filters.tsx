@@ -8,7 +8,6 @@ import FilterPopup from '@/features/products/components/product-table/filter-pop
 import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
 
 const ProductTableFilter = memo(() => {
   const { params, setParam } = useDataTableParams(productListOptions);
@@ -24,6 +23,7 @@ const ProductTableFilter = memo(() => {
           onChange={(value) => handleSearchChange(value as string)}
           value={params.search || ''}
           delay={500}
+          clearable
         />
       </div>
       <ActionGroup>

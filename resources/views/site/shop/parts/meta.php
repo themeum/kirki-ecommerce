@@ -79,7 +79,7 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
                     @click="applySearch('')"
                     aria-label="<?php esc_attr_e('Clear search', 'kirki-ecommerce'); ?>"
                 >
-                    <?php Icon::render('cross', ['size' => 14]); ?>
+                    <?php Icon::render('x', ['size' => 14]); ?>
                 </button>
             </div>
         </div>

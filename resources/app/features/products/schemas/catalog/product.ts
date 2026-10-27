@@ -11,18 +11,9 @@ import { MediaRefSchema } from '@/schemas/shared/media';
 export { AvailabilityStatusSchema };
 export type { AvailabilityStatus } from '@/features/products/schemas/catalog/variant';
 
-export const ProductStatusSchema = z.enum(['draft', 'published', 'trashed']);
+export const ProductStatusSchema = z.enum(['draft', 'published', 'scheduled', 'trashed']);
 
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
-
-export const ProductCurrencySchema = z.object({
-  id: z.number(),
-  code: z.string(),
-  name: z.string(),
-  symbol: z.string(),
-});
-
-export type ProductCurrency = z.infer<typeof ProductCurrencySchema>;
 
 export const ProductBrandSchema = z.object({
   id: z.number(),
@@ -100,7 +91,7 @@ export const ProductSchema = z.object({
   slug: z.string(),
   status: ProductStatusSchema,
   ribbon: z.string().nullable(),
-  currency: ProductCurrencySchema.nullable(),
+  ribbon_color: z.string().nullable(),
   brand: ProductBrandSchema.nullable(),
   description: z.string().nullable(),
   short_description: z.string().nullable().optional(),
@@ -114,7 +105,6 @@ export const ProductSchema = z.object({
   og_description: z.string().nullable(),
   og_image: MediaRefSchema.nullable(),
   schema_id: z.number().nullable(),
-  llm_instructions: z.string().nullable(),
   has_variants: z.boolean(),
   categories: z.array(ProductCategoryRefSchema),
   tags: z.array(ProductTagRefSchema),
@@ -124,6 +114,7 @@ export const ProductSchema = z.object({
   media: z.array(MediaRefSchema),
   preview_url: z.string().nullish(),
   published_at: z.string().nullish(),
+  scheduled_at: z.string().nullish(),
   trashed_at: z.string().nullish(),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),

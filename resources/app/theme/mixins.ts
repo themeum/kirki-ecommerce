@@ -254,8 +254,18 @@ const uiFocusRing = (theme: Theme, ringColor?: string): CSSObject => {
   };
 };
 
+const clippedText = (): CSSObject => {
+  return {
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    minWidth: 0,
+  };
+};
+
 export {
   APP_ROOT_SELECTOR,
+  clippedText,
   defineStyles,
   flexCenter,
   itemCenter,

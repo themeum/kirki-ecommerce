@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { DragIcon } from '@/icons';
+import { DragIcon } from '@/icons/common';
 import type { TableAlignment } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 

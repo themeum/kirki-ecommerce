@@ -4,8 +4,8 @@ import type { RouteObject } from 'react-router';
 import { RouteConfig } from '@/config/route-config';
 
 const Customers = lazy(() => import('@/features/customers/pages/customers'));
-const CustomerDetails = lazy(() => import('@/features/customers/pages/customer-details/customer-details'));
-const CustomerGroups = lazy(() => import('@/features/customers/pages/customer-groups/customer-groups'));
+const CustomerDetails = lazy(() => import('@/features/customers/pages/customer-details'));
+const CustomerGroups = lazy(() => import('@/features/customers/pages/customer-groups'));
 
 const withSuspense = <Props extends object>(
   Component: ComponentType<Props>,

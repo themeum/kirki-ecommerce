@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\Tests\Support;
 
-use Kirki\Ecommerce\App\Supports\SchemaKeys;
 use Kirki\Ecommerce\Framework\Database\Migrations\Migrator;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
@@ -25,13 +24,17 @@ class TestMigrator extends Migrator
      */
     public function fresh()
     {
-        $prefix = DB::connection()->get_table_prefix();
+        $tables = DB::select(
+            'select TABLE_NAME as name from information_schema.TABLES'
+            . ' where TABLE_SCHEMA = database() and TABLE_NAME like %s',
+            [DB::connection()->get_table_prefix() . 'kirki_ecommerce_%']
+        );
 
         Schema::disabled_checking_foreign_key_constraints();
 
         try {
-            foreach (SchemaKeys::get_tables() as $table) {
-                DB::connection()->affecting_statement(sprintf('DROP TABLE IF EXISTS `%s`', $prefix . $table));
+            foreach ((array) $tables as $table) {
+                DB::connection()->affecting_statement(sprintf('DROP TABLE IF EXISTS `%s`', $table['name']));
             }
         } finally {
             Schema::enabled_checking_foreign_key_constraints();

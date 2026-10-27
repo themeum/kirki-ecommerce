@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Constants\Coupon;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Minimum spend conditions a coupon can require: cart amount or item count.
+ *
+ * @since 1.0.0
+ */
 class SpendConditionType
 {
     use HasConstants;

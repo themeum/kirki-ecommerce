@@ -1,15 +1,11 @@
 import Button from '@/components/ui/button';
-import type {
-  DateRangePresetKey,
-  DateRangePresetsPosition,
-  PresetRange,
-} from '@/components/ui/calendar/calendar-presets';
+import type { DateRangePresetsPosition, PresetRange } from '@/components/ui/calendar/calendar-presets';
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 
 type RangePresetOption = {
-  key: DateRangePresetKey;
+  key: string;
   label: string;
   range: PresetRange | null;
 };
@@ -17,8 +13,9 @@ type RangePresetOption = {
 type RangePresetsProps = {
   options: RangePresetOption[];
   position: DateRangePresetsPosition;
-  activeKey: DateRangePresetKey | null;
+  activeKey: string | null;
   onSelect: (option: RangePresetOption) => void;
+  statusLabel?: string;
 };
 
 /**
@@ -33,6 +30,7 @@ const RangePresets = ({
   position,
   activeKey,
   onSelect,
+  statusLabel,
 }: RangePresetsProps) => {
   const isSidebar = position !== 'bottom';
 
@@ -57,6 +55,16 @@ const RangePresets = ({
           {option.label}
         </Button>
       ))}
+      {statusLabel && (
+        <Button
+          variant={activeKey === null ? 'secondary' : 'ghost'}
+          size="sm"
+          aria-pressed={activeKey === null}
+          cssOverride={isSidebar ? styles.sidebarButton : undefined}
+        >
+          {statusLabel}
+        </Button>
+      )}
     </Flex>
   );
 };

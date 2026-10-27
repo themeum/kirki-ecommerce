@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 use ArrayAccess;
 use ArrayIterator;
 use Kirki\Ecommerce\Framework\Contracts\Support\Arrayable;
@@ -12,22 +14,26 @@ use Kirki\Ecommerce\Framework\Supports\Arr;
 use Traversable;
 
 /**
+ * Flexible attribute bag with property, array and fluent method access.
+ *
  * @template TKey as string
  * @template TValue
- *
- * @package Kirki\Ecommerce\Supports
  *
  * @since 1.0.0
  */
 class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonSerializable
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $attributes = [];
 
     /**
-     * @param array $attributes
+     * Create a new flex instance.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $attributes Initial attributes.
      */
     public function __construct(array $attributes = [])
     {
@@ -37,7 +43,10 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Fill the attributes with the given array.
      *
-     * @param array $attributes
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $attributes
+     * @return void
      */
     protected function fill(array $attributes)
     {
@@ -49,12 +58,11 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Get the value of a given attribute.
      *
-     * @param string $key The attribute key.
-     * @param mixed $default The default value if the attribute does not exist.
-     *
-     * @return mixed
-     *
      * @since 1.0.0
+     *
+     * @param string $key     The attribute key.
+     * @param mixed  $default The default value if the attribute does not exist.
+     * @return mixed
      */
     public function get($key, $default = null)
     {
@@ -68,11 +76,10 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Check if a given attribute exists.
      *
-     * @param string $key The attribute key.
-     *
-     * @return bool
-     *
      * @since 1.0.0
+     *
+     * @param string $key The attribute key.
+     * @return bool
      */
     public function exists($key)
     {
@@ -82,12 +89,11 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Set the value of a given attribute.
      *
-     * @param string $key The attribute key.
-     * @param mixed $value The value to set.
-     *
-     * @return $this
-     *
      * @since 1.0.0
+     *
+     * @param string $key   The attribute key.
+     * @param mixed  $value The value to set.
+     * @return $this
      */
     public function set($key, $value)
     {
@@ -99,9 +105,9 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Get all attributes as an array.
      *
-     * @return array
-     *
      * @since 1.0.0
+     *
+     * @return array<string, mixed>
      */
     public function to_array()
     {
@@ -111,11 +117,10 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Magic getter for attributes.
      *
-     * @param string $name The attribute name.
-     *
-     * @return mixed
-     *
      * @since 1.0.0
+     *
+     * @param string $name The attribute name.
+     * @return mixed
      */
     public function __get($name)
     {
@@ -125,10 +130,11 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Magic setter for attributes.
      *
-     * @param string $name The attribute name.
-     * @param mixed $value The value to set.
-     *
      * @since 1.0.0
+     *
+     * @param string $name  The attribute name.
+     * @param mixed  $value The value to set.
+     * @return void
      */
     public function __set($name, $value)
     {
@@ -138,11 +144,10 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Magic isset to check if an attribute exists.
      *
-     * @param string $name The attribute name.
-     *
-     * @return bool
-     *
      * @since 1.0.0
+     *
+     * @param string $name The attribute name.
+     * @return bool
      */
     public function __isset($name)
     {
@@ -152,9 +157,10 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Magic unset to remove an attribute.
      *
-     * @param string $name The attribute name.
-     *
      * @since 1.0.0
+     *
+     * @param string $name The attribute name.
+     * @return void
      */
     public function __unset($name)
     {
@@ -164,7 +170,11 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Determine if the given offset exists.
      *
-     * @param  TKey  $offset
+     * Reports false for an attribute that is set to null.
+     *
+     * @since 1.0.0
+     *
+     * @param TKey $offset
      * @return bool
      */
     public function offsetExists($offset): bool
@@ -175,7 +185,9 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Get the value for a given offset.
      *
-     * @param  TKey  $offset
+     * @since 1.0.0
+     *
+     * @param TKey $offset
      * @return TValue|null
      */
     public function offsetGet($offset)
@@ -186,8 +198,10 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Set the value at the given offset.
      *
-     * @param  TKey  $offset
-     * @param  TValue  $value
+     * @since 1.0.0
+     *
+     * @param TKey   $offset
+     * @param TValue $value
      * @return void
      */
     public function offsetSet($offset, $value): void
@@ -198,7 +212,9 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Unset the value at the given offset.
      *
-     * @param  TKey  $offset
+     * @since 1.0.0
+     *
+     * @param TKey $offset
      * @return void
      */
     public function offsetUnset($offset): void
@@ -208,6 +224,8 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
 
     /**
      * Get an iterator for the attributes.
+     *
+     * @since 1.0.0
      *
      * @return ArrayIterator<TKey, TValue>
      */
@@ -219,7 +237,9 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Specify data which should be serialized to JSON.
      *
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array<string, mixed>
      */
     public function jsonSerialize(): array
     {
@@ -229,7 +249,9 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Convert the object to a JSON string.
      *
-     * @param  int  $options
+     * @since 1.0.0
+     *
+     * @param int $options `json_encode` flags.
      * @return string
      */
     public function to_json($options = 0)
@@ -240,12 +262,13 @@ class Flex implements ArrayAccess, IteratorAggregate, Arrayable, Jsonable, JsonS
     /**
      * Magic call to set an attribute by method name.
      *
-     * @param string $method The method name (attribute key).
-     * @param array $arguments The arguments to set as value.
-     *
-     * @return $this
+     * Sets the attribute to the first argument, or to true when called without arguments.
      *
      * @since 1.0.0
+     *
+     * @param string  $method    The method name (attribute key).
+     * @param mixed[] $arguments The arguments to set as value.
+     * @return $this
      */
     public function __call($method, $arguments)
     {

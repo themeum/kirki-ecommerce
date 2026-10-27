@@ -8,14 +8,7 @@ type StyleProps = {
 };
 
 type GapValue = SpacingKey | (string & {});
-type FlexAlign =
-  | 'flex-start'
-  | 'flex-end'
-  | 'center'
-  | 'baseline'
-  | 'stretch'
-  | 'start'
-  | 'end';
+type FlexAlign = 'flex-start' | 'flex-end' | 'center' | 'baseline' | 'stretch' | 'start' | 'end';
 type FlexJustify =
   | 'flex-start'
   | 'flex-end'
@@ -74,7 +67,7 @@ type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
 type TableDensity = 'default' | 'compact' | 'wide';
 type TableAlignment = 'right' | 'center';
-type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullWidth' | 'fluid';
+type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'fullWidth' | 'fluid';
 type FlexDirection = 'column' | 'row' | '';
 type TooltipPosition = 'bottom' | 'top' | 'left' | 'right';
 type DropdownSize = 'default' | 'small';
@@ -116,4 +109,3 @@ export type {
   TableDensity,
   TooltipPosition,
 };
-

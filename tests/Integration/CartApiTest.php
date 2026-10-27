@@ -16,6 +16,7 @@ use Kirki\Ecommerce\App\Models\Cart as CartModel;
 use Kirki\Ecommerce\App\Models\CartCoupon;
 use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\App\Models\Coupon as CouponModel;
+use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -293,6 +294,57 @@ class CartApiTest extends RestTestCase
         $this->assertEmpty($emptied['data']);
     }
 
+    /**
+     * The cart stores the shopper's contact email, rejects an invalid one, and keeps it when an update omits it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_cart_customer_email_round_trips_and_is_kept_when_omitted(): void
+    {
+        $this->prepare_variant();
+        $this->add_cart_item();
+
+        $saved = $this->assert_api_success($this->request('PUT', 'cart', [
+            'customer_email' => 'guest@example.com',
+        ], $this->cart_headers));
+        $this->assertSame('guest@example.com', $saved['data']['customer_email']);
+
+        $invalid = $this->assert_validation_error($this->request('PUT', 'cart', [
+            'customer_email' => 'not-an-email',
+        ], $this->cart_headers));
+        $this->assertArrayHasKey('customer_email', $invalid['errors']);
+
+        $this->assert_api_success($this->request('PUT', 'cart', [
+            'order_notes' => 'Leave at the door',
+        ], $this->cart_headers));
+
+        $fetched = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers));
+        $this->assertSame('guest@example.com', $fetched['data']['customer_email']);
+    }
+
+    /**
+     * Spec scenario: Customer adds a note to the cart.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_cart_update_accepts_and_returns_order_notes(): void
+    {
+        $this->prepare_variant();
+        $this->add_cart_item();
+
+        $saved = $this->assert_api_success($this->request('PUT', 'cart', [
+            'order_notes' => 'Leave at the door',
+        ], $this->cart_headers));
+
+        $this->assertSame('Leave at the door', $saved['data']['order_notes']);
+        $this->assertArrayNotHasKey('customer_notes', $saved['data']);
+
+        $fetched = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers));
+        $this->assertSame('Leave at the door', $fetched['data']['order_notes']);
+    }
+
     public function test_removing_non_last_item_keeps_cart_and_last_removal_deletes_it(): void
     {
         $this->prepare_variant();
@@ -325,6 +377,23 @@ class CartApiTest extends RestTestCase
 
         $this->assertEmpty($remove_second['data']);
         $this->assertNull(CartModel::find($cart['id']));
+    }
+
+    /**
+     * Applying a coupon is rate limited, so coupon codes cannot be brute forced.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_apply_coupon_is_rate_limited(): void
+    {
+        for ($attempt = 1; $attempt <= 10; $attempt++) {
+            $response = $this->request('POST', 'cart/coupon', ['code' => 'GUESS-' . $attempt], $this->cart_headers);
+            $this->assertNotEquals(429, $response->get_status());
+        }
+
+        $response = $this->request('POST', 'cart/coupon', ['code' => 'GUESS-11'], $this->cart_headers);
+        $this->assert_api_error($response, 429);
     }
 
     /**
@@ -433,6 +502,146 @@ class CartApiTest extends RestTestCase
 
         $second_apply = $this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers);
         $this->assertGreaterThanOrEqual(400, $second_apply->get_status());
+    }
+
+    /**
+     * A signed-in shopper with no customer record yet counts as registered for
+     * a registered-customers-only coupon.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_signed_in_shopper_without_customer_record_can_apply_registered_only_coupon(): void
+    {
+        $code = $this->create_eligibility_coupon(['customer_include_eligibility' => CustomerIncludeEligibility::CUSTOMERS]);
+        $this->sign_in_new_shopper_with_cart_item();
+
+        $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers));
+
+        $this->assertNotNull($this->find_coupon_in_response($applied['data'], $code));
+    }
+
+    /**
+     * A signed-in shopper with no customer record yet is not a guest for a guests-only coupon.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_signed_in_shopper_without_customer_record_cannot_apply_guest_only_coupon(): void
+    {
+        $code = $this->create_eligibility_coupon(['customer_include_eligibility' => CustomerIncludeEligibility::GUESTS]);
+        $this->sign_in_new_shopper_with_cart_item();
+
+        $response = $this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers);
+
+        $this->assertGreaterThanOrEqual(400, $response->get_status());
+        $this->assertEquals('This coupon is only available for guest checkout.', $this->normalize_response_data($response->get_data())['message']);
+    }
+
+    /**
+     * A signed-in shopper with no customer record yet is excluded by a coupon that excludes registered customers.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_signed_in_shopper_without_customer_record_cannot_apply_coupon_excluding_registered_customers(): void
+    {
+        $code = $this->create_eligibility_coupon(['customer_exclude_eligibility' => CustomerExcludeEligibility::CUSTOMERS]);
+        $this->sign_in_new_shopper_with_cart_item();
+
+        $response = $this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers);
+
+        $this->assertGreaterThanOrEqual(400, $response->get_status());
+        $this->assertEquals('This coupon is not available for you.', $this->normalize_response_data($response->get_data())['message']);
+    }
+
+    /**
+     * A visitor who is not signed in is still asked to log in for a registered-customers-only coupon.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_guest_cannot_apply_registered_only_coupon(): void
+    {
+        $code = $this->create_eligibility_coupon(['customer_include_eligibility' => CustomerIncludeEligibility::CUSTOMERS]);
+        $this->logout();
+        $this->add_cart_item();
+
+        $response = $this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers);
+
+        $this->assertGreaterThanOrEqual(400, $response->get_status());
+        $this->assertEquals('Please login to use this coupon.', $this->normalize_response_data($response->get_data())['message']);
+    }
+
+    /**
+     * A guest who saved a contact email to the cart can apply first-time-buyer and
+     * once-per-customer coupons.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_guest_with_cart_email_can_apply_buyer_scoped_coupons(): void
+    {
+        $first_time = $this->create_eligibility_coupon(['first_time_buyer_only' => true]);
+        $once = $this->create_eligibility_coupon(['has_customer_limit' => true, 'customer_limit' => 1]);
+        $this->logout();
+        $this->add_cart_item();
+
+        $this->assert_api_success($this->request('PUT', 'cart', [
+            'customer_email' => 'new-guest-' . strtolower(wp_generate_password(6, false)) . '@example.com',
+        ], $this->cart_headers));
+
+        $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $first_time], $this->cart_headers));
+        $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $once], $this->cart_headers));
+
+        $this->assertNotNull($this->find_coupon_in_response($applied['data'], $first_time));
+        $this->assertNotNull($this->find_coupon_in_response($applied['data'], $once));
+    }
+
+    /**
+     * A guest without a contact email is asked for one, not to log in, by buyer-scoped coupons.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_guest_without_cart_email_is_asked_for_email_by_buyer_scoped_coupons(): void
+    {
+        $first_time = $this->create_eligibility_coupon(['first_time_buyer_only' => true]);
+        $once = $this->create_eligibility_coupon(['has_customer_limit' => true, 'customer_limit' => 1]);
+        $this->logout();
+        $this->add_cart_item();
+
+        foreach ([$first_time, $once] as $code) {
+            $response = $this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers);
+
+            $this->assertGreaterThanOrEqual(400, $response->get_status());
+            $this->assertEquals('Please enter your email address to use this coupon.', $this->normalize_response_data($response->get_data())['message']);
+        }
+    }
+
+    /**
+     * A signed-in shopper whose account email placed an earlier guest order is not a first-time buyer.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_signed_in_shopper_with_earlier_guest_order_is_not_a_first_time_buyer(): void
+    {
+        $code = $this->create_eligibility_coupon(['first_time_buyer_only' => true]);
+        $email = 'returning-' . strtolower(wp_generate_password(6, false)) . '@example.com';
+        Order::create([
+            'customer_email' => $email,
+            'currency_code' => 'USD',
+            'base_currency_code' => 'USD',
+        ]);
+
+        wp_set_current_user(static::factory()->user->create(['role' => 'subscriber', 'user_email' => $email]));
+        $this->add_cart_item();
+
+        $response = $this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers);
+
+        $this->assertGreaterThanOrEqual(400, $response->get_status());
+        $this->assertEquals('This coupon is only available for first time buyers.', $this->normalize_response_data($response->get_data())['message']);
     }
 
     public function test_invalid_coupon_is_dropped_without_disabling_other_coupons(): void
@@ -922,41 +1131,146 @@ class CartApiTest extends RestTestCase
 
     public function test_duplicate_variant_merge_uses_guest_quantity(): void
     {
-        $product = $this->create_product([
-            'variants' => [
-                [
-                    'base_price' => 29.99,
-                    'sku' => 'SKU-' . wp_generate_password(6, false),
-                    'available_quantity' => 5,
-                    'in_stock' => true,
-                    'track_inventory' => true,
-                    'is_default' => true,
-                    'attribute_values' => [],
-                ],
-            ],
-        ]);
-        $variant_id = $this->default_variant_id($product);
+        [$product, $variant_id] = $this->create_stocked_product(10);
         $user_id = static::factory()->user->create(['role' => 'subscriber']);
         $owned = $this->raw_cart(['user_id' => $user_id]);
         $guest = $this->raw_cart(['cart_token' => uuid()]);
 
-        CartItem::create([
-            'cart_id' => $owned->id,
-            'product_id' => $product['id'],
-            'variant_id' => $variant_id,
-            'quantity' => 3,
-        ]);
-        CartItem::create([
-            'cart_id' => $guest->id,
-            'product_id' => $product['id'],
-            'variant_id' => $variant_id,
-            'quantity' => 9,
-        ]);
+        $this->add_raw_item($owned, $product, $variant_id, 3);
+        $this->add_raw_item($guest, $product, $variant_id, 9);
 
         $result = app()->make(CartService::class)->get_cart($user_id, $guest->cart_token);
-        $item = $result->items->first();
 
-        $this->assertEquals(9, $item->quantity);
+        $this->assertCount(1, $result->items);
+        $this->assertEquals(9, $result->items->first()->quantity);
+    }
+
+    public function test_duplicate_variant_merge_caps_quantity_to_available_stock(): void
+    {
+        [$product, $variant_id] = $this->create_stocked_product(5);
+        $user_id = static::factory()->user->create(['role' => 'subscriber']);
+        $owned = $this->raw_cart(['user_id' => $user_id]);
+        $guest = $this->raw_cart(['cart_token' => uuid()]);
+
+        $this->add_raw_item($owned, $product, $variant_id, 3);
+        $this->add_raw_item($guest, $product, $variant_id, 9);
+
+        $result = app()->make(CartService::class)->get_cart($user_id, $guest->cart_token);
+
+        $this->assertCount(1, $result->items);
+        $this->assertEquals(5, $result->items->first()->quantity);
+        $this->assertNull(CartModel::find($guest->id));
+    }
+
+    public function test_duplicate_variant_merge_caps_quantity_to_per_order_limit(): void
+    {
+        [$product, $variant_id] = $this->create_stocked_product(50, ['has_limit_per_order' => true, 'max_per_order' => 6]);
+        $user_id = static::factory()->user->create(['role' => 'subscriber']);
+        $owned = $this->raw_cart(['user_id' => $user_id]);
+        $guest = $this->raw_cart(['cart_token' => uuid()]);
+
+        $this->add_raw_item($owned, $product, $variant_id, 3);
+        $this->add_raw_item($guest, $product, $variant_id, 9);
+
+        $result = app()->make(CartService::class)->get_cart($user_id, $guest->cart_token);
+
+        $this->assertEquals(6, $result->items->first()->quantity);
+    }
+
+    public function test_merge_caps_carried_item_and_drops_out_of_stock_item(): void
+    {
+        [$limited_product, $limited_variant_id] = $this->create_stocked_product(2);
+        [$sold_out_product, $sold_out_variant_id] = $this->create_stocked_product(0);
+        $user_id = static::factory()->user->create(['role' => 'subscriber']);
+        $this->raw_cart(['user_id' => $user_id]);
+        $guest = $this->raw_cart(['cart_token' => uuid()]);
+
+        $this->add_raw_item($guest, $limited_product, $limited_variant_id, 7);
+        $this->add_raw_item($guest, $sold_out_product, $sold_out_variant_id, 1);
+
+        $result = app()->make(CartService::class)->get_cart($user_id, $guest->cart_token);
+
+        $this->assertCount(1, $result->items);
+        $this->assertEquals($limited_variant_id, $result->items->first()->variant_id);
+        $this->assertEquals(2, $result->items->first()->quantity);
+    }
+
+    public function test_merge_carries_guest_coupons_and_keeps_owned_coupons_without_duplicates(): void
+    {
+        $this->prepare_variant();
+        $shared_id = $this->create_coupon('SHARED-' . wp_generate_password(6, false));
+        $guest_only_id = $this->create_coupon('GUEST-' . wp_generate_password(6, false));
+        $owned_only_id = $this->create_coupon('OWNED-' . wp_generate_password(6, false));
+
+        $user_id = static::factory()->user->create(['role' => 'subscriber']);
+        $owned = $this->create_service_cart($user_id, $this->variant_id, 1);
+        $guest = $this->create_service_cart(null, $this->variant_id, 1);
+
+        $service = app()->make(CartService::class);
+        $service->add_coupon($owned->id, $shared_id);
+        $service->add_coupon($owned->id, $owned_only_id);
+        $service->add_coupon($guest->id, $shared_id);
+        $service->add_coupon($guest->id, $guest_only_id);
+
+        $merged = $service->get_cart($user_id, $guest->cart_token);
+
+        $coupon_ids = $merged->coupons->pluck('id')->all();
+        sort($coupon_ids);
+        $expected = [$shared_id, $guest_only_id, $owned_only_id];
+        sort($expected);
+
+        $this->assertEquals($expected, $coupon_ids);
+        $this->assertEquals(3, CartCoupon::where('cart_id', $owned->id)->count());
+        $this->assertNull(CartModel::find($guest->id));
+    }
+
+    public function test_guest_coupon_survives_login_merge_and_is_priced(): void
+    {
+        $this->prepare_variant();
+        $code = 'KEEP-' . wp_generate_password(6, false);
+        $coupon_id = $this->create_coupon($code);
+
+        $user_id = static::factory()->user->create(['role' => 'subscriber']);
+        $this->create_service_cart($user_id, $this->variant_id, 1);
+        $guest = $this->create_service_cart(null, $this->variant_id, 1);
+        app()->make(CartService::class)->add_coupon($guest->id, $coupon_id);
+
+        wp_set_current_user($user_id);
+
+        $payload = $this->with_cart_cookie($guest->cart_token, function () {
+            return $this->assert_api_success($this->request('GET', 'cart'));
+        });
+
+        $this->assertNotNull($this->find_coupon_in_response($payload['data'], $code));
+    }
+
+    public function test_carried_coupon_that_no_longer_applies_is_dropped_on_next_read(): void
+    {
+        $this->prepare_variant();
+        $valid_code = 'VALID-' . wp_generate_password(6, false);
+        $expired_code = 'EXPIRED-' . wp_generate_password(6, false);
+        $valid_id = $this->create_coupon($valid_code);
+        $expired_id = $this->create_coupon($expired_code);
+
+        $user_id = static::factory()->user->create(['role' => 'subscriber']);
+        $this->create_service_cart($user_id, $this->variant_id, 1);
+        $guest = $this->create_service_cart(null, $this->variant_id, 1);
+
+        $service = app()->make(CartService::class);
+        $service->add_coupon($guest->id, $valid_id);
+        $service->add_coupon($guest->id, $expired_id);
+
+        CouponModel::where('id', $expired_id)->update(['is_active' => false]);
+
+        wp_set_current_user($user_id);
+
+        $payload = $this->with_cart_cookie($guest->cart_token, function () {
+            return $this->assert_api_success($this->request('GET', 'cart'));
+        });
+
+        $this->assertNotNull($this->find_coupon_in_response($payload['data'], $valid_code));
+        $this->assertNull($this->find_coupon_in_response($payload['data'], $expired_code));
+        $this->assertEquals(0, CartCoupon::where('coupon_id', $expired_id)->count());
     }
 
     public function test_cross_shopper_item_update_and_remove_are_forbidden(): void
@@ -1020,6 +1334,51 @@ class CartApiTest extends RestTestCase
         $dto->user_id = $user_id;
 
         return app()->make(AddToCartAction::class)->execute($dto);
+    }
+
+    /**
+     * Create a product with one tracked-stock default variant.
+     *
+     * @param int                  $stock     Available quantity.
+     * @param array<string, mixed> $overrides Extra variant attributes.
+     *
+     * @return array{0: array, 1: int} The product and its default variant id.
+     */
+    protected function create_stocked_product(int $stock, array $overrides = []): array
+    {
+        $product = $this->create_product([
+            'variants' => [array_merge([
+                'base_price' => 29.99,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => $stock,
+                'in_stock' => $stock > 0,
+                'track_inventory' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ], $overrides)],
+        ]);
+
+        return [$product, $this->default_variant_id($product)];
+    }
+
+    /**
+     * Insert a cart line directly, bypassing add-to-cart validation.
+     *
+     * @param CartModel $cart       Cart receiving the line.
+     * @param array     $product    Product the variant belongs to.
+     * @param int       $variant_id Variant id.
+     * @param int       $quantity   Line quantity.
+     *
+     * @return void
+     */
+    protected function add_raw_item(CartModel $cart, array $product, int $variant_id, int $quantity): void
+    {
+        CartItem::create([
+            'cart_id' => $cart->id,
+            'product_id' => $product['id'],
+            'variant_id' => $variant_id,
+            'quantity' => $quantity,
+        ]);
     }
 
     protected function raw_cart(array $overrides = [])
@@ -1102,6 +1461,35 @@ class CartApiTest extends RestTestCase
         ], $this->cart_headers);
 
         return $variant_id;
+    }
+
+    /**
+     * Create a coupon with customer eligibility overrides, as the admin set up by the test case.
+     *
+     * @param array $overrides Coupon payload overrides.
+     *
+     * @return string The coupon code.
+     * @since 1.0.0
+     */
+    protected function create_eligibility_coupon(array $overrides): string
+    {
+        $this->prepare_variant();
+        $code = 'ELIGIBLE-' . wp_generate_password(6, false);
+        $this->create_coupon($code, $overrides);
+
+        return $code;
+    }
+
+    /**
+     * Sign in as a new subscriber with no customer record and put an item in their cart.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function sign_in_new_shopper_with_cart_item(): void
+    {
+        wp_set_current_user(static::factory()->user->create(['role' => 'subscriber']));
+        $this->add_cart_item();
     }
 
     protected function find_coupon_in_response(array $cart, string $code): ?array

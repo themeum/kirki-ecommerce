@@ -2,9 +2,16 @@
 
 namespace Kirki\Ecommerce\App\Menu;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
 use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
+/**
+ * Registers the Tags submenu under the eCommerce admin menu.
+ *
+ * @since 1.0.0
+ */
 class Tags extends Menu
 {
     /** @inheritDoc */
@@ -19,6 +26,11 @@ class Tags extends Menu
     /** @inheritDoc */
     protected $parent_slug = 'kirki-ecommerce';
 
+    /**
+     * Set the Tags page and menu titles.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->page_title = __('Tags', 'kirki-ecommerce');

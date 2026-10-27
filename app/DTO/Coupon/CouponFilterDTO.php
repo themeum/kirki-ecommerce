@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Coupon;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 
+/**
+ * Filters for listing coupons, adding status, method and discount type to the shared list filters.
+ *
+ * @since 1.0.0
+ */
 class CouponFilterDTO extends ListFilterDTO
 {
     /** @var string */

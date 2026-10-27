@@ -2,7 +2,7 @@ import HeaderActionsCard from '@/components/header-actions-card';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { StackedItems } from '@/components/ui/stacked-items';
-import { BoxOpenIcon } from '@/icons';
+import { BoxOpenIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -15,9 +15,8 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
   const hasShippingCareers = false;
   return (
     <div>
-      <Card data-search-skip="true" cssOverride={cardStyles.formCard} >
-        <CardContent >
-
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
+        <CardContent>
           <HeaderActionsCard
             header={__('Shipping Careers', 'kirki-ecommerce')}
             subHeader={__(
@@ -30,14 +29,13 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
 
           {!hasShippingCareers ? (
             <Card data-search-skip="true" cssOverride={cardStyles.innerDarkCard}>
-              <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
+              <CardContent
+                cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}
+              >
                 <Flex direction="column" gap={2} align="center">
                   <BoxOpenIcon />
                   <span css={scoped(styles.mutedText)}>
-                    {__(
-                      'Added shipping profiles will appear here',
-                      'kirki-ecommerce',
-                    )}
+                    {__('Added shipping profiles will appear here', 'kirki-ecommerce')}
                   </span>
                 </Flex>
               </CardContent>

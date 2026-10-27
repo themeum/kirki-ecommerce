@@ -23,6 +23,7 @@ const SETTINGS_PAGES = {
   email: { route: '/settings/email', pageTitle: 'Emails', routeKey: 'EmailSettings' },
   advanced: { route: '/settings/advanced', pageTitle: 'Advanced', routeKey: 'AdvancedSettings' },
   legal: { route: '/settings/legal', pageTitle: 'Legal', routeKey: 'LegalSettings' },
+  mcp: { route: '/settings/mcp', pageTitle: 'MCP', routeKey: 'McpSettings' },
 };
 
 const NAV_ITEM_ARRAYS = [

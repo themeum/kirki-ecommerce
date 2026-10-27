@@ -1,4 +1,4 @@
-import { Flag, RefreshCcw } from 'lucide-react';
+import { RefreshCcw, Wrench } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -15,13 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
+import { getProviderConfig } from '@/features/settings/multi-currency/lib/currency-list';
 import ApiConfigurationCard from '@/features/settings/multi-currency/pages/api-config/api-configuration-card';
 import ApiConfigurationPopup from '@/features/settings/multi-currency/pages/api-config/api-configuration-dialog';
+import ProviderLogo from '@/features/settings/multi-currency/pages/api-config/provider-logo';
 import type { ApiConfigurationFormPayload } from '@/features/settings/multi-currency/schemas/forms/api-configuration-form';
 import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 import { useCurrencyExchangeProvidersQuery } from '@/features/settings/multi-currency/services/currency';
-import { WrenchIcon } from '@/icons';
 import type { CurrencySettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -34,12 +36,17 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
     control,
     name: 'api_provider',
   });
-  const apiConfig = useWatch({
+  const apiConfigs = useWatch({
     control,
-    name: 'api_config',
+    name: 'api_configs',
+  });
+  const isAutomaticUpdateEnabled = useWatch({
+    control,
+    name: 'is_automatic_update_enabled',
   });
 
   const [openPopup, setOpenPopup] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const { data: providersData } = useCurrencyExchangeProvidersQuery();
   const apiProviderList = useMemo(() => {
@@ -50,26 +57,34 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
     return providersData;
   }, [providersData]);
 
-  const providerName = useMemo(() => {
+  const selectedProvider = useMemo(() => {
     if (!isDefined(apiProvider)) {
-      return '';
+      return undefined;
     }
 
-    return apiProviderList.find((item) => item.id === apiProvider)?.name || '';
+    return apiProviderList.find((item) => item.id === apiProvider);
   }, [apiProvider, apiProviderList]);
 
-  // @todo: will be handled later
-  // const rightActions = () => (
-  //   <ActionGroup gap={2}>
-  //     <SwitchField name="is_automatic_update_enabled" disabled />
-  //   </ActionGroup>
-  // );
+  const providerName = selectedProvider?.name || '';
 
   const isApiProviderSelected = isDefined(apiProvider) && apiProvider;
-  const hasAPIConfiguration = Boolean(apiConfig?.api_key);
+  const hasAPIConfiguration = Boolean(getProviderConfig(apiConfigs, apiProvider)?.api_key);
+
+  const handleProviderChange = (providerId: string | null) => {
+    setValue('api_provider', providerId, { shouldDirty: true });
+  };
 
   const handlePopupSave = (values: ApiConfigurationFormPayload) => {
-    setValue('api_config', values, { shouldDirty: true });
+    if (!apiProvider) {
+      return;
+    }
+
+    setValue('api_configs', { ...apiConfigs, [apiProvider]: values }, { shouldDirty: true });
+  };
+
+  const handleAutomaticUpdateChange = (checked: boolean) => {
+    setValue('is_automatic_update_enabled', checked, { shouldDirty: true });
+    setIsCollapsed(false);
   };
 
   return (
@@ -84,14 +99,25 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
           'Configure automatic exchange rate providers for real-time currency conversion',
           'kirki-ecommerce',
         )}
-        leftIcon={<RefreshCcw size={16} />}
-        open
+        leftIcon={<RefreshCcw size={20} color={theme.colors.icon.secondary} />}
+        rightActions={
+          <Switch
+            checked={Boolean(isAutomaticUpdateEnabled)}
+            onCheckedChange={handleAutomaticUpdateChange}
+            aria-label={__('Automatic updates', 'kirki-ecommerce')}
+          />
+        }
+        expandable={Boolean(isAutomaticUpdateEnabled)}
+        open={!isCollapsed}
+        onOpenChange={(open) => setIsCollapsed(!open)}
         cssOverride={{
-          backgroundColor: theme.colors.background.surfaceAlt,
+          backgroundColor: theme.colors.background.surface,
           '& [data-option-accordion-card="true"]': {
-            backgroundColor: 'transparent',
+            backgroundColor: theme.colors.background.surfaceAlt,
             border: 'none',
             borderTop: `1px solid ${theme.colors.border.default}`,
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
           },
         }}
       >
@@ -100,18 +126,11 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
             <Label htmlFor="api-provider-select">
               {__('Select API Provider', 'kirki-ecommerce')}
             </Label>
-            <Select
-              value={apiProvider ?? undefined}
-              onValueChange={(value) => setValue('api_provider', value, { shouldDirty: true })}
-            >
+            <Select value={apiProvider ?? undefined} onValueChange={handleProviderChange}>
               <SelectTrigger
                 id="api-provider-select"
                 showClear={Boolean(isApiProviderSelected)}
-                onClear={
-                  isApiProviderSelected
-                    ? () => setValue('api_provider', null, { shouldDirty: true })
-                    : undefined
-                }
+                onClear={isApiProviderSelected ? () => handleProviderChange(null) : undefined}
               >
                 <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
               </SelectTrigger>
@@ -130,6 +149,7 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
                 <ApiConfigurationCard
                   setOpenPopup={setOpenPopup}
                   providerName={providerName}
+                  providerIcon={selectedProvider?.icon}
                   currencySettings={currencySettings}
                 />
               ) : (
@@ -137,13 +157,13 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
                   data-search-id="currency.api-configuration"
                   data-search-keywords="api key, conversion rate, exchange rate provider, automatic rates"
                   data-search-title={__('Exchange Rate API Configuration', 'kirki-ecommerce')}
-                  // cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })}
+                  noShadow
                 >
                   <CardContent cssOverride={cardStyles.innerContent}>
                     <Flex justify="space-between" align="center">
                       <Flex direction="column" gap={2}>
                         <Flex gap={2} align="center">
-                          <Flag size={16} />
+                          <ProviderLogo icon={selectedProvider?.icon} />
                           <Text>{providerName}</Text>
                         </Flex>
                         <Text variant="small" color="secondary">
@@ -154,8 +174,8 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
                         </Text>
                       </Flex>
                       <ActionGroup>
-                        <Button variant="outline" onClick={() => setOpenPopup(true)}>
-                          <WrenchIcon />
+                        <Button variant="secondary" onClick={() => setOpenPopup(true)}>
+                          <Wrench size={16} />
                           {__('Configure', 'kirki-ecommerce')}
                         </Button>
                       </ActionGroup>

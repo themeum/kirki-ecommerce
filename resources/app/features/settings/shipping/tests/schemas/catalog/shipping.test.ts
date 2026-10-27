@@ -69,7 +69,7 @@ describe('ShippingZoneSchema', () => {
         shipping_rules: [
           {
             relation: 'AND',
-            conditions: [{ type: 'product_profile', operator: '=', value: 'fragile' }],
+            conditions: [{ type: 'cart_weight', operator: '>', value: 5 }],
             action: { type: 'set_shipping_cost', value: 5 },
           },
         ],

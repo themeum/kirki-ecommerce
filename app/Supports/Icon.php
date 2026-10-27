@@ -2,8 +2,10 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 /**
- * @package Kirki\Ecommerce\Supports
+ * Loads bundled SVG icons from the plugin's assets and applies size, class and color options.
  *
  * @since 1.0.0
  */
@@ -19,9 +21,9 @@ class Icon
     /**
      * Get the absolute path to the icons directory.
      *
-     * @return string
-     *
      * @since 1.0.0
+     *
+     * @return string
      */
     private static function get_icons_path(): string
     {
@@ -31,7 +33,11 @@ class Icon
     /**
      * Load an SVG icon from the icons directory.
      *
-     * @param string $name Icon name without .svg extension.
+     * Results are cached per name and options for the rest of the request.
+     *
+     * @since 1.0.0
+     *
+     * @param string               $name    Icon name without .svg extension.
      * @param array<string, mixed> $options {
      *     @type string $class CSS classes to add to the SVG.
      *     @type int $size Size in pixels (sets both width and height).
@@ -39,8 +45,6 @@ class Icon
      *     @type bool $raw Return raw SVG without modifications.
      * }
      * @return string SVG markup or empty string if not found.
-     *
-     * @since 1.0.0
      */
     public static function get(string $name, array $options = []): string
     {
@@ -88,11 +92,11 @@ class Icon
     /**
      * Render an SVG icon directly to output.
      *
-     * @param string $name Icon name without .svg extension.
+     * @since 1.0.0
+     *
+     * @param string               $name    Icon name without .svg extension.
      * @param array<string, mixed> $options Icon options (same as get()).
      * @return void
-     *
-     * @since 1.0.0
      */
     public static function render(string $name, array $options = []): void
     {
@@ -102,11 +106,11 @@ class Icon
     /**
      * Modify SVG attributes based on options.
      *
-     * @param string $svg SVG markup.
+     * @since 1.0.0
+     *
+     * @param string               $svg     SVG markup.
      * @param array<string, mixed> $options Icon options.
      * @return string Modified SVG markup.
-     *
-     * @since 1.0.0
      */
     private static function modify_svg_attributes(string $svg, array $options): string
     {
@@ -129,11 +133,11 @@ class Icon
     /**
      * Add CSS class to SVG element.
      *
-     * @param string $svg SVG markup.
+     * @since 1.0.0
+     *
+     * @param string $svg   SVG markup.
      * @param string $class CSS class(es) to add.
      * @return string Modified SVG markup.
-     *
-     * @since 1.0.0
      */
     private static function add_svg_class(string $svg, string $class): string
     {
@@ -154,11 +158,11 @@ class Icon
     /**
      * Set width and height attributes on SVG.
      *
-     * @param string $svg SVG markup.
-     * @param int $size Size in pixels (sets both width and height).
-     * @return string Modified SVG markup.
-     *
      * @since 1.0.0
+     *
+     * @param string $svg  SVG markup.
+     * @param int    $size Size in pixels (sets both width and height).
+     * @return string Modified SVG markup.
      */
     private static function set_svg_size(string $svg, int $size): string
     {
@@ -166,8 +170,8 @@ class Icon
         $svg = preg_replace_callback(
             '/(<svg\b[^>]*>)/i',
             function (array $matches) use ($size): string {
-                $tag = preg_replace('/\s*width=["\'][^"\']*["\']/', '', $matches[1]);
-                $tag = preg_replace('/\s*height=["\'][^"\']*["\']/', '', $tag);
+                $tag = preg_replace('/\s+width=["\'][^"\']*["\']/', '', $matches[1]);
+                $tag = preg_replace('/\s+height=["\'][^"\']*["\']/', '', $tag);
                 // Insert width/height right after <svg
                 return preg_replace(
                     '/<svg\b/i',
@@ -186,11 +190,11 @@ class Icon
     /**
      * Set fill color on SVG.
      *
-     * @param string $svg SVG markup.
+     * @since 1.0.0
+     *
+     * @param string $svg   SVG markup.
      * @param string $color Color value.
      * @return string Modified SVG markup.
-     *
-     * @since 1.0.0
      */
     private static function set_svg_color(string $svg, string $color): string
     {
@@ -214,10 +218,10 @@ class Icon
     /**
      * Check if an icon exists.
      *
+     * @since 1.0.0
+     *
      * @param string $name Icon name without .svg extension.
      * @return bool
-     *
-     * @since 1.0.0
      */
     public static function exists(string $name): bool
     {
@@ -227,9 +231,9 @@ class Icon
     /**
      * Clear the icon cache.
      *
-     * @return void
-     *
      * @since 1.0.0
+     *
+     * @return void
      */
     public static function clear_cache(): void
     {
@@ -239,9 +243,9 @@ class Icon
     /**
      * Get a list of all available icons.
      *
-     * @return array<string> Array of icon names (without .svg extension).
-     *
      * @since 1.0.0
+     *
+     * @return string[] Icon names (without .svg extension), sorted.
      */
     public static function list(): array
     {

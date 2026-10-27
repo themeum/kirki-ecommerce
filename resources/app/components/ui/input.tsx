@@ -43,7 +43,7 @@ const styles = defineStyles({
     color: theme.colors.text.primary,
     cursor: 'text',
     '&::placeholder': {
-      color: theme.colors.text.secondary,
+      color: theme.colors.text.subdued,
       opacity: 0.8,
     },
     '&:focus-visible': {

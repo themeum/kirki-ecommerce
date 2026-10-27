@@ -365,7 +365,7 @@ runs a second pass:
 ```
 "va"     →  Variation Library, Tax Regions, Tax Profiles, ...
 "c"      →  Currency, Checkout, Checkout Configuration, ...
-"va zo"  →  Tax Regions
+"va re"  →  Tax Regions
 "zzzz"   →  nothing
 ```
 
@@ -375,8 +375,8 @@ The rules are deliberately narrow:
   *beginning* with what was typed. "va" reaches **Va**t and **Va**riations, not
   ad**va**nced or pri**va**cy. A two-character substring would otherwise return an
   arbitrary third of the corpus.
-- **Every typed word must be found.** "va zo" needs a word starting with `va`
-  *and* a word starting with `zo` in the same card, so typing more narrows the
+- **Every typed word must be found.** "va re" needs a word starting with `va`
+  *and* a word starting with `re` in the same card, so typing more narrows the
   list rather than growing it.
 - **Ranked by field.** Each matched word scores the strongest boost it was found
   under — so a hit in a card's name sorts above one in its body text. The same
@@ -437,7 +437,7 @@ against 237 words that appear in exactly one document, at 3.76. "Configure your
 store settings" is very nearly free of information.
 
 **Aim for roughly 15–40 words per card.** The current spread runs from 13 words
-(`currency.preferences`) to 41 (`essentials.barcode-generation`), and both ends
+(`currency.preferences`) to 35 (`legal.consents`), and both ends
 hurt: a five-dimension vector lets one accidental word own a third of it, while a
 60-word document dilutes everything in it.
 
@@ -472,11 +472,12 @@ Be honest about these rather than discovering them later.
   Change a label mid-session without rerunning the crawler and search returns a
   result that highlights nothing, because the terms it indexed are no longer on
   screen.
-- **English only.** Copy is extracted from source literals. The admin bundle has
-  no `wp_set_script_translations()` and the repo has no `.pot`, so the admin UI is
-  English today and this costs nothing — but a translated admin would search
-  English text while rendering translated text. That has to be solved before
-  admin translations ship.
+- **English only.** Copy is extracted from source literals. The admin app now
+  loads translations (see [Translations](translations.md)), so on a site with a
+  translated admin the screen shows translated text while search still matches
+  the English words. A follow-up change will make the index follow the site
+  language. Until then, merchants on a translated admin can search with English
+  words.
 - **Marks are transient.** If a highlighted card re-renders — the merchant types
   in one of its fields — the `<mark>` wrappers are lost until the next search.
 - **Typo recovery is one or two edits, no more.** "curency" finds currency;

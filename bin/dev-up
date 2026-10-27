@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# Start this checkout's Docker stack on free host ports.
+#
+# Picks NGINX_HTTP_PORT, MARIADB_PORT and PHPMYADMIN_PORT once, saves them in
+# .env together with the matching WP_URL and the Vite dev-server VITE_PORT,
+# then runs `docker compose up -d "$@"`.
+# Later runs keep the saved ports unless another process now holds one.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+PORT_BASE=20100
+PORT_MAX=20999
+VITE_PORT_BASE=5173
+LOCK_DIR="${TMPDIR:-/tmp}/kirki-dev-up.lock"
+
+[ -f .env ] || cp .env.example .env
+
+env_get() {
+	grep -E "^$1=" .env | tail -n1 | cut -d= -f2- || true
+}
+
+env_set() {
+	if grep -qE "^$1=" .env; then
+		local tmp
+		tmp="$(mktemp)"
+		sed "s|^$1=.*|$1=$2|" .env >"$tmp"
+		cat "$tmp" >.env
+		rm -f "$tmp"
+	else
+		printf '%s=%s\n' "$1" "$2" >>.env
+	fi
+}
+
+# A port is free when nothing listens on it and it can be bound.
+port_free() {
+	python3 -c '
+import socket, sys
+port = int(sys.argv[1])
+with socket.socket() as probe:
+    probe.settimeout(0.3)
+    if probe.connect_ex(("127.0.0.1", port)) == 0:
+        sys.exit(1)
+with socket.socket() as sock:
+    try:
+        sock.bind(("0.0.0.0", port))
+    except OSError:
+        sys.exit(1)
+' "$1"
+}
+
+# Host port that this project's running container already publishes, if any.
+project_port() {
+	docker compose port "$1" "$2" 2>/dev/null | awk -F: 'NR == 1 { print $NF }' || true
+}
+
+CLAIMED=""
+PICKED=""
+
+# pick_port <env key> <compose service> <container port>; result in $PICKED.
+pick_port() {
+	local key=$1 current owned
+	current="$(env_get "$key")"
+	owned="$(project_port "$2" "$3")"
+
+	if [ -n "$current" ] && [[ " $CLAIMED " != *" $current "* ]] &&
+		{ [ "$current" = "$owned" ] || port_free "$current"; }; then
+		PICKED=$current
+	else
+		PICKED=$PORT_BASE
+		while [[ " $CLAIMED " == *" $PICKED "* ]] || ! port_free "$PICKED"; do
+			PICKED=$((PICKED + 1))
+			if [ "$PICKED" -gt "$PORT_MAX" ]; then
+				echo "No free port between $PORT_BASE and $PORT_MAX." >&2
+				exit 1
+			fi
+		done
+	fi
+
+	CLAIMED="$CLAIMED $PICKED"
+	env_set "$key" "$PICKED"
+}
+
+# Two worktrees created at the same time must not pick the same port.
+waited=0
+until mkdir "$LOCK_DIR" 2>/dev/null; do
+	waited=$((waited + 1))
+	if [ "$waited" -gt 120 ]; then
+		echo "Another bin/dev-up holds $LOCK_DIR. Remove it if no run is active." >&2
+		exit 1
+	fi
+	sleep 1
+done
+trap 'rmdir "$LOCK_DIR" 2>/dev/null || true' EXIT
+
+pick_port NGINX_HTTP_PORT nginx 80
+site_url="http://localhost:$PICKED"
+# The Vite dev server is not running yet, so its port cannot be probed. Follow
+# the nginx port instead: it is unique for each running stack.
+env_set VITE_PORT $((VITE_PORT_BASE + PICKED - PORT_BASE))
+
+pick_port MARIADB_PORT mariadb 3306
+pick_port PHPMYADMIN_PORT phpmyadmin 80
+
+env_set WP_URL "$site_url"
+
+# Keep a tunnel or other public URL that the developer set by hand.
+case "$(env_get KECOM_WEBHOOK_BASE_URL)" in
+	'' | http://localhost* | http://127.0.0.1*) env_set KECOM_WEBHOOK_BASE_URL "$site_url" ;;
+esac
+
+docker compose up -d "$@"
+
+"$ROOT/bin/dev-urls"

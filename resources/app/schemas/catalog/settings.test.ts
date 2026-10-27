@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CheckoutSettingsSchema,
   CurrencySettingsSchema,
+  EmailNotificationSchema,
   EmailSettingsSchema,
   GeneralSettingsSchema,
   PaymentSettingsSchema,
@@ -69,17 +70,6 @@ describe('ProductSettingsSchema', () => {
       display_layout: null,
       is_enabled_reviews: true,
       is_enabled_star_ratings: true,
-      is_unit_price_visible: true,
-      barcode_generation: {
-        data_origin: 'SKU',
-        format: 'Code 128 (recommended for SKU/internal use)',
-        width: 2.5,
-        height: 1.5,
-        country_of_origin: 'Bangladesh',
-        is_human_readable_text_visible: false,
-        is_product_name_visible: false,
-        is_country_of_origin_visible: false,
-      },
     });
     expect(result.success).toBe(true);
   });
@@ -112,24 +102,56 @@ describe('CheckoutSettingsSchema', () => {
   });
 });
 
+describe('EmailNotificationSchema', () => {
+  it('accepts the documented per-entry shape (is_enabled/subject/heading/message/shortcodes, no name)', () => {
+    const result = EmailNotificationSchema.safeParse({
+      key: 'order_confirmation',
+      is_enabled: true,
+      subject: 'New Order',
+      heading: 'New Order',
+      message: '<p>Hi there!</p>',
+      shortcodes: [{ label: 'Order Number', value: '{order_number}' }],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts every field absent', () => {
+    const result = EmailNotificationSchema.safeParse({});
+    expect(result.success).toBe(true);
+  });
+});
+
 describe('EmailSettingsSchema', () => {
-  it('accepts the documented response shape (settings/email.yml)', () => {
+  it('accepts the current default_template shape (nested background/typography/button colors)', () => {
     const result = EmailSettingsSchema.safeParse({
       default_template: {
         logo: null,
-        height: '30px',
+        height: 30,
         position: 'center',
-        colors: { background: '#000000', text: '#ffffff' },
+        colors: {
+          background: {
+            email_body: '#000000',
+            outer_area: '#DBDBE5',
+            info_cads: '#F5F5F5',
+            divider: '#E0E0E0',
+          },
+          typography: {
+            headings: '#000000',
+            body: '#000000',
+            muted: '#474747',
+            link: '#167BFF',
+            exceptions: '#0078CE',
+          },
+          button: { background: '#167BFF', text: '#ffffff' },
+        },
       },
       customer_emails: {
         order_notifications: {
-          new_order_email: {
+          order_confirmation: {
             is_enabled: true,
-            name: 'New Order',
             subject: 'New Order',
             heading: 'New Order',
             message: '<p>Hi there!</p>',
-            shortcodes: [{ label: 'Order Table', value: '{order_table}' }],
           },
         },
       },
@@ -140,17 +162,22 @@ describe('EmailSettingsSchema', () => {
 
   it('accepts an unrecognized notification group and extra notification fields', () => {
     const result = EmailSettingsSchema.safeParse({
+      default_template: { colors: { background: {}, typography: {}, button: {} } },
       customer_emails: {
         unexpected_group: {
-          some_email: { name: 'x', is_enabled: true, extra_field: 'value' },
+          some_email: { is_enabled: true, extra_field: 'value' },
         },
       },
     });
     expect(result.success).toBe(true);
   });
 
-  it('accepts every field absent', () => {
-    const result = EmailSettingsSchema.safeParse({});
+  it('requires default_template while other fields may be absent', () => {
+    expect(EmailSettingsSchema.safeParse({}).success).toBe(false);
+
+    const result = EmailSettingsSchema.safeParse({
+      default_template: { colors: { background: {}, typography: {}, button: {} } },
+    });
     expect(result.success).toBe(true);
   });
 });
@@ -195,11 +222,8 @@ describe('CurrencySettingsSchema', () => {
       decimal_separator: '.',
       is_automatic_update_enabled: true,
       api_provider: 'currency_api',
-      api_config: {
-        api_key: 'cur_live_x',
-        update_frequency: 'hourly',
-        fallback_behaviour: null,
-        is_cache_enabled: true,
+      api_configs: {
+        currency_api: { api_key: 'cur_live_x', update_frequency: 'every_1_hour' },
       },
       last_sync_at: '2026-02-26 11:28:22',
       next_sync_at: '2026-02-26 12:28:23',
@@ -208,18 +232,24 @@ describe('CurrencySettingsSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts api_config as an empty array — PHP empty-associative-array-as-JSON quirk, confirmed live (GET /settings/currency)', () => {
-    const result = CurrencySettingsSchema.safeParse({
-      currency_format: 'short',
-      is_automatic_update_enabled: true,
-      api_config: {},
-    });
-    expect(result.success).toBe(true);
-  });
-
   it('accepts every field absent', () => {
     const result = CurrencySettingsSchema.safeParse({});
     expect(result.success).toBe(true);
+  });
+
+  it('keeps the saved API configuration of each provider', () => {
+    const result = CurrencySettingsSchema.parse({
+      api_configs: {
+        exchange_rates_api: { api_key: 'key-a', update_frequency: 'every_1_hour' },
+        currency_api: { api_key: 'key-b', update_frequency: null },
+      },
+    });
+    expect(result.api_configs?.exchange_rates_api?.api_key).toBe('key-a');
+    expect(result.api_configs?.currency_api?.api_key).toBe('key-b');
+  });
+
+  it('accepts an empty api_configs map', () => {
+    expect(CurrencySettingsSchema.safeParse({ api_configs: {} }).success).toBe(true);
   });
 });
 
@@ -267,6 +297,7 @@ describe('SettingsSchemaMap', () => {
         'tax',
         'advance',
         'legal',
+        'mcp',
       ].sort(),
     );
   });

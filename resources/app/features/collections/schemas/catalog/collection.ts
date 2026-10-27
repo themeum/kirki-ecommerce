@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { ProductListItemWithVariantsSchema } from '@/features/products/schemas/catalog/product';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
 export const CollectionSchema = z.object({
@@ -9,6 +10,7 @@ export const CollectionSchema = z.object({
   description: z.string().nullish(),
   banner: MediaRefSchema.nullish(),
   count: z.number().optional(),
+  products: z.array(ProductListItemWithVariantsSchema).default([]),
   seo_title: z.string().nullish(),
   seo_description: z.string().nullish(),
   seo_keywords: z.union([z.array(z.string()), z.string()]).nullish(),

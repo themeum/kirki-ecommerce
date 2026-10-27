@@ -15,7 +15,7 @@ http:
         "is_enabled": true,
         "is_offline": false,
         "name": "Bkash222",
-        "icon": "cash",
+        "icon": 12,
         "instructions": "Bkash2"
       }
   auth: inherit
@@ -38,7 +38,7 @@ examples:
             "is_enabled": true,
             "is_offline": false,
             "name": "Bkash222",
-            "icon": "cash",
+            "icon": 12,
             "instructions": "Bkash2"
           }
     response:
@@ -55,7 +55,11 @@ examples:
             "data": {
               "id": "98cfccbb-9f87-41d7-b66a-95ab95502ff9",
               "name": "Bkash222",
-              "icon": "cash",
+              "icon": "https://example.com/wp-content/uploads/2026/01/bkash.png",
+              "icon_media": {
+                "id": 12,
+                "url": "https://example.com/wp-content/uploads/2026/01/bkash.png"
+              },
               "is_enabled": true,
               "is_offline": false,
               "instructions": "Bkash2",
@@ -75,7 +79,7 @@ examples:
             "is_enabled": true,
             "is_offline": false,
             "name": "Bkash222",
-            "icon": "cash",
+            "icon": 12,
             "instructions": "Bkash2"
           }
     response:

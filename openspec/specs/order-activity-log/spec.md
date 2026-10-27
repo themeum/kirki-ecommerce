@@ -35,7 +35,7 @@ The system SHALL remove all activities belonging to an order when that order is 
 - **THEN** all activities belonging to that order are also removed
 
 ### Requirement: Admins can add a comment to an order
-The system SHALL let an admin add a free-text comment activity to an order. The comment's text SHALL be stored as the activity's description, and the authoring admin SHALL be recorded as the actor.
+The system SHALL let an admin add a free-text comment activity to an order. The comment's text SHALL be stored as the activity's description, and the authoring admin SHALL be recorded as the actor. The admin MAY choose to notify the customer about the comment; whether the customer was notified SHALL be recorded with the activity. Comments are internal by default and SHALL NOT notify the customer unless the admin explicitly chooses to.
 
 #### Scenario: Admin adds a comment
 - **WHEN** an admin submits a non-empty comment message for an order
@@ -44,6 +44,14 @@ The system SHALL let an admin add a free-text comment activity to an order. The 
 #### Scenario: Empty comment is rejected
 - **WHEN** an admin submits a comment with no text
 - **THEN** the system rejects the request and no activity is recorded
+
+#### Scenario: Admin adds a comment and notifies the customer
+- **WHEN** an admin submits a non-empty comment with "notify customer" selected
+- **THEN** the comment-added activity is recorded as customer-notified and the customer is sent the order-note email containing the comment's text
+
+#### Scenario: Comment defaults to internal
+- **WHEN** an admin submits a comment without choosing to notify the customer
+- **THEN** the comment-added activity is recorded as not customer-notified and no email is sent to the customer
 
 ### Requirement: Admins can delete a comment they or another admin added
 The system SHALL let an admin delete a comment activity. Only activities of type comment-added SHALL be deletable through this operation; attempting to delete any other activity type SHALL be rejected.
@@ -87,12 +95,70 @@ The system SHALL let an admin retrieve a paginated list of all activities record
 - **THEN** the system returns every activity for that order in a single response
 
 ### Requirement: Customers can view their own order's activity timeline, paginated
-The system SHALL let a customer retrieve the same paginated activity timeline shown to admins for an order they own, including admin comments. A customer SHALL NOT be able to retrieve the activity timeline of an order that does not belong to them.
+The system SHALL let a customer retrieve a paginated activity timeline for an order they own, newest first. The timeline SHALL contain only activities whose type is customer-visible, and each entry SHALL have the same fields as an admin entry, except that it SHALL NOT include the notify-customer flag. The page and page-size parameters, the "all activities" option, and the pagination metadata SHALL work the same as for admins, and the total count SHALL count only customer-visible activities. A customer SHALL NOT be able to retrieve the activity timeline of an order that does not belong to them.
 
 #### Scenario: Customer views their own order's timeline
 - **WHEN** a signed-in customer requests the activity timeline for an order they placed
-- **THEN** the system returns a page of activities recorded for that order, including comments, ordered from most recent to oldest, together with pagination metadata
+- **THEN** the system returns a page of that order's customer-visible activities, ordered from most recent to oldest, together with pagination metadata
+
+#### Scenario: Customer timeline leaves out hidden activities
+- **WHEN** a signed-in customer requests the activity timeline for an order that also has comment and payment activities
+- **THEN** the response contains no comment-added and no payment activity
+
+#### Scenario: Customer timeline omits the notify flag
+- **WHEN** a signed-in customer requests the activity timeline for their order
+- **THEN** each entry has the same fields as an admin entry, but contains no notify-customer flag
+
+#### Scenario: Pagination counts only visible activities
+- **WHEN** a signed-in customer requests a page of the timeline for an order that has hidden activities
+- **THEN** the total count in the pagination metadata equals the number of customer-visible activities, not the number of all activities
 
 #### Scenario: Customer cannot view another customer's order timeline
 - **WHEN** a signed-in customer requests the activity timeline for an order that belongs to a different customer
 - **THEN** the system rejects the request
+
+### Requirement: Customer-visible activity types come from one allow-list
+The system SHALL decide which activity types a customer can see from a single allow-list. Every customer-facing view of an order's activities (the account order details page, the order tracking page and the customer timeline endpoint) SHALL use that list. An activity type that is not on the list SHALL be hidden from customers, so a newly added type stays hidden until it is added to the list. The list SHALL contain the fulfillment types order-placed, processing, fulfillment-resumed, shipped, delivered, cancelled, tracking-added and on-hold. It SHALL NOT contain payment-completed, payment-failed, archived, partially-refunded, refunded, refund-requested, refund-deleted or comment-added. Admin views SHALL NOT be filtered by this list.
+
+#### Scenario: Fulfillment activity is shown on the order page
+- **WHEN** a customer opens their order details page and the order has a shipped activity
+- **THEN** the shipped activity appears in the order's activity timeline
+
+#### Scenario: Payment activity is hidden on the order page
+- **WHEN** a customer opens their order details page and the order has a payment-completed activity
+- **THEN** the payment-completed activity does not appear in the timeline
+
+#### Scenario: Order tracking page uses the same list
+- **WHEN** a visitor opens the order tracking page for an order that has a refunded activity
+- **THEN** the refunded activity does not appear in the timeline
+
+#### Scenario: Unlisted type is hidden by default
+- **WHEN** a new activity type is added to the system and not added to the customer allow-list
+- **THEN** no customer-facing view shows activities of that type
+
+#### Scenario: Admin still sees every activity
+- **WHEN** an admin requests the activity timeline for an order that has hidden-from-customer activities
+- **THEN** the admin timeline still contains every activity, including comments and payment activities
+
+### Requirement: A payment-completed activity names the provider
+The system SHALL record the payment provider's name on a payment-completed activity, taken from the order's provider snapshot at the time of payment, together with the provider id. The activity description SHALL show the provider name. For an activity that has no recorded name, the description SHALL show the provider id.
+
+#### Scenario: Paid with a provider
+- **WHEN** an order is marked as paid with a provider whose name is "Bank transfer"
+- **THEN** the payment-completed activity description reads "Payment of <amount> completed via Bank transfer."
+
+#### Scenario: Provider changed while marking paid
+- **WHEN** an order placed with one provider is marked as paid with another provider
+- **THEN** the payment-completed activity names the new provider, not the provider the order was placed with
+
+#### Scenario: Provider renamed later
+- **WHEN** a provider is renamed after an order was paid with it
+- **THEN** the payment-completed activity of that order still shows the name recorded at the time of payment
+
+#### Scenario: Older activity without a name
+- **WHEN** a payment-completed activity was recorded with a provider id and no provider name
+- **THEN** its description shows the provider id
+
+#### Scenario: Paid with no provider known
+- **WHEN** an order is marked as paid and has no payment provider
+- **THEN** the payment-completed activity description does not mention a provider

@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 defined('ABSPATH') || exit;
@@ -40,9 +41,9 @@ class SquareClient
      */
     public function is_verified(string $raw_payload, string $webhook_url): bool
     {
-        $given_signature = $_SERVER['HTTP_X_SQUARE_HMACSHA256_SIGNATURE'] ?? $_SERVER['HTTP_X_SQUARE_SIGNATURE'] ?? '';
+        $given_signature = Superglobals::server('HTTP_X_SQUARE_HMACSHA256_SIGNATURE') ?? Superglobals::server('HTTP_X_SQUARE_SIGNATURE');
 
-        if ('' === $raw_payload || '' === $given_signature) {
+        if ('' === $raw_payload || empty($given_signature)) {
             return false;
         }
 

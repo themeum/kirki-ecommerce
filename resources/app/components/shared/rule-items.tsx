@@ -1,6 +1,7 @@
 import type { CSSObject } from '@emotion/react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
+import Chip from '@/components/ui/chip';
 import {
   StackedItem,
   StackedItemActions,
@@ -60,21 +61,6 @@ const RuleItemContent = forwardRef<
 
 RuleItemContent.displayName = 'RuleItemContent';
 
-const RuleItemBadge = forwardRef<HTMLDivElement, RuleItemsElementProps>((props, ref) => {
-  const { cssOverride, ...rest } = props;
-
-  return (
-    <div
-      ref={ref}
-      data-slot="rule-item-badge"
-      css={mergeCss(styles.badge, cssOverride)}
-      {...rest}
-    />
-  );
-});
-
-RuleItemBadge.displayName = 'RuleItemBadge';
-
 const RuleItemConditions = forwardRef<HTMLDivElement, RuleItemsElementProps>((props, ref) => {
   const { cssOverride, ...rest } = props;
 
@@ -120,6 +106,30 @@ const RuleItemAction = forwardRef<HTMLDivElement, RuleItemsElementProps>((props,
 
 RuleItemAction.displayName = 'RuleItemAction';
 
+type RuleItemValuesProps = {
+  values: string[];
+  maxVisible?: number;
+};
+
+const RuleItemValues = (props: RuleItemValuesProps) => {
+  const { values, maxVisible = 2 } = props;
+  const visibleValues = values.slice(0, maxVisible);
+  const hiddenCount = values.length - visibleValues.length;
+
+  return (
+    <>
+      {visibleValues.map((value, index) => (
+        <Chip key={index} text={value} cssOverride={{ borderRadius: theme.radius.md }} />
+      ))}
+      {hiddenCount > 0 && (
+        <Chip text={`${hiddenCount}+`} cssOverride={{ borderRadius: theme.radius.md }} />
+      )}
+    </>
+  );
+};
+
+RuleItemValues.displayName = 'RuleItemValues';
+
 const RuleItemActions = forwardRef<
   HTMLDivElement,
   ComponentPropsWithoutRef<typeof StackedItemActions>
@@ -131,37 +141,31 @@ export {
   RuleItem,
   RuleItemAction,
   RuleItemActions,
-  RuleItemBadge,
   RuleItemCondition,
   RuleItemConditions,
   RuleItemContent,
   RuleItems,
+  RuleItemValues,
 };
 
-export type { RuleItemProps, RuleItemsElementProps };
+export type { RuleItemProps, RuleItemsElementProps, RuleItemValuesProps };
 
 const styles = defineStyles({
   item: {
-    paddingBlock: theme.spacing[4],
+    paddingBlock: theme.spacing[2],
     height: 'auto',
   },
   content: {
-    gap: theme.spacing[4],
-  },
-  badge: {
-    display: 'flex',
-    width: 'fit-content',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: theme.spacing[2],
-    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
-    borderRadius: theme.radius.sm,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    color: theme.colors.text.secondary,
-    ...theme.typography.small(),
   },
   conditions: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
     gap: theme.spacing[2],
   },
   line: {

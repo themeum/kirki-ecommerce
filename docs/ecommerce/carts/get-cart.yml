@@ -41,6 +41,7 @@ examples:
             "data": {
               "id": "15",
               "user_id": 2,
+              "customer_email": "jane@example.com",
               "cart_token": "38c51e6c-e936-472c-9cc3-5d90587f9cf6",
               "currency": {
                 "code": "USD",
@@ -133,7 +134,7 @@ examples:
                 }
               ],
               "shipping_method": "fsdfdsfsdfsdf343432jh4",
-              "customer_notes": null,
+              "order_notes": null,
               "ip_address": null,
               "user_agent": null,
               "expires_at": {

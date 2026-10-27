@@ -24,6 +24,8 @@ type UseListParamsOptions<TFilter extends Record<string, unknown> = {}> = {
 type SetParamKey<TFilter extends Record<string, unknown>> =
   keyof ListQueryParams | 'filter' | (keyof TFilter & string);
 
+const BASE_FILTER_KEYS: string[] = ['search', 'from_date', 'to_date'];
+
 const useListParams = <TFilter extends Record<string, unknown> = {}>(
   options: UseListParamsOptions<TFilter> = {},
 ) => {
@@ -39,6 +41,11 @@ const useListParams = <TFilter extends Record<string, unknown> = {}>(
   } = options;
 
   const filterKeys = useMemo(() => filterConfig?.keys ?? [], [filterConfig]);
+
+  const clearableKeys = useMemo(
+    () => Array.from(new Set([...BASE_FILTER_KEYS, ...filterKeys])),
+    [filterKeys],
+  );
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -109,15 +116,7 @@ const useListParams = <TFilter extends Record<string, unknown> = {}>(
           const next = new URLSearchParams(prev);
 
           const shouldResetPage = Object.keys(updates).some((key) =>
-            [
-              'search',
-              'sort_by',
-              'sort_order',
-              'limit',
-              'from_date',
-              'to_date',
-              ...filterKeys,
-            ].includes(key),
+            [...BASE_FILTER_KEYS, 'sort_by', 'sort_order', 'limit', ...filterKeys].includes(key),
           );
 
           Object.entries(updates).forEach(([key, value]) => {
@@ -176,6 +175,7 @@ const useListParams = <TFilter extends Record<string, unknown> = {}>(
     setParams,
     resetParams,
     searchParams,
+    clearableKeys,
   };
 };
 

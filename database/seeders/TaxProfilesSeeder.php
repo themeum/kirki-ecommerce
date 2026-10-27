@@ -2,16 +2,24 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\TaxProfile;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 
+/**
+ * Seeds the demo tax profiles.
+ *
+ * @since 1.0.0
+ */
 class TaxProfilesSeeder extends Seeder
 {
     /**
      * Seed tax profiles for product assignment.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -21,8 +29,9 @@ class TaxProfilesSeeder extends Seeder
     /**
      * Curated tax profile definitions.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Profile rows with name and default flag.
      */
     protected function get_tax_profiles()
     {

@@ -14,8 +14,8 @@ http:
       {
         "data": {
           "merchant_code": "256172060889",
-          "secret_key": "r)WXbzTMhq3x5nZdRCu[",
-          "buy_link_secret_word" : "cYa7!gP2GWu$Ng$*$Ttd@#mN!pFGJ??pFPsmVdzRwWu?2kQ6Q#VK5ruZTd@2ns8z",
+          "secret_key": "<secret_key>",
+          "buy_link_secret_word" : "<buy_link_secret_word>",
           "sandbox": true
         }
       }
@@ -40,8 +40,8 @@ examples:
           {
             "data": {
               "merchant_code": "256172060889",
-              "secret_key": "r)WXbzTMhq3x5nZdRCu[",
-              "buy_link_secret_word" : "cYa7!gP2GWu$Ng$*$Ttd@#mN!pFGJ??pFPsmVdzRwWu?2kQ6Q#VK5ruZTd@2ns8z",
+              "secret_key": "<secret_key>",
+              "buy_link_secret_word" : "<buy_link_secret_word>",
               "sandbox": true
             }
           }
@@ -64,8 +64,8 @@ examples:
               "description": "2Checkout(Verifone) payment gateway",
               "settings": {
                 "merchant_code": "256172060889",
-                "secret_key": "r)WXbzTMhq3x5nZdRCu[",
-                "buy_link_secret_word" : "cYa7!gP2GWu$Ng$*$Ttd@#mN!pFGJ??pFPsmVdzRwWu?2kQ6Q#VK5ruZTd@2ns8z",
+                "secret_key": "<secret_key>",
+                "buy_link_secret_word" : "<buy_link_secret_word>",
                 "sandbox": true
               },
               "fields": [
@@ -113,8 +113,8 @@ examples:
           {
            "data": {
                "merchant_code": "256172060889",
-              "secret_key": "r)WXbzTMhq3x5nZdRCu[",
-              "buy_link_secret_word" : "cYa7!gP2GWu$Ng$*$Ttd@#mN!pFGJ??pFPsmVdzRwWu?2kQ6Q#VK5ruZTd@2ns8z",
+              "secret_key": "<secret_key>",
+              "buy_link_secret_word" : "<buy_link_secret_word>",
               "sandbox": true
             }
           }

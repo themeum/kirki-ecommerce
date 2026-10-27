@@ -10,22 +10,46 @@ show/hide. Every list screen in `resources/app/features/` uses it.
 - [4. Bulk actions](#4-bulk-actions)
 - [5. Column visibility and `tableId`](#5-column-visibility-and-tableid)
 - [6. Filtering](#6-filtering)
-- [7. Where this differs from TanStack defaults](#7-where-this-differs-from-tanstack-defaults)
+- [7. Empty states](#7-empty-states)
+- [8. Where this differs from TanStack defaults](#8-where-this-differs-from-tanstack-defaults)
 
 ---
 
 ## 1. Quick start
 
-A feature's list table is three modules: the column definitions, the toolbar, and
-the wiring. `useDataTableParams` binds the browser address to the state the table
-consumes, and the whole `params` object is both the react-query key and the axios
-query string, so any change refetches.
+A feature's list screen is four modules: the column definitions, the toolbar, the
+table wiring, and the page. `useDataTableParams` binds the browser address to the
+state the table consumes, and the whole `params` object is both the react-query
+key and the axios query string, so any change refetches.
+
+The **page** owns the query and passes `data` and `isLoading` down, because it
+must also decide whether to show the table at all
+([7. Empty states](#7-empty-states)). The **table** is presentational.
 
 ```tsx
-const BrandTable = () => {
-  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams(brandListOptions);
+const Brands = () => {
+  const { params } = useDataTableParams(brandListOptions);
   const { data, isFetching } = useBrandsQuery(params);
+
+  const hasRecord = data?.has_records !== false;
+
+  return (
+    <Page>
+      <PageHeading text={__('Brands', 'kirki-ecommerce')} actions={hasRecord && <NewBrandButton />} />
+      <PageContent>
+        {!hasRecord ? (
+          <NotFoundState ... />
+        ) : (
+          <BrandTable data={data} isLoading={isFetching} />
+        )}
+      </PageContent>
+    </Page>
+  );
+};
+
+const BrandTable = ({ data, isLoading = false }: ListingTableProps<Brand>) => {
+  const { pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
+    useDataTableParams(brandListOptions);
 
   return (
     <DataTable
@@ -38,7 +62,7 @@ const BrandTable = () => {
       onPaginationChange={onPaginationChange}
       sorting={sorting}
       onSortingChange={onSortingChange}
-      isLoading={isFetching}
+      isLoading={isLoading}
       enableRowSelection
       selectionResetKey={selectionResetKey}
       bulkActions={brandBulkActions}
@@ -49,8 +73,8 @@ const BrandTable = () => {
 };
 ```
 
-`isLoading` must be `isFetching`, not `isLoading` — the table should show its
-skeleton on every refetch, not only the first load.
+The page passes `isLoading={isFetching}`, not react-query's `isLoading` — the
+table should show its skeleton on every refetch, not only the first load.
 
 ---
 
@@ -267,7 +291,102 @@ selected Country and resets when Country changes or clears.
 
 ---
 
-## 7. Where this differs from TanStack defaults
+## 7. Empty states
+
+An empty list is one of two situations, and they are handled in two places:
+
+| Situation | Handled by | Shown | Toolbar, headers, pagination |
+| --- | --- | --- | --- |
+| The table holds no record (`has_records` is `false`) | The **page** | `NotFoundState` instead of the table | Not rendered; the page card holds only the message |
+| Filters active, or any other case with no rows | `DataTable` | `emptyState` in the table body | Kept, so the criteria can be changed |
+
+**First use belongs to the page.** `DataTable` does not know about first use and
+has no `total`-based branch for it. The page already holds the query and the
+filters, so it makes the call and hides the table. The call reads
+`has_records` from the list response:
+
+```tsx
+const { params } = useDataTableParams(productListOptions);
+const { data, isFetching } = useProductsQuery(params);
+
+const hasRecord = data?.has_records !== false;
+
+<PageHeading text=... actions={hasRecord && <AddProductButton />} />
+<PageContent>
+  {!hasRecord ? (
+    <NotFoundState
+      icon={<ProductEmptyStateIcon />}
+      text={__('Add a product', 'kirki-ecommerce')}
+      description={__('Every great business begins with product number one.', 'kirki-ecommerce')}
+      actions={<AddProductButton />}
+    />
+  ) : (
+    <ProductTable data={data} isLoading={isFetching} />
+  )}
+</PageContent>
+```
+
+The page's header action is hidden while `NotFoundState` is shown, so the
+screen offers one call to action, not two. Neither the page number nor the
+filters play a part: only the server says if the table is empty.
+
+**Filtered-empty belongs to the table.** The table passes `emptyState` to
+`DataTable`, which renders it in a single full-width row of the body, with the
+toolbar and headers still in place:
+
+```tsx
+const { ..., clearFilters } = useDataTableParams(productListOptions);
+
+<DataTable
+  emptyState={
+    <DataTableEmptyState
+      title={__('No products found', 'kirki-ecommerce')}
+      actions={
+        <Button variant="secondary" onClick={clearFilters}>
+          {__('Clear Search', 'kirki-ecommerce')}
+        </Button>
+      }
+    />
+  }
+  ...
+/>
+```
+
+`DataTableEmptyState` takes `icon`, `title`, `description`, `actions` and
+`cssOverride`, and every part is optional. With no props it shows a search icon,
+"No records found" and "Try a different search or clear your filters." When
+`emptyState` is omitted, `DataTable` renders that default. The entity icons used
+by `NotFoundState` live in `@/icons/empty-state`.
+
+**Only an explicit `false` shows the first-use screen.** While the first request
+loads, or after a failed request, `data` is undefined and `has_records` is
+undefined. The check `!== false` keeps the table, so an error never reads as "add
+your first item", and a refetch never flashes the first-use screen.
+
+**Where `has_records` comes from.** The nine top-level list endpoints (products,
+orders, inventory, collections, categories, tags, brands, customers, coupons)
+return `has_records` in the `data` object, beside `total`. It is `true` when the
+table holds at least one record, whatever the search or filters in the request.
+A search that matches nothing therefore gives `total` of `0` and `has_records` of
+`true`, and the page keeps the table and shows the filtered-empty message.
+
+The service builds it with `ListPaginator::from( $page, $query )`. The query is a
+fresh, unfiltered query, for example `Brand::query()`. It runs only when the page
+total is `0`; when the page has rows, no extra query runs. To change which
+records count, change that query in the service. Products pass
+`Product::query()->where_not( 'status', ProductStatus::TRASHED )`, so a store with
+only trashed products gets the first-use screen. The `limit=-1` branch (all
+records, for pickers) and storefront lists do not return the key.
+
+**`hasActiveFilters` and `clearFilters`.** `useDataTableParams` returns both.
+The flag is true when the search term, a date range or any declared filter holds
+a value; page, page size and sort do not count. `clearFilters` removes exactly
+those and keeps sort and page size. `DataTable` never reads the address, so the
+page calls the hook and the table calls it again for `clearFilters`.
+
+---
+
+## 8. Where this differs from TanStack defaults
 
 - **Everything is manual.** `manualPagination`, `manualSorting` and
   `manualFiltering` are all `true`, always. The table never slices, reorders or
@@ -287,6 +406,11 @@ selected Country and resets when Country changes or clears.
   table's own persisted state.
 - **Row identity is `row.id`.** `getRowId` returns `String(row.id)`, so selection
   survives a refetch that reorders rows. Every item must have an `id`.
+- **An empty result is not one state.** TanStack has no notion of "no rows".
+  Here first use (the server reports `has_records` as `false`) replaces the whole table with a
+  page-level `NotFoundState`, while a filtered-empty table keeps its toolbar and
+  headers and shows `emptyState` in the body. `DataTable` itself only knows the
+  second case. See [7. Empty states](#7-empty-states).
 - **Only the rows go to skeletons.** The column headers stay rendered through a
   refresh, so the merchant keeps the column labels and the current sort direction
   in view. Sorting is inert for the duration of the request, like the pagination

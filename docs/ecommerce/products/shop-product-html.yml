@@ -46,12 +46,6 @@ examples:
               "slug": "classic-cotton-t-shirt",
               "status": "published",
               "ribbon": "Best Seller",
-              "currency": {
-                "id": 1,
-                "code": "usd",
-                "name": "USD",
-                "symbol": null
-              },
               "brand": {
                 "id": 1,
                 "name": "Brand A",
@@ -76,7 +70,6 @@ examples:
                 "fashion"
               ],
               "schema_id": null,
-              "llm_instructions": "Generate engaging short product description for AI campaigns.",
               "has_variants": true,
               "categories": [
                 {

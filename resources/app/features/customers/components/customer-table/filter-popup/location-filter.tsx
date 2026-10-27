@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCustomerLocationsQuery } from '@/features/customers/services/customer';
+import { useCountriesQuery } from '@/services/country';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -35,11 +36,19 @@ const LocationFilter = ({
   const { data: locations } = useCustomerLocationsQuery(
     selectedCountry === ALL ? undefined : selectedCountry,
   );
+  const { data: countries = [] } = useCountriesQuery({ limit: -1 });
 
-  const countryOptions = useMemo(
-    () => [ALL, ...(locations?.countries ?? [])],
-    [locations?.countries],
-  );
+  const countryOptions = useMemo(() => {
+    const nameByCode = new Map(countries.map((country) => [country.code, country.name]));
+
+    return [
+      { label: __('All', 'kirki-ecommerce'), value: ALL },
+      ...(locations?.countries ?? []).map((code) => ({
+        label: nameByCode.get(code) ?? code,
+        value: code,
+      })),
+    ];
+  }, [locations?.countries, countries]);
 
   const cityOptions = useMemo(() => [ALL, ...(locations?.cities ?? [])], [locations?.cities]);
 
@@ -63,8 +72,8 @@ const LocationFilter = ({
           </SelectTrigger>
           <SelectContent>
             {countryOptions.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option === ALL ? __('All', 'kirki-ecommerce') : option}
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
               </SelectItem>
             ))}
           </SelectContent>

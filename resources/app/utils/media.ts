@@ -6,7 +6,7 @@ export const isMediaObject = (value: unknown): value is MediaRef => {
     return false;
   }
 
-  return isDefined(value.id) && (isDefined(value.url) || isDefined(value.mime) || isDefined(value.type));
+  return isDefined(value.id) && isDefined(value.url);
 };
 
 export const isVideoObject = (value: MediaRef): boolean => {

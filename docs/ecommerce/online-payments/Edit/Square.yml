@@ -14,8 +14,8 @@ http:
       {
         "data": {
           "location_id": "LEGT83VZEV5V2",
-          "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-          "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+          "access_token": "<access_token>",
+          "signature_key": "<signature_key>",
           "sandbox": true
         }
       }
@@ -39,8 +39,8 @@ examples:
           {
             "data": {
               "location_id": "LEGT83VZEV5V2",
-              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+              "access_token": "<access_token>",
+              "signature_key": "<signature_key>",
               "sandbox": true
             }
           }
@@ -63,8 +63,8 @@ examples:
               "description": "Square payment gateway",
               "settings": {
                 "login_id": "LEGT83VZEV5V2",
-                "transaction_key": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-                "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+                "transaction_key": "<transaction_key>",
+                "signature_key": "<signature_key>",
                 "sandbox": true
               },
               "fields": [
@@ -112,8 +112,8 @@ examples:
           {
             "data": {
               "location_id": "LEGT83VZEV5V2",
-              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+              "access_token": "<access_token>",
+              "signature_key": "<signature_key>",
               "sandbox": true
             }
           }

@@ -66,9 +66,9 @@ examples:
                           "relation": "AND",
                           "conditions": [
                             {
-                              "type": "product_profile",
-                              "operator": "=",
-                              "value": "fragile"
+                              "type": "cart_weight",
+                              "operator": ">",
+                              "value": 5
                             }
                           ],
                           "action": {
@@ -111,9 +111,9 @@ examples:
                           "relation": "AND",
                           "conditions": [
                             {
-                              "type": "product_profile",
-                              "operator": "=",
-                              "value": "fragile"
+                              "type": "cart_weight",
+                              "operator": ">",
+                              "value": 5
                             }
                           ],
                           "action": {
@@ -151,9 +151,9 @@ examples:
                           "relation": "AND",
                           "conditions": [
                             {
-                              "type": "product_profile",
-                              "operator": "=",
-                              "value": "fragile"
+                              "type": "cart_weight",
+                              "operator": ">",
+                              "value": 5
                             }
                           ],
                           "action": {
@@ -177,9 +177,9 @@ examples:
                           "relation": "AND",
                           "conditions": [
                             {
-                              "type": "product_profile",
-                              "operator": "=",
-                              "value": "fragile"
+                              "type": "cart_weight",
+                              "operator": ">",
+                              "value": 5
                             }
                           ],
                           "action": {

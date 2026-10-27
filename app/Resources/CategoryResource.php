@@ -2,15 +2,24 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for a product category.
+ *
+ * @since 1.0.0
+ */
 class CategoryResource extends Resource
 {
     /**
      * Convert the category resource to an array.
      *
-     * @return array The category data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The category data, including its product count.
      */
     public function to_array()
     {

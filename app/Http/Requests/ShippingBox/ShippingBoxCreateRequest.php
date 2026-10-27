@@ -2,11 +2,23 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\ShippingBox;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for creating a shipping box.
+ *
+ * @since 1.0.0
+ */
 class ShippingBoxCreateRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -20,6 +32,11 @@ class ShippingBoxCreateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

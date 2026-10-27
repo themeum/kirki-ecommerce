@@ -18,6 +18,11 @@ const editableKindOf = (cellKind: string | undefined): EditableKind => {
       return 'money';
     case 'weight':
       return 'number';
+    // The tracked half of the Availability column. An untracked row shows a
+    // dropdown instead, and bulk-edit-cell.tsx overrides this to 'other' for
+    // those rows — this mapping covers the typeable case only.
+    case 'availability':
+      return 'number';
     case 'checkbox':
       return 'checkbox';
     default:

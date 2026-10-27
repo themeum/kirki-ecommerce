@@ -60,6 +60,67 @@ class MoneyManagerTest extends TestCase
         $this->assertSame('1.234,50$', $formatted);
     }
 
+    /**
+     * @dataProvider short_amounts
+     */
+    public function test_format_short_uses_units_above_one_thousand(string $amount, string $expected): void
+    {
+        $manager = new MoneyManager();
+
+        $this->assertSame($expected, $manager->format_short($manager->of($amount, 'USD')));
+    }
+
+    public function short_amounts(): array
+    {
+        return [
+            'below 1,000' => ['850', '$850.00'],
+            'just below 1,000' => ['999.99', '$999.99'],
+            'exactly 1,000' => ['1000', '$1K'],
+            'decimal that is 0' => ['20000', '$20K'],
+            'thousands' => ['20345', '$20.3K'],
+            'rounds half up' => ['20350', '$20.4K'],
+            'stays in thousands' => ['999949', '$999.9K'],
+            'moves to millions' => ['999950', '$1M'],
+            'millions' => ['1234567', '$1.2M'],
+            'billions' => ['3000000000', '$3B'],
+            'trillions' => ['1000000000000', '$1T'],
+            'above the last unit' => ['1500000000000000', '$1,500T'],
+            'negative' => ['-20345', '$-20.3K'],
+        ];
+    }
+
+    public function test_format_short_applies_currency_position_and_separators(): void
+    {
+        $this->bind_money_dependencies('EUR', [
+            'decimal_separator' => ',',
+            'thousand_separator' => '.',
+            'currency_position' => 'after',
+        ], ['EUR' => '€']);
+
+        $manager = new MoneyManager();
+
+        $this->assertSame('20,3K€', $manager->format_short($manager->of('20345', 'EUR')));
+        $this->assertSame('850,00€', $manager->format_short($manager->of('850', 'EUR')));
+    }
+
+    public function test_format_short_keeps_zero_decimal_currency_below_one_thousand(): void
+    {
+        $manager = new MoneyManager();
+
+        $this->assertSame($manager->format($manager->of('850', 'JPY')), $manager->format_short($manager->of('850', 'JPY')));
+        $this->assertStringEndsWith('20.3K', $manager->format_short($manager->of('20345', 'JPY')));
+    }
+
+    public function test_to_short_dto_adds_short_display_to_money_object(): void
+    {
+        $dto = (new MoneyManager())->to_short_dto(2034500, 'USD')->all();
+
+        $this->assertSame(['short_display', 'raw', 'display', 'currency'], array_keys($dto));
+        $this->assertSame('$20,345.00', $dto['display']);
+        $this->assertSame('$20.3K', $dto['short_display']);
+        $this->assertSame(20345.0, $dto['raw']);
+    }
+
     public function test_format_from_minor_formats_stored_amount(): void
     {
         $manager = new MoneyManager();

@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating an order item with its price, tax and product snapshot.
+ *
+ * @since 1.0.0
+ */
 class CreateOrderItemDTO extends DTO
 {
     /** @var int */
@@ -35,6 +42,42 @@ class CreateOrderItemDTO extends DTO
 
     /** @var float */
     public $base_price;
+
+    /** @var int */
+    public $invoiced_regular_price;
+
+    /** @var int */
+    public $base_regular_price;
+
+    /** @var int */
+    public $invoiced_regular_tax_total;
+
+    /** @var int */
+    public $base_regular_tax_total;
+
+    /** @var int */
+    public $invoiced_catalog_regular_price;
+
+    /** @var int */
+    public $base_catalog_regular_price;
+
+    /** @var int */
+    public $invoiced_catalog_sale_price;
+
+    /** @var int */
+    public $base_catalog_sale_price;
+
+    /** @var int */
+    public $invoiced_catalog_product_coupon_discounted_subtotal;
+
+    /** @var int */
+    public $base_catalog_product_coupon_discounted_subtotal;
+
+    /** @var int */
+    public $invoiced_discount_tax_total;
+
+    /** @var int */
+    public $base_discount_tax_total;
 
     /** @var int */
     public $quantity;

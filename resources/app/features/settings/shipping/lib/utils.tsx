@@ -8,7 +8,7 @@ import type {
   ShippingMethodData,
   ShippingZone,
 } from '@/features/settings/shipping/types';
-import { StoreIcon, TruckIcon, WeightIcon } from '@/icons';
+import { StoreIcon, TruckIcon, WeightIcon } from '@/icons/common';
 import { queryClient } from '@/libs/query-client';
 import { settingsKeys } from '@/libs/query-keys';
 import { getErrorMessage } from '@/services/helpers';
@@ -21,17 +21,9 @@ export const getShippingZoneSummary = (zone: ShippingZone): string => {
 
   return sprintf(
     __('%1$s, %2$s', 'kirki-ecommerce'),
+    sprintf(_n('%d Region', '%d Regions', regionCount, 'kirki-ecommerce'), regionCount),
     sprintf(
-      _n('%d Region', '%d Regions', regionCount, 'kirki-ecommerce'),
-      regionCount,
-    ),
-    sprintf(
-      _n(
-        '%d Shipping Method',
-        '%d Shipping Methods',
-        methodCount,
-        'kirki-ecommerce',
-      ),
+      _n('%d Shipping Method', '%d Shipping Methods', methodCount, 'kirki-ecommerce'),
       methodCount,
     ),
   );
@@ -112,20 +104,23 @@ export const getShippingMethodRightText = (
 export const conditionOptions: SelectOption[] = [
   {
     title: __('Product Category', 'kirki-ecommerce'),
-    value: 'product_category',
+    value: 'product_categories',
   },
   {
     title: __('Shipping Profile', 'kirki-ecommerce'),
     value: 'shipping_profile',
   },
-
   {
     title: __('Destination', 'kirki-ecommerce'),
     value: 'destination_region',
   },
   {
-    title: __('Cart Value (Subtotal)', 'kirki-ecommerce'),
+    title: __('Cart Weight', 'kirki-ecommerce'),
     value: 'cart_weight',
+  },
+  {
+    title: __('Cart Subtotal', 'kirki-ecommerce'),
+    value: 'cart_subtotal',
   },
 ];
 
@@ -137,6 +132,10 @@ export const actionOptionsArray: SelectOption[] = [
   {
     title: __('Add Extra to Price', 'kirki-ecommerce'),
     value: 'add_shipping_cost',
+  },
+  {
+    title: __('Multiply Price', 'kirki-ecommerce'),
+    value: 'multiply_shipping_cost',
   },
   {
     title: __('Disable This Shipping Method', 'kirki-ecommerce'),

@@ -35,6 +35,7 @@ examples:
               "id": "fdsf",
               "name": "Cash on Delivery",
               "icon": "cash",
+              "icon_media": null,
               "is_enabled": true,
               "is_offline": true,
               "description": "Cash on Delivery"

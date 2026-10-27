@@ -22,7 +22,6 @@ type TagsFieldProps<
   description?: ReactNode;
   infoText?: ReactNode;
   placeholder?: string;
-  createLabel?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
 };
@@ -45,8 +44,7 @@ const TagsField = <
   label,
   description,
   infoText,
-  placeholder = __('Type to add tags..', 'kirki-ecommerce'),
-  createLabel = __('Add Tag', 'kirki-ecommerce'),
+  placeholder = __('Add tags', 'kirki-ecommerce'),
   disabled,
   cssOverride,
 }: TagsFieldProps<TFieldValues, TName>) => {
@@ -89,10 +87,7 @@ const TagsField = <
             const response = await createTagMutation.mutateAsync({
               name: title,
             });
-            field.onChange([
-              { id: response.data.id, name: title },
-              ...selectedTags,
-            ]);
+            field.onChange([{ id: response.data.id, name: title }, ...selectedTags]);
             clearErrors(name);
           } catch (error) {
             const fieldErrors = getErrorsObject((error as ErrorResponse).errors);
@@ -105,18 +100,17 @@ const TagsField = <
         };
 
         return (
-          <Field
-            data-invalid={fieldState.invalid || undefined}
-            cssOverride={cssOverride}
-          >
+          <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
             {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
             <MultiSelect
               options={options}
               value={selected}
               onChange={handleChange}
               onCreate={handleCreate}
-              createLabel={createLabel}
+              maxVisibleRows={2}
               placeholder={placeholder}
+              selectedPlaceholder={__('Add more', 'kirki-ecommerce')}
+              emptyStateText={__('Add your first tag', 'kirki-ecommerce')}
               disabled={disabled}
               error={Boolean(fieldState.error)}
             />

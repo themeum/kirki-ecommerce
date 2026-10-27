@@ -12,7 +12,7 @@ import VariationTable from '@/features/settings/essentials/pages/variation-libra
 import VariationValuePopover from '@/features/settings/essentials/pages/variation-library/variation-value-popover';
 import VariationDetailSkeleton from '@/features/settings/essentials/skeletons/variation-detail-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { ColorPaletteIcon, SnowflakeIcon } from '@/icons';
+import { ColorPaletteIcon, SnowflakeIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -60,7 +60,10 @@ const ColorVariation = () => {
               }
             />
             {!colorList?.length ? (
-              <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
+              <Card
+                data-search-skip="true"
+                cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}
+              >
                 <CardContent
                   cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}
                 >

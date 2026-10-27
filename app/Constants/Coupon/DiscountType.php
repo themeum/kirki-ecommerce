@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Constants\Coupon;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Kinds of coupon discount: amount off, free shipping or buy X get Y.
+ *
+ * @since 1.0.0
+ */
 class DiscountType
 {
     use HasConstants;

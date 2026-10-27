@@ -1,3 +1,4 @@
+import { Edit3 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
@@ -15,15 +16,14 @@ import { resolveTaxRegionStrategy } from '@/features/settings/tax/registry';
 import type { TaxRegion } from '@/features/settings/tax/shared/lib/utils';
 import type { TaxSettingsFormInput } from '@/features/settings/tax/shared/schemas/forms/tax-settings-form';
 import type { SettingsOutletContext } from '@/features/settings/types';
-import { EyeClosedIcon, EyeIcon, LocationIcon, TrashIcon } from '@/icons';
+import { EyeClosedIcon, EyeIcon, TrashIcon } from '@/icons/common';
 import type { Country } from '@/schemas/reference/country';
 import type { Region, RegionsDialogFormPayload } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-import { Edit3 } from 'lucide-react';
 
 type TaxRegionsProps = {
   handleSave: (updatedRegions?: TaxRegion[]) => void | Promise<void>;
@@ -177,21 +177,12 @@ const TaxRegions = (props: TaxRegionsProps) => {
             onAdd={() => setShowPopup(true)}
           />
 
-          <div css={scoped({ marginTop: theme.spacing[5] })}>
-            {!taxRegions.length ? (
-              <Card>
-                <CardContent
-                  cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}
-                >
-                  <Flex direction="column" gap={2} align="center">
-                    <LocationIcon />
-                    <span css={scoped(styles.mutedText)}>
-                      {__('Added tax zones will appear here', 'kirki-ecommerce')}
-                    </span>
-                  </Flex>
-                </CardContent>
-              </Card>
-            ) : (
+          <div
+            css={scoped({
+              marginTop: taxRegions.length === 0 ? theme.spacing[0] : theme.spacing[5],
+            })}
+          >
+            {taxRegions.length > 0 && (
               <Flex direction="column" gap={2}>
                 {taxRegions.map((item, index) => {
                   const region = resolveRegionMeta(item);
@@ -204,7 +195,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
                             {region.name}
                           </Text>
                           {resolveRegionBadges(item).map((badge) => (
-                            <Badge key={badge.label} variant="info">
+                            <Badge key={badge.label} variant="secondary">
                               {badge.label}
                             </Badge>
                           ))}
@@ -276,10 +267,6 @@ TaxRegions.displayName = 'TaxRegions';
 export default TaxRegions;
 
 const styles = defineStyles({
-  emptyStateContent: { padding: `${theme.spacing[9]} 0` },
-  mutedText: {
-    color: theme.colors.text.subdued,
-  },
   regionCard: {
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
     backgroundColor: theme.colors.background.fillHover,

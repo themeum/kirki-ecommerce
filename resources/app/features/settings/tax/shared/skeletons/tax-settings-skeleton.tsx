@@ -1,7 +1,7 @@
 import Container from '@/components/ui/container';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SettingsPageSkeleton from '@/features/settings/skeletons/settings-page-skeleton';
-import { TaxIcon } from '@/icons';
+import { TaxIcon } from '@/icons/common';
 import { __ } from '@/wpi18n';
 
 const TaxSettingsSkeleton = () => (

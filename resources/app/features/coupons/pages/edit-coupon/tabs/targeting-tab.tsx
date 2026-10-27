@@ -37,8 +37,15 @@ const TargetingTab = () => {
         <CardContent>
           <Flex direction="column" gap={4}>
             <Flex direction="column" gap={2}>
-              <Text variant="heading6" weight="semibold">{__('Countries', 'kirki-ecommerce')}</Text>
-              <Text variant="small">{__('Choose the countries where you want the coupon to be applicable, or select all.', 'kirki-ecommerce')}</Text>
+              <Text variant="heading6" weight="semibold">
+                {__('Countries', 'kirki-ecommerce')}
+              </Text>
+              <Text variant="small">
+                {__(
+                  'Choose the countries where you want the coupon to be applicable, or select all.',
+                  'kirki-ecommerce',
+                )}
+              </Text>
             </Flex>
             <SelectField
               name="target_country_type"
@@ -63,21 +70,31 @@ const TargetingTab = () => {
         <CardContent>
           <Flex direction="column" gap={4}>
             <Flex direction="column" gap={2}>
-              <Text variant="heading6" weight="semibold">{__('Include', 'kirki-ecommerce')}</Text>
-              <Text variant="small">{__('Incorporate all customers or focus on particular segments or groups of customers.', 'kirki-ecommerce')}</Text>
+              <Text variant="heading6" weight="semibold">
+                {__('Include', 'kirki-ecommerce')}
+              </Text>
+              <Text variant="small">
+                {__(
+                  'Incorporate all customers or focus on particular segments or groups of customers.',
+                  'kirki-ecommerce',
+                )}
+              </Text>
             </Flex>
-            <CheckboxField
-              name="first_time_buyer_only"
-              label={__('First time buyer only', 'kirki-ecommerce')}
-            />
+
             <SelectField
               name="customer_include_eligibility"
               label={__('Eligible customers', 'kirki-ecommerce')}
               options={customerIncludeEligibilityOptions}
             />
+
             {customerIncludeEligibility === 'specific-customers' && (
               <CustomerSelectionField name="include_customers" />
             )}
+
+            <CheckboxField
+              name="first_time_buyer_only"
+              label={__('First time buyer only', 'kirki-ecommerce')}
+            />
           </Flex>
         </CardContent>
       </Card>
@@ -85,8 +102,15 @@ const TargetingTab = () => {
         <CardContent>
           <Flex direction="column" gap={4}>
             <Flex direction="column" gap={2}>
-              <Text variant="heading6" weight="semibold">{__('Exclude', 'kirki-ecommerce')}</Text>
-              <Text variant="small">{__('Exclude specific customer groups or segments from receiving the coupon.', 'kirki-ecommerce')}</Text>
+              <Text variant="heading6" weight="semibold">
+                {__('Exclude', 'kirki-ecommerce')}
+              </Text>
+              <Text variant="small">
+                {__(
+                  'Exclude specific customer groups or segments from receiving the coupon.',
+                  'kirki-ecommerce',
+                )}
+              </Text>
             </Flex>
             <SelectField
               name="customer_exclude_eligibility"

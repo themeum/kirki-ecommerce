@@ -2,34 +2,472 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Order;
 
+defined('ABSPATH') || exit;
+
 use Exception;
+use Kirki\Ecommerce\App\Concerns\ResolvesLineItemPricing;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
 use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
-use Kirki\Ecommerce\App\Resources\Order\OrderResource as BaseOrderResource;
 use Kirki\Ecommerce\App\Services\CountryService;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Resource;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\collection;
 
-class OrderResource extends BaseOrderResource
+/**
+ * API resource for a single order as shown to the customer on the storefront.
+ *
+ * @since 1.0.0
+ */
+class OrderResource extends Resource
 {
+    use ResolvesLineItemPricing;
+
+    /**
+     * Convert the order resource to an array.
+     *
+     * Amounts are money objects in the order's invoiced currency, and the next payment step is resolved for unsettled orders.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The customer-facing order data.
+     */
     public function to_array()
     {
-        return array_merge(parent::to_array(), [
+        $items = $this->items;
+        $order_coupons = $this->order_coupons ?: collection();
+
+        $invoiced_items_subtotal = $this->get_items_subtotal($items);
+        $invoiced_order_discount = $this->get_order_coupon_discount($order_coupons);
+        $invoiced_shipping_discount = $this->get_shipping_coupon_discount($order_coupons);
+        $invoiced_shipping_amount = $this->invoiced_shipping_total - $this->invoiced_shipping_tax_amount;
+        $invoiced_shipping_strikethrough = $invoiced_shipping_amount + $invoiced_shipping_discount;
+
+        return [
+            'id' => $this->id,
+            'uuid' => $this->uuid,
+            'order_number' => $this->order_number,
+            'invoice_number' => $this->invoice_number,
+            'customer_id' => $this->customer_id,
+            'status' => $this->order_status,
+            'fulfillment_status' => $this->fulfillment_status,
+            'is_refund_initiated' => $this->is_refund_initiated,
+            'is_manual' => $this->is_manual,
+            'currency_code' => $this->currency_code,
+            'is_inclusive_tax' => (bool) $this->is_tax_inclusive,
+            'tax_destination' => $this->tax_destination,
+
+            'pricing' => [
+                'invoiced_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($invoiced_items_subtotal, $this->currency_code),
+                'invoiced_order_discount_money_object' => Money::prepare_amount_object_from_minor($invoiced_order_discount, $this->currency_code),
+                'invoiced_order_total_money_object' => Money::prepare_amount_object_from_minor($invoiced_items_subtotal - $invoiced_order_discount, $this->currency_code),
+                'invoiced_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_tax_total, $this->currency_code),
+                'coupons' => $this->format_coupon_results($order_coupons),
+                'invoiced_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($invoiced_shipping_amount, $this->currency_code),
+                'invoiced_shipping_strikethrough_money_object' => Money::prepare_amount_object_from_minor($invoiced_shipping_strikethrough, $this->currency_code),
+                'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_total, $this->currency_code),
+                'tax_lines' => $this->format_tax_breakdown(
+                    array_merge($this->flatten_item_tax_lines($items), ($this->shipping_taxes ?: collection())->all())
+                ),
+            ],
+
+            'items_count' => $this->items_count,
+            'items' => $this->prepare_items($items, $order_coupons),
+
+            'shipping_address' => [
+                'first_name' => $this->shipping_first_name,
+                'last_name' => $this->shipping_last_name,
+                'address_line1' => $this->shipping_address_line1,
+                'address_line2' => $this->shipping_address_line2,
+                'city' => $this->shipping_city,
+                'state' => $this->shipping_state,
+                'country' => $this->shipping_country,
+                'postal_code' => $this->shipping_postal_code,
+                'phone' => $this->shipping_phone,
+                'email' => $this->shipping_email,
+            ],
+
+            'billing_address' => [
+                'first_name' => $this->billing_first_name,
+                'last_name' => $this->billing_last_name,
+                'address_line1' => $this->billing_address_line1,
+                'address_line2' => $this->billing_address_line2,
+                'city' => $this->billing_city,
+                'state' => $this->billing_state,
+                'country' => $this->billing_country,
+                'postal_code' => $this->billing_postal_code,
+                'phone' => $this->billing_phone,
+                'email' => $this->billing_email,
+            ],
+
+            'payment_provider' => $this->payment_provider,
+            'payment_provider_name' => $this->payment_metadata['payment_provider']['name'] ?? null,
+            'payment_provider_icon' => $this->payment_metadata['payment_provider']['icon'] ?? null,
+            'payment_provider_is_offline' => $this->payment_metadata['payment_provider']['is_offline'] ?? null,
+            'payment_status' => $this->payment_status,
+            'shipping_method' => $this->shipping_method,
+            'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
+            'shipping_method_type' => $this->shipping_metadata['shipping_method']['type'] ?? null,
+            'order_notes' => $this->order_notes,
+            'flags' => $this->flags,
+
+            'shipping_tracking' => [
+                'carrier' => $this->shipping_carrier,
+                'tracking_number' => $this->shipping_tracking_number,
+                'tracking_url' => $this->shipping_tracking_url,
+            ],
+
+            'refunds' => empty($this->refunds) ? [] : $this->refunds->map(function ($refund) {
+                return [
+                    'id' => $refund->id,
+                    'invoiced_amount_money_object' => Money::prepare_amount_object_from_minor($refund->invoiced_amount, $this->currency_code),
+                    'type' => $refund->refund_type,
+                    'reason' => $refund->reason,
+                    'transaction_id' => $refund->refund_id,
+                    'status' => $refund->status,
+                    'created_at' => $refund->created_at,
+                    'created_by' => $refund->created_by,
+                ];
+            }),
+
+            'archived_at' => $this->archived_at,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+
             'shipping_country' => app(CountryService::class)->find($this->shipping_country),
             'billing_country' => app(CountryService::class)->find($this->billing_country),
             'formatted_status' => FulfillmentStatus::get_formatted($this->fulfillment_status),
             'payment_next_step' => $this->resolve_payment_next_step(),
-            'item_product_data' => $this->items->map(function ($item) {
+            'item_product_data' => $items->map(function ($item) {
                 return $item->product_data;
             })->to_array(),
-            'updated_at' => $this->updated_at,
             'customer' => $this->customer_id ? customer(null, $this->customer_id)->get_customer() : [],
-        ]);
+        ];
+    }
+
+    /**
+     * Build the customer-facing line items with subtotals, tax lines and applied product coupons.
+     *
+     * Subtotals and strikethrough prices are the item's recorded catalog
+     * figures, so they include tax exactly when the order was priced
+     * inclusive of tax.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderItem[]   $items         Items of the order.
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @return array<int, array<string, mixed>> Line item data.
+     */
+    protected function prepare_items($items, $order_coupons)
+    {
+        $order_items = [];
+
+        foreach ($items as $item) {
+            $item_discounts = $this->find_product_coupon_discounts_for_item($order_coupons, $item->id);
+            $invoiced_strikethrough = $this->get_order_item_strikethrough_amounts($item)['invoiced'];
+
+            $order_items[] = [
+                'id' => $item->id,
+                'product_id' => $item->product_id,
+                'variant_id' => $item->variant_id,
+                'product_name' => $item->product_name,
+                'variant_name' => $item->variant_name,
+                'sku' => $item->sku,
+                'image' => MediaAttachment::make($item->product_image),
+                'quantity' => $item->quantity,
+                'invoiced_subtotal_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_catalog_product_coupon_discounted_subtotal, $this->currency_code),
+                'invoiced_strikethrough_price_money_object' => $invoiced_strikethrough === null ? null : Money::prepare_amount_object_from_minor($invoiced_strikethrough, $this->currency_code),
+                'invoiced_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_tax_total, $this->currency_code),
+                'tax_lines' => $this->format_tax_breakdown(($item->taxes ?: collection())->all()),
+                'applied_product_coupons' => $this->format_applied_product_coupons($item_discounts),
+            ];
+        }
+
+        return $order_items;
+    }
+
+    /**
+     * Build the applied coupon summaries with their invoiced discount and snapshot fields.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\Framework\Collections\Collection $order_coupons Coupons applied to the order.
+     * @return array<int, array<string, mixed>> Coupon details.
+     */
+    protected function format_coupon_results($order_coupons)
+    {
+        return $order_coupons->map(function ($order_coupon) {
+            return array_merge([
+                'code' => $order_coupon->code,
+                'title' => $order_coupon->title,
+                'discount_type' => $order_coupon->discount_type,
+                'discount_target' => $order_coupon->discount_target,
+                'invoiced_discount_amount_money_object' => Money::prepare_amount_object_from_minor($order_coupon->invoiced_discount_amount, $this->currency_code),
+            ], $this->format_coupon_snapshot_fields($order_coupon));
+        })->to_array();
+    }
+
+    /**
+     * Format a list of per-item product-coupon discounts (as returned by
+     * `find_product_coupon_discounts_for_item()`) into per-item coupon
+     * badges, dropping any discount clamped down to zero.
+     *
+     * @since 1.0.0
+     *
+     * @param array<int, array{0: \Kirki\Ecommerce\App\Models\OrderCoupon, 1: \Kirki\Ecommerce\App\Models\OrderItemCoupon}> $item_discounts Coupon and discount row pairs for one item.
+     * @return array<int, array<string, mixed>> Coupon badge data.
+     */
+    protected function format_applied_product_coupons($item_discounts)
+    {
+        $applied = [];
+
+        foreach ($item_discounts as [$order_coupon, $item_discount]) {
+            if ($item_discount->invoiced_discount_amount <= 0) {
+                continue;
+            }
+
+            $applied[] = array_merge([
+                'code' => $order_coupon->code,
+                'title' => $order_coupon->title,
+                'invoiced_discount_amount_money_object' => Money::prepare_amount_object_from_minor($item_discount->invoiced_discount_amount, $this->currency_code),
+            ], $this->format_coupon_snapshot_fields($order_coupon));
+        }
+
+        return $applied;
+    }
+
+    /**
+     * The coupon's own configured discount fields (percentage or fixed
+     * amount), read from its checkout-time snapshot rather than a live
+     * `Coupon` model. `discount_amount_fixed` is stored in the snapshot in
+     * the store's base currency (`base_discount_amount_fixed`), so it's
+     * converted here using the order's own frozen `exchange_rate` - not a
+     * live rate lookup, since this is historical order data.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon $order_coupon Coupon applied to the order.
+     * @return array<string, mixed> Discount value type, percentage and fixed amount as a money object.
+     */
+    protected function format_coupon_snapshot_fields($order_coupon)
+    {
+        $snapshot = $order_coupon->coupon_snapshot ?: [];
+        $base_discount_amount_fixed = $snapshot['base_discount_amount_fixed'] ?? null;
+
+        return [
+            'discount_value_type' => $snapshot['discount_value_type'] ?? null,
+            'discount_amount_percentage' => $snapshot['discount_amount_percentage'] ?? null,
+            'invoiced_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed)
+                ? $this->convert_base_amount_to_invoiced($base_discount_amount_fixed)
+                : null,
+        ];
+    }
+
+    /**
+     * Convert a base-currency minor amount into the order's own invoiced
+     * currency using the order's frozen `exchange_rate` - never a live
+     * rate, since the order's own conversion rate is fixed at checkout.
+     *
+     * @since 1.0.0
+     *
+     * @param int $base_amount Amount in the base currency's minor units.
+     * @return \Kirki\Ecommerce\App\DTO\MoneyDTO Amount in the order's invoiced currency.
+     */
+    protected function convert_base_amount_to_invoiced($base_amount)
+    {
+        $money = Money::from_minor($base_amount, $this->base_currency_code);
+        $converted = Money::convert_to_currency($money, $this->currency_code, $this->exchange_rate);
+
+        return Money::to_dto($converted->getMinorAmount()->toInt(), $this->currency_code);
+    }
+
+    /**
+     * Find how much each item-scoped ("product") coupon discounted this
+     * specific item, paired with the coupon that granted it, for
+     * `format_applied_product_coupons()` to format each pair for display.
+     *
+     * Each entry is `[OrderCoupon $coupon, OrderItemCoupon $item_discount]`
+     * - the coupon and the discount row it recorded for this item.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @param int                                       $order_item_id Order item ID.
+     * @return array<int, array{0: \Kirki\Ecommerce\App\Models\OrderCoupon, 1: \Kirki\Ecommerce\App\Models\OrderItemCoupon}> Coupon and discount row pairs.
+     */
+    protected function find_product_coupon_discounts_for_item($order_coupons, $order_item_id)
+    {
+        $item_discounts = [];
+
+        foreach ($order_coupons as $order_coupon) {
+            if ($order_coupon->discount_target !== DiscountTarget::PRODUCTS) {
+                continue;
+            }
+
+            foreach (($order_coupon->order_item_coupons ?: collection()) as $item_discount) {
+                if ($item_discount->order_item_id === $order_item_id) {
+                    $item_discounts[] = [$order_coupon, $item_discount];
+                }
+            }
+        }
+
+        return $item_discounts;
+    }
+
+    /**
+     * Sum every item's own invoiced subtotal - its recorded catalog total
+     * after product-scoped coupons only. An order-wide coupon's allocation is
+     * excluded so the root items subtotal matches the sum of what each
+     * item's own subtotal shows.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderItem[] $items Items of the order.
+     * @return int Subtotal in minor units.
+     */
+    protected function get_items_subtotal($items)
+    {
+        $invoiced_subtotal = 0;
+
+        foreach ($items as $item) {
+            $invoiced_subtotal += $item->invoiced_catalog_product_coupon_discounted_subtotal;
+        }
+
+        return $invoiced_subtotal;
+    }
+
+    /**
+     * Sum the discount from order-wide ("order") coupons that was actually
+     * attributed to items - i.e. the sum of each such coupon's own
+     * `order_item_coupons` rows. A coupon's own shipping-discount portion
+     * (e.g. an order-scoped free-shipping coupon) has no item attribution
+     * at all (`order-coupon-attribution`), so it's naturally excluded here
+     * and belongs to the shipping discount instead.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @return int Discount in minor units.
+     */
+    protected function get_order_coupon_discount($order_coupons)
+    {
+        $invoiced_discount = 0;
+
+        foreach ($order_coupons as $order_coupon) {
+            if ($order_coupon->discount_target !== DiscountTarget::ORDER) {
+                continue;
+            }
+
+            $invoiced_discount += ($order_coupon->order_item_coupons ?: collection())->sum(function ($item_discount) {
+                return $item_discount->invoiced_discount_amount;
+            });
+        }
+
+        return $invoiced_discount;
+    }
+
+    /**
+     * Sum the discount from order-wide ("order") coupons that was NOT
+     * attributed to any item - the remainder of each such coupon's total
+     * discount after subtracting its own item attributions. By
+     * `order-coupon-attribution`'s reconciliation guarantee, that remainder
+     * is exactly the shipping discount that coupon granted (non-zero only
+     * for a free-shipping order-coupon, which has no item attributions at
+     * all).
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @return int Discount in minor units.
+     */
+    protected function get_shipping_coupon_discount($order_coupons)
+    {
+        $invoiced_discount = 0;
+
+        foreach ($order_coupons as $order_coupon) {
+            if ($order_coupon->discount_target !== DiscountTarget::ORDER) {
+                continue;
+            }
+
+            $invoiced_items_share = ($order_coupon->order_item_coupons ?: collection())->sum(function ($item_discount) {
+                return $item_discount->invoiced_discount_amount;
+            });
+
+            $invoiced_discount += $order_coupon->invoiced_discount_amount - $invoiced_items_share;
+        }
+
+        return $invoiced_discount;
+    }
+
+    /**
+     * Aggregate a flat list of OrderTax rows into one amount per tax name
+     * and rate. Entries with a zero amount are dropped so the summary never
+     * renders a "Tax: $0.00" line when nothing was actually charged.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderTax[] $tax_lines Tax rows to aggregate.
+     * @return array<int, array<string, mixed>> Tax name, rate and invoiced amount per group.
+     */
+    protected function format_tax_breakdown(array $tax_lines)
+    {
+        $totals_by_key = [];
+
+        foreach ($tax_lines as $tax_line) {
+            if (empty($tax_line->invoiced_amount)) {
+                continue;
+            }
+
+            $key = $tax_line->name . '|' . $tax_line->rate;
+
+            if (!isset($totals_by_key[$key])) {
+                $totals_by_key[$key] = ['name' => $tax_line->name, 'rate' => $tax_line->rate, 'amount' => 0];
+            }
+
+            $totals_by_key[$key]['amount'] += $tax_line->invoiced_amount;
+        }
+
+        $breakdown = [];
+
+        foreach ($totals_by_key as $entry) {
+            $breakdown[] = [
+                'name' => $entry['name'],
+                'rate' => $entry['rate'],
+                'invoiced_amount_money_object' => Money::prepare_amount_object_from_minor($entry['amount'], $this->currency_code),
+            ];
+        }
+
+        return $breakdown;
+    }
+
+    /**
+     * Merge every order item's tax lines into one flat list for order-wide
+     * aggregation by tax name and rate.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderItem[] $items Items of the order.
+     * @return \Kirki\Ecommerce\App\Models\OrderTax[] Every item's tax rows, unaggregated.
+     */
+    protected function flatten_item_tax_lines($items)
+    {
+        $tax_lines = [];
+
+        foreach ($items as $item) {
+            foreach (($item->taxes ?: collection()) as $tax_line) {
+                $tax_lines[] = $tax_line;
+            }
+        }
+
+        return $tax_lines;
     }
 
     /**
@@ -39,7 +477,9 @@ class OrderResource extends BaseOrderResource
      * for an order that is still awaiting payment - this resource also renders
      * historical orders in the account area.
      *
-     * @return \Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO|null
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO|null Null when the order is already settled or the gateway returns no action.
      */
     protected function resolve_payment_next_step()
     {

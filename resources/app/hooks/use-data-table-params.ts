@@ -7,10 +7,13 @@ import useListParams from '@/hooks/use-list-params';
 import { formatDateValue } from '@/libs/date';
 import { isDefined } from '@/utils/object';
 
+const isActiveFilterValue = (value: unknown) =>
+  isDefined(value) && value !== '' && !(Array.isArray(value) && value.length === 0);
+
 const useDataTableParams = <TFilter extends Record<string, unknown> = {}>(
   options: UseListParamsOptions<TFilter> = {},
 ) => {
-  const { params, setParam, setParams } = useListParams<TFilter>(options);
+  const { params, setParam, setParams, clearableKeys } = useListParams<TFilter>(options);
 
   const pagination = useMemo<PaginationState>(
     () => ({
@@ -65,6 +68,22 @@ const useDataTableParams = <TFilter extends Record<string, unknown> = {}>(
     return JSON.stringify(rest);
   }, [params]);
 
+  const hasActiveFilters = useMemo(() => {
+    const { page, limit, sort_by, sort_order, ...rest } = params;
+
+    return Object.values(rest).some(isActiveFilterValue);
+  }, [params]);
+
+  const clearFilters = useCallback(() => {
+    const cleared: Record<string, undefined> = {};
+
+    clearableKeys.forEach((key) => {
+      cleared[key] = undefined;
+    });
+
+    setParams(cleared);
+  }, [setParams, clearableKeys]);
+
   const handleDateFilter = useCallback((value: DateRangeValue | null) => {
     if (!isDefined(value) || !isDefined(value.from)) {
       setParams({
@@ -88,6 +107,8 @@ const useDataTableParams = <TFilter extends Record<string, unknown> = {}>(
     onPaginationChange,
     onSortingChange,
     selectionResetKey,
+    hasActiveFilters,
+    clearFilters,
     setParam,
     setParams,
     handleDateFilter,

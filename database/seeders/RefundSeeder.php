@@ -2,17 +2,25 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds a sample partial refund against the seeded order.
+ *
+ * @since 1.0.0
+ */
 class RefundSeeder extends Seeder
 {
     /**
      * Seed sample refund record against seeded order.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {

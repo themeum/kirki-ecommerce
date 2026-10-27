@@ -1,81 +1,83 @@
-import { PlusIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { PenLine } from 'lucide-react';
+import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import TextareaField from '@/components/form/textarea-field';
 import Button from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
-import { cardStyles } from '@/theme/card-styles';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 type NotesCardProps = {
-  onSave?: () => void;
+  mode?: 'create' | 'edit';
+  onSave?: () => Promise<boolean>;
   isSaving?: boolean;
 };
 
-const NotesCard = ({ onSave, isSaving }: NotesCardProps) => {
-  const [isAdding, setIsAdding] = useState(false);
-  const snapshot = useRef('');
-  const { control, getValues, setValue } = useFormContext<OrderFormInput>();
-  const notes = useWatch({
-    name: 'admin_notes',
-    control,
-  });
+const NotesCard = ({ mode = 'create', onSave, isSaving = false }: NotesCardProps) => {
+  const form = useFormContext<OrderFormInput>();
+  const savedNotes = useWatch({ control: form.control, name: 'order_notes' });
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handleEdit = () => {
-    snapshot.current = getValues('admin_notes') ?? '';
-    setIsAdding(true);
+  const handleCancel = () => {
+    form.resetField('order_notes');
+    setIsEditing(false);
   };
 
-  const handleSave = () => {
-    setIsAdding(false);
-    onSave?.();
+  const handleSave = async () => {
+    const isSaved = await onSave?.();
+
+    if (isSaved) {
+      setIsEditing(false);
+    }
   };
 
-  const handleClear = () => {
-    setValue('admin_notes', snapshot.current);
-    setIsAdding(false);
-  }
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card cssOverride={{ gap: theme.spacing[2] }}>
       <CardHeader>
-        <CardTitle><Text variant="small" weight="medium">{__('Notes', 'kirki-ecommerce')}</Text></CardTitle>
+        <CardTitle>
+          <Flex cssOverride={{ justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text variant="small" weight="medium">
+              {__('Notes', 'kirki-ecommerce')}
+            </Text>
+            {mode === 'edit' && !isEditing && (
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                aria-label={__('Edit notes', 'kirki-ecommerce')}
+                onClick={() => setIsEditing(true)}
+              >
+                <PenLine size={16} color={theme.colors.icon.secondary} />
+              </Button>
+            )}
+          </Flex>
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <Flex direction="column" gap={3}>
-          {isAdding ? (
-            <Flex direction="column" gap={2}>
-              <TextareaField<OrderFormInput>
-                name="admin_notes"
-                placeholder={__('Write a note...', 'kirki-ecommerce')}
-              />
-              <Flex gap={2} justify="flex-end">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleClear()}
-                >
-                  {__('Cancel', 'kirki-ecommerce')}
-                </Button>
-                <Button variant="primary" loading={isSaving} onClick={handleSave}>
-                  {__('Save', 'kirki-ecommerce')}
-                </Button>
-              </Flex>
-            </Flex>
-          ) : (
-            <>
-              {Boolean(notes) && <Text variant="tiny">{notes}</Text>}
-              <Button variant="secondary" style={{ width: '100%' }} onClick={handleEdit}>
-                <PlusIcon />
-                {notes ? __('Edit note', 'kirki-ecommerce') : __('Add note', 'kirki-ecommerce')}
-              </Button>
-            </>
-          )}
-        </Flex>
+        {mode === 'create' || isEditing ? (
+          <TextareaField
+            name="order_notes"
+            placeholder={__('Write a note...', 'kirki-ecommerce')}
+            rows={3}
+          />
+        ) : (
+          <Text variant="small">{savedNotes}</Text>
+        )}
       </CardContent>
-    </Card >
+      {mode !== 'create' && isEditing && (
+        <CardFooter cssOverride={{ justifyContent: 'flex-end' }}>
+          <Button variant="outline" disabled={isSaving} onClick={handleCancel}>
+            {__('Cancel', 'kirki-ecommerce')}
+          </Button>
+          <Button loading={isSaving} onClick={handleSave}>
+            {__('Save', 'kirki-ecommerce')}
+          </Button>
+        </CardFooter>
+      )}
+    </Card>
   );
 };
 

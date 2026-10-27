@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Input payload for placing an order: items, coupons, addresses and payment details.
+ *
+ * @since 1.0.0
+ */
 class CreateOrderPayloadDTO extends DTO
 {
     /** @var int|null */
@@ -19,9 +26,12 @@ class CreateOrderPayloadDTO extends DTO
     public $payment_provider;
 
     /**
-     * @var string[] Coupon codes to apply. Populated either from the checkout
-     *      cart's applied coupons (resolve_checkout_cart()) or, for a manual/
-     *      direct order, directly from the request's `coupon_codes` field.
+     * Coupon codes to apply.
+     *
+     * Populated either from the checkout cart's applied coupons (resolve_checkout_cart()) or,
+     * for a manual/direct order, directly from the request's `coupon_codes` field.
+     *
+     * @var string[]
      */
     public $coupon_codes = [];
 
@@ -104,13 +114,19 @@ class CreateOrderPayloadDTO extends DTO
     public $billing_company;
 
     /** @var string|null */
+    public $customer_first_name;
+
+    /** @var string|null */
+    public $customer_last_name;
+
+    /** @var string|null */
     public $customer_email;
 
     /** @var string|null */
-    public $customer_notes;
+    public $customer_phone;
 
     /** @var string|null */
-    public $admin_notes;
+    public $order_notes;
 
     /** @var string|null */
     public $ip_address;

@@ -14,6 +14,8 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 defined('ABSPATH') || exit;
 
 /**
@@ -88,7 +90,7 @@ class Authorizenet extends PaymentProvider
             $response = $this->client->send([
                 'getHostedPaymentPageRequest' => [
                     'merchantAuthentication' => $this->client->authentication(),
-                    'refId' => $order->id,
+                    'refId' => $order->uuid,
                     'transactionRequest' => $this->transaction_builder->build_transaction_request($order),
                     'hostedPaymentSettings' => $this->transaction_builder->build_hosted_payment_settings(
                         ['success_url' => Url::get_checkout_success_url($order->uuid), 'cancel_url' => Url::get_checkout_failed_url($order->uuid)]
@@ -129,7 +131,7 @@ class Authorizenet extends PaymentProvider
             ? AuthorizenetConstant::FORM_URL_SANDBOX
             : AuthorizenetConstant::FORM_URL_PRODUCTION;
         ob_start();
-?>
+        ?>
         <form method="POST" id="authorizenet-form" action="<?php echo esc_url($form_url); ?>">
             <input type="hidden" name="token" value="<?php echo esc_attr($token); ?>" />
         </form>
@@ -137,7 +139,7 @@ class Authorizenet extends PaymentProvider
             const form = document.getElementById('authorizenet-form');
             form.submit()
         </script>
-<?php
+        <?php
         return ob_get_clean();
     }
 
@@ -224,19 +226,20 @@ class Authorizenet extends PaymentProvider
             return false;
         }
 
-        $order_id = $event->payload->merchantReferenceId;
-        if (empty($order_id)) {
+        $order_uuid = $event->payload->merchantReferenceId;
+        if (empty($order_uuid)) {
             return false;
         }
 
-        $order = OrderManager::find($order_id);
+        $order = OrderManager::find_by_uuid($order_uuid);
+        throw_if(!$order, __('Authorizenet Error: Order Not Found.', 'kirki-ecommerce-authorizenet'));
+
         if ($order->payment_status === PaymentStatus::PAID) {
-            return false;
+            return true;
         }
 
-        $this->client = $this->get_client();
-        $transaction = $this->fetch_transaction($order_id, $event->payload->id);
-        $this->handle_transaction_response($order_id, $transaction);
+        $transaction = $this->fetch_transaction($order->uuid, $event->payload->id);
+        $this->handle_transaction_response($order->id, $transaction);
         return true;
     }
 
@@ -257,6 +260,7 @@ class Authorizenet extends PaymentProvider
             throw new Exception(__('Invalid Payload From AuthorizeNet.', 'kirki-ecommerce-authorizenet'));
         }
 
+        $this->client = $this->get_client();
         if (!$this->client->is_verified($payload)) {
             throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-authorizenet'));
         }
@@ -267,18 +271,18 @@ class Authorizenet extends PaymentProvider
     /**
      * Fetch full transaction details for a webhook notification from Authorize.Net.
      *
-     * @param string $order_id The order reference ID (refId).
+     * @param string $order_uuid The order reference ID (refId).
      * @param string $transaction_id The Authorize.Net transaction ID.
      * @return object The transaction details response.
      * @throws Exception If the API request fails or returns an error.
      */
-    protected function fetch_transaction(string $order_id, string $transaction_id): object
+    protected function fetch_transaction(string $order_uuid, string $transaction_id): object
     {
         try {
             $response = $this->client->send([
                 'getTransactionDetailsRequest' => [
                     'merchantAuthentication' => $this->client->authentication(),
-                    'refId' => $order_id,
+                    'refId' => $order_uuid,
                     'transId' => $transaction_id,
                 ],
             ]);

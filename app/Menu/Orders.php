@@ -2,9 +2,16 @@
 
 namespace Kirki\Ecommerce\App\Menu;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
 use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
+/**
+ * Registers the Orders submenu under the eCommerce admin menu.
+ *
+ * @since 1.0.0
+ */
 class Orders extends Menu
 {
     /** @inheritDoc */
@@ -19,6 +26,11 @@ class Orders extends Menu
     /** @inheritDoc */
     protected $parent_slug = 'kirki-ecommerce';
 
+    /**
+     * Set the Orders page and menu titles.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->page_title = __('Orders', 'kirki-ecommerce');

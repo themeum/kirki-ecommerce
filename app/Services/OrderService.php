@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
@@ -25,21 +27,30 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderTaxDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
+use Kirki\Ecommerce\App\Supports\ListPaginator;
 use Kirki\Ecommerce\App\Supports\OrderNumberGenerator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Handles orders and their items, coupons and tax lines: querying, creating, updating and deleting.
+ *
+ * @since 1.0.0
+ */
 class OrderService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -62,10 +73,12 @@ class OrderService
     }
 
     /**
-     * Get all orders with optional search and sorting.
+     * Get all orders matching the filters, without pagination.
      *
-     * @param OrderListFilterDTO $filter_dto
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param OrderListFilterDTO $filter_dto Search, status, date and sorting filters.
+     * @return Collection Collection of Order.
      */
     public function all_orders(OrderListFilterDTO $filter_dto)
     {
@@ -73,13 +86,12 @@ class OrderService
     }
 
     /**
-     * Get account orders.
+     * Get a page of the logged-in customer's orders for the account area.
      *
      * @since 1.0.0
      *
-     * @param array $filters filters.
-     *
-     * @return array
+     * @param array<string, mixed>|null $filters Request filters for the order list.
+     * @return array{orders: array, filters: array<string, mixed>|null} Paginated order list resource and the filters used.
      */
     public function get_current_customer_orders($filters)
     {
@@ -97,23 +109,29 @@ class OrderService
 
 
     /**
-     * Return paginated brands
+     * Get a page of orders matching the filters, with their items loaded.
      *
-     * @param OrderListFilterDTO $dto
+     * @since 1.0.0
+     *
+     * @param OrderListFilterDTO $dto Search, status, date, sorting and pagination filters.
      * @return Paginator
      */
     public function paginated_orders(OrderListFilterDTO $dto)
     {
-        return $this->list_query($dto)
+        $page = $this->list_query($dto)
             ->with('items')
             ->paginate($dto->limit ?? Pagination::LIMIT, $dto->page ?? 1);
+
+        return ListPaginator::from($page, Order::query());
     }
 
     /**
-     * Create a new order.
+     * Create a new order and assign its order and invoice numbers.
      *
-     * @param CreateOrderDTO $dto
-     * @return Order
+     * @since 1.0.0
+     *
+     * @param CreateOrderDTO $dto Order data.
+     * @return Order|null The order reloaded with its relations.
      */
     public function create_order(CreateOrderDTO $dto)
     {
@@ -130,7 +148,9 @@ class OrderService
     /**
      * Create a new order item.
      *
-     * @param CreateOrderItemDTO $dto
+     * @since 1.0.0
+     *
+     * @param CreateOrderItemDTO $dto Order item data.
      * @return OrderItem
      */
     public function create_order_item(CreateOrderItemDTO $dto)
@@ -142,8 +162,10 @@ class OrderService
     /**
      * Update an order item by ID.
      *
-     * @param UpdateOrderItemDTO $dto
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param UpdateOrderItemDTO $dto Order item data, including its ID.
+     * @return bool False when the item does not exist.
      */
     public function update_order_item(UpdateOrderItemDTO $dto)
     {
@@ -159,8 +181,10 @@ class OrderService
     /**
      * Delete an order item by ID.
      *
-     * @param int $id
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param int $id Order item ID.
+     * @return bool True when a row was deleted.
      */
     public function delete_order_item($id)
     {
@@ -170,7 +194,9 @@ class OrderService
     /**
      * Create an order-coupon attribution row.
      *
-     * @param CreateOrderCouponDTO $dto
+     * @since 1.0.0
+     *
+     * @param CreateOrderCouponDTO $dto Order coupon data.
      * @return OrderCoupon
      */
     public function create_order_coupon(CreateOrderCouponDTO $dto)
@@ -181,7 +207,9 @@ class OrderService
     /**
      * Create an order-item-coupon attribution row.
      *
-     * @param CreateOrderItemCouponDTO $dto
+     * @since 1.0.0
+     *
+     * @param CreateOrderItemCouponDTO $dto Order item coupon data.
      * @return OrderItemCoupon
      */
     public function create_order_item_coupon(CreateOrderItemCouponDTO $dto)
@@ -190,12 +218,15 @@ class OrderService
     }
 
     /**
-     * Delete every coupon attribution row for an order (cascades to their
-     * order_item_coupon rows), so they can be recreated from a fresh
-     * calculation.
+     * Delete every coupon attribution row for an order.
      *
-     * @param int $order_id
-     * @return bool
+     * Cascades to their order_item_coupon rows, so they can be recreated from a
+     * fresh calculation.
+     *
+     * @since 1.0.0
+     *
+     * @param int $order_id Order ID.
+     * @return bool True when rows were deleted.
      */
     public function delete_order_coupons(int $order_id)
     {
@@ -203,10 +234,11 @@ class OrderService
     }
 
     /**
-     * Create one order tax line, scoped to an order item or to the order's
-     * shipping.
+     * Create one order tax line, scoped to an order item or to the order's shipping.
      *
-     * @param CreateOrderTaxDTO $dto
+     * @since 1.0.0
+     *
+     * @param CreateOrderTaxDTO $dto Order tax data.
      * @return OrderTax
      */
     public function create_order_tax(CreateOrderTaxDTO $dto)
@@ -215,11 +247,12 @@ class OrderService
     }
 
     /**
-     * Delete every tax line for an order, so they can be recreated from a
-     * fresh calculation.
+     * Delete every tax line for an order, so they can be recreated from a fresh calculation.
      *
-     * @param int $order_id
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param int $order_id Order ID.
+     * @return bool True when rows were deleted.
      */
     public function delete_order_taxes(int $order_id)
     {
@@ -227,9 +260,11 @@ class OrderService
     }
 
     /**
-     * Find an order by UUID.
+     * Find an order by UUID, with its items, taxes, refunds and coupons loaded.
      *
-     * @param string $uuid
+     * @since 1.0.0
+     *
+     * @param string $uuid Order UUID.
      * @return Order|null
      */
     public function find_order_by_uuid($uuid)
@@ -238,9 +273,11 @@ class OrderService
     }
 
     /**
-     * Find an order by transaction ID.
+     * Find an order by its payment transaction ID, with its items and refunds loaded.
      *
-     * @param string $transaction_id
+     * @since 1.0.0
+     *
+     * @param string $transaction_id Payment gateway transaction ID.
      * @return Order|null
      */
     public function find_order_by_transaction_id($transaction_id)
@@ -249,23 +286,26 @@ class OrderService
     }
 
     /**
-     * Find an order by ID.
+     * Find an order by ID, with its items, taxes, refunds and coupons loaded.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Order ID.
      * @return Order|null
      */
     public function find_order($id)
     {
-        return Order::with('items.taxes', 'refunds', 'order_coupons.order_item_coupons', 'shipping_taxes')->find($id);
+        return Order::with('customer', 'items.taxes', 'refunds', 'order_coupons.order_item_coupons', 'shipping_taxes')->find($id);
     }
 
     /**
      * Find an order by ID or throw an exception.
      *
-     * @param int $id
-     * @return Order
+     * @since 1.0.0
      *
-     * @throws NotFoundException
+     * @param int $id Order ID.
+     * @return Order
+     * @throws NotFoundException When the order does not exist.
      */
     public function find_order_or_fail($id)
     {
@@ -279,8 +319,10 @@ class OrderService
     /**
      * Update an order by ID.
      *
-     * @param UpdateOrderDTO $dto
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param UpdateOrderDTO $dto Order data, including its ID.
+     * @return bool False when the order does not exist.
      */
     public function update_order(UpdateOrderDTO $dto)
     {
@@ -294,11 +336,13 @@ class OrderService
     }
 
     /**
-     * Partial update an order by ID.
+     * Update only the given fields of an order.
      *
-     * @param int $id
-     * @param array $data
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param int                  $id   Order ID.
+     * @param array<string, mixed> $data Column values to update.
+     * @return bool False when the order does not exist.
      */
     public function partial_update_order(int $id, array $data)
     {
@@ -312,16 +356,23 @@ class OrderService
     }
 
     /**
-     * Apply an order action's transition, persisting order_status, fulfillment_status and
-     * payment_status together from the order state matrix.
+     * Apply an order action's transition.
      *
-     * If the action has no transition entry for the order's current status, it is a
-     * side-effect only action and no status fields are changed.
+     * Persists order_status, fulfillment_status and payment_status together from
+     * the order state matrix. If the action has no transition entry for the
+     * order's current status, it is a side-effect only action and no status
+     * fields are changed.
      *
-     * @param int $id
-     * @param string $order_status_before
-     * @param string $action
-     * @return bool
+     * The update only matches while the order is still in the given status, so
+     * when several requests race for one transition only one of them applies it.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $id                  Order ID.
+     * @param string $order_status_before Order status the caller read before the action.
+     * @param string $action              Action being applied.
+     * @return bool True when the transition was applied or the action needs none; false when the order had already left the given status.
+     * @throws NotFoundException When the order does not exist.
      */
     public function apply_order_action(int $id, string $order_status_before, string $action)
     {
@@ -338,22 +389,43 @@ class OrderService
 
         throw_if(empty($order), __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
-        $is_updated = (bool) $order->update([
-            'order_status' => $target_status,
-            'fulfillment_status' => $target_state['fulfillment_status'],
-            'payment_status' => $target_state['payment_status'],
-        ]);
-
-        throw_if(!$is_updated, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
-
-        return $is_updated;
+        return (bool) Order::query()
+            ->where('id', $id)
+            ->where('order_status', $order_status_before)
+            ->update([
+                'order_status' => $target_status,
+                'fulfillment_status' => $target_state['fulfillment_status'],
+                'payment_status' => $target_state['payment_status'],
+                'updated_at' => $order->fresh_timestamp_string(),
+            ]);
     }
 
     /**
-     * Mark a refund as completed.
+     * Lock an order row until the current transaction ends.
      *
-     * @param int $id
-     * @return bool
+     * Other requests that lock or change the same order wait for the lock, so
+     * work done after this call sees every change that committed before it.
+     * Call it inside a transaction: outside one the lock is released at once.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id Order ID.
+     * @return void
+     */
+    public function lock_order(int $id)
+    {
+        DB::select('SELECT id FROM ' . DB::get_table_prefix() . (new Order())->get_table() . ' WHERE id = %d FOR UPDATE', [$id]);
+    }
+
+    /**
+     * Mark an order's refund as completed.
+     *
+     * Sets the order to refunded and returned, but only when a refund was initiated.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id Order ID.
+     * @return bool False when the order does not exist or has no initiated refund.
      */
     public function mark_refund_as_completed(int $id)
     {
@@ -373,8 +445,10 @@ class OrderService
     /**
      * Delete an order by ID.
      *
-     * @param int $id
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param int $id Order ID.
+     * @return bool True when a row was deleted.
      */
     public function delete_order($id)
     {
@@ -384,10 +458,11 @@ class OrderService
     /**
      * Delete an order by ID or throw an exception.
      *
-     * @param int $id
-     * @return bool
+     * @since 1.0.0
      *
-     * @throws NotFoundException
+     * @param int $id Order ID.
+     * @return bool
+     * @throws NotFoundException When no order was deleted.
      */
     public function delete_order_or_fail($id)
     {
@@ -399,11 +474,13 @@ class OrderService
     }
 
     /**
-     * Deletes multiple orders by their IDs.
+     * Delete multiple orders by their IDs.
      *
-     * @param array $ids The IDs of the orders to delete.
-     * @return bool True if the orders were deleted successfully, false otherwise.
-     * @throws NotFoundException If the orders could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the orders to delete.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no IDs are given or no order was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -417,10 +494,12 @@ class OrderService
     }
 
     /**
-     * Deletes all orders.
+     * Delete all orders matching the filters.
      *
-     * @param OrderListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param OrderListFilterDTO $filters Search, status and date filters selecting the orders.
+     * @return bool True when rows were deleted.
      */
     public function delete_all(OrderListFilterDTO $filters)
     {
@@ -428,9 +507,11 @@ class OrderService
     }
 
     /**
-     * Get the query builder for the list of orders.
+     * Build the filtered and sorted query for the list of orders.
      *
-     * @param OrderListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param OrderListFilterDTO $filters Search, status, date and sorting filters.
      * @return QueryBuilder
      */
     protected function list_query(OrderListFilterDTO $filters)
@@ -463,13 +544,12 @@ class OrderService
     }
 
     /**
-     * Get guest orders by email.
+     * Get guest orders placed with an email address.
      *
      * @since 1.0.0
      *
      * @param string $email Email address.
-     *
-     * @return Collection<Order>
+     * @return Collection<Order> Orders that have no customer assigned.
      */
     public function get_guest_orders_by_email($email)
     {
@@ -479,12 +559,84 @@ class OrderService
     }
 
     /**
-     * Merge guest orders into customer account.
+     * Count a buyer's prior orders, matched by customer or by email.
+     *
+     * An order counts when it belongs to the customer or was placed with the email,
+     * and is neither failed-cancelled nor refunded. The email comparison relies on the
+     * column's case-insensitive collation.
      *
      * @since 1.0.0
      *
-     * @param int $user_id
+     * @param int|null    $customer_id      Customer ID, if the buyer has a customer record.
+     * @param string|null $email            Buyer's email, if known.
+     * @param int|null    $exclude_order_id Order to leave out, such as the one being edited.
+     * @return int
+     */
+    public function count_prior_orders($customer_id, $email, $exclude_order_id = null)
+    {
+        if (empty($customer_id) && empty($email)) {
+            return 0;
+        }
+
+        return Order::query()
+            ->where(function (QueryBuilder $query) use ($customer_id, $email) {
+                if (!empty($customer_id)) {
+                    $query->where('customer_id', $customer_id);
+                }
+
+                if (!empty($email)) {
+                    $query->or_where('customer_email', $email);
+                }
+            })
+            ->where_not_in('order_status', [OrderStatus::FAILED_CANCELLED, OrderStatus::REFUNDED])
+            ->when(!empty($exclude_order_id), fn(QueryBuilder $query) => $query->where('id', '!=', $exclude_order_id))
+            ->count();
+    }
+
+    /**
+     * Count a buyer's earlier uses of a coupon, matched by customer or by the order's email.
      *
+     * A use counts while its usage has not been reversed (for example by cancelling the order).
+     * Guest uses are matched through the email stored on their order.
+     *
+     * @since 1.0.0
+     *
+     * @param int         $coupon_id        Coupon ID.
+     * @param int|null    $customer_id      Customer ID, if the buyer has a customer record.
+     * @param string|null $email            Buyer's email, if known.
+     * @param int|null    $exclude_order_id Order to leave out, such as the one being edited.
+     * @return int
+     */
+    public function count_coupon_usages($coupon_id, $customer_id, $email, $exclude_order_id = null)
+    {
+        if (empty($customer_id) && empty($email)) {
+            return 0;
+        }
+
+        return OrderCoupon::query()
+            ->where('coupon_id', $coupon_id)
+            ->where_null('usage_reversed_at')
+            ->where(function (QueryBuilder $query) use ($customer_id, $email) {
+                if (!empty($customer_id)) {
+                    $query->where('customer_id', $customer_id);
+                }
+
+                if (!empty($email)) {
+                    $query->or_where_in('order_id', Order::query()->select('id')->where('customer_email', $email));
+                }
+            })
+            ->when(!empty($exclude_order_id), fn(QueryBuilder $query) => $query->where('order_id', '!=', $exclude_order_id))
+            ->count();
+    }
+
+    /**
+     * Assign a user's matching guest orders to their customer account.
+     *
+     * Creates the customer record if the user has none yet.
+     *
+     * @since 1.0.0
+     *
+     * @param int $user_id WordPress user ID.
      * @return void
      */
     public function merge_guest_orders($user_id)
@@ -500,7 +652,7 @@ class OrderService
             $dto = new CreateCustomerDTO();
             $dto->user_id = $user_id;
             $dto->first_name = $user->get_first_name();
-            $dto->last_name = $user->get_first_name();
+            $dto->last_name = $user->get_last_name();
             $dto->email = $user->get_email();
             $customer = $customer_service->create($dto);
         }
@@ -510,7 +662,7 @@ class OrderService
             $order_ids = $guest_orders->pluck('id')->to_array();
             if (!empty($order_ids)) {
                 Order::where_in('id', $order_ids)->update([
-                'customer_id' => $customer->id,
+                    'customer_id' => $customer->id,
                 ]);
             }
         }
