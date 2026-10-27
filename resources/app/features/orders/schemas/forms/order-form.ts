@@ -47,7 +47,7 @@ const OrderFormShape = prepareFormSchema(
     coupon_codes: z.array(CouponListItemSchema).default([]),
     customer_id: requiredWhen(
       z.number().nullish(),
-      (values) => isEmptyValue(values.order_id),
+      (values) => isEmptyValue(values.order_id) && isEmptyValue(values.customer_id),
       __('Customer is required', 'kirki-ecommerce'),
     ),
     customer_first_name: required(z.string(), __('First name is required', 'kirki-ecommerce')),
