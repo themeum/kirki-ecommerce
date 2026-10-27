@@ -23,6 +23,7 @@ import { __, sprintf } from '@/wpi18n';
 
 const OrderFormContent = () => {
   const navigate = useNavigate();
+  const { id: orderId } = useParams();
   const handleBack = () => {
     void navigate(-1);
   };
@@ -33,14 +34,15 @@ const OrderFormContent = () => {
     setPickerOpen,
     selections,
     rows,
-    calculation,
     paymentSummary,
+    availableShippingMethods,
     isCalculating,
     isSaving,
     isEdit,
     order,
     isOrderLoading,
     isOrderError,
+    orderError,
     isOrderFetching,
     refetchOrder,
     handleAddItems,
@@ -49,11 +51,13 @@ const OrderFormContent = () => {
     handleSubmit,
   } = useOrderEdit();
 
+  const isBlocked = isEdit && isDefined(order) && !order.is_editable;
+
   if (isEdit && isOrderLoading) {
     return <OrderDetailsSkeleton />;
   }
 
-  if (isEdit && (isOrderError || !order)) {
+  if (isEdit && !isBlocked && (isOrderError || !isDefined(order))) {
     return (
       <Page containerSize="xl">
         <PageHeading
@@ -69,7 +73,7 @@ const OrderFormContent = () => {
     );
   }
 
-  if (isEdit && order && !order.is_editable) {
+  if (isBlocked) {
     return (
       <Page containerSize="xl">
         <PageHeading
@@ -81,15 +85,19 @@ const OrderFormContent = () => {
         <PageContent>
           <ErrorState
             title={__("This order can't be edited", 'kirki-ecommerce')}
-            description={__(
-              'Only unpaid orders that are not cancelled or shipped can be edited.',
-              'kirki-ecommerce',
-            )}
+            description={
+              isDefined(orderError)
+                ? orderError.message
+                : __(
+                    'Only unpaid orders that are not cancelled or shipped can be edited.',
+                    'kirki-ecommerce',
+                  )
+            }
             actions={
               <Button
                 variant="secondary"
                 onClick={() =>
-                  void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: order.id }), {
+                  void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: Number(orderId) }), {
                     replace: true,
                   })
                 }
@@ -148,7 +156,7 @@ const OrderFormContent = () => {
               {rows.length > 0 && (
                 <PaymentSummaryCard
                   {...paymentSummary}
-                  availableShippingMethods={calculation?.available_shipping_methods}
+                  availableShippingMethods={availableShippingMethods}
                   isCalculating={isCalculating}
                   isDiscountEditable
                   isShippingEditable

@@ -28,7 +28,7 @@ const OrderItemRow = ({ row, onQuantityChange, onRemove }: OrderItemRowProps) =>
     calculationItem ? toQuantityLimitSource(calculationItem) : display,
     display.storedQuantity,
   );
-  const isLocked = calculationItem?.is_reachable === false;
+  const isLocked = (calculationItem?.is_reachable ?? display.isReachable) === false;
   const lineTotal = calculationItem
     ? calculationItem.base_subtotal_money_object.display
     : EMPTY_AMOUNT;

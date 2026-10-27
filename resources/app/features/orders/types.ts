@@ -5,6 +5,7 @@ export type OrderRowDisplay = ProductVariantSelection & {
   productId: number;
   productTitle: string;
   storedQuantity?: number;
+  isReachable?: boolean;
 };
 
 export type OrderItem = {

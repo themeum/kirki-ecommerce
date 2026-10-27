@@ -2,7 +2,7 @@ import type { CouponListItem } from '@/features/coupons/schemas/catalog/coupon';
 import type {
   OrderCalculationItem,
   OrderCoupon,
-  OrderLineItem,
+  OrderEditLineItem,
 } from '@/features/orders/schemas/catalog/order';
 import type { OrderItem, OrderRowDisplay } from '@/features/orders/types';
 import type { ProductSelection } from '@/features/products';
@@ -54,7 +54,7 @@ const getOrderRows = (
     return acc;
   }, []);
 
-const toStoredRowDisplay = (item: OrderLineItem): OrderRowDisplay => {
+const toStoredRowDisplay = (item: OrderEditLineItem): OrderRowDisplay => {
   const unitPrice = item.base_unit_price_money_object;
   const strikethroughPrice = item.base_unit_strikethrough_price_money_object;
 
@@ -64,19 +64,22 @@ const toStoredRowDisplay = (item: OrderLineItem): OrderRowDisplay => {
     variantId: item.variant_id,
     variantLabel: item.variant_name ?? '',
     thumbnail: item.image?.url ?? null,
-    inStock: true,
-    availableQuantity: 0,
-    allowBackOrder: true,
-    trackInventory: false,
-    hasLimitPerOrder: false,
-    maxPerOrder: null,
+    inStock: item.in_stock ?? true,
+    availableQuantity: item.available_quantity ?? 0,
+    allowBackOrder: item.allow_back_order ?? true,
+    trackInventory: item.track_inventory ?? false,
+    hasLimitPerOrder: item.has_limit_per_order ?? false,
+    maxPerOrder: item.max_per_order ?? null,
     regularPrice: strikethroughPrice ?? unitPrice,
     salePrice: isDefined(strikethroughPrice) ? unitPrice : null,
     storedQuantity: item.quantity,
+    isReachable: item.is_reachable,
   };
 };
 
-const getStoredDisplayByVariantId = (items: OrderLineItem[]): Record<number, OrderRowDisplay> =>
+const getStoredDisplayByVariantId = (
+  items: OrderEditLineItem[],
+): Record<number, OrderRowDisplay> =>
   items.reduce<Record<number, OrderRowDisplay>>((acc, item) => {
     acc[item.variant_id] = toStoredRowDisplay(item);
     return acc;

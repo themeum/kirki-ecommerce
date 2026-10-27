@@ -16,9 +16,10 @@ import {
   toSelectedCoupon,
 } from '@/features/orders/lib/order-items';
 import type {
-  Order,
   OrderCalculation,
   OrderCalculationItem,
+  OrderEditInfo,
+  OrderShippingMethod,
 } from '@/features/orders/schemas/catalog/order';
 import type {
   OrderCalculationRequestPayload,
@@ -32,7 +33,7 @@ import {
 import {
   useCreateOrderMutation,
   useOrderCalculationQuery,
-  useOrderQuery,
+  useOrderEditInfoQuery,
   useUpdateOrderMutation,
 } from '@/features/orders/services/order';
 import type { OrderItem, PaymentSummary } from '@/features/orders/types';
@@ -54,13 +55,15 @@ export type OrderEditContextValue = {
   rows: OrderItem[];
   calculation?: OrderCalculation;
   paymentSummary: PaymentSummary;
+  availableShippingMethods: OrderShippingMethod[];
   calculationItems: (OrderCalculationItem | undefined)[];
   isCalculating: boolean;
   isSaving: boolean;
   isEdit: boolean;
-  order?: Order;
+  order?: OrderEditInfo;
   isOrderLoading: boolean;
   isOrderError: boolean;
+  orderError: ErrorResponse | null;
   isOrderFetching: boolean;
   refetchOrder: () => void;
   rejectedCouponCodes: string[];
@@ -89,9 +92,10 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
     data: order,
     isLoading: isOrderLoading,
     isError: isOrderError,
+    error: orderError,
     isFetching: isOrderFetching,
     refetch,
-  } = useOrderQuery(orderId ?? '', isEdit);
+  } = useOrderEditInfoQuery(orderId ?? '', isEdit);
 
   const form = useForm<OrderFormInput, unknown, OrderFormPayload>({
     resolver: zodResolver(OrderFormSchema),
@@ -114,6 +118,9 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
   const pendingCouponCorrectionRef = useRef<string[] | null>(null);
   const [rejectedCouponCodes, setRejectedCouponCodes] = useState<string[]>([]);
   const [paymentSummary, setPaymentSummary] = useState<PaymentSummary>({});
+  const [availableShippingMethods, setAvailableShippingMethods] = useState<OrderShippingMethod[]>(
+    [],
+  );
 
   const values = useWatch({
     control: form.control,
@@ -171,6 +178,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
       isTaxInclusive: order.is_tax_inclusive,
       shippingMethodName: order.shipping_method_name,
     });
+    setAvailableShippingMethods(order.available_shipping_methods);
 
     isApplyingCorrectionRef.current = false;
   }, [order, form]);
@@ -281,6 +289,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
         (method) => String(method.id) === String(calculation.shipping_method),
       )?.name,
     });
+    setAvailableShippingMethods(calculation.available_shipping_methods);
 
     // Reconciliation must run only when a new calculation result arrives, reading the
     // current form state fresh each time - re-running it for every keystroke that
@@ -332,14 +341,11 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
   const handleSubmit = form.handleSubmit(async (payload) => {
     try {
       if (isEdit) {
-        if (!order) {
+        if (!isDefined(order)) {
           return;
         }
 
         await updateMutation.mutateAsync({ id: order.id, data: payload });
-        void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: order.id }), {
-          replace: true,
-        });
         return;
       }
 
@@ -363,6 +369,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
     rows,
     calculation,
     paymentSummary,
+    availableShippingMethods,
     calculationItems,
     isCalculating,
     isSaving: createMutation.isPending || updateMutation.isPending,
@@ -370,6 +377,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
     order,
     isOrderLoading,
     isOrderError,
+    orderError: orderError as ErrorResponse | null,
     isOrderFetching,
     refetchOrder: () => void refetch(),
     rejectedCouponCodes,

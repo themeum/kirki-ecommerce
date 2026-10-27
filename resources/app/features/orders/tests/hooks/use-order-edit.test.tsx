@@ -6,8 +6,8 @@ import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
 import { endpoints } from '@/config/endpoints';
-import { OrderCreateProvider } from '@/features/orders/contexts/order-edit-context';
-import { useOrderCreate } from '@/features/orders/hooks/use-order-edit';
+import { OrderEditProvider } from '@/features/orders/contexts/order-edit-context';
+import { useOrderEdit } from '@/features/orders/hooks/use-order-edit';
 import type { ProductSelection } from '@/features/products';
 import type { MoneyObject } from '@/schemas/shared/api';
 import { server } from '@/tests/msw/server';
@@ -104,7 +104,7 @@ const buildCoupon = (code: string) => ({
   status: 'active' as const,
 });
 
-const renderUseOrderCreate = () => {
+const renderUseOrderEdit = (orderId?: number) => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -112,19 +112,19 @@ const renderUseOrderCreate = () => {
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <OrderCreateProvider>{children}</OrderCreateProvider>
+        <OrderEditProvider orderId={orderId}>{children}</OrderEditProvider>
       </MemoryRouter>
     </QueryClientProvider>
   );
 
-  return renderHook(() => useOrderCreate(), { wrapper });
+  return renderHook(() => useOrderEdit(), { wrapper });
 };
 
-describe('useOrderCreate debounce -> payload -> query wiring', () => {
+describe('useOrderEdit debounce -> payload -> query wiring', () => {
   it('does not fire the calculation query on mount', async () => {
     const { getRequestCount } = mockCalculationResponse(() => buildCalculationResponse(0));
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     expect(result.current.rows).toEqual([]);
 
@@ -138,7 +138,7 @@ describe('useOrderCreate debounce -> payload -> query wiring', () => {
   it('does not fire the calculation query when only the order notes change', async () => {
     const { getRequestCount } = mockCalculationResponse(() => buildCalculationResponse(0));
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.form.setValue('order_notes', 'Leave at the front door', { shouldDirty: true });
@@ -152,7 +152,7 @@ describe('useOrderCreate debounce -> payload -> query wiring', () => {
   it('fires the calculation query when the form is reset', async () => {
     const { getRequestCount } = mockCalculationResponse(() => buildCalculationResponse(0));
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.form.reset({ ...result.current.form.getValues(), customer_id: 7 });
@@ -166,7 +166,7 @@ describe('useOrderCreate debounce -> payload -> query wiring', () => {
   it('fires the calculation query when addresses are set in bulk', async () => {
     const { getRequestCount } = mockCalculationResponse(() => buildCalculationResponse(0));
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.form.setValues(
@@ -183,7 +183,7 @@ describe('useOrderCreate debounce -> payload -> query wiring', () => {
   it('fires one calculation query for a full address block set at once', async () => {
     const { getRequestCount } = mockCalculationResponse(() => buildCalculationResponse(0));
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.form.setValues(
@@ -208,7 +208,7 @@ describe('useOrderCreate debounce -> payload -> query wiring', () => {
   it('fires the calculation query for a change made after a reset', async () => {
     const { getRequestCount } = mockCalculationResponse(() => buildCalculationResponse(0));
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.form.reset({ ...result.current.form.getValues(), customer_id: 7 });
@@ -239,7 +239,7 @@ describe('useOrderCreate debounce -> payload -> query wiring', () => {
       ),
     );
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.handleAddItems([productSelection()]);
@@ -255,7 +255,7 @@ describe('useOrderCreate debounce -> payload -> query wiring', () => {
   });
 });
 
-describe('useOrderCreate calculation reconciliation', () => {
+describe('useOrderEdit calculation reconciliation', () => {
   it('syncs a stock-clamped quantity back onto the form', async () => {
     mockCalculationResponse(() =>
       buildCalculationResponse(1, {
@@ -271,7 +271,7 @@ describe('useOrderCreate calculation reconciliation', () => {
       }),
     );
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.handleAddItems([productSelection()]);
@@ -293,7 +293,7 @@ describe('useOrderCreate calculation reconciliation', () => {
   it('removes a coupon code the calculation did not accept and surfaces it as rejected', async () => {
     mockCalculationResponse(() => buildCalculationResponse(1, { coupons: [] }));
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.handleAddItems([productSelection()]);
@@ -315,7 +315,7 @@ describe('useOrderCreate calculation reconciliation', () => {
   it('syncs a calculation-defaulted shipping method back onto the form', async () => {
     mockCalculationResponse(() => buildCalculationResponse(1, { shipping_method: 'express' }));
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.handleAddItems([productSelection()]);
@@ -347,7 +347,7 @@ describe('useOrderCreate calculation reconciliation', () => {
       });
     });
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.handleAddItems([productSelection()]);
@@ -408,7 +408,7 @@ describe('useOrderCreate calculation reconciliation', () => {
       ],
     };
 
-    const { result } = renderUseOrderCreate();
+    const { result } = renderUseOrderEdit();
 
     act(() => {
       result.current.handleAddItems([twoVariantSelection]);
@@ -437,5 +437,229 @@ describe('useOrderCreate calculation reconciliation', () => {
     await waitFor(() => expect(result.current.calculation?.items_count).toBe(1), {
       timeout: 2000,
     });
+  });
+});
+
+const EDIT_ORDER_ID = 5;
+
+const shippingMethod = (id: string, name: string) => ({
+  id,
+  name,
+  type: 'flat_rate',
+  base_cost_money_object: money(5),
+});
+
+const editAddress = {
+  first_name: 'Jane',
+  last_name: 'Doe',
+  address_line1: '1 Main St',
+  city: 'Austin',
+  state: 'TX',
+  country: 'US',
+  postal_code: '78701',
+};
+
+const buildEditInfo = (itemOverrides: Record<string, unknown> = {}) => ({
+  id: EDIT_ORDER_ID,
+  customer: { first_name: 'Jane', last_name: 'Doe', email: 'jane@example.com' },
+  status: 'pending',
+  fulfillment_status: 'unfulfilled',
+  is_refund_initiated: false,
+  is_editable: true,
+  is_manual: true,
+  currency_code: 'USD',
+  is_tax_inclusive: false,
+  totals: Object.fromEntries(
+    [
+      'items_subtotal',
+      'order_discount',
+      'order_total',
+      'tax_total',
+      'shipping_amount',
+      'shipping_strikethrough',
+      'total',
+    ].flatMap((key) => [
+      [`invoiced_${key}_money_object`, money(0)],
+      [`base_${key}_money_object`, money(0)],
+    ]),
+  ),
+  items_count: 1,
+  items: [
+    {
+      id: 35,
+      product_id: 4,
+      variant_id: 12,
+      product_name: 'Shirt',
+      variant_name: 'Red',
+      quantity: 2,
+      invoiced_subtotal_money_object: money(20),
+      base_subtotal_money_object: money(20),
+      invoiced_unit_price_money_object: money(10),
+      base_unit_price_money_object: money(10),
+      invoiced_tax_total_money_object: money(0),
+      base_tax_total_money_object: money(0),
+      is_reachable: true,
+      allow_back_order: false,
+      track_inventory: true,
+      available_quantity: 6,
+      in_stock: true,
+      has_limit_per_order: true,
+      max_per_order: 3,
+      ...itemOverrides,
+    },
+  ],
+  shipping_address: editAddress,
+  billing_address: editAddress,
+  payment_provider: null,
+  payment_status: 'unpaid',
+  shipping_method: 'flat-1',
+  shipping_tracking: {},
+  created_at: '2026-01-07 17:19:56',
+  available_shipping_methods: [shippingMethod('flat-1', 'Standard')],
+});
+
+const mockEditRead = (respond: () => Response) => {
+  let requestCount = 0;
+
+  server.use(
+    http.get(
+      `${window.kirki_ecommerce.rest_url_base}${endpoints.ORDER_EDIT(EDIT_ORDER_ID)}`,
+      () => {
+        requestCount += 1;
+        return respond();
+      },
+    ),
+  );
+
+  return { getRequestCount: () => requestCount };
+};
+
+const editReadResponse = (data: unknown) => () =>
+  HttpResponse.json({ success: true, message: '', data });
+
+describe('useOrderEdit reading the order edit endpoint', () => {
+  it('fills the form, the line limits and the shipping choices before any price preview', async () => {
+    mockEditRead(editReadResponse(buildEditInfo()));
+
+    const { result } = renderUseOrderEdit(EDIT_ORDER_ID);
+
+    await waitFor(() => expect(result.current.rows).toHaveLength(1));
+
+    expect(result.current.calculation).toBeUndefined();
+    expect(result.current.rows[0].display).toMatchObject({
+      availableQuantity: 6,
+      allowBackOrder: false,
+      trackInventory: true,
+      hasLimitPerOrder: true,
+      maxPerOrder: 3,
+      isReachable: true,
+      storedQuantity: 2,
+    });
+    expect(result.current.availableShippingMethods.map((method) => method.name)).toEqual([
+      'Standard',
+    ]);
+  });
+
+  it('marks a line whose variant was deleted as unreachable without stock data', async () => {
+    mockEditRead(
+      editReadResponse(
+        buildEditInfo({
+          is_reachable: false,
+          allow_back_order: null,
+          track_inventory: null,
+          available_quantity: null,
+          in_stock: null,
+          has_limit_per_order: null,
+          max_per_order: null,
+        }),
+      ),
+    );
+
+    const { result } = renderUseOrderEdit(EDIT_ORDER_ID);
+
+    await waitFor(() => expect(result.current.rows).toHaveLength(1));
+
+    expect(result.current.rows[0].display).toMatchObject({
+      isReachable: false,
+      trackInventory: false,
+      allowBackOrder: true,
+    });
+  });
+
+  it('replaces the shipping choices with the list of the next price preview', async () => {
+    mockEditRead(editReadResponse(buildEditInfo()));
+    mockCalculationResponse(() =>
+      buildCalculationResponse(1, {
+        items: [
+          {
+            id: 35,
+            is_reachable: true,
+            quantity: 3,
+            base_subtotal_money_object: money(30),
+            base_unit_price_money_object: money(10),
+            applied_product_coupons: [],
+          },
+        ],
+        available_shipping_methods: [shippingMethod('express-9', 'Express')],
+        shipping_method: 'express-9',
+      }),
+    );
+
+    const { result } = renderUseOrderEdit(EDIT_ORDER_ID);
+
+    await waitFor(() => expect(result.current.rows).toHaveLength(1));
+
+    act(() => {
+      result.current.handleQuantityChange(0, 3);
+    });
+
+    await waitFor(
+      () =>
+        expect(result.current.availableShippingMethods.map((method) => method.name)).toEqual([
+          'Express',
+        ]),
+      { timeout: 3000 },
+    );
+  });
+
+  it('exposes a 422 refusal once, without retrying', async () => {
+    const edit = mockEditRead(() =>
+      HttpResponse.json(
+        { success: false, message: 'This order can no longer be edited.', errors: {} },
+        { status: 422 },
+      ),
+    );
+
+    const { result } = renderUseOrderEdit(EDIT_ORDER_ID);
+
+    await waitFor(() => expect(result.current.isOrderError).toBe(true));
+
+    expect(result.current.orderError?.response?.status).toBe(422);
+    expect(result.current.orderError?.message).toBe('This order can no longer be edited.');
+    expect(result.current.order).toBeUndefined();
+    expect(edit.getRequestCount()).toBe(1);
+  });
+
+  it('exposes a 404 answer as an error', async () => {
+    mockEditRead(() =>
+      HttpResponse.json({ success: false, message: 'Not found.', errors: {} }, { status: 404 }),
+    );
+
+    const { result } = renderUseOrderEdit(EDIT_ORDER_ID);
+
+    await waitFor(() => expect(result.current.isOrderError).toBe(true));
+
+    expect(result.current.orderError?.response?.status).toBe(404);
+  });
+
+  it('sends no edit read and starts with no shipping choices on the create screen', async () => {
+    const edit = mockEditRead(editReadResponse(buildEditInfo()));
+
+    const { result } = renderUseOrderEdit();
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    expect(edit.getRequestCount()).toBe(0);
+    expect(result.current.availableShippingMethods).toEqual([]);
   });
 });

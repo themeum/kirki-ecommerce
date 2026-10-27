@@ -33,7 +33,8 @@ export const endpoints = {
   ATTRIBUTE_VALUE: (attributeId: string | number, valueId: string | number) =>
     `/attributes/${attributeId}/values/${valueId}`,
   ATTRIBUTE_VALUES_BULK: (attributeId: string | number) => `/attributes/${attributeId}/values/bulk`,
-  ATTRIBUTE_VALUES_BATCH: (attributeId: string | number) => `/attributes/${attributeId}/values/batch`,
+  ATTRIBUTE_VALUES_BATCH: (attributeId: string | number) =>
+    `/attributes/${attributeId}/values/batch`,
 
   VARIANT: (id: string | number) => `/variants/${id}`,
   VARIANTS: '/variants',
@@ -103,6 +104,7 @@ export const endpoints = {
   OFFLINE_PAYMENT: (id: string | number) => `/offline-payments/${id}`,
 
   ORDER: (id: string | number) => `/orders/${id}`,
+  ORDER_EDIT: (id: string | number) => `/orders/${id}/edit`,
   ORDER_ACTION: (id: string | number) => `/orders/${id}/action`,
   ORDERS: '/orders',
   SHIPPING_METHODS: '/shipping-methods',

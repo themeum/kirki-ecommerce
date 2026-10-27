@@ -12,7 +12,10 @@ import {
   toQuantityLimitSource,
   toStoredRowDisplay,
 } from '@/features/orders/lib/order-items';
-import type { OrderCalculationItem, OrderLineItem } from '@/features/orders/schemas/catalog/order';
+import type {
+  OrderCalculationItem,
+  OrderEditLineItem,
+} from '@/features/orders/schemas/catalog/order';
 import type { ProductSelection, ProductVariantSelection } from '@/features/products';
 import type { MoneyObject } from '@/schemas/shared/api';
 
@@ -49,7 +52,14 @@ const calculationItem = (overrides: Partial<OrderCalculationItem>): OrderCalcula
   ...overrides,
 });
 
-const lineItem = (overrides: Partial<OrderLineItem>): OrderLineItem => ({
+const lineItem = (overrides: Partial<OrderEditLineItem>): OrderEditLineItem => ({
+  is_reachable: true,
+  allow_back_order: false,
+  track_inventory: true,
+  available_quantity: 6,
+  in_stock: true,
+  has_limit_per_order: false,
+  max_per_order: null,
   id: 7,
   product_id: 3,
   variant_id: 12,
@@ -427,6 +437,64 @@ describe('toStoredRowDisplay', () => {
 
     expect(display.regularPrice).toEqual(money(10));
     expect(display.salePrice).toBeNull();
+  });
+
+  it('reads the live stock, limit and reachability values of the edit read', () => {
+    const display = toStoredRowDisplay(
+      lineItem({
+        allow_back_order: false,
+        track_inventory: true,
+        available_quantity: 6,
+        in_stock: true,
+        has_limit_per_order: true,
+        max_per_order: 3,
+        is_reachable: true,
+      }),
+    );
+
+    expect(display).toMatchObject({
+      allowBackOrder: false,
+      trackInventory: true,
+      availableQuantity: 6,
+      inStock: true,
+      hasLimitPerOrder: true,
+      maxPerOrder: 3,
+      isReachable: true,
+    });
+    expect(getQuantityLimit(display, display.storedQuantity)?.max).toBe(4);
+  });
+
+  it('floors the ceiling at the stored quantity for a sold-out variant', () => {
+    const display = toStoredRowDisplay(
+      lineItem({ quantity: 5, available_quantity: 0, in_stock: false }),
+    );
+
+    expect(getQuantityLimit(display, display.storedQuantity)?.max).toBe(5);
+  });
+
+  it('falls back to permissive values and marks the line unreachable when the variant was deleted', () => {
+    const display = toStoredRowDisplay(
+      lineItem({
+        is_reachable: false,
+        allow_back_order: null,
+        track_inventory: null,
+        available_quantity: null,
+        in_stock: null,
+        has_limit_per_order: null,
+        max_per_order: null,
+      }),
+    );
+
+    expect(display).toMatchObject({
+      inStock: true,
+      availableQuantity: 0,
+      allowBackOrder: true,
+      trackInventory: false,
+      hasLimitPerOrder: false,
+      maxPerOrder: null,
+      isReachable: false,
+    });
+    expect(getQuantityLimit(display, display.storedQuantity)).toBeUndefined();
   });
 });
 

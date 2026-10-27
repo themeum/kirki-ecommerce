@@ -337,18 +337,29 @@ The admin app edits an order at `#/orders/{id}/edit`. It is the same screen as
 
 - **Entry.** The order detail page shows the *Edit* button only when
   `is_editable` is `true`. If the edit address is opened for an order that is
-  not editable, the screen shows a "This order can't be edited" state and no
-  form.
-- **Start.** The screen reads `GET /orders/{id}` and fills the form from it:
-  lines, coupons, customer, addresses, shipping method, notes and flags. It sends
-  `order_id` with every preview.
+  not editable, the edit read (section 8) fails with 422 and the screen shows a
+  "This order can't be edited" state with the message of the server, and no form.
+  The screen does not repeat a 422 or a 404 answer on its own. A 404 answer shows
+  an error state with a retry action.
+- **Start.** The screen reads `GET /orders/{id}/edit` (section 8) and fills the
+  form from it: lines, coupons, customer, addresses, shipping method, notes and
+  flags. It sends `order_id` with every preview. After a save, the next open of
+  the screen reads the order again.
+- **Before the first preview.** The edit read gives the stock values,
+  `is_reachable` and `available_shipping_methods`. So a locked line, the quantity
+  ceilings and the shipping choices are right when the form opens, before any
+  preview returns. A line whose variant was deleted has no stock values and no
+  ceiling. Each preview that returns replaces the shipping choices with its own
+  list.
 - **Lines.** A line already on the order is sent with its `id`. A line added
   with the product picker is sent with its `variant_id` and no `id`. A stored
   line shows the name, label, image and price stored on the order, not the
   current product data.
-- **Locked line.** When the preview says `is_reachable` is `false`, the row
-  shows the quantity as text and only the remove button works.
-- **Quantity ceiling.** The ceiling comes from the preview values of the line:
+- **Locked line.** When the edit read or the latest preview says `is_reachable`
+  is `false`, the row shows the quantity as text and only the remove button
+  works. The latest preview takes precedence.
+- **Quantity ceiling.** The ceiling comes from the latest preview values of the
+  line, and from the edit read values until a preview returns:
   - The stock ceiling is `available_quantity`. It applies only when
     `track_inventory` is `true` and `allow_back_order` is `false`. When
     `in_stock` is `false`, the message says "Out of stock".
