@@ -242,6 +242,7 @@ export const RegionsDialog = ({
 }: RegionsDialogProps) => {
   const [searchValue, setSearchValue] = useState('');
   const [expandedCountries, setExpandedCountries] = useState<string[]>([]);
+  const [scrollTargetCode, setScrollTargetCode] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const deferredSearchValue = useDeferredValue(searchValue);
@@ -337,6 +338,39 @@ export const RegionsDialog = ({
       regions: normalizeRegions(defaultValue.regions),
     });
   }, [form, defaultValue, open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const initiallySelectedCodes = new Set([
+      ...(defaultValue.countryCodes ?? []),
+      ...normalizeRegions(defaultValue.regions).map((region) => region.country),
+    ]);
+
+    setScrollTargetCode(
+      countries.find(
+        (country) =>
+          initiallySelectedCodes.has(country.code) || getDisabledStateIds(country.code).size > 0,
+      )?.code ?? null,
+    );
+
+    if (countryOnly) {
+      return;
+    }
+
+    setExpandedCountries(
+      countries
+        .filter(
+          (country) =>
+            (country.states?.length ?? 0) > 0 &&
+            !isCountryFullyDisabled(country) &&
+            (initiallySelectedCodes.has(country.code) || getDisabledStateIds(country.code).size > 0),
+        )
+        .map((country) => country.code),
+    );
+  }, [open, countryOnly, countries, defaultValue, getDisabledStateIds, isCountryFullyDisabled]);
 
   useEffect(() => {
     if (errors?.title) {
@@ -514,14 +548,7 @@ export const RegionsDialog = ({
         return;
       }
 
-      const countryDisabled = isCountryFullyDisabled(country);
-      const hasDisabledStates = !countryDisabled && getDisabledStateIds(country.code).size > 0;
-      const isExpanded =
-        expandedCountries.includes(country.code) ||
-        selectedCountryCodes.has(country.code) ||
-        hasDisabledStates;
-
-      if (!isExpanded) {
+      if (!expandedCountries.includes(country.code)) {
         return;
       }
 
@@ -531,14 +558,7 @@ export const RegionsDialog = ({
     });
 
     return items;
-  }, [
-    countryOnly,
-    expandedCountries,
-    filteredCountries,
-    getDisabledStateIds,
-    isCountryFullyDisabled,
-    selectedCountryCodes,
-  ]);
+  }, [countryOnly, expandedCountries, filteredCountries]);
 
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -555,6 +575,22 @@ export const RegionsDialog = ({
     // interact with in tests.
     initialRect: { width: 480, height: 432 },
   });
+
+  useEffect(() => {
+    if (scrollTargetCode === null) {
+      return;
+    }
+
+    const targetIndex = rows.findIndex(
+      (row) => row.type === 'country' && row.country.code === scrollTargetCode,
+    );
+
+    setScrollTargetCode(null);
+
+    if (targetIndex !== -1) {
+      virtualizer.scrollToIndex(targetIndex, { align: 'start' });
+    }
+  }, [rows, scrollTargetCode, virtualizer]);
 
   const searchError = form.formState.errors.regions?.message || (errors?.regions as string) || '';
 
@@ -578,7 +614,6 @@ export const RegionsDialog = ({
     const regionInfo = regionByCountry.get(country.code);
     const countryDisabled = isCountryFullyDisabled(country);
     const hasStates = !countryOnly && (country.states?.length ?? 0) > 0;
-    const hasDisabledStates = !countryDisabled && getDisabledStateIds(country.code).size > 0;
     const checked = countryDisabled
       ? regionInfo?.hasDeselectedState
         ? 'indeterminate'
@@ -593,12 +628,7 @@ export const RegionsDialog = ({
         checked={checked}
         disabled={countryDisabled}
         expandable={hasStates && !countryDisabled}
-        expanded={
-          hasStates &&
-          (expandedCountries.includes(country.code) ||
-            selectedCountryCodes.has(country.code) ||
-            hasDisabledStates)
-        }
+        expanded={hasStates && expandedCountries.includes(country.code)}
         selectedStateCount={hasStates ? (regionInfo?.states?.length ?? 0) : 0}
         onToggle={handleSelectCountries}
         onRowClick={handleCountryRowClick}
