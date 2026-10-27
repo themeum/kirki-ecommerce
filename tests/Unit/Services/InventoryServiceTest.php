@@ -66,6 +66,34 @@ class InventoryServiceTest extends TestCase
         $this->assertSame(9, $this->service->max_purchasable_quantity(1, 9));
     }
 
+    public function test_untracked_out_of_stock_variant_has_no_stock(): void
+    {
+        $this->stub_variant(['track_inventory' => false, 'in_stock' => false, 'available_quantity' => 50]);
+
+        $this->assertFalse($this->service->has_stock(1, 1));
+    }
+
+    public function test_untracked_in_stock_variant_has_stock_at_any_quantity(): void
+    {
+        $this->stub_variant(['track_inventory' => false, 'in_stock' => true, 'available_quantity' => 0]);
+
+        $this->assertTrue($this->service->has_stock(1, 3));
+    }
+
+    public function test_tracked_variant_ignores_a_false_in_stock_flag(): void
+    {
+        $this->stub_variant(['track_inventory' => true, 'in_stock' => false, 'available_quantity' => 5]);
+
+        $this->assertTrue($this->service->has_stock(1, 3));
+    }
+
+    public function test_tracked_variant_ignores_a_true_in_stock_flag(): void
+    {
+        $this->stub_variant(['track_inventory' => true, 'in_stock' => true, 'available_quantity' => 0]);
+
+        $this->assertFalse($this->service->has_stock(1, 1));
+    }
+
     public function test_max_purchasable_quantity_is_capped_to_per_order_limit(): void
     {
         $this->stub_variant(['track_inventory' => false, 'in_stock' => true, 'has_limit_per_order' => true, 'max_per_order' => 6]);

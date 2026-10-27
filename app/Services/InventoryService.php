@@ -52,7 +52,7 @@ class InventoryService
     /**
      * Check whether enough stock exists for a quantity of a variant.
      *
-     * Always true for untracked in-stock variants and variants that allow back orders.
+     * Untracked variants follow their in_stock flag. Tracked variants ignore it and are always true when they allow back orders.
      *
      * @since 1.0.0
      *
@@ -68,15 +68,7 @@ class InventoryService
             return false;
         }
 
-        if (!$variant->track_inventory && $variant->in_stock) {
-            return true;
-        }
-
-        if ($variant->allow_back_order) {
-            return true;
-        }
-
-        return $variant->available_quantity >= $quantity;
+        return $variant->has_stock($quantity);
     }
 
     /**
@@ -124,9 +116,7 @@ class InventoryService
 
         $allowed = $quantity;
 
-        $is_stock_unlimited = (!$variant->track_inventory && $variant->in_stock) || $variant->allow_back_order;
-
-        if (!$is_stock_unlimited) {
+        if (!$variant->has_unlimited_stock()) {
             $allowed = min($allowed, max(0, $variant->available_quantity));
         }
 
