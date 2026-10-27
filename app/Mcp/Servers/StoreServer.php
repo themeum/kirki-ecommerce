@@ -4,7 +4,11 @@ namespace Kirki\Ecommerce\App\Mcp\Servers;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\Ahamed\FrameworkMcp\Prompt;
+use Kirki\Ecommerce\Ahamed\FrameworkMcp\Resource;
 use Kirki\Ecommerce\Ahamed\FrameworkMcp\Server;
+use Kirki\Ecommerce\Ahamed\FrameworkMcp\Tool;
+use Kirki\Ecommerce\App\Mcp\McpAbilities;
 use Kirki\Ecommerce\App\Mcp\Prompts\InvestigateOrderPrompt;
 use Kirki\Ecommerce\App\Mcp\Prompts\LowStockCheckPrompt;
 use Kirki\Ecommerce\App\Mcp\Prompts\MonthlyClosePrompt;
@@ -48,8 +52,12 @@ use Kirki\Ecommerce\App\Mcp\Tools\UpdateFulfillmentTool;
 use Kirki\Ecommerce\App\Mcp\Tools\UpdatePricesTool;
 use Kirki\Ecommerce\App\Mcp\Tools\UpdateProductContentTool;
 
+use function Kirki\Ecommerce\Framework\app;
+
 /**
  * The store's MCP server. Each tool, resource and prompt checks the capability that it needs.
+ *
+ * It offers only the tools, resources and prompts that are on in the MCP settings.
  *
  * @since 1.0.0
  */
@@ -114,4 +122,56 @@ class StoreServer extends Server
         InvestigateOrderPrompt::class,
         SetupGuidePrompt::class,
     ];
+
+    /**
+     * Get the tool classes that are on in the MCP settings.
+     *
+     * @since 1.0.0
+     *
+     * @return string[]
+     */
+    public function tools()
+    {
+        return app()->make(McpAbilities::class)->filter(parent::tools());
+    }
+
+    /**
+     * Get the resource classes that are on in the MCP settings.
+     *
+     * @since 1.0.0
+     *
+     * @return string[]
+     */
+    public function resources()
+    {
+        return app()->make(McpAbilities::class)->filter(parent::resources());
+    }
+
+    /**
+     * Get the prompt classes that are on in the MCP settings.
+     *
+     * @since 1.0.0
+     *
+     * @return string[]
+     */
+    public function prompts()
+    {
+        return app()->make(McpAbilities::class)->filter(parent::prompts());
+    }
+
+    /**
+     * Get every tool, resource and prompt class of the server, keyed by component kind, whatever the MCP settings say.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string[]>
+     */
+    public function all_components()
+    {
+        return [
+            Tool::KIND => $this->tools,
+            Resource::KIND => $this->resources,
+            Prompt::KIND => $this->prompts,
+        ];
+    }
 }

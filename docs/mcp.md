@@ -30,6 +30,10 @@ the store profile and the order lifecycle) and 6 prompts (ready-made routines,
 such as a morning brief and a monthly close). Resources and prompts also only
 read store data.
 
+MCP is **off** on a new install. An administrator turns it on in
+**Settings → MCP**, and can limit it to read-only use or turn off single
+tools, resources and prompts there (see [section 19](#19-mcp-settings)).
+
 The server is built on the bundled `ahamed/framework-mcp`
 package (scoped to `Kirki\Ecommerce\Ahamed\FrameworkMcp\`) and the WordPress
 MCP Adapter plugin.
@@ -52,8 +56,9 @@ MCP Adapter plugin.
 - [16. Prompts](#16-prompts)
 - [17. Time zone](#17-time-zone)
 - [18. Checking a site by hand](#18-checking-a-site-by-hand)
-- [19. Adding a tool](#19-adding-a-tool)
-- [20. Where this differs from the admin screens](#20-where-this-differs-from-the-admin-screens)
+- [19. MCP settings](#19-mcp-settings)
+- [20. Adding a tool](#20-adding-a-tool)
+- [21. Where this differs from the admin screens](#21-where-this-differs-from-the-admin-screens)
 
 ---
 
@@ -64,12 +69,39 @@ and the [MCP Adapter](https://github.com/WordPress/mcp-adapter) plugin, active.
 The store does not bundle the adapter. Without it, the store runs as usual and
 has no MCP endpoint.
 
-**2. Create an application password.** Sign in as an administrator, go to
-**Users → Profile → Application Passwords**, and add one (for example
-"Claude"). Copy the password. The tools run only for users with the `manage_options`
-capability.
+**2. Turn on MCP.** Go to **Settings → MCP** and turn on **Kirki eCommerce
+MCP**. The switch saves at once. Until you turn it on, the endpoint below does
+not exist.
 
-**3. Connect the client over HTTP.** The endpoint is:
+**3. Connect the app.** On the same page, select **+ Connect app**, pick your
+app, and copy the config that the dialog shows. It runs the
+`@automattic/mcp-wordpress-remote` package with `npx` (Node.js 18 or later),
+for example for Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "kirki-ecommerce": {
+      "command": "npx",
+      "args": ["-y", "@automattic/mcp-wordpress-remote@latest"],
+      "env": {
+        "WP_API_URL": "https://<your-site>/wp-json/kirki/ecommerce/v1/mcp/kirki-ecommerce",
+        "WP_API_USERNAME": "<your-user-name>",
+        "WP_API_PASSWORD": "<your application password>"
+      }
+    }
+  }
+}
+```
+
+**4. Create the application password.** Sign in as an administrator, go to
+**Users → Profile → Application Passwords**, type a name (for example
+"Claude Desktop"), and select **Add New Application Password**. Copy the
+password (WordPress shows it one time) and put it in place of
+`<your application password>`. The tools run only for users with the
+`manage_options` capability.
+
+**Or connect the client over HTTP directly.** The endpoint is:
 
 ```
 https://<your-site>/wp-json/kirki/ecommerce/v1/mcp/kirki-ecommerce
@@ -89,7 +121,7 @@ HTTP and no application password:
 claude mcp add kirki-ecommerce -- wp --path=<wordpress-path> mcp-adapter serve --server=kirki-ecommerce --user=<admin-user>
 ```
 
-**4. Ask.** "Give me sales for the last 7 days", "How did this month compare
+**5. Ask.** "Give me sales for the last 7 days", "How did this month compare
 with last month?", "What are my 10 best sellers this month?", "Which orders are
 not shipped yet?", "What must I reorder?", "Who are my best customers?",
 "What is left to set up in my store?".
@@ -101,6 +133,7 @@ not shipped yet?", "What must I reorder?", "Who are my best customers?",
 | | |
 |---|---|
 | Id | `kirki-ecommerce` |
+| Exists | Only while **Settings → MCP → Kirki eCommerce MCP** is on. When it is off, the plugin does not register the server, so the HTTP route and the STDIO server do not exist. |
 | HTTP endpoint | `/wp-json/kirki/ecommerce/v1/mcp/kirki-ecommerce` |
 | STDIO | `wp mcp-adapter serve --server=kirki-ecommerce --user=<admin>` |
 | Who | The server has no capability check of its own. HTTP requests pass the MCP Adapter's default gate, which needs a signed-in user. Each tool then checks the capability that it needs. |
@@ -117,8 +150,8 @@ Errors inside a tool go to the plugin log. The client sees validation messages,
 and for any other error only "The request could not be completed." unless
 `WP_DEBUG` is on.
 
-Code: `app/Mcp/Servers/StoreServer.php`, registered in
-`AppServiceProvider::boot()`.
+Code: `app/Mcp/Servers/StoreServer.php`, registered by
+`McpAbilities::register_server()` from `AppServiceProvider::boot()`.
 
 ---
 
@@ -725,8 +758,8 @@ analytics tools says which one was used.
 
 The test suite has no MCP Adapter, so these checks need a site that has it:
 
-1. `tools/list` with an administrator's application password lists the 29
-   tools. Each read-only tool has `readOnlyHint` true and `destructiveHint`
+1. With MCP on and the default abilities, `tools/list` with an
+   administrator's application password lists the 29 tools. Each read-only tool has `readOnlyHint` true and `destructiveHint`
    false. The write tools have the annotations and `_meta` of
    [section 10](#10-write-tools-preview-and-confirmation).
 2. A sales report call with `{"range": "last_7"}` returns the same totals as
@@ -747,10 +780,73 @@ The test suite has no MCP Adapter, so these checks need a site that has it:
    nothing. A second call with the same arguments and the token does the
    change. A third call with the same token gets an error. For an order
    change, the admin timeline shows **via AI assistant**.
+9. With **Read-only mode** on, `tools/list` lists the 11 read tools only. With
+   a group off (for example Orders), its tools, resource and prompt are not
+   listed. With **Kirki eCommerce MCP** off, the endpoint answers with the
+   WordPress "no route" error.
 
 ---
 
-## 19. Adding a tool
+## 19. MCP settings
+
+**Settings → MCP** has two sections:
+
+- **Configuration**: the card header has the **Kirki eCommerce MCP** switch.
+  While it is off, the card shows only its header. While it is on, the card
+  also shows the **Server URL** field with a copy button ("Not available"
+  while the MCP Adapter is not active), the **Read-only mode** switch, and the
+  **Abilities** row ("N of M on"). The whole Abilities row opens
+  **Settings → MCP → Abilities**. While read-only mode is on, a
+  "Read-only mode is on" banner shows below the card.
+- **Connections**: the "Connect your AI app" card, with the logos of the
+  apps (hover a logo to see its name) and the **+ Connect app** dialog. Pick
+  Claude Desktop, Claude Code, Cursor, VS Code, Codex, Gemini CLI, Windsurf or
+  another MCP client, copy the config, and follow the steps to make the
+  application password. The dialog does not ask for the password and does not
+  store it.
+
+The **Abilities** page shows 6 groups. Each group is an accordion. Its header
+has the group name, a description, the number of abilities with how many read
+and how many write, and the group switch. Open it to see one row for each
+tool, resource and prompt: the title (hover the row to see the description
+icon), the type, the mode (read or write) and its own switch. A resource or a
+prompt always reads. The tools have no separate "delete" mode: no tool deletes
+a record for good.
+
+| Group | Tools | Resources | Prompts |
+|---|---|---|---|
+| Sales & analytics | sales report, sales trend, product performance, sales breakdown | analytics definitions | morning brief, weekly review, monthly close |
+| Orders | find orders, get order, add order note, update fulfillment, mark order paid, resend order email, cancel order, create manual order | order lifecycle | investigate order |
+| Products & inventory | find products, stock levels, update product content, create draft product, duplicate product, change product status, adjust stock, update prices | catalog structure | low stock check |
+| Customers | find customers, update customer tags | | |
+| Coupons | find coupons, create coupon, set coupon state, update coupon | | |
+| Store setup | setup status, fix store pages, update email notification | store profile, currencies, checkout and payments, tax and shipping | setup guide |
+
+**Rules.** An ability is offered only when its group is on, its own switch is
+on, and, for a write tool, read-only mode is off. An ability that is off is
+not in `tools/list`, `resources/list` or `prompts/list`, and a call to it fails
+as unknown. Turning a group off or read-only mode on does not change the saved
+switch of each ability, so the old state comes back when you turn them back.
+**Reset to default** turns every group and ability on and read-only mode off;
+it does not change the main switch.
+
+**Saving.** Each switch saves at once. There is no save button. If a save
+fails, the switch goes back to its saved state.
+
+**Storage.** The settings section `mcp` (`OptionKeys::MCP_SETTINGS`) stores
+`enabled`, `read_only`, `groups` (group id → boolean) and `abilities` (ability
+name → boolean). A missing key counts as on, so a tool added by an update
+starts on. The `GET /settings/mcp` response also gives the `catalog`,
+`server_url`, `user_login`, `profile_url`, `application_passwords_available`
+and `adapter_available`; a save ignores them.
+
+Code: `app/Mcp/McpAbilities.php` (the rules, used by the server and the
+settings response), `app/Mcp/AbilityGroups.php` (the groups), and
+`resources/app/features/settings/mcp/`.
+
+---
+
+## 20. Adding a tool
 
 1. Create a class in `app/Mcp/Tools/`. A tool that only reads store data
    extends `StoreReadTool`, which sets the read-only annotations, checks
@@ -763,7 +859,9 @@ The test suite has no MCP Adapter, so these checks need a site that has it:
 2. Declare the arguments in `input_schema()` and do the work in `handle()`.
    The traits in `app/Mcp/Concerns/` add paging (`PagesResults`), masking
    (`MasksPersonalData`) and the analytics range (`ReadsAnalyticsRange`).
-3. Add it to `$tools` in `StoreServer`.
+3. Add it to `$tools` in `StoreServer`, and to one group in
+   `app/Mcp/AbilityGroups.php`. A unit test fails when a class is in the
+   server but in no group, or in two groups.
 
 A write tool extends `StoreWriteTool` and does not override `handle()`. It
 gives `arguments()` (the schema without the token), `validate()`, `target()`
@@ -785,7 +883,7 @@ message with `tool_call()`. It reads its arguments with the parse helpers
 (`parse_date()`, `parse_month()`, `parse_choice()`, `parse_order_number()`)
 and adds `fallback_note()` for a value that does not parse. It never throws for
 an argument value. Add them to `$resources` and `$prompts` in
-`StoreServer`. Both base classes check `manage_options`.
+`StoreServer`, and to one group in `AbilityGroups`. Both base classes check `manage_options`.
 
 The package guide (`docs/mcp.md` in the `ahamed/framework-mcp` repository)
 covers schemas, responses, resources and prompts. Use the scoped namespaces
@@ -794,7 +892,7 @@ this plugin.
 
 ---
 
-## 20. Where this differs from the admin screens
+## 21. Where this differs from the admin screens
 
 - **No comparison by default.** The Analytics page compares with the previous
   period unless you change it. The analytics tools compare only when `compare`
@@ -827,10 +925,16 @@ this plugin.
   assistant can send the preview call and the confirmed call without a stop.
   The person check is the client's prompt before a destructive tool. Use a
   client that asks before each write.
-- **No switch to turn off the write tools.** Each write needs
-  `manage_options` and a preview, but the store has no setting that hides the
-  write tools. Use an application password of a user that should make
-  changes, or remove the password.
+- **Read-only mode is for the whole site.** **Settings → MCP → Read-only mode**
+  hides every write tool from every app. There is no read-only setting for one
+  app. To give one app read access only, use the application password of a
+  user that should not make changes, or turn the write tools off for all.
+- **No list of connected apps and no per-app keys.** The MCP page does not
+  show which apps are connected, and it cannot revoke one app. Each app signs
+  in with a WordPress application password; revoke it in **Users → Profile →
+  Application Passwords**.
+- **No activity log of MCP calls.** The store does not record which app
+  called which tool, and blocked calls are not shown anywhere.
 - **No audit log.** Order changes are marked on the order timeline. Changes to
   products, stock, prices, customers, coupons, pages and emails are not
   logged anywhere by the store.

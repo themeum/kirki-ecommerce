@@ -24,8 +24,11 @@ use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Constants\ThousandSeparator;
 use Kirki\Ecommerce\App\Constants\UpdateFrequency;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Mcp\AbilityGroups;
+use Kirki\Ecommerce\App\Mcp\McpAbilities;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\deep_get;
 
 /**
@@ -147,6 +150,9 @@ class SettingsUpdateRequest extends Request
             case OptionKeys::LEGAL_SETTINGS:
                 $rules = $this->get_legal_settings_rules();
                 break;
+            case OptionKeys::MCP_SETTINGS:
+                $rules = $this->get_mcp_settings_rules();
+                break;
             default:
                 break;
         }
@@ -190,6 +196,8 @@ class SettingsUpdateRequest extends Request
                 return $this->get_advance_settings_filters();
             case OptionKeys::LEGAL_SETTINGS:
                 return $this->get_legal_settings_filters();
+            case OptionKeys::MCP_SETTINGS:
+                return $this->get_mcp_settings_filters();
             default:
                 return [];
         }
@@ -1091,5 +1099,69 @@ class SettingsUpdateRequest extends Request
             'data.consents.*.method' => Sanitizer::KEY,
             'data.consents.*.is_enabled' => Sanitizer::BOOL,
         ];
+    }
+
+    /**
+     * Return the validation rules for the MCP settings.
+     *
+     * The group and ability maps accept only the known group ids and ability names.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string|array>
+     */
+    protected function get_mcp_settings_rules()
+    {
+        $ability_names = app()->make(McpAbilities::class)->ability_names();
+
+        return [
+            'data.enabled' => 'required|boolean',
+            'data.read_only' => 'required|boolean',
+            'data.groups' => ['nullable', 'array', fn($value, $key) => static::check_known_keys($value, $key, array_keys(AbilityGroups::GROUPS))],
+            'data.groups.*' => 'required|boolean',
+            'data.abilities' => ['nullable', 'array', fn($value, $key) => static::check_known_keys($value, $key, $ability_names)],
+            'data.abilities.*' => 'required|boolean',
+        ];
+    }
+
+    /**
+     * Return the sanitizers for the MCP settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
+    protected function get_mcp_settings_filters()
+    {
+        return [
+            'data.enabled' => Sanitizer::BOOL,
+            'data.read_only' => Sanitizer::BOOL,
+            'data.groups' => Sanitizer::ARRAY,
+            'data.groups.*' => Sanitizer::BOOL,
+            'data.abilities' => Sanitizer::ARRAY,
+            'data.abilities.*' => Sanitizer::BOOL,
+        ];
+    }
+
+    /**
+     * Check that every key of a map is one of the allowed keys.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed    $value   The map.
+     * @param string   $key     Field name.
+     * @param string[] $allowed Allowed keys.
+     * @return true|string True when valid, otherwise the error message.
+     */
+    protected static function check_known_keys($value, $key, array $allowed)
+    {
+        $unknown = array_diff(array_keys((array) $value), $allowed);
+
+        if (!empty($unknown)) {
+            /* translators: %1$s: field name, %2$s: comma-separated list of unknown keys */
+            return sprintf(__('The %1$s field has unknown keys: %2$s.', 'kirki-ecommerce'), $key, implode(', ', $unknown));
+        }
+
+        return true;
     }
 }

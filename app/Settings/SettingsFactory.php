@@ -127,6 +127,9 @@ class SettingsFactory
             case OptionKeys::LEGAL_SETTINGS:
                 static::$cache[$key] = app()->make(LegalSettings::class);
                 break;
+            case OptionKeys::MCP_SETTINGS:
+                static::$cache[$key] = app()->make(McpSettings::class);
+                break;
             default:
                 return null;
         }

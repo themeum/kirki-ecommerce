@@ -24,6 +24,7 @@ class OptionKeys
     const EMAIL_SETTINGS = 'email';
     const ADVANCE_SETTINGS = 'advance';
     const LEGAL_SETTINGS = 'legal';
+    const MCP_SETTINGS = 'mcp';
     const ERASE_DATA_UPON_UNINSTALL = 'erase_upon_uninstall';
 
     const LAST_INVOICE_NUMBER = 'last_invoice_number';

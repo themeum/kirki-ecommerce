@@ -290,7 +290,6 @@ const styles = defineStyles({
     display: 'flex',
     flexDirection: 'column',
     flexShrink: 0,
-    rowGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
     paddingRight: theme.spacing[12],
     borderBottom: `1px solid ${theme.colors.border.default}`,

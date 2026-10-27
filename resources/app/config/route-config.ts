@@ -63,5 +63,8 @@ export const RouteConfig = {
     }),
     AdvancedSettings: defineRoute('/advanced'),
     LegalSettings: defineRoute('/legal'),
+    McpSettings: defineRoute('/mcp', {
+      McpAbilities: defineRoute('/abilities'),
+    }),
   }),
 };

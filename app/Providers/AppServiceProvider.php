@@ -4,10 +4,10 @@ namespace Kirki\Ecommerce\App\Providers;
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\Ahamed\FrameworkMcp\Facades\Mcp;
+use Kirki\Ecommerce\Ahamed\FrameworkMcp\McpManager;
 use Kirki\Ecommerce\App\Blocks\BlockRegister;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
-use Kirki\Ecommerce\App\Mcp\Servers\StoreServer;
+use Kirki\Ecommerce\App\Mcp\McpAbilities;
 use Kirki\Ecommerce\App\Services\CountryService;
 use Kirki\Ecommerce\App\Setup\Presets\PresetRepository;
 use Kirki\Ecommerce\App\Shortcodes\ShortcodeRegister;
@@ -18,7 +18,7 @@ use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\Framework\Wordpress\User as FrameworkUser;
 
 /**
- * Registers core singletons, the framework user binding, the development database seeder, the shortcode and block registers and the store's MCP server.
+ * Registers core singletons, the framework user binding, the development database seeder, the shortcode and block registers and, when it is turned on, the store's MCP server.
  *
  * @since 1.0.0
  */
@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(MoneyManager::class);
         $this->app->singleton(CountryService::class);
+        $this->app->singleton(McpAbilities::class);
         $this->app->bind(FrameworkUser::class, fn($app, $parameters = []) => $app->make(User::class, $parameters));
         $this->app->singleton(PresetRepository::class);
         $this->app->make(ShortcodeRegister::class);
@@ -40,7 +41,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bind the developer database seeder in development mode, and register the store's MCP server.
+     * Bind the developer database seeder in development mode, and register the store's MCP server when MCP is turned on.
      *
      * The app mode is set after the providers register, so it is read here.
      *
@@ -54,6 +55,6 @@ class AppServiceProvider extends ServiceProvider
             $this->app->singleton(DatabaseSeederContract::class, fn() => new DatabaseSeeder());
         }
 
-        Mcp::server('kirki-ecommerce', StoreServer::class)->middleware(['throttle:60,1']);
+        $this->app->make(McpAbilities::class)->register_server($this->app->make(McpManager::class));
     }
 }

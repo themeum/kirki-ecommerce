@@ -21,6 +21,7 @@ type OptionAccordionProps = {
   header?: ReactNode;
   titleAdornment?: ReactNode;
   subHeader?: string;
+  meta?: ReactNode;
   leftIcon?: ReactNode;
   children?: ReactNode;
   rightActions?: ReactNode;
@@ -38,6 +39,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     header,
     titleAdornment = null,
     subHeader,
+    meta,
     leftIcon,
     children,
     rightActions = null,
@@ -94,6 +96,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                     {subHeader}
                   </Text>
                 )}
+                {meta}
               </Flex>
             </Flex>
           </AccordionTrigger>

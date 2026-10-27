@@ -9,10 +9,12 @@ use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Mcp\McpAbilities;
 use Kirki\Ecommerce\App\Models\Page;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 
 /**
@@ -47,6 +49,9 @@ class SettingResource extends Resource
                 break;
             case OptionKeys::LEGAL_SETTINGS:
                 $data = $this->get_legal_settings($data);
+                break;
+            case OptionKeys::MCP_SETTINGS:
+                $data = $this->get_mcp_settings($data);
                 break;
             case OptionKeys::CURRENCY_SETTINGS:
                 $data = $this->get_currency_settings($data);
@@ -230,6 +235,36 @@ class SettingResource extends Resource
     {
         $data['consents'] = array_values($data['consents'] ?? []);
         $data['is_registration_enabled'] = (bool) Utils::registration_enabled();
+
+        return $data;
+    }
+
+    /**
+     * Get the MCP settings.
+     *
+     * Adds the ability catalog, the server URL, the signed-in user's login and profile URL, and whether application
+     * passwords and the MCP Adapter are available. The group and ability maps stay JSON objects when empty.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Stored MCP settings.
+     * @return array<string, mixed>
+     */
+    protected function get_mcp_settings($data)
+    {
+        $abilities = app()->make(McpAbilities::class);
+        $user = wp_get_current_user();
+
+        $data['enabled'] = (bool) ($data['enabled'] ?? false);
+        $data['read_only'] = (bool) ($data['read_only'] ?? false);
+        $data['groups'] = (object) ($data['groups'] ?? []);
+        $data['abilities'] = (object) ($data['abilities'] ?? []);
+        $data['catalog'] = $abilities->catalog();
+        $data['server_url'] = $abilities->is_adapter_available() ? $abilities->server_url() : null;
+        $data['user_login'] = $user->user_login;
+        $data['profile_url'] = admin_url('profile.php#application-passwords-section');
+        $data['application_passwords_available'] = wp_is_application_passwords_available_for_user($user);
+        $data['adapter_available'] = $abilities->is_adapter_available();
 
         return $data;
     }

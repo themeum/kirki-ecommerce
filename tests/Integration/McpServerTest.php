@@ -3,7 +3,13 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\Ahamed\FrameworkMcp\Facades\Mcp;
+use Kirki\Ecommerce\Ahamed\FrameworkMcp\McpManager;
 use Kirki\Ecommerce\Ahamed\FrameworkMcp\Registrar\AbilityRegistrar;
+use Kirki\Ecommerce\Ahamed\FrameworkMcp\Registrar\ServerFactory;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Mcp\McpAbilities;
+use Kirki\Ecommerce\App\Mcp\Prompts\InvestigateOrderPrompt;
+use Kirki\Ecommerce\App\Mcp\Resources\OrderLifecycleResource;
 use Kirki\Ecommerce\App\Mcp\Resources\StoreProfileResource;
 use Kirki\Ecommerce\App\Mcp\Servers\StoreServer;
 use Kirki\Ecommerce\App\Mcp\Tools\AddOrderNoteTool;
@@ -35,6 +41,7 @@ use Kirki\Ecommerce\App\Mcp\Tools\UpdateEmailNotificationTool;
 use Kirki\Ecommerce\App\Mcp\Tools\UpdateFulfillmentTool;
 use Kirki\Ecommerce\App\Mcp\Tools\UpdatePricesTool;
 use Kirki\Ecommerce\App\Mcp\Tools\UpdateProductContentTool;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -43,19 +50,63 @@ use function Kirki\Ecommerce\Framework\app;
  * Covers task 1.4: registration and access of the store's MCP server.
  *
  * Spec: mcp-server (Server id and transports, Server needs the MCP Adapter, Each tool checks its own access,
- * Server offers resources and prompts).
+ * Server offers resources and prompts, Server offers only the abilities that are on).
  */
 class McpServerTest extends RestTestCase
 {
     /**
-     * Scenario "HTTP client lists the tools": the server is registered as kirki-ecommerce and lists the 11 read tools, then the write tools.
+     * Turn MCP on with the default abilities.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        static::set_mcp([]);
+    }
+
+    /**
+     * Store MCP settings over "on, with the default abilities".
+     *
+     * @param array<string, mixed> $values Settings values.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected static function set_mcp(array $values): void
+    {
+        Settings::get(OptionKeys::MCP_SETTINGS)->set(array_merge([
+            'enabled' => true,
+            'read_only' => false,
+            'groups' => [],
+            'abilities' => [],
+        ], $values), false);
+    }
+
+    /**
+     * Get a new MCP manager that has no server registered yet.
+     *
+     * @return McpManager
+     * @since 1.0.0
+     */
+    protected static function fresh_manager(): McpManager
+    {
+        return new McpManager(app()->make(AbilityRegistrar::class), app()->make(ServerFactory::class));
+    }
+
+    /**
+     * Scenario "HTTP client lists the tools": with MCP on, the server is registered as kirki-ecommerce and lists the 11 read tools, then the write tools.
      *
      * @return void
      * @since 1.0.0
      */
     public function test_server_is_registered_with_its_tools(): void
     {
-        $servers = Mcp::servers();
+        $manager = static::fresh_manager();
+        app()->make(McpAbilities::class)->register_server($manager);
+
+        $servers = $manager->servers();
         $tools = (new StoreServer())->tools();
 
         $this->assertSame(StoreServer::class, $servers['kirki-ecommerce'] ?? null);
@@ -294,5 +345,73 @@ class McpServerTest extends RestTestCase
 
         wp_set_current_user(static::factory()->user->create(['role' => 'administrator']));
         $this->assertTrue($permission());
+    }
+
+    /**
+     * Scenarios "MCP is off" and "Fresh install": the plugin booted with the default settings, so no server is registered,
+     * and with MCP off no server is registered on a new manager either.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_no_server_when_mcp_is_off(): void
+    {
+        $this->assertArrayNotHasKey('kirki-ecommerce', Mcp::servers());
+
+        static::set_mcp(['enabled' => false]);
+        $manager = static::fresh_manager();
+        app()->make(McpAbilities::class)->register_server($manager);
+
+        $this->assertSame([], $manager->servers());
+    }
+
+    /**
+     * Scenario "Ability turned off": the server does not list a tool that is off. The manager registers and lists only
+     * what tools() returns, so a call to that tool finds no ability.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_ability_turned_off_is_not_listed(): void
+    {
+        static::set_mcp(['abilities' => ['kirki-ecommerce/cancel-order' => false]]);
+
+        $tools = (new StoreServer())->tools();
+
+        $this->assertNotContains(CancelOrderTool::class, $tools);
+        $this->assertCount(28, $tools);
+    }
+
+    /**
+     * Scenario "Call to a tool that is off": read-only mode removes every write tool and keeps the read tools.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_read_only_removes_write_tools(): void
+    {
+        static::set_mcp(['read_only' => true]);
+
+        $tools = (new StoreServer())->tools();
+
+        $this->assertNotContains(UpdatePricesTool::class, $tools);
+        $this->assertSame(array_merge([SalesReportTool::class], array_column(static::read_only_tools(), 0)), $tools);
+        $this->assertCount(7, (new StoreServer())->resources());
+        $this->assertCount(6, (new StoreServer())->prompts());
+    }
+
+    /**
+     * Scenario "Group off removes its resource and prompt".
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_group_off_removes_its_resource_and_prompt(): void
+    {
+        static::set_mcp(['groups' => ['orders' => false]]);
+
+        $this->assertNotContains(OrderLifecycleResource::class, (new StoreServer())->resources());
+        $this->assertNotContains(InvestigateOrderPrompt::class, (new StoreServer())->prompts());
+        $this->assertNotContains(FindOrdersTool::class, (new StoreServer())->tools());
     }
 }

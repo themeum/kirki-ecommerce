@@ -23,6 +23,8 @@ import {
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { LegalSettingsSchema } from '@/features/settings/legal/schemas/catalog/legal';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import { McpSettingsSchema } from '@/features/settings/mcp/schemas/catalog/mcp';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schemas/catalog/payment';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { ShippingZoneSchema } from '@/features/settings/shipping/schemas/catalog/shipping';
@@ -274,6 +276,7 @@ export const SettingsSchemaMap = {
   payment: PaymentSettingsSchema,
   advance: AdvanceSettingsSchema,
   legal: LegalSettingsSchema,
+  mcp: McpSettingsSchema,
 } as const;
 
 export type SettingsSectionKey = keyof typeof SettingsSchemaMap;
