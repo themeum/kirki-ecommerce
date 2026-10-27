@@ -19,7 +19,7 @@ import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/compon
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { useInfiniteCouponsQuery } from '@/features/coupons/services/coupon';
-import { useOrderCreate } from '@/features/orders/hooks/use-order-create';
+import { useOrderEdit } from '@/features/orders/hooks/use-order-edit';
 import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
 import useDebounce from '@/hooks/use-debounce';
 import { theme } from '@/theme';
@@ -65,7 +65,7 @@ const getCouponSubtitle = (coupon: SelectedCoupon) => {
 const DiscountPopover = ({ children }: DiscountPopoverProps) => {
   const { setValue, control } = useFormContext<OrderFormInput>();
   const selectedCoupons = useWatch({ control, name: 'coupon_codes' });
-  const { rejectedCouponCodes } = useOrderCreate();
+  const { rejectedCouponCodes } = useOrderEdit();
 
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<SelectedCoupon[]>([]);

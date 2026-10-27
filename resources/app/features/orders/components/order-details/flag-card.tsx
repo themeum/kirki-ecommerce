@@ -4,7 +4,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 type FlagCardProps = {
-  onSave: () => void;
+  onSave?: () => void;
 };
 
 const FlagCard = ({ onSave }: FlagCardProps) => {

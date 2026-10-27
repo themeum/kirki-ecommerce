@@ -3,6 +3,7 @@ import { assert, describe, expect, it } from 'vitest';
 import {
   FulfillmentStatusSchema,
   OrderCalculationSchema,
+  OrderEditInfoSchema,
   OrderListItemSchema,
   OrderSchema,
   OrderStatusSchema,
@@ -251,6 +252,7 @@ describe('OrderSchema', () => {
     status: 'pending',
     fulfillment_status: 'unfulfilled',
     is_refund_initiated: false,
+    is_editable: true,
     is_manual: false,
     currency_code: 'BDT',
     is_tax_inclusive: false,
@@ -414,6 +416,79 @@ describe('OrderSchema', () => {
     expect(totals.base_total_money_object.raw).toBe(89.28);
     expect(OrderSchema.safeParse(withoutTotals).success).toBe(false);
   });
+
+  describe('OrderEditInfoSchema', () => {
+    const editLineStock = {
+      is_reachable: true,
+      allow_back_order: false,
+      track_inventory: true,
+      available_quantity: 6,
+      in_stock: true,
+      has_limit_per_order: true,
+      max_per_order: 3,
+    };
+
+    const documentedEditInfo = {
+      ...documentedOrder,
+      items: [{ ...documentedOrder.items[0], ...editLineStock }],
+      available_shipping_methods: [
+        {
+          id: 'flat-1',
+          name: 'Standard Delivery',
+          type: 'flat_rate',
+          base_cost_money_object: baseMoney(64),
+        },
+      ],
+    };
+
+    it('accepts the order shape emitted by OrderEditResource', () => {
+      const result = OrderEditInfoSchema.safeParse(documentedEditInfo);
+      assert(result.success);
+      expect(result.data.items[0].available_quantity).toBe(6);
+      expect(result.data.available_shipping_methods).toHaveLength(1);
+    });
+
+    it('accepts null stock keys for a line whose variant was deleted', () => {
+      const result = OrderEditInfoSchema.safeParse({
+        ...documentedEditInfo,
+        items: [
+          {
+            ...documentedOrder.items[0],
+            is_reachable: false,
+            allow_back_order: null,
+            track_inventory: null,
+            available_quantity: null,
+            in_stock: null,
+            has_limit_per_order: null,
+            max_per_order: null,
+          },
+        ],
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects a line without is_reachable', () => {
+      const { is_reachable, ...withoutReachable } = editLineStock;
+      expect(is_reachable).toBe(true);
+      const result = OrderEditInfoSchema.safeParse({
+        ...documentedEditInfo,
+        items: [{ ...documentedOrder.items[0], ...withoutReachable }],
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('defaults available_shipping_methods to an empty array when omitted', () => {
+      const { available_shipping_methods, ...rest } = documentedEditInfo;
+      expect(available_shipping_methods).toHaveLength(1);
+      const result = OrderEditInfoSchema.safeParse(rest);
+      assert(result.success);
+      expect(result.data.available_shipping_methods).toEqual([]);
+    });
+
+    it('still accepts a plain order through OrderSchema', () => {
+      expect(OrderSchema.safeParse(documentedOrder).success).toBe(true);
+    });
+  });
 });
 
 describe('OrderListItemSchema', () => {
@@ -491,6 +566,7 @@ describe('OrderCalculationSchema', () => {
     items_count: 4,
     items: [
       {
+        is_reachable: true,
         quantity: 4,
         base_subtotal_money_object: baseMoney(5308.68),
         base_strikethrough_price_money_object: null,

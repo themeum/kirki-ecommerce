@@ -8,6 +8,7 @@ const orderKeys = {
   list: (params?: ListParams<OrderListFilter>) => [...orderKeys.lists(), params] as const,
   details: () => [...orderKeys.all, 'detail'] as const,
   detail: (id: string | number) => [...orderKeys.details(), String(id)] as const,
+  editInfo: (id: string | number) => [...orderKeys.detail(id), 'edit'] as const,
   calculation: (payload?: OrderCalculationRequestPayload) =>
     [...orderKeys.all, 'calculation', payload] as const,
   activities: (orderId: string | number) =>

@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody } from '@/components/ui/table';
 import Text from '@/components/ui/text';
-import OrderItemRow from '@/features/orders/components/order-create/order-item/order-item-row';
-import { useOrderCreate } from '@/features/orders/hooks/use-order-create';
+import OrderItemRow from '@/features/orders/components/order-form/order-item/order-item-row';
+import { useOrderEdit } from '@/features/orders/hooks/use-order-edit';
 import { ProductSelectionIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -24,7 +24,7 @@ const ProductSelectionCard = ({
   onQuantityChange,
   onRemoveItem,
 }: ProductSelectionCardProps) => {
-  const { rows } = useOrderCreate();
+  const { rows } = useOrderEdit();
 
   if (rows.length === 0) {
     return (

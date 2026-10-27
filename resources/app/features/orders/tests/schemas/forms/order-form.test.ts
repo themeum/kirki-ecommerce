@@ -18,6 +18,7 @@ const buildCoupon = (id: number, code: string | null) => ({
 
 describe('OrderFormSchema', () => {
   const base = {
+    order_id: 41,
     items: [{ variant_id: 12, quantity: 2 }],
     currency_code: 'USD',
     coupon_codes: [],
@@ -65,11 +66,9 @@ describe('OrderFormSchema', () => {
       customer_last_name: 'Doe',
       customer_email: null,
       customer_phone: null,
-      consents: null,
       items: [{ variant_id: 12, quantity: 2 }],
       currency_code: 'USD',
       coupon_codes: [],
-      payment_provider: null,
       shipping_method: 'flat_rate',
       shipping_first_name: 'John',
       shipping_last_name: 'Doe',
@@ -109,6 +108,27 @@ describe('OrderFormSchema', () => {
       expect(result.error.issues.map((issue) => issue.path[0])).toContain(field);
     },
   );
+
+  it('keeps the id of an existing line and sends a new line without one', () => {
+    const result = OrderFormSchema.parse({
+      ...base,
+      items: [
+        { id: 7, variant_id: 12, quantity: 2 },
+        { variant_id: 15, quantity: 1 },
+      ],
+    });
+
+    expect(result.items).toEqual([
+      { id: 7, variant_id: 12, quantity: 2 },
+      { variant_id: 15, quantity: 1 },
+    ]);
+  });
+
+  it('does not put order_id in the save payload', () => {
+    const result = OrderFormSchema.parse(base);
+
+    expect(result).not.toHaveProperty('order_id');
+  });
 
   it('copies the shipping address into the billing fields when billing is same as shipping', () => {
     const result = OrderFormSchema.parse({ ...separateBilling, is_billing_same_as_shipping: true });
@@ -209,6 +229,7 @@ describe('OrderFormSchema', () => {
 
   it('sends null rather than undefined for every omitted optional field', () => {
     const result = OrderFormSchema.parse({
+      order_id: base.order_id,
       items: base.items,
       customer_id: base.customer_id,
       customer_first_name: base.customer_first_name,
@@ -227,8 +248,6 @@ describe('OrderFormSchema', () => {
     expect(result.currency_code).toBeNull();
     expect(result.coupon_codes).toEqual([]);
     expect(result.customer_email).toBeNull();
-    expect(result.consents).toBeNull();
-    expect(result.payment_provider).toBeNull();
     expect(result.shipping_address_line2).toBeNull();
     expect(result.shipping_phone).toBeNull();
     expect(result.shipping_email).toBeNull();
@@ -247,8 +266,10 @@ describe('OrderFormSchema', () => {
   });
 
   it('rejects a missing customer', () => {
-    expect(OrderFormSchema.safeParse({ ...base, customer_id: null }).success).toBe(false);
-    expect(OrderFormSchema.safeParse({ ...base, customer_id: undefined }).success).toBe(false);
+    const newOrder = { ...base, order_id: null };
+
+    expect(OrderFormSchema.safeParse({ ...newOrder, customer_id: null }).success).toBe(false);
+    expect(OrderFormSchema.safeParse({ ...newOrder, customer_id: undefined }).success).toBe(false);
   });
 
   it('rejects a missing shipping method', () => {
@@ -435,6 +456,7 @@ describe('OrderCalculationRequestSchema', () => {
     const result = OrderCalculationRequestSchema.parse({});
 
     expect(result).toEqual({
+      order_id: null,
       customer_id: null,
       items: [],
       currency_code: null,
@@ -483,6 +505,22 @@ describe('OrderCalculationRequestSchema', () => {
     expect(result.customer_id).toBeNull();
     expect(result.shipping_method).toBeNull();
     expect(result.items).toEqual([{ variant_id: 12, quantity: 2 }]);
+  });
+
+  it('forwards order_id and the id of an existing line, and leaves a new line without id', () => {
+    const result = OrderCalculationRequestSchema.parse({
+      order_id: 41,
+      items: [
+        { id: 7, variant_id: 12, quantity: 2 },
+        { variant_id: 15, quantity: 1 },
+      ],
+    });
+
+    expect(result.order_id).toBe(41);
+    expect(result.items).toEqual([
+      { id: 7, variant_id: 12, quantity: 2 },
+      { variant_id: 15, quantity: 1 },
+    ]);
   });
 
   it('sends null for an optional field left as an empty string', () => {

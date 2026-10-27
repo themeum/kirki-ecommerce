@@ -6,14 +6,20 @@ import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
 import { RouteConfig } from '@/config/route-config';
+import { toOrderFormAddresses } from '@/features/orders/lib/order-address';
 import {
   getDisplayByVariantId,
   getOrderRows,
+  getStoredDisplayByVariantId,
   mergeSelections,
+  pairCalculationItems,
+  toSelectedCoupon,
 } from '@/features/orders/lib/order-items';
 import type {
   OrderCalculation,
   OrderCalculationItem,
+  OrderEditInfo,
+  OrderShippingMethod,
 } from '@/features/orders/schemas/catalog/order';
 import type {
   OrderCalculationRequestPayload,
@@ -24,28 +30,43 @@ import {
   OrderCalculationRequestSchema,
   OrderFormSchema,
 } from '@/features/orders/schemas/forms/order-form';
-import { useCreateOrderMutation, useOrderCalculationQuery } from '@/features/orders/services/order';
-import type { OrderItem } from '@/features/orders/types';
+import {
+  useCreateOrderMutation,
+  useOrderCalculationQuery,
+  useOrderEditInfoQuery,
+  useUpdateOrderMutation,
+} from '@/features/orders/services/order';
+import type { OrderItem, PaymentSummary } from '@/features/orders/types';
 import type { ProductSelection } from '@/features/products';
 import { useDebounce } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { getDefaults } from '@/libs/zod';
+import { getDefaults, pickFormValues } from '@/libs/zod';
+import { toastMutationError } from '@/services/helpers';
 import { isDefined } from '@/utils/object';
 import { _n, sprintf } from '@/wpi18n';
 
 const CALCULATION_DEBOUNCE_DELAY = 500;
 
-export type OrderCreateContextValue = {
+export type OrderEditContextValue = {
   form: UseFormReturn<OrderFormInput, unknown, OrderFormPayload>;
   pickerOpen: boolean;
   setPickerOpen: (open: boolean) => void;
   selections: ProductSelection[];
   rows: OrderItem[];
   calculation?: OrderCalculation;
-  calculationItems: OrderCalculationItem[];
+  paymentSummary: PaymentSummary;
+  availableShippingMethods: OrderShippingMethod[];
+  calculationItems: (OrderCalculationItem | undefined)[];
   isCalculating: boolean;
-  isCreating: boolean;
+  isSaving: boolean;
+  isEdit: boolean;
+  order?: OrderEditInfo;
+  isOrderLoading: boolean;
+  isOrderError: boolean;
+  orderError: ErrorResponse | null;
+  isOrderFetching: boolean;
+  refetchOrder: () => void;
   rejectedCouponCodes: string[];
   handleAddItems: (nextSelections: ProductSelection[]) => void;
   handleQuantityChange: (index: number, quantity: number) => void;
@@ -53,18 +74,29 @@ export type OrderCreateContextValue = {
   handleSubmit: () => void;
 };
 
-const OrderCreateContext = createContext<OrderCreateContextValue | null>(null);
+const OrderEditContext = createContext<OrderEditContextValue | null>(null);
 
-type OrderCreateProviderProps = {
+type OrderEditProviderProps = {
   children: ReactNode;
+  orderId?: number;
 };
 
-const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
+const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
   const navigate = useNavigate();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selections, setSelections] = useState<ProductSelection[]>([]);
+  const isEdit = isDefined(orderId);
 
   const createMutation = useCreateOrderMutation();
+  const updateMutation = useUpdateOrderMutation();
+  const {
+    data: order,
+    isLoading: isOrderLoading,
+    isError: isOrderError,
+    error: orderError,
+    isFetching: isOrderFetching,
+    refetch,
+  } = useOrderEditInfoQuery(orderId ?? '', isEdit);
 
   const form = useForm<OrderFormInput, unknown, OrderFormPayload>({
     resolver: zodResolver(OrderFormSchema),
@@ -79,11 +111,19 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
   } = useFieldArray({
     control: form.control,
     name: 'items',
+    keyName: 'key',
   });
 
+  const isFormFilledRef = useRef(false);
   const isApplyingCorrectionRef = useRef(false);
   const pendingCouponCorrectionRef = useRef<string[] | null>(null);
+  const lastValidValuesRef = useRef<OrderFormInput | null>(null);
+  const lastValidSelectionsRef = useRef<ProductSelection[]>([]);
   const [rejectedCouponCodes, setRejectedCouponCodes] = useState<string[]>([]);
+  const [paymentSummary, setPaymentSummary] = useState<PaymentSummary>({});
+  const [availableShippingMethods, setAvailableShippingMethods] = useState<OrderShippingMethod[]>(
+    [],
+  );
 
   const values = useWatch({
     control: form.control,
@@ -98,10 +138,7 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
       form.subscribe({
         formState: { values: true },
         callback: ({ name, values }) => {
-          if (
-            isDefined(name) &&
-            ['order_notes', 'flags', 'is_manual'].includes(name)
-          ) {
+          if (isDefined(name) && ['order_notes', 'flags', 'is_manual'].includes(name)) {
             return;
           }
 
@@ -115,9 +152,49 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
     [form],
   );
 
+  useEffect(() => {
+    if (!isDefined(order) || !order.is_editable || isFormFilledRef.current) {
+      return;
+    }
+
+    isFormFilledRef.current = true;
+    isApplyingCorrectionRef.current = true;
+
+    form.reset(
+      pickFormValues(OrderFormSchema, order, {
+        order_id: order.id,
+        items: order.items.map((item) => ({
+          id: item.id,
+          variant_id: item.variant_id,
+          quantity: item.quantity,
+        })),
+        coupon_codes: order.coupons.map(toSelectedCoupon),
+        ...toOrderFormAddresses(order),
+      }),
+    );
+
+    setPaymentSummary({
+      totals: order.totals,
+      coupons: order.coupons,
+      taxLines: order.tax_lines,
+      itemsCount: order.items_count,
+      isTaxInclusive: order.is_tax_inclusive,
+      shippingMethodName: order.shipping_method_name,
+    });
+    setAvailableShippingMethods(order.available_shipping_methods);
+    lastValidValuesRef.current = form.getValues();
+
+    isApplyingCorrectionRef.current = false;
+  }, [order, form]);
+
   const debouncedCalculationRequest = useDebounce(calculationRequest, CALCULATION_DEBOUNCE_DELAY);
 
-  const { data: calculation, isFetching: isCalculating } = useOrderCalculationQuery(
+  const {
+    data: calculation,
+    isFetching: isCalculating,
+    error: calculationError,
+    errorUpdatedAt: calculationErrorUpdatedAt,
+  } = useOrderCalculationQuery(
     debouncedCalculationRequest ?? calculationPayload,
     isDefined(debouncedCalculationRequest),
   );
@@ -128,7 +205,27 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
     isApplyingCorrectionRef.current = false;
   };
 
-  const calculationItems = useMemo(() => calculation?.items ?? [], [calculation]);
+  useEffect(() => {
+    if (!calculationError) {
+      return;
+    }
+
+    toastMutationError(calculationError);
+
+    const lastValidValues = lastValidValuesRef.current;
+
+    if (!isDefined(lastValidValues)) {
+      return;
+    }
+
+    applyCorrection(() => form.reset(lastValidValues));
+    setSelections(lastValidSelectionsRef.current);
+    setCalculationRequest(OrderCalculationRequestSchema.parse(lastValidValues));
+    // Revert must run once per failed request, not whenever `form` identity changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calculationError, calculationErrorUpdatedAt]);
+
+  const calculationItems = pairCalculationItems(pickedItems, calculation?.items ?? []);
 
   useEffect(() => {
     if (!isDefined(calculation)) {
@@ -210,13 +307,34 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
         }),
       );
     }
+
+    setPaymentSummary({
+      totals: calculation.totals,
+      coupons: calculation.coupons,
+      taxLines: calculation.tax_lines,
+      itemsCount: calculation.items_count,
+      isTaxInclusive: calculation.is_tax_inclusive,
+      shippingMethodName: calculation.available_shipping_methods.find(
+        (method) => String(method.id) === String(calculation.shipping_method),
+      )?.name,
+    });
+    setAvailableShippingMethods(calculation.available_shipping_methods);
+    lastValidValuesRef.current = form.getValues();
+    lastValidSelectionsRef.current = selections;
+
     // Reconciliation must run only when a new calculation result arrives, reading the
     // current form state fresh each time - re-running it for every keystroke that
     // changes `pickedItems`/`form` identity would fight the user's own edits.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [calculation]);
 
-  const displayByVariantId = useMemo(() => getDisplayByVariantId(selections), [selections]);
+  const displayByVariantId = useMemo(
+    () => ({
+      ...getStoredDisplayByVariantId(order?.items ?? []),
+      ...getDisplayByVariantId(selections),
+    }),
+    [order, selections],
+  );
 
   const rows = getOrderRows(pickedItems, displayByVariantId);
 
@@ -226,7 +344,12 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
   };
 
   const handleQuantityChange = (index: number, quantity: number) => {
-    updateItems(index, { variant_id: pickedItems[index].variant_id, quantity });
+    const { id, variant_id: variantId } = pickedItems[index];
+
+    updateItems(
+      index,
+      isDefined(id) ? { id, variant_id: variantId, quantity } : { variant_id: variantId, quantity },
+    );
   };
 
   const handleRemoveItem = (index: number) => {
@@ -248,28 +371,46 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
 
   const handleSubmit = form.handleSubmit(async (payload) => {
     try {
-      const response = await createMutation.mutateAsync(payload);
+      if (!isEdit) {
+        const response = await createMutation.mutateAsync(payload);
 
-      if (isDefined(response.data) && isDefined(response.data.id)) {
-        void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }), {
-          replace: true,
-        });
+        if (isDefined(response.data) && isDefined(response.data.id)) {
+          void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }), {
+            replace: true,
+          });
+        }
+        return;
       }
+
+      if (!isDefined(order)) {
+        return;
+      }
+
+      await updateMutation.mutateAsync({ id: order.id, data: payload });
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
   });
 
-  const value: OrderCreateContextValue = {
+  const value: OrderEditContextValue = {
     form,
     pickerOpen,
     setPickerOpen,
     selections,
     rows,
     calculation,
+    paymentSummary,
+    availableShippingMethods,
     calculationItems,
     isCalculating,
-    isCreating: createMutation.isPending,
+    isSaving: createMutation.isPending || updateMutation.isPending,
+    isEdit,
+    order,
+    isOrderLoading,
+    isOrderError,
+    orderError: orderError as ErrorResponse | null,
+    isOrderFetching,
+    refetchOrder: () => void refetch(),
     rejectedCouponCodes,
     handleAddItems,
     handleQuantityChange,
@@ -277,9 +418,9 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
     handleSubmit,
   };
 
-  return <OrderCreateContext.Provider value={value}>{children}</OrderCreateContext.Provider>;
+  return <OrderEditContext.Provider value={value}>{children}</OrderEditContext.Provider>;
 };
 
-OrderCreateProvider.displayName = 'OrderCreateProvider';
+OrderEditProvider.displayName = 'OrderEditProvider';
 
-export { OrderCreateContext, OrderCreateProvider };
+export { OrderEditContext, OrderEditProvider };

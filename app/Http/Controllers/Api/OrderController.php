@@ -253,7 +253,7 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($order),
-            'message' => __('Order updated', 'kirki-ecommerce'),
+            'message' => $action->get_message($dto),
         ]);
     }
 
