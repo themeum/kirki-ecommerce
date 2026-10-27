@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderCalculationContextService;
+use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Services\StoredOrderTermsService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
@@ -26,6 +27,9 @@ class OrderCalculationContextServiceTest extends TestCase
 {
     /** @var VariantService&MockObject */
     protected $variant_service;
+
+    /** @var ShippingService&MockObject */
+    protected $shipping_service;
 
     protected OrderCalculationContextService $service;
 
@@ -55,7 +59,9 @@ class OrderCalculationContextServiceTest extends TestCase
         $inventory_service = $this->createMock(InventoryService::class);
         $inventory_service->method('has_stock')->willReturnCallback(fn(int $variant_id, int $quantity) => ($this->available_stock[$variant_id] ?? PHP_INT_MAX) >= $quantity);
 
-        $this->service = new OrderCalculationContextService($this->variant_service, $customer_service, new StoredOrderTermsService(), $inventory_service);
+        $this->shipping_service = $this->createMock(ShippingService::class);
+
+        $this->service = new OrderCalculationContextService($this->variant_service, $customer_service, new StoredOrderTermsService(), $inventory_service, $this->shipping_service);
     }
 
     /**
@@ -526,5 +532,62 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->assertNull($context->order_id);
         $this->assertNull($context->stored);
         $this->assertSame(0, $context->customer_id);
+    }
+
+    // Checks that only an edit has
+
+    public function test_validate_edit_refuses_another_currency(): void
+    {
+        $order = $this->make_order([]);
+        $order->currency_code = 'EUR';
+        $input = $this->input(['currency_code' => 'USD']);
+        $context = $this->service->build($input, $order);
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->validate_edit($order, $input, $context);
+    }
+
+    public function test_validate_edit_accepts_the_order_currency_and_no_currency(): void
+    {
+        $order = $this->make_order([]);
+        $order->currency_code = 'EUR';
+        $this->shipping_service->method('has_valid_shipping_method')->willReturn(true);
+
+        foreach ([['currency_code' => 'EUR'], []] as $payload) {
+            $input = $this->input($payload);
+            $this->service->validate_edit($order, $input, $this->service->build($input, $order));
+        }
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function test_validate_edit_refuses_a_shipping_method_that_is_quoted_again_and_not_available(): void
+    {
+        $order = $this->make_order([]);
+        $input = $this->input(['shipping_method' => 'method-0002']);
+        $context = $this->service->build($input, $order);
+        $this->shipping_service->method('has_valid_shipping_method')->willReturn(false);
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->validate_edit($order, $input, $context);
+    }
+
+    public function test_validate_edit_does_not_check_the_shipping_method_when_the_stored_charge_is_kept(): void
+    {
+        $order = $this->make_order([]);
+        $order->shipping_method = 'method-0001';
+        $order->shipping_country = 'US';
+        $order->shipping_state = 'NY';
+        $order->base_shipping_total = 1000;
+        $order->base_shipping_tax_amount = 0;
+        $input = $this->input(['shipping_method' => 'method-0001', 'shipping_country' => 'US', 'shipping_state' => 'NY']);
+        $context = $this->service->build($input, $order);
+        $this->shipping_service->expects($this->never())->method('has_valid_shipping_method');
+
+        $this->service->validate_edit($order, $input, $context);
+
+        $this->assertTrue($context->uses_stored_shipping());
     }
 }

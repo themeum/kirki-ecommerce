@@ -566,6 +566,24 @@ class OrderEditApiTest extends RestTestCase
         $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
     }
 
+    public function test_a_stored_coupon_sent_in_another_letter_case_keeps_its_stored_terms(): void
+    {
+        $coupon = $this->create_percentage_coupon(10);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+
+        $coupon->update(['discount_amount_percentage' => 50, 'is_active' => false]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 3)],
+            'coupon_codes' => [strtolower($coupon->code)],
+        ])));
+
+        $order_coupon = OrderCoupon::where('order_id', $order['id'])->first();
+        $this->assertSame($coupon->code, $order_coupon->code);
+        $this->assertEquals(10, $order_coupon->discount_rate);
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+    }
+
     public function test_a_stored_coupon_still_applies_when_its_coupon_was_deleted(): void
     {
         $coupon = $this->create_percentage_coupon(10);
@@ -680,6 +698,30 @@ class OrderEditApiTest extends RestTestCase
         ])));
 
         $this->assertEquals(300, OrderItem::find($order['items'][0]['id'])->base_discount_amount);
+    }
+
+    public function test_a_fixed_product_coupon_row_without_a_set_amount_never_takes_the_order_total_as_a_line_amount(): void
+    {
+        Variant::query()->where('id', $this->variant_id)->update(['base_price' => 1000, 'base_sale_price' => 1000]);
+        $other_variant_id = $this->default_variant_id($this->create_product());
+        Variant::query()->where('id', $other_variant_id)->update(['base_price' => 1000, 'base_sale_price' => 1000]);
+        $coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 300);
+        $order = $this->create_order([
+            'items' => [
+                ['variant_id' => $this->variant_id, 'quantity' => 1],
+                ['variant_id' => $other_variant_id, 'quantity' => 1],
+            ],
+            'coupon_codes' => [$coupon->code],
+        ]);
+
+        OrderCoupon::query()->where('order_id', $order['id'])->update(['base_max_discount_amount' => null]);
+        $payload = $this->order_payload(['items' => [$this->line($order, 1, 0), $this->line($order, 2, 1)], 'coupon_codes' => [$coupon->code]]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $payload));
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $payload));
+
+        $this->assertNull(OrderCoupon::where('order_id', $order['id'])->first()->base_max_discount_amount);
+        $this->assertSame([300, 300], array_map(fn($item) => (int) $item->base_discount_amount, OrderItem::where('order_id', $order['id'])->get()->all()));
     }
 
     public function test_an_order_wide_coupon_also_discounts_a_new_line(): void
@@ -1188,6 +1230,38 @@ class OrderEditApiTest extends RestTestCase
         Product::query()->where('id', $draft_product['id'])->update(['status' => ProductStatus::DRAFT]);
 
         $this->assert_preview_and_save_refuse(['order_id' => $order['id'], 'items' => [$this->line($order, 1, 0), $this->line($order, 2, 1)]]);
+    }
+
+    public function test_the_preview_and_the_save_both_refuse_another_currency(): void
+    {
+        $code = $this->create_test_currency(1.3);
+        $order = $this->create_order(['currency_code' => $code]);
+
+        $this->assert_preview_and_save_refuse(['order_id' => $order['id'], 'currency_code' => 'USD', 'items' => [$this->line($order, 1)]]);
+    }
+
+    public function test_the_preview_and_the_save_both_refuse_a_shipping_method_the_new_address_does_not_serve(): void
+    {
+        $order = $this->create_order();
+
+        $this->assert_preview_and_save_refuse([
+            'order_id' => $order['id'],
+            'items' => [$this->line($order, 1)],
+            'shipping_country' => 'CA',
+            'shipping_state' => 'ON',
+        ]);
+    }
+
+    public function test_the_preview_keeps_the_stored_shipping_charge_when_the_method_was_removed_and_the_address_did_not_change(): void
+    {
+        $order = $this->create_order();
+        $stored = Order::find($order['id']);
+
+        $this->rename_shipping_method('Express Delivery', 15, false);
+
+        $preview = $this->preview(['order_id' => $order['id'], 'items' => [$this->line($order, 1)]]);
+
+        $this->assertEquals($preview['totals']['base_shipping_amount_money_object']['raw'], $stored->base_shipping_total / 100);
     }
 
     public function test_the_preview_and_the_save_both_refuse_a_new_line_beyond_the_stock(): void

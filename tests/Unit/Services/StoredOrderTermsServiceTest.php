@@ -169,6 +169,16 @@ class StoredOrderTermsServiceTest extends TestCase
         $this->assertNotNull($stored->item_tax_rates);
     }
 
+    public function test_it_keeps_a_coupon_whose_code_is_sent_in_another_letter_case(): void
+    {
+        $order = $this->make_order();
+        $order->set_relation('order_coupons', collection([$this->make_order_coupon(['code' => 'SPRING10'])]));
+
+        $stored = $this->service->build($order, $this->make_context(['coupon_codes' => ['spring10']]));
+
+        $this->assertSame(['SPRING10'], array_keys($stored->coupons));
+    }
+
     public function test_it_keeps_only_the_coupons_the_edit_still_sends(): void
     {
         $order = $this->make_order();

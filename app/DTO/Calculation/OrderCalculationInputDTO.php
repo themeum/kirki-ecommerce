@@ -32,6 +32,9 @@ class OrderCalculationInputDTO extends DTO
     /** @var string|null */
     public $shipping_method;
 
+    /** @var string|null Currency the payload asks for; an edit must keep the order's currency */
+    public $currency_code;
+
     /** @var array<int|string, OrderCalculationLineDTO> Lines keyed like the payload; the key is the line's key in the calculation */
     public $items = [];
 
