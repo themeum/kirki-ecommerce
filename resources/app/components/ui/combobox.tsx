@@ -327,6 +327,10 @@ const Combobox = ({
                           onSelect={() => handleSelect(option.value)}
                           cssOverride={styles.virtualItem}
                         >
+                          {hasLeadingIcons && (
+                            <span css={scoped(styles.leadingIcon)}>{option.leftIcon}</span>
+                          )}
+                          <span css={scoped(styles.itemLabel)}>{option.label}</span>
                           <span
                             css={scopedMerge(
                               styles.itemCheck,
@@ -335,10 +339,6 @@ const Combobox = ({
                           >
                             {isSelected && <Check size={14} />}
                           </span>
-                          {hasLeadingIcons && (
-                            <span css={scoped(styles.leadingIcon)}>{option.leftIcon}</span>
-                          )}
-                          <span css={scoped(styles.itemLabel)}>{option.label}</span>
                         </CommandItem>
                       </div>
                     );
@@ -357,11 +357,6 @@ const Combobox = ({
                       keywords={[option.label, option.description ?? '', ...(option.keywords ?? [])]}
                       onSelect={() => handleSelect(option.value)}
                     >
-                      <span
-                        css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}
-                      >
-                        {isSelected && <Check size={14} />}
-                      </span>
                       {hasLeadingIcons && (
                         <span css={scoped(styles.leadingIcon)}>{option.leftIcon}</span>
                       )}
@@ -371,6 +366,11 @@ const Combobox = ({
                           <span css={scoped(styles.itemDescription)}>{option.description}</span>
                         )}
                       </Flex>
+                      <span
+                        css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}
+                      >
+                        {isSelected && <Check size={14} />}
+                      </span>
                     </CommandItem>
                   );
                 })}
@@ -498,6 +498,7 @@ const styles = defineStyles({
   },
   itemCheck: {
     ...flexCenter(),
+    marginLeft: 'auto',
     width: '16px',
     height: '16px',
     flexShrink: 0,

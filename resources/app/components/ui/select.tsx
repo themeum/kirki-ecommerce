@@ -116,7 +116,7 @@ const SelectContent = forwardRef<ComponentRef<typeof SelectPrimitive.Content>, S
           position={position}
           css={scopedMerge(
             styles.content,
-            isPopper ? styles.contentPopper : styles.contentItemAligned,
+            isPopper && styles.contentPopper,
             cssOverride,
           )}
           {...rest}
@@ -169,13 +169,13 @@ const SelectItem = forwardRef<ComponentRef<typeof SelectPrimitive.Item>, SelectI
 
     return (
       <SelectPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest}>
-        <span css={scoped(styles.itemIndicator)}>
+        <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+        {endSlot && <span css={scoped(styles.itemEndSlot)}>{endSlot}</span>}
+        <span css={scoped(endSlot ? styles.itemIndicator : styles.itemIndicatorEnd)}>
           <SelectPrimitive.ItemIndicator>
             <CheckIcon width={16} height={16} />
           </SelectPrimitive.ItemIndicator>
         </span>
-        <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-        {endSlot && <span css={scoped(styles.itemEndSlot)}>{endSlot}</span>}
       </SelectPrimitive.Item>
     );
   },
@@ -217,23 +217,6 @@ export {
   SelectTrigger,
   SelectValue,
 };
-
-/**
- * Radix's `item-aligned` positioning lines the option text up with the trigger's
- * value text, not the panel's edge up with the trigger's edge. Our option rows
- * carry a check gutter the trigger does not, so the panel lands
- * `ITEM_ALIGNED_OFFSET` too far left and Radix widens its wrapper by the same
- * amount. Pushing the content back right by that offset lands both the panel's
- * left edge and its width on the trigger.
- *
- * This holds only while the trigger keeps a 1px border and `spacing[3]` side
- * padding, `<SelectValue>` stays the trigger's first child, and the content keeps
- * a 1px border with `spacing[1]` of viewport side padding.
- */
-const ITEM_PADDING_LEFT = `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`;
-const TRIGGER_VALUE_INSET = `calc(1px + ${theme.spacing[3]})`;
-const ITEM_TEXT_INSET = `calc(1px + ${theme.spacing[1]} + ${ITEM_PADDING_LEFT})`;
-const ITEM_ALIGNED_OFFSET = `calc(${ITEM_TEXT_INSET} - ${TRIGGER_VALUE_INSET})`;
 
 const styles = defineStyles({
   trigger: {
@@ -330,9 +313,6 @@ const styles = defineStyles({
       outline: 'none',
     },
   },
-  contentItemAligned: {
-    marginLeft: ITEM_ALIGNED_OFFSET,
-  },
   contentPopper: {
     maxHeight: 'var(--radix-select-content-available-height)',
     minWidth: 'var(--radix-select-trigger-width)',
@@ -358,7 +338,6 @@ const styles = defineStyles({
   },
   item: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
-    paddingLeft: ITEM_PADDING_LEFT,
     ...itemCenter(),
     justifyContent: 'flex-start',
     columnGap: theme.spacing[2],
@@ -377,9 +356,15 @@ const styles = defineStyles({
     },
   },
   itemIndicator: {
-    position: 'absolute',
-    left: theme.spacing[2],
+    marginLeft: theme.spacing[2],
     minWidth: '16px',
+    flexShrink: 0,
+    ...itemCenter(),
+  },
+  itemIndicatorEnd: {
+    marginLeft: 'auto',
+    minWidth: '16px',
+    flexShrink: 0,
     ...itemCenter(),
   },
   itemEndSlot: {
