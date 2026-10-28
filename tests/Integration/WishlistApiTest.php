@@ -121,6 +121,31 @@ class WishlistApiTest extends RestTestCase
         $this->assertEquals($second_variant_id, Wishlist::where('user_id', $user_id)->first()->variant_id);
     }
 
+    public function test_table_has_no_unique_key_on_user_and_product(): void
+    {
+        global $wpdb;
+
+        $indexes = $wpdb->get_results('SHOW INDEX FROM `' . $wpdb->prefix . 'kirki_ecommerce_wishlist`', ARRAY_A);
+
+        $columns    = [];
+        $is_unique  = [];
+        foreach ($indexes as $index) {
+            $columns[$index['Key_name']][(int) $index['Seq_in_index']] = $index['Column_name'];
+            $is_unique[$index['Key_name']] = 0 === (int) $index['Non_unique'];
+        }
+
+        $plain_index = 'idx_kecom_wishlist_user_id_product_id';
+
+        $this->assertSame(['user_id', 'product_id'], array_values($columns[$plain_index] ?? []));
+        $this->assertFalse($is_unique[$plain_index]);
+
+        foreach ($columns as $key_name => $key_columns) {
+            if ($is_unique[$key_name]) {
+                $this->assertNotSame(['user_id', 'product_id'], array_values($key_columns), "Key {$key_name} must not be unique on user_id and product_id.");
+            }
+        }
+    }
+
     public function test_adding_an_unknown_product_returns_404(): void
     {
         $this->login_as_new_customer();

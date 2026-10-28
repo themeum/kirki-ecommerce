@@ -11,8 +11,9 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 /**
  * Creates the kirki_ecommerce_wishlist table, which stores the products users saved to their wishlist.
  *
- * An entry belongs to a product, and a user has at most one entry per product. The variant is optional:
- * it is the variant the user chose, and it becomes NULL when that variant is deleted.
+ * An entry belongs to a product. The variant is optional: it is the variant the user chose, and it
+ * becomes NULL when that variant is deleted. The table has no unique key, so a later change can store
+ * several entries for one user and product. WishlistService keeps one entry per product today.
  *
  * @since 1.0.0
  */
@@ -37,7 +38,7 @@ class CreateWishlistTable implements Migration
             $table->unsigned_big_integer('variant_id')->nullable();
             $table->timestamps();
 
-            $table->unique(['user_id', 'product_id'], 'uq_kecom_wishlist_user_id_product_id');
+            $table->index(['user_id', 'product_id'], 'idx_kecom_wishlist_user_id_product_id');
 
             $table->foreign('user_id', 'fk_kecom_wishlist_user_id')
                 ->references('ID')

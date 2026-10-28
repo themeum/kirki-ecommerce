@@ -43,8 +43,14 @@ Table `kirki_ecommerce_wishlist`:
 | `product_id` | The saved product. The entry is deleted with the product.            |
 | `variant_id` | The variant the customer chose. `NULL` when they chose none, or when that variant was deleted. |
 
-A customer has **at most one entry per product**. The database enforces this
-with a unique key on `(user_id, product_id)`.
+A customer has **at most one entry per product**. `WishlistService` enforces
+this: it returns the existing entry when a product is saved again. The table
+has a plain index on `(user_id, product_id)` for lookups and **no unique key**,
+so the database does not stop a duplicate. Two requests that save the same
+product at the same moment can create two entries.
+
+The table has no unique key on purpose. A later change can store several
+variants of one product as separate entries without a schema migration.
 
 ---
 
@@ -126,7 +132,9 @@ details differ by plugin. These are the gaps in this store's wishlist:
 - **Logged-in customers only.** There is no guest wishlist kept in a cookie.
 - **No sharing.** A customer cannot share a wishlist link or make it public.
 - **One entry per product.** A customer cannot keep two variants of the same
-  product as two entries. The newest chosen variant is kept.
+  product as two entries. The newest chosen variant is kept. The service
+  enforces this, not the database, so two parallel requests can create a
+  duplicate. The schema is ready for several variants per product later.
 - **One list per customer.** There are no named lists and no folders.
 - **Stock and sale flags come from the shown variant.** A card does not look at
   every variant of the product, so a card can show "in stock" for the shown

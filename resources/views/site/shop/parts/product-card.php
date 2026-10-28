@@ -41,7 +41,7 @@ $cart_url                = $product['cart_url'];
 $is_wishlisted           = $product['is_wishlisted'];
 $display_context         = $data['context'] ?? null;
 ?>
-<div class="kecom-product-card" x-data="<?php printf('wishlist(%d, %s, \'%s\')', absint($product_id), $is_wishlisted ? 'true' : 'false', esc_js($display_context)); ?>">
+<div class="kecom-product-card" x-data="<?php printf('wishlist(%d, %s, \'%s\')', (int) $product_id, $is_wishlisted ? 'true' : 'false', esc_js($display_context)); ?>">
     <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
         <?php if (!empty($ribbon_text)) : ?>
             <span class="kecom-product-card-ribbon" style="--kecom-ribbon-color: <?php echo esc_attr($ribbon_color); ?>;"><?php echo esc_html($ribbon_text); ?></span>
