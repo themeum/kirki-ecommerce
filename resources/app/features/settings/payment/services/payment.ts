@@ -59,6 +59,10 @@ const installOnlinePayment = (data: { id: string | number }) => {
     .then((response) => parseResponse(OnlinePaymentSchema, response));
 };
 
+const uninstallOnlinePayment = (id: string | number) => {
+  return apiClient.delete(endpoints.ONLINE_PAYMENT(id)).then((response) => parseMessage(response));
+};
+
 const updateOnlinePayment = ({
   id,
   data,
@@ -209,6 +213,30 @@ const useInstallOnlinePaymentMutation = () => {
   });
 };
 
+const useUninstallOnlinePaymentMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: uninstallOnlinePayment,
+    onMutate(id) {
+      return updatePaymentMethodsCache(queryClient, (methods) =>
+        methods.filter((method) => method.id !== id),
+      );
+    },
+    onSuccess(response) {
+      toastMutationSuccess(response.message || __('Payment gateway removed', 'kirki-ecommerce'));
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
+      void queryClient.invalidateQueries({
+        queryKey: paymentKeys.installableOnline(),
+      });
+    },
+    onError(error, _variables, context) {
+      restorePaymentMethodsCache(queryClient, context?.previous);
+      toastMutationError(error);
+    },
+  });
+};
+
 const useUpdateOnlinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -344,6 +372,7 @@ export {
   reorderPaymentMethods,
   setEnabledOfflinePayment,
   setEnabledOnlinePayment,
+  uninstallOnlinePayment,
   updateOfflinePayment,
   updateOnlinePayment,
   useCreateOfflinePaymentMutation,
@@ -357,6 +386,7 @@ export {
   useReorderPaymentMethodsMutation,
   useSetEnabledOfflinePaymentMutation,
   useSetEnabledOnlinePaymentMutation,
+  useUninstallOnlinePaymentMutation,
   useUpdateOfflinePaymentMutation,
   useUpdateOnlinePaymentMutation,
 };

@@ -13,8 +13,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import EmptyState from '@/components/ui/empty-state';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
+import QueryErrorState from '@/components/ui/query-error-state';
+import Spinner from '@/components/ui/spinner';
 import Text from '@/components/ui/text';
 import type { OnlinePayment } from '@/features/settings/payment/schemas/catalog/payment';
 import {
@@ -32,8 +35,18 @@ type OnlinePaymentPopupProps = {
 };
 
 const OnlinePaymentPopup = ({ openPopup, setOpenPopup }: OnlinePaymentPopupProps) => {
-  const { data: availableOnlinePaymentList = [] } = useInstallableOnlinePaymentsQuery();
-  const { mutate: installOnlinePayment } = useInstallOnlinePaymentMutation();
+  const {
+    data: availableOnlinePaymentList = [],
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useInstallableOnlinePaymentsQuery();
+  const {
+    mutate: installOnlinePayment,
+    isPending: isInstalling,
+    variables: installingVariables,
+  } = useInstallOnlinePaymentMutation();
 
   const handleInstallOnlinePayment = (item: OnlinePayment) => {
     if (item.id === undefined) {
@@ -57,6 +70,15 @@ const OnlinePaymentPopup = ({ openPopup, setOpenPopup }: OnlinePaymentPopupProps
           <DialogTitle>{__('Available Payment Gateways', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <DialogBody>
+          {isLoading && (
+            <Flex justify="center">
+              <Spinner />
+            </Flex>
+          )}
+          {isError && <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />}
+          {!isLoading && !isError && availableOnlinePaymentList.length === 0 && (
+            <EmptyState text={__('No payment gateways available', 'kirki-ecommerce')} />
+          )}
           <Flex direction="column" gap={4}>
             {availableOnlinePaymentList.map((item, index) => (
               <Card data-search-skip="true" key={index} cssOverride={mergeCss(cardStyles.innerCard, styles.itemCard)}>
@@ -83,16 +105,16 @@ const OnlinePaymentPopup = ({ openPopup, setOpenPopup }: OnlinePaymentPopupProps
                           <Check />
                           {__('Added', 'kirki-ecommerce')}
                         </Badge>
-                      ) : item.is_available ? (
+                      ) : (
                         <Button
                           variant="primary"
+                          loading={isInstalling && installingVariables.id === item.id}
+                          disabled={isInstalling}
                           onClick={() => handleInstallOnlinePayment(item)}
                           data-add-button
                         >
                           {__('Add', 'kirki-ecommerce')}
                         </Button>
-                      ) : (
-                        <Badge>{__('Coming Soon', 'kirki-ecommerce')}</Badge>
                       )}
                     </ActionGroup>
                   </Flex>

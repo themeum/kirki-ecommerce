@@ -5,6 +5,7 @@
  * Plugin URI:        https://kirki.com/
  * Description:       Razorpay payment gateway for Kirki ecommerce.
  * Version:           1.0.0
+ * Order:             50
  * Author:            Kirki
  * Author URI:        https://kirki.com/
  * License:           GPL-2.0-or-later

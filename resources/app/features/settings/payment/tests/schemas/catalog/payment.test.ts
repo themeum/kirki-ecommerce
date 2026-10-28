@@ -53,6 +53,18 @@ describe('OnlinePaymentSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts a catalog item with a version and a remote icon url', () => {
+    const result = OnlinePaymentSchema.safeParse({
+      id: 'stripe',
+      name: 'Kirki Stripe',
+      icon: 'http://localhost:4000/files/kirki-stripe/logo.svg',
+      description: 'Stripe payment gateway',
+      version: '1.0.0',
+      is_installed: false,
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('accepts an unrecognized extra field', () => {
     const result = OnlinePaymentSchema.safeParse({ id: 'stripe', unexpected: 'value' });
     expect(result.success).toBe(true);
