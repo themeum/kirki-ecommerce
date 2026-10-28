@@ -128,5 +128,9 @@ const styles = defineStyles({
     minWidth: CONTENT_PANE_WIDTH,
     maxWidth: CONTENT_PANE_WIDTH,
     marginTop: theme.spacing[8],
+    '& > div': {
+      width: '100%',
+      margin: 0,
+    },
   },
 });

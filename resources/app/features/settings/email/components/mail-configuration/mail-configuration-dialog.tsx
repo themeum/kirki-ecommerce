@@ -6,7 +6,6 @@ import { useForm, useFormContext, useWatch } from 'react-hook-form';
 import NumberField from '@/components/form/number-field';
 import PasswordField from '@/components/form/password-field';
 import SelectField from '@/components/form/select-field';
-import SwitchField from '@/components/form/switch-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import {
@@ -21,6 +20,8 @@ import {
 } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Grid from '@/components/ui/grid';
+import AuthenticationSwitchField from '@/features/settings/email/components/fields/authentication-switch-field';
 import type { EmailSettingsFormInput } from '@/features/settings/email/schemas/forms/email-settings-form';
 import {
   type MailConfigurationFormInput,
@@ -29,7 +30,7 @@ import {
 } from '@/features/settings/email/schemas/forms/mail-configuration-form';
 import { getDefaults } from '@/libs/zod';
 import { theme } from '@/theme';
-import { defineStyles, scoped } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
@@ -154,35 +155,44 @@ const MailConfigurationDialog = ({
                       label={__('Host', 'kirki-ecommerce')}
                       placeholder={__('Enter the smtp host', 'kirki-ecommerce')}
                     />
-                    <NumberField
-                      name="port"
-                      label={__('Port', 'kirki-ecommerce')}
-                      placeholder={__('Enter the smtp port', 'kirki-ecommerce')}
-                    />
-                    <SelectField
-                      name="encryption"
-                      label={__('Encryption', 'kirki-ecommerce')}
-                      placeholder={__('Select encryption', 'kirki-ecommerce')}
-                      options={ENCRYPTION_OPTIONS}
-                    />
-                    <SwitchField
-                      name="is_authentication_enabled"
-                      label={__('Enable authentication', 'kirki-ecommerce')}
-                    />
-                    {isEnabledAuthentication && (
-                      <>
-                        <TextField
-                          name="username"
-                          label={__('Username', 'kirki-ecommerce')}
-                          placeholder={__('Enter the smtp username', 'kirki-ecommerce')}
-                        />
-                        <PasswordField
-                          name="password"
-                          label={__('Password', 'kirki-ecommerce')}
-                          placeholder={__('Enter the smtp password', 'kirki-ecommerce')}
-                        />
-                      </>
-                    )}
+                    <Grid columns={2} gap={4}>
+                      <SelectField
+                        name="encryption"
+                        label={__('Encryption', 'kirki-ecommerce')}
+                        placeholder={__('Select encryption', 'kirki-ecommerce')}
+                        options={ENCRYPTION_OPTIONS}
+                      />
+                      <NumberField
+                        name="port"
+                        label={__('Port', 'kirki-ecommerce')}
+                        placeholder={__('Enter the smtp port', 'kirki-ecommerce')}
+                      />
+                    </Grid>
+                    <div css={scoped(styles.authCard)}>
+                      <AuthenticationSwitchField />
+                      <div
+                        css={scopedMerge(
+                          styles.collapse,
+                          isEnabledAuthentication && styles.collapseOpen,
+                        )}
+                        inert={!isEnabledAuthentication}
+                      >
+                        <div css={scoped(styles.collapseContent)}>
+                          <Flex direction="column" gap={4} cssOverride={styles.collapseFields}>
+                            <TextField
+                              name="username"
+                              label={__('Username', 'kirki-ecommerce')}
+                              placeholder={__('Enter the smtp username', 'kirki-ecommerce')}
+                            />
+                            <PasswordField
+                              name="password"
+                              label={__('Password', 'kirki-ecommerce')}
+                              placeholder={__('Enter the smtp password', 'kirki-ecommerce')}
+                            />
+                          </Flex>
+                        </div>
+                      </div>
+                    </div>
                   </>
                 )}
               </Flex>
@@ -224,6 +234,31 @@ const styles = defineStyles({
   },
   fields: {
     padding: theme.spacing[1],
+  },
+  authCard: {
+    padding: theme.spacing[3],
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.solidSurfaceAlt,
+  },
+  collapse: {
+    display: 'grid',
+    gridTemplateRows: '0fr',
+    opacity: 0,
+    transition: 'grid-template-rows 250ms ease, opacity 250ms ease',
+    '@media (prefers-reduced-motion: reduce)': {
+      transition: 'none',
+    },
+  },
+  collapseOpen: {
+    gridTemplateRows: '1fr',
+    opacity: 1,
+  },
+  collapseContent: {
+    minHeight: 0,
+    overflow: 'hidden',
+  },
+  collapseFields: {
+    paddingTop: theme.spacing[4],
   },
   footer: {
     flexShrink: 0,
