@@ -26,7 +26,7 @@ const TOAST_CLOSE_BUTTON_CLASS = 'kirki-ecommerce-toast-close-button';
  * @returns CSS object for shell layout.
  */
 const getShellStyles = (theme: Theme): CSSObject => {
-  const surfaceTertiary = theme.colors.background.surfaceTertiary;
+  const notFoundBackground = theme.colors.background.surface;
 
   return {
     body: {
@@ -45,25 +45,25 @@ const getShellStyles = (theme: Theme): CSSObject => {
       pointerEvents: 'auto',
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR})`]: {
-      backgroundColor: surfaceTertiary,
+      backgroundColor: notFoundBackground,
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR}) #wpcontent`]: {
       minHeight: 'calc(100vh - 32px)',
-      backgroundColor: surfaceTertiary,
+      backgroundColor: notFoundBackground,
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR}) #wpbody`]: {
-      backgroundColor: surfaceTertiary,
+      backgroundColor: 'transparent',
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR}) #wpbody-content`]: {
       minHeight: 'calc(100vh - 32px - 41px)',
-      backgroundColor: surfaceTertiary,
+      backgroundColor: 'transparent',
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR}) #wpfooter`]: {
-      backgroundColor: surfaceTertiary,
+      backgroundColor: 'transparent',
     },
     [`${APP_ROOT_SELECTOR}:has(${NOT_FOUND_SELECTOR})`]: {
       minHeight: 'calc(100vh - 32px - 41px)',
-      backgroundColor: surfaceTertiary,
+      backgroundColor: 'transparent',
     },
     [`[data-sonner-toast][data-styled="true"] [data-close-button="true"]`]: {
       left: 'auto',

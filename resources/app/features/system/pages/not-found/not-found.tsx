@@ -1,3 +1,4 @@
+import type { ComponentType } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
@@ -5,11 +6,37 @@ import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
+import useParcelTilt from '@/features/system/hooks/use-parcel-tilt';
+import {
+  type Destination,
+  type DestinationId,
+  getDestinations,
+  getRouteSuggestions,
+} from '@/features/system/lib/route-suggestions';
 import NotFoundIllustration from '@/features/system/pages/not-found/not-found-illustration/not-found-illustration';
-import { ArrowLeftIcon, BoxIcon } from '@/icons/common';
+import {
+  ArrowLeftIcon,
+  BoxIcon,
+  ClipboardListIcon,
+  CustomerInfoIcon,
+  HomeIcon,
+  InventoryBoxIcon,
+  SettingsIcon,
+  TagIcon,
+} from '@/icons/common';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+
+const destinationIcons: Partial<Record<DestinationId, ComponentType>> = {
+  dashboard: HomeIcon,
+  products: BoxIcon,
+  orders: ClipboardListIcon,
+  inventory: InventoryBoxIcon,
+  coupons: TagIcon,
+  customers: CustomerInfoIcon,
+  settings: SettingsIcon,
+};
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -17,8 +44,27 @@ const NotFound = () => {
   const isDev = window.kirki_ecommerce?.is_dev === true;
   const showPath = isDev && pathname && pathname !== '/';
 
+  const tiltRef = useParcelTilt<HTMLDivElement>();
+  const suggestions = getRouteSuggestions(pathname);
+  const quickLinks = getDestinations().filter(({ id }) => id in destinationIcons);
+
   const handleGoToProducts = () => {
     void navigate(RouteConfig.Products.buildLink());
+  };
+
+  const handleGoTo = (link: string) => {
+    void navigate(link);
+  };
+
+  const renderDestination = ({ id, label, link }: Destination, variant: 'outline' | 'ghost') => {
+    const Icon = destinationIcons[id];
+
+    return (
+      <Button key={id} variant={variant} size="sm" onClick={() => handleGoTo(link)}>
+        {Icon && <Icon />}
+        {label}
+      </Button>
+    );
   };
 
   const handleGoBack = () => {
@@ -27,7 +73,7 @@ const NotFound = () => {
 
   return (
     <div data-not-found="true" css={scoped(styles.root)}>
-      <Container size="fullWidth">
+      <Container size="xl">
         <div css={scoped(styles.inner)}>
           <div css={scoped(styles.copyCol)}>
             <span css={scoped(styles.code)} aria-hidden="true">
@@ -57,6 +103,15 @@ const NotFound = () => {
               </div>
             )}
 
+            {suggestions.length > 0 && (
+              <Flex direction="column" gap={2} cssOverride={styles.suggestions}>
+                <span css={scoped(styles.pathLabel)}>{__('Did you mean', 'kirki-ecommerce')}</span>
+                <Flex gap={2} cssOverride={styles.chips}>
+                  {suggestions.map((destination) => renderDestination(destination, 'outline'))}
+                </Flex>
+              </Flex>
+            )}
+
             <Flex gap={3} cssOverride={styles.actions}>
               <Button variant="primary" onClick={handleGoToProducts}>
                 <BoxIcon color={theme.colors.text.light} />
@@ -67,9 +122,16 @@ const NotFound = () => {
                 {__('Go back', 'kirki-ecommerce')}
               </Button>
             </Flex>
+
+            <Flex direction="column" gap={2} cssOverride={styles.suggestions}>
+              <span css={scoped(styles.pathLabel)}>{__('Quick jump', 'kirki-ecommerce')}</span>
+              <Flex gap={2} cssOverride={styles.chips}>
+                {quickLinks.map((destination) => renderDestination(destination, 'ghost'))}
+              </Flex>
+            </Flex>
           </div>
 
-          <div css={scoped(styles.illustrationCol)} aria-hidden="true">
+          <div ref={tiltRef} css={scoped(styles.illustrationCol)} aria-hidden="true">
             <NotFoundIllustration />
           </div>
         </div>
@@ -88,10 +150,10 @@ const styles = defineStyles({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: 'calc(100vh - 32px - 41px)',
+    minHeight: 'calc(100vh - 72px)',
     marginTop: 0,
     padding: `${theme.spacing[6]} ${theme.spacing[8]}`,
-    backgroundColor: theme.colors.background.surfaceTertiary,
+    backgroundColor: theme.colors.background.surface,
     overflow: 'hidden',
     '&::before, &::after': {
       content: '""',
@@ -211,6 +273,19 @@ const styles = defineStyles({
     justifyContent: 'flex-start',
     width: '100%',
     paddingTop: theme.spacing[1],
+    '@media (max-width: 768px)': {
+      justifyContent: 'center',
+    },
+  },
+  suggestions: {
+    alignItems: 'flex-start',
+    width: '100%',
+    '@media (max-width: 768px)': {
+      alignItems: 'center',
+    },
+  },
+  chips: {
+    flexWrap: 'wrap',
     '@media (max-width: 768px)': {
       justifyContent: 'center',
     },
