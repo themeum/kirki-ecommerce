@@ -149,6 +149,8 @@ class VariantService
 
         $variant->attribute_values()->sync($data->attribute_values);
 
+        $this->ensure_single_default((int) $variant->product_id, $variant->is_default ? (int) $variant->id : null);
+
         return $variant;
     }
 
@@ -389,10 +391,16 @@ class VariantService
      */
     public function delete(int $id)
     {
+        $product_ids = $this->product_ids_of([$id]);
+
         $is_deleted = (bool) Variant::query()->where('id', $id)->delete();
 
         /* translators: %s: variant ID */
         throw_if(!$is_deleted, sprintf(__('Variant with id %s could not be deleted.', 'kirki-ecommerce'), $id), NotFoundException::class, Response::NOT_FOUND);
+
+        foreach ($product_ids as $product_id) {
+            $this->ensure_single_default($product_id);
+        }
 
         return true;
     }
@@ -410,9 +418,15 @@ class VariantService
     {
         throw_if(empty($ids), __('No variants selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
+        $product_ids = $this->product_ids_of($ids);
+
         $is_deleted = (bool) Variant::where_in('id', $ids)->delete();
 
         throw_if(!$is_deleted, __('Variants could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        foreach ($product_ids as $product_id) {
+            $this->ensure_single_default($product_id);
+        }
 
         return true;
     }
@@ -445,7 +459,58 @@ class VariantService
 
         throw_if(empty($variant), __('Variant not found!', 'kirki-ecommerce'), NotFoundException::class);
 
-        return $variant->update($data) ? $variant->load('product.media', 'attribute_values') : false;
+        if (!$variant->update($data)) {
+            return false;
+        }
+
+        if (array_key_exists('is_default', $data)) {
+            $this->ensure_single_default((int) $variant->product_id, $variant->is_default ? (int) $variant->id : null);
+        }
+
+        return $variant->load('product.media', 'attribute_values');
+    }
+
+    /**
+     * Get the IDs of the products that own the given variants.
+     *
+     * @since 1.0.0
+     *
+     * @param int[] $variant_ids Variant IDs.
+     * @return int[] Distinct product IDs.
+     */
+    protected function product_ids_of(array $variant_ids): array
+    {
+        return array_values(array_unique(array_map('intval', Variant::where_in('id', $variant_ids)->pluck('product_id')->all())));
+    }
+
+    /**
+     * Make exactly one variant of a product the default one.
+     *
+     * Keeps the preferred variant. Without one, keeps the lowest-ID variant that is already default, or the lowest-ID variant when none is. Every other variant of the product is cleared.
+     *
+     * @since 1.0.0
+     *
+     * @param int      $product_id   Product ID.
+     * @param int|null $preferred_id Variant to make the default, or null to keep the current default.
+     * @return void
+     */
+    protected function ensure_single_default(int $product_id, ?int $preferred_id = null): void
+    {
+        $default_id = $preferred_id;
+
+        if (!$default_id) {
+            $current = Variant::where('product_id', $product_id)->where('is_default', true)->order_by('id')->first()
+                ?: Variant::where('product_id', $product_id)->order_by('id')->first();
+
+            $default_id = $current ? (int) $current->id : null;
+        }
+
+        if (!$default_id) {
+            return;
+        }
+
+        Variant::where('product_id', $product_id)->where('id', '!=', $default_id)->where('is_default', true)->update(['is_default' => false]);
+        Variant::where('id', $default_id)->where('is_default', false)->update(['is_default' => true]);
     }
 
     /**

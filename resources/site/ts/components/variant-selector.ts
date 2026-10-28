@@ -29,7 +29,6 @@ export type Variant = {
   has_limit_per_order: boolean;
   max_per_order: number | null;
   track_inventory?: boolean;
-  is_wishlisted: boolean;
   show_unit_price?: boolean;
   display_unit_price?: string | null;
 };

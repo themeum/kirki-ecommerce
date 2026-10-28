@@ -109,4 +109,5 @@ docs: |-
 
   - Requires authentication (`AuthMiddleware`).
   - Supports `ListFilterDTO` parameters: `page`, `limit` (`-1` for all), `sort_by`, `sort_order`.
+  - Returns one product card per entry. `variant_id` is the variant the card shows: the variant the user chose, or the product's default variant when the entry has none. `product_url` selects a variant only when the user chose one.
   - Returns paginated envelope with product and variant details (title, slug, pricing, sale status, stock status, images, and URLs).
