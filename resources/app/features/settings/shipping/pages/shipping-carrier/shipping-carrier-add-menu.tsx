@@ -75,7 +75,7 @@ const ShippingCarrierAddMenu = ({
               {preset.logo_url ? (
                 <Image
                   src={preset.logo_url}
-                  alt=""
+                  alt={__('Carrier logo', 'kirki-ecommerce')}
                   width={LOGO_SIZE}
                   height={LOGO_SIZE}
                   fit="contain"
