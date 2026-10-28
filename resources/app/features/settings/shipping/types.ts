@@ -1,5 +1,6 @@
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 
+import type { ShippingCarrier } from '@/features/settings/shipping/schemas/catalog/shipping';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
 import type { Country } from '@/schemas/reference/country';
 import type { Region } from '@/schemas/shared/region';
@@ -70,7 +71,7 @@ type ShippingZone = {
   is_enabled: boolean;
   regions: ShippingRegion[];
   shipping_methods: ShippingMethodData[];
-  shipping_careers?: unknown[];
+  shipping_carriers?: ShippingCarrier[];
 };
 
 type SaveShippingZonesParams = {

@@ -1,4 +1,5 @@
 import { PlusIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -12,16 +13,17 @@ type HeaderActionsCardProps = {
   subHeader?: string;
   buttonText?: string;
   onAdd?: () => void;
+  actions?: ReactNode;
   hideButton?: boolean;
   dropDownButton?: boolean;
   handleOptionSelect?: (value: string | number | (string | number)[]) => void;
 };
 
 const HeaderActionsCard = (props: HeaderActionsCardProps) => {
-  const { header, subHeader, buttonText, onAdd, hideButton = false } = props;
+  const { header, subHeader, buttonText, onAdd, actions, hideButton = false } = props;
   return (
     <>
-      <Flex gap={2} data-search-id={props['data-search-id']} align="flex-start">
+      <Flex gap={4} data-search-id={props['data-search-id']} align="flex-start">
         <Flex direction="column">
           <Text variant="heading6" weight="semibold" color="primary">
             {header}
@@ -30,7 +32,8 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
             {subHeader}
           </Text>
         </Flex>
-        {!hideButton && (
+        {actions && <ActionGroup>{actions}</ActionGroup>}
+        {!actions && !hideButton && (
           <ActionGroup>
             <Button
               variant="secondary"

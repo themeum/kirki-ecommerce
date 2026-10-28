@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
+use Kirki\Ecommerce\App\Supports\ShippingCarrierPresets;
 
 use function Kirki\Ecommerce\App\decision_engine;
 
@@ -269,6 +270,57 @@ class ShippingService
         }
 
         return true;
+    }
+
+    /**
+     * Get the enabled carriers of the zone that covers a shipping address.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $shipping_address Shipping address with `country` and `state` entries.
+     * @return array<int, array{id: string, name: string, tracking_url: string, logo_url: string|null}> Empty when no zone matches.
+     */
+    public function get_carriers_for_address(array $shipping_address)
+    {
+        $zone = $this->find_shipping_zone($shipping_address);
+        $carriers = [];
+
+        foreach ($zone['shipping_carriers'] ?? [] as $carrier) {
+            if (!is_array($carrier) || empty($carrier['is_enabled'])) {
+                continue;
+            }
+
+            $carriers[] = [
+                'id' => (string) ($carrier['id'] ?? ''),
+                'name' => (string) ($carrier['name'] ?? ''),
+                'tracking_url' => (string) ($carrier['tracking_url'] ?? ''),
+                'logo_url' => ShippingCarrierPresets::get_logo_url($carrier),
+            ];
+        }
+
+        return $carriers;
+    }
+
+    /**
+     * Find an enabled carrier by id in the zone that covers a shipping address.
+     *
+     * Carrier ids are only unique within a zone, so the zone is matched first.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $shipping_address Shipping address with `country` and `state` entries.
+     * @param string               $carrier_id       Carrier id.
+     * @return array{id: string, name: string, tracking_url: string, logo_url: string|null}|null Null when the zone has no such enabled carrier.
+     */
+    public function find_carrier_for_address(array $shipping_address, string $carrier_id)
+    {
+        foreach ($this->get_carriers_for_address($shipping_address) as $carrier) {
+            if ($carrier['id'] === $carrier_id) {
+                return $carrier;
+            }
+        }
+
+        return null;
     }
 
     /**

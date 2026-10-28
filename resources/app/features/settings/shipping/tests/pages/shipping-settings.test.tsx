@@ -31,7 +31,6 @@ const initialZones = (): ShippingZone[] => [
         base_amount: 10,
       },
     ],
-    shipping_careers: [],
   },
 ];
 

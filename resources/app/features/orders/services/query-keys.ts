@@ -16,6 +16,8 @@ const orderKeys = {
   activity: (orderId: string | number, activityId: string | number) =>
     [...orderKeys.activities(orderId), String(orderId), String(activityId)] as const,
   shippingMethods: () => [...orderKeys.all, 'shipping-methods'] as const,
+  shippingCarriers: (orderId: string | number) =>
+    [...orderKeys.detail(orderId), 'shipping-carriers'] as const,
 };
 
 export { orderKeys };

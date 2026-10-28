@@ -12,11 +12,14 @@ use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Services\ShippingService;
+use Kirki\Ecommerce\App\Supports\TrackingUrl;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_exception;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
@@ -29,16 +32,21 @@ class PerformOrderAction
     /** @var OrderService */
     protected $order_service;
 
+    /** @var ShippingService */
+    protected $shipping_service;
+
     /**
      * Set up the action.
      *
      * @since 1.0.0
      *
-     * @param OrderService $order_service Order lookup service.
+     * @param OrderService    $order_service    Order lookup service.
+     * @param ShippingService $shipping_service Resolves the carriers of an order's shipping zone.
      */
-    public function __construct(OrderService $order_service)
+    public function __construct(OrderService $order_service, ShippingService $shipping_service)
     {
         $this->order_service = $order_service;
+        $this->shipping_service = $shipping_service;
     }
 
     /**
@@ -83,11 +91,7 @@ class PerformOrderAction
                     OrderManager::mark_as_cancel($order->id, $dto->reason);
                     break;
                 case OrderAction::ADD_TRACKING:
-                    OrderManager::add_tracking($order->id, [
-                        'carrier' => $dto->carrier,
-                        'tracking_number' => $dto->tracking_number,
-                        'tracking_url' => $dto->tracking_url,
-                    ]);
+                    OrderManager::add_tracking($order->id, $this->resolve_tracking($order, $dto));
                     break;
                 case OrderAction::MARK_AS_PAID:
                     throw_if(!empty($dto->payment_provider) && !Payment::get_provider($dto->payment_provider), __('Invalid payment method.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
@@ -136,6 +140,63 @@ class PerformOrderAction
         }
 
         return $order->fresh('refunds', 'items', 'order_coupons.order_item_coupons');
+    }
+
+    /**
+     * Work out the carrier name, tracking number and tracking URL to store on an order.
+     *
+     * A carrier id picks an enabled carrier of the order's shipping zone and fills its URL template.
+     * Without an id, a URL holding the tracking-number placeholder is filled in as an ad-hoc template,
+     * and a plain http(s) URL is stored as sent.
+     *
+     * @since 1.0.0
+     *
+     * @param Order                 $order Order the tracking is for.
+     * @param PerformOrderActionDTO $dto   Carrier reference or name, tracking number and URL.
+     * @return array{carrier: string, tracking_number: string, tracking_url: string|null}
+     * @throws ValidationException When the carrier is missing or unknown, or the URL is not an http(s) URL.
+     */
+    protected function resolve_tracking(Order $order, PerformOrderActionDTO $dto)
+    {
+        $tracking_number = trim((string) $dto->tracking_number);
+        $tracking_url = trim((string) $dto->tracking_url);
+
+        if (!empty($dto->carrier_id)) {
+            $carrier = $this->shipping_service->find_carrier_for_address([
+                'country' => $order->shipping_country,
+                'state' => $order->shipping_state,
+            ], (string) $dto->carrier_id);
+
+            if ($carrier === null) {
+                throw_exception(ValidationException::with_errors([
+                    'carrier_id' => [__('This carrier is not available for the order\'s shipping zone.', 'kirki-ecommerce')],
+                ]));
+            }
+
+            return [
+                'carrier' => $carrier['name'],
+                'tracking_number' => $tracking_number,
+                'tracking_url' => TrackingUrl::resolve($carrier['tracking_url'], $tracking_number),
+            ];
+        }
+
+        if (trim((string) $dto->carrier) === '') {
+            throw_exception(ValidationException::with_errors([
+                'carrier' => [__('The carrier field is required.', 'kirki-ecommerce')],
+            ]));
+        }
+
+        if ($tracking_url !== '' && !TrackingUrl::has_allowed_scheme($tracking_url)) {
+            throw_exception(ValidationException::with_errors([
+                'tracking_url' => [__('The URL must start with http:// or https://.', 'kirki-ecommerce')],
+            ]));
+        }
+
+        return [
+            'carrier' => trim((string) $dto->carrier),
+            'tracking_number' => $tracking_number,
+            'tracking_url' => $tracking_url === '' ? null : TrackingUrl::resolve($tracking_url, $tracking_number),
+        ];
     }
 
     /**

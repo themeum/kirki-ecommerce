@@ -15,6 +15,7 @@ import {
   getFulfillmentBadgeInfo,
   getPaymentBadgeInfo,
 } from '@/features/orders/lib/order-badge';
+import type { AddTrackingFormPayload } from '@/features/orders/schemas/forms/add-tracking-form';
 import type {
   OrderPartialField,
   OrderPartialFormInput,
@@ -49,11 +50,7 @@ type UseOrderDetailsResult = {
   isMarkAsPaidDialogOpen: boolean;
   setIsMarkAsPaidDialogOpen: (open: boolean) => void;
   handleAction: (action: OrderAction) => void;
-  handleAddTracking: (values: {
-    carrier: string;
-    tracking_number: string;
-    tracking_url: string;
-  }) => void;
+  handleAddTracking: (values: AddTrackingFormPayload) => void;
   handleMarkAsPaid: (paymentProvider: string) => void;
   handleSaveOrder: (field: OrderPartialField) => Promise<boolean>;
 };
@@ -106,11 +103,7 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
     performAction({ action });
   };
 
-  const handleAddTracking = (values: {
-    carrier: string;
-    tracking_number: string;
-    tracking_url: string;
-  }) => {
+  const handleAddTracking = (values: AddTrackingFormPayload) => {
     if (!isDefined(order)) {
       return;
     }

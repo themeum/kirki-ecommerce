@@ -224,7 +224,6 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
         title: values.title || '',
         regions: values.regions,
         shipping_methods: [],
-        shipping_careers: [],
       },
     ];
 
