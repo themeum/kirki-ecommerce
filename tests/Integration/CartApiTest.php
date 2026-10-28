@@ -166,6 +166,38 @@ class CartApiTest extends RestTestCase
     }
 
     /**
+     * A variant saved with the limit on and no maximum is limited to one unit, not blocked entirely.
+     *
+     * @return void
+     */
+    public function test_add_item_allows_one_unit_when_limit_is_on_without_maximum(): void
+    {
+        $product = $this->create_product([
+            'variants' => [[
+                'base_price' => 29.99,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+                'has_limit_per_order' => true,
+                'max_per_order' => null,
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+
+        $cart = $this->add_cart_item(1);
+        $this->assertEquals(1, $cart['items'][0]['quantity']);
+
+        $response = $this->request('POST', 'cart/items', [
+            'variant_id' => $this->variant_id,
+            'quantity' => 1,
+        ], $this->cart_headers);
+
+        $this->assert_api_error($response, 500);
+    }
+
+    /**
      * Two sequential add-to-cart calls whose combined quantity exceeds
      * available stock are rejected on the call that crosses it, even though
      * each call's own quantity is within stock.

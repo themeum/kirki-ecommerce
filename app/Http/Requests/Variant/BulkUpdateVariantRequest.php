@@ -80,7 +80,7 @@ class BulkUpdateVariantRequest extends Request
             'variants.*.in_stock' => 'boolean|nullable',
             'variants.*.low_stock_threshold' => 'integer|min:0|nullable',
             'variants.*.has_limit_per_order' => 'boolean|nullable',
-            'variants.*.max_per_order' => 'integer|nullable',
+            'variants.*.max_per_order' => 'integer|min:1|nullable',
             'variants.*.tax_profile_id' => 'integer|nullable',
             'variants.*.shipping_profile_id' => 'integer|nullable',
             'variants.*.shipping_box_id' => 'integer|nullable',
