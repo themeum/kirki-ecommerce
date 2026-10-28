@@ -148,14 +148,10 @@ class RecalculateCartAction
      * @since 1.0.0
      *
      * @param CalculationContextDTO $context Calculation context.
-     * @return int Shipping cost in base currency minor units; 0 until a shipping address and method are chosen. The stored charge of an edited order when it is kept.
+     * @return int Shipping cost in base currency minor units; 0 until a shipping address and method are chosen.
      */
     protected function get_shipping_total(CalculationContextDTO $context)
     {
-        if ($context->uses_stored_shipping()) {
-            return $context->stored->shipping_subtotal;
-        }
-
         if (empty($context->shipping_address) || empty($context->shipping_method_id)) {
             return 0;
         }

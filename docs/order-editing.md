@@ -5,10 +5,12 @@ does when the edit is saved. This document is for developers who build an
 order-edit screen or call the API directly.
 
 An edit **keeps what the customer was promised**. The customer bought at a
-price, with a coupon, at an exchange rate, with shipping and tax for an
-address. An edit never re-prices those to today's catalog and settings. Only a
-**new delivery address** (or a new shipping method) asks for a new shipping
-quote and new tax, because the store never quoted those.
+price, with a coupon, at an exchange rate, with tax for an address. An edit
+never re-prices those to today's catalog and settings. Only a **new tax
+address** asks for new tax rates, because the store never quoted those.
+**Shipping is different**: an edit always quotes the shipping charge and the
+shipping tax again, because the shipping rules depend on the lines, the
+weight, the subtotal and the full address that the edit can change.
 
 - [1. Quick start](#1-quick-start)
 - [2. When an order can be edited](#2-when-an-order-can-be-edited)
@@ -103,7 +105,8 @@ A save runs in one database transaction, after it locks the order.
 | Coupons that were on the order | **Kept** with their stored terms (section 6) |
 | Exchange rate and every `invoiced_*` conversion | **Kept** (section 7) |
 | `is_tax_inclusive` (tax mode) | **Kept** (section 7) |
-| Shipping charge and tax rates | **Kept**, unless the delivery address or the shipping method changes (section 7) |
+| Tax rates of the lines | **Kept**, unless the address that tax follows changes (section 7) |
+| Shipping charge, shipping tax and `shipping_metadata` | **Quoted again** on every edit (section 7) |
 | Currency | Cannot change (section 7) |
 | Payment, fulfillment and order status | Not changed |
 | Order number, invoice number, UUID | Not changed |
@@ -248,40 +251,40 @@ and differs, the save fails with 422.
 **Tax mode.** The order keeps `is_tax_inclusive`. If the store changes how it
 prices, an edit of an old order still calculates in the old mode.
 
-**Shipping and tax.** An edit uses the shipping charge, the shipping method
-name and the tax rates stored on the order. It quotes them again from today's
-settings only in these cases:
+**Shipping.** An edit always quotes the shipping charge and the shipping
+method record (`shipping_metadata`) again from today's shipping settings, for
+the order as it is sent: its lines, quantities, weight, subtotal, shipping
+address and shipping method. The charge stored on the order is never used
+again. So an edit that adds a line, raises a quantity or changes the postcode
+gets the charge that today's rules give. An edit that changes nothing can also
+get a new charge, when the shipping rates changed after the order was placed.
 
-| What changed | Quoted again |
-|---|---|
-| The shipping **country or state** | The shipping charge and `shipping_metadata`. |
-| The **shipping method** | The shipping charge and `shipping_metadata`. |
-| The country or state of the address that **tax follows** (the order's `tax_destination`: shipping or billing address) | The tax rates of every line and of shipping. |
+The selected shipping method is always checked against today's settings. When
+it is disabled, deleted or does not serve the address, the edit fails with 422
+("The shipping method of this order is not available. Select another shipping
+method."), also when the edit does not touch the shipping. Send another method
+from `available_shipping_methods` (section 8) to continue.
 
-Street, city, postcode, names and phone numbers never count as a new address.
-When tax follows the store address, the tax rates are never quoted again.
+**Tax rates of the lines.** An edit uses the tax rates of the lines stored on
+the order. It quotes them again from today's settings only when the country or
+state of the address that **tax follows** (the order's `tax_destination`:
+shipping or billing address) changes. Street, city, postcode, names and phone
+numbers never count as a new address. When tax follows the store address, the
+tax rates of the lines are never quoted again.
 
 The address that tax follows comes from the order's `tax_destination`, also
 when the tax rates are quoted again. A change of the store's tax destination
 setting does not change an order that is already placed.
 
-One value is still read from the current shipping settings: whether the
-shipping method is taxable. It matters only when tax follows the **billing**
-address, the billing country or state changes, and the stored shipping charge
-is kept. Then the shipping tax is calculated again with the current shipping
-method. If an admin deleted that method or made it not taxable, the shipping tax
-can be lower or zero. A change of the shipping address or method quotes the
-shipping again, so this does not apply to it.
-
-Free shipping sets the shipping tax amount to zero but keeps its saved rate.
-Removing free shipping later restores tax at that saved rate, even if the live
-rate changed. This also applies to orders placed with free shipping and to
-shipping tax split between items with different rates.
+**Shipping tax.** The shipping tax of an edit is always calculated from today's
+tax and shipping settings, also when the lines keep their stored rates. If the
+tax rate changed, if an admin made the shipping method not taxable, or if the
+store no longer calculates tax, the shipping tax of the edit follows that
+change. Free shipping gives a shipping tax row with a zero amount at today's
+rate. When free shipping is removed, the shipping is taxed at today's rate.
 
 A new line has no stored tax rate, so it is taxed at the current rate for the
-order's address. A shipping method that is not available for the new address
-fails the save with 422. When the shipping charge is kept, the chosen method is
-not checked against today's settings.
+order's address.
 
 ---
 
@@ -315,12 +318,10 @@ will send to `PUT /orders/{id}`, plus `order_id`. The preview uses the same
 inputs as the save and refuses the same faults with 422:
 
 - a `currency_code` that is not the order's currency (section 7)
-- a shipping method that is not available when the shipping is quoted again
-  (section 7)
+- a shipping method that is not available (section 7)
 - a line, quantity, per-order limit or stock fault (sections 4 and 5)
 
-When the stored shipping charge is kept, the method is not checked. The preview
-does not reserve stock, and it does not claim a coupon use. Only the save does
+The preview does not reserve stock, and it does not claim a coupon use. Only the save does
 these.
 
 The preview fails with 404 when the order does not exist, and with 422 when
@@ -359,7 +360,7 @@ customer paid.
 | 422 | The quantity of a locked line (section 4) changed. |
 | 422 | A raised quantity, or a new line, is above the variant's `max_per_order`. |
 | 422 | Stock is short for an added quantity, or for a new line ("Not enough stock for variant: N"). The preview and the save both give it. The save also gives it when another request takes the stock after the preview. |
-| 422 | The shipping method is not available for a new shipping address or a new method ("Invalid shipping method"). The preview gives it too. |
+| 422 | The shipping method is not available for the order as sent ("The shipping method of this order is not available. Select another shipping method."). This includes an edit that does not change the shipping. The preview gives it too. |
 | 422 | Stock was taken by another request between the check and the reservation ("Insufficient stock to reserve."). |
 
 When a save fails, nothing on the order changes: not the lines, the stock, the
@@ -421,8 +422,13 @@ The admin app edits an order at `#/orders/{id}/edit`. It is the same screen as
 - **Prices and coupons are frozen on purpose.** WooCommerce keeps a line's
   price until you press *Recalculate*, and then it re-prices and re-applies
   coupons with today's rules. Here there is no recalculate. The order keeps its
-  promised prices and coupon terms, and only the shipping and tax follow a new
+  promised prices and coupon terms, and the tax rates follow only a new
   address.
+- **Shipping is always quoted again.** WooCommerce keeps the shipping line
+  until you edit it or press *Recalculate*. Here every edit quotes the shipping
+  and its tax from today's settings, so an edit that changes nothing can change
+  the shipping charge and the total. An order whose shipping method was removed
+  cannot be edited until another method is selected.
 - **A product coupon never reaches a new line.** The order stores which lines
   a coupon discounted, not the coupon's conditions. WooCommerce checks the
   coupon again on recalculation.

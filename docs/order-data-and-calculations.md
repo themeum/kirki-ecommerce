@@ -537,9 +537,9 @@ does the following in one transaction.
 | Line `subtotal`, `discount`, `tax`, `total` | Recalculated from the stored price and the new quantity |
 | Coupons on the order | **Kept** with their stored terms (`discount_rate`, type, target, the lines they discounted). Not checked again. |
 | A coupon added in the edit | Checked and priced from the coupon record, and one use is counted |
-| Tax rate and tax mode | **Kept**. The rates are quoted again only when the address that tax follows changes country or state. |
-| Shipping fee | **Kept**. It is quoted again only when the shipping country, the shipping state or the shipping method changes. |
-| Shipping method snapshot (`shipping_metadata`) | Kept, or written again with the new quote |
+| Tax rate of the lines and tax mode | **Kept**. The rates are quoted again only when the address that tax follows changes country or state. |
+| Shipping fee and shipping tax | **Quoted again** on every edit from today's settings. The shipping method must still be available. |
+| Shipping method snapshot (`shipping_metadata`) | Written again with the new quote |
 | Exchange rate | **Kept.** All `invoiced_` values use it. |
 | Currency of the order | **Kept.** A request with another currency is refused. |
 | Payment status, paid date, payment provider, transaction id | **Not touched** |
@@ -639,7 +639,7 @@ Options: keep the coupon the customer used even if it expired · check coupons a
 
 **D4. Should tax, shipping and exchange rate be fixed at order time?**
 Options: keep the original tax rate, shipping fee and exchange rate unless the address or currency changes · recalculate everything with today's settings (today).
-*Decided:* keep the original tax rate, shipping fee, tax mode and exchange rate. They are quoted again only when the delivery address changes country or state, or when another shipping method is chosen. The currency cannot change.
+*Decided:* keep the original tax rate of the lines, tax mode and exchange rate. The tax rates are quoted again only when the address that tax follows changes country or state. The shipping fee and the shipping tax are quoted again on every edit, because the shipping rules depend on the lines, the weight and the full address. The currency cannot change.
 
 **D5. What can the admin change?**
 Options: quantities only · add and remove items · addresses · shipping method · coupons · manual price override · custom discount · notes.

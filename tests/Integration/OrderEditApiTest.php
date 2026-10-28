@@ -929,7 +929,7 @@ class OrderEditApiTest extends RestTestCase
      * @dataProvider free_shipping_starting_states
      * @param bool $starts_with_free_shipping Whether checkout already applies the coupon.
      */
-    public function test_shipping_tax_rate_survives_free_shipping_and_is_used_when_it_is_removed(bool $starts_with_free_shipping): void
+    public function test_free_shipping_keeps_a_zero_amount_shipping_tax_row_and_removing_it_taxes_shipping_at_the_current_rate(bool $starts_with_free_shipping): void
     {
         $this->enable_tax(false, 10, 10);
         $this->rename_shipping_method('Standard Delivery', 10, true, true);
@@ -952,7 +952,7 @@ class OrderEditApiTest extends RestTestCase
 
             $shipping_taxes = OrderTax::where('order_id', $order['id'])->where('type', OrderTaxType::SHIPPING)->get();
             $this->assertCount(1, $shipping_taxes);
-            $this->assertEquals(10, $shipping_taxes->first()->rate);
+            $this->assertEquals(20, $shipping_taxes->first()->rate);
             $this->assertEquals(0, $shipping_taxes->first()->base_amount);
             $this->assertSame(0, (int) Order::find($order['id'])->base_shipping_total);
         }
@@ -963,15 +963,14 @@ class OrderEditApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload($payload)));
 
         $saved = Order::find($order['id']);
-        $this->assertSame(100, $saved->base_shipping_tax_amount);
-        $this->assertSame(1100, (int) $saved->base_shipping_total);
+        $this->assertSame(300, $saved->base_shipping_tax_amount);
+        $this->assertSame(1800, (int) $saved->base_shipping_total);
         $this->assertSame((int) round($preview['totals']['base_total_money_object']['raw'] * 100), (int) $saved->base_total);
     }
 
-    public function test_an_edit_keeps_the_shipping_cost_and_method_name_for_an_address_that_did_not_change(): void
+    public function test_an_edit_that_changes_only_the_city_quotes_shipping_again(): void
     {
         $order = $this->create_order();
-        $stored = Order::find($order['id']);
 
         $this->rename_shipping_method('Express Delivery', 15);
 
@@ -981,8 +980,70 @@ class OrderEditApiTest extends RestTestCase
         ])));
 
         $saved = Order::find($order['id']);
-        $this->assertSame($stored->base_shipping_total, $saved->base_shipping_total);
-        $this->assertSame($stored->shipping_metadata, $saved->shipping_metadata);
+        $this->assertSame(1500, (int) $saved->base_shipping_total);
+        $this->assertEquals('Express Delivery', $saved->shipping_metadata['shipping_method']['name']);
+    }
+
+    public function test_an_edit_that_changes_only_the_notes_quotes_shipping_again_at_the_current_rate(): void
+    {
+        $order = $this->create_order();
+
+        $this->rename_shipping_method('Standard Delivery', 15);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'order_notes' => 'Leave at the door',
+        ])));
+
+        $this->assertSame(1500, (int) Order::find($order['id'])->base_shipping_total);
+    }
+
+    public function test_an_edit_that_raises_a_quantity_quotes_a_weight_based_rate_again(): void
+    {
+        Variant::query()->where('id', $this->variant_id)->update(['weight' => 2]);
+        $this->save_shipping_methods([[
+            'id' => 'method-0001',
+            'is_enabled' => true,
+            'name' => 'Rate by Weight',
+            'type' => ShippingMethodTypes::WEIGHT_BASED,
+            'is_taxable' => false,
+            'base_amount' => 0,
+            'is_free_shipping_enabled' => false,
+            'base_free_shipping_min_amount' => 0,
+            'description' => null,
+            'shipping_rules' => [],
+            'ranges' => [
+                ['from' => 0, 'to' => 5, 'base_amount' => 15],
+                ['from' => 5, 'to' => 10, 'base_amount' => 25],
+            ],
+        ]]);
+        $order = $this->create_order();
+        $this->assertSame(1500, (int) Order::find($order['id'])->base_shipping_total);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 3)],
+        ])));
+
+        $this->assertSame(2500, (int) Order::find($order['id'])->base_shipping_total);
+    }
+
+    public function test_an_edit_of_an_order_whose_method_was_removed_saves_with_another_available_method(): void
+    {
+        $order = $this->create_order();
+        $this->save_shipping_methods([
+            $this->flat_rate_method('method-0001', 'Standard Delivery', 10, false),
+            $this->flat_rate_method('method-0002', 'Express Delivery', 12),
+        ]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'shipping_method' => 'method-0002',
+        ])));
+
+        $saved = Order::find($order['id']);
+        $this->assertSame('method-0002', $saved->shipping_method);
+        $this->assertSame(1200, (int) $saved->base_shipping_total);
+        $this->assertEquals('Express Delivery', $saved->shipping_metadata['shipping_method']['name']);
     }
 
     public function test_an_edit_that_changes_the_state_quotes_shipping_again(): void
@@ -1045,6 +1106,25 @@ class OrderEditApiTest extends RestTestCase
         $item = OrderItem::find($order['items'][0]['id']);
         $this->assertEquals(20, OrderTax::where('order_id', $order['id'])->first()->rate);
         $this->assertEquals((int) round($item->base_subtotal * 0.20), $item->base_tax_total);
+    }
+
+    public function test_an_edit_taxes_the_shipping_at_the_current_rate_while_the_lines_keep_the_stored_rate(): void
+    {
+        $this->enable_tax(false, 10, 10);
+        $this->rename_shipping_method('Standard Delivery', 10, true, true);
+        $order = $this->create_order();
+
+        $this->enable_tax(false, 20, 20);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+        ])));
+
+        $product_tax = OrderTax::where('order_id', $order['id'])->where('type', OrderTaxType::PRODUCT)->first();
+        $shipping_tax = OrderTax::where('order_id', $order['id'])->where('type', OrderTaxType::SHIPPING)->first();
+        $this->assertEquals(10, $product_tax->rate);
+        $this->assertEquals(20, $shipping_tax->rate);
+        $this->assertSame(200, Order::find($order['id'])->base_shipping_tax_amount);
     }
 
     public function test_a_new_line_is_taxed_at_the_current_rate_for_an_address_that_did_not_change(): void
@@ -1252,16 +1332,18 @@ class OrderEditApiTest extends RestTestCase
         ]);
     }
 
-    public function test_the_preview_keeps_the_stored_shipping_charge_when_the_method_was_removed_and_the_address_did_not_change(): void
+    public function test_the_preview_and_the_save_both_refuse_a_removed_method_when_the_address_did_not_change(): void
     {
         $order = $this->create_order();
-        $stored = Order::find($order['id']);
 
         $this->rename_shipping_method('Express Delivery', 15, false);
 
-        $preview = $this->preview(['order_id' => $order['id'], 'items' => [$this->line($order, 1)]]);
+        $payload = $this->order_payload(['order_id' => $order['id'], 'items' => [$this->line($order, 1)]]);
+        $preview_error = $this->assert_api_error($this->request('POST', 'calculate/order', $payload), 422);
+        $save_error = $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $payload), 422);
 
-        $this->assertEquals($preview['totals']['base_shipping_amount_money_object']['raw'], $stored->base_shipping_total / 100);
+        $this->assertStringContainsString('Select another shipping method.', $preview_error['message']);
+        $this->assertStringContainsString('Select another shipping method.', $save_error['message']);
     }
 
     public function test_the_preview_and_the_save_both_refuse_a_new_line_beyond_the_stock(): void
@@ -1325,7 +1407,6 @@ class OrderEditApiTest extends RestTestCase
             ],
             'coupon_codes' => [$coupon->code],
         ]);
-        $stored = Order::find($order['id']);
         $stored_price = OrderItem::find($order['items'][0]['id'])->base_price;
 
         Variant::query()->where('id', $this->variant_id)->update(['base_price' => $stored_price + 500]);
@@ -1351,19 +1432,18 @@ class OrderEditApiTest extends RestTestCase
         $this->assertEquals($preview['totals']['base_total_money_object']['raw'], $saved->base_total / 100);
         $this->assertEquals($preview['totals']['base_tax_total_money_object']['raw'], $saved->base_tax_total / 100);
         $this->assertEquals($preview['totals']['base_shipping_amount_money_object']['raw'], $saved->base_shipping_total / 100);
-        $this->assertSame($stored->base_shipping_total, $saved->base_shipping_total);
+        $this->assertSame(1500, (int) $saved->base_shipping_total);
         $this->assertSame($stored_price, OrderItem::find($order['items'][0]['id'])->base_price);
         $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
         $this->assertCount(2, OrderItem::where('order_id', $order['id'])->get());
 
-        // A new delivery state is the one thing that quotes shipping and tax again, preview and save alike.
+        // A new delivery state also quotes the tax again, preview and save alike.
         $payload['shipping_state'] = 'CA';
         $moved_preview = $this->preview($payload);
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload($payload)));
 
         $moved = Order::find($order['id']);
-        $this->assertGreaterThan($saved->base_shipping_total, $moved->base_shipping_total);
         $this->assertEquals(20, OrderTax::where('order_id', $order['id'])->first()->rate);
         $this->assertEquals($moved_preview['totals']['base_total_money_object']['raw'], $moved->base_total / 100);
         $this->assertEquals($moved_preview['totals']['base_shipping_amount_money_object']['raw'], $moved->base_shipping_total / 100);
@@ -1535,6 +1615,41 @@ class OrderEditApiTest extends RestTestCase
      */
     protected function rename_shipping_method(string $name, int $base_amount = 10, bool $is_enabled = true, bool $is_taxable = false): void
     {
+        $this->save_shipping_methods([$this->flat_rate_method('method-0001', $name, $base_amount, $is_enabled, $is_taxable)]);
+    }
+
+    /**
+     * Build a flat rate shipping method.
+     *
+     * @param string $id          Method ID.
+     * @param string $name        Method name.
+     * @param int    $base_amount Cost in major units.
+     * @param bool   $is_enabled  Whether the method is enabled.
+     * @param bool   $is_taxable  Whether the method is taxable.
+     * @return array<string, mixed>
+     */
+    protected function flat_rate_method(string $id, string $name, int $base_amount = 10, bool $is_enabled = true, bool $is_taxable = false): array
+    {
+        return [
+            'id' => $id,
+            'is_enabled' => $is_enabled,
+            'name' => $name,
+            'type' => ShippingMethodTypes::FLAT_RATE,
+            'base_amount' => $base_amount,
+            'is_taxable' => $is_taxable,
+            'description' => null,
+            'shipping_rules' => [],
+        ];
+    }
+
+    /**
+     * Replace the methods of the US test zone.
+     *
+     * @param array<int, array<string, mixed>> $methods Shipping methods.
+     * @return void
+     */
+    protected function save_shipping_methods(array $methods): void
+    {
         $this->assert_api_success($this->request('PUT', 'settings', [
             'key' => OptionKeys::SHIPPING_SETTINGS,
             'data' => [
@@ -1544,18 +1659,7 @@ class OrderEditApiTest extends RestTestCase
                         'is_enabled' => true,
                         'title' => 'Test Zone',
                         'regions' => [['country' => 'US', 'states' => []]],
-                        'shipping_methods' => [
-                            [
-                                'id' => 'method-0001',
-                                'is_enabled' => $is_enabled,
-                                'name' => $name,
-                                'type' => ShippingMethodTypes::FLAT_RATE,
-                                'base_amount' => $base_amount,
-                                'is_taxable' => $is_taxable,
-                                'description' => null,
-                                'shipping_rules' => [],
-                            ],
-                        ],
+                        'shipping_methods' => $methods,
                     ],
                 ],
             ],

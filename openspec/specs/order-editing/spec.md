@@ -1,7 +1,7 @@
 # order-editing Specification
 
 ## Purpose
-Defines when an admin can edit an existing order, and how saving an edit keeps the pricing the customer was promised (line prices, coupons, exchange rate, shipping and tax), changes shipping and tax only for a new delivery address, and applies the stock, limit and reachability rules to quantity changes.
+Defines when an admin can edit an existing order, and how saving an edit keeps the pricing the customer was promised (line prices, coupons, exchange rate and line tax rates), changes the line tax rates only for a new tax address, always quotes shipping and shipping tax again, and applies the stock, limit and reachability rules to quantity changes.
 
 ## Requirements
 
@@ -267,34 +267,69 @@ When an edit is saved, the system SHALL convert every invoiced amount with the e
 - **WHEN** an order was saved under tax-exclusive pricing and the store now uses tax-inclusive pricing
 - **THEN** after an edit is saved, the order is still calculated and stored as tax-exclusive
 
-### Requirement: Shipping keeps its stored charge when the address and method are the same
-When the shipping country, the shipping state and the shipping method of an edit are the same as on the stored order, the system SHALL use the stored shipping charge and the stored shipping method record. It SHALL NOT check the method against the current shipping settings.
+### Requirement: An edit always quotes shipping again
+The edit preview and the save SHALL quote the shipping charge and the shipping method record again from the current shipping settings, for the order as it is sent: its lines, its quantities, its shipping address and its shipping method. The stored shipping charge and the stored shipping method record SHALL NOT be used by an edit.
 
-#### Scenario: Address not changed
-- **WHEN** an admin saves an edit with the same shipping country, state and method, after the store's flat rate was raised
-- **THEN** the shipping charge and the method name are the stored ones
+#### Scenario: Quantity raised under a weight-based rate
+- **WHEN** the order's shipping method charges by weight and an admin raises the quantity of a line
+- **THEN** the shipping charge is quoted again for the new total weight
 
-### Requirement: A new shipping address or method quotes shipping again
-When the shipping country or state of an edit is different from the stored order's, or another shipping method is chosen, the system SHALL quote the shipping charge and the shipping method record again from the current settings. A method that is not available for the new address SHALL fail the request with a 422 error.
+#### Scenario: Line added
+- **WHEN** an admin adds a new line to the order
+- **THEN** the shipping charge is quoted again with the new line included
+
+#### Scenario: Only the postal code changed
+- **WHEN** an admin saves an edit that changes only the shipping postal code
+- **THEN** the shipping charge and the method record are quoted from the current settings for that address
 
 #### Scenario: Address changed to another state
 - **WHEN** an admin saves an edit that changes the shipping state
 - **THEN** the shipping charge and the method record are quoted from the current settings for the new address
 
+#### Scenario: Rate changed after the order was placed
+- **WHEN** the store's flat rate was raised after the order was placed, and an admin saves an edit that changes only the order notes
+- **THEN** the shipping charge is the current flat rate and the method record is the current one
+
+#### Scenario: Preview and save agree
+- **WHEN** an admin previews an edit and then saves the same payload with the same store settings
+- **THEN** the saved shipping charge equals the shipping charge of the preview
+
+### Requirement: An edit always checks the shipping method
+The edit preview and the save SHALL check the selected shipping method against the current shipping settings for the order as it is sent. When the method is not available, the request SHALL fail with a 422 error whose message tells the admin to select another shipping method. This SHALL apply also when the edit does not change the shipping address or the shipping method.
+
 #### Scenario: Shipping method not available at the new address
 - **WHEN** an admin changes the shipping country and the selected shipping method does not serve it
 - **THEN** the request fails with a 422 error
 
+#### Scenario: Method removed from the store, nothing else changed
+- **WHEN** the order's shipping method was removed from the store and an admin saves an edit that changes only a quantity
+- **THEN** the request fails with a 422 error that tells the admin to select another shipping method
+
+#### Scenario: Admin selects an available method
+- **WHEN** the order's shipping method was removed from the store and an admin saves an edit with a shipping method that is available for the address
+- **THEN** the edit is saved with the new method's charge and method record
+
+### Requirement: The shipping tax of an edit follows the new shipping quote
+The system SHALL calculate the shipping tax of an edit from the current settings, for the new shipping charge. This SHALL apply also when the line tax rates stay stored because the address that tax follows did not change.
+
+#### Scenario: Tax rate raised, address not changed
+- **WHEN** the store's tax rate was raised after the order was placed, and an admin saves an edit that changes only a quantity
+- **THEN** the lines on the order keep the stored rate and the shipping is taxed at the current rate
+
+#### Scenario: Method no longer taxable
+- **WHEN** the order's shipping method was made not taxable after the order was placed, and an admin saves an edit
+- **THEN** the shipping tax of the edit is zero
+
 ### Requirement: Tax keeps its stored rates when the tax address is the same
-The system SHALL use the tax rates stored on the order, for the lines and for shipping, when the country and the state of the address that tax follows are the same as on the stored order. The address that tax follows is the order's tax destination: its shipping address, its billing address or the store address. The store address never changes. Other address fields SHALL NOT count as a new address.
+The system SHALL use the tax rates stored on the order for the lines on the order when the country and the state of the address that tax follows are the same as on the stored order. The address that tax follows is the order's tax destination: its shipping address, its billing address or the store address. The store address never changes. Other address fields SHALL NOT count as a new address. The shipping tax SHALL NOT use stored rates.
 
 #### Scenario: Tax rate not changed
 - **WHEN** an admin saves an edit with the same country and state, after the store's tax rate was raised
-- **THEN** the tax is calculated with the stored rate
+- **THEN** the lines on the order are taxed with the stored rate
 
 #### Scenario: Only the street changed
 - **WHEN** an admin saves an edit that changes only the street and city of the address
-- **THEN** the stored tax rates and the stored shipping charge are used
+- **THEN** the stored line tax rates are used, and the shipping charge and the shipping tax are quoted again
 
 ### Requirement: A new tax address calculates tax again
 When the country or the state of the address that tax follows is different from the stored order's, the system SHALL calculate the tax rates of every line and of shipping again from the current settings.
@@ -308,11 +343,11 @@ The system SHALL retain shipping tax rates in zero-amount tax rows when shipping
 
 #### Scenario: Free shipping is applied and later removed
 - **WHEN** an order has a 10% shipping tax rate, free shipping is saved, the live rate changes to 20%, and free shipping is removed without changing the address
-- **THEN** the saved zero-amount tax row still holds 10% and the restored shipping charge is taxed at 10%
+- **THEN** the shipping charge is quoted again and taxed at the current 20% rate
 
 #### Scenario: Free shipping at checkout
 - **WHEN** a new order has taxable shipping waived by a coupon
-- **THEN** its shipping tax rates are stored with zero amounts for later edits
+- **THEN** its shipping tax rates are stored with zero amounts
 
 #### Scenario: Split shipping with no taxable amount
 - **WHEN** free shipping is split between items with different tax rates and every item's taxable amount is zero
@@ -520,6 +555,7 @@ On the edit screen, each price preview line SHALL be matched to a form line by t
 #### Scenario: Line removed from the middle
 - **WHEN** an admin removes the first of three stored lines
 - **THEN** the preview data for the other two lines stays on the correct lines
+
 ### Requirement: An edit read returns the order with live stock and shipping choices
 `GET /orders/{id}/edit` SHALL return every field of the admin order detail payload. It SHALL also return, on each item, `is_reachable`, `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order` and `max_per_order`, with the same meaning and values as the same keys on an item of the edit preview. The values SHALL be read from the variant when the response is built, not from the order.
 
@@ -590,6 +626,7 @@ The edit screen SHALL offer the `available_shipping_methods` of the edit read as
 #### Scenario: Order created without the edit read
 - **WHEN** the admin opens the order create screen
 - **THEN** the screen does not send an edit read and offers only the shipping methods of price previews
+
 ### Requirement: An edit takes the tax destination from the order
 When an edit calculates tax, the system SHALL use the order's stored tax destination to choose the address that tax follows. It SHALL NOT read the current tax-destination setting, including when the address that tax follows is new and tax is calculated again.
 
@@ -598,7 +635,7 @@ When an edit calculates tax, the system SHALL use the order's stored tax destina
 - **THEN** the tax is calculated from the shipping address
 
 ### Requirement: An edit preview refuses what the save refuses
-The edit preview (`POST /calculate/order` with an `order_id`) SHALL apply the currency check and the shipping-method check of the save. A `currency_code` that differs from the order's currency SHALL fail the preview with a 422 error. A shipping method that is not available when shipping is quoted again SHALL fail the preview with a 422 error. When the stored shipping charge is kept, the method SHALL NOT be checked against the current settings.
+The edit preview (`POST /calculate/order` with an `order_id`) SHALL apply the currency check and the shipping-method check of the save. A `currency_code` that differs from the order's currency SHALL fail the preview with a 422 error. A shipping method that is not available for the edit as it is sent SHALL fail the preview with a 422 error.
 
 #### Scenario: Preview with a different currency
 - **WHEN** an admin previews an edit of a EUR order with currency code USD
@@ -610,7 +647,7 @@ The edit preview (`POST /calculate/order` with an `order_id`) SHALL apply the cu
 
 #### Scenario: Preview with the same address and method
 - **WHEN** an admin previews an edit with the same shipping country, state and method, and the method was removed from the store since
-- **THEN** the preview succeeds with the stored shipping charge
+- **THEN** the preview fails with a 422 error, as the save does
 
 ### Requirement: A kept coupon is matched by code without regard to case
 A coupon on the stored order SHALL stay applied when the edit sends its code in a different letter case. The system SHALL NOT treat that code as a new coupon, SHALL NOT remove the stored coupon, and SHALL NOT claim a coupon use again.

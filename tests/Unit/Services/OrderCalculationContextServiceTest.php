@@ -138,7 +138,6 @@ class OrderCalculationContextServiceTest extends TestCase
             return $order_item;
         }, $lines)));
         $order->set_relation('order_coupons', collection([]));
-        $order->set_relation('shipping_taxes', collection([]));
 
         return $order;
     }
@@ -562,7 +561,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function test_validate_edit_refuses_a_shipping_method_that_is_quoted_again_and_not_available(): void
+    public function test_validate_edit_refuses_a_shipping_method_that_is_not_available(): void
     {
         $order = $this->make_order([]);
         $input = $this->input(['shipping_method' => 'method-0002']);
@@ -574,20 +573,19 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->service->validate_edit($order, $input, $context);
     }
 
-    public function test_validate_edit_does_not_check_the_shipping_method_when_the_stored_charge_is_kept(): void
+    public function test_validate_edit_checks_the_shipping_method_when_the_address_and_method_did_not_change(): void
     {
         $order = $this->make_order([]);
         $order->shipping_method = 'method-0001';
         $order->shipping_country = 'US';
         $order->shipping_state = 'NY';
-        $order->base_shipping_total = 1000;
-        $order->base_shipping_tax_amount = 0;
         $input = $this->input(['shipping_method' => 'method-0001', 'shipping_country' => 'US', 'shipping_state' => 'NY']);
         $context = $this->service->build($input, $order);
-        $this->shipping_service->expects($this->never())->method('has_valid_shipping_method');
+        $this->shipping_service->expects($this->once())->method('has_valid_shipping_method')->willReturn(false);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Select another shipping method.');
 
         $this->service->validate_edit($order, $input, $context);
-
-        $this->assertTrue($context->uses_stored_shipping());
     }
 }

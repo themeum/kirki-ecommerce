@@ -4,7 +4,6 @@ namespace Kirki\Ecommerce\App\Services;
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
@@ -16,11 +15,10 @@ use Kirki\Ecommerce\App\Models\OrderCoupon;
 /**
  * Reads the terms an order was placed with, which an edit of that order keeps.
  *
- * The tax rates, the shipping charge and the coupons stay as stored. They are
- * calculated again from the current settings only where the edit asks for a new
- * quote: a shipping charge when the shipping address (country or state) or the
- * shipping method changes, and the tax rates when the address that tax follows
- * changes.
+ * The tax rates of the lines and the coupons stay as stored. The tax rates are
+ * calculated again from the current settings only when the address that tax
+ * follows changes. The shipping charge and the shipping tax are not stored terms:
+ * an edit always quotes them again.
  *
  * @since 1.0.0
  */
@@ -31,7 +29,7 @@ class StoredOrderTermsService
      *
      * @since 1.0.0
      *
-     * @param Order                 $order   Order being edited, with its items and their taxes, shipping taxes and order coupons loaded.
+     * @param Order                 $order   Order being edited, with its items and their taxes and order coupons loaded.
      * @param CalculationContextDTO $context Context of the edit, with its items and addresses built.
      * @return StoredOrderTermsDTO
      */
@@ -42,24 +40,11 @@ class StoredOrderTermsService
         $stored->tax_destination = $order->tax_destination;
         $stored->coupons = $this->get_kept_coupons($order, $context);
 
-        $is_shipping_stored = !$this->is_shipping_quoted_again($order, $context);
-
-        if ($is_shipping_stored) {
-            $stored->shipping_subtotal = $this->get_shipping_subtotal($order);
-        }
-
         if ($this->is_tax_address_changed($order, $context)) {
             return $stored;
         }
 
-        $line_keys = $this->get_line_keys_by_order_item_id($context);
-
-        $stored->item_tax_rates = $this->get_item_tax_rates($order, $line_keys);
-
-        if ($is_shipping_stored) {
-            $stored->shipping_tax_rates = $this->get_shipping_tax_rates($order, $line_keys);
-            $stored->is_shipping_tax_split = $order->shipping_taxes->some(fn($order_tax) => !empty($order_tax->order_item_id));
-        }
+        $stored->item_tax_rates = $this->get_item_tax_rates($order, $this->get_line_keys_by_order_item_id($context));
 
         return $stored;
     }
@@ -85,21 +70,6 @@ class StoredOrderTermsService
         }
 
         return $kept_coupons;
-    }
-
-    /**
-     * Check whether the edit needs a new shipping quote: the shipping address moved to another country or state, or another method was picked.
-     *
-     * @since 1.0.0
-     *
-     * @param Order                 $order   Order being edited.
-     * @param CalculationContextDTO $context Context of the edit.
-     * @return bool
-     */
-    protected function is_shipping_quoted_again(Order $order, CalculationContextDTO $context)
-    {
-        return $context->shipping_method_id !== $order->shipping_method
-            || $this->has_region_changed($context->shipping_address, $order->shipping_country, $order->shipping_state);
     }
 
     /**
@@ -139,30 +109,6 @@ class StoredOrderTermsService
     {
         return (string) ($address['country'] ?? '') !== (string) $stored_country
             || (string) ($address['state'] ?? '') !== (string) $stored_state;
-    }
-
-    /**
-     * Get the shipping charge as it was before the shipping discount and the shipping tax.
-     *
-     * The order stores the charge after both, so the free shipping discount is added back
-     * and the shipping tax is taken off.
-     *
-     * @since 1.0.0
-     *
-     * @param Order $order Order being edited.
-     * @return int Charge in base currency minor units.
-     */
-    protected function get_shipping_subtotal(Order $order)
-    {
-        $shipping_discount = 0;
-
-        foreach ($order->order_coupons as $order_coupon) {
-            if ($order_coupon->discount_type === DiscountType::FREE_SHIPPING) {
-                $shipping_discount += $order_coupon->base_discount_amount;
-            }
-        }
-
-        return max(0, $order->base_shipping_total - $order->base_shipping_tax_amount + $shipping_discount);
     }
 
     /**
@@ -217,41 +163,19 @@ class StoredOrderTermsService
     }
 
     /**
-     * Get the shipping tax rates stored on the order.
-     *
-     * @since 1.0.0
-     *
-     * @param Order                  $order     Order being edited.
-     * @param array<int, int|string> $line_keys Line key per order item ID.
-     * @return TaxRateDTO[] The line key is set when the rate was split to a line that is in the edit.
-     */
-    protected function get_shipping_tax_rates(Order $order, array $line_keys)
-    {
-        $shipping_tax_rates = [];
-
-        foreach ($order->shipping_taxes as $order_tax) {
-            $shipping_tax_rates[] = $this->make_tax_rate($order_tax->name, $order_tax->rate, $line_keys[$order_tax->order_item_id] ?? null);
-        }
-
-        return $shipping_tax_rates;
-    }
-
-    /**
      * Make a stored tax rate.
      *
      * @since 1.0.0
      *
-     * @param string|null     $name     Name of the tax.
-     * @param float|string    $rate     Rate in percent.
-     * @param int|string|null $line_key Line the rate was split to; null when it was not split.
+     * @param string|null  $name Name of the tax.
+     * @param float|string $rate Rate in percent.
      * @return TaxRateDTO
      */
-    protected function make_tax_rate($name, $rate, $line_key = null)
+    protected function make_tax_rate($name, $rate)
     {
         $tax_rate = new TaxRateDTO();
         $tax_rate->name = $name;
         $tax_rate->rate = (float) $rate;
-        $tax_rate->line_key = $line_key;
 
         return $tax_rate;
     }

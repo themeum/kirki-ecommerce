@@ -97,7 +97,7 @@ class OrderCalculationContextService
 
     /**
      * Check an edit against the rules that no payload line can show: the order keeps its
-     * currency, and a shipping method that is quoted again must be available.
+     * currency, and the shipping method must be available, as an edit always quotes the shipping again.
      *
      * The preview and the save both call it, so the preview refuses what the save refuses.
      *
@@ -112,7 +112,7 @@ class OrderCalculationContextService
     public function validate_edit(Order $order, OrderCalculationInputDTO $input, CalculationContextDTO $context)
     {
         throw_if(!empty($input->currency_code) && $input->currency_code !== $order->currency_code, __('The currency of an order cannot be changed.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
-        throw_if(!$context->uses_stored_shipping() && !$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('The shipping method of this order is not available. Select another shipping method.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
 
     /**

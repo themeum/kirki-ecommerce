@@ -192,7 +192,7 @@ The order calculation endpoint SHALL accept an optional `order_id`. All other in
 
 #### Scenario: Preview an edit
 - **WHEN** an admin sends a calculation with the ID of an editable order
-- **THEN** the endpoint returns the calculation for that edit, with stored prices, stored coupons, stored shipping and stored tax rates
+- **THEN** the endpoint returns the calculation for that edit, with stored prices, stored coupons and stored line tax rates, and with the shipping charge and shipping tax quoted again from the current settings
 
 #### Scenario: Preview an edit of a paid order
 - **WHEN** an admin sends a calculation with the ID of a paid order

@@ -76,17 +76,15 @@ abstract class TestCase extends BaseTestCase
     /**
      * Make a stored tax rate.
      *
-     * @param string          $name     Name of the tax.
-     * @param float           $rate     Rate in percent.
-     * @param int|string|null $line_key Line the rate was split to, for a shipping rate split across items.
+     * @param string $name Name of the tax.
+     * @param float  $rate Rate in percent.
      * @return TaxRateDTO
      */
-    protected function make_tax_rate(string $name, float $rate, $line_key = null): TaxRateDTO
+    protected function make_tax_rate(string $name, float $rate): TaxRateDTO
     {
         $tax_rate = new TaxRateDTO();
         $tax_rate->name = $name;
         $tax_rate->rate = $rate;
-        $tax_rate->line_key = $line_key;
 
         return $tax_rate;
     }
