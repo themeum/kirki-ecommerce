@@ -18,7 +18,4 @@ class TaxRateDTO extends DTO
 
     /** @var float Rate in percent */
     public $rate;
-
-    /** @var int|string|null Line the rate was split to, for a shipping tax split across items; null for a product rate and for a shipping rate that was not split */
-    public $line_key;
 }

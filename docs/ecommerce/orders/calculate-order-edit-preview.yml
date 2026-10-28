@@ -909,8 +909,10 @@ docs: |-
   `PUT {{baseUrl}}/orders/{id}`, plus `order_id`.
 
   - A line already on the order is sent with its item `id`. It keeps its stored price. A new line is sent with `variant_id`.
-  - Coupons, exchange rate, tax mode, and the shipping charge and tax rates are the ones stored on the order.
-    Shipping and tax are quoted again only when the delivery country or state, or the shipping method, changes.
+  - Coupons, exchange rate, tax mode and the tax rates of the lines are the ones stored on the order.
+    The line tax rates are quoted again only when the country or state of the address that tax follows changes.
+  - The shipping charge and the shipping tax are always quoted again from the current settings. A shipping method
+    that is not available gives a 422 error.
   - The preview applies the same quantity, per-order limit and stock rules as the save, so it gives the same 422 errors.
     It does not reserve stock.
 

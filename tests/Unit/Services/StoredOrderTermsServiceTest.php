@@ -58,44 +58,29 @@ class StoredOrderTermsServiceTest extends TestCase
         $this->assertEquals([2 => [$this->make_tax_rate('VAT', 10.0)], 1 => [$this->make_tax_rate('VAT', 20.0)]], $stored->item_tax_rates);
     }
 
-    public function test_it_keeps_the_shipping_charge_and_the_tax_rates_when_nothing_moved(): void
+    public function test_it_keeps_the_line_tax_rates_when_nothing_moved(): void
     {
-        $order = $this->make_order(['base_shipping_total' => 1100, 'base_shipping_tax_amount' => 100], [
+        $order = $this->make_order([], [
             ['id' => 5, 'taxes' => [['type' => OrderTaxType::PRODUCT, 'name' => 'VAT', 'rate' => 10]]],
-        ], [['name' => 'Shipping Tax', 'rate' => 10, 'order_item_id' => null]]);
+        ]);
 
         $stored = $this->service->build($order, $this->make_context());
 
-        $this->assertSame(1000, $stored->shipping_subtotal);
         $this->assertEquals([0 => [$this->make_tax_rate('VAT', 10.0)]], $stored->item_tax_rates);
-        $this->assertEquals([$this->make_tax_rate('Shipping Tax', 10.0)], $stored->shipping_tax_rates);
-        $this->assertFalse($stored->is_shipping_tax_split);
     }
 
-    public function test_the_shipping_charge_adds_back_a_free_shipping_discount(): void
-    {
-        $order = $this->make_order(['base_shipping_total' => 0, 'base_shipping_tax_amount' => 0]);
-        $order->set_relation('order_coupons', collection([$this->make_order_coupon(['code' => 'SHIPFREE', 'discount_type' => DiscountType::FREE_SHIPPING, 'base_discount_amount' => 900])]));
-
-        $stored = $this->service->build($order, $this->make_context());
-
-        $this->assertSame(900, $stored->shipping_subtotal);
-    }
-
-    public function test_it_lists_only_the_product_rates_of_a_line_and_flags_split_shipping_tax(): void
+    public function test_it_lists_only_the_product_rates_of_a_line(): void
     {
         $order = $this->make_order([], [
             ['id' => 5, 'taxes' => [
                 ['type' => OrderTaxType::PRODUCT, 'name' => 'VAT', 'rate' => 20],
                 ['type' => OrderTaxType::SHIPPING, 'name' => 'VAT', 'rate' => 20],
             ]],
-        ], [['name' => 'VAT', 'rate' => 20, 'order_item_id' => 5]]);
+        ]);
 
         $stored = $this->service->build($order, $this->make_context());
 
         $this->assertEquals([0 => [$this->make_tax_rate('VAT', 20.0)]], $stored->item_tax_rates);
-        $this->assertEquals([$this->make_tax_rate('VAT', 20.0, 0)], $stored->shipping_tax_rates);
-        $this->assertTrue($stored->is_shipping_tax_split);
     }
 
     public function test_a_line_with_no_stored_tax_has_an_empty_rate_list(): void
@@ -105,20 +90,17 @@ class StoredOrderTermsServiceTest extends TestCase
         $this->assertSame([0 => []], $stored->item_tax_rates);
     }
 
-    public function test_it_quotes_shipping_and_tax_again_when_the_shipping_state_changed(): void
+    public function test_it_quotes_tax_again_when_the_shipping_state_changed(): void
     {
         $stored = $this->service->build($this->make_order(), $this->make_context(['shipping_address' => ['country' => 'US', 'state' => 'CA']]));
 
-        $this->assertNull($stored->shipping_subtotal);
-        $this->assertNull($stored->shipping_tax_rates);
         $this->assertNull($stored->item_tax_rates);
     }
 
-    public function test_it_quotes_shipping_and_tax_again_when_the_shipping_country_changed(): void
+    public function test_it_quotes_tax_again_when_the_shipping_country_changed(): void
     {
         $stored = $this->service->build($this->make_order(), $this->make_context(['shipping_address' => ['country' => 'CA', 'state' => 'NY']]));
 
-        $this->assertNull($stored->shipping_subtotal);
         $this->assertNull($stored->item_tax_rates);
     }
 
@@ -126,16 +108,13 @@ class StoredOrderTermsServiceTest extends TestCase
     {
         $stored = $this->service->build($this->make_order(), $this->make_context(['shipping_address' => ['country' => 'US', 'state' => 'NY', 'city' => 'Albany', 'postal_code' => '12207']]));
 
-        $this->assertNotNull($stored->shipping_subtotal);
         $this->assertNotNull($stored->item_tax_rates);
     }
 
-    public function test_it_quotes_shipping_again_when_another_shipping_method_is_picked(): void
+    public function test_another_shipping_method_keeps_the_line_tax_rates(): void
     {
         $stored = $this->service->build($this->make_order(), $this->make_context(['shipping_method_id' => 'method-0002']));
 
-        $this->assertNull($stored->shipping_subtotal);
-        $this->assertNull($stored->shipping_tax_rates);
         $this->assertNotNull($stored->item_tax_rates);
     }
 
@@ -145,9 +124,7 @@ class StoredOrderTermsServiceTest extends TestCase
 
         $stored = $this->service->build($order, $this->make_context(['shipping_address' => ['country' => 'US', 'state' => 'CA']]));
 
-        $this->assertNull($stored->shipping_subtotal);
         $this->assertNotNull($stored->item_tax_rates);
-        $this->assertNull($stored->shipping_tax_rates);
     }
 
     public function test_tax_that_follows_the_billing_address_is_quoted_again_for_a_new_billing_state(): void
@@ -156,7 +133,6 @@ class StoredOrderTermsServiceTest extends TestCase
 
         $stored = $this->service->build($order, $this->make_context(['billing_address' => ['country' => 'US', 'state' => 'CA']]));
 
-        $this->assertNotNull($stored->shipping_subtotal);
         $this->assertNull($stored->item_tax_rates);
     }
 
@@ -196,12 +172,11 @@ class StoredOrderTermsServiceTest extends TestCase
     /**
      * Make an order placed to New York, shipped with method-0001 and taxed on its shipping address.
      *
-     * @param array<string, mixed>                 $attributes   Order attributes to override.
-     * @param array<int, array<string, mixed>>     $lines        Stored lines: `id` and their `taxes` rows.
-     * @param array<int, array<string, mixed>>     $shipping_taxes Shipping tax rows.
+     * @param array<string, mixed>             $attributes Order attributes to override.
+     * @param array<int, array<string, mixed>> $lines      Stored lines: `id` and their `taxes` rows.
      * @return Order
      */
-    protected function make_order(array $attributes = [], array $lines = [['id' => 5, 'taxes' => []]], array $shipping_taxes = []): Order
+    protected function make_order(array $attributes = [], array $lines = [['id' => 5, 'taxes' => []]]): Order
     {
         $order = $this->make_model(Order::class, array_merge([
             'id' => 77,
@@ -212,8 +187,6 @@ class StoredOrderTermsServiceTest extends TestCase
             'shipping_state' => 'NY',
             'billing_country' => 'US',
             'billing_state' => 'NY',
-            'base_shipping_total' => 1000,
-            'base_shipping_tax_amount' => 0,
         ], $attributes));
 
         $order->set_relation('items', collection(array_map(function (array $line) {
@@ -222,7 +195,6 @@ class StoredOrderTermsServiceTest extends TestCase
 
             return $order_item;
         }, $lines)));
-        $order->set_relation('shipping_taxes', collection(array_map(fn(array $tax) => $this->make_model(OrderTax::class, array_merge(['type' => OrderTaxType::SHIPPING], $tax)), $shipping_taxes)));
         $order->set_relation('order_coupons', collection([]));
 
         return $order;

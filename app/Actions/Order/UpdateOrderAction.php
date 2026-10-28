@@ -323,7 +323,7 @@ class UpdateOrderAction
         $order_dto->items_count = $calculated_result->items_count;
 
         $order_dto->shipping_method = $dto->shipping_method;
-        $order_dto->shipping_metadata = $context->uses_stored_shipping() ? $order->shipping_metadata : $this->shipping_service->get_selected_shipping_method_snapshot($context);
+        $order_dto->shipping_metadata = $this->shipping_service->get_selected_shipping_method_snapshot($context);
 
         $order_dto->shipping_first_name = $dto->shipping_first_name;
         $order_dto->shipping_last_name = $dto->shipping_last_name;

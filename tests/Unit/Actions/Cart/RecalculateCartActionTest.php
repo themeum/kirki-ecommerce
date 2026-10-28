@@ -1018,32 +1018,11 @@ class RecalculateCartActionTest extends TestCase
     }
 
     /**
-     * The shipping charge stored on the order is used, and no new quote is asked for.
+     * The shipping of an edited order is always quoted again.
      *
      * @return void
      */
-    public function test_a_stored_shipping_charge_is_used_without_a_new_quote(): void
-    {
-        $this->bind_default_region(0, 0, false);
-        $shipping_service = $this->createMock(ShippingService::class);
-        $shipping_service->expects($this->never())->method('calculate');
-        $shipping_service->method('get_selected_shipping_method')->willReturn(['is_taxable' => false]);
-
-        $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD'], 'shipping_method_id' => 'method-0001']);
-        $context->stored = $this->make_stored_terms(['shipping_subtotal' => 1250]);
-
-        $result = $this->make_action(['shipping_service' => $shipping_service])->execute($context);
-
-        $this->assertSame(1250, $result->base_shipping_subtotal);
-        $this->assertSame(11250, $result->base_total);
-    }
-
-    /**
-     * Without a stored shipping charge the shipping is quoted again.
-     *
-     * @return void
-     */
-    public function test_shipping_is_quoted_again_when_no_charge_is_stored(): void
+    public function test_the_shipping_of_an_edited_order_is_quoted_again(): void
     {
         $this->bind_default_region(0, 0, false);
         $shipping_service = $this->createMock(ShippingService::class);
@@ -1101,7 +1080,6 @@ class RecalculateCartActionTest extends TestCase
         $terms = new StoredOrderTermsDTO();
         $terms->is_tax_inclusive = false;
         $terms->tax_destination = OrderTaxDestination::SHIPPING;
-        $terms->shipping_tax_rates = [];
 
         foreach ($overrides as $key => $value) {
             $terms->$key = $value;

@@ -60,18 +60,6 @@ class CalculationContextDTO extends DTO
     public $stored;
 
     /**
-     * Check whether the shipping charge is the one stored on an edited order, not a new quote.
-     *
-     * @since 1.0.0
-     *
-     * @return bool
-     */
-    public function uses_stored_shipping()
-    {
-        return $this->stored !== null && $this->stored->has_stored_shipping();
-    }
-
-    /**
      * Sum the base unit price times quantity of every item.
      *
      * @since 1.0.0
