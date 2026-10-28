@@ -115,7 +115,7 @@ const AddVariationPopover = ({ onClose }: AddVariationPopoverProps) => {
           <PopoverAnchor asChild>
             <Button variant="secondary" size="sm">
               <PlusIcon />
-              {__('Variation', 'kirki-ecommerce')}
+              {__('Add', 'kirki-ecommerce')}
             </Button>
           </PopoverAnchor>
         </DropdownMenuTrigger>

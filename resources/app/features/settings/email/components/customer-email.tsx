@@ -1,4 +1,4 @@
-import { Edit3, User2 } from 'lucide-react';
+import { Edit3, InfoIcon, User2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/stacked-items';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
+import Tooltip from '@/components/ui/tooltip';
 import {
   type EmailListItem,
   getNotificationTemplateLabel,
@@ -45,13 +46,13 @@ const EmailRow = (props: EmailRowProps) => {
   const { item, label, onToggle, onEdit } = props;
 
   return (
-    <StackedItem id={item.key}>
+    <StackedItem id={item.key} cssOverride={styles.notificationRow}>
       <StackedItemContent>
         <StackedItemTitle>
-          <Text variant="tiny" weight="medium">
+          <Text variant="small" weight="medium">
             {label}
           </Text>
-          {item.is_enabled === false && (
+          {!item.is_enabled && (
             <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
           )}
         </StackedItemTitle>
@@ -114,53 +115,62 @@ const CustomerEmail = (props: CustomerEmailProps) => {
                 )}
               </Text>
             </Flex>
-
-            <OptionAccordion
-              header={__('Order', 'kirki-ecommerce')}
-              subHeader={__('Customers get updates about their orders.', 'kirki-ecommerce')}
-              leftIcon={<CartIcon />}
-              open
-              variant="email"
-            >
-              {orderEmails.length > 0 && (
-                <StackedItems variant="card">
-                  {orderEmails.map((item) => (
-                    <EmailRow
-                      key={item.key}
-                      item={item}
-                      label={getNotificationTemplateLabel(
-                        resolveNotificationTemplate(item, 'customer_order'),
-                      )}
-                      onToggle={handleToggleOrder}
-                      onEdit={handleEditOrder}
-                    />
-                  ))}
-                </StackedItems>
-              )}
-            </OptionAccordion>
-            <OptionAccordion
-              header={__('User', 'kirki-ecommerce')}
-              subHeader={__('Customers get updates regarding registration.', 'kirki-ecommerce')}
-              leftIcon={<UserIcon />}
-              open
-              variant="email"
-            >
-              {userEmails.length > 0 && (
-                <StackedItems variant="card">
-                  {userEmails.map((item) => (
-                    <EmailRow
-                      key={item.key}
-                      item={item}
-                      label={getNotificationTemplateLabel(
-                        resolveNotificationTemplate(item, 'customer_user'),
-                      )}
-                      onToggle={handleToggleOrder}
-                      onEdit={handleEditOrder}
-                    />
-                  ))}
-                </StackedItems>
-              )}
-            </OptionAccordion>
+            <Flex direction="column" gap={2}>
+              <OptionAccordion
+                header={__('Order', 'kirki-ecommerce')}
+                leftIcon={<CartIcon />}
+                tooltip={
+                  <Tooltip tip={__('Customers get updates about their orders.', 'kirki-ecommerce')}>
+                    <InfoIcon size={14} />
+                  </Tooltip>
+                }
+                variant="email"
+              >
+                {orderEmails.length > 0 && (
+                  <StackedItems cssOverride={styles.notificationStack}>
+                    {orderEmails.map((item) => (
+                      <EmailRow
+                        key={item.key}
+                        item={item}
+                        label={getNotificationTemplateLabel(
+                          resolveNotificationTemplate(item, 'customer_order'),
+                        )}
+                        onToggle={handleToggleOrder}
+                        onEdit={handleEditOrder}
+                      />
+                    ))}
+                  </StackedItems>
+                )}
+              </OptionAccordion>
+              <OptionAccordion
+                header={__('User', 'kirki-ecommerce')}
+                leftIcon={<UserIcon />}
+                tooltip={
+                  <Tooltip
+                    tip={__('Customers get updates regarding registration.', 'kirki-ecommerce')}
+                  >
+                    <InfoIcon size={14} />
+                  </Tooltip>
+                }
+                variant="email"
+              >
+                {userEmails.length > 0 && (
+                  <StackedItems cssOverride={styles.notificationStack}>
+                    {userEmails.map((item) => (
+                      <EmailRow
+                        key={item.key}
+                        item={item}
+                        label={getNotificationTemplateLabel(
+                          resolveNotificationTemplate(item, 'customer_user'),
+                        )}
+                        onToggle={handleToggleOrder}
+                        onEdit={handleEditOrder}
+                      />
+                    ))}
+                  </StackedItems>
+                )}
+              </OptionAccordion>
+            </Flex>
           </Flex>
         </CardContent>
       </Card>
@@ -178,5 +188,16 @@ const styles = defineStyles({
   },
   actionButton: {
     padding: theme.spacing[1],
+  },
+  notificationStack: {
+    border: 'none',
+    borderRadius: theme.radius.none,
+  },
+  notificationRow: {
+    paddingInline: `12px`,
+    '& button[role="switch"]': {
+      width: '36px',
+      height: '20px',
+    },
   },
 });

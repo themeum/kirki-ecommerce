@@ -132,7 +132,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
               'Define conditional rules to adjust shipping prices based on product type, weight, zone, or cart value.',
               'kirki-ecommerce',
             )}
-            buttonText={__('Add Rule', 'kirki-ecommerce')}
+            buttonText={__('Add', 'kirki-ecommerce')}
             onAdd={() => setShowAddCard(true)}
           />
           {(showAddCard || rulesObj.length > 0) && (

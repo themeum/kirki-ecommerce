@@ -177,7 +177,10 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
     <Card
       data-search-skip="true"
       noShadow
-      cssOverride={mergeCss(cardStyles.formCard, styles.dashedCard)}
+      cssOverride={mergeCss(
+        cardStyles.formCard,
+        from === 'edit' ? styles.editRuleCard : styles.addRuleCard,
+      )}
     >
       <CardContent>
         <Form {...form}>
@@ -231,9 +234,7 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button variant="primary" onClick={form.handleSubmit(handleSubmit)}>
-                {from === 'edit'
-                  ? __('Update', 'kirki-ecommerce')
-                  : __('Add Rule', 'kirki-ecommerce')}
+                {from === 'edit' ? __('Update', 'kirki-ecommerce') : __('Add', 'kirki-ecommerce')}
               </Button>
             </Flex>
           </Flex>
@@ -248,8 +249,13 @@ TaxRuleFormCard.displayName = 'TaxRuleFormCard';
 export default TaxRuleFormCard;
 
 const styles = defineStyles({
-  dashedCard: {
+  addRuleCard: {
     border: `1px dashed ${theme.colors.border.default}`,
+  },
+  editRuleCard: {
+    backgroundColor: theme.colors.background.solidSurfaceAlt,
+    border: 'none',
+    borderRadius: theme.radius.none,
   },
   errorText: {
     color: theme.colors.text.critical,

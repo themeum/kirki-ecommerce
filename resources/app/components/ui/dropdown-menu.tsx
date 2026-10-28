@@ -265,18 +265,17 @@ export {
 const styles = defineStyles({
   content: {
     minWidth: '128px',
+    maxWidth: 'max-content',
     padding: `${theme.spacing[1]} 0`,
     border: `1px solid ${theme.colors.border.default}`,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.xl,
     backgroundColor: theme.colors.background.fill,
     boxShadow: theme.shadow.md,
     maxHeight: '424px',
     overflowX: 'hidden',
     overflowY: 'auto',
     color: theme.colors.text.primary,
-    ...getOverlayMotionStyles(
-      'var(--radix-dropdown-menu-content-transform-origin)',
-    ),
+    ...getOverlayMotionStyles('var(--radix-dropdown-menu-content-transform-origin)'),
     '&:focus, &:focus-visible': {
       outline: 'none',
     },

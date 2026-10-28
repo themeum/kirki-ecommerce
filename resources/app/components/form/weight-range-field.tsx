@@ -98,12 +98,12 @@ const WeightRangeField = <
         );
       })}
       <Button
-        variant="ghost"
+        variant="secondary"
         disabled={disabled || (fields.length > 0 && isLastRangeUnbounded)}
         onClick={() => append({ from: null, to: null, base_amount: null } as never)}
       >
         <PlusIcon size={16} />
-        {__('Add Another Range', 'kirki-ecommerce')}
+        {__('Add', 'kirki-ecommerce')}
       </Button>
       {arrayLevelMessage && <FieldError>{arrayLevelMessage}</FieldError>}
     </Field>
