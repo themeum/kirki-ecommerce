@@ -10,13 +10,14 @@ interface WishlistResponse {
 
 export const wishlistApi = {
     get: () => apiRequest<WishlistResponse>(ENDPOINTS.wishlist.root),
-    addItem: (variantId: number) => apiRequest<WishlistResponse>(ENDPOINTS.wishlist.root, {
+    addItem: (productId: number, variantId?: number) => apiRequest<WishlistResponse>(ENDPOINTS.wishlist.root, {
         method: 'POST',
         body: {
-            variant_id: variantId,
+            product_id: productId,
+            ...(variantId ? { variant_id: variantId } : {}),
         }
     }),
-    remove: (id: number) => apiRequest<WishlistResponse>(ENDPOINTS.wishlist.remove(id), {
+    remove: (productId: number) => apiRequest<WishlistResponse>(ENDPOINTS.wishlist.remove(productId), {
         method: 'DELETE',
     }),
     empty: () => apiRequest<WishlistResponse>(ENDPOINTS.wishlist.empty, {

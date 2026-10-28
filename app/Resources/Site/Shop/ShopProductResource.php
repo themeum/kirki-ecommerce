@@ -58,10 +58,12 @@ class ShopProductResource extends Resource
         $variant_id   = intval($variant->id);
         $out_of_stock = $variants ? !$this->resolve_has_stock($variants) : false;
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);
-        $is_wishlisted = app(WishlistService::class)->is_wishlisted($variant_id);
+        $product_id    = $this->resolve_product_id();
+        $is_wishlisted = app(WishlistService::class)->is_wishlisted($product_id);
 
         return [
             'id'                      => $this->id,
+            'product_id'              => $product_id,
             'title'                   => $this->title,
             'slug'                    => $this->slug,
             'product_url'             => Url::get_product_url($this->slug),
@@ -78,6 +80,18 @@ class ShopProductResource extends Resource
             'cart_url'                => Url::get_cart_url(),
             'is_wishlisted'           => $is_wishlisted,
         ];
+    }
+
+    /**
+     * Resolve the ID of the product this card shows.
+     *
+     * @since 1.0.0
+     *
+     * @return int Product ID.
+     */
+    protected function resolve_product_id(): int
+    {
+        return $this->id;
     }
 
     /**

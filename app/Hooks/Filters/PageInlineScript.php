@@ -253,7 +253,6 @@ class PageInlineScript extends BaseHook
             $max_per_order       = $has_limit_per_order ? intval($variant['max_per_order'] ?? 0) : null;
             $track_inventory     = (bool) ($variant['track_inventory'] ?? false);
             $image               = $variant['media']['url'] ?? null;
-            $is_wishlisted       = app(WishlistService::class)->is_wishlisted($variant_id);
 
             $variant_attrs = [];
             foreach ($variant['attribute_values'] ?? [] as $attr_value_id) {
@@ -277,12 +276,12 @@ class PageInlineScript extends BaseHook
                 'max_per_order'       => $max_per_order,
                 'track_inventory'     => $track_inventory,
                 'image'               => $image,
-                'is_wishlisted'       => $is_wishlisted,
             ];
         }
 
         $config['product_images']   = $images;
         $config['product_variants'] = $variants_data;
+        $config['is_wishlisted']    = app(WishlistService::class)->is_wishlisted($product_id);
 
         return $config;
     }

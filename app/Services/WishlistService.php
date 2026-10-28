@@ -5,7 +5,9 @@ namespace Kirki\Ecommerce\App\Services;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Pagination;
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
+use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Models\Wishlist;
 use Kirki\Ecommerce\Framework\Collections\Collection;
@@ -19,7 +21,7 @@ use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 /**
- * Manages users' wishlists of product variants.
+ * Manages users' wishlists of products.
  *
  * @since 1.0.0
  */
@@ -67,7 +69,7 @@ class WishlistService
     }
 
     /**
-     * Build the query for a user's wishlist items, with their variants and products loaded.
+     * Build the query for a user's wishlist items, with their products and variants loaded.
      *
      * Sorts by the filters' sort field and order, or newest first when they are missing.
      *
@@ -81,7 +83,7 @@ class WishlistService
     {
         $query = Wishlist::query()
             ->where('user_id', $user_id)
-            ->with(['variant.product.media', 'variant.media', 'variant.product.categories']);
+            ->with(['product.media', 'product.categories', 'product.variants.media']);
 
         if ($filters) {
             $query->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $q) use ($filters) {
@@ -97,29 +99,29 @@ class WishlistService
     }
 
     /**
-     * Get a user's wishlist entry for a variant.
+     * Get a user's wishlist entry for a product.
      *
      * @since 1.0.0
      *
      * @param int $user_id    User ID.
-     * @param int $variant_id Variant ID.
-     * @return Wishlist|null Null when the variant is not in the user's wishlist.
+     * @param int $product_id Product ID.
+     * @return Wishlist|null Null when the product is not in the user's wishlist.
      */
-    public function get_item(int $user_id, int $variant_id)
+    public function get_item(int $user_id, int $product_id)
     {
-        return Wishlist::where('user_id', $user_id)->where('variant_id', $variant_id)->first();
+        return Wishlist::where('user_id', $user_id)->where('product_id', $product_id)->first();
     }
 
     /**
-     * Check whether a variant is in a user's wishlist.
+     * Check whether a product is in a user's wishlist, whichever variant the entry holds.
      *
      * @since 1.0.0
      *
-     * @param int $variant_id Variant ID.
+     * @param int $product_id Product ID.
      * @param int $user_id    User ID; the current user when 0.
      * @return bool False for guests.
      */
-    public function is_wishlisted(int $variant_id, int $user_id = 0): bool
+    public function is_wishlisted(int $product_id, int $user_id = 0): bool
     {
         $user_id = $user_id ?: (int) user()->get_id();
 
@@ -127,54 +129,64 @@ class WishlistService
             return false;
         }
 
-        return (bool) $this->get_item($user_id, $variant_id);
+        return (bool) $this->get_item($user_id, $product_id);
     }
 
     /**
-     * Add a variant to a user's wishlist.
+     * Add a product to a user's wishlist.
      *
-     * Returns the existing entry when the variant is already there.
+     * Returns the existing entry when the product is already there. A variant sent with an existing entry replaces the entry's variant; no variant leaves it unchanged.
      *
      * @since 1.0.0
      *
-     * @param int $user_id    User ID.
-     * @param int $variant_id Variant ID.
+     * @param int      $user_id    User ID.
+     * @param int      $product_id Product ID.
+     * @param int|null $variant_id Variant the user chose, or null when they chose none.
      * @return Wishlist
-     * @throws NotFoundException When the variant does not exist.
+     * @throws NotFoundException When the product is missing or not published, or the variant does not belong to it.
      */
-    public function add_item(int $user_id, int $variant_id)
+    public function add_item(int $user_id, int $product_id, ?int $variant_id = null)
     {
-        $variant = Variant::find($variant_id);
+        $product = Product::where(['id' => $product_id, 'status' => ProductStatus::PUBLISHED])->first();
 
-        throw_if(!$variant, __('Variant not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+        throw_if(!$product, __('Product not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
-        $existing = $this->get_item($user_id, $variant_id);
+        if ($variant_id) {
+            $variant = Variant::where(['id' => $variant_id, 'product_id' => $product_id])->first();
 
-        if ($existing) {
-            return $existing;
+            throw_if(!$variant, __('Variant not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
         }
 
-        return Wishlist::create([
-            'user_id'    => $user_id,
-            'variant_id' => $variant_id,
-        ]);
+        $existing = $this->get_item($user_id, $product_id);
+
+        if (!$existing) {
+            return Wishlist::create([
+                'user_id'    => $user_id,
+                'product_id' => $product_id,
+                'variant_id' => $variant_id ?: null,
+            ]);
+        }
+
+        if ($variant_id && (int) $existing->variant_id !== $variant_id) {
+            $existing->update(['variant_id' => $variant_id]);
+        }
+
+        return $existing;
     }
 
     /**
-     * Remove a variant from a user's wishlist.
+     * Remove a product from a user's wishlist.
      *
      * @since 1.0.0
      *
      * @param int $user_id    User ID.
-     * @param int $variant_id Variant ID.
+     * @param int $product_id Product ID.
      * @return bool True when the entry was deleted.
-     * @throws NotFoundException When the variant is not in the user's wishlist.
+     * @throws NotFoundException When the product is not in the user's wishlist.
      */
-    public function remove_item(int $user_id, int $variant_id)
+    public function remove_item(int $user_id, int $product_id)
     {
-        $item = Wishlist::where('user_id', $user_id)
-            ->where('variant_id', $variant_id)
-            ->first();
+        $item = $this->get_item($user_id, $product_id);
 
         throw_if(!$item, __('Wishlist item not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
