@@ -443,7 +443,7 @@ const styles = defineStyles({
     border: `2px dashed ${theme.colors.border.gallery}`,
     color: theme.colors.background.fillBrand,
     cursor: 'pointer',
-    background: theme.colors.background.surfaceSecondary,
+    background: theme.colors.background.surfaceAlt,
     ...flexCenter(),
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,

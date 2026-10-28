@@ -333,9 +333,7 @@ const ShippingRuleFormCard = ({
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
                 <Button variant="primary" onClick={form.handleSubmit(handleSave)}>
-                  {mode === 'edit'
-                    ? __('Save', 'kirki-ecommerce')
-                    : __('Add Rule', 'kirki-ecommerce')}
+                  {mode === 'edit' ? __('Update', 'kirki-ecommerce') : __('Add', 'kirki-ecommerce')}
                 </Button>
               </Flex>
             </Flex>

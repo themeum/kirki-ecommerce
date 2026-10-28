@@ -53,7 +53,7 @@ const CheckoutConf = () => {
             />
 
             <Flex align="center">
-              <Flex direction="column" gap={2}>
+              <Flex direction="column" gap={1}>
                 <Text weight="medium">{__('Apply Coupon Code', 'kirki-ecommerce')}</Text>
                 <Text variant="small" color="secondary">
                   {__(
@@ -68,7 +68,7 @@ const CheckoutConf = () => {
             </Flex>
 
             <Flex align="center">
-              <Flex direction="column" gap={2}>
+              <Flex direction="column" gap={1}>
                 <Text weight="medium">{__('Customer Note', 'kirki-ecommerce')}</Text>
                 <Text variant="small" color="secondary">
                   {__(

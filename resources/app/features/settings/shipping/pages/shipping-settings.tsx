@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router';
+
 import HeaderActionsCard from '@/components/header-actions-card';
 import OptionAccordion from '@/components/option-accordion';
 import { RegionsDialog } from '@/components/regions-dialog';
@@ -18,6 +20,7 @@ import {
 } from '@/components/ui/stacked-items';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { useShippingSettings } from '@/features/settings/shipping/hooks/use-shipping-settings';
 import {
@@ -40,7 +43,10 @@ import { __, sprintf } from '@/wpi18n';
 
 const MAX_VISIBLE_REGION_FLAGS = 3;
 
+const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
+
 const ShippingSettings = () => {
+  const navigate = useNavigate();
   const {
     form,
     loaded,
@@ -101,7 +107,20 @@ const ShippingSettings = () => {
                         return (
                           <OptionAccordion
                             key={item?.id}
-                            header={item.title}
+                            header={
+                              <Text
+                                onClick={() =>
+                                  navigate(
+                                    ShippingRoutes.get('ShippingZone').buildLink({
+                                      zone_id: item.id,
+                                    }),
+                                  )
+                                }
+                                cssOverride={styles.zoneTitle}
+                              >
+                                {item.title}
+                              </Text>
+                            }
                             subHeader={getShippingZoneSummary(item)}
                             cssOverride={mergeCss(
                               !item.is_enabled && {
@@ -264,5 +283,10 @@ const styles = defineStyles({
   },
   actionButton: {
     padding: theme.spacing[1],
+  },
+  zoneTitle: {
+    '&:hover': {
+      color: theme.colors.text.special2,
+    },
   },
 });

@@ -12,16 +12,41 @@ import {
   EmailSettingsFormSchema,
 } from '@/features/settings/email/schemas/forms/email-settings-form';
 import type { MailConfigurationFormPayload } from '@/features/settings/email/schemas/forms/mail-configuration-form';
+import { isEmptyValue } from '@/libs/zod';
 import { useUpdateSettingsMutation } from '@/services/settings';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-import MailConfigurationDialog, {
-  ENCRYPTION_OPTIONS,
-  MAILER_OPTIONS,
-} from './mail-configuration-dialog';
+import MailConfigurationDialog from './mail-configuration-dialog';
+
+const isMailConfigured = (mailConfig: EmailSettingsFormInput['mail_configuration']) => {
+  if (!isDefined(mailConfig)) {
+    return false;
+  }
+
+  const isSmtp = mailConfig.mailer === 'smtp';
+
+  if (!isSmtp) {
+    return (
+      !isEmptyValue(mailConfig.from_email) &&
+      !isEmptyValue(mailConfig.from_name) &&
+      !isEmptyValue(mailConfig.mailer)
+    );
+  }
+
+  return (
+    !isEmptyValue(mailConfig.from_email) &&
+    !isEmptyValue(mailConfig.from_name) &&
+    !isEmptyValue(mailConfig.mailer) &&
+    !isEmptyValue(mailConfig.host) &&
+    !isEmptyValue(mailConfig.port) &&
+    !isEmptyValue(mailConfig.encryption) &&
+    (mailConfig.is_authentication_enabled
+      ? !isEmptyValue(mailConfig.username) && !isEmptyValue(mailConfig.password)
+      : true)
+  );
+};
 
 const MailConfiguration = () => {
   const { control, getValues, reset } = useFormContext<EmailSettingsFormInput>();
@@ -45,19 +70,7 @@ const MailConfiguration = () => {
     reset(nextValues);
   };
 
-  const isConfigured = Boolean(mailConfiguration?.mailer);
-  const isPhpMailer = mailConfiguration?.mailer === 'php_mail';
-  const mailerLabel =
-    MAILER_OPTIONS.find((option) => option.value === mailConfiguration?.mailer)?.label ?? '—';
-  const encryptionLabel =
-    ENCRYPTION_OPTIONS.find((option) => option.value === mailConfiguration?.encryption)?.label ??
-    '—';
-  const hostLabel = mailConfiguration?.host || '—';
-  const portLabel = isDefined(mailConfiguration?.port) ? String(mailConfiguration?.port) : '—';
-  const usernameLabel = mailConfiguration?.username || '—';
-  const passwordLabel = mailConfiguration?.password ? '********' : '—';
-  const fromEmailLabel = mailConfiguration?.from_email || '—';
-  const fromNameLabel = mailConfiguration?.from_name || '—';
+  const isConfigured = isMailConfigured(mailConfiguration);
 
   return (
     <Card cssOverride={cardStyles.innerCard}>
@@ -94,70 +107,6 @@ const MailConfiguration = () => {
               </Button>
             )}
           </Flex>
-          {isConfigured && (
-            <Card cssOverride={mergeCss(cardStyles.innerDarkCard, { boxShadow: 'none' })}>
-              <CardContent cssOverride={cardStyles.innerCardContent}>
-                <Flex direction="column" gap={2}>
-                  <Flex gap={1} align="center">
-                    <Text variant="small" color="subdued">
-                      {__('From Email:', 'kirki-ecommerce')}
-                    </Text>
-                    <Text variant="small">{fromEmailLabel}</Text>
-                  </Flex>
-                  <Flex gap={1} align="center">
-                    <Text variant="small" color="subdued">
-                      {__('From Name:', 'kirki-ecommerce')}
-                    </Text>
-                    <Text variant="small">{fromNameLabel}</Text>
-                  </Flex>
-
-                  <Flex gap={1} align="center">
-                    <Text variant="small" color="subdued">
-                      {__('Mailer:', 'kirki-ecommerce')}
-                    </Text>
-                    <Text variant="small">{mailerLabel}</Text>
-                  </Flex>
-                  {!isPhpMailer && (
-                    <Flex gap={1} align="center">
-                      <Text variant="small" color="subdued">
-                        {__('Encryption:', 'kirki-ecommerce')}
-                      </Text>
-                      <Text variant="small">{encryptionLabel}</Text>
-                    </Flex>
-                  )}
-
-                  {!isPhpMailer && (
-                    <>
-                      <Flex gap={1} align="center">
-                        <Text variant="small" color="subdued">
-                          {__('Host:', 'kirki-ecommerce')}
-                        </Text>
-                        <Text variant="small">{hostLabel}</Text>
-                      </Flex>
-                      <Flex gap={1} align="center">
-                        <Text variant="small" color="subdued">
-                          {__('Port:', 'kirki-ecommerce')}
-                        </Text>
-                        <Text variant="small">{portLabel}</Text>
-                      </Flex>
-                      <Flex gap={1} align="center">
-                        <Text variant="small" color="subdued">
-                          {__('Username:', 'kirki-ecommerce')}
-                        </Text>
-                        <Text variant="small">{usernameLabel}</Text>
-                      </Flex>
-                      <Flex gap={1} align="center">
-                        <Text variant="small" color="subdued">
-                          {__('Password:', 'kirki-ecommerce')}
-                        </Text>
-                        <Text variant="small">{passwordLabel}</Text>
-                      </Flex>
-                    </>
-                  )}
-                </Flex>
-              </CardContent>
-            </Card>
-          )}
         </Flex>
       </CardContent>
       <MailConfigurationDialog

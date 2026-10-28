@@ -22,7 +22,7 @@ const SellerTaxID = () => {
               <ActionGroup>
                 <Button variant="secondary">
                   <PlusIcon size={16} />
-                  {__('Add ID', 'kirki-ecommerce')}
+                  {__('Add', 'kirki-ecommerce')}
                 </Button>
               </ActionGroup>
             </Flex>

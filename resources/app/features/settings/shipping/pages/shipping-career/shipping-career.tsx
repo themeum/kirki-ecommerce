@@ -23,7 +23,7 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
               'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
               'kirki-ecommerce',
             )}
-            buttonText={__('Add Career', 'kirki-ecommerce')}
+            buttonText={__('Add', 'kirki-ecommerce')}
             onAdd={noop}
           />
 
