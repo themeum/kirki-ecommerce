@@ -70,7 +70,7 @@ class UpdateVariantRequest extends Request
             'in_stock' => 'boolean|nullable',
             'low_stock_threshold' => 'integer|min:0|nullable',
             'has_limit_per_order' => 'boolean|nullable',
-            'max_per_order' => 'integer|nullable',
+            'max_per_order' => 'integer|min:1|nullable',
             'tax_profile_id' => 'integer|nullable',
             'shipping_profile_id' => 'integer|nullable',
             'shipping_box_id' => 'integer|nullable',

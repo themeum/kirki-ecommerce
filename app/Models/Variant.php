@@ -90,6 +90,25 @@ class Variant extends Model
     ];
 
     /**
+     * Save the variant, raising an enabled per-order limit that has no usable maximum to 1.
+     *
+     * A limit of null or 0 would block every add to cart, so a variant with the limit on is stored with at least 1.
+     * A variant with the limit off keeps whatever maximum it has.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True when the model is saved successfully.
+     */
+    public function save()
+    {
+        if ($this->has_limit_per_order && (int) $this->max_per_order < 1) {
+            $this->max_per_order = 1;
+        }
+
+        return parent::save();
+    }
+
+    /**
      * Define the product this variant belongs to.
      *
      * @since 1.0.0
