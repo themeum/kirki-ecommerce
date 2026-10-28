@@ -562,6 +562,19 @@ class StorePresetsTest extends RestTestCase
         $this->assertEquals($stored, $this->zones());
     }
 
+    public function test_preset_zones_start_without_carriers(): void
+    {
+        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'country' => 'DE', 'currency' => 'EUR']);
+
+        $zones = $this->zones();
+
+        $this->assertNotEmpty($zones);
+
+        foreach ($zones as $zone) {
+            $this->assertEmpty($zone['shipping_carriers'] ?? []);
+        }
+    }
+
     public function test_existing_zone_blocks_the_preset_zones(): void
     {
         Option::set(OptionKeys::SHIPPING_SETTINGS, ['shipping_zones' => [['id' => 'mine', 'title' => 'Mine', 'is_enabled' => true, 'regions' => [], 'shipping_methods' => []]]]);

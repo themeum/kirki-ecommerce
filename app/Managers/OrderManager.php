@@ -21,6 +21,7 @@ use Kirki\Ecommerce\App\Events\Order\OrderOnHoldEvent;
 use Kirki\Ecommerce\App\Events\Order\OrderPaymentFailedEvent;
 use Kirki\Ecommerce\App\Events\Order\OrderProcessingEvent;
 use Kirki\Ecommerce\App\Events\Order\OrderShippedEvent;
+use Kirki\Ecommerce\App\Events\Order\OrderTrackingAddedEvent;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Jobs\SendOrderMailJob;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerNewOrderMail;
@@ -312,7 +313,9 @@ class OrderManager
         ]);
 
         if ($is_updated) {
-            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::TRACKING_ADDED);
+            $order = $this->order_service->find_order_or_fail($id);
+            OrderActivity::log($order, OrderActivityType::TRACKING_ADDED);
+            OrderTrackingAddedEvent::dispatch($order);
         }
 
         return $is_updated;

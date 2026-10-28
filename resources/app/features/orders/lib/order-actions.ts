@@ -26,6 +26,7 @@ type OrderAction = (typeof ORDER_ACTIONS)[keyof typeof ORDER_ACTIONS];
 
 type OrderActionPayload = {
   action: OrderAction;
+  carrier_id?: string;
   carrier?: string;
   tracking_number?: string;
   tracking_url?: string;

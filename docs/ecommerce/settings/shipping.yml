@@ -166,30 +166,47 @@ examples:
                   ],
                   "shipping_carriers": [
                     {
-                      "is_enabled": true,
+                      "id": "ups",
+                      "preset": "ups",
+                      "name": "UPS",
+                      "tracking_url": "https://www.ups.com/track?loc=en_US&tracknum={tracking_number}",
+                      "logo": null,
+                      "logo_url": "https://example.com/wp-content/plugins/kirki-ecommerce/assets/images/carriers/ups.svg",
+                      "is_enabled": true
+                    },
+                    {
+                      "id": "dhl",
+                      "preset": "dhl",
                       "name": "DHL",
-                      "type": "flat_rate",
-                      "rate": 10,
-                      "is_taxable": true,
-                      "description": null,
-                      "shipping_rules": [
-                        {
-                          "relation": "AND",
-                          "conditions": [
-                            {
-                              "type": "cart_weight",
-                              "operator": ">",
-                              "value": 5
-                            }
-                          ],
-                          "action": {
-                            "type": "shipping_cost",
-                            "value": 5
-                          }
-                        }
-                      ]
+                      "tracking_url": "https://www.dhl.com/global-en/home/tracking/tracking-express.html?submit=1&tracking-id={tracking_number}",
+                      "logo": null,
+                      "logo_url": "https://example.com/wp-content/plugins/kirki-ecommerce/assets/images/carriers/dhl.svg",
+                      "is_enabled": false
+                    },
+                    {
+                      "id": "4c0b6f4e-8c0b-4c8e-9a52-5a9f4f6f2d11",
+                      "preset": null,
+                      "name": "Local Courier",
+                      "tracking_url": "https://track.example.com/?n={tracking_number}",
+                      "logo": 123,
+                      "logo_url": "https://example.com/wp-content/uploads/2026/01/local-courier.png",
+                      "is_enabled": true
                     }
                   ]
+                }
+              ],
+              "shipping_carrier_presets": [
+                {
+                  "key": "ups",
+                  "name": "UPS",
+                  "tracking_url": "https://www.ups.com/track?loc=en_US&tracknum={tracking_number}",
+                  "logo_url": "https://example.com/wp-content/plugins/kirki-ecommerce/assets/images/carriers/ups.svg"
+                },
+                {
+                  "key": "dhl",
+                  "name": "DHL",
+                  "tracking_url": "https://www.dhl.com/global-en/home/tracking/tracking-express.html?submit=1&tracking-id={tracking_number}",
+                  "logo_url": "https://example.com/wp-content/plugins/kirki-ecommerce/assets/images/carriers/dhl.svg"
                 }
               ]
             },

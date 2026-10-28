@@ -48,7 +48,8 @@ empty, they go to the WordPress site admin email.
 | Admin · Payment failed | Same | Store admin |
 | Customer · Order on hold | The order's fulfillment is put on hold | Customer |
 | Customer · Order processing | An admin marks the order as processing. *Resuming* from on hold does not send it. | Customer |
-| Customer · Order shipped | The order is marked as shipped. Tracking details added **before** that are included. | Customer |
+| Customer · Order shipped | The order is marked as shipped. Tracking can only be added after this, so it does not contain tracking details. | Customer |
+| Customer · Tracking added | A merchant adds a carrier and tracking number to a shipped order. Each time tracking is added, it is sent again with the latest details. See [Shipping Carriers](shipping-carriers.md). | Customer |
 | Customer · Order completed (subject "Order Delivered") | The order is marked as delivered, whatever its payment status. Paying for it later sends nothing more. | Customer |
 | Customer · Order note | An admin adds a comment in the order's timeline (section 6) | Customer |
 | Customer · Reset password | A customer requests a password reset on the WordPress login page (section 5) | Customer |
@@ -194,6 +195,10 @@ that raises an event never needs to know about email.
 The template names look familiar, but the behaviour does not match WooCommerce
 one-to-one:
 
+- **Tracking has its own email.** WooCommerce puts tracking into its shipment
+  emails. Here the *Order shipped* email is sent when the order is marked as
+  shipped, which is before tracking can be added, so adding tracking sends the
+  separate *Tracking added* email.
 - **Processing is a fulfillment step, not "payment received".** WooCommerce sends
   "Processing order" when payment arrives. Here it is sent when an admin marks
   the order as processing. A payment on its own sends no email.

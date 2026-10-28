@@ -124,6 +124,7 @@ const CUSTOMER_ORDER_NOTIFICATION_LABELS: Record<string, string> = {
   order_completed: __('Order Completed', 'kirki-ecommerce'),
   order_note: __('Order Note', 'kirki-ecommerce'),
   order_shipped: __('Order Shipped', 'kirki-ecommerce'),
+  tracking_added: __('Tracking Added', 'kirki-ecommerce'),
 };
 
 const CUSTOMER_USER_NOTIFICATION_LABELS: Record<string, string> = {
@@ -133,7 +134,7 @@ const CUSTOMER_USER_NOTIFICATION_LABELS: Record<string, string> = {
 };
 
 /**
- * The canonical list of all 17 notification templates the backend
+ * The canonical list of all 18 notification templates the backend
  * (`EmailNotificationRegistry`) knows how to preview/test-send. Used both to
  * label list rows and to build each row's edit route.
  */
