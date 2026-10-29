@@ -16,9 +16,10 @@ import { Field, FieldError } from '@/components/ui/field';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { TrashIcon } from '@/icons/common';
+import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 type WeightRangeFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -41,6 +42,8 @@ const WeightRangeField = <
 }: WeightRangeFieldProps<TFieldValues, TName>) => {
   const { control, formState } = useFormContext<TFieldValues>();
   const { fields, append, remove } = useFieldArray({ control, name });
+  const { data: productSettings } = useSettingsQuery('product');
+  const storeWeightUnit = (productSettings?.weight_unit as string | undefined) || 'kg';
 
   const lastRangeTo = useWatch({
     control,
@@ -58,7 +61,9 @@ const WeightRangeField = <
   return (
     <Field cssOverride={cssOverride}>
       <Grid columns={3}>
-        <Text variant="small">{__('Weight Range (kg)', 'kirki-ecommerce')}</Text>
+        <Text variant="small">
+          {sprintf(__('Weight Range (%s)', 'kirki-ecommerce'), storeWeightUnit)}
+        </Text>
         <Text variant="small" />
         <Text variant="small">{__('Rate', 'kirki-ecommerce')}</Text>
       </Grid>

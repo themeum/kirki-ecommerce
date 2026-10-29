@@ -231,6 +231,7 @@ class OrderCalculationContextService
         $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
         $item_dto->base_product_total = $variant->base_price;
         $item_dto->weight = $variant->weight;
+        $item_dto->weight_unit = $variant->weight_unit;
         $item_dto->shipping_profile_id = $variant->shipping_profile_id;
         $item_dto->tax_profile_id = $variant->tax_profile_id ?: $product->tax_profile_id;
         $item_dto->product_categories = $product->categories->pluck('id')->all();
@@ -278,6 +279,7 @@ class OrderCalculationContextService
         $item_dto->base_unit_price = $order_item->base_catalog_sale_price;
         $item_dto->base_product_total = $order_item->base_catalog_regular_price;
         $item_dto->weight = $variant ? $variant->weight : $order_item->weight;
+        $item_dto->weight_unit = $variant ? $variant->weight_unit : $order_item->weight_unit;
         $item_dto->shipping_profile_id = $variant ? $variant->shipping_profile_id : null;
         $item_dto->tax_profile_id = $variant ? ($variant->tax_profile_id ?: $product->tax_profile_id) : null;
         $item_dto->product_categories = $product ? $product->categories->pluck('id')->all() : [];
