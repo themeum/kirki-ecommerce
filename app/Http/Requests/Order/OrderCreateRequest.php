@@ -168,7 +168,7 @@ class OrderCreateRequest extends Request
      */
     protected function billing_address_field_rule(string $field)
     {
-        if (filter_var($this->input('is_billing_same_as_shipping'), FILTER_VALIDATE_BOOLEAN)) {
+        if ($this->bool('is_billing_same_as_shipping')) {
             return 'nullable|string';
         }
 
@@ -189,7 +189,7 @@ class OrderCreateRequest extends Request
         $selling_country_rule = static::selling_country_rule();
 
         return function ($value, $key, $data) use ($selling_country_rule) {
-            if (filter_var($this->input('is_billing_same_as_shipping'), FILTER_VALIDATE_BOOLEAN)) {
+            if ($this->bool('is_billing_same_as_shipping')) {
                 return true;
             }
 
