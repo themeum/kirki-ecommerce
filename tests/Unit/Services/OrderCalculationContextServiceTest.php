@@ -84,6 +84,7 @@ class OrderCalculationContextServiceTest extends TestCase
             'base_price' => 3000,
             'base_sale_price' => 2500,
             'weight' => 1,
+            'weight_unit' => 'kg',
             'shipping_profile_id' => 9,
             'tax_profile_id' => null,
             'has_limit_per_order' => false,
@@ -132,6 +133,7 @@ class OrderCalculationContextServiceTest extends TestCase
                 'base_catalog_sale_price' => 2000,
                 'base_catalog_regular_price' => 2400,
                 'weight' => 4,
+                'weight_unit' => 'lb',
             ], $line));
             $order_item->set_relation('taxes', collection([]));
 
@@ -179,6 +181,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->assertSame(9, $item->shipping_profile_id);
         $this->assertSame(12, $item->tax_profile_id);
         $this->assertSame([3, 4], $item->product_categories);
+        $this->assertSame('kg', $item->weight_unit);
         $this->assertTrue($item->is_reachable);
     }
 
@@ -316,6 +319,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->assertSame(12, $item->tax_profile_id);
         $this->assertSame([3, 4], $item->product_categories);
         $this->assertEquals(1, $item->weight);
+        $this->assertSame('kg', $item->weight_unit);
     }
 
     public function test_an_existing_line_whose_variant_was_deleted_stays_with_its_stored_values(): void
@@ -327,6 +331,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->assertFalse($item->is_reachable);
         $this->assertSame(2000, $item->base_unit_price);
         $this->assertEquals(4, $item->weight);
+        $this->assertSame('lb', $item->weight_unit);
         $this->assertNull($item->tax_profile_id);
         $this->assertSame([], $item->product_categories);
         $this->assertSame([], $this->service->get_variants_map());

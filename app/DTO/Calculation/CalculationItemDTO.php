@@ -29,6 +29,8 @@ class CalculationItemDTO extends DTO
     public $base_unit_price;
     /** @var int */
     public $weight;
+    /** @var string|null Unit of `weight`; empty when the variant has none */
+    public $weight_unit;
     /** @var int */
     public $shipping_profile_id;
     /** @var int|null */

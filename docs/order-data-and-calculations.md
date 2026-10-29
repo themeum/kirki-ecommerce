@@ -103,7 +103,7 @@ Product categories (a separate link table) are used by coupons: a coupon can be 
 | `base_sale_price` | **Sale price**. Empty or 0 means "no sale". | **Yes**. The price charged is `sale price`, or `regular price` when there is no sale. |
 | `base_cost_of_goods` | What the shop owner paid for the item. | No. Only found inside the JSON snapshot. |
 | `base_unit`, `base_unit_amount`, `total_unit`, `total_unit_amount` | "Price per 100 g" style display. | No |
-| `weight`, `weight_unit` | Weight of one unit. | Yes, for weight-based shipping. Copied to the order item. |
+| `weight`, `weight_unit` | Weight of one unit, in `g`, `kg`, `lb` or `oz`. | Yes, for weight-based shipping and the cart weight rule condition. The weight is converted to the store weight unit (the product settings) before it is added up. Copied to the order item. |
 | `charge_taxes` | A "charge tax on this item" switch. | **No**. The calculation does not read this column today. |
 | `tax_profile_id` | Link to a tax profile (a named group for tax rules). | Partly. See section 9, gap G6. |
 | `shipping_profile_id`, `shipping_box_id` | Link to a shipping profile and box. | Profile is passed to shipping. |
@@ -154,7 +154,7 @@ The same calculation runs when an order is **created**, when it is **edited**, a
 
 | # | Step | What happens |
 |---|---|---|
-| 1 | **Shipping fee** | If a shipping address and method are chosen, find the fee: flat rate, local pickup, or weight-based (by total weight). Optional rules may change or disable it. Without address and method the fee is 0. |
+| 1 | **Shipping fee** | If a shipping address and method are chosen, find the fee: flat rate, local pickup, or weight-based (by total weight). Optional rules may change or disable it. Without address and method the fee is 0. The total weight, and the `cart weight` rule condition, use the store weight unit: each line is converted from the unit of its variant, then multiplied by its quantity. A variant with no unit counts as the store unit. |
 | 2 | **Line price** | For each line: `unit price × quantity`. The unit price is the variant's sale price, or its regular price when there is no sale. This is the "before discount" amount. |
 | 3 | **Check coupons** | Each coupon is checked: active, dates, minimum spend, usage limits, country, customer rules. A coupon that fails is dropped and reported. The rest still apply. Only one free-shipping coupon is allowed. |
 | 4 | **Product coupons** | Coupons with target `products` apply first. Each one works alone on its own eligible lines. If two product coupons hit the same line, both apply and the amounts are added up. |
@@ -620,6 +620,7 @@ Cancelling does **not** change any money on the order. It:
 | G10 | **Original shipping fee is not saved.** Only the total after discount and tax is. The free-shipping discount is mixed into `discount_total`. |
 | G11 | **Rounding:** `invoiced_` amounts are converted one by one. A sum of parts can differ from the total by a cent or two. |
 | G12 | **Note and flag changes have no history.** `PATCH /orders/{id}` writes no activity entry, so the timeline does not show who changed a note or a flag, or when. |
+| G13 | **Changing the store weight unit does not convert saved shipping values.** The weight ranges of a weight-based method and the `cart weight` values in shipping rules are numbers in the store weight unit. If the store unit changes from `kg` to `lb`, the numbers stay as they are and are now read as `lb`. Edit them after the change. |
 
 ### Decisions we need from the business
 

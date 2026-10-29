@@ -826,6 +826,7 @@ class StorePresetsTest extends RestTestCase
         return CalculationContextDTO::from_array([
             'items' => collection([(object) [
                 'weight' => 1,
+                'weight_unit' => null,
                 'quantity' => 1,
                 'base_unit_price' => 1000,
                 'shipping_profile_id' => $profile_id,
