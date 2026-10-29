@@ -100,7 +100,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
       </CardHeader>
       <CardContent cssOverride={styles.content}>
         <Flex direction="column" gap={4}>
-          <Card cssOverride={mergeCss(cardStyles.formCard, styles.composer)}>
+          <Card cssOverride={mergeCss(cardStyles.formCard, styles.composer)} noShadow>
             <CardContent cssOverride={cardStyles.tableContent}>
               <Flex align="center" gap={3} cssOverride={styles.composerInput}>
                 <div css={scoped(styles.avatar)}>{currentUserAcronym}</div>
@@ -144,71 +144,78 @@ const Timeline = ({ orderId }: TimelineProps) => {
             </Text>
           )}
 
-          <div css={scoped(styles.timelineList)}>
-            <Flex direction="column" gap={3}>
-              {activities.map((entry) => {
-                if (entry.activity_type === 'comment-added') {
-                  const acronym = createAcronym({ first_name: entry.author_name ?? undefined });
-                  return (
-                    <Flex key={entry.id} gap={3} align="center" cssOverride={styles.commentRow}>
-                      <Flex align="center" justify="center" cssOverride={styles.leadingIcon}>
-                        <div css={scoped(styles.avatar)}>{acronym}</div>
-                      </Flex>
-                      <Flex direction="column" gap={1} grow={1}>
-                        <Text variant="small" weight="medium">
-                          {entry.author_name}
-                        </Text>
-                        <Text variant="small" color="secondary">
+          {activities.length > 0 && (
+            <>
+              <div css={scoped(styles.timelineList)}>
+                <Flex direction="column" gap={3}>
+                  {activities.map((entry) => {
+                    if (entry.activity_type === 'comment-added') {
+                      const acronym = createAcronym({ first_name: entry.author_name ?? undefined });
+                      return (
+                        <Flex key={entry.id} gap={3} align="center" cssOverride={styles.commentRow}>
+                          <Flex align="center" justify="center" cssOverride={styles.leadingIcon}>
+                            <div css={scoped(styles.avatar)}>{acronym}</div>
+                          </Flex>
+                          <Flex direction="column" gap={1} grow={1}>
+                            <Text variant="small" weight="medium">
+                              {entry.author_name}
+                            </Text>
+                            <Text variant="small" color="secondary">
+                              {entry.description}
+                            </Text>
+                            {entry.notify_customer && (
+                              <Flex gap={2} align="center">
+                                <Mail size={14} color={theme.colors.icon.primary} />
+                                <Text color="subdued" variant="small">
+                                  {__(
+                                    'The customer has been notified via email.',
+                                    'kirki-ecommerce',
+                                  )}
+                                </Text>
+                              </Flex>
+                            )}
+                          </Flex>
+                          <Flex gap={2} align="center">
+                            <Text variant="tiny" color="subdued" data-comment-time="true">
+                              {entry.created_at}
+                            </Text>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label={__('Delete comment', 'kirki-ecommerce')}
+                              data-action-group="true"
+                              onClick={() => setPendingDeleteId(entry.id)}
+                            >
+                              <Trash2 size={12} color={theme.colors.icon.primary} />
+                            </Button>
+                          </Flex>
+                        </Flex>
+                      );
+                    }
+
+                    return (
+                      <Flex key={entry.id} gap={3} align="center" cssOverride={styles.actionRow}>
+                        <Flex align="center" justify="center" cssOverride={styles.actionIconSlot}>
+                          <LeadingIconBadge />
+                        </Flex>
+                        <Text variant="small" weight="medium" cssOverride={{ flexGrow: 1 }}>
                           {entry.description}
                         </Text>
-                        {entry.notify_customer && (
-                          <Flex gap={2} align="center">
-                            <Mail size={14} color={theme.colors.icon.primary} />
-                            <Text color="subdued" variant="small">
-                              {__('The customer has been notified via email.', 'kirki-ecommerce')}
-                            </Text>
-                          </Flex>
-                        )}
-                      </Flex>
-                      <Flex gap={2} align="center">
-                        <Text variant="tiny" color="subdued" data-comment-time="true">
+                        <Text variant="tiny" color="subdued">
                           {entry.created_at}
                         </Text>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={__('Delete comment', 'kirki-ecommerce')}
-                          data-action-group="true"
-                          onClick={() => setPendingDeleteId(entry.id)}
-                        >
-                          <Trash2 size={12} color={theme.colors.icon.primary} />
-                        </Button>
                       </Flex>
-                    </Flex>
-                  );
-                }
-
-                return (
-                  <Flex key={entry.id} gap={3} align="center" cssOverride={styles.actionRow}>
-                    <Flex align="center" justify="center" cssOverride={styles.actionIconSlot}>
-                      <LeadingIconBadge />
-                    </Flex>
-                    <Text variant="small" weight="medium" cssOverride={{ flexGrow: 1 }}>
-                      {entry.description}
-                    </Text>
-                    <Text variant="tiny" color="subdued">
-                      {entry.created_at}
-                    </Text>
-                  </Flex>
-                );
-              })}
-            </Flex>
-          </div>
-          <InfiniteScrollSentinel
-            hasMore={hasNextPage}
-            isLoading={isFetchingNextPage}
-            onLoadMore={fetchNextPage}
-          />
+                    );
+                  })}
+                </Flex>
+              </div>
+              <InfiniteScrollSentinel
+                hasMore={hasNextPage}
+                isLoading={isFetchingNextPage}
+                onLoadMore={fetchNextPage}
+              />
+            </>
+          )}
         </Flex>
       </CardContent>
 
@@ -243,7 +250,6 @@ const styles = defineStyles({
     gap: 0,
     paddingBlock: 0,
     overflow: 'hidden',
-    boxShadow: theme.shadow.md,
   },
   composerInput: {
     padding: theme.spacing[3],

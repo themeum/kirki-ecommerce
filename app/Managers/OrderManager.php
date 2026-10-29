@@ -164,7 +164,7 @@ class OrderManager
                 'cancellation_reason' => $reason,
                 'cancelled_at' => Date::now(),
             ]);
-            
+
             $status_before = $order->order_status;
             $order = $this->order_service->find_order_or_fail($id);
             OrderActivity::log($order, OrderActivityType::CANCELLED);
@@ -314,6 +314,14 @@ class OrderManager
 
         if ($is_updated) {
             $order = $this->order_service->find_order_or_fail($id);
+
+            if (
+                $order->fulfillment_status === FulfillmentStatus::UNFULFILLED
+                || $order->fulfillment_status === FulfillmentStatus::PROCESSING
+            ) {
+                $this->mark_as_shipped($id);
+            }
+
             OrderActivity::log($order, OrderActivityType::TRACKING_ADDED);
             OrderTrackingAddedEvent::dispatch($order);
         }
