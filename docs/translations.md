@@ -28,7 +28,7 @@ nothing to commit. The command stops with an error when `assets/manifest.json`
 or `assets/js/site.js` is missing. In that case, build the frontend first
 (`npm run build` in `resources/app` and in `resources/site`).
 
-Neither package command makes a template for now. `npm run make:org-package` also
+The package command (`npm run make:package`) makes no template for now. It also
 removes any `languages/kirki-ecommerce.pot` from the zip, so an outdated local
 template never ships.
 

@@ -4,7 +4,6 @@
     "dev:site": "npm run dev --prefix resources/site",
     "dev": "npm run dev:app & npm run dev:site",
     "make:package": "bash bin/make-package.sh",
-    "make:org-package": "bash bin/make-package.sh --org",
     "make:pot": "bash bin/make-pot.sh",
     "build:payments": "node bin/build-payment-zips.js",
     "publish:payments": "node bin/publish-payment-gateways.js",
