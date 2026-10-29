@@ -16,6 +16,7 @@ use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
+use Kirki\Ecommerce\Framework\Exceptions\HttpException;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -203,11 +204,11 @@ class CustomerService
      *
      * @param CreateCustomerDTO $data Customer data.
      * @return Customer The new customer with its addresses loaded.
-     * @throws Exception When a customer already exists for the given user ID.
+     * @throws HttpException When a customer already exists for the given user ID.
      */
     public function create(CreateCustomerDTO $data)
     {
-        throw_if(!empty($data->user_id) && $this->find_by_user_id($data->user_id), __('Customer already exists', 'kirki-ecommerce'));
+        throw_if(!empty($data->user_id) && $this->find_by_user_id($data->user_id), __('Customer already exists', 'kirki-ecommerce'), HttpException::class, Response::CONFLICT);
 
         $data_array = $data->all();
 
