@@ -191,9 +191,9 @@ describe('ShippingCarrierCard', () => {
 
     openAddMenu();
 
-    expect(screen.getByRole('menuitem', { name: 'FedEx' })).toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'UPS' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'DHL' })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: /FedEx/ })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /UPS/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /DHL/ })).not.toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Add new' })).toBeInTheDocument();
   });
 
@@ -231,7 +231,7 @@ describe('ShippingCarrierCard', () => {
     renderCard([]);
 
     openAddMenu();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'DHL' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: /DHL/ }));
 
     await waitFor(() => expect(savedZones).toHaveLength(1));
     expect(lastSavedCarriers()).toEqual([
@@ -247,7 +247,7 @@ describe('ShippingCarrierCard', () => {
 
     openAddMenu();
 
-    expect(screen.queryByRole('menuitem', { name: 'DHL' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: /DHL/ })).not.toBeInTheDocument();
   });
 
   it('lists a preset again after the carrier is deleted', async () => {
@@ -261,7 +261,7 @@ describe('ShippingCarrierCard', () => {
 
     openAddMenu();
 
-    expect(await screen.findByRole('menuitem', { name: 'DHL' })).toBeInTheDocument();
+    expect(await screen.findByRole('menuitem', { name: /DHL/ })).toBeInTheDocument();
   });
 
   it('does not add a carrier until the "Add new" popover is saved', async () => {
