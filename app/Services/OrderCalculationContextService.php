@@ -96,22 +96,36 @@ class OrderCalculationContextService
     }
 
     /**
-     * Check an edit against the rules that no payload line can show: the order keeps its
-     * currency, and the shipping method must be available, as an edit always quotes the shipping again.
+     * Check an edit against the rule that no payload line can show: the order keeps its currency.
      *
      * The preview and the save both call it, so the preview refuses what the save refuses.
      *
      * @since 1.0.0
      *
-     * @param Order                    $order   Order being edited.
-     * @param OrderCalculationInputDTO $input   Order payload.
-     * @param CalculationContextDTO    $context Context built for the payload and the order.
+     * @param Order                    $order Order being edited.
+     * @param OrderCalculationInputDTO $input Order payload.
      * @return void
-     * @throws ValidationException When the currency differs from the order's, or the shipping method is not available.
+     * @throws ValidationException When the currency differs from the order's.
      */
-    public function validate_edit(Order $order, OrderCalculationInputDTO $input, CalculationContextDTO $context)
+    public function validate_edit(Order $order, OrderCalculationInputDTO $input)
     {
         throw_if(!empty($input->currency_code) && $input->currency_code !== $order->currency_code, __('The currency of an order cannot be changed.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+    }
+
+    /**
+     * Check that the shipping method of an edit is available, as an edit always quotes the shipping again.
+     *
+     * Only the save calls it. The preview prices the order without shipping instead,
+     * as the customer or the address may be removed or changed while the user edits.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Context built for the payload and the order.
+     * @return void
+     * @throws ValidationException When the shipping method is not available.
+     */
+    public function validate_edit_shipping_method(CalculationContextDTO $context)
+    {
         throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('The shipping method of this order is not available. Select another shipping method.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
 

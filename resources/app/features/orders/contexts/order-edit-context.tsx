@@ -218,7 +218,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
 
     applyCorrection(() => form.reset(lastValidValues));
     setSelections(lastValidSelectionsRef.current);
-    setCalculationRequest(OrderCalculationRequestSchema.parse(lastValidValues));
+
     // Revert must run once per failed request, not whenever `form` identity changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [calculationError, calculationErrorUpdatedAt]);
@@ -377,6 +377,10 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
       }
 
       await updateMutation.mutateAsync({ id: order.id, data: payload });
+
+      isFormFilledRef.current = false;
+      lastValidSelectionsRef.current = [];
+      setSelections([]);
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }

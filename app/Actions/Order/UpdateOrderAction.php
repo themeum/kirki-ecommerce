@@ -132,7 +132,8 @@ class UpdateOrderAction
             $input = $dto->to_calculation_input();
             $context = $this->context_service->build($input, $order);
 
-            $this->context_service->validate_edit($order, $input, $context);
+            $this->context_service->validate_edit($order, $input);
+            $this->context_service->validate_edit_shipping_method($context);
 
             $calculated_result = $this->recalculate_cart_action->execute($context);
             $currency_code = $order->currency_code;
