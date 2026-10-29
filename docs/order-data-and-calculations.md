@@ -538,7 +538,7 @@ does the following in one transaction.
 | Coupons on the order | **Kept** with their stored terms (`discount_rate`, type, target, the lines they discounted). Not checked again. |
 | A coupon added in the edit | Checked and priced from the coupon record, and one use is counted |
 | Tax rate of the lines and tax mode | **Kept**. The rates are quoted again only when the address that tax follows changes country or state. |
-| Shipping fee and shipping tax | **Quoted again** on every edit from today's settings. The shipping method must still be available. |
+| Shipping fee and shipping tax | **Quoted again** on every edit from today's settings. On save, the shipping method must still be available. The preview does not refuse it: it shows the numbers without shipping. |
 | Shipping method snapshot (`shipping_metadata`) | Written again with the new quote |
 | Exchange rate | **Kept.** All `invoiced_` values use it. |
 | Currency of the order | **Kept.** A request with another currency is refused. |

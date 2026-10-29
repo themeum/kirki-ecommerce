@@ -545,28 +545,25 @@ class OrderCalculationContextServiceTest extends TestCase
         $order = $this->make_order([]);
         $order->currency_code = 'EUR';
         $input = $this->input(['currency_code' => 'USD']);
-        $context = $this->service->build($input, $order);
 
         $this->expectException(ValidationException::class);
 
-        $this->service->validate_edit($order, $input, $context);
+        $this->service->validate_edit($order, $input);
     }
 
     public function test_validate_edit_accepts_the_order_currency_and_no_currency(): void
     {
         $order = $this->make_order([]);
         $order->currency_code = 'EUR';
-        $this->shipping_service->method('has_valid_shipping_method')->willReturn(true);
 
         foreach ([['currency_code' => 'EUR'], []] as $payload) {
-            $input = $this->input($payload);
-            $this->service->validate_edit($order, $input, $this->service->build($input, $order));
+            $this->service->validate_edit($order, $this->input($payload));
         }
 
         $this->addToAssertionCount(1);
     }
 
-    public function test_validate_edit_refuses_a_shipping_method_that_is_not_available(): void
+    public function test_validate_edit_shipping_method_refuses_a_method_that_is_not_available(): void
     {
         $order = $this->make_order([]);
         $input = $this->input(['shipping_method' => 'method-0002']);
@@ -575,10 +572,10 @@ class OrderCalculationContextServiceTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->service->validate_edit($order, $input, $context);
+        $this->service->validate_edit_shipping_method($context);
     }
 
-    public function test_validate_edit_checks_the_shipping_method_when_the_address_and_method_did_not_change(): void
+    public function test_validate_edit_shipping_method_checks_the_method_when_the_address_and_method_did_not_change(): void
     {
         $order = $this->make_order([]);
         $order->shipping_method = 'method-0001';
@@ -591,6 +588,6 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage('Select another shipping method.');
 
-        $this->service->validate_edit($order, $input, $context);
+        $this->service->validate_edit_shipping_method($context);
     }
 }

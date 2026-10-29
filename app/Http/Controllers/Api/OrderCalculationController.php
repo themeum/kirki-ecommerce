@@ -42,7 +42,7 @@ class OrderCalculationController
      *
      * With an `order_id`, the payload is an edit of that order: it is priced with the
      * terms the order was placed with, the same as when the edit is saved, and it is refused
-     * for the same currency and shipping method faults.
+     * for a currency change. An unavailable shipping method does not refuse it: the order is priced without shipping.
      *
      * @since 1.0.0
      *
@@ -51,7 +51,7 @@ class OrderCalculationController
      * @param OrderCalculationContextService $context_service Builds the calculation input from the payload.
      * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The calculation result, in the store's base currency.
      * @throws NotFoundException When the order to edit does not exist.
-     * @throws ValidationException When the order to edit can no longer be edited, its currency would change, or its shipping method is not available.
+     * @throws ValidationException When the order to edit can no longer be edited, or its currency would change.
      */
     public function get(OrderCalculationRequest $request, RecalculateCartAction $action, OrderCalculationContextService $context_service)
     {
@@ -60,7 +60,7 @@ class OrderCalculationController
         $context = $context_service->build($input, $order);
 
         if ($order) {
-            $context_service->validate_edit($order, $input, $context);
+            $context_service->validate_edit($order, $input);
         }
 
         $result = $action->execute($context);
