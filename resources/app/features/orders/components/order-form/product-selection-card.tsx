@@ -66,7 +66,7 @@ const ProductSelectionCard = ({
               <TableBody>
                 {rows.map((row) => (
                   <OrderItemRow
-                    key={row.display.variantId}
+                    key={row.index}
                     row={row}
                     onQuantityChange={onQuantityChange}
                     onRemove={onRemoveItem}

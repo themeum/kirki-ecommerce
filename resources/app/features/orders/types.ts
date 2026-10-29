@@ -2,8 +2,9 @@ import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
 import type { ProductVariantSelection } from '@/features/products';
 import type { MoneyObject } from '@/schemas/shared/api';
 
-export type OrderRowDisplay = ProductVariantSelection & {
-  productId: number;
+export type OrderRowDisplay = Omit<ProductVariantSelection, 'variantId'> & {
+  productId: number | null;
+  variantId: number | null;
   productTitle: string;
   storedQuantity?: number;
   storedSubtotal?: MoneyObject;
