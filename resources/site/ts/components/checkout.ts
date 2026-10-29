@@ -689,6 +689,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         : null;
 
       let hasFieldErrors = false;
+      let countryError: string | null = null;
 
       for (const [key, messages] of Object.entries(apiError.errors)) {
         const rawMessage = messages[0];
@@ -705,11 +706,22 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           const field = key.replace('shipping_', '');
           this.shippingErrors[field] = rawMessage;
           hasFieldErrors = true;
+          if (field === 'country') {
+            countryError ??= rawMessage;
+          }
         } else if (key.startsWith('billing_')) {
           const field = key.replace('billing_', '');
           this.billingErrors[field] = rawMessage;
           hasFieldErrors = true;
+          if (field === 'country') {
+            countryError ??= rawMessage;
+          }
         }
+      }
+
+      // A saved address shows no country field, so the field error alone would go unseen.
+      if (countryError) {
+        toastManager.error(countryError);
       }
 
       if (!hasFieldErrors) {

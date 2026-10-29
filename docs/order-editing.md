@@ -265,6 +265,14 @@ it is disabled, deleted or does not serve the address, the edit fails with 422
 method."), also when the edit does not touch the shipping. Send another method
 from `available_shipping_methods` (section 8) to continue.
 
+**Selling locations.** The shipping country and the billing country must both
+be countries the store sells to (Settings > General > Selling Locations). An
+edit always checks both, also when the countries did not change. So an order
+whose country the store no longer sells to cannot be saved, also for an edit of
+the lines or the note, until the address is moved to a country the store sells
+to. Both fail with 422 ("We do not sell to this country.") on the country field.
+Order creation, including a manual order, gives the same error.
+
 **Tax rates of the lines.** An edit uses the tax rates of the lines stored on
 the order. It quotes them again from today's settings only when the country or
 state of the address that **tax follows** (the order's `tax_destination`:
@@ -361,6 +369,7 @@ customer paid.
 | 422 | A raised quantity, or a new line, is above the variant's `max_per_order`. |
 | 422 | Stock is short for an added quantity, or for a new line ("Not enough stock for variant: N"). The preview and the save both give it. The save also gives it when another request takes the stock after the preview. |
 | 422 | The shipping method is not available for the order as sent ("The shipping method of this order is not available. Select another shipping method."). This includes an edit that does not change the shipping. The preview gives it too. |
+| 422 | The shipping country or the billing country is not a selling location ("We do not sell to this country."). This includes an edit that does not change the address. |
 | 422 | Stock was taken by another request between the check and the reservation ("Insufficient stock to reserve."). |
 
 When a save fails, nothing on the order changes: not the lines, the stock, the
