@@ -7,7 +7,7 @@
 - [x] 1.5 Check each gateway id against the provider id it registers (the script reads `$this->id = '...'` from `src/`, so `id` always matches; no folder renames needed)
 - [x] 1.6 Verify: run the command, unzip one result, confirm a valid plugin header and checksum; run `npm run typecheck && npm test` in `resources/app/` (typecheck passes; 2 pre-existing failures in `shipping-carrier.test.tsx`, unrelated)
 
-## 2. Dev catalog server
+## 2. Dev catalog server (superseded by section 6)
 
 - [x] 2.1 Add `payment-server/` (`node:http`): `GET /payments` reads `payment-server/gateways/*/meta.json` per request and adds `icon_url`, `download_url`; serve zips/logos statically
 - [x] 2.2 Add an npm script to start it; delete `payments/payments.json`
@@ -32,3 +32,13 @@
 
 - [x] 5.1 Write `docs/payment-gateways.md`: contents, quick start (build, upload, set base URL), catalog contract, install security, and "Where this differs from" (WordPress.org plugin installer) section
 - [x] 5.2 Final check: `openspec validate remote-payment-gateway-catalog`
+
+## 6. Move the catalog to S3 (replaces section 2)
+
+- [x] 6.1 Update `bin/build-payment-zips.js`: write to `gateways/` at the repo root; read `BASE_URL` and `ICON_BASE_URL`; write the sorted catalog file `gateways/payments` (same order rules as the old server); update `.gitignore`
+- [x] 6.2 Add `bin/publish-payment-gateways.js` and the `publish:payments` script: build, upload zips and logos, upload the `payments` catalog last with `Content-Type: application/json` and a short `Cache-Control`; bucket, endpoint and credentials from env values; needs the AWS CLI
+- [x] 6.3 Add `docker-compose.payments.yml` (RustFS on ports 9000 and 9001, bucket `kirki-payments` with public read) and the `s3:up` and `s3:down` scripts
+- [x] 6.4 Remove `payment-server/`, the `serve:payments` script, and the `express` dev dependency
+- [x] 6.5 Define `KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL` in `kirki-ecommerce.php` (the real bucket; `wp-config.php` can override it) and remove `PaymentGatewayCatalog::DEFAULT_BASE_URL`; update tests that name the old server or port
+- [x] 6.6 Update `docs/payment-gateways.md`: local S3 quick start, the catalog file, "upload a new gateway" steps, publish order, and the "Where this differs from" section; remove the Express server text
+- [x] 6.7 Verify: `npm run s3:up`, `npm run publish:payments`, `curl` the catalog and one zip, compare the hash; run the payment PHP tests and phpcs; run `openspec validate remote-payment-gateway-catalog`; the dialog check stays manual for the maintainer

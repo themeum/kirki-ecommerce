@@ -5,9 +5,15 @@ const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
+const { loadEnv } = require('./lib/load-env');
+const { buildCatalog, readBaseUrls } = require('./lib/payment-catalog');
+
+loadEnv();
+
 const ROOT = path.resolve(__dirname, '..');
 const PAYMENTS_DIR = path.join(ROOT, 'payments');
-const OUTPUT_DIR = path.join(ROOT, 'payment-server', 'gateways');
+const OUTPUT_DIR = path.join(ROOT, 'gateways');
+const CATALOG_FILE = path.join(OUTPUT_DIR, 'payments');
 const SLUG_PREFIX = 'kirki-';
 const STAGING_EXCLUDES = ['vendor', 'node_modules', '.git', '.DS_Store'];
 const ZIP_EXCLUDES = ['*.DS_Store', '*/composer.lock', '*/.git/*'];
@@ -136,8 +142,12 @@ const main = () => {
     .map(buildGateway)
     .filter((meta) => meta !== null);
 
+  const catalog = buildCatalog(built, readBaseUrls());
+  fs.writeFileSync(CATALOG_FILE, `${JSON.stringify(catalog, null, 2)}\n`);
+
   console.log(`\nBuilt ${built.length} payment gateway zip(s) in ${path.relative(ROOT, OUTPUT_DIR)}:`);
   built.forEach((meta) => console.log(`  ${meta.id} (${meta.slug}) v${meta.version}`));
+  console.log(`Catalog: ${path.relative(ROOT, CATALOG_FILE)} (${catalog.length} gateway(s))`);
 };
 
 main();

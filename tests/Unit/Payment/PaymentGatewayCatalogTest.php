@@ -69,11 +69,11 @@ class PaymentGatewayCatalogTest extends TestCase
 
     public function test_it_keeps_an_icon_url_on_another_host()
     {
-        $entry = $this->entry(['icon_url' => 'http://localhost:4800/files/kirki-stripe/logo.svg']);
+        $entry = $this->entry(['icon_url' => 'http://localhost:9000/kirki-payments/kirki-stripe/logo.svg']);
 
         $gateways = PaymentGatewayCatalog::normalize([$entry], static::BASE_URL);
 
-        $this->assertSame('http://localhost:4800/files/kirki-stripe/logo.svg', $gateways[0]['icon_url']);
+        $this->assertSame('http://localhost:9000/kirki-payments/kirki-stripe/logo.svg', $gateways[0]['icon_url']);
     }
 
     public function test_it_ignores_a_response_that_is_not_a_list()

@@ -5,34 +5,41 @@ plugins. They are not bundled with the store. **Settings → Payments → Paymen
 Gateways** lists the gateways a remote server offers, and **Add** downloads,
 installs and activates one.
 
-This page explains how the plugins are built and uploaded, what the server
-must return, and what the store checks before it installs anything.
+The "server" is a public S3 bucket. It holds the plugin zips, the logos and one
+catalog file. No server code runs.
+
+This page explains how the plugins are built and published, what the catalog
+file must contain, and what the store checks before it installs anything.
 
 - [1. Quick start](#1-quick-start)
 - [2. Building the zips](#2-building-the-zips)
 - [3. The catalog contract](#3-the-catalog-contract)
-- [4. Changing the server](#4-changing-the-server)
-- [5. How an install works](#5-how-an-install-works)
-- [6. Adding a new gateway](#6-adding-a-new-gateway)
-- [7. Where this differs from the WordPress.org plugin installer](#7-where-this-differs-from-the-wordpressorg-plugin-installer)
+- [4. Publishing to S3](#4-publishing-to-s3)
+- [5. Changing the bucket](#5-changing-the-bucket)
+- [6. How an install works](#6-how-an-install-works)
+- [7. Adding a new gateway](#7-adding-a-new-gateway)
+- [8. Where this differs from the WordPress.org plugin installer](#8-where-this-differs-from-the-wordpressorg-plugin-installer)
 
 ---
 
 ## 1. Quick start
 
+You need Docker and the [AWS CLI](https://aws.amazon.com/cli/) on your path.
+
 ```bash
-npm --prefix payment-server install   # first time only
-npm run build:payments                # builds payment-server/gateways/<slug>/ for every gateway
-npm run serve:payments                # starts the payment server on port 4800
+npm run s3:up            # starts a local S3 (RustFS) with the public bucket "kirki-payments"
+npm run publish:payments # builds every gateway and uploads it
 ```
 
-The store reads `http://host.docker.internal:4800` by default (the dev
-WordPress runs in Docker, where `localhost` is the container itself). With the
-test server running, open **Settings → Payments → Payment Gateways** and press **Add**.
+The store reads the real bucket by default. To read the local S3, define
+`KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL` in `wp-config.php` as
+`http://host.docker.internal:9000/kirki-payments` (the dev WordPress runs in
+Docker, where `localhost` is the container itself). Open
+**Settings → Payments → Payment Gateways** and press **Add**.
 
-For a real server, deploy the `payment-server/` folder with its `build/` folder
-(or upload `build/` to any host that serves the contract in section 3) and change
-the base URL (section 4).
+`npm run s3:down` stops the local S3. Its console is at `http://localhost:9001`
+(user and password: `minioadmin`). Set `S3_PORT` and `S3_CONSOLE_PORT` to change
+the host ports.
 
 ---
 
@@ -41,10 +48,12 @@ the base URL (section 4).
 `npm run build:payments` takes each `payments/kirki-*` folder and writes:
 
 ```
-payment-server/gateways/kirki-stripe/
-  kirki-stripe.zip   installable plugin, one top-level kirki-stripe/ folder
-  logo.svg           copied from assets/logo.svg
-  meta.json          id, slug, name, description, version, order, sha256
+gateways/
+  payments                 the catalog file (section 3)
+  kirki-stripe/
+    kirki-stripe.zip       installable plugin, one top-level kirki-stripe/ folder
+    logo.svg               copied from assets/logo.svg
+    meta.json              id, slug, name, description, version, order, sha256
 ```
 
 - `name`, `description`, `version` and `order` come from the plugin header comment.
@@ -61,13 +70,28 @@ payment-server/gateways/kirki-stripe/
 - A folder without `<slug>.php` is skipped with a warning. A gateway without
   `assets/logo.svg` stops the build.
 
-The command needs `composer` and `zip` on your path. `payment-server/gateways/` is git-ignored.
+The command needs `composer` and `zip` on your path. `gateways/` is git-ignored.
+
+Two environment values set the URLs written into the catalog:
+
+| Value | Used by | Default (local S3) |
+|-------|---------|--------------------|
+| `BASE_URL` | The store (PHP). Catalog and zip downloads. | `http://host.docker.internal:9000/kirki-payments` |
+| `ICON_BASE_URL` | The browser. Logos. | `http://localhost:9000/kirki-payments` |
+
+On a real bucket both values are the public bucket URL.
+
+The scripts read these values from the `.env` file in the repo root. Copy the
+payment block from `.env.example` (`S3_*`, `AWS_*`, `BASE_URL`, `ICON_BASE_URL`).
+A value that you set in the shell wins over the file. Without any value, the
+scripts use the local S3 defaults.
 
 ---
 
 ## 3. The catalog contract
 
-The store sends `GET {base}/payments` and expects a JSON list:
+The store sends `GET {base}/payments` and expects a JSON list. On S3 this is an
+object with the key `payments` (no file extension) and `Content-Type: application/json`.
 
 ```json
 [
@@ -76,45 +100,82 @@ The store sends `GET {base}/payments` and expects a JSON list:
     "name": "Stripe",
     "description": "Stripe payment gateway for Kirki ecommerce.",
     "version": "1.0.0",
-    "icon_url": "https://example.com/files/kirki-stripe/logo.svg",
-    "download_url": "https://example.com/files/kirki-stripe/kirki-stripe.zip",
+    "icon_url": "https://example.com/bucket/kirki-stripe/logo.svg",
+    "download_url": "https://example.com/bucket/kirki-stripe/kirki-stripe.zip",
     "sha256": "<64 hex characters>"
   }
 ]
 ```
 
-The list is sorted by `order`, lowest first. Gateways with the same `order` sort
-by name A to Z. Gateways without `order` come last, also A to Z.
-
-The server builds this list from the `meta.json` files, so a new gateway needs
-no list edit. `payment-server/` is an Express server that does this on every
-request and serves the files from `/files/<slug>/...`. Settings are in
-`payment-server/.env.example` (`PORT`, `BASE_URL`, `ICON_BASE_URL`,
-`GATEWAYS_DIR`). It also answers `GET /health`.
+The build writes this file. The list is sorted by `order`, lowest first.
+Gateways with the same `order` sort by name A to Z. Gateways without `order`
+come last, also A to Z. A new gateway needs no list edit.
 
 The store drops any entry whose `id` is not `[a-z0-9_-]`, whose `sha256` is not
 64 hex characters, or whose `download_url` is not under the base URL. An
 `icon_url` that is not `http(s)` is ignored. The browser loads icons, so they may
-use a different host than the base URL. The payment server advertises
-`http://localhost:4800` for icons by default (`ICON_BASE_URL`).
+use a different host than the base URL.
 
 ---
 
-## 4. Changing the server
+## 4. Publishing to S3
 
-The base URL is one constant: `PaymentGatewayCatalog::DEFAULT_BASE_URL` in
-`app/Payment/PaymentGatewayCatalog.php`. Change it and the list, the logos and
-the downloads all come from the new server. For local work you can instead
-define `KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL` in `wp-config.php`.
+`npm run publish:payments` builds the gateways, then uploads with the AWS CLI:
+
+1. All zips and logos. (`meta.json` files stay local.)
+2. The `payments` catalog, last, with `Content-Type: application/json` and
+   `Cache-Control: max-age=60`.
+
+The order matters. If the catalog went first, it would list a hash for a zip
+that is not uploaded yet, and installs would fail the integrity check.
+
+The command uploads every gateway on each run, because a rebuild can change a
+zip hash.
+
+| Value | Meaning | Default |
+|-------|---------|---------|
+| `S3_ENDPOINT` | S3 endpoint URL. Set it to an empty string for AWS S3. | `http://localhost:9000` (local S3) |
+| `S3_BUCKET` | Bucket name. | `kirki-payments` |
+| `S3_PREFIX` | Folder inside the bucket, for example `gateways`. `BASE_URL` and `ICON_BASE_URL` must end with the same folder. | empty (bucket root) |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Credentials. | `minioadmin` for the local S3 only |
+
+For a real bucket, also set `BASE_URL` and `ICON_BASE_URL`. The command stops if
+you point it at another endpoint without them, so it cannot publish a catalog
+with local URLs. Put the values in `.env`, or set them for one run:
+
+```bash
+S3_ENDPOINT= S3_BUCKET=my-bucket \
+BASE_URL=https://my-bucket.s3.amazonaws.com ICON_BASE_URL=https://my-bucket.s3.amazonaws.com \
+npm run publish:payments
+```
+
+An empty `S3_ENDPOINT` means AWS S3. Do not remove the line from `.env` to get
+this: with no value at all, the script uses the local S3.
+
+The bucket must allow public reads (`s3:GetObject` for everyone) and must not
+allow public writes. Do not turn on compression that changes zip bytes (some
+CDNs do this), because the hash would not match.
+
+---
+
+## 5. Changing the bucket
+
+The base URL comes from the constant `KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL`. The
+plugin file `kirki-ecommerce.php` defines it as the real bucket
+(`https://kirki-ecommerce.s3.us-east-1.amazonaws.com/gateways`). Change it there and the
+list, the logos and the downloads all come from the new bucket. A definition in
+`wp-config.php` wins, because the plugin file defines the constant only when it is
+not set yet. The store has no other default.
 
 The list is cached with the framework `Cache` for 15 minutes. After that, the
 old list (kept up to 7 days) is shown at once and refreshed after the response.
-With no copy and a server that is down, the dialog shows an error with a retry
-button.
+With no copy and a bucket that is down, the dialog shows an error with a retry
+button. The cache key does not include the base URL, so after you change the
+base URL, wait for the cache to expire or install a gateway (an install clears it).
 
 ---
 
-## 5. How an install works
+## 6. How an install works
 
 `POST /online-payments/install` takes only the gateway `id`. A `download_url`
 sent by the browser is ignored.
@@ -128,8 +189,8 @@ sent by the browser is ignored.
    framework `Extension::install()`.
 5. It confirms the provider is registered and clears the list cache.
 
-The hash comes from the same server as the zip. It catches a damaged or
-swapped file. It does not protect against a server that an attacker controls.
+The hash comes from the same bucket as the zip. It catches a damaged or
+swapped file. It does not protect against someone who can write to the bucket.
 
 ### Removing a gateway
 
@@ -142,25 +203,30 @@ gateway again restores them.
 
 ---
 
-## 6. Adding a new gateway
+## 7. Adding a new gateway
 
 1. Create `payments/kirki-<name>/` with `kirki-<name>.php` (plugin header) and
    `assets/logo.svg`.
-2. Run `npm run build:payments`. Deploy `payment-server/gateways/` with the server.
+2. Run `npm run publish:payments` with the values for your bucket (section 4).
 
-The gateway appears in the dialog on the next list refresh.
+That one command builds all gateways, uploads the zips and logos, and uploads
+the new catalog last. The gateway appears in the dialog when the store cache
+refreshes (up to 15 minutes, plus the `max-age=60` of the catalog object).
 
 ---
 
-## 7. Where this differs from the WordPress.org plugin installer
+## 8. Where this differs from the WordPress.org plugin installer
 
-- **Own server.** Gateways are not on WordPress.org. The catalog is a plain
-  JSON list that you host.
+- **Own bucket.** Gateways are not on WordPress.org. The catalog is a plain
+  JSON object that you host.
+- **No server code.** Nothing filters or builds the list at request time. A
+  publish run writes it. A gateway that you do not publish is not listed.
 - **No signatures.** Integrity is a SHA-256 hash from the catalog, not a
   signed package.
-- **Install only.** There is no update check, no uninstall and no version
-  pinning. Reinstalling an installed gateway is refused.
+- **No update check.** The store does not look for newer versions of an
+  installed gateway, and it cannot pin a version. Reinstalling an installed
+  gateway is refused. You can remove a gateway (section 6).
 - **No admin-supplied URLs.** Only catalog entries can be installed.
 - **No "Coming Soon".** A gateway that is not built and uploaded is not
   listed. PayPal is built into the store, so it is not in the catalog.
-- **Base URL is code.** There is no settings screen for the server address.
+- **Base URL is code.** There is no settings screen for the bucket address.

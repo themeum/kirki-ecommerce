@@ -8,13 +8,19 @@ plugins exist in `payments/`, but a merchant cannot install any of them.
 ## What Changes
 
 - Add a root npm script that builds one installable WordPress plugin zip per
-  gateway in `payments/` into `payment-server/gateways/<slug>/`, together with the
+  gateway in `payments/` into `gateways/<slug>/`, together with the
   gateway logo and a generated `meta.json` (name, version, description,
   SHA-256 of the zip). It runs `composer install --no-dev` in a staging copy
   when a gateway has a `composer.json`.
-- Add a small dev-only Node server (`payment-server/`) that builds the
-  gateway list on the fly from `payment-server/gateways/*/meta.json` and serves the
-  zips and logos as static files.
+- The same build writes one static catalog file, `gateways/payments`, with the
+  full gateway list (sorted, with full download and icon URLs). No server code
+  builds the list.
+- Host the `gateways/` folder in a public S3 bucket. `npm run publish:payments`
+  builds and uploads it: zips and logos first, the catalog last.
+- Add a local S3 for testing: RustFS in Docker (`docker-compose.payments.yml`),
+  with a public-read bucket.
+- Remove the Express catalog server (`payment-server/`) and
+  `npm run serve:payments`.
 - Replace the stub in `OnlinePaymentService`: the WordPress backend fetches the
   catalog from one configurable base URL, caches it briefly, and merges the
   local `is_installed` flag.
@@ -27,6 +33,8 @@ plugins exist in `payments/`, but a merchant cannot install any of them.
 - Delete `payments/payments.json`; the catalog no longer has a hand-kept list.
 - Add `docs/payment-gateways.md`.
 - **BREAKING**: gateways that are not built no longer appear as "Coming Soon".
+- **BREAKING**: `payment-server/` and `npm run serve:payments` are removed.
+  Local testing uses a local S3 (RustFS).
 
 ## Capabilities
 
@@ -43,8 +51,10 @@ plugins exist in `payments/`, but a merchant cannot install any of them.
 
 ## Impact
 
-- `package.json` (root), new `bin/`-style build script, `payment-server/`,
-  `payments/payments.json` (removed), `.gitignore` for `build/`.
+- `package.json` (root), the `bin/` build and publish scripts,
+  `docker-compose.payments.yml`, `payment-server/` (removed),
+  `payments/payments.json` (removed), `.gitignore` for `gateways/`.
+- Tooling: the AWS CLI is needed to publish.
 - `app/Services/OnlinePaymentService.php`, `OnlinePaymentController`,
   `InstallableOnlinePaymentListResource`, a new base-URL constant.
 - `resources/app/features/settings/payment/` (dialog, schema, service).

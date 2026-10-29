@@ -14,15 +14,13 @@ use function Kirki\Ecommerce\Framework\throw_if;
 /**
  * Catalog of the payment gateway plugins offered by the remote gateway server.
  *
- * The server base URL is defined here and nowhere else. It can be overridden
- * with the `KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL` constant for local work.
+ * The server base URL comes from the `KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL`
+ * constant, which the plugin file defines. wp-config.php can override it.
  *
  * @since 1.0.0
  */
 class PaymentGatewayCatalog
 {
-    public const DEFAULT_BASE_URL = 'http://host.docker.internal:4800';
-
     public const CACHE_KEY = 'payment_gateway_catalog';
 
     public const FRESH_CACHE_TTL = 15 * MINUTE_IN_SECONDS;
@@ -40,9 +38,7 @@ class PaymentGatewayCatalog
      */
     public function base_url()
     {
-        $base_url = defined('KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL') ? KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL : static::DEFAULT_BASE_URL;
-
-        return rtrim($base_url, '/');
+        return rtrim(constant('KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL'), '/');
     }
 
     /**

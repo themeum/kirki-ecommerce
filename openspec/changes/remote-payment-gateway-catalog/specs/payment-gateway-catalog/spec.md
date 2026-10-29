@@ -19,6 +19,12 @@ derived from the catalog response or from `{base}`.
 - **THEN** the backend returns each remote gateway with `id`, `name`,
   `description`, `version`, `icon`, and `is_installed`
 
+#### Scenario: Catalog is a static object
+
+- **WHEN** the store requests `{base}/payments`
+- **THEN** the response is a JSON object stored in the S3 bucket, with no
+  server code between the store and the bucket
+
 #### Scenario: Switching servers
 
 - **WHEN** the base URL value changes
