@@ -53,6 +53,14 @@ export function variantSelector(config: VariantSelectorConfig) {
       return this.variants.find((v) => v.id === this.selectedVariantId) ?? this.variants[0];
     },
 
+    get hasMatchingVariant(): boolean {
+      return this.variants.some((variant) =>
+        Object.entries(this.selectedAttributes).every(([name, value]) =>
+          variant.attributes.some((attr) => attr.name === name && attr.value === value),
+        ),
+      );
+    },
+
     get maxQuantity(): number | undefined {
       return this.getMaxQuantity();
     },
