@@ -32,6 +32,11 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { isDefined } from '@/utils/object';
 
+type OrderActionCallbacks = Pick<
+  NonNullable<Parameters<ReturnType<typeof useOrderActionMutation>['mutate']>[1]>,
+  'onSuccess' | 'onError'
+>;
+
 type UseOrderDetailsResult = {
   order: ReturnType<typeof useOrderQuery>['data'];
   isLoading: boolean;
@@ -82,11 +87,11 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
     form.reset(pickFormValues(OrderPartialFormSchema, order));
   }, [order, form]);
 
-  const performAction = (payload: OrderActionPayload) => {
+  const performAction = (payload: OrderActionPayload, callbacks?: OrderActionCallbacks) => {
     if (!isDefined(order)) {
       return;
     }
-    actionMutation.mutate({ id: order.id, ...payload });
+    actionMutation.mutate({ id: order.id, ...payload }, callbacks);
   };
 
   const handleAction = (action: OrderAction) => {
@@ -97,6 +102,11 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
 
     if (action === ORDER_ACTIONS.MARK_AS_PAID) {
       setIsMarkAsPaidDialogOpen(true);
+      return;
+    }
+
+    if (action === ORDER_ACTIONS.MARK_AS_SHIPPED) {
+      performAction({ action }, { onSuccess: () => setIsTrackingDialogOpen(true) });
       return;
     }
 

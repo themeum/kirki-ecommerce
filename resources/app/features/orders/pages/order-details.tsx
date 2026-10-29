@@ -32,6 +32,7 @@ import { ShowMoreIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderDetails = () => {
@@ -138,13 +139,22 @@ const OrderDetails = () => {
               <Card cssOverride={{ gap: theme.spacing[2] }}>
                 <CardHeader>
                   <CardTitle>
-                    <Text variant="heading6" weight="semibold">
-                      {sprintf(
-                        /* translators: %s: number of items */
-                        __('Items (%s)', 'kirki-ecommerce'),
-                        order.items_count,
-                      )}
-                    </Text>
+                    <Flex justify="space-between" align="center">
+                      <Text variant="heading6" weight="semibold">
+                        {sprintf(
+                          /* translators: %s: number of items */
+                          __('Items (%s)', 'kirki-ecommerce'),
+                          order.items_count,
+                        )}
+                      </Text>
+                      <Button variant="link" onClick={() => setIsTrackingDialogOpen(true)}>
+                        <Text variant="small" weight="medium" color="emphasis">
+                          {isDefined(order.shipping_tracking.tracking_number)
+                            ? __('Edit tracking No.', 'kirki-ecommerce')
+                            : __('Add tracking No.', 'kirki-ecommerce')}
+                        </Text>
+                      </Button>
+                    </Flex>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

@@ -97,12 +97,13 @@ class PerformOrderAction
                     throw_if(!empty($dto->payment_provider) && !Payment::get_provider($dto->payment_provider), __('Invalid payment method.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
                     OrderManager::mark_payment_as_paid($order->id, $dto->payment_provider);
                     break;
-                case OrderAction::SEND_PAYMENT_LINK:
-                    OrderManager::send_payment_link($order->id);
-                    break;
-                case OrderAction::SEND_INVOICE:
-                    OrderManager::send_invoice_email($order->id);
-                    break;
+                // @todo: will implement later
+                // case OrderAction::SEND_PAYMENT_LINK:
+                //     OrderManager::send_payment_link($order->id);
+                //     break;
+                // case OrderAction::SEND_INVOICE:
+                //     OrderManager::send_invoice_email($order->id);
+                //     break;
                 case OrderAction::RESEND_ORDER_EMAIL:
                     OrderManager::resend_order_email($order->id);
                     break;
@@ -242,10 +243,11 @@ class PerformOrderAction
                 return __('Tracking number added.', 'kirki-ecommerce');
             case OrderAction::MARK_AS_PAID:
                 return __('Order marked as paid.', 'kirki-ecommerce');
-            case OrderAction::SEND_PAYMENT_LINK:
-                return __('Payment link sent.', 'kirki-ecommerce');
-            case OrderAction::SEND_INVOICE:
-                return __('Invoice sent.', 'kirki-ecommerce');
+                // @todo: will implement later
+                // case OrderAction::SEND_PAYMENT_LINK:
+                //     return __('Payment link sent.', 'kirki-ecommerce');
+                // case OrderAction::SEND_INVOICE:
+                //     return __('Invoice sent.', 'kirki-ecommerce');
             case OrderAction::RESEND_ORDER_EMAIL:
                 return __('Order email resent.', 'kirki-ecommerce');
             case OrderAction::ARCHIVE_ORDER:
