@@ -100,7 +100,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
       </CardHeader>
       <CardContent cssOverride={styles.content}>
         <Flex direction="column" gap={4}>
-          <Card cssOverride={mergeCss(cardStyles.formCard, styles.composer)}>
+          <Card cssOverride={mergeCss(cardStyles.formCard, styles.composer)} noShadow>
             <CardContent cssOverride={cardStyles.tableContent}>
               <Flex align="center" gap={3} cssOverride={styles.composerInput}>
                 <div css={scoped(styles.avatar)}>{currentUserAcronym}</div>
@@ -243,7 +243,6 @@ const styles = defineStyles({
     gap: 0,
     paddingBlock: 0,
     overflow: 'hidden',
-    boxShadow: theme.shadow.md,
   },
   composerInput: {
     padding: theme.spacing[3],
