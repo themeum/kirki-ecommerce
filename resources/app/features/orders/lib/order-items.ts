@@ -4,16 +4,13 @@ import type {
   OrderCoupon,
   OrderEditLineItem,
 } from '@/features/orders/schemas/catalog/order';
+import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
 import type { OrderItem, OrderRowDisplay } from '@/features/orders/types';
 import type { ProductSelection } from '@/features/products';
 import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
-type PickedItem = {
-  id?: number | null;
-  variant_id: number;
-  quantity: number;
-};
+type PickedItem = OrderFormInput['items'][number];
 
 type QuantityLimitSource = {
   inStock?: boolean | null;
@@ -29,39 +26,14 @@ const flattenSelections = (selections: ProductSelection[]): OrderRowDisplay[] =>
     variants.map((variant) => ({ ...variant, productId, productTitle })),
   );
 
-const getDisplayByVariantId = (
-  selections: ProductSelection[],
-): Record<number, OrderRowDisplay> =>
-  flattenSelections(selections).reduce<Record<number, OrderRowDisplay>>(
-    (acc, display) => {
-      acc[display.variantId] = display;
-      return acc;
-    },
-    {},
-  );
-
-const getOrderRows = (
-  pickedItems: PickedItem[],
-  displayByVariantId: Record<number, OrderRowDisplay>,
-): OrderItem[] =>
-  pickedItems.reduce<OrderItem[]>((acc, pickedItem, index) => {
-    const display = displayByVariantId[pickedItem.variant_id];
-
-    if (display) {
-      acc.push({ index, quantity: pickedItem.quantity, display });
-    }
-
-    return acc;
-  }, []);
-
 const toStoredRowDisplay = (item: OrderEditLineItem): OrderRowDisplay => {
   const unitPrice = item.base_unit_price_money_object;
   const strikethroughPrice = item.base_unit_strikethrough_price_money_object;
 
   return {
-    productId: item.product_id,
+    productId: item.product_id ?? null,
     productTitle: item.product_name ?? '',
-    variantId: item.variant_id,
+    variantId: item.variant_id ?? null,
     variantLabel: item.variant_name ?? '',
     thumbnail: item.image?.url ?? null,
     inStock: item.in_stock ?? true,
@@ -78,13 +50,29 @@ const toStoredRowDisplay = (item: OrderEditLineItem): OrderRowDisplay => {
   };
 };
 
-const getStoredDisplayByVariantId = (
-  items: OrderEditLineItem[],
-): Record<number, OrderRowDisplay> =>
-  items.reduce<Record<number, OrderRowDisplay>>((acc, item) => {
-    acc[item.variant_id] = toStoredRowDisplay(item);
+const getOrderRows = (
+  pickedItems: PickedItem[],
+  selections: ProductSelection[],
+  storedItems: OrderEditLineItem[],
+): OrderItem[] => {
+  const displayByVariantId = new Map(
+    flattenSelections(selections).map((display) => [display.variantId, display]),
+  );
+  const storedItemById = new Map(storedItems.map((item) => [item.id, item]));
+
+  return pickedItems.reduce<OrderItem[]>((acc, pickedItem, index) => {
+    const storedItem = isDefined(pickedItem.id) ? storedItemById.get(pickedItem.id) : undefined;
+    const display =
+      (isDefined(pickedItem.variant_id) ? displayByVariantId.get(pickedItem.variant_id) : undefined) ??
+      (storedItem ? toStoredRowDisplay(storedItem) : undefined);
+
+    if (display) {
+      acc.push({ index, quantity: pickedItem.quantity, display });
+    }
+
     return acc;
-  }, {});
+  }, []);
+};
 
 const toSelectedCoupon = (coupon: OrderCoupon): CouponListItem => {
   const fixedAmount = coupon.base_discount_amount_fixed_money_object;
@@ -137,7 +125,8 @@ const mergeSelections = (
 
   const kept = pickedItems
     .filter(
-      (pickedItem) => isDefined(pickedItem.id) || selectedVariantIds.has(pickedItem.variant_id),
+      (pickedItem) =>
+        isDefined(pickedItem.id) || selectedVariantIds.has(pickedItem.variant_id ?? null),
     )
     .map(toPickedItem);
 
@@ -242,11 +231,9 @@ const pairCalculationItems = (
 
 export {
   flattenSelections,
-  getDisplayByVariantId,
   getMaxQuantity,
   getOrderRows,
   getQuantityLimit,
-  getStoredDisplayByVariantId,
   mergeSelections,
   pairCalculationItems,
   type PickedItem,

@@ -8,9 +8,7 @@ import { toast } from 'sonner';
 import { RouteConfig } from '@/config/route-config';
 import { toOrderFormAddresses } from '@/features/orders/lib/order-address';
 import {
-  getDisplayByVariantId,
   getOrderRows,
-  getStoredDisplayByVariantId,
   mergeSelections,
   pairCalculationItems,
   toSelectedCoupon,
@@ -328,15 +326,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [calculation]);
 
-  const displayByVariantId = useMemo(
-    () => ({
-      ...getStoredDisplayByVariantId(order?.items ?? []),
-      ...getDisplayByVariantId(selections),
-    }),
-    [order, selections],
-  );
-
-  const rows = getOrderRows(pickedItems, displayByVariantId);
+  const rows = getOrderRows(pickedItems, selections, order?.items ?? []);
 
   const handleAddItems = (nextSelections: ProductSelection[]) => {
     replaceItems(mergeSelections(pickedItems, nextSelections));
