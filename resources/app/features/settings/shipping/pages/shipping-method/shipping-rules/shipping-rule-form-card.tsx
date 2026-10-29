@@ -82,6 +82,8 @@ const ShippingRuleFormCard = ({
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
 
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
+  const { data: productSettings } = useSettingsQuery('product');
+  const storeWeightUnit = (productSettings?.weight_unit as string | undefined) || 'kg';
   const { data: shippingProfile } = useShippingProfilesQuery({ limit: -1 });
   const { data: categoryData } = useCategoriesQuery({
     limit: -1,
@@ -295,7 +297,7 @@ const ShippingRuleFormCard = ({
                       placeholder={
                         selectedCondition === 'cart_subtotal'
                           ? sprintf(__('e.g., %s100', 'kirki-ecommerce'), baseCurrencySymbol)
-                          : __('e.g., 5', 'kirki-ecommerce')
+                          : sprintf(__('e.g., 5 %s', 'kirki-ecommerce'), storeWeightUnit)
                       }
                     />
                   ) : (
