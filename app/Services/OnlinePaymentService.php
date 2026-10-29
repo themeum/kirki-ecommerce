@@ -13,6 +13,8 @@ use Kirki\Ecommerce\Framework\Wordpress\Extension;
 use Kirki\Ecommerce\App\Payment\PaymentGatewayCatalog;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Supports\Facades\File;
+use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Exception;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_anyway;
@@ -96,9 +98,7 @@ class OnlinePaymentService
         try {
             $this->install_package($gateway['download_url'], $package_file);
         } finally {
-            if (file_exists($package_file)) {
-                wp_delete_file($package_file);
-            }
+            File::delete($package_file);
         }
 
         $this->catalog->flush();
@@ -195,21 +195,16 @@ class OnlinePaymentService
         require_once ABSPATH . 'wp-admin/includes/file.php';
 
         $package_file = wp_tempnam($gateway['download_url']);
-        $response = wp_remote_get($gateway['download_url'], [
-            'timeout' => 300,
-            'stream' => true,
-            'filename' => $package_file,
-        ]);
+        $response = Http::with_options(['timeout' => 300, 'stream' => true, 'filename' => $package_file])
+            ->get($gateway['download_url']);
 
-        $is_downloaded = !is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200;
-
-        if (!$is_downloaded) {
-            wp_delete_file($package_file);
+        if (!$response->successful()) {
+            File::delete($package_file);
             throw_anyway(__('Could not download the payment method package.', 'kirki-ecommerce'), Exception::class, Response::SERVICE_UNAVAILABLE);
         }
 
-        if (!hash_equals($gateway['sha256'], hash_file('sha256', $package_file))) {
-            wp_delete_file($package_file);
+        if (!hash_equals($gateway['sha256'], File::hash($package_file, 'sha256'))) {
+            File::delete($package_file);
             throw_anyway(__('The payment method package failed the integrity check.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
         }
 

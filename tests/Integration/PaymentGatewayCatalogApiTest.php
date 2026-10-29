@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Payment\PaymentGatewayCatalog;
+use Kirki\Ecommerce\Framework\Supports\Facades\Cache;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class PaymentGatewayCatalogApiTest extends RestTestCase
@@ -13,15 +14,13 @@ class PaymentGatewayCatalogApiTest extends RestTestCase
     {
         parent::setUp();
 
-        delete_transient(PaymentGatewayCatalog::FRESH_CACHE_KEY);
-        delete_transient(PaymentGatewayCatalog::STALE_CACHE_KEY);
+        Cache::forget(PaymentGatewayCatalog::CACHE_KEY);
     }
 
     protected function tearDown(): void
     {
         remove_all_filters('pre_http_request');
-        delete_transient(PaymentGatewayCatalog::FRESH_CACHE_KEY);
-        delete_transient(PaymentGatewayCatalog::STALE_CACHE_KEY);
+        Cache::forget(PaymentGatewayCatalog::CACHE_KEY);
 
         parent::tearDown();
     }

@@ -6,6 +6,8 @@ defined('ABSPATH') || exit;
 
 use Exception;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\Cache;
+use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
@@ -21,9 +23,7 @@ class PaymentGatewayCatalog
 {
     public const DEFAULT_BASE_URL = 'http://host.docker.internal:4800';
 
-    public const FRESH_CACHE_KEY = 'kirki_ecommerce_payment_gateway_catalog';
-
-    public const STALE_CACHE_KEY = 'kirki_ecommerce_payment_gateway_catalog_stale';
+    public const CACHE_KEY = 'payment_gateway_catalog';
 
     public const FRESH_CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 
@@ -48,8 +48,8 @@ class PaymentGatewayCatalog
     /**
      * Get the gateways the remote server offers.
      *
-     * Serves the fresh cache when present. Otherwise it requests the server and
-     * falls back to the last good copy when the server cannot be reached.
+     * Serves the cached list while it is fresh. After that the old list is
+     * served and refreshed once the response is sent, until the stale limit.
      *
      * @since 1.0.0
      *
@@ -58,28 +58,9 @@ class PaymentGatewayCatalog
      */
     public function all()
     {
-        $cached = get_transient(static::FRESH_CACHE_KEY);
-
-        if (is_array($cached)) {
-            return $cached;
-        }
-
-        try {
-            $gateways = $this->fetch();
-        } catch (Exception $exception) {
-            $stale = get_transient(static::STALE_CACHE_KEY);
-
-            if (is_array($stale)) {
-                return $stale;
-            }
-
-            throw $exception;
-        }
-
-        set_transient(static::FRESH_CACHE_KEY, $gateways, static::FRESH_CACHE_TTL);
-        set_transient(static::STALE_CACHE_KEY, $gateways, static::STALE_CACHE_TTL);
-
-        return $gateways;
+        return Cache::flexible(static::CACHE_KEY, [static::FRESH_CACHE_TTL, static::STALE_CACHE_TTL], function () {
+            return $this->fetch();
+        });
     }
 
     /**
@@ -111,7 +92,7 @@ class PaymentGatewayCatalog
      */
     public function flush()
     {
-        delete_transient(static::FRESH_CACHE_KEY);
+        Cache::forget(static::CACHE_KEY);
     }
 
     /**
@@ -212,16 +193,16 @@ class PaymentGatewayCatalog
     protected function fetch()
     {
         $base_url = $this->base_url();
-        $response = wp_remote_get($base_url . '/payments', ['timeout' => 10]);
+        $response = Http::timeout(10)->get($base_url . '/payments');
 
         throw_if(
-            is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200,
+            !$response->successful(),
             __('Could not load the payment gateway list. Please try again later.', 'kirki-ecommerce'),
             Exception::class,
             Response::SERVICE_UNAVAILABLE
         );
 
-        $decoded = json_decode(wp_remote_retrieve_body($response), true);
+        $decoded = $response->json();
 
         throw_if(
             !is_array($decoded),

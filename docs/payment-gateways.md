@@ -107,9 +107,10 @@ The base URL is one constant: `PaymentGatewayCatalog::DEFAULT_BASE_URL` in
 the downloads all come from the new server. For local work you can instead
 define `KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL` in `wp-config.php`.
 
-The list is cached for 15 minutes. If the server is down, the last good copy
-(kept up to 7 days) is shown. With no copy, the dialog shows an error with a
-retry button.
+The list is cached with the framework `Cache` for 15 minutes. After that, the
+old list (kept up to 7 days) is shown at once and refreshed after the response.
+With no copy and a server that is down, the dialog shows an error with a retry
+button.
 
 ---
 
