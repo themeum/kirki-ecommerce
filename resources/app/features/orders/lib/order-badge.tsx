@@ -173,7 +173,7 @@ export const getOrderStateBadgeInfo = (
     case 'paid_unfulfilled':
       return {
         icon: <LeadingIconBadge variant="success" />,
-        text: __('Order delivered', 'kirki-ecommerce'),
+        text: __('Order processing', 'kirki-ecommerce'),
         hintText: __('Awaiting processing', 'kirki-ecommerce'),
         textColor: 'primary',
       };

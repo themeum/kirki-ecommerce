@@ -1,6 +1,6 @@
 import { Mail, Trash2 } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Button from '@/components/ui/button';
@@ -17,10 +17,12 @@ import {
   useOrderActivitiesInfiniteQuery,
 } from '@/features/orders/services/activity';
 import { useCurrentUser } from '@/hooks';
+import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, mergeCss, scoped } from '@/theme/mixins';
 import { createAcronym } from '@/utils';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type TimelineProps = {
@@ -32,6 +34,20 @@ const Timeline = ({ orderId }: TimelineProps) => {
   const [message, setMessage] = useState('');
   const [notifyCustomer, setNotifyCustomer] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+
+  const { data: emailSettings } = useSettingsQuery('email');
+
+  const isOrderNoteNotificationEnabled = useMemo(() => {
+    if (
+      !isDefined(emailSettings) ||
+      !isDefined(emailSettings.customer_emails) ||
+      !isDefined(emailSettings.customer_emails.order_notifications)
+    ) {
+      return false;
+    }
+
+    return emailSettings.customer_emails.order_notifications.order_note.is_enabled;
+  }, [emailSettings]);
 
   const currentUserAcronym = createAcronym({
     first_name: currentUser?.first_name ?? undefined,
@@ -98,13 +114,19 @@ const Timeline = ({ orderId }: TimelineProps) => {
                   cssOverride={styles.composerField}
                 />
               </Flex>
-              <Flex align="center" justify="space-between" cssOverride={styles.composerFooter}>
-                <Checkbox
-                  label={__('Notify customer via email', 'kirki-ecommerce')}
-                  value={notifyCustomer}
-                  onChange={setNotifyCustomer}
-                  onKeyDown={handleSaveComment}
-                />
+              <Flex
+                align="center"
+                justify={isOrderNoteNotificationEnabled ? 'space-between' : 'end'}
+                cssOverride={styles.composerFooter}
+              >
+                {isOrderNoteNotificationEnabled && (
+                  <Checkbox
+                    label={__('Notify customer via email', 'kirki-ecommerce')}
+                    value={notifyCustomer}
+                    onChange={setNotifyCustomer}
+                    onKeyDown={handleSaveComment}
+                  />
+                )}
                 <Button
                   onClick={() => handleSaveComment()}
                   loading={createActivityMutation.isPending}

@@ -261,8 +261,8 @@
       outline-offset: -1.5px;
     }
 
-    &:disabled {
-      cursor: not-allowed;
+    &:disabled,
+    &.unavailable {
       position: relative;
       overflow: hidden;
       z-index: 1;
@@ -302,9 +302,9 @@
       border-color: $background-surface;
     }
 
-    &:disabled {
+    &:disabled,
+    &.unavailable {
       opacity: 0.4;
-      cursor: not-allowed;
       position: relative;
       overflow: hidden;
 

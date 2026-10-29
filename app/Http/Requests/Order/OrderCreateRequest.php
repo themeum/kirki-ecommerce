@@ -125,7 +125,7 @@ class OrderCreateRequest extends Request
             'shipping_city' => 'required|string',
             'shipping_state' => static::address_field_rule($shipping_country, 'state'),
             'shipping_postal_code' => static::address_field_rule($shipping_country, 'postal_code'),
-            'shipping_country' => 'required|string',
+            'shipping_country' => ['required', 'string', static::selling_country_rule()],
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
             'shipping_company' => 'nullable|string',
@@ -140,7 +140,7 @@ class OrderCreateRequest extends Request
             'billing_city' => 'required_if:is_billing_same_as_shipping,0|string|nullable',
             'billing_state' => $this->billing_address_field_rule('state'),
             'billing_postal_code' => $this->billing_address_field_rule('postal_code'),
-            'billing_country' => 'required_if:is_billing_same_as_shipping,0|string|nullable',
+            'billing_country' => ['required_if:is_billing_same_as_shipping,0', 'string', 'nullable', $this->billing_selling_country_rule()],
             'billing_phone' => 'nullable|string',
             'billing_email' => 'nullable|email',
             'billing_company' => 'nullable|string',
@@ -168,11 +168,33 @@ class OrderCreateRequest extends Request
      */
     protected function billing_address_field_rule(string $field)
     {
-        if (filter_var($this->input('is_billing_same_as_shipping'), FILTER_VALIDATE_BOOLEAN)) {
+        if ($this->bool('is_billing_same_as_shipping')) {
             return 'nullable|string';
         }
 
         return static::address_field_rule((string) $this->input('billing_country'), $field);
+    }
+
+    /**
+     * Build the billing country's selling-location rule, honouring the "same as shipping" shortcut.
+     *
+     * When billing mirrors shipping the shipping country check already covers it.
+     *
+     * @since 1.0.0
+     *
+     * @return \Closure Rule callback.
+     */
+    protected function billing_selling_country_rule()
+    {
+        $selling_country_rule = static::selling_country_rule();
+
+        return function ($value, $key, $data) use ($selling_country_rule) {
+            if ($this->bool('is_billing_same_as_shipping')) {
+                return true;
+            }
+
+            return $selling_country_rule($value, $key, $data);
+        };
     }
 
     /**

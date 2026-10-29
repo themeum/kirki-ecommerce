@@ -39,7 +39,7 @@ defined('ABSPATH') || exit;
     </div>
     <template x-for="tax_line in (!isTaxInclusivePrice ? cartData.pricing?.tax_lines || [] : [])">
         <div class="kecom-summary-row">
-            <span x-text="tax_line.name"></span>
+            <span x-text="taxLineLabel(tax_line)"></span>
             <span class="kecom-summary-value" x-text="tax_line.display_amount_money_object?.display"></span>
         </div>
     </template>
