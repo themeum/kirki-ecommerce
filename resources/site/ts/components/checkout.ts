@@ -532,6 +532,14 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       return `${__('Incl.', 'kirki-ecommerce')} ${taxDisplay} ${taxLabel}`.trim();
     },
 
+    taxLineLabel(taxLine: any): string {
+      if (!taxLine) {
+        return '';
+      }
+      const name = taxLine.name || __('Tax', 'kirki-ecommerce');
+      return taxLine.rate ? `${name} ${Number(taxLine.rate)}%` : name;
+    },
+
     formatTaxLine(taxLine: any): string {
       if (!taxLine) {
         return '';

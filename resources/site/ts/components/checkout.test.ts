@@ -53,3 +53,13 @@ describe('checkout placeOrder', () => {
     expect(payload).not.toHaveProperty('customer_notes');
   });
 });
+
+describe('checkout taxLineLabel', () => {
+  it('Exclusive tax line with a rate: shows name and rate percent', () => {
+    expect(checkout().taxLineLabel({ name: 'VAT', rate: '5.00' })).toBe('VAT 5%');
+  });
+
+  it('Tax line without a rate: shows the name only', () => {
+    expect(checkout().taxLineLabel({ name: 'VAT', rate: 0 })).toBe('VAT');
+  });
+});
