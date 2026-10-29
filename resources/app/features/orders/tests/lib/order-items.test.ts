@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   flattenSelections,
-  getDisplayByVariantId,
   getMaxQuantity,
   getOrderRows,
   getQuantityLimit,
@@ -108,50 +107,51 @@ describe('flattenSelections', () => {
   });
 });
 
-describe('getDisplayByVariantId', () => {
-  it('indexes flattened rows by variant id', () => {
-    const selections: ProductSelection[] = [
-      product({ productId: 1, variants: [productVariant({ variantId: 101 })] }),
-    ];
-
-    const result = getDisplayByVariantId(selections);
-
-    expect(Object.keys(result)).toEqual(['101']);
-    expect(result[101].productId).toBe(1);
-  });
-});
-
 describe('getOrderRows', () => {
+  const selections: ProductSelection[] = [
+    product({
+      productId: 1,
+      variants: [
+        productVariant({ variantId: 101, variantLabel: 'S' }),
+        productVariant({ variantId: 102, variantLabel: 'M' }),
+      ],
+    }),
+  ];
+  const [display101, display102] = flattenSelections(selections);
+
   it('joins picked items with their display data, preserving picked-item order', () => {
-    const displayByVariantId = getDisplayByVariantId([
-      product({
-        productId: 1,
-        variants: [
-          productVariant({ variantId: 101, variantLabel: 'S' }),
-          productVariant({ variantId: 102, variantLabel: 'M' }),
-        ],
-      }),
-    ]);
     const pickedItems: PickedItem[] = [
       { variant_id: 102, quantity: 3 },
       { variant_id: 101, quantity: 1 },
     ];
 
-    const rows = getOrderRows(pickedItems, displayByVariantId);
-
-    expect(rows).toEqual([
-      { index: 0, quantity: 3, display: displayByVariantId[102] },
-      { index: 1, quantity: 1, display: displayByVariantId[101] },
+    expect(getOrderRows(pickedItems, selections, [])).toEqual([
+      { index: 0, quantity: 3, display: display102 },
+      { index: 1, quantity: 1, display: display101 },
     ]);
   });
 
   it('drops a picked item with no matching display data', () => {
-    const displayByVariantId = getDisplayByVariantId([
-      product({ productId: 1, variants: [productVariant({ variantId: 101 })] }),
-    ]);
     const pickedItems: PickedItem[] = [{ variant_id: 999, quantity: 1 }];
 
-    expect(getOrderRows(pickedItems, displayByVariantId)).toEqual([]);
+    expect(getOrderRows(pickedItems, selections, [])).toEqual([]);
+  });
+
+  it('prefers the picker display over the stored line for the same variant', () => {
+    const pickedItems: PickedItem[] = [{ id: 7, variant_id: 101, quantity: 2 }];
+
+    expect(getOrderRows(pickedItems, selections, [lineItem({ id: 7, variant_id: 101 })])).toEqual([
+      { index: 0, quantity: 2, display: display101 },
+    ]);
+  });
+
+  it('falls back to the stored line by id when the variant was deleted', () => {
+    const storedItem = lineItem({ id: 7, product_id: null, variant_id: null });
+    const pickedItems: PickedItem[] = [{ id: 7, variant_id: null, quantity: 4 }];
+
+    expect(getOrderRows(pickedItems, selections, [storedItem])).toEqual([
+      { index: 0, quantity: 4, display: toStoredRowDisplay(storedItem) },
+    ]);
   });
 });
 

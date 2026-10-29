@@ -184,8 +184,8 @@ export type OrderCalculationAppliedCoupon = z.infer<typeof OrderCalculationAppli
 
 export const OrderLineItemSchema = z.object({
   id: z.number(),
-  product_id: z.number(),
-  variant_id: z.number(),
+  product_id: z.number().nullish(),
+  variant_id: z.number().nullish(),
   product_name: z.string().nullish(),
   variant_name: z.string().nullish(),
   sku: z.string().nullish(),

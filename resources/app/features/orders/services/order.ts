@@ -145,9 +145,8 @@ const useUpdateOrderMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(response.message || __('Order updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      void queryClient.invalidateQueries({
-        queryKey: orderKeys.editInfo(variables.id),
-      });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
@@ -178,9 +177,8 @@ const useOrderActionMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(response.message || __('Order updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      void queryClient.invalidateQueries({
-        queryKey: orderKeys.editInfo(variables.id),
-      });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
