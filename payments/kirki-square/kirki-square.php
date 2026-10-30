@@ -5,6 +5,7 @@
  * Plugin URI:        https://kirki.com/
  * Description:       Square payment gateway for Kirki ecommerce.
  * Version:           1.0.0
+ * Order:             20
  * Author:            Kirki
  * Author URI:        https://kirki.com/
  * License:           GPL-2.0-or-later

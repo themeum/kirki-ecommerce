@@ -14,10 +14,10 @@ How to build the WordPress.org zip, its known gaps, and what to check before you
 ## 1. Quick start
 
 ```bash
-npm run make:org-package
+npm run make:package
 ```
 
-The zip is written to `build/kirki-ecommerce-<version>.zip`. Use `npm run make:package` for the full package that includes the payment gateway add-ons. Only the `--org` build is for WordPress.org.
+The zip is written to `build/kirki-ecommerce-<version>.zip`. It is the WordPress.org package. It has no payment gateway add-ons. Gateways install from the remote catalog (see `docs/payment-gateways.md`).
 
 The build runs `composer update` and installs production dependencies only. Afterwards your local `vendor/` has no dev tools (PHPUnit, PHPCS) and `composer.lock` may have changed. Run `composer install` to get the dev tools back, and review the `composer.lock` diff before you commit.
 
@@ -26,9 +26,8 @@ The build runs `composer update` and installs production dependencies only. Afte
 1. Builds the admin app (`resources/app`) and the storefront (`resources/site`) into `assets/`.
 2. Installs production Composer dependencies and restores the scoped framework layout.
 3. Copies an allow-list of folders into `build/kirki-ecommerce/`.
-4. For the `--org` build: writes a `payments.json` with PayPal only.
-5. Removes hidden files, logs, Markdown files and the translation template.
-6. Switches the plugin to production mode and creates the zip.
+4. Removes hidden files, logs, Markdown files and the translation template.
+5. Switches the plugin to production mode and creates the zip.
 
 To keep a file out of the zip, add a removal line to `bin/make-package.sh` next to the existing ones. There is no `.distignore` file.
 
@@ -58,7 +57,7 @@ Check with: `php -d auto_prepend_file=bootstrap/abspath.php vendor/bin/phpcs --s
 
 ## 6. Pre-submit checklist
 
-1. Run `npm run make:org-package`.
+1. Run `npm run make:package`.
 2. Run `unzip -l build/kirki-ecommerce-<version>.zip` and look for anything that does not belong. The known gaps in section 3 are expected until they are fixed.
 3. Check `vendor/composer/installed.json` in the zip: `brick/money` is 0.7.1 or later.
 4. Install the zip on a clean site, then run the Plugin Check plugin on it.
