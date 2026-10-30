@@ -25,6 +25,7 @@ use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -197,7 +198,7 @@ class CartController
     {
         $cart = $this->service->get_cart($this->current_user_id(), $this->cart_token($request));
 
-        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $cart = $apply_coupon_action->execute($cart, $request->string('code'));
 
@@ -218,7 +219,7 @@ class CartController
     {
         $cart = $this->service->get_cart($this->current_user_id(), $this->cart_token($request));
 
-        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $cart = $remove_coupon_action->execute($cart, $request->string('code'));
 

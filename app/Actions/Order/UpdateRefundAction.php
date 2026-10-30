@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
@@ -56,7 +57,7 @@ class UpdateRefundAction
         $order = $this->order_service->find_order_or_fail($dto->order_id);
         $refund = $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $dto->id)->values()->first();
 
-        throw_if(!$refund, __('Refund not found.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(!$refund, __('Refund not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         DB::begin_transaction();
 

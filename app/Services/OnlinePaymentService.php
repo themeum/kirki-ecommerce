@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Exceptions\HttpException;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Wordpress\Extension;
@@ -74,12 +75,13 @@ class OnlinePaymentService
      *
      * @param string $id Payment provider ID.
      * @return PaymentProvider|null
-     * @throws Exception When the gateway is installed, unknown, untrusted, corrupt or fails to install.
+     * @throws HttpException When the gateway is already installed.
+     * @throws Exception When the gateway is untrusted, corrupt or fails to install.
      * @throws NotFoundException When the catalog does not offer the gateway.
      */
     public function install(string $id)
     {
-        throw_if((bool) Payment::get_provider($id), __('Payment method already installed.', 'kirki-ecommerce'), Exception::class, Response::CONFLICT);
+        throw_if((bool) Payment::get_provider($id), __('Payment method already installed.', 'kirki-ecommerce'), HttpException::class, Response::CONFLICT);
 
         $this->catalog->flush();
 

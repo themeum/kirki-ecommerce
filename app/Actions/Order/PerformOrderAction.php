@@ -217,7 +217,7 @@ class PerformOrderAction
         throw_if($order->is_refund_initiated, __('This action is not available while a refund is in progress.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $state = OrderStatus::get_state($order->order_status);
-        $allowed_actions = array_merge($state['fulfillment_actions'], $state['payment_actions'], $state['order_actions']);
+        $allowed_actions = array_merge($state['fulfillment_actions'], $state['payment_actions'], $state['order_actions'], [OrderAction::ADD_TRACKING]);
 
         throw_if(!in_array($action, $allowed_actions, true), __('This action is not available for the order\'s current status.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
