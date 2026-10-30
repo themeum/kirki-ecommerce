@@ -9,7 +9,6 @@ use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
-use Kirki\Ecommerce\App\Payment\WebhookResult;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -144,33 +143,18 @@ class Twocheckout extends PaymentProvider
     }
 
     /**
-     * Get the tags of the IPN read receipt, in `wp_kses()` format.
-     *
-     * The receipt is built with escaped values; this list lets the webhook
-     * response keep its two valid shapes: `<sig algo date>` and the legacy `<EPAYMENT>`.
-     *
-     * @return array<string, array<string, bool>>
-     */
-    protected function read_receipt_allowed_html(): array
-    {
-        return [
-            'sig' => ['algo' => true, 'date' => true],
-            'epayment' => [],
-        ];
-    }
-
-    /**
      * Handle a received 2Checkout IPN notification.
      *
-     * Returns a WebhookResult rather than a boolean because 2Checkout requires
-     * a signed read receipt in the response body to acknowledge delivery.
+     * 2Checkout requires a signed read receipt in the response body to
+     * acknowledge delivery, so this method prints the receipt itself and returns
+     * the success flag for the status code.
      *
      * @link https://docs.2checkout.com/2checkout-apis/2checkout-apis/webhooks/instant-payment-notification-ipn/ipn-read-receipt-response-for-2checkout
      *
-     * @return WebhookResult
+     * @return bool
      * @throws Exception If the notification is invalid or processing fails.
      */
-    public function webhook(): WebhookResult
+    public function webhook(): bool
     {
         $this->request = Request::capture();
 
@@ -180,7 +164,9 @@ class Twocheckout extends PaymentProvider
             $this->client = $this->get_client();
 
             if (!$this->validate_ipn_response()) {
-                return new WebhookResult(false, null, 'application/xml');
+                $this->send_read_receipt('');
+
+                return false;
             }
             $read_receipt = $this->client->build_read_receipt($this->request);
 
@@ -195,16 +181,39 @@ class Twocheckout extends PaymentProvider
             }
 
             if ($order->payment_status === PaymentStatus::PAID) {
-                return new WebhookResult(true, $read_receipt, 'application/xml', $this->read_receipt_allowed_html());
+                $this->send_read_receipt($read_receipt);
+
+                return true;
             }
 
             $this->handle_transaction_response($order);
+            $this->send_read_receipt($read_receipt);
 
-            return new WebhookResult(true, $read_receipt, 'application/xml', $this->read_receipt_allowed_html());
+            return true;
         } catch (\Throwable $th) {
             /* translators: %s: error message */
             throw new Exception(sprintf(esc_html__('Webhook error: %s', 'kirki-ecommerce-twocheckout'), $th->getMessage()));
         }
+    }
+
+    /**
+     * Send the IPN read receipt as the response body.
+     *
+     * Replaces the JSON envelope, because 2Checkout only accepts its exact
+     * receipt as the acknowledgement. An empty body is sent when the
+     * notification is rejected.
+     *
+     * @param string $read_receipt Receipt built by TwocheckoutClient, or an empty string.
+     * @return void
+     */
+    protected function send_read_receipt(string $read_receipt): void
+    {
+        add_filter('rest_pre_serve_request', function () use ($read_receipt) {
+            header('Content-Type: application/xml; charset=UTF-8');
+            echo $read_receipt; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- 2Checkout needs this receipt unchanged; TwocheckoutClient::format_read_receipt() builds it with esc_html()/esc_attr().
+
+            return true;
+        });
     }
 
     /**

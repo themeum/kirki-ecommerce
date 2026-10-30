@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce\Tests\Integration;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Payment\WebhookController;
-use Kirki\Ecommerce\App\Payment\WebhookResult;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -20,6 +19,24 @@ use function Kirki\Ecommerce\Framework\app;
  */
 class EscapedOutputTest extends WP_UnitTestCase
 {
+    /**
+     * Remove the provider that a test registered.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function tearDown(): void
+    {
+        $manager = app(PaymentManager::class);
+        $registry = (new ReflectionClass($manager))->getProperty('providers_registry');
+        $registry->setAccessible(true);
+        $providers = $registry->getValue($manager);
+        unset($providers['escaped-output-test']);
+        $registry->setValue($manager, $providers);
+
+        parent::tearDown();
+    }
+
     /**
      * Call a protected static method of a class.
      *
@@ -38,21 +55,21 @@ class EscapedOutputTest extends WP_UnitTestCase
     }
 
     /**
-     * Register a provider whose webhook returns the given result.
+     * Register a provider whose webhook returns the given flag.
      *
-     * @param WebhookResult $result Result the provider returns.
+     * @param bool $success Flag the provider returns.
      * @return string Provider ID.
      * @since 1.0.0
      */
-    protected function register_webhook_provider(WebhookResult $result): string
+    protected function register_webhook_provider(bool $success): string
     {
-        $provider = new class ($result) extends PaymentProvider {
-            /** @var WebhookResult */
-            protected $result;
+        $provider = new class ($success) extends PaymentProvider {
+            /** @var bool */
+            protected $success;
 
-            public function __construct(WebhookResult $result)
+            public function __construct(bool $success)
             {
-                $this->result = $result;
+                $this->success = $success;
             }
 
             public function id()
@@ -62,7 +79,7 @@ class EscapedOutputTest extends WP_UnitTestCase
 
             public function webhook()
             {
-                return $this->result;
+                return $this->success;
             }
         };
 
@@ -74,35 +91,6 @@ class EscapedOutputTest extends WP_UnitTestCase
         $registry->setValue($manager, $providers);
 
         return 'escaped-output-test';
-    }
-
-    /**
-     * Run the webhook controller and return what it prints.
-     *
-     * @param WebhookResult $result Result the provider returns.
-     * @return string
-     * @since 1.0.0
-     */
-    protected function run_webhook(WebhookResult $result): string
-    {
-        $provider_id = $this->register_webhook_provider($result);
-
-        remove_all_filters('rest_pre_serve_request');
-
-        (new WebhookController())->handle(new Request(), $provider_id);
-
-        // header() cannot run once the test runner has printed output.
-        set_error_handler(static function ($severity, $message) {
-            return false !== strpos($message, 'headers already sent');
-        });
-
-        ob_start();
-        apply_filters('rest_pre_serve_request', false);
-        $printed = (string) ob_get_clean();
-
-        restore_error_handler();
-
-        return $printed;
     }
 
     /**
@@ -167,35 +155,58 @@ class EscapedOutputTest extends WP_UnitTestCase
     }
 
     /**
-     * A plain-text acknowledgement reaches the provider as text.
+     * Core answers a webhook with the JSON envelope and never prints a raw body.
      *
      * @return void
      * @since 1.0.0
      */
-    public function test_webhook_plain_text_body_is_escaped(): void
+    public function test_webhook_answer_is_the_json_envelope(): void
     {
-        $this->assertSame('OK', $this->run_webhook(new WebhookResult(true, 'OK', 'text/plain')));
-        $this->assertSame('&lt;b&gt;x&lt;/b&gt;', $this->run_webhook(new WebhookResult(true, '<b>x</b>', 'text/plain')));
+        remove_all_filters('rest_pre_serve_request');
+
+        $ok = (new WebhookController())->handle(new Request(), $this->register_webhook_provider(true));
+        $failed = (new WebhookController())->handle(new Request(), $this->register_webhook_provider(false));
+
+        $this->assertFalse(has_filter('rest_pre_serve_request'));
+        $this->assertSame(200, $ok->get_status());
+        $this->assertSame(400, $failed->get_status());
     }
 
     /**
-     * An XML acknowledgement keeps the tags the provider listed and nothing else.
+     * The 2Checkout add-on prints its read receipt unchanged and sends it as XML.
      *
      * @return void
      * @since 1.0.0
      */
-    public function test_webhook_xml_body_keeps_only_allowed_tags(): void
+    public function test_twocheckout_prints_the_read_receipt_unchanged(): void
     {
-        $allowed = ['sig' => ['algo' => true, 'date' => true], 'epayment' => []];
+        $file = dirname(__DIR__, 2) . '/payments/kirki-twocheckout/src/Twocheckout.php';
 
-        $receipt = $this->run_webhook(new WebhookResult(true, '<sig algo="sha256" date="20260101120000">ABC123</sig>', 'application/xml', $allowed));
-        $this->assertSame('<sig algo="sha256" date="20260101120000">ABC123</sig>', $receipt);
+        if (!file_exists($file)) {
+            $this->markTestSkipped('The 2Checkout add-on is not in this package.');
+        }
 
-        $legacy = $this->run_webhook(new WebhookResult(true, '<EPAYMENT>20260101120000|ABC123</EPAYMENT>', 'application/xml', $allowed));
-        $this->assertSame('<EPAYMENT>20260101120000|ABC123</EPAYMENT>', $legacy);
+        require_once $file;
 
-        $unsafe = $this->run_webhook(new WebhookResult(true, '<sig algo="sha256" onload="x()">ABC</sig><script>alert(1)</script>', 'application/xml', $allowed));
-        $this->assertStringNotContainsString('<script', $unsafe);
-        $this->assertStringNotContainsString('onload', $unsafe);
+        $class = 'Kirki\\Ecommerce\\Payments\\Twocheckout';
+        $provider = (new ReflectionClass($class))->newInstanceWithoutConstructor();
+        $send = new \ReflectionMethod($class, 'send_read_receipt');
+        $send->setAccessible(true);
+
+        foreach (['<sig algo="sha256" date="20260101120000">ABC123</sig>', '<EPAYMENT>20260101120000|ABC123</EPAYMENT>', ''] as $receipt) {
+            remove_all_filters('rest_pre_serve_request');
+            $send->invoke($provider, $receipt);
+
+            set_error_handler(static function ($severity, $message) {
+                return false !== strpos($message, 'headers already sent');
+            });
+            ob_start();
+            $served = apply_filters('rest_pre_serve_request', false);
+            $printed = (string) ob_get_clean();
+            restore_error_handler();
+
+            $this->assertTrue($served);
+            $this->assertSame($receipt, $printed);
+        }
     }
 }

@@ -52,7 +52,7 @@ The WordPress.org reviewers do not accept `phpcs:ignore` comments as a replaceme
 - Block theme header and footer markup (`Template::get_header()`, `Template::get_footer()`): `wp_kses()` with the allow-list from `Template::get_block_markup_allowed_html()`. Add a tag or attribute there when a theme needs it.
 - SVG icons (`Icon::render()`): `wp_kses()` with the icon allow-list. Add a tag there when a new icon uses one.
 - Email `<style>` block (`HtmlStyle::print_email_style_block()`): this is the one place that prints a `<style>` tag directly. Emails have no enqueue system, so it keeps a `phpcs:ignore` with its reason. It strips every tag from the CSS first, and the CSS comes only from developer-written arrays. Escaping it would turn the `>` child combinator into `&gt;` and break the rule.
-- Payment webhook replies: plain text is escaped. For other types, the provider passes the tags it needs to `WebhookResult` as a `wp_kses()` allow-list.
+- Payment webhook replies: core always answers with the JSON envelope and never prints a raw body. A gateway that needs its own exact reply (2Checkout's signed receipt) prints it from its own add-on, which the WordPress.org package does not include.
 
 Check with: `php -d auto_prepend_file=bootstrap/abspath.php vendor/bin/phpcs --standard=phpcs-wporg.xml.dist --ignore-annotations`. This ignores the `phpcs:ignore` comments, like the reviewers do. Exceptions thrown with a translated message are a known exception to this rule (they stay annotated; see `openspec/specs/wp-org-required-standards`).
 

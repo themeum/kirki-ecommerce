@@ -10,7 +10,6 @@ use Kirki\Ecommerce\Framework\Http\RedirectResponse;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use Kirki\Ecommerce\Framework\Http\Response;
-use Kirki\Ecommerce\Framework\Sanitizer;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\throw_if;
 
@@ -24,9 +23,8 @@ class WebhookController
     /**
      * Handle a webhook request sent by a payment provider.
      *
-     * Delegates to the provider's webhook(). A WebhookResult is emitted as the
-     * raw response body; otherwise a JSON success or failure envelope is
-     * returned.
+     * Delegates to the provider's webhook() and returns a JSON success or
+     * failure envelope.
      *
      * @since 1.0.0
      *
@@ -42,19 +40,6 @@ class WebhookController
         throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class);
 
         $result = $provider->webhook();
-
-        if ($result instanceof WebhookResult) {
-            add_filter('rest_pre_serve_request', function () use ($result) {
-                $content_type = Sanitizer::apply_rule($result->content_type(), Sanitizer::MIME_TYPE) ?: 'text/plain'; 
- 
-                header('Content-Type: ' . $content_type . '; charset=UTF-8');
-                echo 'text/plain' === $content_type ? esc_html((string) $result->raw_body()) : wp_kses((string) $result->raw_body(), $result->allowed_html());
-
-                return true;
-            });
-
-            $result = $result->success();
-        }
 
         return response()->json([
             'success' => $result,
