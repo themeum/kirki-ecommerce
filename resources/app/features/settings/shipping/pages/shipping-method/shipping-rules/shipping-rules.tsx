@@ -55,6 +55,8 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
   const baseCurrencySymbol = useBaseCurrencySymbol();
   const { data: countries } = useCountriesQuery({ limit: -1 });
+  const { data: productSettings } = useSettingsQuery('product');
+    const storeWeightUnit = (productSettings?.weight_unit as string | undefined) || 'kg';
 
   useEffect(() => {
     if (!shippingSettingsData?.shipping_zones || !methodId) {
@@ -143,6 +145,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                   mode="add"
                   onCancel={() => setShowAddCard(false)}
                   onSaved={() => setShowAddCard(false)}
+                  storeWeightUnit={storeWeightUnit}
                 />
               )}
 
@@ -157,6 +160,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                       ruleIndex={index}
                       onCancel={() => setEditingRuleIndex(null)}
                       onSaved={() => setEditingRuleIndex(null)}
+                      storeWeightUnit={storeWeightUnit}
                     />
                   ) : (
                     <RuleItem key={index} id={String(index)}>
@@ -180,6 +184,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                                 shippingProfiles ?? [],
                                 baseCurrencySymbol,
                                 countries ?? [],
+                                storeWeightUnit,
                               )}
                             />
                             <Text variant="small" weight="medium">

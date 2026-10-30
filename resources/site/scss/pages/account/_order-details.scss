@@ -259,6 +259,7 @@
     @include typography(base, normal, $text-primary);
     margin: 0;
     white-space: nowrap;
+    text-wrap: wrap;
   }
 
   .kecom-order-address-lines {

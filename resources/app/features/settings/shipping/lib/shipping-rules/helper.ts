@@ -87,7 +87,7 @@ export const getActionValue = (
     case 'disable_shipping_method':
       return __('Disabled', 'kirki-ecommerce');
     default:
-      return '';
+      return String(action?.value);
   }
 };
 
@@ -154,6 +154,7 @@ export const resolveConditionValues = (
   shippingProfiles: { id: number | string; name: string }[],
   currencySymbol: string,
   countries: { code: string; name: string }[],
+  storeWeightUnit: string,
 ): string[] => {
   if (condition?.type === 'destination_region') {
     const country = (condition.value as { country?: string })?.country;
@@ -163,6 +164,10 @@ export const resolveConditionValues = (
 
   if (condition?.type === 'cart_subtotal') {
     return [`${currencySymbol}${toDisplayString(condition.value)}`];
+  }
+
+  if (condition?.type === 'cart_weight') {
+    return [`${toDisplayString(condition.value)} ${storeWeightUnit}`];
   }
 
   return [
