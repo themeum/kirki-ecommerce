@@ -195,7 +195,7 @@
 
   .kecom-payment-option {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: $spacing-6;
     padding: $spacing-8;
     outline: 1px solid $border-default;
@@ -213,12 +213,21 @@
     }
 
     .kecom-radio-label {
-      @include flex();
+      @include flex(column);
+      gap: $spacing-2;
+    }
+
+    .kecom-payment-header {
+      @include flex(row, center);
       gap: $spacing-2;
     }
 
     .kecom-payment-name {
       @include typography(base, semibold);
+    }
+
+    .kecom-payment-description {
+      @include typography(sm, normal, $text-secondary);
     }
 
     .kecom-payment-logo {

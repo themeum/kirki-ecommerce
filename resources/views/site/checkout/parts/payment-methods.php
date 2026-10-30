@@ -24,16 +24,25 @@ $payment_gateways = $data['payment_gateways'] ?? [];
                     x-model="selectedPaymentMethod"
                     @change="setPaymentMethod('<?php echo esc_attr($payment_gateway->id()); ?>')">
                 <div class="kecom-radio-label">
-                    <?php if ($payment_gateway->icon()) : ?>
-                        <div class="kecom-payment-logo">
-                            <img src="<?php echo esc_url($payment_gateway->icon()); ?>"
-                                alt="<?php echo esc_attr($payment_gateway->title()); ?>"
-                                class="kecom-payment-logo-img">
+                    <div class="kecom-payment-header">
+                        <?php if ($payment_gateway->icon()) : ?>
+                            <div class="kecom-payment-logo">
+                                <img src="<?php echo esc_url($payment_gateway->icon()); ?>"
+                                    alt="<?php echo esc_attr($payment_gateway->title()); ?>"
+                                    class="kecom-payment-logo-img">
+                            </div>
+                        <?php endif; ?>
+                        <span class="kecom-payment-name">
+                            <?php echo esc_html($payment_gateway->title()); ?>
+                        </span>
+                    </div>
+                    <?php if ($payment_gateway->description()) : ?>
+                        <div class="kirki-ecommerce-rich-text kecom-payment-description"
+                            x-show="selectedPaymentMethod === '<?php echo esc_attr($payment_gateway->id()); ?>'"
+                            x-cloak>
+                            <?php echo wp_kses_post($payment_gateway->description()); ?>
                         </div>
                     <?php endif; ?>
-                    <span class="kecom-payment-name">
-                        <?php echo esc_html($payment_gateway->title()); ?>
-                    </span>
                 </div>
             </label>
         <?php endforeach; ?>
