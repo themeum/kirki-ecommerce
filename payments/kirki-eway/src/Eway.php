@@ -77,7 +77,7 @@ class Eway extends PaymentProvider
     /**
      * Webhook handler.
      *
-     * @return bool|WebhookResult
+     * @return bool
      */
     public function webhook()
     {
