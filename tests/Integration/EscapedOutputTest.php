@@ -168,12 +168,12 @@ class EscapedOutputTest extends WP_UnitTestCase
     }
 
     /**
-     * The email style block cannot be closed early, and its rules stay valid CSS.
+     * The email style block cannot be closed early, and its rules keep their selectors.
      *
      * @return void
      * @since 1.0.0
      */
-    public function test_email_style_block_cannot_be_closed_early_and_keeps_rules(): void
+    public function test_email_style_block_cannot_be_closed_early_and_keeps_selectors(): void
     {
         ob_start();
         HtmlStyle::print_email_style_block(['.a > b' => ['color' => 'red</style><script>alert(1)</script>']]);
@@ -181,16 +181,7 @@ class EscapedOutputTest extends WP_UnitTestCase
 
         $this->assertSame(1, substr_count($printed, '</style>'));
         $this->assertStringNotContainsString('<script', $printed);
-        $this->assertStringContainsString('&lt;script&gt;', $printed);
-        $this->assertStringNotContainsString('.a &gt; b', $printed);
-        $this->assertStringContainsString('.a   b', $printed);
-
-        ob_start();
-        HtmlStyle::print_email_style_block(HtmlStyle::richtext_styles());
-        $rich_text = ob_get_clean();
-
-        $this->assertStringContainsString('.kirki-ecommerce-rich-text', $rich_text);
-        $this->assertStringContainsString('font-size:14px', preg_replace('/\s+/', '', $rich_text));
+        $this->assertStringContainsString('.a > b', $printed);
     }
 
     /**

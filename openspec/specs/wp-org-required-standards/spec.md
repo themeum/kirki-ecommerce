@@ -122,7 +122,7 @@ Every value echoed or printed by plugin PHP, and every dynamic string passed to 
 #### Scenario: Suppression comment on a dynamic value
 
 - **WHEN** a dynamic value is printed with an `EscapeOutput` suppression comment and no escaping call
-- **THEN** the change fails review, unless the value is a protocol response whose exact body a third party requires and the reason is recorded in code
+- **THEN** the change fails review, unless the value is a protocol response whose exact body a third party requires, or CSS built only from developer-written arrays with its tags stripped (the email style block), and the reason is recorded in code
 
 ### Requirement: Payment webhook acknowledgement bodies are not corrupted by escaping
 
