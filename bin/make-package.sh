@@ -35,7 +35,6 @@ OPTIONAL_PATHS=(
   "languages"
   "resources/data"
   "resources/images"
-  "resources/assets"
 )
 
 copy_path() {
@@ -159,9 +158,43 @@ find "$STAGE_DIR" -depth \( -name "__MACOSX" -o -iname "Thumbs.db" -o -iname "de
   -o -name "*.swp" -o -name "*~" -o -name "*.bak" -o -name "*.orig" -o -name "*.log" \
   -o -iname "README.md" -o -iname "CHANGELOG.md" \) -exec rm -rf {} +
 rm -f "$STAGE_DIR/payments/package.json" "$STAGE_DIR"/payments/*/composer.lock
+# Vite HMR helper and gateway build tooling: development only.
+rm -rf "$STAGE_DIR/resources/assets"
+rm -f "$STAGE_DIR/payments/gulpfile.js"
 # Defines ABSPATH for the test suite only; it is in autoload-dev, which the
 # --no-dev install leaves out of the autoloader.
 rm -f "$STAGE_DIR/bootstrap/abspath.php"
+
+echo "==> Pruning vendor"
+# Allowlist: only the runtime packages and the autoloader ship. Anything else
+# the install left behind (bin/, scoper-autoload.php, ...) is development only.
+for entry in "$STAGE_DIR"/vendor/*; do
+  case "$(basename "$entry")" in
+    autoload.php|composer|brick|libraries) ;;
+    *) rm -rf "$entry" ;;
+  esac
+done
+
+# The scaffolding commands (make:*, queue:table) are the only users of the stubs, and they are not
+# useful on a production site. Their registrations are dropped from the staged
+# framework copy, otherwise WP-CLI would throw on the missing classes.
+FRAMEWORK_SRC="$STAGE_DIR/vendor/libraries/framework/src"
+rm -rf "$FRAMEWORK_SRC/Console/stubs" "$FRAMEWORK_SRC"/Console/Commands/{Make*Command,QueueTableCommand}.php
+sed -i.bak -E \
+  -e "/^use .*Console\\\\Commands\\\\(Make[A-Za-z]+|QueueTable)Command;/d" \
+  -e "s/'[a-z]+:[a-z]+' => (Make[A-Za-z]+|QueueTable)Command::class, ?//g" \
+  -e "s/, '[a-z]+:[a-z]+' => (Make[A-Za-z]+|QueueTable)Command::class\\]/]/" \
+  "$FRAMEWORK_SRC/Application.php"
+rm -f "$FRAMEWORK_SRC/Application.php.bak"
+if grep -rqE "Make[A-Za-z]*Command|QueueTableCommand" "$FRAMEWORK_SRC"; then
+  echo "Error: staged framework still references a removed make command, aborting." >&2
+  exit 1
+fi
+php -l "$FRAMEWORK_SRC/Application.php" > /dev/null
+
+echo "==> Removing development files from vendor packages"
+find "$STAGE_DIR/vendor" "$STAGE_DIR/payments" -path "*/vendor/*" \( -type d \( -name bin -o -name tests -o -name docs \) \
+  -o -type f \( -iname "*.md" -o -iname "phpunit.xml*" -o -name "*.dist" \) \) -prune -exec rm -rf {} +
 
 # listeners.cache.php / policies.cache.php are regenerated on every request
 # by CoreServiceProvider::boot() - keep the package to schema-only config.
