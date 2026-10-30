@@ -611,6 +611,46 @@ class CustomerApiTest extends RestTestCase
     }
 
     /**
+     * An invalid email on a customer address is rejected on create.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_customer_rejects_invalid_address_email(): void
+    {
+        $payload = $this->customer_payload();
+        $payload['addresses'][0]['email'] = 'not-an-email';
+
+        $response = $this->request('POST', 'customers', $payload);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An invalid email on a customer address is rejected on update.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_customer_rejects_invalid_address_email(): void
+    {
+        $customer = $this->create_customer();
+        $this->customer_id = $customer['id'];
+
+        $response = $this->request('PUT', 'customers/' . $this->customer_id, [
+            'id' => $this->customer_id,
+            'first_name' => $customer['first_name'],
+            'last_name' => $customer['last_name'],
+            'email' => $customer['email'],
+            'addresses' => [
+                array_merge($customer['addresses'][0], ['email' => 'not-an-email']),
+            ],
+        ]);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
      * Filtering customers by country narrows the list.
      *
      * @return void
