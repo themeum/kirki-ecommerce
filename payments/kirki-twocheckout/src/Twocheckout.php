@@ -144,6 +144,22 @@ class Twocheckout extends PaymentProvider
     }
 
     /**
+     * Get the tags of the IPN read receipt, in `wp_kses()` format.
+     *
+     * The receipt is built with escaped values; this list lets the webhook
+     * response keep its two valid shapes: `<sig algo date>` and the legacy `<EPAYMENT>`.
+     *
+     * @return array<string, array<string, bool>>
+     */
+    protected function read_receipt_allowed_html(): array
+    {
+        return [
+            'sig' => ['algo' => true, 'date' => true],
+            'epayment' => [],
+        ];
+    }
+
+    /**
      * Handle a received 2Checkout IPN notification.
      *
      * Returns a WebhookResult rather than a boolean because 2Checkout requires
@@ -179,12 +195,12 @@ class Twocheckout extends PaymentProvider
             }
 
             if ($order->payment_status === PaymentStatus::PAID) {
-                return new WebhookResult(true, $read_receipt, 'application/xml');
+                return new WebhookResult(true, $read_receipt, 'application/xml', $this->read_receipt_allowed_html());
             }
 
             $this->handle_transaction_response($order);
 
-            return new WebhookResult(true, $read_receipt, 'application/xml');
+            return new WebhookResult(true, $read_receipt, 'application/xml', $this->read_receipt_allowed_html());
         } catch (\Throwable $th) {
             /* translators: %s: error message */
             throw new Exception(sprintf(esc_html__('Webhook error: %s', 'kirki-ecommerce-twocheckout'), $th->getMessage()));

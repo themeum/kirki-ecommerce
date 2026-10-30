@@ -100,7 +100,46 @@ class Icon
      */
     public static function render(string $name, array $options = []): void
     {
-        echo static::get($name, $options); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG markup loaded from a bundled plugin asset file (assets/icons/*.svg), not user input; HTML-escaping would corrupt the markup.
+        echo wp_kses(static::get($name, $options), static::get_allowed_html());
+    }
+
+    /**
+     * Get the tags and attributes that bundled icons may contain.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, array<string, bool>>
+     */
+    protected static function get_allowed_html(): array
+    {
+        $shape_attributes = [
+            'class' => true,
+            'fill' => true,
+            'stroke' => true,
+            'stroke-width' => true,
+            'stroke-linecap' => true,
+            'stroke-linejoin' => true,
+        ];
+
+        return [
+            'svg' => [
+                'xmlns' => true,
+                'viewbox' => true,
+                'width' => true,
+                'height' => true,
+                'class' => true,
+                'fill' => true,
+                'stroke' => true,
+                'stroke-width' => true,
+                'stroke-linecap' => true,
+                'stroke-linejoin' => true,
+                'aria-hidden' => true,
+                'focusable' => true,
+            ],
+            'path' => $shape_attributes + ['d' => true],
+            'circle' => $shape_attributes + ['cx' => true, 'cy' => true, 'r' => true],
+            'rect' => $shape_attributes + ['x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true],
+        ];
     }
 
     /**

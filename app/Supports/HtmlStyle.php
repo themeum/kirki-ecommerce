@@ -97,7 +97,9 @@ class HtmlStyle
     {
         $style = static::build_style_block(...$selector_array);
 
-        echo '<style type="text/css">' . wp_strip_all_tags($style) . '</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- output is email-only and emails have no enqueue system. $style is built only from developer-supplied selector/property arrays (never raw user input), so esc_html()/wp_kses() are unsuitable here: they HTML-entity-encode plain CSS syntax (e.g. the `>` combinator becomes `&gt;`), corrupting the output. wp_strip_all_tags() still removes any stray tags (e.g. a `</style>` breakout) before printing, matching core's wp_custom_css_cb() in wp-includes/theme.php, which faces the same constraint and applies the same ignore.
+        // The block is HTML-escaped on output, which would turn a child combinator (>) into
+        // `&gt;` and break the rule, so child combinators are printed as descendant selectors.
+        echo '<style type="text/css">' . esc_html(str_replace('>', ' ', wp_strip_all_tags($style))) . '</style>';
     }
 
     /**

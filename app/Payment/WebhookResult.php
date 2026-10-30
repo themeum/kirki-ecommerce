@@ -24,6 +24,8 @@ class WebhookResult
     protected $raw_body;
     /** @var string */
     protected $content_type;
+    /** @var array<string, array<string, bool>> */
+    protected $allowed_html;
 
     /**
      * Create a webhook result.
@@ -33,12 +35,16 @@ class WebhookResult
      * @param bool        $success      Whether the webhook was handled successfully.
      * @param string|null $raw_body     Raw response body to emit instead of the JSON envelope.
      * @param string      $content_type MIME type of the raw response body.
+     * @param array<string, array<string, bool>> $allowed_html Tags and attributes the raw body may contain, in
+     *                                                         `wp_kses()` format. Only used for non-plain-text
+     *                                                         bodies; plain text is escaped instead.
      */
-    public function __construct(bool $success, ?string $raw_body = null, string $content_type = 'text/plain')
+    public function __construct(bool $success, ?string $raw_body = null, string $content_type = 'text/plain', array $allowed_html = [])
     {
         $this->success = $success;
         $this->raw_body = $raw_body;
         $this->content_type = $content_type;
+        $this->allowed_html = $allowed_html;
     }
 
     /**
@@ -75,5 +81,17 @@ class WebhookResult
     public function content_type(): string
     {
         return $this->content_type;
+    }
+
+    /**
+     * Get the tags and attributes the raw response body may contain.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, array<string, bool>>
+     */
+    public function allowed_html(): array
+    {
+        return $this->allowed_html;
     }
 }

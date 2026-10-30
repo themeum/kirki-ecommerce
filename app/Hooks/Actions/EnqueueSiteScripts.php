@@ -74,7 +74,7 @@ class EnqueueSiteScripts extends BaseHook
         wp_enqueue_script($site_js_handler, Assets::get_url('js/site.js'), ['wp-i18n'], app()->version(), true);
         wp_enqueue_style($site_css_handler, Assets::get_url('css/site.css'), [], app()->version());
 
-        wp_add_inline_style($site_css_handler, HtmlStyle::build_style_block(HtmlStyle::richtext_styles()));
+        wp_add_inline_style($site_css_handler, wp_strip_all_tags(HtmlStyle::build_style_block(HtmlStyle::richtext_styles())));
 
         wp_add_inline_script($site_js_handler, Assets::get_kirki_ecommerce_configs(), 'before');
 

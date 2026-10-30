@@ -67,7 +67,7 @@ class EnqueueAdminScripts extends BaseHook
 
         wp_register_style($admin_style_handle, false, [], app()->version());
         wp_enqueue_style($admin_style_handle);
-        wp_add_inline_style($admin_style_handle, HtmlStyle::build_style_block(HtmlStyle::richtext_styles()));
+        wp_add_inline_style($admin_style_handle, wp_strip_all_tags(HtmlStyle::build_style_block(HtmlStyle::richtext_styles())));
 
         if (app()->is_dev_mode()) {
             $this->enqueue_vite_dev_scripts();
@@ -199,7 +199,7 @@ class EnqueueAdminScripts extends BaseHook
                 $vendor_handle,
                 KIRKI_ECOMMERCE_ASSETS_URL . '/' . $chunk['file'],
                 [],
-                null,
+                app()->version(),
                 true
             );
 
@@ -212,7 +212,7 @@ class EnqueueAdminScripts extends BaseHook
             $bundle_handle,
             KIRKI_ECOMMERCE_ASSETS_URL . '/' . $entry['file'],
             array_merge(['wp-i18n'], $dependencies),
-            null,
+            app()->version(),
             true
         );
 
