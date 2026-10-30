@@ -15,7 +15,6 @@ See proposal.md for the review findings. Facts checked in the code and in a fres
 
 **Goals:**
 - Every flagged output passes through a real escaping call, with no behavior change for valid markup and protocol bodies.
-- The zip contains no dev or scaffolding files, and the build enforces that.
 - Readable source and build steps are available to reviewers.
 
 **Non-Goals:**
@@ -36,11 +35,11 @@ See proposal.md for the review findings. Facts checked in the code and in a fres
    - XML and other types: `wp_kses()` with an allow-list that the provider's result supplies (new optional argument on `WebhookResult`), so the 2Checkout `<EPAYMENT>` tag survives.
    - Alternative: leave the raw echo and explain it to the reviewer. Rejected: that is what failed. Alternative: move raw emission into the add-ons, which are not submitted to wp.org. Kept as the fallback (see Risks).
 
-3. **Stubs and dev files: more `rm` lines in `make-package.sh`**, next to the existing ones. Alternative: a central `.distignore`. Rejected for now: the script has no such mechanism and the smaller change fits it. Remove `vendor/libraries/framework/src/Console/stubs/` and `vendor/brick/money/psalm.xml`.
+3. **Stubs and dev files: deferred.** Removing the framework console stubs and vendor `psalm.xml` from the zip (more `rm` lines in `make-package.sh`) and the self-checking build were planned, then taken out of this PR at the maintainer's request to be done later.
 
-4. **Self-checking build.** After the cleanup, `make-package.sh` greps the staged folder for forbidden names (`*.stub`, `phpunit`, `php-parser`, `_test-tools`, `*.map`, `psalm.xml`, `tests` directories) and exits non-zero with the file list. This turns the reviewer's list into a gate instead of a manual `unzip -l`.
+4. **Self-checking build: deferred** with decision 3, because its forbidden list includes `*.stub`.
 
-5. **Source in the zip.** Copy `resources/app` and `resources/site` into the staged plugin excluding `node_modules`, `dist` and build caches, in the `--org` build. The readme gets a short build section (`npm ci` and `npm run build` in each folder). The public GitHub repository link stays. Alternative: only link the repo. Rejected: the reviewer flagged the link-only state already, and shipping source removes any doubt.
+5. **Source on GitHub, not in the zip.** `readme.txt` names `resources/app` and `resources/site`, the build commands and the public repository. An earlier draft also copied the source into the `--org` zip; that was removed at the maintainer's request, because the repository link is already in the readme and the zip stays smaller. If the reviewer still cannot find the source, add it to the zip again.
 
 6. **brick/money.** Set the constraint to `^0.7.1`, run `composer update brick/money`, and run the full suite. The release also allows `brick/math` 0.11.
 
@@ -50,13 +49,12 @@ See proposal.md for the review findings. Facts checked in the code and in a fres
 - [`wp_kses()` lowercases tag names, and 2Checkout may need `<EPAYMENT>` in upper case] → Check the provider's documentation and run its webhook test. If case matters, use the fallback: add-ons emit their own raw body and core only emits escaped bodies.
 - [The reviewer may flag the email `<style>` line again] → Reply that it is email-only and has no enqueue system; the CSS comes from developer arrays and tags are stripped.
 - [`make-package.sh` runs `composer update` and rewrites `composer.lock` and the local `vendor/`] → Commit the lock change on purpose; run `composer install` afterwards to restore dev tools. Not changed in this work.
-- [Shipping source grows the zip] → Source only, no `node_modules`; size is checked after the build.
 
 ## Migration Plan
 
 1. Land the PHP escaping changes and tests.
 2. Land the build script, `composer.json` and readme changes.
-3. Build with `npm run make:org-package`; the new build check must pass.
+3. Build with `npm run make:org-package`.
 4. Install the zip on a clean site (a classic theme and a block theme) and on WordPress Playground; test the shop, checkout, admin app, and a PayPal webhook.
 5. Run `composer phpcs:wporg` and the Plugin Check plugin on the zip, then resubmit.
 
@@ -75,3 +73,5 @@ Rollback: all changes are in source control; revert the commit. Nothing is store
 - **Exception messages.** Six `throw` sites keep their `ExceptionNotEscaped` annotation (see the existing note about double-escaping). Plugin Check respects the annotation and does not report them.
 
 - **Reverted extras.** The `wp_strip_all_tags()` wrappers on inline CSS and the plugin version on the production admin script enqueues were removed again: nothing in the review or in PHPCS flagged them, and they changed nothing.
+- **Deferred.** Stub and `psalm.xml` removal and the package-content check were removed from this PR (`bin/make-package.sh` is unchanged). The `.stub` files (finding 3.1) still ship until that work is done.
+- **No specs.** The two spec deltas were dropped as too small for a spec; the change is archived with `skip_specs: true`.

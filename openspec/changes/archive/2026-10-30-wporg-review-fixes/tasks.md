@@ -19,17 +19,17 @@
 
 ## 3. Package contents and source
 
-- [x] 3.1 In `bin/make-package.sh`, remove `vendor/libraries/framework/src/Console/stubs/` and `vendor/brick/money/psalm.xml` from the staged plugin; verify no `.stub` or `psalm.xml` file is in the built zip
-- [ ] 3.2 Confirm no runtime path reads the stubs (grep `app/`, `bootstrap/`, `routes/` and the framework's runtime classes for console use), and verify the plugin activates and works from the built zip — stubs checked by grep (only the console commands read them) and the zip lints clean; still to do: install the zip and use it (shared with 4.3)
-- [x] 3.3 Add the post-build forbidden-file check to `bin/make-package.sh` (`*.stub`, `phpunit`, `php-parser`, `_test-tools`, `*.map`, `psalm.xml`, test directories); verify it fails when a forbidden file is placed in the staging folder and passes on a clean build
-- [x] 3.4 Copy `resources/app` and `resources/site` source (no `node_modules`, `dist` or caches) into the `--org` package; verify they are in the zip and the zip size is reasonable
+- [ ] 3.1 Remove the framework console stubs and vendor `psalm.xml` from the package — deferred, not part of this PR
+- [ ] 3.2 Confirm no runtime path reads the stubs and that the plugin works from the built zip — deferred with 3.1; install checks are also in 4.3
+- [ ] 3.3 Add the post-build forbidden-file check — deferred with 3.1
+- [x] 3.4 Source is not copied into the `--org` package — kept out on purpose; the readme points to the public repository (see task 3.5)
 - [x] 3.5 Update `readme.txt` with the source folders and build commands for each bundle; verify the repository link opens without login and the default branch contains those folders
-- [x] 3.6 Add `docs/release-package.md` describing the package build, the forbidden-file check and the pre-submit checklist; verify each command in it runs as written
+- [x] 3.6 Add `docs/release-package.md` describing the package build, its known gaps and the pre-submit checklist
 - [x] 3.7 Verify the group: run `npm run make:org-package` and `npm run typecheck && npm test` from `resources/app/`
 
 ## 4. Final release check
 
-- [x] 4.1 Run `unzip -l` on the built zip and verify no `.stub`, `phpunit`, `php-parser`, `_test-tools`, `.map`, `psalm.xml` or test files, and that `brick/money` is 0.7.1 in `vendor/composer/installed.json`
+- [x] 4.1 Run `unzip -l` on the built zip and verify no `phpunit`, `php-parser`, `_test-tools`, `.map` or test files, no frontend source, and that `brick/money` is 0.7.1 in `vendor/composer/installed.json` (the 12 `.stub` files remain until 3.1)
 - [x] 4.2 Run `composer phpcs:wporg` and the Plugin Check plugin on the built zip and verify there are no escaping, enqueue or file findings; resolve the design.md open question with the result
 - [ ] 4.3 Install the zip on a clean site with a classic theme and a block theme, and on WordPress Playground; verify the shop, cart, checkout, admin app, a PayPal webhook, and an order email — not done yet: needs a person to look (no browser use in this project). Covered so far by Plugin Check on the zip (0 errors), PHP lint of all 1115 files, and the integration tests
 - [x] 4.4 Run `composer install` to restore the dev vendor folder and review the `composer.lock` diff before committing

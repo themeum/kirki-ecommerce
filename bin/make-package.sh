@@ -148,17 +148,6 @@ JSON
   # `npm run make:pot` so the zip never ships an outdated one.
   echo "==> Removing translation template"
   rm -f "$STAGE_DIR/languages/$PLUGIN_SLUG.pot"
-
-  # wordpress.org requires the readable source of every compiled bundle. The
-  # tests are left out; everything needed for `npm ci && npm run build` stays.
-  echo "==> Adding readable frontend source"
-  for source_path in resources/app resources/site; do
-    mkdir -p "$STAGE_DIR/$source_path"
-    rsync -a \
-      --exclude node_modules --exclude dist --exclude coverage --exclude .vite \
-      --exclude tests --exclude '*.test.ts' --exclude '*.test.tsx' --exclude 'vitest.*' \
-      "$ROOT_DIR/$source_path/" "$STAGE_DIR/$source_path/"
-  done
 fi
 
 echo "==> Removing hidden files (not allowed by wordpress.org)"
@@ -173,11 +162,6 @@ rm -f "$STAGE_DIR/payments/package.json" "$STAGE_DIR"/payments/*/composer.lock
 # Defines ABSPATH for the test suite only; it is in autoload-dev, which the
 # --no-dev install leaves out of the autoloader.
 rm -f "$STAGE_DIR/bootstrap/abspath.php"
-# Templates for the framework's make:* and queue:* console commands. Only
-# developers run those; the plugin never reads them at runtime.
-rm -rf "$STAGE_DIR/vendor/libraries/framework/src/Console/stubs"
-# Static analysis settings shipped inside a vendor package.
-find "$STAGE_DIR/vendor" -name "psalm.xml*" -delete
 
 # listeners.cache.php / policies.cache.php are regenerated on every request
 # by CoreServiceProvider::boot() - keep the package to schema-only config.
@@ -187,20 +171,6 @@ echo "==> Patching production flags"
 STAGED_ENTRY_FILE="$STAGE_DIR/kirki-ecommerce.php"
 sed -i.bak "s/define('KIRKI_ECOMMERCE_MODE', 'development');/define('KIRKI_ECOMMERCE_MODE', 'production');/" "$STAGED_ENTRY_FILE"
 rm -f "$STAGED_ENTRY_FILE.bak"
-
-# wordpress.org rejects packages that carry scaffolding or test tooling. Fail
-# here, with the file names, instead of finding out from the review email.
-echo "==> Checking package contents"
-FORBIDDEN_FILES=$(find "$STAGE_DIR" \( \
-  -name "*.stub" -o -name "*.map" -o -name "psalm.xml*" \
-  -o -iname "phpunit*" -o -name "php-parser" -o -name "_test-tools" \
-  -o -type d \( -iname "tests" -o -iname "test" \) \
-  \) -print)
-if [ -n "$FORBIDDEN_FILES" ]; then
-  echo "Error: the package contains files wordpress.org does not allow:" >&2
-  echo "$FORBIDDEN_FILES" | sed "s|^$STAGE_DIR/|  |" >&2
-  exit 1
-fi
 
 echo "==> Reading plugin version"
 VERSION=$(grep -m1 "Version:" "$ROOT_DIR/kirki-ecommerce.php" | sed -E 's/.*Version:[[:space:]]*([0-9][0-9A-Za-z.-]*).*/\1/')

@@ -1,12 +1,12 @@
 # Release package
 
-How to build the WordPress.org zip, what it must not contain, and what to check before you submit it.
+How to build the WordPress.org zip, its known gaps, and what to check before you submit it.
 
 ## Table of contents
 
 1. [Quick start](#1-quick-start)
 2. [What the build does](#2-what-the-build-does)
-3. [Files that must not be in the zip](#3-files-that-must-not-be-in-the-zip)
+3. [Known gaps](#3-known-gaps)
 4. [Readable source](#4-readable-source)
 5. [Output escaping rules](#5-output-escaping-rules)
 6. [Pre-submit checklist](#6-pre-submit-checklist)
@@ -26,30 +26,23 @@ The build runs `composer update` and installs production dependencies only. Afte
 1. Builds the admin app (`resources/app`) and the storefront (`resources/site`) into `assets/`.
 2. Installs production Composer dependencies and restores the scoped framework layout.
 3. Copies an allow-list of folders into `build/kirki-ecommerce/`.
-4. For the `--org` build: writes a `payments.json` with PayPal only, and adds the readable frontend source.
-5. Removes hidden files, logs, Markdown files, the framework stubs and vendor `psalm.xml` files.
-6. Checks the package contents (section 3). The build stops if the check finds a forbidden file.
-7. Switches the plugin to production mode and creates the zip.
+4. For the `--org` build: writes a `payments.json` with PayPal only.
+5. Removes hidden files, logs, Markdown files and the translation template.
+6. Switches the plugin to production mode and creates the zip.
 
-## 3. Files that must not be in the zip
+To keep a file out of the zip, add a removal line to `bin/make-package.sh` next to the existing ones. There is no `.distignore` file.
 
-The build stops and lists the file when it finds any of these in the package:
+## 3. Known gaps
 
-| Pattern | Why |
-|---|---|
-| `*.stub` | Templates for the framework's `make:*` console commands. The plugin never reads them. |
-| `*.map` | Source maps. |
-| `phpunit*`, `php-parser`, `_test-tools` | Test tooling. |
-| `tests` or `test` folders | Test code. |
-| `psalm.xml*` | Static analysis settings. |
-
-To keep a new development file out of the zip, add a removal line to `bin/make-package.sh` next to the existing ones. There is no `.distignore` file.
+- The 12 framework `.stub` files under `vendor/libraries/framework/src/Console/stubs/` still ship. They are templates for the framework's `make:*` console commands; the plugin never reads them at runtime. The WordPress.org review flagged them, and removing them is planned.
+- `vendor/brick/money/psalm.xml` still ships.
+- The build does not check the package for forbidden files. Look at `unzip -l` yourself (section 6).
 
 ## 4. Readable source
 
-WordPress.org requires the readable source of every compiled file. The `--org` zip includes `resources/app/` and `resources/site/` (without `node_modules` and tests). `readme.txt` lists both folders and the commands to build them. Keep that section correct when the build changes.
+WordPress.org requires the readable source of every compiled file. The zip does not include it. `readme.txt` points to the public GitHub repository, names the two source folders (`resources/app/` and `resources/site/`), and lists the commands to build them. Keep that section correct when the build changes.
 
-The public GitHub repository must also contain both folders on its default branch.
+The repository must stay public, and its default branch must contain both folders.
 
 ## 5. Output escaping rules
 
@@ -65,8 +58,8 @@ Check with: `php -d auto_prepend_file=bootstrap/abspath.php vendor/bin/phpcs --s
 
 ## 6. Pre-submit checklist
 
-1. Run `npm run make:org-package`. The package check must pass.
-2. Run `unzip -l build/kirki-ecommerce-<version>.zip` and look for anything that does not belong.
+1. Run `npm run make:org-package`.
+2. Run `unzip -l build/kirki-ecommerce-<version>.zip` and look for anything that does not belong. The known gaps in section 3 are expected until they are fixed.
 3. Check `vendor/composer/installed.json` in the zip: `brick/money` is 0.7.1 or later.
 4. Install the zip on a clean site, then run the Plugin Check plugin on it.
 5. Test the shop, cart, checkout and admin app on a block theme and on a classic theme.

@@ -7,26 +7,26 @@ The WordPress.org review team returned `kirki-ecommerce-1.0.0.zip` with required
 ## What Changes
 
 - Replace the `phpcs:ignore` comments on dynamic output with real escaping calls: `Template.php` (block header and footer), `WebhookController.php` (acknowledgement body), `Icon.php` (SVG icons).
-- Remove developer-only files from the release zip: the 12 framework `.stub` files under `vendor/libraries/framework/src/Console/stubs/` and `vendor/brick/money/psalm.xml`. The build script gets the removal; the zip is checked for the other dev tooling the reviewer named.
 - Update `brick/money` from 0.7.0 to 0.7.1. The current `"0.7"` constraint is an exact pin to 0.7.0, so `composer.json` needs a range such as `^0.7.1`.
-- Make the readable JavaScript source available with the release: ship `resources/app` and `resources/site` source (without `node_modules`) in the zip, and document the source location and build steps in `readme.txt`.
-- Add a post-build check that fails the package build when forbidden files are found in the zip.
-- Document the build and release checks (`docs/`), including where the build differs from the reviewer's expectations.
+- Document where the readable JavaScript source is (the public GitHub repository, with the source folders and build steps) in `readme.txt`. The source is not added to the zip.
+- Document the release package steps and known gaps in `docs/release-package.md`.
 
 No change to storefront or admin behavior is intended.
 
 ## Capabilities
 
 ### New Capabilities
-- `plugin-distribution-package`: what the WordPress.org release zip must and must not contain (no dev or scaffolding files, current pinned dependencies, readable source and build steps documented), and the automated check that enforces it.
+
+None. This change fixes how existing behavior meets WordPress.org rules; no spec-level behavior changes, so the change sets `skip_specs: true`.
 
 ### Modified Capabilities
-- `wp-org-required-standards`: add a requirement that dynamic output is escaped by real escaping calls in code, and that `phpcs:ignore` comments do not replace escaping for dynamic values.
+
+None.
 
 ## Impact
 
 - PHP: `app/Supports/Template.php`, `app/Payment/WebhookController.php`, `app/Supports/Icon.php`.
-- Build: `bin/make-package.sh`, `composer.json`, `composer.lock`, `readme.txt`.
+- Build and docs: `composer.json`, `composer.lock`, `readme.txt`, `docs/release-package.md`.
 - Dependencies: `brick/money` 0.7.0 to 0.7.1 (also allows `brick/math` 0.11).
-- Tests: money and tax regression tests; new tests for the escaped output paths; a package-content check.
+- Tests: money and tax regression tests; new tests for the escaped output paths.
 - Risk: block-theme template markup and the payment webhook body can break if escaped too strictly (see design).
