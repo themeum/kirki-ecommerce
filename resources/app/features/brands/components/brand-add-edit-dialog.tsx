@@ -84,21 +84,18 @@ const BrandAddEditPopover = ({ brand, onClose = noop }: BrandAddEditPopoverProps
                 <TextField
                   name="name"
                   label={__('Name', 'kirki-ecommerce')}
-                  placeholder={__('e.g., apple', 'kirki-ecommerce')}
+                  placeholder={__('e.g., Nike', 'kirki-ecommerce')}
                 />
                 <TextField
                   name="slug"
                   label={__('Slug', 'kirki-ecommerce')}
-                  placeholder={__('e.g., fund-raising', 'kirki-ecommerce')}
+                  placeholder={__('e.g., nike', 'kirki-ecommerce')}
                 />
                 <TextareaField
                   name="description"
                   label={__('Description', 'kirki-ecommerce')}
                   rows={2}
-                  placeholder={__(
-                    'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
-                    'kirki-ecommerce',
-                  )}
+                  placeholder={__('Write a short description of this brand...', 'kirki-ecommerce')}
                 />
                 <MediaField name="logo" label={__('Thumb', 'kirki-ecommerce')} />
               </Flex>
