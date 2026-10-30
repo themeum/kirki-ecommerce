@@ -39,7 +39,7 @@ class WebhookController
     {
         $provider = Payment::get_provider($provider_id);
 
-        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $result = $provider->webhook();
 
@@ -78,7 +78,7 @@ class WebhookController
     {
         $provider = Payment::get_provider($provider_id);
 
-        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $result = $provider->handle_return($request);
         if ($result instanceof RedirectResponse) {

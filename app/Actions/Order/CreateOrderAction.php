@@ -150,6 +150,7 @@ class CreateOrderAction
      *
      * @param CreateOrderPayloadDTO $dto Checkout or manual order data; addresses, customer and cart fields may be filled in.
      * @return Order The created order with its items and coupons loaded.
+     * @throws ValidationException When the shipping method is invalid, the cart is empty, or stock is short.
      * @throws Throwable When persisting the order fails; the transaction is rolled back.
      */
     public function execute(CreateOrderPayloadDTO $dto)
@@ -173,7 +174,7 @@ class CreateOrderAction
 
         $context = $this->context_service->build($dto->to_calculation_input(), null);
 
-        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'));
+        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $calculated_result = $this->recalculate_cart_action->execute($context);
         $create_order_dto = $this->prepare_create_order_dto($calculated_result, $dto, $context);
@@ -191,7 +192,7 @@ class CreateOrderAction
                     $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$line_key], $dto->currency_code, $order->exchange_rate);
 
                     /* translators: %s: variant ID */
-                    throw_if(!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id));
+                    throw_if(!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
                     $order_items_by_line_key[$line_key] = $this->order_service->create_order_item($order_item_dto);
                     $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
@@ -327,13 +328,13 @@ class CreateOrderAction
      *
      * @param CreateOrderPayloadDTO $dto Order payload, modified in place.
      * @return void
-     * @throws \Exception When the cart is missing or empty.
+     * @throws ValidationException When the cart is missing or empty.
      */
     protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
     {
         $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
 
-        throw_if(empty($cart) || empty($cart->items), __('Cart not found.', 'kirki-ecommerce'));
+        throw_if(empty($cart) || empty($cart->items), __('Cart not found.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $items = [];
 
@@ -344,7 +345,7 @@ class CreateOrderAction
             ];
         }
 
-        throw_if(empty($items), __('Cart is empty.', 'kirki-ecommerce'));
+        throw_if(empty($items), __('Cart is empty.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $dto->items = $items;
         $dto->cart_token = !empty($cart->cart_token) ? $cart->cart_token : $dto->cart_token;

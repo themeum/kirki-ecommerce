@@ -407,7 +407,7 @@ class OrderService
 
         $order = Order::find($id);
 
-        throw_if(empty($order), __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(empty($order), __('Order not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return (bool) Order::query()
             ->where('id', $id)
@@ -488,7 +488,7 @@ class OrderService
     {
         $result = $this->delete_order($id);
 
-        throw_if(!$result, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(!$result, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $result;
     }
