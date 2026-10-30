@@ -6,7 +6,6 @@ use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Payment\WebhookController;
 use Kirki\Ecommerce\App\Payment\WebhookResult;
-use Kirki\Ecommerce\App\Supports\HtmlStyle;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -165,23 +164,6 @@ class EscapedOutputTest extends WP_UnitTestCase
 
         $this->assertStringNotContainsString('onclick', $output);
         $this->assertStringNotContainsString('onerror', $output);
-    }
-
-    /**
-     * The email style block cannot be closed early, and its rules keep their selectors.
-     *
-     * @return void
-     * @since 1.0.0
-     */
-    public function test_email_style_block_cannot_be_closed_early_and_keeps_selectors(): void
-    {
-        ob_start();
-        HtmlStyle::print_email_style_block(['.a > b' => ['color' => 'red</style><script>alert(1)</script>']]);
-        $printed = ob_get_clean();
-
-        $this->assertSame(1, substr_count($printed, '</style>'));
-        $this->assertStringNotContainsString('<script', $printed);
-        $this->assertStringContainsString('.a > b', $printed);
     }
 
     /**

@@ -6,7 +6,7 @@ The WordPress.org review team returned `kirki-ecommerce-1.0.0.zip` with required
 
 ## What Changes
 
-- Replace the `phpcs:ignore` comments on dynamic output with real escaping calls: `Template.php` (block header and footer), `WebhookController.php` (acknowledgement body), the inline CSS and config passed to `wp_add_inline_style` and `wp_add_inline_script` in `Root.php`, `EnqueueSiteScripts.php` and `EnqueueAdminScripts.php`.
+- Replace the `phpcs:ignore` comments on dynamic output with real escaping calls: `Template.php` (block header and footer), `WebhookController.php` (acknowledgement body), `Icon.php` (SVG icons).
 - Remove developer-only files from the release zip: the 12 framework `.stub` files under `vendor/libraries/framework/src/Console/stubs/` and `vendor/brick/money/psalm.xml`. The build script gets the removal; the zip is checked for the other dev tooling the reviewer named.
 - Update `brick/money` from 0.7.0 to 0.7.1. The current `"0.7"` constraint is an exact pin to 0.7.0, so `composer.json` needs a range such as `^0.7.1`.
 - Make the readable JavaScript source available with the release: ship `resources/app` and `resources/site` source (without `node_modules`) in the zip, and document the source location and build steps in `readme.txt`.
@@ -25,7 +25,7 @@ No change to storefront or admin behavior is intended.
 
 ## Impact
 
-- PHP: `app/Supports/Template.php`, `app/Payment/WebhookController.php`, `app/Menu/Root.php`, `app/Hooks/Actions/EnqueueSiteScripts.php`, `app/Wordpress/Hooks/Actions/EnqueueAdminScripts.php`, `app/Supports/Assets.php`.
+- PHP: `app/Supports/Template.php`, `app/Payment/WebhookController.php`, `app/Supports/Icon.php`.
 - Build: `bin/make-package.sh`, `composer.json`, `composer.lock`, `readme.txt`.
 - Dependencies: `brick/money` 0.7.0 to 0.7.1 (also allows `brick/math` 0.11).
 - Tests: money and tax regression tests; new tests for the escaped output paths; a package-content check.

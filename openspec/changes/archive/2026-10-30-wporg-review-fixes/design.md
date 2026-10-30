@@ -28,7 +28,7 @@ See proposal.md for the review findings. Facts checked in the code and in a fres
 1. **Escape with real calls, keep the markup working.**
    - Block header and footer in `Template.php`: `wp_kses_post()`. Block markup is post-content-like HTML, so the post allow-list fits. Alternative: a custom allow-list. Rejected: more to maintain. Verified on a block theme and a classic theme.
    - Email style in `HtmlStyle.php`: left as it was (tags stripped, `phpcs:ignore` with reason). Emails have no enqueue system, and `esc_html()` would turn the `>` combinator into `&gt;` and break the rule. See the correction below.
-   - Inline CSS (`Root.php`, `EnqueueSiteScripts.php`, `EnqueueAdminScripts.php`): pass `wp_strip_all_tags()` output to `wp_add_inline_style()`, the same call core uses.
+   - Inline CSS for `wp_add_inline_style()`: left unchanged. It comes from developer-written arrays, nothing flagged it, and core already removes a `<style>` wrapper from it.
    - Inline JS config (`Assets::get_kirki_ecommerce_configs()`): build the `window.kirki_ecommerce = ...;` string from `wp_json_encode()` with `JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT`. Alternative: pass data with `wp_localize_script()`. Rejected: it changes how the admin app and the filter `DevHookNames::CONFIG_DATA` read the config.
 
 2. **Webhook body: escape by content type.**
@@ -74,3 +74,4 @@ Rollback: all changes are in source control; revert the commit. Nothing is store
 - **Block markup.** `wp_kses_post()` would strip forms, SVG and the ARIA and `data-*` attributes that the navigation and search blocks use, so `Template` uses `wp_kses()` with a wider allow-list built on the `post` list. Scripts from a Custom HTML block in a header are no longer printed on plugin pages.
 - **Exception messages.** Six `throw` sites keep their `ExceptionNotEscaped` annotation (see the existing note about double-escaping). Plugin Check respects the annotation and does not report them.
 
+- **Reverted extras.** The `wp_strip_all_tags()` wrappers on inline CSS and the plugin version on the production admin script enqueues were removed again: nothing in the review or in PHPCS flagged them, and they changed nothing.

@@ -66,7 +66,7 @@ class Root extends Menu
 
         wp_add_inline_style(
             $menu_style_handle,
-            wp_strip_all_tags($this->get_dashicon_inline_styles())
+            $this->get_dashicon_inline_styles()
         );
 
         if (!Assets::is_admin_page()) {
@@ -85,7 +85,7 @@ class Root extends Menu
 
         wp_add_inline_style(
             $root_style_handle,
-            wp_strip_all_tags($this->get_root_shell_inline_styles())
+            $this->get_root_shell_inline_styles()
         );
 
         wp_add_inline_script(

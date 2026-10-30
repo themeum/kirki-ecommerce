@@ -114,10 +114,10 @@ Every value echoed or printed by plugin PHP, and every dynamic string passed to 
 - **WHEN** the plugin prints markup produced by rendering a block theme's header or footer template
 - **THEN** the markup passes through a sanitizer with an allow-list that keeps the valid block markup, and a block-theme page still renders the same header and footer
 
-#### Scenario: Inline CSS and JavaScript
+#### Scenario: Inline JavaScript data
 
-- **WHEN** the plugin adds inline CSS or JavaScript through `wp_add_inline_style()` or `wp_add_inline_script()`
-- **THEN** the CSS has HTML tags stripped, and the JavaScript data is built from JSON encoded with tag-safe flags
+- **WHEN** the plugin adds inline JavaScript data through `wp_add_inline_script()`
+- **THEN** the data is built from JSON encoded with tag-safe flags, so no value can close the script tag
 
 #### Scenario: Suppression comment on a dynamic value
 

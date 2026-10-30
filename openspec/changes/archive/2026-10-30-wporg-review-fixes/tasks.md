@@ -3,7 +3,7 @@
 ## 1. Output escaping
 
 - [x] 1.1 Replace the `phpcs:ignore` on the block header and footer in `app/Supports/Template.php` with `wp_kses_post()`; add a unit test with representative block markup and verify the test passes and the markup is unchanged
-- [x] 1.2 Escape the inline CSS in `app/Menu/Root.php`, `app/Hooks/Actions/EnqueueSiteScripts.php` and `app/Wordpress/Hooks/Actions/EnqueueAdminScripts.php` with `wp_strip_all_tags()`; verify the resulting CSS is unchanged for the logo and rich-text rules
+- [x] 1.2 Inline CSS in `Root.php`, `EnqueueSiteScripts.php` and `EnqueueAdminScripts.php` — left unchanged on purpose: nothing flagged it and core already removes a `<style>` wrapper
 - [x] 1.3 Build the `window.kirki_ecommerce` config in `app/Supports/Assets.php` from `wp_json_encode()` with the tag-safe flags; verify a unit test shows `</script>` and quotes in a config value cannot end the script — already safe: `Arr::json_encode()` is `wp_json_encode()` and `InlineConfigScriptTest` covers a `</script>` payload; no change needed
 - [x] 1.4 Email style block in `app/Supports/HtmlStyle.php` — left unchanged on purpose: escaping would break the `>` combinator; it keeps `wp_strip_all_tags()` and its `phpcs:ignore` reason
 - [x] 1.5 Add content-type-aware escaping to the webhook acknowledgement in `app/Payment/WebhookController.php`, with an optional tag allow-list on `app/Payment/WebhookResult.php`; verify tests for a plain-text body and an XML body (`<EPAYMENT>` kept) pass
