@@ -84,6 +84,7 @@ class OrderCalculationContextServiceTest extends TestCase
             'base_price' => 3000,
             'base_sale_price' => 2500,
             'weight' => 1,
+            'weight_unit' => 'kg',
             'shipping_profile_id' => 9,
             'tax_profile_id' => null,
             'has_limit_per_order' => false,
@@ -132,6 +133,7 @@ class OrderCalculationContextServiceTest extends TestCase
                 'base_catalog_sale_price' => 2000,
                 'base_catalog_regular_price' => 2400,
                 'weight' => 4,
+                'weight_unit' => 'lb',
             ], $line));
             $order_item->set_relation('taxes', collection([]));
 
@@ -179,6 +181,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->assertSame(9, $item->shipping_profile_id);
         $this->assertSame(12, $item->tax_profile_id);
         $this->assertSame([3, 4], $item->product_categories);
+        $this->assertSame('kg', $item->weight_unit);
         $this->assertTrue($item->is_reachable);
     }
 
@@ -316,6 +319,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->assertSame(12, $item->tax_profile_id);
         $this->assertSame([3, 4], $item->product_categories);
         $this->assertEquals(1, $item->weight);
+        $this->assertSame('kg', $item->weight_unit);
     }
 
     public function test_an_existing_line_whose_variant_was_deleted_stays_with_its_stored_values(): void
@@ -327,6 +331,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->assertFalse($item->is_reachable);
         $this->assertSame(2000, $item->base_unit_price);
         $this->assertEquals(4, $item->weight);
+        $this->assertSame('lb', $item->weight_unit);
         $this->assertNull($item->tax_profile_id);
         $this->assertSame([], $item->product_categories);
         $this->assertSame([], $this->service->get_variants_map());
@@ -540,28 +545,25 @@ class OrderCalculationContextServiceTest extends TestCase
         $order = $this->make_order([]);
         $order->currency_code = 'EUR';
         $input = $this->input(['currency_code' => 'USD']);
-        $context = $this->service->build($input, $order);
 
         $this->expectException(ValidationException::class);
 
-        $this->service->validate_edit($order, $input, $context);
+        $this->service->validate_edit($order, $input);
     }
 
     public function test_validate_edit_accepts_the_order_currency_and_no_currency(): void
     {
         $order = $this->make_order([]);
         $order->currency_code = 'EUR';
-        $this->shipping_service->method('has_valid_shipping_method')->willReturn(true);
 
         foreach ([['currency_code' => 'EUR'], []] as $payload) {
-            $input = $this->input($payload);
-            $this->service->validate_edit($order, $input, $this->service->build($input, $order));
+            $this->service->validate_edit($order, $this->input($payload));
         }
 
         $this->addToAssertionCount(1);
     }
 
-    public function test_validate_edit_refuses_a_shipping_method_that_is_not_available(): void
+    public function test_validate_edit_shipping_method_refuses_a_method_that_is_not_available(): void
     {
         $order = $this->make_order([]);
         $input = $this->input(['shipping_method' => 'method-0002']);
@@ -570,10 +572,10 @@ class OrderCalculationContextServiceTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->service->validate_edit($order, $input, $context);
+        $this->service->validate_edit_shipping_method($context);
     }
 
-    public function test_validate_edit_checks_the_shipping_method_when_the_address_and_method_did_not_change(): void
+    public function test_validate_edit_shipping_method_checks_the_method_when_the_address_and_method_did_not_change(): void
     {
         $order = $this->make_order([]);
         $order->shipping_method = 'method-0001';
@@ -586,6 +588,6 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage('Select another shipping method.');
 
-        $this->service->validate_edit($order, $input, $context);
+        $this->service->validate_edit_shipping_method($context);
     }
 }

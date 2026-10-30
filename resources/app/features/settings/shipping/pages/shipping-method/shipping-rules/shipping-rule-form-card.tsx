@@ -65,6 +65,7 @@ type ShippingRuleFormCardProps = {
   ruleIndex?: number;
   onCancel: () => void;
   onSaved: () => void;
+  storeWeightUnit: string;
 };
 
 const ShippingRuleFormCard = ({
@@ -74,6 +75,7 @@ const ShippingRuleFormCard = ({
   ruleIndex = -1,
   onCancel,
   onSaved,
+  storeWeightUnit,
 }: ShippingRuleFormCardProps) => {
   const { zone_id: zoneId } = useParams();
   const baseCurrencySymbol = useBaseCurrencySymbol();
@@ -82,6 +84,7 @@ const ShippingRuleFormCard = ({
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
 
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
+
   const { data: shippingProfile } = useShippingProfilesQuery({ limit: -1 });
   const { data: categoryData } = useCategoriesQuery({
     limit: -1,
@@ -236,15 +239,39 @@ const ShippingRuleFormCard = ({
     }
   };
 
-  const conditionSelectOptions = conditionOptions.map((option) => ({
-    label: option.title,
-    value: option.value,
-  }));
+  const conditionSelectOptions = conditionOptions.map((option) => {
+    if (option.value === 'cart_weight') {
+      return {
+        label: sprintf('%1$s (%2$s)', option.title, storeWeightUnit),
+        value: option.value,
+      };
+    }
 
-  const actionSelectOptions = actionOptionsArray.map((option) => ({
-    label: option.title,
-    value: option.value,
-  }));
+    if (option.value === 'cart_subtotal') {
+      return {
+        label: sprintf('%1$s (%2$s)', option.title, baseCurrencySymbol),
+        value: option.value,
+      };
+    }
+    return {
+      label: option.title,
+      value: option.value,
+    };
+  });
+
+  const actionSelectOptions = actionOptionsArray.map((option) => {
+    if (VALUE_ACTIONS.includes(option.value ?? '')) {
+      return {
+        label: sprintf('%1$s (%2$s)', option.title, baseCurrencySymbol),
+        value: option.value,
+      };
+    }
+
+    return {
+      label: option.title,
+      value: option.value,
+    };
+  });
 
   return (
     <>
@@ -292,11 +319,7 @@ const ShippingRuleFormCard = ({
                   ) : NUMERIC_CONDITIONS.includes(selectedCondition ?? '') ? (
                     <TextField
                       name="condition_value"
-                      placeholder={
-                        selectedCondition === 'cart_subtotal'
-                          ? sprintf(__('e.g., %s100', 'kirki-ecommerce'), baseCurrencySymbol)
-                          : __('e.g., 5', 'kirki-ecommerce')
-                      }
+                      placeholder={__('e.g., 5', 'kirki-ecommerce')}
                     />
                   ) : (
                     <SelectField
@@ -319,11 +342,7 @@ const ShippingRuleFormCard = ({
                   {VALUE_ACTIONS.includes(selectedAction ?? '') && (
                     <TextField
                       name="action_value"
-                      placeholder={
-                        selectedAction === 'multiply_shipping_cost'
-                          ? __('e.g., 1.5', 'kirki-ecommerce')
-                          : sprintf(__('e.g., %s100', 'kirki-ecommerce'), baseCurrencySymbol)
-                      }
+                      placeholder={__('e.g., 1.5', 'kirki-ecommerce')}
                     />
                   )}
                 </Grid>

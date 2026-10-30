@@ -38,7 +38,7 @@ const OrderFormShape = prepareFormSchema(
     items: z.array(
       z.object({
         id: z.number().nullish(),
-        variant_id: z.number(),
+        variant_id: z.number().nullish(),
         quantity: z.number(),
       }),
     ),

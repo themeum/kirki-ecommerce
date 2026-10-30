@@ -191,13 +191,17 @@ const CustomerCard = ({ onSave, isSaving, isGuest, mode, order }: CustomerCardPr
               <DropdownMenuItem onSelect={() => setContactDialogOpen(true)}>
                 {__('Edit contact information', 'kirki-ecommerce')}
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onSelect={handleRemove}
-                cssOverride={{ color: theme.colors.text.critical }}
-              >
-                {__('Remove customer', 'kirki-ecommerce')}
-              </DropdownMenuItem>
+              {mode === 'create' && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onSelect={handleRemove}
+                    cssOverride={{ color: theme.colors.text.critical }}
+                  >
+                    {__('Remove customer', 'kirki-ecommerce')}
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}

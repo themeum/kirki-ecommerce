@@ -207,14 +207,14 @@ class VariantService
      */
     public function bulk_update(array $variants)
     {
-        throw_if(empty($variants), __('No variants selected.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(empty($variants), __('No variants selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         DB::begin_transaction();
 
         $updated_variants = [];
 
         foreach ($variants as $variant) {
-            throw_if(empty($variant['id']), __('Variant id is required.', 'kirki-ecommerce'), NotFoundException::class);
+            throw_if(empty($variant['id']), __('Variant id is required.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
             $updated_variant = $this->update_variant($variant['id'], $variant);
 
@@ -457,7 +457,7 @@ class VariantService
     {
         $variant = Variant::find($id);
 
-        throw_if(empty($variant), __('Variant not found!', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(empty($variant), __('Variant not found!', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         if (!$variant->update($data)) {
             return false;

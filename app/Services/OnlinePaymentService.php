@@ -7,11 +7,11 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Exceptions\HttpException;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
-use Exception;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -60,12 +60,12 @@ class OnlinePaymentService
      *
      * @param string $id Payment provider ID.
      * @return PaymentProvider|null
-     * @throws Exception When the provider is already installed.
+     * @throws HttpException When the provider is already installed.
      * @throws NotFoundException When the provider package could not be installed.
      */
     public function install(string $id)
     {
-        throw_if((bool) Payment::get_provider($id), __('Payment method already installed.', 'kirki-ecommerce'), Exception::class, Response::NOT_FOUND);
+        throw_if((bool) Payment::get_provider($id), __('Payment method already installed.', 'kirki-ecommerce'), HttpException::class, Response::CONFLICT);
 
         throw_anyway(__('Payment method not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND); // @todo: remove this once we have real providers to install
 

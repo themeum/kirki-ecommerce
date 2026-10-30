@@ -158,7 +158,7 @@ class CartApiTest extends RestTestCase
             'quantity' => 2,
         ], $this->cart_headers);
 
-        $this->assert_api_error($response, 500);
+        $this->assert_api_error($response, 422);
 
         $current = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
         $this->assertCount(1, $current['items']);
@@ -194,7 +194,7 @@ class CartApiTest extends RestTestCase
             'quantity' => 1,
         ], $this->cart_headers);
 
-        $this->assert_api_error($response, 500);
+        $this->assert_api_error($response, 422);
     }
 
     /**
@@ -227,7 +227,7 @@ class CartApiTest extends RestTestCase
             'quantity' => 2,
         ], $this->cart_headers);
 
-        $this->assert_api_error($response, 500);
+        $this->assert_api_error($response, 422);
 
         $current = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
         $this->assertCount(1, $current['items']);
@@ -262,11 +262,102 @@ class CartApiTest extends RestTestCase
             'quantity' => 5,
         ], $this->cart_headers);
 
-        $this->assert_api_error($response, 500);
+        $this->assert_api_error($response, 422);
 
         $current = $this->request('GET', 'cart', [], $this->cart_headers);
         $payload = $this->assert_api_success($current)['data'];
         $this->assertEmpty($payload);
+    }
+
+    /**
+     * Raising a cart item above the stock is a validation error, not a server error, and the item keeps its quantity.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_item_rejects_quantity_exceeding_stock(): void
+    {
+        $this->variant_id = $this->default_variant_id($this->create_product([
+            'variants' => [[
+                'base_price' => 29.99,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 3,
+                'in_stock' => true,
+                'track_inventory' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]));
+
+        $item_id = $this->add_cart_item(2)['items'][0]['id'];
+
+        $response = $this->request('PUT', 'cart/items/' . $item_id, [
+            'id' => $item_id,
+            'quantity' => 5,
+        ], $this->cart_headers);
+
+        $data = $this->assert_api_error($response, 422);
+        $this->assertSame('Not enough stock for this variant', $data['message']);
+
+        $current = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
+        $this->assertEquals(2, $current['items'][0]['quantity']);
+    }
+
+    /**
+     * Raising a cart item above the per-order limit is a validation error, not a server error.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_item_rejects_quantity_exceeding_limit(): void
+    {
+        $this->variant_id = $this->default_variant_id($this->create_product([
+            'variants' => [[
+                'base_price' => 29.99,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+                'has_limit_per_order' => true,
+                'max_per_order' => 3,
+            ]],
+        ]));
+
+        $item_id = $this->add_cart_item(2)['items'][0]['id'];
+
+        $response = $this->request('PUT', 'cart/items/' . $item_id, [
+            'id' => $item_id,
+            'quantity' => 5,
+        ], $this->cart_headers);
+
+        $data = $this->assert_api_error($response, 422);
+        $this->assertStringContainsString('Max per order limit exceeded', $data['message']);
+
+        $current = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
+        $this->assertEquals(2, $current['items'][0]['quantity']);
+    }
+
+    /**
+     * Updating or removing a cart item that does not exist is a 404, not a server error.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_and_remove_of_missing_cart_item_return_not_found(): void
+    {
+        $this->prepare_variant();
+        $this->add_cart_item(1);
+        $missing_item_id = 999999;
+
+        $update = $this->request('PUT', 'cart/items/' . $missing_item_id, [
+            'id' => $missing_item_id,
+            'quantity' => 1,
+        ], $this->cart_headers);
+        $this->assertSame('Cart item not found.', $this->assert_api_error($update, 404)['message']);
+
+        $remove = $this->request('DELETE', 'cart/items/' . $missing_item_id, [], $this->cart_headers);
+        $this->assertSame('Cart item not found.', $this->assert_api_error($remove, 404)['message']);
     }
 
     /**

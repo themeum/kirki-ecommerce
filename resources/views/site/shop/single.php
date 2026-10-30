@@ -139,10 +139,8 @@ foreach ($media as $media_item) {
                                         <button 
                                             type="button"
                                             class="kecom-product-variant-color"
-                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
+                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'unavailable': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
                                             :style="{ 'background-color': '<?php echo esc_js($item['color'] ?? $item['value']); ?>' }"
-                                            :disabled="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
-                                            :aria-disabled="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             :aria-pressed="isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             :aria-label="'<?php echo esc_js($attr_name . ': ' . $item['value']); ?>' + (!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? ' (<?php echo esc_js(__('unavailable', 'kirki-ecommerce')); ?>)' : '')"
                                             :title="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? '<?php echo esc_js(__('Out of stock', 'kirki-ecommerce')); ?>' : null"
@@ -152,9 +150,7 @@ foreach ($media as $media_item) {
                                         <button 
                                             type="button"
                                             class="kecom-product-variant-option"
-                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
-                                            :disabled="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
-                                            :aria-disabled="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
+                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'unavailable': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
                                             :aria-pressed="isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             :aria-label="'<?php echo esc_js($attr_name . ': ' . $item['value']); ?>' + (!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? ' (<?php echo esc_js(__('unavailable', 'kirki-ecommerce')); ?>)' : '')"
                                             :title="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? '<?php echo esc_js(__('Out of stock', 'kirki-ecommerce')); ?>' : null"
@@ -220,9 +216,9 @@ foreach ($media as $media_item) {
                     <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
                     imageUrl = val || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>';
                 })">
-                        <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
+                        <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || !hasMatchingVariant || loading" :class="{ 'kecom-btn-loading': loading }">
                             <?php Icon::render('shopping-cart'); ?>
-                            <span x-text="selectedVariant?.available ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
+                            <span x-text="selectedVariant?.available && hasMatchingVariant ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
                         </button>
                     </div>
                     <a class="kecom-btn kecom-btn-block kecom-btn-outline kecom-product-wishlist" href="<?php echo is_user_logged_in() ? '#' : esc_url(Url::get_login_url()) ?>" @click="wishlistItem(selectedVariantId)" :class="{ 'active': isWishlisted }">

@@ -499,12 +499,13 @@ class PaymentProvider
     /**
      * Handle a webhook request sent by the payment gateway.
      *
-     * The base implementation reports success. Return a WebhookResult to control
-     * the raw response body.
+     * The base implementation reports success. A gateway that needs its own
+     * response body, such as a signed receipt, prints it from inside this method
+     * and still returns the success flag.
      *
      * @since 1.0.0
      *
-     * @return bool|WebhookResult
+     * @return bool
      */
     public function webhook()
     {

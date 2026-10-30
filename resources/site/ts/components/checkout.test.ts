@@ -3,10 +3,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { checkoutApi } from '../api/checkout';
 import { checkout } from './checkout';
 
+const { toastError } = vi.hoisted(() => ({ toastError: vi.fn() }));
+
 vi.mock('../api/cart', () => ({ buildCartApi: () => ({}) }));
 vi.mock('../api/checkout', () => ({ checkoutApi: { create: vi.fn() } }));
 vi.mock('../services/toast/runtime', () => ({
-  toastManager: { success: vi.fn(), error: vi.fn() },
+  toastManager: { success: vi.fn(), error: toastError },
 }));
 
 type PlaceableCheckout = ReturnType<typeof checkout> & { orderNotes: string };
@@ -51,5 +53,55 @@ describe('checkout placeOrder', () => {
     const payload = vi.mocked(checkoutApi.create).mock.calls[0][0] as Record<string, unknown>;
     expect(payload).toHaveProperty('order_notes', null);
     expect(payload).not.toHaveProperty('customer_notes');
+  });
+});
+
+describe('checkout country errors', () => {
+  const rejectWith = (errors: Record<string, string[]>) =>
+    vi.mocked(checkoutApi.create).mockRejectedValue(
+      Object.assign(new Error('Validation failed!'), { errors }),
+    );
+
+  beforeEach(() => {
+    toastError.mockReset();
+  });
+
+  it('Shipping country is not sold: shows a toast and keeps the field error', async () => {
+    rejectWith({ shipping_country: ['We do not sell to this country.'] });
+    const component = makeCheckout('');
+
+    await component.placeOrder();
+
+    expect(toastError).toHaveBeenCalledWith('We do not sell to this country.');
+    expect(component.shippingErrors.country).toBe('We do not sell to this country.');
+  });
+
+  it('Shipping and billing country are not sold: shows one toast', async () => {
+    rejectWith({
+      shipping_country: ['We do not sell to this country.'],
+      billing_country: ['We do not sell to this country.'],
+    });
+
+    await makeCheckout('').placeOrder();
+
+    expect(toastError).toHaveBeenCalledTimes(1);
+  });
+
+  it('Another field fails: shows no toast', async () => {
+    rejectWith({ shipping_city: ['The city field is required.'] });
+
+    await makeCheckout('').placeOrder();
+
+    expect(toastError).not.toHaveBeenCalled();
+  });
+});
+
+describe('checkout taxLineLabel', () => {
+  it('Exclusive tax line with a rate: shows name and rate percent', () => {
+    expect(checkout().taxLineLabel({ name: 'VAT', rate: '5.00' })).toBe('VAT 5%');
+  });
+
+  it('Tax line without a rate: shows the name only', () => {
+    expect(checkout().taxLineLabel({ name: 'VAT', rate: 0 })).toBe('VAT');
   });
 });

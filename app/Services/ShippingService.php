@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
 use Kirki\Ecommerce\App\Supports\ShippingCarrierPresets;
+use Kirki\Ecommerce\App\Supports\Weight;
 
 use function Kirki\Ecommerce\App\decision_engine;
 
@@ -412,9 +413,7 @@ class ShippingService
             return 0;
         }
 
-        $total_weight = $context->items->map(function ($item) {
-            return $item->weight * $item->quantity;
-        })->sum();
+        $total_weight = $this->get_total_weight($context);
 
         $ranges = $method['ranges'] ?? [];
 
@@ -461,6 +460,25 @@ class ShippingService
     }
 
     /**
+     * Get the total weight of the items in the store's weight unit.
+     *
+     * Each line is converted from the unit of its variant before its quantity is applied.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart or order calculation context.
+     * @return int|float
+     */
+    protected function get_total_weight(CalculationContextDTO $context)
+    {
+        $store_unit = Weight::get_store_unit();
+
+        return $context->items->map(function ($item) use ($store_unit) {
+            return Weight::convert($item->weight, $item->weight_unit, $store_unit) * $item->quantity;
+        })->sum();
+    }
+
+    /**
      * Build the decision context for shipping rules from a calculation context.
      *
      * Collects the cart weight, shipping profiles and product categories of the items.
@@ -473,18 +491,13 @@ class ShippingService
      */
     protected function prepare_decision_context(CalculationContextDTO $context, $base_cost = null)
     {
-        $cart_weight = 0;
         $shipping_profiles = [];
         $product_categories = [];
 
         $default_profile = ShippingProfile::where('is_default', true)->first();
         $default_profile_id = $default_profile ? $default_profile->id : null;
 
-        $context->items->each(function ($item) use (&$cart_weight, &$shipping_profiles, &$product_categories, $default_profile_id) {
-            if ($item->weight) {
-                $cart_weight += $item->weight * $item->quantity;
-            }
-
+        $context->items->each(function ($item) use (&$shipping_profiles, &$product_categories, $default_profile_id) {
             $profile_id = $item->shipping_profile_id ? $item->shipping_profile_id : $default_profile_id;
 
             if ($profile_id) {
@@ -498,7 +511,7 @@ class ShippingService
 
         return DecisionContext::from([
             'base_shipping_cost' => $base_cost ?? 0,
-            'cart_weight' => $cart_weight,
+            'cart_weight' => $this->get_total_weight($context),
             'base_cart_subtotal' => $context->get_subtotal() ?? 0,
             'shipping_address' => $context->shipping_address ?? null,
             'shipping_profiles' => array_unique($shipping_profiles),

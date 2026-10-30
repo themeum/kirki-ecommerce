@@ -132,6 +132,7 @@ class CalculationContextDTO extends DTO
 
             $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
             $item_dto->weight = $variant->weight;
+            $item_dto->weight_unit = $variant->weight_unit;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->tax_profile_id = $variant->tax_profile_id ?: $item->product->tax_profile_id;
             $item_dto->product_categories = $item->product->load('categories')->categories->pluck('id')->to_array();

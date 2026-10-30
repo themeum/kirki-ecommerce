@@ -227,6 +227,18 @@ If something doesn't work as expected, or a feature you need is missing, we want
 
 Kirki eCommerce is open source. Find the full source code on [GitHub](https://github.com/themeum/kirki-ecommerce).
 
+The JavaScript and CSS in the `assets/` folder are compiled. Their readable source is in the public [GitHub repository](https://github.com/themeum/kirki-ecommerce):
+
+* `resources/app/` is the source of the admin app (`assets/js/kirki-ecommerce.*.js`, `assets/js/chunks/`, `assets/js/pages/` and the admin CSS).
+* `resources/site/` is the source of the storefront script and styles (`assets/js/site.js` and `assets/css/site.css`).
+
+To build them, clone the repository. You need Node.js 22 or later:
+
+1. In the repository folder, run `cd resources/app && npm install && npm run build`.
+2. Then run `cd ../site && npm install && npm run build`.
+
+Each build writes the compiled files to the `assets/` folder.
+
 == Installation ==
 
 1. In your WordPress dashboard, go to Plugins → Add New Plugin.

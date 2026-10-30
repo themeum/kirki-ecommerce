@@ -8,9 +8,7 @@ import { toast } from 'sonner';
 import { RouteConfig } from '@/config/route-config';
 import { toOrderFormAddresses } from '@/features/orders/lib/order-address';
 import {
-  getDisplayByVariantId,
   getOrderRows,
-  getStoredDisplayByVariantId,
   mergeSelections,
   pairCalculationItems,
   toSelectedCoupon,
@@ -220,7 +218,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
 
     applyCorrection(() => form.reset(lastValidValues));
     setSelections(lastValidSelectionsRef.current);
-    setCalculationRequest(OrderCalculationRequestSchema.parse(lastValidValues));
+
     // Revert must run once per failed request, not whenever `form` identity changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [calculationError, calculationErrorUpdatedAt]);
@@ -328,15 +326,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [calculation]);
 
-  const displayByVariantId = useMemo(
-    () => ({
-      ...getStoredDisplayByVariantId(order?.items ?? []),
-      ...getDisplayByVariantId(selections),
-    }),
-    [order, selections],
-  );
-
-  const rows = getOrderRows(pickedItems, displayByVariantId);
+  const rows = getOrderRows(pickedItems, selections, order?.items ?? []);
 
   const handleAddItems = (nextSelections: ProductSelection[]) => {
     replaceItems(mergeSelections(pickedItems, nextSelections));
@@ -387,6 +377,10 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
       }
 
       await updateMutation.mutateAsync({ id: order.id, data: payload });
+
+      isFormFilledRef.current = false;
+      lastValidSelectionsRef.current = [];
+      setSelections([]);
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
