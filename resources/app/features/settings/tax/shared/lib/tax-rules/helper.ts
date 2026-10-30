@@ -53,6 +53,10 @@ export const getDestinationDisplayValue = (
     return __('Select destinations', 'kirki-ecommerce');
   }
 
+  if (list.length === 1) {
+    return list[0];
+  }
+
   return `${list[0]}, +${list.length - 1}`;
 };
 

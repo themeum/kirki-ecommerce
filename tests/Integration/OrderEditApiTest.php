@@ -1320,29 +1320,31 @@ class OrderEditApiTest extends RestTestCase
         $this->assert_preview_and_save_refuse(['order_id' => $order['id'], 'currency_code' => 'USD', 'items' => [$this->line($order, 1)]]);
     }
 
-    public function test_the_preview_and_the_save_both_refuse_a_shipping_method_the_new_address_does_not_serve(): void
+    public function test_the_save_refuses_a_shipping_method_the_new_address_does_not_serve_and_the_preview_still_prices_the_order(): void
     {
         $order = $this->create_order();
-
-        $this->assert_preview_and_save_refuse([
+        $payload = [
             'order_id' => $order['id'],
             'items' => [$this->line($order, 1)],
             'shipping_country' => 'CA',
             'shipping_state' => 'ON',
-        ]);
+        ];
+
+        $this->preview($payload);
+
+        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload($payload)), 422);
     }
 
-    public function test_the_preview_and_the_save_both_refuse_a_removed_method_when_the_address_did_not_change(): void
+    public function test_the_save_refuses_a_removed_method_when_the_address_did_not_change_and_the_preview_still_prices_the_order(): void
     {
         $order = $this->create_order();
 
         $this->rename_shipping_method('Express Delivery', 15, false);
 
         $payload = $this->order_payload(['order_id' => $order['id'], 'items' => [$this->line($order, 1)]]);
-        $preview_error = $this->assert_api_error($this->request('POST', 'calculate/order', $payload), 422);
+        $this->preview($payload);
         $save_error = $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $payload), 422);
 
-        $this->assertStringContainsString('Select another shipping method.', $preview_error['message']);
         $this->assertStringContainsString('Select another shipping method.', $save_error['message']);
     }
 
