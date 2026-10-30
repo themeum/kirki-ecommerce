@@ -75,8 +75,7 @@ class OnlinePaymentService
      *
      * @param string $id Payment provider ID.
      * @return PaymentProvider|null
-     * @throws HttpException When the gateway is already installed.
-     * @throws Exception When the gateway is untrusted, corrupt or fails to install.
+     * @throws HttpException When the gateway is installed, unknown, untrusted, corrupt or fails to install.
      * @throws NotFoundException When the catalog does not offer the gateway.
      */
     public function install(string $id)
