@@ -234,8 +234,8 @@ The JavaScript and CSS in the `assets/` folder are compiled. Their readable sour
 
 To build them, clone the repository. You need Node.js 22 or later:
 
-1. In the repository folder, run `cd resources/app && npm ci && npm run build`.
-2. Then run `cd ../site && npm ci && npm run build`.
+1. In the repository folder, run `cd resources/app && npm install && npm run build`.
+2. Then run `cd ../site && npm install && npm run build`.
 
 Each build writes the compiled files to the `assets/` folder.
 
