@@ -166,15 +166,7 @@ const CouponPreview = () => {
         )
       : __('No usage limits', 'kirki-ecommerce'),
     values.has_customer_limit && values.customer_limit
-      ? sprintf(
-          _n(
-            'Limited to %s customer',
-            'Limited to %s customers',
-            values.customer_limit,
-            'kirki-ecommerce',
-          ),
-          values.customer_limit,
-        )
+      ? sprintf('Limited to %s per customer', values.customer_limit)
       : __('No customer limits', 'kirki-ecommerce'),
   ];
 
