@@ -1,5 +1,6 @@
 import { createHashRouter } from 'react-router';
 
+import RootLayout from '@/components/root-layout';
 import analyticsRoutes from '@/features/analytics/routes';
 import brandsRoutes from '@/features/brands/routes';
 import bulkEditRoutes from '@/features/bulk-edit/routes';
@@ -19,27 +20,32 @@ import tagsRoutes from '@/features/tags/routes';
 import UnsavedChangesController from '@/floating-components/unsaved-tracker';
 
 export const router = createHashRouter([
-  ...onboardingRoutes,
   {
-    element: <UnsavedChangesController />,
+    element: <RootLayout />,
     children: [
+      ...onboardingRoutes,
       {
-        element: <OnboardingGate />,
+        element: <UnsavedChangesController />,
         children: [
-          ...homeRoutes,
-          ...productsRoutes,
-          ...bulkEditRoutes,
-          ...inventoryRoutes,
-          ...couponsRoutes,
-          ...ordersRoutes,
-          ...analyticsRoutes,
-          ...collectionsRoutes,
-          ...tagsRoutes,
-          ...categoriesRoutes,
-          ...brandsRoutes,
-          ...customersRoutes,
-          ...settingsRoutes,
-          ...systemRoutes,
+          {
+            element: <OnboardingGate />,
+            children: [
+              ...homeRoutes,
+              ...productsRoutes,
+              ...bulkEditRoutes,
+              ...inventoryRoutes,
+              ...couponsRoutes,
+              ...ordersRoutes,
+              ...analyticsRoutes,
+              ...collectionsRoutes,
+              ...tagsRoutes,
+              ...categoriesRoutes,
+              ...brandsRoutes,
+              ...customersRoutes,
+              ...settingsRoutes,
+              ...systemRoutes,
+            ],
+          },
         ],
       },
     ],
