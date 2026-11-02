@@ -11,6 +11,7 @@ import TemplateGallery from '@/features/home/components/template-gallery';
 import { getWelcomeName } from '@/features/home/lib/greeting';
 import { isSetupComplete } from '@/features/home/lib/steps';
 import { useSetupChecklistQuery } from '@/features/home/services/setup-checklist';
+import { useMigrationSourcesQuery } from '@/features/migration';
 import useCurrentUser from '@/hooks/use-current-user';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -31,6 +32,10 @@ const getDashboardHeading = (name: string | null) => {
 const Home = () => {
   const { data: checklist } = useSetupChecklistQuery();
   const currentUser = useCurrentUser();
+  const migrationSources = useMigrationSourcesQuery();
+  const wooCommerce = migrationSources.data?.find(
+    (source) => source.id === 'woocommerce' && source.version.supported,
+  );
   const isDashboard = checklist
     ? isSetupComplete(checklist.steps)
     : window.kirki_ecommerce.is_setup_complete;
@@ -46,6 +51,13 @@ const Home = () => {
           }
           actions={
             <>
+              {wooCommerce && (
+                <Button variant="ghost" asChild cssOverride={styles.liveSiteButton}>
+                  <Link to={RouteConfig.Migration.get('WooCommerce').buildLink()}>
+                    {__('Migrate from WooCommerce', 'kirki-ecommerce')}
+                  </Link>
+                </Button>
+              )}
               <Button variant="ghost" asChild cssOverride={styles.liveSiteButton}>
                 <a href={window.kirki_ecommerce.site_url} target="_blank" rel="noopener noreferrer">
                   <Eye size={16} aria-hidden="true" />

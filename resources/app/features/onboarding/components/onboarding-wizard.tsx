@@ -6,9 +6,12 @@ import { useNavigate } from 'react-router';
 import { Form } from '@/components/ui/form';
 import { RouteConfig } from '@/config/route-config';
 import { useSampleDataImport } from '@/features/home';
+import { MigrationFlow, useMigrationSourcesQuery } from '@/features/migration';
 import BusinessInfoStep from '@/features/onboarding/components/business-info-step';
 import EssentialsStep from '@/features/onboarding/components/essentials-step';
-import OnboardingShell from '@/features/onboarding/components/onboarding-shell';
+import OnboardingShell, {
+  type OnboardingShellProgress,
+} from '@/features/onboarding/components/onboarding-shell';
 import SampleDataLink from '@/features/onboarding/components/sample-data-link';
 import SetupCompleteStep, {
   type SetupSummaryRow,
@@ -36,7 +39,7 @@ import { useAllCurrenciesQuery } from '@/features/settings';
 import { getDefaults } from '@/libs/zod';
 import { useCountriesQuery } from '@/services/country';
 import { getErrorMessage } from '@/services/helpers';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 const buildSummary = (
   payload: OnboardingFormPayload,
@@ -106,6 +109,8 @@ const OnboardingWizard = () => {
   const [step, setStep] = useState<OnboardingStep>(() => getInitialStep(initialDraft));
   const [submittedPayload, setSubmittedPayload] = useState<OnboardingFormPayload | null>(null);
   const [setupRunId, setSetupRunId] = useState(0);
+  const [isMigrating, setIsMigrating] = useState(false);
+  const [migrationProgress, setMigrationProgress] = useState<OnboardingShellProgress>();
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
   const { data: currencies = [] } = useAllCurrenciesQuery();
   const createStore = useCreateStoreMutation();
@@ -206,13 +211,19 @@ const OnboardingWizard = () => {
     runId: setupRunId,
   });
   const isSetupReady = rowStates.length > 0 && rowStates.every((state) => state === 'completed');
+  const migrationSources = useMigrationSourcesQuery({
+    enabled: step === COMPLETION_STEP && isSetupReady,
+  });
+  const migrationSource = migrationSources.data?.find((source) => source.version.supported);
 
   return (
     <OnboardingShell
       step={step}
       stepCount={getFormStepCount(isTaxCollected)}
+      progressOverride={isMigrating ? migrationProgress : undefined}
       afterCard={
-        step === COMPLETION_STEP && (
+        step === COMPLETION_STEP &&
+        !isMigrating && (
           <SampleDataLink
             phase={sampleData.phase}
             isDisabled={!isSetupReady}
@@ -221,6 +232,15 @@ const OnboardingWizard = () => {
         )
       }
     >
+      {isMigrating && migrationSource && (
+        <MigrationFlow
+          source={migrationSource.id}
+          sourceLabel={migrationSource.label}
+          onProgressChange={setMigrationProgress}
+          onSkip={() => setIsMigrating(false)}
+          onFinish={() => leaveTo(RouteConfig.Home.template)}
+        />
+      )}
       <Form {...form}>
         {step === 0 && <StoreBasicsStep onContinue={() => void goToNextStep()} />}
         {step === 1 && (
@@ -236,7 +256,7 @@ const OnboardingWizard = () => {
         {step === TAX_STEP && (
           <StoreTaxStep onBack={goToPreviousStep} onCreateStore={() => void handleCreateStore()} />
         )}
-        {step === COMPLETION_STEP && (
+        {step === COMPLETION_STEP && !isMigrating && (
           <SetupCompleteStep
             rows={summaryRows}
             rowStates={rowStates}
@@ -246,6 +266,16 @@ const OnboardingWizard = () => {
             onRetry={handleRetry}
             onAddFirstProduct={() => leaveTo(RouteConfig.Products.get('CreateProduct').buildLink())}
             onGoToDashboard={() => leaveTo(RouteConfig.Home.template)}
+            migrateLabel={
+              migrationSource
+                ? sprintf(
+                    /* translators: %s: name of the plugin the data comes from. */
+                    __('Migrate from %s', 'kirki-ecommerce'),
+                    migrationSource.label,
+                  )
+                : undefined
+            }
+            onMigrate={migrationSource ? () => setIsMigrating(true) : undefined}
           />
         )}
       </Form>

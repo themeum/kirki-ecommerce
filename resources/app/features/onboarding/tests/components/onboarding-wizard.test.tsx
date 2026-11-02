@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useEffect } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -18,6 +19,41 @@ const { createStore, sampleData } = vi.hoisted(() => ({
     phase: 'idle' as const,
     start: vi.fn(),
     onLoaded: (): void => undefined,
+  },
+}));
+
+const { migration } = vi.hoisted(() => ({
+  migration: {
+    sources: [] as { id: string; label: string; version: { supported: boolean } }[],
+  },
+}));
+
+vi.mock('@/features/migration', () => ({
+  useMigrationSourcesQuery: () => ({ data: migration.sources }),
+  MigrationFlow: ({
+    onProgressChange,
+    onSkip,
+    onFinish,
+  }: {
+    onProgressChange: (progress: { percent: number; title: string; message: string }) => void;
+    onSkip: () => void;
+    onFinish: () => void;
+  }) => {
+    useEffect(() => {
+      onProgressChange({
+        percent: 40,
+        title: 'Migrate from WooCommerce',
+        message: 'Migrating Products 1-30 of 100',
+      });
+    }, [onProgressChange]);
+
+    return (
+      <div>
+        <p>Migration flow</p>
+        <button onClick={onSkip}>Leave migration</button>
+        <button onClick={onFinish}>Finish migration</button>
+      </div>
+    );
   },
 }));
 
@@ -73,6 +109,7 @@ describe('onboarding wizard', () => {
     sessionStorage.clear();
     createStore.isSuccess = false;
     createStore.mutate.mockReset();
+    migration.sources = [];
   });
 
   it('clears a step error as soon as the field is corrected', async () => {
@@ -236,5 +273,75 @@ describe('onboarding wizard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
 
     expect(await screen.findByText('Essentials, Shipping, Tax, Legal pages')).toBeInTheDocument();
+  });
+  it('hides the migration button when no source plugin is detected', async () => {
+    createStore.isSuccess = true;
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+
+    expect(screen.queryByRole('button', { name: /Migrate from/ })).not.toBeInTheDocument();
+  });
+
+  it('hides the migration button when the source version is not supported', async () => {
+    createStore.isSuccess = true;
+    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: false } }];
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+
+    expect(screen.queryByRole('button', { name: /Migrate from/ })).not.toBeInTheDocument();
+  });
+
+  it('shows the migration button when WooCommerce is detected, and opens the migration with its own progress bar', async () => {
+    createStore.isSuccess = true;
+    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Migrate from WooCommerce' }));
+
+    expect(await screen.findByText('Migration flow')).toBeInTheDocument();
+    expect(screen.queryByText('Your store is almost ready')).not.toBeInTheDocument();
+    expect(getProgress()).toBe(40);
+    expect(screen.getByText('Migrating Products 1-30 of 100')).toBeInTheDocument();
+    expect(screen.getByText('Migrate from WooCommerce')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Click here to load sample data!' })).not.toBeInTheDocument();
+  });
+
+  it('returns to the completion screen when the migration is skipped', async () => {
+    createStore.isSuccess = true;
+    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+    fireEvent.click(await screen.findByRole('button', { name: 'Migrate from WooCommerce' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Leave migration' }));
+
+    expect(await screen.findByText('Your store is almost ready')).toBeInTheDocument();
+    expect(getProgress()).toBe(100);
+  });
+
+  it('goes to the dashboard when the migration is finished', async () => {
+    createStore.isSuccess = true;
+    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+    fireEvent.click(await screen.findByRole('button', { name: 'Migrate from WooCommerce' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Finish migration' }));
+
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument();
   });
 });

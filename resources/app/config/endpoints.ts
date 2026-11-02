@@ -47,6 +47,15 @@ export const endpoints = {
   ONBOARDING: '/onboarding',
   ONBOARDING_SAMPLE_DATA: '/onboarding/sample-data',
 
+  MIGRATION_SOURCES: '/migration/sources',
+  MIGRATION_SCAN: '/migration/scan',
+  MIGRATION_RUNS: '/migration/runs',
+  MIGRATION_LATEST_RUN: '/migration/runs/latest',
+  MIGRATION_RUN: (id: number) => `/migration/runs/${id}`,
+  MIGRATION_RUN_CHUNK: (id: number) => `/migration/runs/${id}/chunk`,
+  MIGRATION_RUN_REVERT: (id: number) => `/migration/runs/${id}/revert`,
+  MIGRATION_RUN_REVERT_CHUNK: (id: number) => `/migration/runs/${id}/revert/chunk`,
+
   SETUP_CHECKLIST: '/setup-checklist',
   SETUP_CHECKLIST_COMPLETE_STEP: (step: string) => `/setup-checklist/${step}/complete`,
 

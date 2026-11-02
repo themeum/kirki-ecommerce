@@ -26,6 +26,8 @@ type SetupCompleteStepProps = {
   onRetry: () => void;
   onAddFirstProduct: () => void;
   onGoToDashboard: () => void;
+  migrateLabel?: string;
+  onMigrate?: () => void;
 };
 
 const SetupCompleteStep = ({
@@ -37,6 +39,8 @@ const SetupCompleteStep = ({
   onRetry,
   onAddFirstProduct,
   onGoToDashboard,
+  migrateLabel,
+  onMigrate,
 }: SetupCompleteStepProps) => {
   return (
     <StepLayout
@@ -48,14 +52,21 @@ const SetupCompleteStep = ({
             {__('Try again', 'kirki-ecommerce')}
           </Button>
         ) : (
-          <Grid columns={2} gap={3}>
-            <Button size="lg" onClick={onAddFirstProduct} disabled={!isReady}>
-              {__('Add your first product', 'kirki-ecommerce')}
-            </Button>
-            <Button variant="outline" size="lg" onClick={onGoToDashboard} disabled={!isReady}>
-              {__('Go to Dashboard', 'kirki-ecommerce')}
-            </Button>
-          </Grid>
+          <>
+            <Grid columns={2} gap={3}>
+              <Button size="lg" onClick={onAddFirstProduct} disabled={!isReady}>
+                {__('Add your first product', 'kirki-ecommerce')}
+              </Button>
+              <Button variant="outline" size="lg" onClick={onGoToDashboard} disabled={!isReady}>
+                {__('Go to Dashboard', 'kirki-ecommerce')}
+              </Button>
+            </Grid>
+            {onMigrate && migrateLabel && (
+              <Button variant="tertiary" size="lg" onClick={onMigrate} disabled={!isReady}>
+                {migrateLabel}
+              </Button>
+            )}
+          </>
         )
       }
     >

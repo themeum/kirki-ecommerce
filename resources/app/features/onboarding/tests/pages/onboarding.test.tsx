@@ -29,6 +29,11 @@ vi.mock('@/features/home', () => ({
   },
 }));
 
+vi.mock('@/features/migration', () => ({
+  useMigrationSourcesQuery: () => ({ data: [] }),
+  MigrationFlow: () => null,
+}));
+
 vi.mock('@/features/settings', () => ({
   useAllCurrenciesQuery: () => ({ data: [] }),
 }));

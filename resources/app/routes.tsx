@@ -9,6 +9,7 @@ import couponsRoutes from '@/features/coupons/routes';
 import customersRoutes from '@/features/customers/routes';
 import homeRoutes from '@/features/home/routes';
 import inventoryRoutes from '@/features/inventory/routes';
+import migrationRoutes from '@/features/migration/routes';
 import { OnboardingGate } from '@/features/onboarding';
 import onboardingRoutes from '@/features/onboarding/routes';
 import ordersRoutes from '@/features/orders/routes';
@@ -20,6 +21,10 @@ import UnsavedChangesController from '@/floating-components/unsaved-tracker';
 
 export const router = createHashRouter([
   ...onboardingRoutes,
+  {
+    element: <OnboardingGate />,
+    children: migrationRoutes,
+  },
   {
     element: <UnsavedChangesController />,
     children: [
