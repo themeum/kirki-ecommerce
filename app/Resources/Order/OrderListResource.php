@@ -49,6 +49,7 @@ class OrderListResource extends Resource
             'shipping_method' => $this->shipping_method,
             'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
             'created_at' => $this->created_at,
+            'archived_at' => $this->archived_at,
         ];
     }
 

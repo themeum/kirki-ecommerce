@@ -6,6 +6,10 @@ export type ShippingMethod = {
   id: string;
   name: string;
   description: string;
+  type: string;
+  address: string | null;
+  pickup_time_start: string | null;
+  pickup_time_end: string | null;
   display_cost_money_object: {
     display: string;
     row: number;

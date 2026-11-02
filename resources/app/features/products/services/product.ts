@@ -177,6 +177,10 @@ const useDeleteProductMutation = () => {
       );
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
+      void queryClient.invalidateQueries({
+        queryKey: productKeys.details(),
+      });
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     },
     onError(error) {
       toastMutationError(error);
@@ -195,6 +199,10 @@ const useBulkDeleteProductsMutation = () => {
       );
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
+      void queryClient.invalidateQueries({
+        queryKey: productKeys.details(),
+      });
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     },
     onError(error) {
       toastMutationError(error);
@@ -212,6 +220,10 @@ const useBulkTrashProductsMutation = () => {
       });
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
+      void queryClient.invalidateQueries({
+        queryKey: productKeys.details(),
+      });
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     },
     onError(error) {
       toastMutationError(error);
@@ -227,6 +239,10 @@ const useBulkRestoreProductsMutation = () => {
       toastMutationSuccess(response.message || __('Products restored', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
+      void queryClient.invalidateQueries({
+        queryKey: productKeys.details(),
+      });
+      void queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     },
     onError(error) {
       toastMutationError(error);

@@ -9,6 +9,7 @@ import { EMPTY_VALUE } from '@/features/inventory/lib/inventory-cells';
 import { getFulfillmentBadgeInfo, getPaymentBadgeInfo } from '@/features/orders/lib/order-badge';
 import type { OrderListItem } from '@/features/orders/schemas/catalog/order';
 import { DATE_FORMATS } from '@/libs/date';
+import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderCell = ({ item }: { item: OrderListItem }) => {
@@ -65,6 +66,15 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
     cell: ({ row }) => {
       const fulfillmentBadge = getFulfillmentBadgeInfo(row.original.fulfillment_status);
       const paymentBadge = getPaymentBadgeInfo(row.original.payment_status);
+
+      if (isDefined(row.original.archived_at) && Boolean(row.original.archived_at)) {
+        return (
+          <Flex gap={1} align="center">
+            <Badge variant="destructive">{__('Archived', 'kirki-ecommerce')}</Badge>
+          </Flex>
+        );
+      }
+
       return (
         <Flex gap={1} align="center">
           <Badge variant={paymentBadge.variant}>{paymentBadge.text}</Badge>

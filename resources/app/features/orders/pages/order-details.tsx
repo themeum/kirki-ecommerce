@@ -131,6 +131,9 @@ const OrderDetails = () => {
           <Flex gap={1}>
             <Badge variant={paymentBadge.variant}>{paymentBadge.text}</Badge>
             <Badge variant={fulfillmentBadge.variant}>{fulfillmentBadge.text}</Badge>
+            {isDefined(order.archived_at) && Boolean(order.archived_at) && (
+              <Badge variant="destructive">{__('Archived', 'kirki-ecommerce')}</Badge>
+            )}
           </Flex>
         </PageHeading>
         <PageContent>
