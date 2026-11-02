@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Integration\Migration;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Migration\Core\MigrationReverter;
 use Kirki\Ecommerce\App\Migration\Core\MigrationRunner;
 use Kirki\Ecommerce\App\Migration\Core\SourceRegistry;
 use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\WooCommerceSource;
@@ -11,6 +12,7 @@ use Kirki\Ecommerce\App\Migration\Models\MigrationRecordLedger;
 use Kirki\Ecommerce\App\Migration\Models\MigrationRun;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Services\CurrencyService;
+use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Tests\Support\Migration\BuildsWooCommerceFixtures;
@@ -37,7 +39,7 @@ class WooCommerceSettingsGroupTest extends RestTestCase
     protected $snapshot = [];
 
     /** The Kirki settings groups that the migration can change. */
-    protected const GROUPS = [OptionKeys::GENERAL_SETTINGS, OptionKeys::TAX_SETTINGS, OptionKeys::SHIPPING_SETTINGS];
+    protected const GROUPS = [OptionKeys::GENERAL_SETTINGS, OptionKeys::PRODUCT_SETTINGS, OptionKeys::CHECKOUT_SETTINGS, OptionKeys::TAX_SETTINGS, OptionKeys::SHIPPING_SETTINGS, OptionKeys::CURRENCY_SETTINGS, OptionKeys::EMAIL_SETTINGS];
 
     /**
      * Save the Kirki settings and set up WooCommerce fixtures.
@@ -79,7 +81,7 @@ class WooCommerceSettingsGroupTest extends RestTestCase
         MigrationRecordLedger::query()->delete();
         $this->reset_base_currency();
 
-        foreach (['woocommerce_currency', 'woocommerce_store_address', 'woocommerce_store_address_2', 'woocommerce_store_city', 'woocommerce_store_postcode', 'woocommerce_default_country', 'woocommerce_calc_taxes', 'woocommerce_prices_include_tax', 'woocommerce_paypal_settings', 'woocommerce_flat_rate_1_settings', 'woocommerce_flat_rate_3_settings', 'woocommerce_free_shipping_2_settings', 'woocommerce_local_pickup_4_settings'] as $option) {
+        foreach (['woocommerce_currency', 'woocommerce_store_address', 'woocommerce_store_address_2', 'woocommerce_store_city', 'woocommerce_store_postcode', 'woocommerce_default_country', 'woocommerce_calc_taxes', 'woocommerce_prices_include_tax', 'woocommerce_weight_unit', 'woocommerce_dimension_unit', 'woocommerce_enable_reviews', 'woocommerce_enable_review_rating', 'woocommerce_enable_guest_checkout', 'woocommerce_enable_coupons', 'woocommerce_notify_low_stock_amount', 'woocommerce_enable_signup_and_login_from_checkout', 'woocommerce_email_from_address', 'woocommerce_allowed_countries', 'woocommerce_specific_allowed_countries', 'woocommerce_all_except_countries', 'woocommerce_checkout_phone_field', 'woocommerce_checkout_company_field', 'woocommerce_tax_display_shop', 'woocommerce_currency_pos', 'woocommerce_price_thousand_sep', 'woocommerce_price_decimal_sep', 'woocommerce_customer_processing_order_settings', 'woocommerce_failed_order_settings', 'woocommerce_notify_low_stock', 'woocommerce_email_footer_text', 'woocommerce_email_base_color', 'woocommerce_paypal_settings', 'woocommerce_flat_rate_1_settings', 'woocommerce_flat_rate_3_settings', 'woocommerce_free_shipping_2_settings', 'woocommerce_local_pickup_4_settings'] as $option) {
             delete_option($option);
         }
 
@@ -89,79 +91,170 @@ class WooCommerceSettingsGroupTest extends RestTestCase
     }
 
     /**
-     * An empty Kirki address is filled, a filled one is kept, and the state is reported and not migrated.
+     * Units, reviews, checkout options and the low stock amount follow WooCommerce.
      *
      * @return void
      */
-    public function test_store_address_fills_empty_fields_and_keeps_filled_ones()
+    public function test_options_follow_woocommerce()
     {
-        Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->set(['store_address' => ['address_line_1' => '', 'address_line_2' => null, 'city' => 'Kept City', 'state' => null, 'postal_code' => null, 'country' => '']], false);
-        update_option('woocommerce_store_address', '1 Shop Way');
-        update_option('woocommerce_store_city', 'Woo City');
-        update_option('woocommerce_store_postcode', '12345');
-        update_option('woocommerce_default_country', 'US:CA');
+        Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->set(['weight_unit' => 'kg', 'dimension_unit' => 'm', 'is_enabled_reviews' => false, 'low_stock_threshold' => 0], false);
+        Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set(['is_allowed_guest_checkout' => false, 'has_apply_coupon_code' => true], false);
+        update_option('woocommerce_weight_unit', 'lbs');
+        update_option('woocommerce_dimension_unit', 'cm');
+        update_option('woocommerce_enable_reviews', 'yes');
+        update_option('woocommerce_enable_guest_checkout', 'yes');
+        update_option('woocommerce_enable_coupons', 'no');
+        update_option('woocommerce_notify_low_stock_amount', '4');
+
+        $this->migrate();
+
+        $product = Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->to_array();
+        $checkout = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->to_array();
+        $this->assertSame('lb', $product['weight_unit']);
+        $this->assertSame('cm', $product['dimension_unit']);
+        $this->assertTrue($product['is_enabled_reviews']);
+        $this->assertSame(4, $product['low_stock_threshold']);
+        $this->assertTrue($checkout['is_allowed_guest_checkout']);
+        $this->assertFalse($checkout['has_apply_coupon_code']);
+    }
+
+    /**
+     * A WooCommerce value replaces a changed Kirki value, a missing one keeps it, and an unsupported unit is reported.
+     *
+     * @return void
+     */
+    public function test_woocommerce_values_replace_and_missing_ones_keep_the_kirki_value()
+    {
+        Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->set(['weight_unit' => 'g', 'dimension_unit' => 'mm'], false);
+        update_option('woocommerce_weight_unit', 'lbs');
+        update_option('woocommerce_dimension_unit', 'yd');
+        update_option('woocommerce_enable_signup_and_login_from_checkout', 'yes');
 
         $progress = $this->migrate();
 
-        $address = Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array()['store_address'];
-        $this->assertSame('1 Shop Way', $address['address_line_1']);
-        $this->assertSame('Kept City', $address['city']);
-        $this->assertSame('12345', $address['postal_code']);
-        $this->assertSame('US', $address['country']);
-        $this->assertEmpty($address['state']);
+        $product = Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->to_array();
+        $this->assertSame('lb', $product['weight_unit']);
+        $this->assertSame('mm', $product['dimension_unit'], 'An unsupported unit leaves the Kirki value.');
         $notes = implode(' ', $progress['notes']);
-        $this->assertStringContainsString('"city" is already set', $notes);
-        $this->assertStringContainsString('state of the store address', $notes);
+        $this->assertStringContainsString('"yd" of WooCommerce is not supported', $notes);
+        $this->assertStringContainsString('create an account at checkout', $notes);
     }
 
     /**
-     * The store currency follows WooCommerce when Kirki has no products or orders, and the change is reported.
+     * The store email, selling countries, checkout fields, tax display, price format and emails follow WooCommerce.
      *
      * @return void
      */
-    public function test_currency_follows_woocommerce_on_an_empty_store()
+    public function test_extra_options_follow_woocommerce_and_revert()
     {
-        update_option('woocommerce_currency', 'EUR');
+        update_option('woocommerce_email_from_address', 'shop@example.com');
+        update_option('woocommerce_allowed_countries', 'specific');
+        update_option('woocommerce_specific_allowed_countries', ['DE', 'FR', 'ZZ']);
+        update_option('woocommerce_checkout_phone_field', 'optional');
+        update_option('woocommerce_tax_display_shop', 'incl');
+        update_option('woocommerce_currency_pos', 'right_space');
+        update_option('woocommerce_price_thousand_sep', ' ');
+        update_option('woocommerce_price_decimal_sep', ',');
+        update_option('woocommerce_customer_processing_order_settings', ['enabled' => 'no']);
+        update_option('woocommerce_notify_low_stock', 'no');
+        update_option('woocommerce_email_footer_text', 'Thanks from the shop');
+        update_option('woocommerce_email_base_color', '#112233');
+        $before_email = Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh()->to_array();
 
         $progress = $this->migrate();
 
-        $this->assertSame('EUR', Currency::base()->first()->code);
-        $this->assertStringContainsString('changed from USD to EUR', implode(' ', $progress['notes']));
+        $general = Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array();
+        $this->assertSame('shop@example.com', $general['store_email']);
+        $this->assertSame('selected-countries', $general['selling_location_type']);
+        $this->assertSame(['DE', 'FR'], $general['selling_countries']);
+        $this->assertStringContainsString('left out', implode(' ', $progress['notes']));
+        $this->assertSame('optional', Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->to_array()['checkout_configuration']['phone_number_validation']);
+        $this->assertTrue(Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->to_array()['is_enabled_display_inclusive_taxed_price']);
+        $currency = Settings::get(OptionKeys::CURRENCY_SETTINGS)->refresh()->to_array();
+        $this->assertSame('after', $currency['currency_position']);
+        $this->assertSame('space', $currency['thousand_separator']);
+        $this->assertSame(',', $currency['decimal_separator']);
+        $email = Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh()->to_array();
+        $this->assertFalse($email['customer_emails']['order_notifications']['order_processing']['is_enabled']);
+        $this->assertFalse($email['admin_emails']['inventory_notifications']['low_stock']['is_enabled']);
+        $this->assertTrue($email['admin_emails']['inventory_notifications']['out_of_stock']['is_enabled'], 'An email WooCommerce has no value for keeps the Kirki value.');
+        $this->assertSame('Thanks from the shop', $email['default_template']['footer']);
+        $this->assertSame('#112233', $email['default_template']['colors']['button']['background']);
+
+        $this->revert_latest_run();
+
+        $this->assertNotSame('shop@example.com', Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array()['store_email']);
+        $this->assertSame($before_email['default_template']['footer'], Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh()->to_array()['default_template']['footer']);
+        $this->assertSame('before', Settings::get(OptionKeys::CURRENCY_SETTINGS)->refresh()->to_array()['currency_position']);
     }
 
     /**
-     * The store currency is kept when Kirki already has products, and the report says so.
+     * A hidden checkout field and an unknown separator keep the Kirki value and are reported.
      *
      * @return void
      */
-    public function test_currency_is_kept_when_kirki_has_products()
+    public function test_values_kirki_cannot_hold_are_reported()
     {
-        $product = Product::create(['title' => 'Existing', 'slug' => 'existing-settings', 'status' => 'draft', 'created_by' => get_current_user_id(), 'updated_by' => get_current_user_id()]);
-        update_option('woocommerce_currency', 'EUR');
+        update_option('woocommerce_checkout_company_field', 'hidden');
+        update_option('woocommerce_price_thousand_sep', '\'');
 
         $progress = $this->migrate();
 
-        $this->assertSame('USD', Currency::base()->first()->code);
-        $this->assertStringContainsString('stays USD', implode(' ', $progress['notes']));
-
-        Product::query()->where('id', $product->id)->delete();
+        $notes = implode(' ', $progress['notes']);
+        $this->assertStringContainsString('is hidden in WooCommerce', $notes);
+        $this->assertStringContainsString('thousand separator of WooCommerce is not supported', $notes);
+        $this->assertSame(',', Settings::get(OptionKeys::CURRENCY_SETTINGS)->refresh()->to_array()['thousand_separator']);
     }
 
     /**
-     * Tax calculation is turned on to match WooCommerce, with its price mode.
+     * A zone with only a country selects every state of that country, and a country without states stays empty.
      *
      * @return void
      */
-    public function test_tax_calculation_is_turned_on()
+    public function test_country_only_zone_selects_all_states()
     {
-        Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->set(['is_tax_calculation_enabled' => false], false);
+        $without = null;
+
+        foreach (array_keys(CountryData::index()) as $code) {
+            if ($code !== 'US' && empty(CountryData::state_ids($code))) {
+                $without = $code;
+                break;
+            }
+        }
+
+        $zone = $this->insert_woo_row('woocommerce_shipping_zones', ['zone_name' => 'Mixed', 'zone_order' => 1]);
+        $this->insert_woo_row('woocommerce_shipping_zone_locations', ['zone_id' => $zone, 'location_code' => 'US', 'location_type' => 'country']);
+        $this->insert_woo_row('woocommerce_shipping_zone_locations', ['zone_id' => $zone, 'location_code' => $without, 'location_type' => 'country']);
+
+        $this->migrate();
+
+        $regions = array_column(Settings::get(OptionKeys::SHIPPING_SETTINGS)->refresh()->to_array()['shipping_zones'][0]['regions'], null, 'country');
+        $this->assertNotEmpty(CountryData::state_ids('US'));
+        $this->assertSame(CountryData::state_ids('US'), $regions['US']['states']);
+        $this->assertSame([], $regions[$without]['states']);
+    }
+
+    /**
+     * The currency, the store address and the tax switches are left to the onboarding wizard.
+     *
+     * @return void
+     */
+    public function test_store_facts_are_not_migrated()
+    {
+        $before = [
+            Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array(),
+            Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->to_array()['is_tax_inclusive_price'] ?? false,
+        ];
+        update_option('woocommerce_currency', 'EUR');
+        update_option('woocommerce_store_city', 'Woo City');
         update_option('woocommerce_calc_taxes', 'yes');
         update_option('woocommerce_prices_include_tax', 'yes');
 
         $this->migrate();
 
-        $this->assertTrue((bool) Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array()['is_tax_calculation_enabled']);
-        $this->assertTrue((bool) Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->to_array()['is_tax_inclusive_price']);
+        $this->assertSame('USD', Currency::base()->first()->code);
+        $this->assertSame($before[0], Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array());
+        $this->assertSame($before[1], Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->to_array()['is_tax_inclusive_price'] ?? false);
     }
 
     /**
@@ -189,11 +282,11 @@ class WooCommerceSettingsGroupTest extends RestTestCase
     }
 
     /**
-     * A rate for a state, another tax class or a region that Kirki already has is skipped and reported.
+     * A rate for a state or another tax class is skipped and reported, and the Kirki regions are replaced.
      *
      * @return void
      */
-    public function test_tax_rates_that_cannot_be_kept_exactly_are_skipped()
+    public function test_tax_rates_that_cannot_be_kept_exactly_are_skipped_and_replace_the_regions()
     {
         Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->set(['tax_regions' => [['code' => 'GB', 'name' => 'United Kingdom', 'type' => 'general', 'is_enabled' => true, 'central_product_tax' => 5]]], false);
         $this->tax_rate(['tax_rate_country' => 'US', 'tax_rate_state' => 'CA', 'tax_rate' => '7.25']);
@@ -205,10 +298,24 @@ class WooCommerceSettingsGroupTest extends RestTestCase
         $reasons = implode(' ', array_column(MigrationRun::query()->first()->skipped_items, 'reason'));
         $this->assertStringContainsString('state is not migrated', $reasons);
         $this->assertStringContainsString('standard tax class', $reasons);
-        $this->assertStringContainsString('already has a tax region', $reasons);
         $regions = Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->to_array()['tax_regions'];
         $this->assertCount(1, $regions);
-        $this->assertEquals(5, $regions[0]['central_product_tax'], 'The existing region is unchanged.');
+        $this->assertEquals(20, $regions[0]['central_product_tax'], 'The WooCommerce rate replaces the existing region.');
+    }
+
+    /**
+     * Kirki lists stay when WooCommerce has no tax rates or shipping zones.
+     *
+     * @return void
+     */
+    public function test_kirki_lists_stay_when_woocommerce_has_none()
+    {
+        $regions = [['code' => 'GB', 'name' => 'United Kingdom', 'type' => 'general', 'is_enabled' => true, 'central_product_tax' => 5]];
+        Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->set(['tax_regions' => $regions], false);
+
+        $this->migrate();
+
+        $this->assertCount(1, Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->to_array()['tax_regions']);
     }
 
     /**
@@ -350,5 +457,20 @@ class WooCommerceSettingsGroupTest extends RestTestCase
         $progress['notes'] = $notes;
 
         return $progress;
+    }
+
+    /**
+     * Revert the latest run of the source.
+     *
+     * @return void
+     */
+    protected function revert_latest_run(): void
+    {
+        $reverter = new MigrationReverter(new SourceRegistry());
+        $run = $reverter->start($this->runner->latest_run('woocommerce'));
+
+        do {
+            $progress = $reverter->next_chunk($run);
+        } while (!$progress['done']);
     }
 }

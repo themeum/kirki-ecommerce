@@ -1,10 +1,11 @@
 import { Check } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 import Alert from '@/components/ui/alert';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import Spinner from '@/components/ui/spinner';
+import ProgressRing from '@/components/ui/progress-ring';
 import Text from '@/components/ui/text';
 import StepLayout from '@/features/onboarding/components/step-layout';
 import type { SetupRowState } from '@/features/onboarding/hooks/use-staggered-rows';
@@ -15,65 +16,77 @@ import { __ } from '@/wpi18n';
 type SetupSummaryRow = {
   label: string;
   value: string;
+  percent?: number;
 };
+
+type SetupFooterMode = 'hidden' | 'retry-setup' | 'retry-migration' | 'dashboard-only' | 'default';
 
 type SetupCompleteStepProps = {
   rows: SetupSummaryRow[];
   rowStates: SetupRowState[];
-  isReady: boolean;
-  isFailed: boolean;
+  footerMode: SetupFooterMode;
   errorMessage?: string;
   onRetry: () => void;
   onAddFirstProduct: () => void;
   onGoToDashboard: () => void;
-  migrateLabel?: string;
-  onMigrate?: () => void;
 };
 
 const SetupCompleteStep = ({
   rows,
   rowStates,
-  isReady,
-  isFailed,
+  footerMode,
   errorMessage,
   onRetry,
   onAddFirstProduct,
   onGoToDashboard,
-  migrateLabel,
-  onMigrate,
 }: SetupCompleteStepProps) => {
   return (
     <StepLayout
       title={__('Your store is almost ready', 'kirki-ecommerce')}
       subtitle={__("Here's what we set up for you.", 'kirki-ecommerce')}
       footer={
-        isFailed ? (
-          <Button size="lg" onClick={onRetry}>
-            {__('Try again', 'kirki-ecommerce')}
-          </Button>
-        ) : (
-          <>
+        <>
+          {footerMode === 'retry-setup' && (
+            <Button size="lg" onClick={onRetry}>
+              {__('Try again', 'kirki-ecommerce')}
+            </Button>
+          )}
+          {footerMode === 'retry-migration' && (
             <Grid columns={2} gap={3}>
-              <Button size="lg" onClick={onAddFirstProduct} disabled={!isReady}>
-                {__('Add your first product', 'kirki-ecommerce')}
+              <Button size="lg" onClick={onRetry}>
+                {__('Retry', 'kirki-ecommerce')}
               </Button>
-              <Button variant="outline" size="lg" onClick={onGoToDashboard} disabled={!isReady}>
+              <Button variant="outline" size="lg" onClick={onGoToDashboard}>
                 {__('Go to Dashboard', 'kirki-ecommerce')}
               </Button>
             </Grid>
-            {onMigrate && migrateLabel && (
-              <Button variant="tertiary" size="lg" onClick={onMigrate} disabled={!isReady}>
-                {migrateLabel}
+          )}
+          {footerMode === 'dashboard-only' && (
+            <Button size="lg" onClick={onGoToDashboard}>
+              {__('Go to Dashboard', 'kirki-ecommerce')}
+            </Button>
+          )}
+          {footerMode === 'default' && (
+            <Grid columns={2} gap={3}>
+              <Button size="lg" onClick={onAddFirstProduct}>
+                {__('Add your first product', 'kirki-ecommerce')}
               </Button>
-            )}
-          </>
-        )
+              <Button variant="outline" size="lg" onClick={onGoToDashboard}>
+                {__('Go to Dashboard', 'kirki-ecommerce')}
+              </Button>
+            </Grid>
+          )}
+        </>
       }
     >
       <Flex direction="column" gap={2}>
         {rows.map((row, index) => (
           <Flex key={row.label} gap={3} align="center">
-            <SetupRowIcon state={rowStates[index] ?? 'waiting'} />
+            <SetupRowIcon
+              state={rowStates[index] ?? 'waiting'}
+              percent={row.percent}
+              label={row.label}
+            />
             <Text weight="medium" cssOverride={styles.rowLabel}>
               {row.label}
             </Text>
@@ -84,20 +97,46 @@ const SetupCompleteStep = ({
           </Flex>
         ))}
       </Flex>
-      {isFailed && (
-        <Alert type="fail" text={errorMessage ?? __('Store setup failed.', 'kirki-ecommerce')} />
-      )}
+      {errorMessage !== undefined && <Alert type="fail" text={errorMessage} />}
     </StepLayout>
   );
 };
 
 SetupCompleteStep.displayName = 'SetupCompleteStep';
 
-const SetupRowIcon = ({ state }: { state: SetupRowState }) => {
+type TimedRingProps = {
+  label: string;
+};
+
+const TimedRing = ({ label }: TimedRingProps) => {
+  const [percent, setPercent] = useState(0);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setPercent(100));
+
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  return <ProgressRing percent={percent} label={label} />;
+};
+
+TimedRing.displayName = 'TimedRing';
+
+type SetupRowIconProps = {
+  state: SetupRowState;
+  percent?: number;
+  label: string;
+};
+
+const SetupRowIcon = ({ state, percent, label }: SetupRowIconProps) => {
   if (state === 'in-progress') {
     return (
       <span css={scoped(styles.icon)}>
-        <Spinner cssOverride={styles.spinner} />
+        {percent === undefined ? (
+          <TimedRing label={label} />
+        ) : (
+          <ProgressRing percent={percent} label={label} />
+        )}
       </span>
     );
   }
@@ -130,7 +169,7 @@ const SetupRowIcon = ({ state }: { state: SetupRowState }) => {
 SetupRowIcon.displayName = 'SetupRowIcon';
 
 export default SetupCompleteStep;
-export type { SetupSummaryRow };
+export type { SetupFooterMode, SetupSummaryRow };
 
 const styles = defineStyles({
   icon: {
@@ -144,15 +183,6 @@ const styles = defineStyles({
   },
   rowLabel: {
     whiteSpace: 'nowrap',
-  },
-  spinner: {
-    width: '20px',
-    height: '20px',
-    color: theme.colors.icon.brand,
-    '& svg': {
-      width: '20px',
-      height: '20px',
-    },
   },
   success: {
     backgroundColor: theme.colors.background.fillSuccessSecondary,

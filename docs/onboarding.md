@@ -33,8 +33,9 @@ Activate the plugin from **Plugins**. The next admin page load opens the wizard 
 | **Go to Dashboard** | Opens the plugin's home route (`/`). |
 | **Click here to load sample data!** (link below the card) | Adds demo products and a starter coupon, then opens the products list (`/products`). |
 
-All three are disabled until every summary row shows as complete. Each one replaces
-the wizard in the browser history, so Back does not return to it.
+No action shows while setup or a migration runs. Each action replaces the wizard in
+the browser history, so Back does not return to it. When WooCommerce is found and
+migrated, only **Go to Dashboard** shows (section 2.2).
 
 ## 2. The steps
 
@@ -64,6 +65,39 @@ the wizard in the browser history, so Back does not return to it.
   browser tab (`sessionStorage` key `kirki-ecommerce:onboarding-draft`). The draft
   is cleared when the store is created. A draft saved on Store Tax whose tax answer
   is no longer *Yes* reopens on Essentials.
+
+### 2.1 Prefill from WooCommerce
+
+When WooCommerce is installed and its version is supported (7.0 or higher), the
+wizard reads the store facts from `GET /onboarding/defaults` and uses them as the
+first answers. Every field stays editable.
+
+| Field | Read from | When missing |
+|---|---|---|
+| Store name | WordPress site title (`blogname`) | Empty |
+| Industry | First entry of `woocommerce_onboarding_profile['industry']`, mapped to the Kirki list | Empty |
+| Country | `woocommerce_default_country` (the state part is dropped) | Browser detection |
+| Address lines, city, postcode | `woocommerce_store_address`, `_2`, `_city`, `_postcode`, only with a country | Empty |
+| Currency | `woocommerce_currency` | Country currency |
+| Collect sales tax? | `woocommerce_calc_taxes` | *No, not yet* |
+| Prices on your products | `woocommerce_prices_include_tax`, when tax is collected | *Excluding Tax* |
+
+A country or currency that Kirki does not know is ignored. A saved draft (see
+below) wins over the prefill. The wizard waits for this read before it shows step 1.
+
+### 2.2 The final screen with WooCommerce
+
+When WooCommerce is found, the final screen adds a last row, **Migrate from
+WooCommerce**, after Configurations. Once the setup rows are done it migrates every
+group with no choice screen (see [migration.md](migration.md)).
+
+- Each row shows a ring that fills, then a check. The Migrate row ring shows the real
+  migration percent.
+- While it runs, the top bar reads "Migrating · <current step>" and the right label
+  stays "Setup Complete".
+- When it ends, only **Go to Dashboard** shows, and the sample data link is hidden.
+- When it fails, the screen shows the error with **Retry** and **Go to Dashboard**.
+- **Revert** is not shown here. It stays on the migration page.
 
 ## 3. What "Create Store" does
 
@@ -182,7 +216,7 @@ dataset. A unit test fails if `blocs.EU` does not match that dataset.
 | Tax profiles | *Standard* (default) plus the industry's profiles, such as *Food*. Created even when the merchant does not collect tax. | A profile with the same name exists |
 | Legal pages | Published *Terms & Conditions*, *Privacy Policy* and *Refund & Returns Policy* pages with placeholder text | A page with the slug exists. A **published** WordPress privacy page (Settings → Privacy) is used in place of a new privacy page. |
 | Consents | Terms (checkout, mandatory), Privacy (signup and checkout), Marketing emails (signup and checkout, optional). Privacy is a mandatory checkbox where the country has a GDPR-style law, and display text elsewhere. | Any consent exists |
-| Shipping zones | *Domestic* (the store country), then *Regional* (the other members of the country's bloc, if it has one). There is no zone for the rest of the world. | Any zone exists |
+| Shipping zones | *Domestic* (the store country), then *Regional* (the other members of the country's bloc, if it has one). There is no zone for the rest of the world. A region with a country and no state is saved with every state of that country selected. | Any zone exists |
 | Tax region | One enabled region for the store country (see 4.6) | The merchant does not collect tax, no region applies, or any region exists |
 
 Each kind checks its own target. A kind that fails is logged, and the other
@@ -375,3 +409,13 @@ from step one.
   data come from the plugin itself. Nothing is sent off the site.
 - **Shorter.** Three steps (four when collecting tax), with only store name, country
   and currency required.
+- **Prefill from WooCommerce.** WooCommerce's wizard does not read another plugin's
+  store. This one reads WooCommerce only. It has no import from other plugins
+  and no industry guess from product categories.
+- **Industry is a best effort.** WooCommerce keeps its industry in a private profile
+  option. Only six of its industries map to a Kirki industry; the others leave the
+  field empty.
+- **The state of the address is not prefilled.** Kirki names states by its own ids.
+- **The migration is all or nothing in the wizard.** The choice of groups exists only
+  on the migration page.
+

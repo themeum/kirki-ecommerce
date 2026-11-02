@@ -1,5 +1,4 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useEffect } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -22,43 +21,31 @@ const { createStore, sampleData } = vi.hoisted(() => ({
   },
 }));
 
+const { defaults } = vi.hoisted(() => ({
+  defaults: { data: undefined as { source: string; values: Record<string, string> } | undefined },
+}));
+
 const { migration } = vi.hoisted(() => ({
   migration: {
     sources: [] as { id: string; label: string; version: { supported: boolean } }[],
+    state: {
+      status: 'running',
+      percent: 40,
+      detail: 'Products 1-30 of 100',
+      errorMessage: undefined as string | undefined,
+      retry: vi.fn(),
+    },
   },
 }));
 
 vi.mock('@/features/migration', () => ({
   useMigrationSourcesQuery: () => ({ data: migration.sources }),
-  MigrationFlow: ({
-    onProgressChange,
-    onSkip,
-    onFinish,
-  }: {
-    onProgressChange: (progress: { percent: number; title: string; message: string }) => void;
-    onSkip: () => void;
-    onFinish: () => void;
-  }) => {
-    useEffect(() => {
-      onProgressChange({
-        percent: 40,
-        title: 'Migrate from WooCommerce',
-        message: 'Migrating Products 1-30 of 100',
-      });
-    }, [onProgressChange]);
-
-    return (
-      <div>
-        <p>Migration flow</p>
-        <button onClick={onSkip}>Leave migration</button>
-        <button onClick={onFinish}>Finish migration</button>
-      </div>
-    );
-  },
+  useAutoMigration: () => migration.state,
 }));
 
 vi.mock('@/features/onboarding/services/onboarding', () => ({
   useCreateStoreMutation: () => createStore,
+  useOnboardingDefaultsQuery: () => ({ data: defaults.data, isPending: false }),
 }));
 
 vi.mock('@/features/home', () => ({
@@ -70,11 +57,11 @@ vi.mock('@/features/home', () => ({
 }));
 
 vi.mock('@/features/settings', () => ({
-  useAllCurrenciesQuery: () => ({ data: [] }),
+  useAllCurrenciesQuery: () => ({ data: [{ code: 'EUR', name: 'Euro', symbol: '€' }] }),
 }));
 
 vi.mock('@/services/country', () => ({
-  useCountriesQuery: () => ({ data: [] }),
+  useCountriesQuery: () => ({ data: [{ code: 'DE', name: 'Germany', currency: 'EUR' }] }),
 }));
 
 const essentialsValues = { store_name: 'Acme', country: 'BD', currency: 'USD' };
@@ -89,7 +76,8 @@ const waitForSetupReady = () =>
     { timeout: 3000 },
   );
 
-const getProgress = () => Number(screen.getByRole('progressbar').getAttribute('aria-valuenow'));
+const getProgress = () =>
+  Number(document.querySelector('div[role="progressbar"]')?.getAttribute('aria-valuenow'));
 
 const renderWizard = () =>
   render(
@@ -110,6 +98,28 @@ describe('onboarding wizard', () => {
     createStore.isSuccess = false;
     createStore.mutate.mockReset();
     migration.sources = [];
+    migration.state.status = 'running';
+    migration.state.errorMessage = undefined;
+    migration.state.retry.mockReset();
+    defaults.data = undefined;
+  });
+
+  it('prefills the first step from WooCommerce', async () => {
+    defaults.data = { source: 'woocommerce', values: { store_name: 'Woo Shop' } };
+
+    renderWizard();
+
+    expect(await screen.findByDisplayValue('Woo Shop')).toBeInTheDocument();
+  });
+
+  it('keeps the value from a saved draft over the WooCommerce one', async () => {
+    defaults.data = { source: 'woocommerce', values: { store_name: 'Woo Shop' } };
+    startFromDraft(0, { store_name: 'My own name' });
+
+    renderWizard();
+
+    expect(await screen.findByDisplayValue('My own name')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Woo Shop')).not.toBeInTheDocument();
   });
 
   it('clears a step error as soon as the field is corrected', async () => {
@@ -199,7 +209,7 @@ describe('onboarding wizard', () => {
     expect(screen.getByText('Setup the essentials')).toBeInTheDocument();
   });
 
-  it('hides the step number and disables the sample data link while setup runs', async () => {
+  it('hides the step number and every action while setup runs', async () => {
     startFromDraft(2, essentialsValues);
     renderWizard();
 
@@ -209,8 +219,12 @@ describe('onboarding wizard', () => {
     expect(screen.getByText('Setup Complete')).toBeInTheDocument();
     expect(getProgress()).toBe(100);
     expect(screen.queryByText(/^Step \d/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Click here to load sample data!' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Add your first product' })).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: 'Add your first product' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Click here to load sample data!' }),
+    ).not.toBeInTheDocument();
     expect(createStore.mutate).toHaveBeenCalledTimes(1);
   });
 
@@ -267,81 +281,87 @@ describe('onboarding wizard', () => {
   });
 
   it('lists tax in the configurations when tax is collected', async () => {
-    startFromDraft(3, { ...essentialsValues, is_tax_collected: true, is_tax_inclusive_price: true });
+    startFromDraft(3, {
+      ...essentialsValues,
+      is_tax_collected: true,
+      is_tax_inclusive_price: true,
+    });
     renderWizard();
 
     fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
 
     expect(await screen.findByText('Essentials, Shipping, Tax, Legal pages')).toBeInTheDocument();
   });
-  it('hides the migration button when no source plugin is detected', async () => {
+  const finishSetup = () => {
     createStore.isSuccess = true;
     startFromDraft(2, essentialsValues);
     renderWizard();
 
     fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+  };
+
+  it('has no migrate row when no source plugin is detected', async () => {
+    finishSetup();
     await waitForSetupReady();
 
-    expect(screen.queryByRole('button', { name: /Migrate from/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('Migrate from WooCommerce')).not.toBeInTheDocument();
   });
 
-  it('hides the migration button when the source version is not supported', async () => {
-    createStore.isSuccess = true;
-    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: false } }];
-    startFromDraft(2, essentialsValues);
-    renderWizard();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+  it('has no migrate row when the source version is not supported', async () => {
+    migration.sources = [
+      { id: 'woocommerce', label: 'WooCommerce', version: { supported: false } },
+    ];
+    finishSetup();
     await waitForSetupReady();
 
-    expect(screen.queryByRole('button', { name: /Migrate from/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('Migrate from WooCommerce')).not.toBeInTheDocument();
   });
 
-  it('shows the migration button when WooCommerce is detected, and opens the migration with its own progress bar', async () => {
-    createStore.isSuccess = true;
+  it('shows the migrate row and the migration text while the migration runs, with no actions', async () => {
     migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
-    startFromDraft(2, essentialsValues);
-    renderWizard();
+    finishSetup();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
-    await waitForSetupReady();
-
-    fireEvent.click(await screen.findByRole('button', { name: 'Migrate from WooCommerce' }));
-
-    expect(await screen.findByText('Migration flow')).toBeInTheDocument();
-    expect(screen.queryByText('Your store is almost ready')).not.toBeInTheDocument();
+    expect(await screen.findByText('Migrate from WooCommerce')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Migrating · Products 1-30 of 100', {}, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Setup Complete')).toBeInTheDocument();
     expect(getProgress()).toBe(40);
-    expect(screen.getByText('Migrating Products 1-30 of 100')).toBeInTheDocument();
-    expect(screen.getByText('Migrate from WooCommerce')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Click here to load sample data!' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('returns to the completion screen when the migration is skipped', async () => {
-    createStore.isSuccess = true;
+  it('shows only Go to Dashboard after the migration is done', async () => {
+    migration.state.status = 'done';
     migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
-    startFromDraft(2, essentialsValues);
-    renderWizard();
+    finishSetup();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
-    await waitForSetupReady();
-    fireEvent.click(await screen.findByRole('button', { name: 'Migrate from WooCommerce' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Leave migration' }));
+    const dashboard = await screen.findByRole(
+      'button',
+      { name: 'Go to Dashboard' },
+      { timeout: 3000 },
+    );
 
-    expect(await screen.findByText('Your store is almost ready')).toBeInTheDocument();
-    expect(getProgress()).toBe(100);
-  });
+    expect(
+      screen.queryByRole('button', { name: 'Add your first product' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Click here to load sample data!' }),
+    ).not.toBeInTheDocument();
 
-  it('goes to the dashboard when the migration is finished', async () => {
-    createStore.isSuccess = true;
-    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
-    startFromDraft(2, essentialsValues);
-    renderWizard();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
-    await waitForSetupReady();
-    fireEvent.click(await screen.findByRole('button', { name: 'Migrate from WooCommerce' }));
-    fireEvent.click(await screen.findByRole('button', { name: 'Finish migration' }));
-
+    fireEvent.click(dashboard);
     expect(await screen.findByText('Dashboard')).toBeInTheDocument();
+  });
+
+  it('shows the error, Retry and Go to Dashboard when the migration fails', async () => {
+    migration.state.status = 'failed';
+    migration.state.errorMessage = 'Boom';
+    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
+    finishSetup();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Retry' }, { timeout: 3000 }));
+
+    expect(screen.getByText('Boom')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Go to Dashboard' })).toBeInTheDocument();
+    expect(migration.state.retry).toHaveBeenCalledTimes(1);
   });
 });

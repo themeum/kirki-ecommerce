@@ -53,6 +53,7 @@ Route::get('/payment/webhook/{provider_id}', [WebhookController::class, 'handle_
 
 Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], function () {
     // Onboarding
+    Route::get('/onboarding/defaults', [OnboardingController::class, 'defaults']);
     Route::post('/onboarding', [OnboardingController::class, 'store']);
     Route::post('/onboarding/sample-data', [OnboardingController::class, 'import_sample_data']);
 

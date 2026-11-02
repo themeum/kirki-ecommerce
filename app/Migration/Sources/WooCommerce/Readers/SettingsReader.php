@@ -18,6 +18,25 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 class SettingsReader
 {
     public const STORE = 1;
+
+    /**
+     * Kirki email paths, keyed to the WooCommerce email id or, with a leading "!", to a stock alert option.
+     * The enabled flag of the email is the one that is read.
+     */
+    protected const EMAILS = [
+        'customer_emails.order_notifications.order_on_hold' => 'customer_on_hold_order',
+        'customer_emails.order_notifications.order_processing' => 'customer_processing_order',
+        'customer_emails.order_notifications.order_completed' => 'customer_completed_order',
+        'customer_emails.order_notifications.order_note' => 'customer_note',
+        'customer_emails.user_notifications.reset_password' => 'customer_reset_password',
+        'customer_emails.user_notifications.new_account' => 'customer_new_account',
+        'admin_emails.order_notifications.new_order' => 'new_order',
+        'admin_emails.order_notifications.cancelled_order' => 'cancelled_order',
+        'admin_emails.order_notifications.payment_failed' => 'failed_order',
+        'admin_emails.inventory_notifications.low_stock' => '!woocommerce_notify_low_stock',
+        'admin_emails.inventory_notifications.out_of_stock' => '!woocommerce_notify_no_stock',
+    ];
+
     public const TAX_OFFSET = 10000000;
     public const ZONE_OFFSET = 20000000;
 
@@ -67,7 +86,7 @@ class SettingsReader
     }
 
     /**
-     * Read the store settings that Kirki has a matching setting for.
+     * Read the store options that Kirki has a matching setting for. An option that WooCommerce has not saved is null.
      *
      * @since 1.0.0
      *
@@ -75,22 +94,147 @@ class SettingsReader
      */
     protected function store()
     {
-        $default = (string) get_option('woocommerce_default_country', '');
-        $parts = explode(':', $default);
+        $low_stock = get_option('woocommerce_notify_low_stock_amount', null);
 
         return [
             'id' => static::STORE,
             'kind' => 'store',
-            'currency' => strtoupper((string) get_option('woocommerce_currency', '')),
-            'address_line_1' => (string) get_option('woocommerce_store_address', ''),
-            'address_line_2' => (string) get_option('woocommerce_store_address_2', ''),
-            'city' => (string) get_option('woocommerce_store_city', ''),
-            'postal_code' => (string) get_option('woocommerce_store_postcode', ''),
-            'country' => strtoupper($parts[0]),
-            'has_state' => isset($parts[1]) && $parts[1] !== '',
-            'calc_taxes' => get_option('woocommerce_calc_taxes') === 'yes',
-            'prices_include_tax' => get_option('woocommerce_prices_include_tax') === 'yes',
+            'weight_unit' => $this->text('woocommerce_weight_unit'),
+            'dimension_unit' => $this->text('woocommerce_dimension_unit'),
+            'reviews' => $this->flag('woocommerce_enable_reviews'),
+            'ratings' => $this->flag('woocommerce_enable_review_rating'),
+            'guest_checkout' => $this->flag('woocommerce_enable_guest_checkout'),
+            'coupons' => $this->flag('woocommerce_enable_coupons'),
+            'low_stock_amount' => is_numeric($low_stock) && (int) $low_stock > 0 ? (int) $low_stock : null,
+            'signup_at_checkout' => get_option('woocommerce_enable_signup_and_login_from_checkout') === 'yes',
+            'store_email' => $this->email_address(),
+            'selling_mode' => $this->text('woocommerce_allowed_countries'),
+            'selling_countries' => $this->countries(),
+            'phone_field' => $this->text('woocommerce_checkout_phone_field'),
+            'company_field' => $this->text('woocommerce_checkout_company_field'),
+            'tax_display_shop' => $this->text('woocommerce_tax_display_shop'),
+            'price_position' => $this->text('woocommerce_currency_pos'),
+            'thousand_separator' => $this->text('woocommerce_price_thousand_sep'),
+            'decimal_separator' => $this->text('woocommerce_price_decimal_sep'),
+            'emails' => $this->emails(),
+            'email_footer' => $this->text('woocommerce_email_footer_text'),
+            'email_colors' => $this->email_colors(),
         ];
+    }
+
+    /**
+     * Read the sender address of WooCommerce emails.
+     *
+     * @since 1.0.0
+     *
+     * @return string|null Null when it is not saved or not a valid email.
+     */
+    protected function email_address()
+    {
+        $address = $this->text('woocommerce_email_from_address');
+
+        return $address !== null && is_email($address) ? $address : null;
+    }
+
+    /**
+     * Read the country codes that the allowed-countries option points to.
+     *
+     * @since 1.0.0
+     *
+     * @return string[]
+     */
+    protected function countries()
+    {
+        $mode = get_option('woocommerce_allowed_countries', 'all');
+        $name = $mode === 'specific' ? 'woocommerce_specific_allowed_countries' : 'woocommerce_all_except_countries';
+        $codes = $mode === 'all' ? [] : get_option($name, []);
+
+        return is_array($codes) ? array_values(array_map('strtoupper', array_filter($codes, 'is_string'))) : [];
+    }
+
+    /**
+     * Read the enabled flag of each WooCommerce email that Kirki has a matching email for.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, bool> Flags keyed by the Kirki email path. An email WooCommerce has not saved is left out.
+     */
+    protected function emails()
+    {
+        $flags = [];
+
+        foreach (static::EMAILS as $path => $source) {
+            if ($source[0] === '!') {
+                $enabled = $this->flag(substr($source, 1));
+            } else {
+                $saved = get_option('woocommerce_' . $source . '_settings', null);
+                $enabled = is_array($saved) && isset($saved['enabled']) ? $saved['enabled'] === 'yes' : null;
+            }
+
+            if ($enabled !== null) {
+                $flags[$path] = $enabled;
+            }
+        }
+
+        return $flags;
+    }
+
+    /**
+     * Read the WooCommerce email colors that are valid hex colors.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string> Colors keyed by the Kirki template path.
+     */
+    protected function email_colors()
+    {
+        $options = [
+            'colors.button.background' => 'woocommerce_email_base_color',
+            'colors.background.outer_area' => 'woocommerce_email_background_color',
+            'colors.background.email_body' => 'woocommerce_email_body_background_color',
+            'colors.typography.body' => 'woocommerce_email_text_color',
+        ];
+        $colors = [];
+
+        foreach ($options as $path => $name) {
+            $value = $this->text($name);
+
+            if ($value !== null && preg_match('/^#[0-9a-f]{6}$/i', $value)) {
+                $colors[$path] = $value;
+            }
+        }
+
+        return $colors;
+    }
+
+    /**
+     * Read a yes/no option.
+     *
+     * @since 1.0.0
+     *
+     * @param string $name The option name.
+     * @return bool|null Null when the option is not saved.
+     */
+    protected function flag(string $name)
+    {
+        $value = get_option($name, null);
+
+        return $value === null ? null : $value === 'yes';
+    }
+
+    /**
+     * Read a text option.
+     *
+     * @since 1.0.0
+     *
+     * @param string $name The option name.
+     * @return string|null Null when the option is not saved or empty.
+     */
+    protected function text(string $name)
+    {
+        $value = get_option($name, null);
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 
     /**

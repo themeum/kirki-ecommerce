@@ -25,6 +25,7 @@ use Kirki\Ecommerce\App\Models\OrderActivity;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Supports\OrderNumberGenerator;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -183,6 +184,7 @@ class OrdersGroup extends WooCommerceGroup
         $customer_id = $this->customer_id($mapped['customer'], (int) $row['id'], $ledger);
         $order = Order::create(array_merge($fields, [
             'uuid' => wp_generate_uuid4(),
+            'order_number' => OrderNumberGenerator::generate_order_number((int) $row['id']),
             'customer_id' => $customer_id,
             'is_manual' => false,
             'is_refund_initiated' => !empty($mapped['refunds']),

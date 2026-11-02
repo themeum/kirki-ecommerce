@@ -25,6 +25,8 @@ use Kirki\Ecommerce\App\Models\OrderTax;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Queue\QueueFake;
 use Kirki\Ecommerce\Framework\Queue\QueueManager;
 use Kirki\Ecommerce\Framework\Supports\Facades\Queue;
@@ -109,7 +111,7 @@ class WooCommerceOrdersGroupTest extends RestTestCase
         $map = new RecordLedger('woocommerce');
         $order = Order::find($map->resolve('order', $order_id));
 
-        $this->assertSame((string) $order_id, $order->order_number);
+        $this->assertSame(str_pad((string) $order_id, 6, '0', STR_PAD_LEFT), $order->order_number);
         $this->assertSame('paid_unfulfilled', $order->order_status);
         $this->assertSame('paid', $order->payment_status);
         $this->assertSame('unfulfilled', $order->fulfillment_status);
@@ -160,6 +162,28 @@ class WooCommerceOrdersGroupTest extends RestTestCase
         $this->assertSame('partial', $refund->refund_type);
         $this->assertSame('completed', $refund->status);
         $this->assertTrue((bool) $order->is_refund_initiated);
+    }
+
+    /**
+     * The order number follows the order number prefix and suffix of the general settings.
+     *
+     * @return void
+     */
+    public function test_order_number_uses_the_prefix_and_suffix_of_the_general_settings()
+    {
+        $settings = Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh();
+        $previous = $settings->to_array()['order_number'] ?? [];
+        $settings->set(['order_number' => ['prefix' => 'KE-', 'suffix' => '-W']], false);
+
+        try {
+            $order_id = $this->legacy_order($this->order_attributes([]), [], [], []);
+            $this->migrate(['orders']);
+            $order = Order::find((new RecordLedger('woocommerce'))->resolve('order', $order_id));
+        } finally {
+            Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->set(['order_number' => $previous], false);
+        }
+
+        $this->assertSame('KE-' . str_pad((string) $order_id, 6, '0', STR_PAD_LEFT) . '-W', $order->order_number);
     }
 
     /**

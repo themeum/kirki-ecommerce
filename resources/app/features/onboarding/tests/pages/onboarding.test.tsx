@@ -19,6 +19,7 @@ vi.mock('@/features/onboarding/services/onboarding', () => ({
     data: undefined,
     mutate: vi.fn(),
   }),
+  useOnboardingDefaultsQuery: () => ({ data: undefined, isPending: false }),
 }));
 
 vi.mock('@/features/home', () => ({
@@ -31,7 +32,13 @@ vi.mock('@/features/home', () => ({
 
 vi.mock('@/features/migration', () => ({
   useMigrationSourcesQuery: () => ({ data: [] }),
-  MigrationFlow: () => null,
+  useAutoMigration: () => ({
+    status: 'waiting',
+    percent: 0,
+    detail: '',
+    errorMessage: undefined,
+    retry: vi.fn(),
+  }),
 }));
 
 vi.mock('@/features/settings', () => ({

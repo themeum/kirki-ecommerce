@@ -4,31 +4,35 @@ namespace Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Groups;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\CurrencyPosition;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Constants\SellingLocationType;
 use Kirki\Ecommerce\App\Migration\Core\RecordLedger;
 use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Mappers\ShippingZoneMapper;
 use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Mappers\TaxRateMapper;
 use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Readers\SettingsReader;
 use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\WooCommerceDatabase;
-use Kirki\Ecommerce\App\Models\Currency;
-use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Services\CurrencyService;
+use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
-use function Kirki\Ecommerce\Framework\app;
-
 /**
- * Migrates the WooCommerce store settings, tax rates and shipping zones.
+ * Migrates the WooCommerce units, product, checkout, store, price format and email options, tax rates and shipping zones.
  *
- * It runs before the groups that hold prices, because prices are converted in the store currency.
- * It never replaces a setting the merchant has already filled in: empty Kirki settings are filled,
- * and a setting that differs is kept and reported. Payment gateway credentials are not read.
+ * The currency, store address and tax switches are set by the onboarding wizard, so this group does not read them.
+ * A WooCommerce value always replaces the Kirki value. A setting that WooCommerce does not have keeps its Kirki value.
+ * Tax rates and shipping zones replace the whole Kirki list when WooCommerce has any. Payment gateway credentials are
+ * not read.
  *
  * @since 1.0.0
  */
 class SettingsGroup extends WooCommerceGroup
 {
+    /** WooCommerce weight unit names, keyed to the Kirki unit. */
+    protected const WEIGHT_UNITS = ['kg' => 'kg', 'g' => 'g', 'lbs' => 'lb', 'oz' => 'oz'];
+
+    /** WooCommerce dimension unit names, keyed to the Kirki unit. */
+    protected const DIMENSION_UNITS = ['m' => 'm', 'cm' => 'cm', 'mm' => 'mm', 'in' => 'in'];
+
     /** @var SettingsReader */
     protected $reader;
 
@@ -73,7 +77,7 @@ class SettingsGroup extends WooCommerceGroup
      */
     public function description()
     {
-        return __('Store currency, store address, tax rates and shipping zones.', 'kirki-ecommerce');
+        return __('Units, product, checkout, store, email and price options, tax rates and shipping zones.', 'kirki-ecommerce');
     }
 
     /**
@@ -134,12 +138,17 @@ class SettingsGroup extends WooCommerceGroup
 
         $this->previous_value = $this->snapshot();
         $this->save_store($mapped);
+        $this->save_general($mapped);
+        $this->save_checkout_fields($mapped);
+        $this->save_price_format($mapped);
+        $this->save_emails($mapped);
+        $this->clear_lists();
 
         return SettingsReader::STORE;
     }
 
     /**
-     * Fill the currency, the store address and the tax switches that Kirki has not set yet.
+     * Set the product and checkout options that Kirki has a matching setting for.
      *
      * @since 1.0.0
      *
@@ -148,116 +157,239 @@ class SettingsGroup extends WooCommerceGroup
      */
     protected function save_store(array $store)
     {
-        $this->save_currency($store['currency']);
-        $this->save_address($store);
-        $this->save_tax_switches($store);
+        $this->save_unit('weight_unit', $store['weight_unit'], static::WEIGHT_UNITS, __('weight unit', 'kirki-ecommerce'));
+        $this->save_unit('dimension_unit', $store['dimension_unit'], static::DIMENSION_UNITS, __('dimension unit', 'kirki-ecommerce'));
+        $this->save_option(OptionKeys::PRODUCT_SETTINGS, 'is_enabled_reviews', $store['reviews']);
+        $this->save_option(OptionKeys::PRODUCT_SETTINGS, 'is_enabled_star_ratings', $store['ratings']);
+        $this->save_option(OptionKeys::PRODUCT_SETTINGS, 'low_stock_threshold', $store['low_stock_amount']);
+        $this->save_option(OptionKeys::CHECKOUT_SETTINGS, 'is_allowed_guest_checkout', $store['guest_checkout']);
+        $this->save_option(OptionKeys::CHECKOUT_SETTINGS, 'has_apply_coupon_code', $store['coupons']);
+
+        $this->save_option(OptionKeys::TAX_SETTINGS, 'is_enabled_display_inclusive_taxed_price', $store['tax_display_shop'] === null ? null : $store['tax_display_shop'] === 'incl');
+
+        if ($store['signup_at_checkout']) {
+            $this->note(__('WooCommerce lets customers create an account at checkout. Kirki has no matching setting, so it was not migrated.', 'kirki-ecommerce'));
+        }
     }
 
     /**
-     * Use the WooCommerce currency as the store currency, when no product or order depends on the current one.
+     * Set the store email and the selling countries.
      *
      * @since 1.0.0
      *
-     * @param string $code The WooCommerce currency code.
+     * @param array<string, mixed> $store The store settings item.
      * @return void
      */
-    protected function save_currency(string $code)
+    protected function save_general(array $store)
     {
-        if ($code === '') {
+        $this->save_option(OptionKeys::GENERAL_SETTINGS, 'store_email', $store['store_email']);
+
+        $types = ['all' => SellingLocationType::ALL_COUNTRIES, 'specific' => SellingLocationType::SELECTED_COUNTRIES, 'all_except' => SellingLocationType::EXCLUDED_COUNTRIES];
+
+        if (!isset($types[$store['selling_mode']])) {
             return;
         }
 
-        $service = app(CurrencyService::class);
-        $current = Currency::base()->first();
+        $countries = array_values(array_filter($store['selling_countries'], static function ($code) {
+            return CountryData::find_index_entry($code) !== null;
+        }));
 
-        if ($current && strtoupper($current->code) === $code) {
+        if (count($countries) < count($store['selling_countries'])) {
+            $this->note(__('Some selling countries of WooCommerce are not in Kirki and were left out.', 'kirki-ecommerce'));
+        }
+
+        if ($store['selling_mode'] !== 'all' && empty($countries)) {
             return;
         }
 
-        if ($current && (Product::query()->count() > 0 || Order::query()->count() > 0)) {
+        Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->set(['selling_location_type' => $types[$store['selling_mode']], 'selling_countries' => $countries], false);
+    }
+
+    /**
+     * Set whether the phone and company fields are required at checkout.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $store The store settings item.
+     * @return void
+     */
+    protected function save_checkout_fields(array $store)
+    {
+        $settings = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh();
+        $configuration = (array) ($settings->to_array()['checkout_configuration'] ?? []);
+
+        foreach (['phone_field' => 'phone_number_validation', 'company_field' => 'company_name_validation'] as $source => $field) {
+            if (in_array($store[$source], ['required', 'optional'], true)) {
+                $configuration[$field] = $store[$source];
+            } elseif ($store[$source] !== null) {
+                $this->note(sprintf(
+                    /* translators: %s: checkout field */
+                    __('The checkout field "%s" is hidden in WooCommerce. Kirki cannot hide it, so the Kirki value was kept.', 'kirki-ecommerce'),
+                    str_replace('_validation', '', $field)
+                ));
+            }
+        }
+
+        $settings->set(['checkout_configuration' => $configuration], false);
+    }
+
+    /**
+     * Set the price position and the thousand and decimal separators.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $store The store settings item.
+     * @return void
+     */
+    protected function save_price_format(array $store)
+    {
+        $positions = ['left' => CurrencyPosition::BEFORE, 'left_space' => CurrencyPosition::BEFORE, 'right' => CurrencyPosition::AFTER, 'right_space' => CurrencyPosition::AFTER];
+        $separators = ['.' => '.', ',' => ',', ' ' => 'space'];
+        $this->save_option(OptionKeys::CURRENCY_SETTINGS, 'currency_position', $positions[$store['price_position']] ?? null);
+
+        foreach (['thousand_separator' => __('thousand separator', 'kirki-ecommerce'), 'decimal_separator' => __('decimal separator', 'kirki-ecommerce')] as $field => $label) {
+            if ($store[$field] !== null && !isset($separators[$store[$field]])) {
+                $this->note(sprintf(
+                    /* translators: %s: option name */
+                    __('The %s of WooCommerce is not supported by Kirki eCommerce and was not migrated.', 'kirki-ecommerce'),
+                    $label
+                ));
+            }
+
+            $this->save_option(OptionKeys::CURRENCY_SETTINGS, $field, $separators[$store[$field]] ?? null);
+        }
+    }
+
+    /**
+     * Set which emails are on, and the email footer and colors.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $store The store settings item.
+     * @return void
+     */
+    protected function save_emails(array $store)
+    {
+        if (empty($store['emails']) && $store['email_footer'] === null && empty($store['email_colors'])) {
+            return;
+        }
+
+        $settings = Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh();
+        $data = $settings->to_array();
+        $roots = [];
+
+        foreach ($store['emails'] as $path => $enabled) {
+            list($root, $group, $key) = explode('.', $path);
+            $data[$root][$group][$key]['is_enabled'] = $enabled;
+            $roots[$root] = true;
+        }
+
+        foreach ($store['email_colors'] as $path => $color) {
+            list($section, $name) = explode('.', substr($path, strlen('colors.')));
+            $data['default_template']['colors'][$section][$name] = $color;
+            $roots['default_template'] = true;
+        }
+
+        if ($store['email_footer'] !== null) {
+            $data['default_template']['footer'] = wp_kses_post($store['email_footer']);
+            $roots['default_template'] = true;
+        }
+
+        foreach (array_keys($roots) as $root) {
+            $settings->set([$root => $this->without_shortcodes((array) $data[$root])], false);
+        }
+    }
+
+    /**
+     * Remove the shortcode lists that the email settings add when they are read, so that they are not saved.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $root One root of the email settings.
+     * @return array<string, mixed>
+     */
+    protected function without_shortcodes(array $root)
+    {
+        foreach ($root as $group => $emails) {
+            if (!is_array($emails)) {
+                continue;
+            }
+
+            foreach ($emails as $key => $email) {
+                if (is_array($email)) {
+                    unset($root[$group][$key]['shortcodes']);
+                }
+            }
+        }
+
+        return $root;
+    }
+
+    /**
+     * Set a weight or dimension unit, after mapping the WooCommerce name to the Kirki name.
+     *
+     * @since 1.0.0
+     *
+     * @param string      $field   The product setting name.
+     * @param string|null $woo     The WooCommerce unit.
+     * @param string[]    $units   The WooCommerce unit names that Kirki supports, keyed to the Kirki name.
+     * @param string      $label   The name of the option, for notes.
+     * @return void
+     */
+    protected function save_unit(string $field, $woo, array $units, string $label)
+    {
+        if ($woo === null) {
+            return;
+        }
+
+        if (!isset($units[$woo])) {
             $this->note(sprintf(
-                /* translators: 1: WooCommerce currency, 2: Kirki currency */
-                __('The store currency stays %2$s, because Kirki already has products or orders. WooCommerce uses %1$s, so prices are saved as numbers without exchange.', 'kirki-ecommerce'),
-                $code,
-                $current->code
+                /* translators: 1: option name, 2: WooCommerce unit */
+                __('The %1$s "%2$s" of WooCommerce is not supported by Kirki and was not migrated.', 'kirki-ecommerce'),
+                $label,
+                $woo
             ));
 
             return;
         }
 
-        $service->ensure_base($code);
-
-        $this->note(sprintf(
-            /* translators: 1: Kirki currency, 2: WooCommerce currency */
-            __('The store currency was changed from %1$s to %2$s to match WooCommerce.', 'kirki-ecommerce'),
-            $current ? $current->code : '-',
-            $code
-        ));
+        $this->save_option(OptionKeys::PRODUCT_SETTINGS, $field, $units[$woo]);
     }
 
     /**
-     * Fill the empty parts of the store address. The state is not migrated, because Kirki names states by its own ids.
+     * Set one Kirki option to the WooCommerce value. A value that WooCommerce does not have changes nothing.
      *
      * @since 1.0.0
      *
-     * @param array<string, mixed> $store The store settings item.
+     * @param string $group The Kirki settings group.
+     * @param string $field The setting name.
+     * @param mixed  $value The WooCommerce value, or null when WooCommerce has none.
      * @return void
      */
-    protected function save_address(array $store)
+    protected function save_option(string $group, string $field, $value)
     {
-        $settings = Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh();
-        $address = (array) ($settings->to_array()['store_address'] ?? []);
-        $changed = false;
-
-        foreach (['address_line_1', 'address_line_2', 'city', 'postal_code', 'country'] as $field) {
-            if (empty($address[$field]) && $store[$field] !== '') {
-                $address[$field] = $store[$field];
-                $changed = true;
-            } elseif (!empty($address[$field]) && $store[$field] !== '' && strtolower((string) $address[$field]) !== strtolower($store[$field])) {
-                $this->note(sprintf(
-                    /* translators: %s: address field */
-                    __('The store address field "%s" is already set in Kirki and was kept.', 'kirki-ecommerce'),
-                    $field
-                ));
-            }
+        if ($value === null) {
+            return;
         }
 
-        if (!empty($store['has_state'])) {
-            $this->note(__('The state of the store address was not migrated, because Kirki names states by its own ids.', 'kirki-ecommerce'));
-        }
-
-        if ($changed) {
-            $settings->set(['store_address' => $address], false);
-        }
+        Settings::get($group)->refresh()->set([$field => $value], false);
     }
 
     /**
-     * Turn tax calculation on when WooCommerce uses it and Kirki does not, together with its price mode.
+     * Clear the preconfigured tax regions and shipping zones when WooCommerce has its own.
      *
      * @since 1.0.0
      *
-     * @param array<string, mixed> $store The store settings item.
      * @return void
      */
-    protected function save_tax_switches(array $store)
+    protected function clear_lists()
     {
-        if (!$store['calc_taxes']) {
-            return;
+        if ($this->database->count_tax_rates() > 0) {
+            Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->set(['tax_regions' => []], false);
         }
 
-        $general = Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh();
-        $tax = Settings::get(OptionKeys::TAX_SETTINGS)->refresh();
-
-        if (empty($general->to_array()['is_tax_calculation_enabled'])) {
-            $general->set(['is_tax_calculation_enabled' => true], false);
-            $tax->set(['is_tax_inclusive_price' => (bool) $store['prices_include_tax']], false);
-            $this->note(__('Tax calculation was turned on to match WooCommerce.', 'kirki-ecommerce'));
-
-            return;
-        }
-
-        if ((bool) ($tax->to_array()['is_tax_inclusive_price'] ?? false) !== (bool) $store['prices_include_tax']) {
-            $this->note(__('Kirki and WooCommerce differ on whether prices include tax. The Kirki setting was kept.', 'kirki-ecommerce'));
+        if ($this->database->count_shipping_zones() > 0) {
+            Settings::get(OptionKeys::SHIPPING_SETTINGS)->refresh()->set(['shipping_zones' => []], false);
         }
     }
 
@@ -318,16 +450,22 @@ class SettingsGroup extends WooCommerceGroup
             return true;
         }
 
-        Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->set($previous_value['general'], false);
+        Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->set($previous_value['product'], false);
+        Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set($previous_value['checkout'], false);
         Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->set($previous_value['tax'], false);
         Settings::get(OptionKeys::SHIPPING_SETTINGS)->refresh()->set($previous_value['shipping'], false);
-        $this->restore_currency($previous_value['currency']);
+        Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->set($previous_value['general'] ?? [], false);
+        Settings::get(OptionKeys::CURRENCY_SETTINGS)->refresh()->set($previous_value['currency'] ?? [], false);
+
+        foreach ((array) ($previous_value['email'] ?? []) as $root => $value) {
+            Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh()->set([$root => $value], false);
+        }
 
         return true;
     }
 
     /**
-     * Read the Kirki settings that this group can change, so that a revert can put them back.
+     * Read the Kirki settings that the store item can change, so that a revert can put them back.
      *
      * @since 1.0.0
      *
@@ -335,43 +473,61 @@ class SettingsGroup extends WooCommerceGroup
      */
     protected function snapshot()
     {
-        $general = Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array();
+        $product = Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->to_array();
+        $checkout = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->to_array();
         $tax = Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->to_array();
         $shipping = Settings::get(OptionKeys::SHIPPING_SETTINGS)->refresh()->to_array();
-        $currency = Currency::base()->first();
+        $general = Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array();
+        $currency = Settings::get(OptionKeys::CURRENCY_SETTINGS)->refresh()->to_array();
+        $email = Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh()->to_array();
 
         return [
-            'general' => [
-                'store_address' => $general['store_address'] ?? [],
-                'is_tax_calculation_enabled' => $general['is_tax_calculation_enabled'] ?? false,
-            ],
-            'tax' => [
-                'is_tax_inclusive_price' => $tax['is_tax_inclusive_price'] ?? false,
-                'tax_regions' => $tax['tax_regions'] ?? [],
-            ],
+            'product' => $this->pick($product, ['weight_unit', 'dimension_unit', 'is_enabled_reviews', 'is_enabled_star_ratings', 'low_stock_threshold']),
+            'checkout' => $this->pick($checkout, ['is_allowed_guest_checkout', 'has_apply_coupon_code', 'checkout_configuration']),
+            'tax' => ['tax_regions' => $tax['tax_regions'] ?? [], 'is_enabled_display_inclusive_taxed_price' => $tax['is_enabled_display_inclusive_taxed_price'] ?? null],
+            'general' => $this->pick($general, ['store_email', 'selling_location_type', 'selling_countries']),
+            'currency' => $this->pick($currency, ['currency_position', 'thousand_separator', 'decimal_separator']),
+            'email' => $this->email_roots($email),
             'shipping' => ['shipping_zones' => $shipping['shipping_zones'] ?? []],
-            'currency' => $currency ? $currency->code : null,
         ];
     }
 
     /**
-     * Put the previous store currency back, when no product or order depends on the current one.
+     * Pick the email roots that the migration can change, without the shortcode lists.
      *
      * @since 1.0.0
      *
-     * @param string|null $code The previous currency code.
-     * @return void
+     * @param array<string, mixed> $email The saved email settings.
+     * @return array<string, mixed>
      */
-    protected function restore_currency($code)
+    protected function email_roots(array $email)
     {
-        $current = Currency::base()->first();
+        $roots = [];
 
-        if ($code === null || ($current && $current->code === $code)) {
-            return;
+        foreach (['customer_emails', 'admin_emails', 'default_template'] as $root) {
+            $roots[$root] = $this->without_shortcodes((array) ($email[$root] ?? []));
         }
 
-        if (Product::query()->count() === 0 && Order::query()->count() === 0) {
-            app(CurrencyService::class)->ensure_base($code);
+        return $roots;
+    }
+
+    /**
+     * Pick the named settings, with null for a setting that is not saved.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $settings The saved settings.
+     * @param string[]             $fields   The setting names.
+     * @return array<string, mixed>
+     */
+    protected function pick(array $settings, array $fields)
+    {
+        $picked = [];
+
+        foreach ($fields as $field) {
+            $picked[$field] = $settings[$field] ?? null;
         }
+
+        return $picked;
     }
 }

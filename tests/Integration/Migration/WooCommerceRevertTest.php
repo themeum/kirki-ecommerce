@@ -59,7 +59,7 @@ class WooCommerceRevertTest extends RestTestCase
         update_option('woocommerce_version', '8.4.0');
         $this->create_woo_tables(false);
 
-        $this->settings_snapshot = Option::get(OptionKeys::GENERAL_SETTINGS);
+        $this->settings_snapshot = Option::get(OptionKeys::PRODUCT_SETTINGS);
         $this->source = new WooCommerceSource();
         $registry = new SourceRegistry();
         $this->runner = new MigrationRunner($registry);
@@ -73,9 +73,9 @@ class WooCommerceRevertTest extends RestTestCase
      */
     protected function tearDown(): void
     {
-        Option::set(OptionKeys::GENERAL_SETTINGS, $this->settings_snapshot, true);
+        Option::set(OptionKeys::PRODUCT_SETTINGS, $this->settings_snapshot, true);
         $this->purge();
-        delete_option('woocommerce_store_city');
+        delete_option('woocommerce_weight_unit');
         $this->drop_woo_tables();
 
         parent::tearDown();
@@ -152,21 +152,21 @@ class WooCommerceRevertTest extends RestTestCase
     }
 
     /**
-     * Revert puts back a store address the migration filled.
+     * Revert puts back a unit the migration changed.
      *
      * @return void
      */
     public function test_revert_restores_changed_settings()
     {
-        Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->set(['store_address' => ['address_line_1' => '', 'address_line_2' => null, 'city' => '', 'state' => null, 'postal_code' => null, 'country' => '']], false);
-        update_option('woocommerce_store_city', 'Woo City');
+        Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->set(['weight_unit' => 'kg'], false);
+        update_option('woocommerce_weight_unit', 'lbs');
 
         $run = $this->migrate(['settings']);
-        $this->assertSame('Woo City', Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array()['store_address']['city']);
+        $this->assertSame('lb', Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->to_array()['weight_unit']);
 
         $this->revert($run);
 
-        $this->assertEmpty(Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array()['store_address']['city']);
+        $this->assertSame('kg', Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->to_array()['weight_unit']);
     }
 
     /**

@@ -103,6 +103,21 @@ class CountryData
     }
 
     /**
+     * Get the ids of all states of a country.
+     *
+     * @since 1.0.0
+     *
+     * @param string $code Country code, in any casing.
+     * @return string[] Empty when the country has no states.
+     */
+    public static function state_ids(string $code)
+    {
+        return array_map(static function ($state) {
+            return (string) $state['id'];
+        }, array_values(static::states_for($code)));
+    }
+
+    /**
      * Get the full country list with each country's states nested inside it.
      *
      * @since 1.0.0

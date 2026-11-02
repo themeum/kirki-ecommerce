@@ -1,8 +1,8 @@
 # Migrating from another store plugin
 
 A guided migration that moves a store's data from WooCommerce into Kirki
-eCommerce. It is offered at the end of the onboarding wizard when WooCommerce
-is found on the site. It reads WooCommerce data and adds records to Kirki. It
+eCommerce. It runs on its own at the end of the onboarding wizard when WooCommerce
+is found on the site, and it can be started later from the dashboard. It reads WooCommerce data and adds records to Kirki. It
 never changes or deletes anything in WooCommerce.
 
 The engine does not know WooCommerce. WooCommerce is the first *source*; another
@@ -22,31 +22,34 @@ plugin is added as another source (section 7).
 ## 1. Quick start
 
 1. Finish the onboarding wizard. On the last screen, if WooCommerce is installed
-   and its version is supported, the **Migrate from WooCommerce** button shows.
-2. The next screen scans the WooCommerce data and lists what can be moved, for
-   example `Products (100)` and `Orders (1000)`. Every group is checked. Uncheck
-   a group to leave it out.
-3. Press **Migrate**. The progress bar fills and the line under it says what is
-   happening, for example "Migrating Products 31-60 of 100".
-4. If a request fails, the migration stops and shows **Retry**. It continues from
+   and its version is supported, a **Migrate from WooCommerce** row shows. When the
+   setup rows are done, it migrates every group with no choice screen. The wizard
+   already used WooCommerce for the currency, the store address and the tax switches.
+2. Rings show the progress of each row. The top bar says what is happening, for
+   example "Migrating · Products 31-60 of 100".
+3. On the dashboard, the same migration opens at `#/migration/woo-commerce`. It scans
+   the WooCommerce data and lists the groups, for example `Products (100)` and
+   `Orders (1000)`. Every group is checked. Uncheck a group to leave it out, then
+   press **Migrate**.
+4. If a request fails, the migration stops and shows **Retry** (in the wizard, also
+   **Go to Dashboard**). It continues from
    the last finished chunk. Closing the page is safe: the next visit shows **Retry**
    for an unfinished run.
-5. At the end the summary shows one number for each migrated group. Skipped items and
-   notes are folded under **N things to review**. **Go to dashboard** leaves the wizard.
-   **Skip** on the scan screen leaves without migrating.
-6. The finished state is saved with the run. After a reload the same summary shows
-   again, with **Revert** and **Go to dashboard**.
-7. **Revert** asks for confirmation, then deletes the Kirki records that the migration
+5. In the wizard, the end state is the **Go to Dashboard** button. On the migration
+   page the summary shows one number for each migrated group. Skipped items and
+   notes are folded under **N things to review**.
+6. The finished state is saved with the run. After a reload the migration page shows
+   the same summary again, with **Revert** and **Go to dashboard**.
+7. **Revert** (migration page only) asks for confirmation, then deletes the Kirki records that the migration
    created and restores the settings it changed. It shows progress. When it ends, the
    scan screen shows again and the merchant can migrate again.
 
 WooCommerce does not have to be active. It has to be installed, with a version of
 7.0 or higher.
 
-To migrate after the onboarding wizard is finished, open **Migrate from WooCommerce**
-on the dashboard. It opens the same screens at `#/migration/woo-commerce`. The button
-shows only when a supported WooCommerce is found. **Skip** and **Go to dashboard**
-return to the dashboard.
+The **Migrate from WooCommerce** button on the dashboard shows only when a supported
+WooCommerce is found. **Skip** and **Go to dashboard** on the migration page return to
+the dashboard.
 
 ---
 
@@ -54,7 +57,7 @@ return to the dashboard.
 
 | Group | What moves | Notes |
 |---|---|---|
-| Settings | Store currency, store address, tax calculation switch, tax rates, shipping zones | Runs first. See section 4 for what is kept and what is skipped. |
+| Settings | Weight and dimension units, reviews and star ratings, low stock threshold, guest checkout, coupon codes, store email, selling countries, phone and company checkout fields, tax price display, price position and separators, which emails are on, email footer and colors, tax rates, shipping zones | Runs first. The currency, store address and tax switches are not migrated here: the onboarding wizard sets them. See section 4 for what replaces and what is skipped. |
 | Categories | Name, slug, description, image, parent | Parents are created first. |
 | Tags | Name, slug, description | |
 | Brands | Name, slug, description, logo | |
@@ -62,7 +65,7 @@ return to the dashboard.
 | Products | Simple and variable products with their variations | Price, sale price, SKU, stock, weight, images, categories, tags, brand and SEO fields. A variation becomes a variant. |
 | Customers | Registered customers with billing and shipping addresses | Linked to the existing WordPress user. No password is read. |
 | Coupons | Code, percentage or fixed discount, free shipping, expiry, limits, minimum spend, product, category and email limits | The usage count is kept. |
-| Orders | Status, dates, number, amounts, addresses, payment method, lines, fees, shipping, tax, coupons, notes and refunds | Orders are read from the order tables or from posts, whichever WooCommerce uses. |
+| Orders | Status, dates, number (the WooCommerce order id with the order number prefix and suffix of the general settings), amounts, addresses, payment method, lines, fees, shipping, tax, coupons, notes and refunds | Orders are read from the order tables or from posts, whichever WooCommerce uses. |
 
 Groups run in this order, because later groups point to earlier ones:
 settings, then categories, tags, brands and attributes, then products, customers,
@@ -107,7 +110,7 @@ The REST endpoints, all for store administrators only:
 ## 4. Safety rules
 
 - **WooCommerce is never changed.** The migration only reads from it.
-- **Kirki data is never changed or deleted.** Records are added. A slug, SKU or
+- **Records are added, not changed.** Settings are the exception (next rule). A slug, SKU or
   coupon code that is already used gets a suffix (`-2`) and a note. A customer with
   the same email is reused.
 - **Nothing is sent or counted.** While data is imported there are no emails, no
@@ -123,10 +126,11 @@ The REST endpoints, all for store administrators only:
 - **A rule is never made wider.** If a coupon limit, tax rate or shipping location
   cannot be kept exactly, it is skipped and reported. A coupon limited to products
   that are not in Kirki is skipped, not made unlimited.
-- **Settings are filled, not replaced.** An empty Kirki setting is filled. A setting
-  the merchant already filled is kept, and the report says when it differs. The store
-  currency follows WooCommerce only when Kirki has no products or orders, because
-  prices are stored in it.
+- **WooCommerce settings win.** When a setting exists in WooCommerce, its value
+  replaces the Kirki value, even one the merchant changed. When WooCommerce has no
+  value, the Kirki value stays. If WooCommerce has tax rates or shipping zones, the
+  Kirki list is cleared and replaced as a whole. Revert restores the old values. The
+  store currency is chosen in the onboarding wizard, because prices are stored in it.
 
 ---
 
@@ -229,3 +233,22 @@ for the migration:
 - **Notes.** The notes of a session are not saved with the run.
 - **Other plugins.** Data of WooCommerce add-ons is not migrated. They are listed on
   the scan screen.
+- **Store facts come from the wizard.** WooCommerce migrates its currency, address and
+  tax switches in one step. Here the onboarding wizard reads them first, so the
+  Settings group no longer touches them. A migration started later from the dashboard
+  does not change the currency, the address or the tax switches.
+- **Not migrated settings.** Payment gateways and their keys, legal consents, the shop page,
+  price decimals, order and invoice numbering, and email subjects and headings are not
+  migrated. A checkout field that WooCommerce hides, and a price separator that Kirki does
+  not have, keep the Kirki value and add a note.
+- **Zone states.** A shipping zone country is saved with every state of the country
+  selected. WooCommerce has the same meaning for a country without a state, but shows it
+  as a country only.
+- **Settings are replaced.** Kirki replaces a setting with the WooCommerce value, and the
+  tax and shipping lists as a whole, without a merge. If every WooCommerce tax rate is
+  skipped, the cleared tax list stays empty.
+- **No choice in the wizard.** The wizard migrates all groups. WooCommerce's importers
+  let you pick. Here the pick exists only on the migration page.
+- **Some options have no Kirki setting.** The "no stock" amount, stock management, and
+  account creation at checkout are not migrated. The report says so for the last one.
+

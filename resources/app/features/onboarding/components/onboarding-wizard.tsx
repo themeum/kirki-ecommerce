@@ -3,27 +3,38 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Spinner from '@/components/ui/spinner';
 import { RouteConfig } from '@/config/route-config';
 import { useSampleDataImport } from '@/features/home';
-import { MigrationFlow, useMigrationSourcesQuery } from '@/features/migration';
+import {
+  type MigrationStatus,
+  useAutoMigration,
+  useMigrationSourcesQuery,
+} from '@/features/migration';
 import BusinessInfoStep from '@/features/onboarding/components/business-info-step';
 import EssentialsStep from '@/features/onboarding/components/essentials-step';
-import OnboardingShell, {
-  type OnboardingShellProgress,
-} from '@/features/onboarding/components/onboarding-shell';
+import OnboardingShell from '@/features/onboarding/components/onboarding-shell';
 import SampleDataLink from '@/features/onboarding/components/sample-data-link';
 import SetupCompleteStep, {
+  type SetupFooterMode,
   type SetupSummaryRow,
 } from '@/features/onboarding/components/setup-complete-step';
 import StoreBasicsStep from '@/features/onboarding/components/store-basics-step';
 import StoreTaxStep from '@/features/onboarding/components/store-tax-step';
-import { type SetupStatus, useStaggeredRows } from '@/features/onboarding/hooks/use-staggered-rows';
+import {
+  type SetupRowState,
+  type SetupStatus,
+  useStaggeredRows,
+} from '@/features/onboarding/hooks/use-staggered-rows';
 import { readDraft, writeDraft } from '@/features/onboarding/lib/onboarding-draft';
 import { beginSetupSession, endSetupSession } from '@/features/onboarding/lib/onboarding-status';
+import { toFormPrefill } from '@/features/onboarding/lib/prefill';
 import {
   COMPLETION_STEP,
   getFormStepCount,
+  getStepTitle,
   type OnboardingStep,
   STEP_FIELDS,
   TAX_STEP,
@@ -34,7 +45,10 @@ import {
   type OnboardingFormPayload,
   OnboardingFormSchema,
 } from '@/features/onboarding/schemas/forms/onboarding-form';
-import { useCreateStoreMutation } from '@/features/onboarding/services/onboarding';
+import {
+  useCreateStoreMutation,
+  useOnboardingDefaultsQuery,
+} from '@/features/onboarding/services/onboarding';
 import { useAllCurrenciesQuery } from '@/features/settings';
 import { getDefaults } from '@/libs/zod';
 import { useCountriesQuery } from '@/services/country';
@@ -103,14 +117,16 @@ const getInitialStep = (draft: ReturnType<typeof readDraft>): OnboardingStep => 
   return draft.step;
 };
 
-const OnboardingWizard = () => {
+type OnboardingWizardFormProps = {
+  prefill: Partial<OnboardingFormInput>;
+};
+
+const OnboardingWizardForm = ({ prefill }: OnboardingWizardFormProps) => {
   const navigate = useNavigate();
   const [initialDraft] = useState(readDraft);
   const [step, setStep] = useState<OnboardingStep>(() => getInitialStep(initialDraft));
   const [submittedPayload, setSubmittedPayload] = useState<OnboardingFormPayload | null>(null);
   const [setupRunId, setSetupRunId] = useState(0);
-  const [isMigrating, setIsMigrating] = useState(false);
-  const [migrationProgress, setMigrationProgress] = useState<OnboardingShellProgress>();
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
   const { data: currencies = [] } = useAllCurrenciesQuery();
   const createStore = useCreateStoreMutation();
@@ -120,7 +136,7 @@ const OnboardingWizard = () => {
     // Steps are checked with `trigger()`, which doesn't count as a submit, so the default
     // re-validation never kicks in. Validating on change clears an error as it's fixed.
     mode: 'onChange',
-    defaultValues: { ...getDefaults(OnboardingFormSchema), ...initialDraft?.values },
+    defaultValues: { ...getDefaults(OnboardingFormSchema), ...prefill, ...initialDraft?.values },
   });
   const isTaxCollected = useWatch({ control: form.control, name: 'is_tax_collected' }) === true;
 
@@ -211,19 +227,97 @@ const OnboardingWizard = () => {
     runId: setupRunId,
   });
   const isSetupReady = rowStates.length > 0 && rowStates.every((state) => state === 'completed');
-  const migrationSources = useMigrationSourcesQuery({
-    enabled: step === COMPLETION_STEP && isSetupReady,
-  });
+  const migrationSources = useMigrationSourcesQuery();
   const migrationSource = migrationSources.data?.find((source) => source.version.supported);
+  const migration = useAutoMigration({
+    source: migrationSource?.id ?? '',
+    isEnabled: migrationSource !== undefined && step === COMPLETION_STEP && isSetupReady,
+  });
+  const isMigrationPending =
+    migrationSource !== undefined &&
+    (migration.status === 'waiting' || migration.status === 'running');
+  const isBusy = !isSetupReady || migrationSources.isPending === true || isMigrationPending;
+
+  const completionRows = useMemo((): SetupSummaryRow[] => {
+    if (!migrationSource || summaryRows.length === 0) {
+      return summaryRows;
+    }
+
+    return [
+      ...summaryRows,
+      {
+        label: sprintf(
+          /* translators: %s: name of the plugin the data comes from. */
+          __('Migrate from %s', 'kirki-ecommerce'),
+          migrationSource.label,
+        ),
+        value: __('Products, customers, orders and settings', 'kirki-ecommerce'),
+        percent: migration.percent,
+      },
+    ];
+  }, [summaryRows, migrationSource, migration.percent]);
+
+  const completionRowStates = useMemo((): SetupRowState[] => {
+    if (completionRows.length === rowStates.length) {
+      return rowStates;
+    }
+
+    const migrationRowStates: Record<MigrationStatus, SetupRowState> = {
+      waiting: isSetupReady ? 'in-progress' : 'waiting',
+      running: 'in-progress',
+      done: 'completed',
+      failed: 'stopped',
+    };
+
+    return [...rowStates, migrationRowStates[migration.status]];
+  }, [completionRows, rowStates, migration.status, isSetupReady]);
+
+  const getFooterMode = (): SetupFooterMode => {
+    if (createStore.isError) {
+      return 'retry-setup';
+    }
+
+    if (isBusy) {
+      return 'hidden';
+    }
+
+    if (!migrationSource) {
+      return 'default';
+    }
+
+    return migration.status === 'failed' ? 'retry-migration' : 'dashboard-only';
+  };
+
+  const footerMode = getFooterMode();
+
+  const errorMessage = createStore.isError
+    ? createStore.error
+      ? getErrorMessage(createStore.error)
+      : __('Store setup failed.', 'kirki-ecommerce')
+    : footerMode === 'retry-migration'
+      ? (migration.errorMessage ?? __('The migration stopped.', 'kirki-ecommerce'))
+      : undefined;
 
   return (
     <OnboardingShell
       step={step}
       stepCount={getFormStepCount(isTaxCollected)}
-      progressOverride={isMigrating ? migrationProgress : undefined}
+      progressOverride={
+        step === COMPLETION_STEP && migrationSource && isSetupReady && isMigrationPending
+          ? {
+              percent: migration.percent,
+              title: getStepTitle(COMPLETION_STEP),
+              message: sprintf(
+                /* translators: %s: the part of the migration that is running now, for example Products 1-30 of 100. */
+                __('Migrating · %s', 'kirki-ecommerce'),
+                migration.detail,
+              ),
+            }
+          : undefined
+      }
       afterCard={
         step === COMPLETION_STEP &&
-        !isMigrating && (
+        footerMode === 'default' && (
           <SampleDataLink
             phase={sampleData.phase}
             isDisabled={!isSetupReady}
@@ -232,15 +326,6 @@ const OnboardingWizard = () => {
         )
       }
     >
-      {isMigrating && migrationSource && (
-        <MigrationFlow
-          source={migrationSource.id}
-          sourceLabel={migrationSource.label}
-          onProgressChange={setMigrationProgress}
-          onSkip={() => setIsMigrating(false)}
-          onFinish={() => leaveTo(RouteConfig.Home.template)}
-        />
-      )}
       <Form {...form}>
         {step === 0 && <StoreBasicsStep onContinue={() => void goToNextStep()} />}
         {step === 1 && (
@@ -256,31 +341,50 @@ const OnboardingWizard = () => {
         {step === TAX_STEP && (
           <StoreTaxStep onBack={goToPreviousStep} onCreateStore={() => void handleCreateStore()} />
         )}
-        {step === COMPLETION_STEP && !isMigrating && (
+        {step === COMPLETION_STEP && (
           <SetupCompleteStep
-            rows={summaryRows}
-            rowStates={rowStates}
-            isReady={isSetupReady}
-            isFailed={createStore.isError}
-            errorMessage={createStore.error ? getErrorMessage(createStore.error) : undefined}
-            onRetry={handleRetry}
+            rows={completionRows}
+            rowStates={completionRowStates}
+            footerMode={footerMode}
+            errorMessage={errorMessage}
+            onRetry={createStore.isError ? handleRetry : migration.retry}
             onAddFirstProduct={() => leaveTo(RouteConfig.Products.get('CreateProduct').buildLink())}
             onGoToDashboard={() => leaveTo(RouteConfig.Home.template)}
-            migrateLabel={
-              migrationSource
-                ? sprintf(
-                    /* translators: %s: name of the plugin the data comes from. */
-                    __('Migrate from %s', 'kirki-ecommerce'),
-                    migrationSource.label,
-                  )
-                : undefined
-            }
-            onMigrate={migrationSource ? () => setIsMigrating(true) : undefined}
           />
         )}
       </Form>
     </OnboardingShell>
   );
+};
+
+OnboardingWizardForm.displayName = 'OnboardingWizardForm';
+
+const OnboardingWizard = () => {
+  const defaults = useOnboardingDefaultsQuery();
+  const countries = useCountriesQuery({ limit: -1 });
+  const currencies = useAllCurrenciesQuery();
+  const isLoading = defaults.isPending || countries.isPending || currencies.isPending;
+
+  const prefill = useMemo(
+    () =>
+      toFormPrefill(defaults.data, {
+        countryCodes: (countries.data ?? []).map((item) => item.code),
+        currencyCodes: (currencies.data ?? []).map((item) => item.code),
+      }),
+    [defaults.data, countries.data, currencies.data],
+  );
+
+  if (isLoading) {
+    return (
+      <OnboardingShell step={0} stepCount={getFormStepCount(false)}>
+        <Flex justify="center">
+          <Spinner />
+        </Flex>
+      </OnboardingShell>
+    );
+  }
+
+  return <OnboardingWizardForm prefill={prefill} />;
 };
 
 OnboardingWizard.displayName = 'OnboardingWizard';

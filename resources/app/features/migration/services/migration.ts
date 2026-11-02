@@ -82,20 +82,22 @@ const useMigrationSourcesQuery = (options: { enabled?: boolean } = {}) => {
   });
 };
 
-const useMigrationScanQuery = (source: string) => {
+const useMigrationScanQuery = (source: string, options: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: migrationKeys.scan(source),
     queryFn: () => scanSource(source),
+    enabled: options.enabled ?? true,
     retry: false,
     staleTime: 0,
     gcTime: 0,
   });
 };
 
-const useLatestMigrationRunQuery = (source: string) => {
+const useLatestMigrationRunQuery = (source: string, options: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: migrationKeys.latestRun(source),
     queryFn: () => getLatestRun(source),
+    enabled: options.enabled ?? true,
     retry: false,
     staleTime: 0,
     gcTime: 0,

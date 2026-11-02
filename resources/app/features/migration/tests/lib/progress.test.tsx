@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   getOverallPercent,
+  getProgressDetail,
   getProgressMessage,
 } from '@/features/migration/lib/progress';
 import type {
@@ -71,5 +72,15 @@ describe('getProgressMessage', () => {
     expect(getProgressMessage(progress({ done: true, group: null, label: null }))).toBe(
       'Migration complete',
     );
+  });
+});
+
+describe('getProgressDetail', () => {
+  it('describes the range, the group and the total without the verb', () => {
+    expect(getProgressDetail(progress())).toBe('Products 11-20 of 100');
+  });
+
+  it('tells that the migration is being prepared before the first chunk', () => {
+    expect(getProgressDetail(null)).toBe('Preparing…');
   });
 });

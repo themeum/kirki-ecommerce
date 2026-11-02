@@ -45,6 +45,7 @@ export const endpoints = {
   VARIANTS_GENERATE_SKUS: '/variants/generate-skus',
 
   ONBOARDING: '/onboarding',
+  ONBOARDING_DEFAULTS: '/onboarding/defaults',
   ONBOARDING_SAMPLE_DATA: '/onboarding/sample-data',
 
   MIGRATION_SOURCES: '/migration/sources',

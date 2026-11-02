@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
+use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\App\Supports\ShippingCarrierPresets;
 use Kirki\Ecommerce\App\Supports\Weight;
 
@@ -359,8 +360,8 @@ class ShippingService
     /**
      * Check whether a destination falls inside a zone's regions.
      *
-     * A zone without regions matches everywhere, and a region without states
-     * matches its whole country.
+     * A zone without regions matches everywhere. A region without states, or
+     * with every state of its country, matches its whole country.
      *
      * @since 1.0.0
      *
@@ -383,7 +384,7 @@ class ShippingService
                 continue;
             }
 
-            if (empty($region_states)) {
+            if (empty($region_states) || empty(array_diff(CountryData::state_ids((string) $region_country), array_map('strval', $region_states)))) {
                 return true;
             }
 

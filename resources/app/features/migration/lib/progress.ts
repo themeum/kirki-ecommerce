@@ -17,6 +17,27 @@ const getOverallPercent = (groups: Record<string, MigrationGroupState>): number 
   return Math.round((done / total) * 100);
 };
 
+const getProgressDetail = (progress: MigrationProgress | null): string => {
+  if (!progress) {
+    return __('Preparing…', 'kirki-ecommerce');
+  }
+
+  if (progress.done || !progress.group || !progress.label) {
+    return __('Finishing up…', 'kirki-ecommerce');
+  }
+
+  const total = progress.groups[progress.group]?.total ?? progress.range_to;
+
+  return sprintf(
+    /* translators: 1: data group, for example Products. 2: first item number. 3: last item number. 4: total. */
+    __('%1$s %2$d-%3$d of %4$d', 'kirki-ecommerce'),
+    progress.label,
+    progress.range_from,
+    progress.range_to,
+    total,
+  );
+};
+
 const getProgressMessage = (progress: MigrationProgress | null): string => {
   if (!progress) {
     return __('Preparing the migration…', 'kirki-ecommerce');
@@ -38,4 +59,4 @@ const getProgressMessage = (progress: MigrationProgress | null): string => {
   );
 };
 
-export { getOverallPercent, getProgressMessage };
+export { getOverallPercent, getProgressDetail, getProgressMessage };

@@ -12,7 +12,7 @@ use Kirki\Ecommerce\App\Supports\CountryData;
 /**
  * Maps one WooCommerce shipping zone to a Kirki shipping zone.
  *
- * Whole-country locations are kept. A state, continent or postcode location is left out, because it
+ * Whole-country locations are kept, with every state of the country selected. A state, continent or postcode location is left out, because it
  * cannot be named exactly in Kirki, and a zone that is left with no country is skipped so that it does
  * not ship to a wider area. Flat rate, free shipping and local pickup methods are kept.
  *
@@ -68,7 +68,7 @@ class ShippingZoneMapper
             $code = strtoupper($location['code']);
 
             if ($location['type'] === 'country' && CountryData::find_index_entry($code) !== null) {
-                $regions[] = ['country' => $code, 'states' => []];
+                $regions[] = ['country' => $code, 'states' => CountryData::state_ids($code)];
                 continue;
             }
 
