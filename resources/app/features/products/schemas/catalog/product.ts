@@ -71,6 +71,7 @@ export const ProductListItemSchema = z.object({
   display_sale_price: MoneyAmountSchema.nullish(),
   display_sale_price_money_object: MoneyObjectSchema.nullish(),
   status: ProductStatusSchema,
+  preview_url: z.string().nullish(),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),
 });

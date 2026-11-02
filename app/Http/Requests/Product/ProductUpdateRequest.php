@@ -189,7 +189,7 @@ class ProductUpdateRequest extends Request
             'ribbon' => Sanitizer::TEXT,
             'ribbon_color' => Sanitizer::TEXT,
             'brand_id' => Sanitizer::INT,
-            'description' => Sanitizer::TEXT,
+            'description' => Sanitizer::RICH_TEXT,
             'additional_info' => Sanitizer::ARRAY,
             'seo_title' => Sanitizer::TEXT,
             'seo_description' => Sanitizer::TEXT,
