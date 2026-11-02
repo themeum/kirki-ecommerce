@@ -19,7 +19,7 @@ const LocalPickupSettings = () => {
       <TextField
         name="address"
         label={__('Address', 'kirki-ecommerce')}
-        placeholder={__('Google map', 'kirki-ecommerce')}
+        placeholder={__('Pickup address', 'kirki-ecommerce')}
       />
       <TextareaField
         name="description"
@@ -27,10 +27,7 @@ const LocalPickupSettings = () => {
         placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
         rows={4}
       />
-      <CheckboxField
-        name="has_fee"
-        label={__('Has a pickup fee', 'kirki-ecommerce')}
-      />
+      <CheckboxField name="has_fee" label={__('Has a pickup fee', 'kirki-ecommerce')} />
       {hasFee && (
         <MoneyField
           name="base_amount"
@@ -38,10 +35,7 @@ const LocalPickupSettings = () => {
           placeholder={__('0.00', 'kirki-ecommerce')}
         />
       )}
-      <CheckboxField
-        name="has_pick_time"
-        label={__('Pickup time available', 'kirki-ecommerce')}
-      />
+      <CheckboxField name="has_pick_time" label={__('Pickup time available', 'kirki-ecommerce')} />
       {hasPickTime && (
         <Grid>
           <TextField
@@ -49,11 +43,7 @@ const LocalPickupSettings = () => {
             type="time"
             label={__('Start time', 'kirki-ecommerce')}
           />
-          <TextField
-            name="pickup_time_end"
-            type="time"
-            label={__('End time', 'kirki-ecommerce')}
-          />
+          <TextField name="pickup_time_end" type="time" label={__('End time', 'kirki-ecommerce')} />
         </Grid>
       )}
     </Flex>

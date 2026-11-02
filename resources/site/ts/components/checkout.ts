@@ -532,6 +532,21 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       return `${__('Incl.', 'kirki-ecommerce')} ${taxDisplay} ${taxLabel}`.trim();
     },
 
+    pickupTimeRange(shipping: ShippingMethod): string {
+      if (!shipping.pickup_time_start || !shipping.pickup_time_end) {
+        return '';
+      }
+      const formatter = new Intl.DateTimeFormat(navigator.language, {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      const formatLocalTime = (time: string): string => {
+        const [hours, minutes] = time.split(':').map(Number);
+        return formatter.format(new Date(2000, 0, 1, hours, minutes));
+      };
+      return `${formatLocalTime(shipping.pickup_time_start)} – ${formatLocalTime(shipping.pickup_time_end)}`;
+    },
+
     taxLineLabel(taxLine: any): string {
       if (!taxLine) {
         return '';
