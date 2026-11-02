@@ -147,32 +147,6 @@ class AttributesGroup extends WooCommerceGroup
     }
 
     /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function ledger_entities()
-    {
-        return ['attribute', 'attribute_value'];
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        if ($entity === 'attribute_value') {
-            return $this->remove_record(AttributeValue::class, $kirki_ecommerce_id, $this->value_in_use([$kirki_ecommerce_id]));
-        }
-
-        $value_ids = AttributeValue::query()->where('attribute_id', $kirki_ecommerce_id)->pluck('id')->all();
-
-        return $this->remove_record(Attribute::class, $kirki_ecommerce_id, $this->value_in_use($value_ids));
-    }
-
-    /**
      * Check whether a product or a variant still uses one of the attribute values.
      *
      * @since 1.0.0

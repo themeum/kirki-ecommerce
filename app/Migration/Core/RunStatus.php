@@ -15,6 +15,4 @@ final class RunStatus
     public const RUNNING = 'running';
     public const FAILED = 'failed';
     public const DONE = 'done';
-    public const REVERTING = 'reverting';
-    public const REVERTED = 'reverted';
 }

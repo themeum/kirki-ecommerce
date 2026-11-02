@@ -76,7 +76,7 @@ class OnboardingDefaultsTest extends RestTestCase
         update_option('woocommerce_store_postcode', '12345');
         update_option('woocommerce_calc_taxes', 'yes');
         update_option('woocommerce_prices_include_tax', 'yes');
-        update_option('woocommerce_onboarding_profile', ['industry' => [['slug' => 'health-beauty']]]);
+        update_option('woocommerce_onboarding_profile', ['industry' => [['slug' => 'health_and_beauty']]]);
 
         $data = $this->defaults();
 
@@ -91,6 +91,45 @@ class OnboardingDefaultsTest extends RestTestCase
     }
 
     /**
+     * The first industry of the WooCommerce onboarding profile is the one that is mapped.
+     *
+     * @return void
+     */
+    public function test_first_woocommerce_industry_is_mapped()
+    {
+        update_option('woocommerce_version', '8.4.0');
+        update_option('woocommerce_onboarding_profile', ['industry' => [['slug' => 'arts_and_crafts'], ['slug' => 'health_and_beauty']]]);
+
+        $this->assertSame('arts-and-crafts-supplies', $this->defaults()['values']['industry']);
+    }
+
+    /**
+     * A dash separated industry key maps the same as an underscore separated one.
+     *
+     * @return void
+     */
+    public function test_dash_separated_industry_key_is_mapped()
+    {
+        update_option('woocommerce_version', '8.4.0');
+        update_option('woocommerce_onboarding_profile', ['industry' => ['food-and-drink']]);
+
+        $this->assertSame('food-beverage-and-gourmet', $this->defaults()['values']['industry']);
+    }
+
+    /**
+     * Only the first industry counts, so an unmapped first industry leaves the field empty.
+     *
+     * @return void
+     */
+    public function test_unmapped_first_industry_leaves_the_field_empty()
+    {
+        update_option('woocommerce_version', '8.4.0');
+        update_option('woocommerce_onboarding_profile', ['industry' => [['slug' => 'education_and_learning'], ['slug' => 'health_and_beauty']]]);
+
+        $this->assertArrayNotHasKey('industry', $this->defaults()['values']);
+    }
+
+    /**
      * Facts that WooCommerce does not have are left out.
      *
      * @return void
@@ -99,7 +138,7 @@ class OnboardingDefaultsTest extends RestTestCase
     {
         update_option('woocommerce_version', '8.4.0');
         update_option('woocommerce_store_address', '1 Shop Way');
-        update_option('woocommerce_onboarding_profile', ['industry' => ['unknown-industry']]);
+        update_option('woocommerce_onboarding_profile', ['industry' => ['unknown_industry']]);
 
         $values = $this->defaults()['values'];
 

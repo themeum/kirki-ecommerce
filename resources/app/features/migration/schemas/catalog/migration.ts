@@ -56,23 +56,7 @@ const MigrationSkippedItemSchema = z.object({
   reason: z.string(),
 });
 
-const MigrationRunStatusSchema = z.enum([
-  'pending',
-  'running',
-  'failed',
-  'done',
-  'reverting',
-  'reverted',
-]);
-
-const MigrationRevertProgressSchema = z.object({
-  run_id: z.number(),
-  status: MigrationRunStatusSchema,
-  done: z.boolean(),
-  total: z.number(),
-  removed: z.number(),
-  kept: z.number(),
-});
+const MigrationRunStatusSchema = z.enum(['pending', 'running', 'failed', 'done']);
 
 const MigrationRunSchema = z.object({
   id: z.number(),
@@ -80,7 +64,6 @@ const MigrationRunSchema = z.object({
   status: MigrationRunStatusSchema,
   groups: MigrationGroupStatesSchema,
   skipped_items: z.array(MigrationSkippedItemSchema).default([]),
-  revert: MigrationRevertProgressSchema.optional(),
   last_error: z.string().nullable(),
 });
 
@@ -99,30 +82,17 @@ const MigrationProgressSchema = z.object({
   notes: z.array(z.string()).default([]),
 });
 
-type MigrationSource = z.infer<typeof MigrationSourceSchema>;
-type MigrationExtension = z.infer<typeof MigrationExtensionSchema>;
-type MigrationGroup = z.infer<typeof MigrationGroupSchema>;
-type MigrationScan = z.infer<typeof MigrationScanSchema>;
 type MigrationGroupState = z.infer<typeof MigrationGroupStateSchema>;
-type MigrationSkippedItem = z.infer<typeof MigrationSkippedItemSchema>;
 type MigrationRun = z.infer<typeof MigrationRunSchema>;
 type MigrationProgress = z.infer<typeof MigrationProgressSchema>;
-type MigrationRevertProgress = z.infer<typeof MigrationRevertProgressSchema>;
 
 export {
-  type MigrationExtension,
-  type MigrationGroup,
   type MigrationGroupState,
   MigrationLatestRunSchema,
   type MigrationProgress,
   MigrationProgressSchema,
-  type MigrationRevertProgress,
-  MigrationRevertProgressSchema,
   type MigrationRun,
   MigrationRunSchema,
-  type MigrationScan,
   MigrationScanSchema,
-  type MigrationSkippedItem,
-  type MigrationSource,
   MigrationSourcesSchema,
 };

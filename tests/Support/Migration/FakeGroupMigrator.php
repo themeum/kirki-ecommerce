@@ -103,13 +103,6 @@ class FakeGroupMigrator extends AbstractGroupMigrator
         return $row;
     }
 
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        $this->reverted[] = $kirki_ecommerce_id;
-
-        return true;
-    }
-
     protected function persist($mapped, array $row, RecordLedger $ledger)
     {
         $this->persisted[] = $row['id'];

@@ -38,25 +38,4 @@ const getProgressDetail = (progress: MigrationProgress | null): string => {
   );
 };
 
-const getProgressMessage = (progress: MigrationProgress | null): string => {
-  if (!progress) {
-    return __('Preparing the migration…', 'kirki-ecommerce');
-  }
-
-  if (progress.done || !progress.group || !progress.label) {
-    return __('Migration complete', 'kirki-ecommerce');
-  }
-
-  const total = progress.groups[progress.group]?.total ?? progress.range_to;
-
-  return sprintf(
-    /* translators: 1: data group, for example Products. 2: first item number. 3: last item number. 4: total. */
-    __('Migrating %1$s %2$d-%3$d of %4$d', 'kirki-ecommerce'),
-    progress.label,
-    progress.range_from,
-    progress.range_to,
-    total,
-  );
-};
-
-export { getOverallPercent, getProgressDetail, getProgressMessage };
+export { getOverallPercent, getProgressDetail };

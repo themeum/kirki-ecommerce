@@ -31,6 +31,7 @@ import {
 import { readDraft, writeDraft } from '@/features/onboarding/lib/onboarding-draft';
 import { beginSetupSession, endSetupSession } from '@/features/onboarding/lib/onboarding-status';
 import { toFormPrefill } from '@/features/onboarding/lib/prefill';
+import { getCompletionProgress } from '@/features/onboarding/lib/progress';
 import {
   COMPLETION_STEP,
   getFormStepCount,
@@ -53,6 +54,7 @@ import { useAllCurrenciesQuery } from '@/features/settings';
 import { getDefaults } from '@/libs/zod';
 import { useCountriesQuery } from '@/services/country';
 import { getErrorMessage } from '@/services/helpers';
+import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 const buildSummary = (
@@ -248,7 +250,7 @@ const OnboardingWizardForm = ({ prefill }: OnboardingWizardFormProps) => {
       {
         label: sprintf(
           /* translators: %s: name of the plugin the data comes from. */
-          __('Migrate from %s', 'kirki-ecommerce'),
+          __('%s Migration', 'kirki-ecommerce'),
           migrationSource.label,
         ),
         value: __('Products, customers, orders and settings', 'kirki-ecommerce'),
@@ -290,6 +292,39 @@ const OnboardingWizardForm = ({ prefill }: OnboardingWizardFormProps) => {
 
   const footerMode = getFooterMode();
 
+  const getProgressMessage = () => {
+    const activeRow = rowStates.indexOf('in-progress');
+
+    if (activeRow !== -1) {
+      return sprintf(
+        /* translators: %s: the setup row that is in progress now, for example Currency. */
+        __('Setting up · %s', 'kirki-ecommerce'),
+        summaryRows[activeRow]?.label ?? '',
+      );
+    }
+
+    if (migrationSource && isSetupReady && isMigrationPending) {
+      return sprintf(
+        /* translators: %s: the part of the migration that is running now, for example Products 1-30 of 100. */
+        __('Migrating · %s', 'kirki-ecommerce'),
+        migration.detail,
+      );
+    }
+
+    return '';
+  };
+
+  const completionProgress = {
+    percent: getCompletionProgress({
+      stepCount: getFormStepCount(isTaxCollected),
+      rowStates,
+      hasMigration: migrationSource !== undefined,
+      migrationPercent: migration.percent,
+    }),
+    title: getStepTitle(COMPLETION_STEP),
+    message: getProgressMessage(),
+  };
+
   const errorMessage = createStore.isError
     ? createStore.error
       ? getErrorMessage(createStore.error)
@@ -302,19 +337,7 @@ const OnboardingWizardForm = ({ prefill }: OnboardingWizardFormProps) => {
     <OnboardingShell
       step={step}
       stepCount={getFormStepCount(isTaxCollected)}
-      progressOverride={
-        step === COMPLETION_STEP && migrationSource && isSetupReady && isMigrationPending
-          ? {
-              percent: migration.percent,
-              title: getStepTitle(COMPLETION_STEP),
-              message: sprintf(
-                /* translators: %s: the part of the migration that is running now, for example Products 1-30 of 100. */
-                __('Migrating · %s', 'kirki-ecommerce'),
-                migration.detail,
-              ),
-            }
-          : undefined
-      }
+      progressOverride={step === COMPLETION_STEP ? completionProgress : undefined}
       afterCard={
         step === COMPLETION_STEP &&
         footerMode === 'default' && (
@@ -377,8 +400,8 @@ const OnboardingWizard = () => {
   if (isLoading) {
     return (
       <OnboardingShell step={0} stepCount={getFormStepCount(false)}>
-        <Flex justify="center">
-          <Spinner />
+        <Flex align="center" justify="center" cssOverride={styles.loading}>
+          <Spinner cssOverride={styles.spinner} />
         </Flex>
       </OnboardingShell>
     );
@@ -390,3 +413,17 @@ const OnboardingWizard = () => {
 OnboardingWizard.displayName = 'OnboardingWizard';
 
 export default OnboardingWizard;
+
+const styles = defineStyles({
+  loading: {
+    flex: 1,
+  },
+  spinner: {
+    width: '20px',
+    height: '20px',
+    '& svg': {
+      width: '20px',
+      height: '20px',
+    },
+  },
+});

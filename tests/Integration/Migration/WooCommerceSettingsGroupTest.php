@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\Tests\Integration\Migration;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
-use Kirki\Ecommerce\App\Migration\Core\MigrationReverter;
 use Kirki\Ecommerce\App\Migration\Core\MigrationRunner;
 use Kirki\Ecommerce\App\Migration\Core\SourceRegistry;
 use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\WooCommerceSource;
@@ -74,7 +73,7 @@ class WooCommerceSettingsGroupTest extends RestTestCase
     protected function tearDown(): void
     {
         foreach (static::GROUPS as $group) {
-            Option::set($group, $this->snapshot[$group], true);
+            Option::set($group, $this->snapshot[$group], $group !== OptionKeys::EMAIL_SETTINGS);
         }
 
         MigrationRun::query()->delete();
@@ -145,7 +144,7 @@ class WooCommerceSettingsGroupTest extends RestTestCase
      *
      * @return void
      */
-    public function test_extra_options_follow_woocommerce_and_revert()
+    public function test_extra_options_follow_woocommerce()
     {
         update_option('woocommerce_email_from_address', 'shop@example.com');
         update_option('woocommerce_allowed_countries', 'specific');
@@ -159,7 +158,6 @@ class WooCommerceSettingsGroupTest extends RestTestCase
         update_option('woocommerce_notify_low_stock', 'no');
         update_option('woocommerce_email_footer_text', 'Thanks from the shop');
         update_option('woocommerce_email_base_color', '#112233');
-        $before_email = Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh()->to_array();
 
         $progress = $this->migrate();
 
@@ -180,12 +178,6 @@ class WooCommerceSettingsGroupTest extends RestTestCase
         $this->assertTrue($email['admin_emails']['inventory_notifications']['out_of_stock']['is_enabled'], 'An email WooCommerce has no value for keeps the Kirki value.');
         $this->assertSame('Thanks from the shop', $email['default_template']['footer']);
         $this->assertSame('#112233', $email['default_template']['colors']['button']['background']);
-
-        $this->revert_latest_run();
-
-        $this->assertNotSame('shop@example.com', Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array()['store_email']);
-        $this->assertSame($before_email['default_template']['footer'], Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh()->to_array()['default_template']['footer']);
-        $this->assertSame('before', Settings::get(OptionKeys::CURRENCY_SETTINGS)->refresh()->to_array()['currency_position']);
     }
 
     /**
@@ -457,20 +449,5 @@ class WooCommerceSettingsGroupTest extends RestTestCase
         $progress['notes'] = $notes;
 
         return $progress;
-    }
-
-    /**
-     * Revert the latest run of the source.
-     *
-     * @return void
-     */
-    protected function revert_latest_run(): void
-    {
-        $reverter = new MigrationReverter(new SourceRegistry());
-        $run = $reverter->start($this->runner->latest_run('woocommerce'));
-
-        do {
-            $progress = $reverter->next_chunk($run);
-        } while (!$progress['done']);
     }
 }

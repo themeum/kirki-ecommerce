@@ -56,10 +56,3 @@ A migrated order SHALL get the order number prefix and suffix of the general set
 #### Scenario: No prefix or suffix
 - **WHEN** the general settings have no prefix and no suffix and WooCommerce order 123 is migrated
 - **THEN** the Kirki order number is "000123"
-
-### Requirement: Revert of settings
-A revert SHALL restore the previous value of each setting the group changed.
-
-#### Scenario: Revert
-- **WHEN** a run is reverted
-- **THEN** units, checkout options, general, currency, tax and email values, tax regions and shipping zones return to their old values

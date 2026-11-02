@@ -11,7 +11,6 @@ use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Mappers\CustomerMapper;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\CustomerService;
-use Kirki\Ecommerce\App\Models\Order;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -139,15 +138,5 @@ class CustomersGroup extends WooCommerceGroup
         }
 
         return (int) $customer->id;
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        return $this->remove_record(Customer::class, $kirki_ecommerce_id, Order::query()->where('customer_id', $kirki_ecommerce_id)->exists());
     }
 }

@@ -10,7 +10,6 @@ use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Mappers\CouponMapper;
 use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\WooCommerceDatabase;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Services\CouponService;
-use Kirki\Ecommerce\App\Models\OrderCoupon;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -217,15 +216,5 @@ class CouponsGroup extends WooCommerceGroup
         }
 
         Coupon::query()->where('id', $coupon_id)->update($history);
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        return $this->remove_record(Coupon::class, $kirki_ecommerce_id, OrderCoupon::query()->where('coupon_id', $kirki_ecommerce_id)->exists());
     }
 }

@@ -9,7 +9,6 @@ use Kirki\Ecommerce\App\Migration\Core\RecordLedger;
 use Kirki\Ecommerce\App\Services\TagService;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use Kirki\Ecommerce\App\Models\Tag;
-use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -96,17 +95,5 @@ class TagsGroup extends TermsGroup
         $this->note_slug_change(__('Tag', 'kirki-ecommerce'), $row['name'], Str::slug($row['slug']), $tag->slug);
 
         return (int) $tag->id;
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        $in_use = DB::table('kirki_ecommerce_product_tags')->where('tag_id', $kirki_ecommerce_id)->exists();
-
-        return $this->remove_record(Tag::class, $kirki_ecommerce_id, $in_use);
     }
 }

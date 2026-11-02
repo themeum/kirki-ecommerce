@@ -14,13 +14,15 @@ use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\WooCommerceDatabase;
  */
 class OnboardingDefaultsReader
 {
-    /** WooCommerce onboarding industry slugs, and the Kirki industry that each one maps to. */
+    /** WooCommerce onboarding industry keys (underscore separated), and the Kirki industry that each one maps to. */
     protected const INDUSTRY_MAP = [
-        'fashion-apparel-accessories' => 'fashion-and-apparel',
-        'health-beauty' => 'beauty-cosmetics-and-personal-care',
-        'electronics-computers' => 'electronics-and-accessories',
-        'food-drink' => 'food-beverage-and-gourmet',
-        'home-furniture-garden' => 'home-decor-and-furniture',
+        'clothing_and_accessories' => 'fashion-and-apparel',
+        'health_and_beauty' => 'beauty-cosmetics-and-personal-care',
+        'electronics_and_computers' => 'electronics-and-accessories',
+        'food_and_drink' => 'food-beverage-and-gourmet',
+        'home_furniture_and_garden' => 'home-decor-and-furniture',
+        'arts_and_crafts' => 'arts-and-crafts-supplies',
+        'sports_and_recreation' => 'sports-and-fitness',
         'other' => 'other',
     ];
 
@@ -113,6 +115,6 @@ class OnboardingDefaultsReader
         $first = reset($industries);
         $slug = is_array($first) ? ($first['slug'] ?? '') : $first;
 
-        return is_string($slug) ? (static::INDUSTRY_MAP[$slug] ?? '') : '';
+        return is_string($slug) ? (static::INDUSTRY_MAP[str_replace('-', '_', $slug)] ?? '') : '';
     }
 }

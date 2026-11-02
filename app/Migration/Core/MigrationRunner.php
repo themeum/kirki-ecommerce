@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\Migration\Contracts\GroupMigrator;
 use Kirki\Ecommerce\App\Migration\Contracts\MigrationSource;
 use Kirki\Ecommerce\App\Migration\DTO\GroupDTO;
 use Kirki\Ecommerce\App\Migration\DTO\ScanResultDTO;
+use Kirki\Ecommerce\App\Migration\Models\MigrationRecordLedger;
 use Kirki\Ecommerce\App\Migration\Models\MigrationRun;
 use Throwable;
 
@@ -77,7 +78,7 @@ class MigrationRunner
     }
 
     /**
-     * Get the latest run of a source that was not reverted, if one exists.
+     * Get the latest run of a source, if one exists.
      *
      * @since 1.0.0
      *
@@ -88,7 +89,6 @@ class MigrationRunner
     {
         return MigrationRun::query()
             ->where('source', $source_id)
-            ->where('status', '!=', RunStatus::REVERTED)
             ->order_by('id', 'desc')
             ->first();
     }
@@ -136,6 +136,19 @@ class MigrationRunner
             'skipped_items' => [],
             'started_at' => current_time('mysql', true),
         ]);
+    }
+
+    /**
+     * Delete the ledger rows of a source. A finished run no longer needs them, because nothing is reverted.
+     *
+     * @since 1.0.0
+     *
+     * @param string $source_id The source id.
+     * @return void
+     */
+    public function clear_ledger(string $source_id)
+    {
+        MigrationRecordLedger::query()->where('source', $source_id)->delete();
     }
 
     /**

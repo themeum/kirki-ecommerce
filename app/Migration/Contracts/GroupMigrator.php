@@ -79,25 +79,4 @@ interface GroupMigrator
      * @return ChunkResultDTO
      */
     public function migrate_chunk(int $cursor, RecordLedger $ledger, $run_id = null);
-
-    /**
-     * Get the ledger entity types that the group creates.
-     *
-     * @since 1.0.0
-     *
-     * @return string[]
-     */
-    public function ledger_entities();
-
-    /**
-     * Remove one record that the group created, or put back what it changed.
-     *
-     * @since 1.0.0
-     *
-     * @param string $entity                The ledger entity type of the record.
-     * @param int    $kirki_ecommerce_id    The Kirki id of the record.
-     * @param mixed  $previous_value        The value saved when the record was created, or null.
-     * @return bool False when the record was kept because other data uses it.
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null);
 }

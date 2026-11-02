@@ -7,7 +7,6 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Migration\Http\Requests\MigrationScanRequest;
 use Kirki\Ecommerce\App\Migration\Http\Requests\MigrationStartRequest;
 use Kirki\Ecommerce\App\Migration\Contracts\MigrationSource;
-use Kirki\Ecommerce\App\Migration\Core\MigrationReverter;
 use Kirki\Ecommerce\App\Migration\Core\MigrationRunner;
 use Kirki\Ecommerce\App\Migration\Core\SourceRegistry;
 use Kirki\Ecommerce\App\Migration\Models\MigrationRun;
@@ -32,23 +31,18 @@ class MigrationController
     /** @var MigrationRunner */
     protected $runner;
 
-    /** @var MigrationReverter */
-    protected $reverter;
-
     /**
-     * Create the controller with the source registry, the runner and the reverter.
+     * Create the controller with the source registry and the runner.
      *
      * @since 1.0.0
      *
-     * @param SourceRegistry    $registry
-     * @param MigrationRunner   $runner
-     * @param MigrationReverter $reverter
+     * @param SourceRegistry  $registry
+     * @param MigrationRunner $runner
      */
-    public function __construct(SourceRegistry $registry, MigrationRunner $runner, MigrationReverter $reverter)
+    public function __construct(SourceRegistry $registry, MigrationRunner $runner)
     {
         $this->registry = $registry;
         $this->runner = $runner;
-        $this->reverter = $reverter;
     }
 
     /**
@@ -102,7 +96,7 @@ class MigrationController
     }
 
     /**
-     * Get the latest run of a source that was not reverted, so a reloaded page can show its state.
+     * Get the latest run of a source, so a reloaded page can show its state.
      *
      * @since 1.0.0
      *
@@ -152,44 +146,15 @@ class MigrationController
     public function chunk(Request $request)
     {
         $run = $this->find_run($request->int('id'));
+        $progress = $this->runner->next_chunk($run);
+
+        if ($progress['done']) {
+            $this->runner->clear_ledger($run->source);
+        }
 
         return response()->json([
-            'data' => $this->runner->next_chunk($run),
+            'data' => $progress,
             'message' => __('Migration chunk completed.', 'kirki-ecommerce'),
-        ]);
-    }
-
-    /**
-     * Start reverting a run.
-     *
-     * @since 1.0.0
-     *
-     * @param Request $request
-     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The run.
-     */
-    public function revert(Request $request)
-    {
-        $run = $this->reverter->start($this->find_run($request->int('id')));
-
-        return response()->json([
-            'data' => $this->present($run),
-            'message' => __('Revert started.', 'kirki-ecommerce'),
-        ]);
-    }
-
-    /**
-     * Run the next revert chunk of a run and return its progress.
-     *
-     * @since 1.0.0
-     *
-     * @param Request $request
-     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The progress after the chunk.
-     */
-    public function revert_chunk(Request $request)
-    {
-        return response()->json([
-            'data' => $this->reverter->next_chunk($this->find_run($request->int('id'))),
-            'message' => __('Revert chunk completed.', 'kirki-ecommerce'),
         ]);
     }
 
@@ -264,7 +229,6 @@ class MigrationController
             'status' => $run->status,
             'groups' => $run->groups ?: [],
             'skipped_items' => $run->skipped_items ?: [],
-            'revert' => $this->reverter->progress($run),
             'last_error' => $run->last_error,
         ];
     }

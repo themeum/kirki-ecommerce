@@ -10,19 +10,14 @@ import type {
   MigrationRun,
 } from '@/features/migration/schemas/catalog/migration';
 
-const { startMutateAsync, chunkMutateAsync, startRevertMutateAsync, revertChunkMutateAsync } =
-  vi.hoisted(() => ({
-    startMutateAsync: vi.fn(),
-    chunkMutateAsync: vi.fn(),
-    startRevertMutateAsync: vi.fn(),
-    revertChunkMutateAsync: vi.fn(),
-  }));
+const { startMutateAsync, chunkMutateAsync } = vi.hoisted(() => ({
+  startMutateAsync: vi.fn(),
+  chunkMutateAsync: vi.fn(),
+}));
 
 vi.mock('@/features/migration/services/migration', () => ({
   useStartMigrationMutation: () => ({ mutateAsync: startMutateAsync }),
   useRunMigrationChunkMutation: () => ({ mutateAsync: chunkMutateAsync }),
-  useStartRevertMutation: () => ({ mutateAsync: startRevertMutateAsync }),
-  useRunRevertChunkMutation: () => ({ mutateAsync: revertChunkMutateAsync }),
 }));
 
 const groupState = (done: number): MigrationGroupState => ({
@@ -68,8 +63,6 @@ describe('useMigrationRunner', () => {
   beforeEach(() => {
     startMutateAsync.mockReset();
     chunkMutateAsync.mockReset();
-    startRevertMutateAsync.mockReset();
-    revertChunkMutateAsync.mockReset();
   });
 
   it('keeps the same groups object across renders while idle', () => {
@@ -150,34 +143,5 @@ describe('useMigrationRunner', () => {
 
     expect(result.current.phase).toBe('done');
     expect(result.current.run?.id).toBe(9);
-  });
-
-  it('reverts a run chunk by chunk and goes back to idle with the result', async () => {
-    startRevertMutateAsync.mockResolvedValue({ ...run(9), status: 'reverting' });
-    revertChunkMutateAsync
-      .mockResolvedValueOnce({ run_id: 9, status: 'reverting', done: false, total: 70, removed: 50, kept: 0 })
-      .mockResolvedValueOnce({ run_id: 9, status: 'reverted', done: true, total: 70, removed: 69, kept: 1 });
-    const { result } = renderRunner();
-    act(() => result.current.restore({ ...run(9), status: 'done' }));
-
-    await act(() => result.current.revert());
-
-    expect(startRevertMutateAsync).toHaveBeenCalledWith(9);
-    expect(revertChunkMutateAsync).toHaveBeenCalledTimes(2);
-    expect(result.current.phase).toBe('idle');
-    expect(result.current.run).toBeNull();
-    expect(result.current.revertResult).toEqual({ removed: 69, kept: 1 });
-  });
-
-  it('stops a revert on an error so it can be retried', async () => {
-    startRevertMutateAsync.mockResolvedValue({ ...run(9), status: 'reverting' });
-    revertChunkMutateAsync.mockRejectedValueOnce({ message: 'Revert broke' });
-    const { result } = renderRunner();
-    act(() => result.current.restore({ ...run(9), status: 'done' }));
-
-    await act(() => result.current.revert());
-
-    expect(result.current.phase).toBe('revert-failed');
-    expect(result.current.errorMessage).toBe('Revert broke');
   });
 });

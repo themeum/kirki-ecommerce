@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { getStepProgress } from '@/features/onboarding/lib/progress';
 import {
   COMPLETION_STEP,
   getStepTitle,
@@ -37,9 +38,7 @@ const OnboardingShell = ({
   const isCompletion = step === COMPLETION_STEP;
   const progress = progressOverride
     ? progressOverride.percent
-    : isCompletion
-      ? 100
-      : (step / stepCount) * 100;
+    : getStepProgress(isCompletion ? stepCount : step, stepCount);
 
   return (
     <div css={scoped(styles.overlay)}>

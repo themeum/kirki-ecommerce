@@ -136,7 +136,6 @@ class SettingsGroup extends WooCommerceGroup
                 return $this->save_shipping_zone($mapped);
         }
 
-        $this->previous_value = $this->snapshot();
         $this->save_store($mapped);
         $this->save_general($mapped);
         $this->save_checkout_fields($mapped);
@@ -437,97 +436,5 @@ class SettingsGroup extends WooCommerceGroup
         $settings->set(['shipping_zones' => $zones], false);
 
         return count($zones);
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        if (!is_array($previous_value)) {
-            return true;
-        }
-
-        Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->set($previous_value['product'], false);
-        Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set($previous_value['checkout'], false);
-        Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->set($previous_value['tax'], false);
-        Settings::get(OptionKeys::SHIPPING_SETTINGS)->refresh()->set($previous_value['shipping'], false);
-        Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->set($previous_value['general'] ?? [], false);
-        Settings::get(OptionKeys::CURRENCY_SETTINGS)->refresh()->set($previous_value['currency'] ?? [], false);
-
-        foreach ((array) ($previous_value['email'] ?? []) as $root => $value) {
-            Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh()->set([$root => $value], false);
-        }
-
-        return true;
-    }
-
-    /**
-     * Read the Kirki settings that the store item can change, so that a revert can put them back.
-     *
-     * @since 1.0.0
-     *
-     * @return array<string, mixed>
-     */
-    protected function snapshot()
-    {
-        $product = Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->to_array();
-        $checkout = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->to_array();
-        $tax = Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->to_array();
-        $shipping = Settings::get(OptionKeys::SHIPPING_SETTINGS)->refresh()->to_array();
-        $general = Settings::get(OptionKeys::GENERAL_SETTINGS)->refresh()->to_array();
-        $currency = Settings::get(OptionKeys::CURRENCY_SETTINGS)->refresh()->to_array();
-        $email = Settings::get(OptionKeys::EMAIL_SETTINGS)->refresh()->to_array();
-
-        return [
-            'product' => $this->pick($product, ['weight_unit', 'dimension_unit', 'is_enabled_reviews', 'is_enabled_star_ratings', 'low_stock_threshold']),
-            'checkout' => $this->pick($checkout, ['is_allowed_guest_checkout', 'has_apply_coupon_code', 'checkout_configuration']),
-            'tax' => ['tax_regions' => $tax['tax_regions'] ?? [], 'is_enabled_display_inclusive_taxed_price' => $tax['is_enabled_display_inclusive_taxed_price'] ?? null],
-            'general' => $this->pick($general, ['store_email', 'selling_location_type', 'selling_countries']),
-            'currency' => $this->pick($currency, ['currency_position', 'thousand_separator', 'decimal_separator']),
-            'email' => $this->email_roots($email),
-            'shipping' => ['shipping_zones' => $shipping['shipping_zones'] ?? []],
-        ];
-    }
-
-    /**
-     * Pick the email roots that the migration can change, without the shortcode lists.
-     *
-     * @since 1.0.0
-     *
-     * @param array<string, mixed> $email The saved email settings.
-     * @return array<string, mixed>
-     */
-    protected function email_roots(array $email)
-    {
-        $roots = [];
-
-        foreach (['customer_emails', 'admin_emails', 'default_template'] as $root) {
-            $roots[$root] = $this->without_shortcodes((array) ($email[$root] ?? []));
-        }
-
-        return $roots;
-    }
-
-    /**
-     * Pick the named settings, with null for a setting that is not saved.
-     *
-     * @since 1.0.0
-     *
-     * @param array<string, mixed> $settings The saved settings.
-     * @param string[]             $fields   The setting names.
-     * @return array<string, mixed>
-     */
-    protected function pick(array $settings, array $fields)
-    {
-        $picked = [];
-
-        foreach ($fields as $field) {
-            $picked[$field] = $settings[$field] ?? null;
-        }
-
-        return $picked;
     }
 }

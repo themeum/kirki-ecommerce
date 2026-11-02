@@ -47,9 +47,10 @@ migrated, only **Go to Dashboard** shows (section 2.2).
 | **4. Store Tax** (only when tax is *Yes*) | "Prices on your products" (*Including tax* / *Excluding Tax*, default *Excluding Tax*); Tax ID | Nothing. |
 
 - **Header.** The header shows "Step N" and the step name, with no total. The
-  progress bar counts the steps already done, against 4 steps when tax is *Yes* and
-  3 when it is *No, not yet*. It is empty on step 1 and full only on the final
-  screen, after **Create Store**. The final screen shows "Setup Complete" with no step number.
+  progress bar counts the steps already done. The final screen is one more equal part,
+  so the bar has 5 parts when tax is *Yes* and 4 when it is *No, not yet*. It is empty
+  on step 1 and never full on an input step. The final screen, after **Create Store**,
+  fills the last part (see 2.2) and shows "Setup Complete" with no step number.
 - **Primary action.** Essentials shows **Continue** when tax is *Yes* and
   **Create Store** when it is *No, not yet*. The note "Shop, Cart, Checkout and
   Account pages will be created" shows only above **Create Store**.
@@ -75,29 +76,43 @@ first answers. Every field stays editable.
 | Field | Read from | When missing |
 |---|---|---|
 | Store name | WordPress site title (`blogname`) | Empty |
-| Industry | First entry of `woocommerce_onboarding_profile['industry']`, mapped to the Kirki list | Empty |
+| Industry | First entry of `woocommerce_onboarding_profile['industry']`, mapped to the Kirki list (see below) | Empty |
 | Country | `woocommerce_default_country` (the state part is dropped) | Browser detection |
 | Address lines, city, postcode | `woocommerce_store_address`, `_2`, `_city`, `_postcode`, only with a country | Empty |
 | Currency | `woocommerce_currency` | Country currency |
 | Collect sales tax? | `woocommerce_calc_taxes` | *No, not yet* |
 | Prices on your products | `woocommerce_prices_include_tax`, when tax is collected | *Excluding Tax* |
 
+The industry map (WooCommerce key → Kirki industry): `clothing_and_accessories` → Fashion &
+Apparel; `health_and_beauty` → Beauty, Cosmetics & Personal Care;
+`electronics_and_computers` → Electronics & Accessories; `food_and_drink` → Food, Beverage
+& Gourmet; `home_furniture_and_garden` → Home Decor & Furniture; `arts_and_crafts` → Arts &
+Crafts Supplies; `sports_and_recreation` → Sports & Fitness; `other` → Other. Only the
+first entry counts. Any other WooCommerce industry has no Kirki match, so the field stays
+empty and the merchant picks one. A dash form of a key (`health-and-beauty`) is read the
+same way.
+
 A country or currency that Kirki does not know is ignored. A saved draft (see
 below) wins over the prefill. The wizard waits for this read before it shows step 1.
 
 ### 2.2 The final screen with WooCommerce
 
-When WooCommerce is found, the final screen adds a last row, **Migrate from
-WooCommerce**, after Configurations. Once the setup rows are done it migrates every
+When WooCommerce is found, the final screen adds a last row, **WooCommerce
+Migration**, after Configurations. Once the setup rows are done it migrates every
 group with no choice screen (see [migration.md](migration.md)).
 
 - Each row shows a ring that fills, then a check. The Migrate row ring shows the real
   migration percent.
-- While it runs, the top bar reads "Migrating · <current step>" and the right label
-  stays "Setup Complete".
+- The top bar fills the last part without a reset. With WooCommerce, the setup rows
+  fill the first 10% of that part and the migration fills the other 90%. Without
+  WooCommerce, the setup rows fill all of it. If setup or the migration fails, the bar
+  stops where it is.
+- The left text reads "Setting up · <row>" while a setup row runs and
+  "Migrating · <current step>" while the migration runs. The right label stays
+  "Setup Complete".
 - When it ends, only **Go to Dashboard** shows, and the sample data link is hidden.
 - When it fails, the screen shows the error with **Retry** and **Go to Dashboard**.
-- **Revert** is not shown here. It stays on the migration page.
+- There is no **Revert**, and no other place to start a migration.
 
 ## 3. What "Create Store" does
 
@@ -416,6 +431,5 @@ from step one.
   option. Only six of its industries map to a Kirki industry; the others leave the
   field empty.
 - **The state of the address is not prefilled.** Kirki names states by its own ids.
-- **The migration is all or nothing in the wizard.** The choice of groups exists only
-  on the migration page.
+- **The migration is all or nothing.** There is no choice of groups, and no revert.
 

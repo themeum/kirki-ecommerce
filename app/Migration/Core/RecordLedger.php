@@ -9,8 +9,7 @@ use Kirki\Ecommerce\App\Migration\Models\MigrationRecordLedger;
 /**
  * Records which Kirki record each source record became, for one source plugin.
  *
- * A row also says whether the migration created the record or reused an existing one, so that a
- * revert deletes only what the migration created.
+ * A row also says whether the migration created the record or reused an existing one.
  *
  * @since 1.0.0
  */
@@ -56,10 +55,9 @@ class RecordLedger
      * @param int      $kirki_ecommerce_id  The id in Kirki.
      * @param int|null $run_id    The run that created the link.
      * @param string   $origin    "created" or "reused".
-     * @param mixed    $previous_value The value that a revert puts back, for settings.
      * @return void
      */
-    public function link(string $entity, int $source_id, int $kirki_ecommerce_id, $run_id = null, string $origin = MigrationRecordLedger::ORIGIN_CREATED, $previous_value = null)
+    public function link(string $entity, int $source_id, int $kirki_ecommerce_id, $run_id = null, string $origin = MigrationRecordLedger::ORIGIN_CREATED)
     {
         MigrationRecordLedger::create([
             'source' => $this->source,
@@ -68,7 +66,6 @@ class RecordLedger
             'kirki_ecommerce_id' => $kirki_ecommerce_id,
             'run_id' => $run_id,
             'origin' => $origin,
-            'previous_value' => $previous_value,
         ]);
 
         $this->cache[$entity . ':' . $source_id] = $kirki_ecommerce_id;

@@ -204,6 +204,24 @@ class MigrationRunnerTest extends RestTestCase
     }
 
     /**
+     * Clearing the ledger deletes the rows of one source and leaves the other sources alone.
+     *
+     * @return void
+     */
+    public function test_clear_ledger_deletes_only_the_rows_of_the_source()
+    {
+        (new RecordLedger('fake'))->link('products', 1, 10);
+        (new RecordLedger('other'))->link('products', 1, 20);
+
+        $this->runner->clear_ledger('fake');
+
+        $this->assertFalse((new RecordLedger('fake'))->exists('products', 1));
+        $this->assertTrue((new RecordLedger('other'))->exists('products', 1));
+
+        MigrationRecordLedger::query()->where('source', 'other')->delete();
+    }
+
+    /**
      * Starting a run while one is unfinished returns the unfinished run.
      *
      * @return void

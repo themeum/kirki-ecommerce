@@ -22,7 +22,6 @@ class MigrationRun extends Model
         'status',
         'groups',
         'skipped_items',
-        'revert_state',
         'last_error',
         'started_at',
         'finished_at',
@@ -33,7 +32,6 @@ class MigrationRun extends Model
         'id' => 'integer',
         'groups' => 'json',
         'skipped_items' => 'json',
-        'revert_state' => 'json',
         'started_at' => 'datetime',
         'finished_at' => 'datetime',
     ];

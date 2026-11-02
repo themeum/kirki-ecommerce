@@ -165,7 +165,7 @@ describe('onboarding wizard', () => {
     startFromDraft(2, essentialsValues);
     renderWizard();
 
-    expect(getProgress()).toBeCloseTo(66.67, 1);
+    expect(getProgress()).toBe(50);
   });
 
   it('switches the Essentials action to Continue when tax is collected', async () => {
@@ -196,7 +196,7 @@ describe('onboarding wizard', () => {
     expect(await screen.findByText('Tax Info')).toBeInTheDocument();
     expect(screen.getByText('Step 4')).toBeInTheDocument();
     expect(screen.getByText('Store Tax')).toBeInTheDocument();
-    expect(getProgress()).toBe(75);
+    expect(getProgress()).toBe(60);
     expect(screen.getByRole('radio', { name: 'Excluding Tax' })).toBeChecked();
     expect(screen.getByRole('button', { name: 'Create Store' })).toBeInTheDocument();
     expect(createStore.mutate).not.toHaveBeenCalled();
@@ -209,6 +209,15 @@ describe('onboarding wizard', () => {
     expect(screen.getByText('Setup the essentials')).toBeInTheDocument();
   });
 
+  it('names the setup row in progress in the top bar', async () => {
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+
+    expect(await screen.findByText('Setting up · Location')).toBeInTheDocument();
+  });
+
   it('hides the step number and every action while setup runs', async () => {
     startFromDraft(2, essentialsValues);
     renderWizard();
@@ -217,7 +226,8 @@ describe('onboarding wizard', () => {
 
     expect(await screen.findByText('Your store is almost ready')).toBeInTheDocument();
     expect(screen.getByText('Setup Complete')).toBeInTheDocument();
-    expect(getProgress()).toBe(100);
+    expect(getProgress()).toBeGreaterThanOrEqual(75);
+    expect(getProgress()).toBeLessThan(100);
     expect(screen.queryByText(/^Step \d/)).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Add your first product' }),
@@ -304,7 +314,7 @@ describe('onboarding wizard', () => {
     finishSetup();
     await waitForSetupReady();
 
-    expect(screen.queryByText('Migrate from WooCommerce')).not.toBeInTheDocument();
+    expect(screen.queryByText('WooCommerce Migration')).not.toBeInTheDocument();
   });
 
   it('has no migrate row when the source version is not supported', async () => {
@@ -314,19 +324,19 @@ describe('onboarding wizard', () => {
     finishSetup();
     await waitForSetupReady();
 
-    expect(screen.queryByText('Migrate from WooCommerce')).not.toBeInTheDocument();
+    expect(screen.queryByText('WooCommerce Migration')).not.toBeInTheDocument();
   });
 
   it('shows the migrate row and the migration text while the migration runs, with no actions', async () => {
     migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
     finishSetup();
 
-    expect(await screen.findByText('Migrate from WooCommerce')).toBeInTheDocument();
+    expect(await screen.findByText('WooCommerce Migration')).toBeInTheDocument();
     expect(
       await screen.findByText('Migrating · Products 1-30 of 100', {}, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(screen.getByText('Setup Complete')).toBeInTheDocument();
-    expect(getProgress()).toBe(40);
+    expect(getProgress()).toBeCloseTo(86.5, 1);
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 

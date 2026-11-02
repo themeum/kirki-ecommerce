@@ -1,7 +1,8 @@
 ## Context
 
 The wizard already has the completion screen, `useStaggeredRows`, and an optional
-`MigrationFlow` (scan, run, summary, revert) behind a "Migrate from WooCommerce" button.
+`MigrationFlow` (scan, run, summary, revert) behind a "Migrate from WooCommerce" button
+on the dashboard and a standalone migration page.
 `SettingsGroup` already copies currency, address and tax switches. `VersionProbe`
 tells if WooCommerce is installed and supported (minimum 7.0.0).
 
@@ -9,7 +10,7 @@ tells if WooCommerce is installed and supported (minimum 7.0.0).
 
 **Goals:** prefill from WooCommerce; automatic migration as last row; ring progress;
 button rules from the proposal.
-**Non-Goals:** changing the standalone migration page flow; migrating the state of the
+**Non-Goals:** keeping the standalone migration page or Revert; migrating the state of the
 address; guessing industry from product categories.
 
 ## Decisions
@@ -35,12 +36,30 @@ address; guessing industry from product categories.
    form waits for the defaults query (one short loading state) before it mounts, so
    `defaultValues` is right on first render. If the query fails, the wizard uses today's
    defaults.
-4. **Auto-run.** `MigrationFlow` gets an `autoStart` mode: it skips the scan UI, calls
-   `runner.start(allGroupIds)` after the setup rows end, and exposes progress only. The
-   standalone page keeps the current mode. A "Skip" prop is removed from the onboarding use.
-   If a latest unfinished run exists (reload), it resumes through `runner.restore`.
-5. **Progress text.** The shell `progressOverride` message becomes
-   `sprintf('Migrating · %s', message)` on the left; the right title is "Setup Complete".
+4. **Auto-run.** `useAutoMigration` calls `runner.start(allGroupIds)` after the setup
+   rows end and exposes progress only. If a latest unfinished run exists (reload), it
+   resumes through `runner.restore`.
+4a. **Single entry point (revision 5).** Onboarding is the only place that runs a migration.
+   Remove the `Migration` route in `route-config.ts`, `features/migration/routes.tsx`, the
+   page, the dashboard button (and its sources query in `home.tsx`), `MigrationFlow`, the
+   scan, summary, revert and layout step components, and the revert parts of
+   `useMigrationRunner`, `services/migration.ts`, the schemas and `endpoints.ts`. Keep the
+   sources, scan, start, chunk, show and latest requests: onboarding and Retry use them.
+   On the backend, remove the revert routes and controller actions, `MigrationReverter`,
+   the `revert_record()` method of the `GroupMigrator` contract and of every group, the
+   revert states of `RunStatus`, and the settings snapshots (`snapshot()`, `pick()`,
+   `email_roots()`, `previous_value`). Revert tests go with them. The `previous_value` and
+   revert database columns stay in place, unused, to avoid a schema change. Group
+   descriptions stay in the PHP groups, because a scan response still returns them.
+5. **Progress bar and text.** N input steps (4 with tax, 3 without) plus the completion
+   screen make N + 1 equal parts. An input step fills `(step - 1) / (N + 1)`. On the
+   completion screen the wizard computes one bar percent: `N / (N + 1)` plus the last
+   part times the work done. With WooCommerce the work done is `0.1 * setupRows done +
+   0.9 * migration percent`; without it, `setupRows done`. The shell `progressOverride`
+   now applies on the whole completion screen, not only while migration runs. The left
+   text is `Setting up · <row label>` for the row in progress, then
+   `sprintf('Migrating · %s', message)`; the right title is "Setup Complete". A failure
+   freezes the percent.
 6. **Rings.** New `ProgressRing` UI component (SVG circle, `stroke-dashoffset`). Setup
    rows take a timed value from `useStaggeredRows`; the Migrate row takes the real percent.
    The Spinner stays elsewhere.
@@ -48,8 +67,14 @@ address; guessing industry from product categories.
    The footer renders: nothing while busy; failure = error + Retry + Go to Dashboard;
    migration done = Go to Dashboard; otherwise the current three controls.
 8. **Settings group.** Remove `save_currency`, `save_address`, `save_tax_switches` and
-   their snapshot/revert parts. Add `save_units`, `save_checkout`, and keep `snapshot`
-   for the new keys. Onboarding writes the same values, so a later run finds no change.
+   their snapshot/revert parts. Add `save_units` and `save_checkout`. Onboarding writes the same values, so a later run finds no change.
+
+**Ledger cleanup (revision 6).** Revert is gone, so the ledger only serves resume inside one
+run. `MigrationRunner::clear_ledger(source)` deletes the rows of a source. The run controller
+calls it when the last chunk of a run reports done; the runner and the group classes do not,
+so a full run in a test still leaves the ledger readable. A failed run keeps its rows. The
+`migration_runs` row stays: a reload reads the done state from it. The row label is
+`sprintf('%s Migration', source label)`.
 
 ## Settings mapping for review (write)
 
@@ -79,7 +104,7 @@ cannot hold (unsupported unit, account creation at checkout).
 list is cleared once, before the first WooCommerce rate is added. If WooCommerce has
 shipping zones, the Kirki `shipping_zones` list is cleared once the same way. If
 WooCommerce has none of a kind, that Kirki list stays. The clear happens in the first
-(store) item of the group, after the snapshot, so revert restores the old lists.
+(store) item of the group.
 
 **Industry:** WooCommerce keeps the onboarding industry in
 `woocommerce_onboarding_profile['industry']`. The reader accepts a slug or a `{slug}`
@@ -131,9 +156,13 @@ from Kirki shortcodes.
   odd value gives an empty industry, never an error.
 - Site title is shared with WordPress; a merchant may not want it as store name. The field
   stays editable.
-- Auto-run migrates everything with no choice. Revert on the standalone page is the escape.
+- Auto-run migrates everything with no choice, and there is no Revert any more. A migration
+  cannot be undone from the product.
+- After a successful run the ledger is empty, so a second migration of the same store cannot
+  tell what was migrated: slugs and SKUs get a suffix, customers are reused by email, and
+  orders are duplicated. Onboarding runs once, so this is accepted and documented.
 - Replace rule: a merchant who edited tax regions, shipping zones or a setting in Kirki loses
-  that edit when the migration runs. Revert restores it. If every WooCommerce rate is
+  that edit when the migration runs, and nothing restores it. If every WooCommerce rate is
   skipped (for example non-standard tax classes), the cleared tax list stays empty.
 - The email and option names above come from WooCommerce documentation and source; an
   option that is not saved is treated as "WooCommerce has no value" and changes nothing.

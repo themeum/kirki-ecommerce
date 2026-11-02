@@ -17,7 +17,6 @@ use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\Framework\Supports\Str;
-use Kirki\Ecommerce\App\Models\OrderItem;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -370,29 +369,5 @@ class ProductsGroup extends WooCommerceGroup
         }
 
         Product::query()->where('id', $product_id)->update($dates);
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function ledger_entities()
-    {
-        return ['product', 'variant'];
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        if ($entity === 'variant') {
-            return $this->remove_record(Variant::class, $kirki_ecommerce_id, OrderItem::query()->where('variant_id', $kirki_ecommerce_id)->exists());
-        }
-
-        return $this->remove_record(Product::class, $kirki_ecommerce_id, OrderItem::query()->where('product_id', $kirki_ecommerce_id)->exists());
     }
 }

@@ -27,7 +27,6 @@ class MigrationRecordLedger extends Model
         'kirki_ecommerce_id',
         'run_id',
         'origin',
-        'previous_value',
     ];
 
     /** @inheritDoc */
@@ -36,6 +35,5 @@ class MigrationRecordLedger extends Model
         'source_id' => 'integer',
         'kirki_ecommerce_id' => 'integer',
         'run_id' => 'integer',
-        'previous_value' => 'json',
     ];
 }

@@ -134,6 +134,53 @@ class MigrationApiTest extends RestTestCase
     }
 
     /**
+     * The ledger rows of the source are deleted when the last chunk reports done, and not before.
+     *
+     * @return void
+     */
+    public function test_ledger_is_cleared_when_the_run_is_done()
+    {
+        $start = $this->assert_api_success($this->request('POST', 'migration/runs', ['source' => 'fake', 'groups' => ['products']]), 201);
+        $run_id = $start['data']['id'];
+
+        $first = $this->assert_api_success($this->request('POST', 'migration/runs/' . $run_id . '/chunk'));
+        $this->assertFalse($first['data']['done']);
+        $this->assertSame(30, MigrationRecordLedger::query()->where('source', 'fake')->count());
+
+        $this->assert_api_success($this->request('POST', 'migration/runs/' . $run_id . '/chunk'));
+        $last = $this->assert_api_success($this->request('POST', 'migration/runs/' . $run_id . '/chunk'));
+
+        $this->assertTrue($last['data']['done']);
+        $this->assertSame(0, MigrationRecordLedger::query()->where('source', 'fake')->count());
+        $latest = $this->assert_api_success($this->request('GET', 'migration/runs/latest', ['source' => 'fake']));
+        $this->assertSame('done', $latest['data']['status']);
+    }
+
+    /**
+     * A failed run keeps its ledger rows, so Retry continues without creating duplicates.
+     *
+     * @return void
+     */
+    public function test_failed_run_keeps_the_ledger_and_retry_continues()
+    {
+        $start = $this->assert_api_success($this->request('POST', 'migration/runs', ['source' => 'fake', 'groups' => ['products']]), 201);
+        $run_id = $start['data']['id'];
+        $this->products->explode_after = 30;
+
+        $this->assert_api_success($this->request('POST', 'migration/runs/' . $run_id . '/chunk'));
+        $this->assertGreaterThanOrEqual(400, $this->request('POST', 'migration/runs/' . $run_id . '/chunk')->get_status());
+        $this->assertSame(30, MigrationRecordLedger::query()->where('source', 'fake')->count());
+
+        $this->assert_api_success($this->request('POST', 'migration/runs/' . $run_id . '/chunk'));
+        $last = $this->assert_api_success($this->request('POST', 'migration/runs/' . $run_id . '/chunk'));
+
+        $this->assertTrue($last['data']['done']);
+        $this->assertSame([], array_diff(range(1, 70), $this->products->persisted));
+        $this->assertSame(70, count($this->products->persisted));
+        $this->assertSame(0, MigrationRecordLedger::query()->where('source', 'fake')->count());
+    }
+
+    /**
      * Starting a second run while one is unfinished returns the unfinished run, and it can be fetched by source.
      *
      * @return void

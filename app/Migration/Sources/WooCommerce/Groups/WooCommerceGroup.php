@@ -60,25 +60,4 @@ abstract class WooCommerceGroup extends AbstractGroupMigrator
     {
         throw new LogicException(esc_html__('Not implemented yet.', 'kirki-ecommerce'));
     }
-
-    /**
-     * Delete one Kirki record, unless other data uses it.
-     *
-     * @since 1.0.0
-     *
-     * @param string $model_class        The model class of the record.
-     * @param int    $kirki_ecommerce_id The Kirki id of the record.
-     * @param bool   $is_in_use          Whether other data uses the record.
-     * @return bool False when the record was kept.
-     */
-    protected function remove_record(string $model_class, int $kirki_ecommerce_id, bool $is_in_use)
-    {
-        if ($is_in_use) {
-            return false;
-        }
-
-        $model_class::query()->where('id', $kirki_ecommerce_id)->delete();
-
-        return true;
-    }
 }

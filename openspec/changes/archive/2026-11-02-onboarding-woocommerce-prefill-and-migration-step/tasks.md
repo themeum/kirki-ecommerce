@@ -66,3 +66,27 @@
 - [x] 9.1 `OrdersGroup::persist` builds `order_number` with `OrderNumberGenerator` (prefix, WooCommerce id padded to 6, suffix)
 - [x] 9.2 Integration test for the prefix and suffix; update the existing order number assertion
 - [x] 9.3 Update the Orders row in `docs/migration.md`
+
+## 10. Top bar progress
+
+- [x] 10.1 Shell: input steps fill `(step - 1) / (N + 1)`; the completion screen has no fixed full value
+- [x] 10.2 Wizard: one bar percent for the completion screen (setup rows 10% and migration 90% with WooCommerce, setup rows 100% without) and the `Setting up · <row>` left text
+- [x] 10.3 Update the shell and wizard tests and the progress text in `docs/onboarding.md`
+- [x] 10.4 Run `npm run typecheck && npm test` in `resources/app/`
+
+## 11. Remove the standalone migration
+
+- [x] 11.1 Remove the `/migration/woo-commerce` route (`route-config.ts`, `routes.tsx`, `features/migration/routes.tsx`), the page and its test
+- [x] 11.2 Remove the dashboard "Migrate from WooCommerce" button and its sources query from `home.tsx`; update the home tests
+- [x] 11.3 Remove `MigrationFlow`, the scan, summary, revert and layout step components and their tests; remove the revert parts of `useMigrationRunner`, `services/migration.ts`, the schemas and `endpoints.ts`
+- [x] 11.4 Backend: remove the revert routes and controller actions, `MigrationReverter`, `revert_record()` (contract and every group), the revert states of `RunStatus`, and the `SettingsGroup` snapshots
+- [x] 11.5 Remove the revert tests (`WooCommerceRevertTest`, the revert parts of the settings group test and `FakeGroupMigrator`); keep the other group tests passing
+- [x] 11.6 Update `docs/migration.md` and `docs/onboarding.md`: remove Revert and the standalone page, add a "Where this differs" note
+- [x] 11.7 Run PHP tests and phpcs, then `npm run typecheck && npm run lint && npm test` in `resources/app/`
+
+## 12. Row label and ledger cleanup
+
+- [x] 12.1 Rename the last completion row to `<source label> Migration` in `onboarding-wizard.tsx`; update the wizard tests
+- [x] 12.2 Add `MigrationRunner::clear_ledger(source)` and call it from the run controller when the last chunk is done; integration tests for done, failed and Retry
+- [x] 12.3 Update `docs/migration.md` (ledger cleared, re-run risk) and `docs/onboarding.md` (row name)
+- [x] 12.4 Run PHP tests and phpcs, then `npm run typecheck && npm run lint && npm test` in `resources/app/`

@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   getOverallPercent,
   getProgressDetail,
-  getProgressMessage,
 } from '@/features/migration/lib/progress';
 import type {
   MigrationGroupState,
@@ -56,22 +55,6 @@ describe('getOverallPercent', () => {
 
   it('is full when every group is empty and done', () => {
     expect(getOverallPercent({ settings: state({ total: 0, done: 0, status: 'done' }) })).toBe(100);
-  });
-});
-
-describe('getProgressMessage', () => {
-  it('describes the range, the group and the total of the current chunk', () => {
-    expect(getProgressMessage(progress())).toBe('Migrating Products 11-20 of 100');
-  });
-
-  it('tells that the migration is being prepared before the first chunk', () => {
-    expect(getProgressMessage(null)).toBe('Preparing the migration…');
-  });
-
-  it('tells that the migration is complete after the last chunk', () => {
-    expect(getProgressMessage(progress({ done: true, group: null, label: null }))).toBe(
-      'Migration complete',
-    );
   });
 });
 

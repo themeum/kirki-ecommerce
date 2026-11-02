@@ -27,7 +27,7 @@ class CreateMigrationRunsTable implements Migration
         Schema::create('kirki_ecommerce_migration_runs', function (Structure $table) {
             $table->id();
             $table->string('source', 50)->comment('Source plugin id, for example woocommerce');
-            $table->string('status', 20)->default('pending')->comment('Supported values: pending, running, failed, done, reverting, reverted');
+            $table->string('status', 20)->default('pending')->comment('Supported values: pending, running, failed, done');
             $table->long_text('groups')->nullable()->comment('Selected groups with status, cursor, total and counts as JSON');
             $table->long_text('skipped_items')->nullable()->comment('Skipped items with source id, group and reason as JSON');
             $table->long_text('revert_state')->nullable()->comment('Revert position, removed and kept counts as JSON');

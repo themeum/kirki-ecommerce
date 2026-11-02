@@ -21,9 +21,6 @@ abstract class AbstractGroupMigrator implements GroupMigrator
     /** @var string[] Notes collected while the current chunk runs. */
     protected $notes = [];
 
-    /** @var mixed The value a revert puts back for the row being migrated; groups set it while they save the row. */
-    protected $previous_value;
-
     /** @var int|null The run the current chunk belongs to; groups use it to link records they create beyond the row itself. */
     protected $run_id;
 
@@ -152,16 +149,6 @@ abstract class AbstractGroupMigrator implements GroupMigrator
     }
 
     /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function ledger_entities()
-    {
-        return [$this->entity()];
-    }
-
-    /**
      * Migrate one row and count it as created, reused or skipped.
      *
      * @since 1.0.0
@@ -188,9 +175,8 @@ abstract class AbstractGroupMigrator implements GroupMigrator
                 return;
             }
 
-            $this->previous_value = null;
             $kirki_ecommerce_id = $this->persist($this->map($row, $ledger), $row, $ledger);
-            $ledger->link($this->entity(), $source_id, $kirki_ecommerce_id, $run_id, MigrationRecordLedger::ORIGIN_CREATED, $this->previous_value);
+            $ledger->link($this->entity(), $source_id, $kirki_ecommerce_id, $run_id, MigrationRecordLedger::ORIGIN_CREATED);
             DB::commit();
             $result->created++;
         } catch (Throwable $e) {

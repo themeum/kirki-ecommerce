@@ -14,6 +14,4 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::post('/migration/runs', [MigrationController::class, 'start']);
     Route::get('/migration/runs/{id}', [MigrationController::class, 'show']);
     Route::post('/migration/runs/{id}/chunk', [MigrationController::class, 'chunk']);
-    Route::post('/migration/runs/{id}/revert', [MigrationController::class, 'revert']);
-    Route::post('/migration/runs/{id}/revert/chunk', [MigrationController::class, 'revert_chunk']);
 });

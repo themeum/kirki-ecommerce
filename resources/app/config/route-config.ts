@@ -25,10 +25,6 @@ export const RouteConfig = {
 
   Analytics: defineRoute('/analytics'),
 
-  Migration: defineRoute('/migration', {
-    WooCommerce: defineRoute('/woo-commerce'),
-  }),
-
   Collections: defineRoute('/collections', {
     CollectionDetail: defineRoute('/:id'),
   }),

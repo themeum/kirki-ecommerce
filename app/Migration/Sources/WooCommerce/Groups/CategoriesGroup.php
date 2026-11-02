@@ -10,7 +10,6 @@ use Kirki\Ecommerce\App\Migration\Core\SkipItemException;
 use Kirki\Ecommerce\App\Services\CategoryService;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use Kirki\Ecommerce\App\Models\Category;
-use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -135,18 +134,5 @@ class CategoriesGroup extends TermsGroup
         $ledger->link($this->entity(), $parent_term_id, $parent_id, $this->run_id);
 
         return $parent_id;
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        $in_use = DB::table('kirki_ecommerce_category_product')->where('category_id', $kirki_ecommerce_id)->exists()
-            || Category::query()->where('parent_id', $kirki_ecommerce_id)->exists();
-
-        return $this->remove_record(Category::class, $kirki_ecommerce_id, $in_use);
     }
 }

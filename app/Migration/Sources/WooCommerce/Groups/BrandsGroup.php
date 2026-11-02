@@ -98,14 +98,4 @@ class BrandsGroup extends TermsGroup
 
         return (int) $brand->id;
     }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        return $this->remove_record(Brand::class, $kirki_ecommerce_id, Product::query()->where('brand_id', $kirki_ecommerce_id)->exists());
-    }
 }

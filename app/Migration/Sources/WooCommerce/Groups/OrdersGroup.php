@@ -362,28 +362,4 @@ class OrdersGroup extends WooCommerceGroup
             }
         }
     }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function ledger_entities()
-    {
-        return ['order', 'guest_customer'];
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function revert_record(string $entity, int $kirki_ecommerce_id, $previous_value = null)
-    {
-        if ($entity === 'guest_customer') {
-            return $this->remove_record(Customer::class, $kirki_ecommerce_id, Order::query()->where('customer_id', $kirki_ecommerce_id)->exists());
-        }
-
-        return $this->remove_record(Order::class, $kirki_ecommerce_id, false);
-    }
 }
