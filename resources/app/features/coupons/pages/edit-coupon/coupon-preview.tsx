@@ -20,7 +20,7 @@ import {
 } from '@/libs/date';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { copyToClipboard } from '@/utils';
 import { isDefined } from '@/utils/object';
 import { __, _n, sprintf } from '@/wpi18n';
@@ -173,10 +173,10 @@ const CouponPreview = () => {
   return (
     <Flex direction="column">
       <Card
-        cssOverride={{
-          ...{ borderStyle: 'dashed', borderColor: theme.colors.border.default },
-          ...cardStyles.formCard,
-        }}
+        cssOverride={mergeCss(
+          { borderStyle: 'dashed', borderColor: theme.colors.border.default },
+          cardStyles.formCard,
+        )}
         noShadow
       >
         <CardContent>

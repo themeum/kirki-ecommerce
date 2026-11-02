@@ -600,6 +600,9 @@ const styles = defineStyles({
     '.mce-statusbar': {
       display: 'none',
     },
+    '.mce-btn.mce-active i': {
+      color: '#000',
+    },
     '.mce-top-part::before': {
       boxShadow: 'none',
     },

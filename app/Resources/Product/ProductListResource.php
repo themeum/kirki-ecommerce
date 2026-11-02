@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
+use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 use function Kirki\Ecommerce\Framework\app;
@@ -69,6 +70,7 @@ class ProductListResource extends Resource
             'display_sale_price' => !is_null($min_base_sale_price) ? Money::prepare_amount_from_minor($min_base_sale_price, null, $display_currency) : null,
             'display_sale_price_money_object' => !is_null($min_base_sale_price) ? Money::prepare_amount_object_from_minor($min_base_sale_price, null, $display_currency) : null,
             'status' => $this->status,
+            'preview_url' => app()->make(ProductService::class)->get_preview_url($this->slug),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
