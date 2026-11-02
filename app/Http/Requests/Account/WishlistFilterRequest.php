@@ -3,7 +3,7 @@
 /**
  * Account Wishlist Page Request Handler.
  *
- * @package Kirki\Ecommerce\App\Http\Controllers\Account
+ * @package Kirki\Ecommerce\App\Http\Requests\Account
  * @author Themeum <support@themeum.com>
  * @link https://themeum.com
  * @since 1.0.0
@@ -11,23 +11,23 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Account;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 
 /**
- * Class WishlistFilterRequest
+ * Validates and sanitizes the payload for filtering the account wishlist page.
  *
  * @since 1.0.0
  */
 class WishlistFilterRequest extends Request
 {
     /**
-     * Validate the request.
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return array
      */
     public function rules()
     {
@@ -37,11 +37,9 @@ class WishlistFilterRequest extends Request
     }
 
     /**
-     * Filters
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return array
      */
     public function filters()
     {

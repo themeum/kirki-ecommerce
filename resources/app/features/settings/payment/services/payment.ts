@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
@@ -7,6 +7,8 @@ import {
   OfflinePaymentSchema,
   OnlinePaymentListSchema,
   OnlinePaymentSchema,
+  type PaymentMethod,
+  PaymentMethodSchema,
 } from '@/features/settings/payment/schemas/catalog/payment';
 import type { OfflinePaymentFormPayload } from '@/features/settings/payment/schemas/forms/offline-payment-form';
 import type { OnlinePaymentEditFormPayload } from '@/features/settings/payment/schemas/forms/online-payment-form';
@@ -20,6 +22,18 @@ import {
   toastMutationSuccess,
 } from '@/services/helpers';
 import { __ } from '@/wpi18n';
+
+const getPaymentMethods = () => {
+  return apiClient
+    .get(endpoints.PAYMENT_METHODS)
+    .then((response) => parseData(ResourceCollectionSchema(PaymentMethodSchema), response));
+};
+
+const reorderPaymentMethods = (ids: PaymentMethod['id'][]) => {
+  return apiClient
+    .put(endpoints.PAYMENT_METHODS_ORDER, { ids })
+    .then((response) => parseResponse(ResourceCollectionSchema(PaymentMethodSchema), response));
+};
 
 const getInstallableOnlinePayments = () => {
   return apiClient
@@ -69,6 +83,18 @@ const setEnabledOnlinePayment = ({
     .then((response) => parseResponse(z.boolean(), response));
 };
 
+const setEnabledOfflinePayment = ({
+  id,
+  data,
+}: {
+  id: string | number;
+  data: { is_enabled: boolean };
+}) => {
+  return apiClient
+    .patch(endpoints.OFFLINE_PAYMENT(id), data)
+    .then((response) => parseResponse(z.boolean(), response));
+};
+
 const getOfflinePayments = () => {
   return apiClient
     .get(endpoints.OFFLINE_PAYMENTS)
@@ -95,6 +121,45 @@ const updateOfflinePayment = ({
 
 const deleteOfflinePayment = (id: string | number) => {
   return apiClient.delete(endpoints.OFFLINE_PAYMENT(id)).then((response) => parseMessage(response));
+};
+
+const updatePaymentMethodsCache = async (
+  queryClient: QueryClient,
+  updater: (methods: PaymentMethod[]) => PaymentMethod[],
+) => {
+  await queryClient.cancelQueries({ queryKey: paymentKeys.methods.all });
+  const previous = queryClient.getQueryData<PaymentMethod[]>(paymentKeys.methods.all);
+  queryClient.setQueryData<PaymentMethod[]>(
+    paymentKeys.methods.all,
+    (methods) => methods && updater(methods),
+  );
+  return { previous };
+};
+
+const restorePaymentMethodsCache = (
+  queryClient: QueryClient,
+  previous: PaymentMethod[] | undefined,
+) => {
+  if (previous) {
+    queryClient.setQueryData<PaymentMethod[]>(paymentKeys.methods.all, previous);
+  }
+};
+
+const setMethodEnabled = (id: string | number, isEnabled: boolean) => {
+  return (methods: PaymentMethod[]) =>
+    methods.map((method) => (method.id === id ? { ...method, is_enabled: isEnabled } : method));
+};
+
+const sortMethodsByIds = (ids: PaymentMethod['id'][]) => {
+  return (methods: PaymentMethod[]) =>
+    [...methods].sort((first, second) => ids.indexOf(first.id) - ids.indexOf(second.id));
+};
+
+const usePaymentMethodsQuery = () => {
+  return useQuery({
+    queryKey: paymentKeys.methods.all,
+    queryFn: getPaymentMethods,
+  });
 };
 
 const useInstallableOnlinePaymentsQuery = () => {
@@ -133,6 +198,7 @@ const useInstallOnlinePaymentMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Payment gateway installed', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
       void queryClient.invalidateQueries({
         queryKey: paymentKeys.installableOnline(),
       });
@@ -150,6 +216,7 @@ const useUpdateOnlinePaymentMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(response.message || __('Payment gateway updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
       void queryClient.invalidateQueries({
         queryKey: paymentKeys.onlineDetail(variables.id),
       });
@@ -164,11 +231,34 @@ const useSetEnabledOnlinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: setEnabledOnlinePayment,
+    onMutate({ id, data }) {
+      return updatePaymentMethodsCache(queryClient, setMethodEnabled(id, data.is_enabled));
+    },
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Payment gateway updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
     },
-    onError(error) {
+    onError(error, _variables, context) {
+      restorePaymentMethodsCache(queryClient, context?.previous);
+      toastMutationError(error);
+    },
+  });
+};
+
+const useReorderPaymentMethodsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: reorderPaymentMethods,
+    onMutate(ids) {
+      return updatePaymentMethodsCache(queryClient, sortMethodsByIds(ids));
+    },
+    onSuccess(response) {
+      queryClient.setQueryData<PaymentMethod[]>(paymentKeys.methods.all, response.data);
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
+    },
+    onError(error, _variables, context) {
+      restorePaymentMethodsCache(queryClient, context?.previous);
       toastMutationError(error);
     },
   });
@@ -181,6 +271,7 @@ const useCreateOfflinePaymentMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Payment method created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
     },
     onError(error) {
       toastMutationError(error);
@@ -195,8 +286,27 @@ const useUpdateOfflinePaymentMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Payment method updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
     },
     onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const useSetEnabledOfflinePaymentMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: setEnabledOfflinePayment,
+    onMutate({ id, data }) {
+      return updatePaymentMethodsCache(queryClient, setMethodEnabled(id, data.is_enabled));
+    },
+    onSuccess(response) {
+      toastMutationSuccess(response.message || __('Payment method updated', 'kirki-ecommerce'));
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
+    },
+    onError(error, _variables, context) {
+      restorePaymentMethodsCache(queryClient, context?.previous);
       toastMutationError(error);
     },
   });
@@ -206,11 +316,17 @@ const useDeleteOfflinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteOfflinePayment,
+    onMutate(id) {
+      return updatePaymentMethodsCache(queryClient, (methods) =>
+        methods.filter((method) => method.id !== id),
+      );
+    },
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Payment method deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
     },
-    onError(error) {
+    onError(error, _variables, context) {
+      restorePaymentMethodsCache(queryClient, context?.previous);
       toastMutationError(error);
     },
   });
@@ -223,7 +339,10 @@ export {
   getOfflinePayments,
   getOnlinePayment,
   getOnlinePayments,
+  getPaymentMethods,
   installOnlinePayment,
+  reorderPaymentMethods,
+  setEnabledOfflinePayment,
   setEnabledOnlinePayment,
   updateOfflinePayment,
   updateOnlinePayment,
@@ -234,6 +353,9 @@ export {
   useOfflinePaymentsQuery,
   useOnlinePaymentQuery,
   useOnlinePaymentsQuery,
+  usePaymentMethodsQuery,
+  useReorderPaymentMethodsMutation,
+  useSetEnabledOfflinePaymentMutation,
   useSetEnabledOnlinePaymentMutation,
   useUpdateOfflinePaymentMutation,
   useUpdateOnlinePaymentMutation,

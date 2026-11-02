@@ -8,6 +8,7 @@ describe('GeneralSettingsFormSchema', () => {
     store_email: 'store@acme.test',
     store_logo: null,
     store_phone: '',
+    store_tax_id: '',
     store_address: {
       address_line_1: '123 Main St',
       address_line_2: '',
@@ -24,10 +25,12 @@ describe('GeneralSettingsFormSchema', () => {
     const result = GeneralSettingsFormSchema.parse({
       ...base,
       store_phone: '555-1234',
+      store_tax_id: 'VAT-123',
       store_address: { ...base.store_address, city: 'Springfield', country: 'usa' },
     });
     expect(result.store_name).toBe('Acme');
     expect(result.store_phone).toBe('555-1234');
+    expect(result.store_tax_id).toBe('VAT-123');
     expect(result.store_address).toEqual({
       address_line_1: '123 Main St',
       address_line_2: null,
@@ -41,6 +44,7 @@ describe('GeneralSettingsFormSchema', () => {
   it('sends null for a blank top-level field and blank optional address line', () => {
     const result = GeneralSettingsFormSchema.parse(base);
     expect(result.store_phone).toBeNull();
+    expect(result.store_tax_id).toBeNull();
     expect(result.store_address.address_line_2).toBeNull();
   });
 

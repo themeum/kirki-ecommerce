@@ -28,7 +28,15 @@ import {
   updateFill,
 } from '@/features/bulk-edit/lib/selection';
 
-type ActiveCell = { field: string; row: number } | null;
+/**
+ * `source` records what activated the cell, because the two paths want opposite
+ * caret behaviour: a keystroke has already seeded the value and wants the caret
+ * after it, while a click or Enter wants the existing value selected so typing
+ * overwrites it.
+ */
+type ActivationSource = 'keyboard' | 'pointer';
+
+type ActiveCell = { field: string; row: number; source: ActivationSource } | null;
 
 type FillCommitPayload = {
   field: string;
@@ -77,10 +85,13 @@ const createSelectionStore = (): SelectionStore => {
 type CellSelectionActions = {
   /** Rows a value change at (field, row) should propagate to. */
   getPropagationTargets: (field: string, row: number) => number[];
-  onCellMouseDown: (field: string, row: number, selectable: boolean, shiftKey: boolean, metaOrCtrlKey: boolean) => void;
+  /** Every row currently selected in `field`, or none when the selection sits in another column. */
+  getSelectedRows: (field: string) => number[];
+  /** Returns whether this press activated the cell, so the caller can suppress the browser's default focus shift. */
+  onCellMouseDown: (field: string, row: number, selectable: boolean, shiftKey: boolean, metaOrCtrlKey: boolean) => boolean;
   onCellMouseEnter: (field: string, row: number, selectable: boolean) => void;
   onGrabberMouseDown: (field: string, row: number) => void;
-  activateCell: (field: string, row: number) => void;
+  activateCell: (field: string, row: number, source?: ActivationSource) => void;
   deactivateCell: () => void;
   clear: () => void;
 };
@@ -133,8 +144,8 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
   }, []);
 
   const activateCell = useCallback(
-    (field: string, row: number) => {
-      store.setState((previous) => ({ ...previous, activeCell: { field, row } }));
+    (field: string, row: number, source: ActivationSource = 'pointer') => {
+      store.setState((previous) => ({ ...previous, activeCell: { field, row, source } }));
     },
     [store],
   );
@@ -155,13 +166,13 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
   const onCellMouseDown = useCallback(
     (field: string, row: number, selectable: boolean, shiftKey: boolean, metaOrCtrlKey: boolean) => {
       if (!selectable) {
-        return;
+        return false;
       }
 
       const { selection: current, activeCell } = store.getState();
 
       if (activeCell?.field === field && activeCell.row === row) {
-        return;
+        return false;
       }
 
       if (metaOrCtrlKey) {
@@ -171,12 +182,12 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
           selection: toggleSelection(current, field, row, true),
           isDragging: true,
         }));
-        return;
+        return false;
       }
 
       if (shiftKey && current?.field === field) {
         store.setState((previous) => ({ ...previous, activeCell: null, selection: extendSelection(current, field, row, true) }));
-        return;
+        return false;
       }
 
       /**
@@ -189,8 +200,8 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
        * collapses to it instead of activating.
        */
       if (current?.field === field && isCellSelected(current, field, row) && selectionRange(current).length === 1) {
-        store.setState((previous) => ({ ...previous, activeCell: { field, row } }));
-        return;
+        store.setState((previous) => ({ ...previous, activeCell: { field, row, source: 'pointer' } }));
+        return true;
       }
 
       store.setState((previous) => ({
@@ -199,6 +210,8 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
         selection: startSelection(current, field, row, true),
         isDragging: true,
       }));
+
+      return false;
     },
     [store],
   );
@@ -249,6 +262,24 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
         }
       }
       return [row];
+    },
+    [store],
+  );
+
+  /**
+   * Read imperatively at click time rather than exposed as a subscribed
+   * snapshot: `selectionRange` builds a fresh array on every call, which
+   * `useSyncExternalStore` would treat as a changed value on every store
+   * notification. Components that need to *show* something for a selection
+   * subscribe to `useSelectedRowCount` (a number) instead.
+   */
+  const getSelectedRows = useCallback(
+    (field: string) => {
+      const { selection: current } = store.getState();
+      if (current?.field !== field) {
+        return [];
+      }
+      return selectionRange(current);
     },
     [store],
   );
@@ -375,7 +406,10 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
       const isPlainPrintableKey = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey && event.key !== ' ';
       if (isPlainPrintableKey && (kind === 'text' || kind === 'number' || kind === 'money')) {
         event.preventDefault();
-        store.setState((previous) => ({ ...previous, activeCell: { field: current.field, row: current.focusRow } }));
+        store.setState((previous) => ({
+          ...previous,
+          activeCell: { field: current.field, row: current.focusRow, source: 'keyboard' },
+        }));
         onTypeToEdit(current.field, getPropagationTargets(current.field, current.focusRow), event.key);
       }
     };
@@ -394,6 +428,7 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
   const actions = useMemo<CellSelectionActions>(
     () => ({
       getPropagationTargets,
+      getSelectedRows,
       onCellMouseDown,
       onCellMouseEnter,
       onGrabberMouseDown,
@@ -401,7 +436,7 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
       deactivateCell,
       clear,
     }),
-    [getPropagationTargets, onCellMouseDown, onCellMouseEnter, onGrabberMouseDown, activateCell, deactivateCell, clear],
+    [getPropagationTargets, getSelectedRows, onCellMouseDown, onCellMouseEnter, onGrabberMouseDown, activateCell, deactivateCell, clear],
   );
 
   return (
@@ -449,6 +484,14 @@ const useIsFocusCell = (field: string, row: number): boolean => {
   return useSyncExternalStore(store.subscribe, () => isFocusCell(store.getState().selection, field, row));
 };
 
+const useSelectedRowCount = (field: string): number => {
+  const store = useCellSelectionStore();
+  return useSyncExternalStore(store.subscribe, () => {
+    const { selection } = store.getState();
+    return selection?.field === field ? selectionRange(selection).length : 0;
+  });
+};
+
 const useIsActiveCell = (field: string, row: number): boolean => {
   const store = useCellSelectionStore();
   return useSyncExternalStore(store.subscribe, () => {
@@ -457,5 +500,19 @@ const useIsActiveCell = (field: string, row: number): boolean => {
   });
 };
 
-export { CellSelectionProvider, useCellSelection, useIsActiveCell, useIsCellFilled, useIsCellSelected, useIsFocusCell, useIsHandleCell };
-export type { FillCommitPayload };
+/**
+ * What activated this cell, or null while it is not active. Controls read it to
+ * decide whether focusing should select the existing value (a click or Enter,
+ * so typing overwrites) or leave the caret after it (a keystroke, which has
+ * already seeded the value and is about to be typed into further).
+ */
+const useActivationSource = (field: string, row: number): ActivationSource | null => {
+  const store = useCellSelectionStore();
+  return useSyncExternalStore(store.subscribe, () => {
+    const { activeCell } = store.getState();
+    return activeCell?.field === field && activeCell.row === row ? activeCell.source : null;
+  });
+};
+
+export { CellSelectionProvider, useActivationSource, useCellSelection, useIsActiveCell, useIsCellFilled, useIsCellSelected, useIsFocusCell, useIsHandleCell, useSelectedRowCount };
+export type { ActivationSource, FillCommitPayload };

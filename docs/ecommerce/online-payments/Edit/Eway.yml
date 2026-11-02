@@ -13,8 +13,8 @@ http:
     data: |-
       {
         "data": {
-          "api_key": "60CF3Ck1+eCACUFrHrciRrttyBv9Xv3s4vbKt7rzJIFBxhgdPnKMaC+Q3RDk72Kt3l2m1P",
-          "api_password": "NcllIDOG",
+          "api_key": "<api_key>",
+          "api_password": "<api_password>",
           "sandbox": true
         }
       }
@@ -38,8 +38,8 @@ examples:
         data: |-
           {
             "data": {
-              "api_key": "60CF3Ck1+eCACUFrHrciRrttyBv9Xv3s4vbKt7rzJIFBxhgdPnKMaC+Q3RDk72Kt3l2m1P",
-              "api_password": "NcllIDOG",
+              "api_key": "<api_key>",
+              "api_password": "<api_password>",
               "sandbox": true
             }
           }
@@ -61,8 +61,8 @@ examples:
               "is_offline": false,
               "description": "Eway payment gateway",
               "settings": {
-                "api_key": "60CF3Ck1+eCACUFrHrciRrttyBv9Xv3s4vbKt7rzJIFBxhgdPnKMaC+Q3RDk72Kt3l2m1P",
-                "api_password": "NcllIDOG",
+                "api_key": "<api_key>",
+                "api_password": "<api_password>",
                 "sandbox": true
               },
               "fields": [
@@ -104,8 +104,8 @@ examples:
         data: |-
           {
            "data": {
-               "api_key": "60CF3Ck1+eCACUFrHrciRrttyBv9Xv3s4vbKt7rzJIFBxhgdPnKMaC+Q3RDk72Kt3l2m1P",
-              "api_password": "NcllIDOG",
+               "api_key": "<api_key>",
+              "api_password": "<api_password>",
               "sandbox": true
             }
           }

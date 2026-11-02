@@ -12,7 +12,7 @@ import {
   getAvailabilityDescription,
 } from '@/features/products/lib/availability';
 import type { ProductListItem, ProductStatus } from '@/features/products/schemas/catalog/product';
-import { InfoIcon } from '@/icons';
+import { InfoIcon } from '@/icons/common';
 import { DATE_FORMATS } from '@/libs/date';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -25,6 +25,8 @@ const getStatusColor = (status: ProductStatus): keyof typeof theme.colors.text =
     case 'draft':
       return 'secondary';
     case 'published':
+      return 'success';
+    case 'scheduled':
       return 'success';
     case 'trashed':
       return 'critical';
@@ -55,6 +57,7 @@ ProductTitleCell.displayName = 'ProductTitleCell';
 const STATUS_MAP = {
   draft: __('Draft', 'kirki-ecommerce'),
   published: __('Published', 'kirki-ecommerce'),
+  scheduled: __('Scheduled', 'kirki-ecommerce'),
   trashed: __('Trashed', 'kirki-ecommerce'),
 };
 
@@ -79,6 +82,7 @@ const productColumns: ColumnDef<ProductListItem>[] = [
       const label = (
         <Text
           variant="tiny"
+          weight="medium"
           color={getAvailabilityColor(status)}
           dangerouslySetInnerHTML={{ __html: row.original?.availability_label ?? status }}
           cssOverride={styles.availabilityLabel}
@@ -119,7 +123,10 @@ const productColumns: ColumnDef<ProductListItem>[] = [
     id: 'base_price',
     header: __('Price', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => displayMoney('base_price', row.original),
+    cell: ({ row }) =>
+      isDefined(row.original.base_sale_price)
+        ? displayMoney('base_sale_price', row.original)
+        : displayMoney('base_price', row.original),
   },
   {
     id: 'status',
@@ -156,7 +163,7 @@ const styles = defineStyles({
   },
   availabilityLabel: {
     '& span': {
-      color: theme.colors.text.primary,
+      color: theme.colors.text.secondary,
     },
   },
 });

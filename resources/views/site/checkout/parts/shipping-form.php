@@ -95,8 +95,8 @@ extract($data);
                     @input="delete shippingErrors.city">
                 <span class="kecom-field-error" x-show="shippingErrors.city" x-text="shippingErrors.city"></span>
             </div>
-            <div class="kecom-field" :class="{ 'kecom-field-error-state': shippingErrors.state }">
-                <label class="kecom-field-label" for="shipping-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
+            <div class="kecom-field" x-show="shippingRule.state.mode !== 'hidden'" :class="{ 'kecom-field-error-state': shippingErrors.state }">
+                <label class="kecom-field-label" for="shipping-state" x-text="shippingRule.state.label"></label>
                 <select
                     class="kecom-select"
                     id="shipping-state"
@@ -104,14 +104,14 @@ extract($data);
                     :disabled="shippingStates.length === 0"
                     x-model="shippingAddress.state"
                     @change="onShippingStateChange">
-                    <option value="" x-text="shippingStates.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
+                    <option value="" x-text="shippingStates.length ? '<?php esc_attr_e('Select', 'kirki-ecommerce'); ?> ' + shippingRule.state.label : '<?php esc_attr_e('Not applicable', 'kirki-ecommerce'); ?>'"></option>
                     <template x-for="state in shippingStates" :key="state.id">
                         <option :value="state.id" x-text="state.name" :selected="String(state.id) === String(shippingAddress.state)"></option>
                     </template>
                 </select>
                 <span class="kecom-field-error" x-show="shippingErrors.state" x-text="shippingErrors.state"></span>
             </div>
-            <div class="kecom-field" :class="{ 'kecom-field-error-state': shippingErrors.postal_code }">
+            <div class="kecom-field" x-show="shippingRule.postal_code.mode !== 'hidden'" :class="{ 'kecom-field-error-state': shippingErrors.postal_code }">
                 <label class="kecom-field-label" for="shipping-postal-code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
                 <input
                     class="kecom-input"

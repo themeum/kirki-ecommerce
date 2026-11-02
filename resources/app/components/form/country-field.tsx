@@ -15,6 +15,8 @@ type CountryFieldProps<
   description?: ReactNode;
   cssOverride?: CSSObject;
   disabled?: boolean;
+  only_selling_countries?: boolean;
+  multiple?: boolean;
 };
 
 const CountryField = <
@@ -26,6 +28,8 @@ const CountryField = <
   description,
   cssOverride,
   disabled,
+  only_selling_countries = true,
+  multiple = false,
 }: CountryFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -41,6 +45,8 @@ const CountryField = <
             onChange={field.onChange}
             error={Boolean(fieldState.error)}
             disabled={disabled}
+            only_selling_countries={only_selling_countries}
+            multiple={multiple}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

@@ -2,21 +2,38 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\AttributeValue;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for creating an attribute value.
+ *
+ * @since 1.0.0
+ */
 class AttributeValueCreateRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
             'attribute_id' => 'required|integer',
-            'value' => 'required|unique:kirki_ecommerce_attribute_values,value|string',
+            'value' => 'required|string',
             'color' => 'string|nullable',
             'media' => 'integer|nullable',
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

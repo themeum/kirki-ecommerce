@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for recording a coupon applied to an order.
+ *
+ * @since 1.0.0
+ */
 class CreateOrderCouponDTO extends DTO
 {
     /** @var int */
@@ -26,6 +33,12 @@ class CreateOrderCouponDTO extends DTO
 
     /** @var string|null */
     public $discount_target;
+
+    /** @var float|null Percent a percentage coupon takes off; null for any other coupon */
+    public $discount_rate;
+
+    /** @var int|null Fixed amount the coupon was set to when first applied, in base currency minor units: per eligible line for a product coupon, in total for an order-wide coupon; never reduced by an edit */
+    public $base_max_discount_amount;
 
     /** @var array JSON snapshot of the coupon's rules at checkout */
     public $coupon_snapshot = [];

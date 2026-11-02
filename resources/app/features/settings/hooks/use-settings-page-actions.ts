@@ -15,12 +15,13 @@ const useSettingsPageActions = (actions: SettingsPageActionsInput): void => {
     registerActions({
       isDirty: actionsRef.current.isDirty,
       isSaving: actionsRef.current.isSaving ?? false,
+      hideFloatingBar: actionsRef.current.hideFloatingBar ?? false,
       onSave: () => actionsRef.current.onSave(),
       onDiscard: () => actionsRef.current.onDiscard(),
     });
 
     return () => registerActions(null);
-  }, [actions.isDirty, actions.isSaving, registerActions]);
+  }, [actions.isDirty, actions.isSaving, actions.hideFloatingBar, registerActions]);
 };
 
 export { useSettingsPageActions };

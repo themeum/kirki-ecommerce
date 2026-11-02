@@ -1,3 +1,4 @@
+import type { FocusEvent } from 'react';
 import { Controller, type FieldPath, useFormContext, useWatch } from 'react-hook-form';
 
 import MediaPicker from '@/components/media-picker';
@@ -12,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Tooltip from '@/components/ui/tooltip';
-import { useCellSelection } from '@/features/bulk-edit/contexts/cell-selection-context';
+import { useActivationSource, useCellSelection } from '@/features/bulk-edit/contexts/cell-selection-context';
 import type { BulkEditFormValues, BulkEditProfileOption } from '@/features/bulk-edit/types';
 import { BaseUnitPopover } from '@/features/products';
 import type { BaseUnitFormPayload } from '@/features/products/schemas/forms/base-unit-form';
@@ -58,17 +59,51 @@ const chevronCellStyle = (active: boolean) =>
     },
   );
 
+/**
+ * The shared `Input` selects its whole value on focus, which is what a click or
+ * Enter activation wants — the merchant is about to overwrite it. A keystroke
+ * activation has already seeded the value with that keystroke, so selecting it
+ * would make the very next character replace it instead of appending. Declining
+ * to select leaves the caret after the seeded text, which is the behaviour we
+ * want; `setSelectionRange` is deliberately not used, because it throws on
+ * `<input type="number">` and most of these columns are numeric.
+ *
+ * `Input` spreads its remaining props after its own `onFocus`, so this
+ * overrides rather than composes — no change to the shared component.
+ */
+const useCellFocusSelect = (field: string, rowIndex: number) => {
+  const activationSource = useActivationSource(field, rowIndex);
+
+  return (event: FocusEvent<HTMLInputElement>) => {
+    if (activationSource !== 'keyboard') {
+      event.target.select();
+    }
+  };
+};
+
 const PlaceholderCellContent = () => (
   <span css={scoped({ marginLeft: theme.spacing[1], color: theme.colors.text.secondary })}>_</span>
 );
 
-const usePropagatedChange = (field: string, rowIndex: number) => {
+/**
+ * `acceptsTarget` lets a column whose cells are not all the same kind narrow
+ * the fan-out — Availability uses it so a quantity never lands on a row whose
+ * cell is showing a stock status, and vice versa.
+ */
+const usePropagatedChange = (
+  field: string,
+  rowIndex: number,
+  acceptsTarget?: (targetRow: number) => boolean,
+) => {
   const { setValue } = useFormContext<BulkEditFormValues>();
   const selection = useCellSelection();
 
   return (nextField: string, value: unknown) => {
     const targets = selection.getPropagationTargets(field, rowIndex);
     targets.forEach((targetRow) => {
+      if (acceptsTarget && !acceptsTarget(targetRow)) {
+        return;
+      }
       setValue(rowPath(targetRow, nextField), value as never, { shouldDirty: true });
     });
   };
@@ -112,6 +147,7 @@ const MoneyControl = ({
 }) => {
   const { control } = useFormContext<BulkEditFormValues>();
   const handleChange = usePropagatedChange(field, rowIndex);
+  const handleFocus = useCellFocusSelect(field, rowIndex);
 
   return (
     <Controller
@@ -130,6 +166,7 @@ const MoneyControl = ({
             onChange={(event) =>
               handleChange(field, event.target.value === '' ? null : Number(event.target.value))
             }
+            onFocus={handleFocus}
             onBlur={rhfField.onBlur}
           />
         );
@@ -160,6 +197,7 @@ const TextControl = ({
 }) => {
   const { control } = useFormContext<BulkEditFormValues>();
   const handleChange = usePropagatedChange(field, rowIndex);
+  const handleFocus = useCellFocusSelect(field, rowIndex);
 
   return (
     <Controller
@@ -175,6 +213,7 @@ const TextControl = ({
             value={(rhfField.value as string | null) ?? ''}
             error={fieldState.invalid}
             onChange={(event) => handleChange(field, event.target.value)}
+            onFocus={handleFocus}
             onBlur={rhfField.onBlur}
           />
         </div>
@@ -194,6 +233,7 @@ const NumberControl = ({
 }) => {
   const { control } = useFormContext<BulkEditFormValues>();
   const handleChange = usePropagatedChange(field, rowIndex);
+  const handleFocus = useCellFocusSelect(field, rowIndex);
 
   return (
     <Controller
@@ -212,6 +252,7 @@ const NumberControl = ({
             onChange={(event) =>
               handleChange(field, event.target.value === '' ? null : Number(event.target.value))
             }
+            onFocus={handleFocus}
             onBlur={rhfField.onBlur}
           />
         </div>
@@ -343,6 +384,7 @@ const WeightControl = ({ rowIndex, active }: { rowIndex: number; active: boolean
   const { control } = useFormContext<BulkEditFormValues>();
   const handleWeightChange = usePropagatedChange('weight', rowIndex);
   const handleUnitChange = usePropagatedChange('weight_unit', rowIndex);
+  const handleFocus = useCellFocusSelect('weight', rowIndex);
 
   return (
     <Controller
@@ -367,6 +409,7 @@ const WeightControl = ({ rowIndex, active }: { rowIndex: number; active: boolean
                       event.target.value === '' ? null : Number(event.target.value),
                     )
                   }
+                  onFocus={handleFocus}
                 />
                 <Select
                   value={(unitField.value as string) ?? 'kg'}
@@ -387,6 +430,94 @@ const WeightControl = ({ rowIndex, active }: { rowIndex: number; active: boolean
             </div>
           )}
         />
+      )}
+    />
+  );
+};
+
+const STOCK_STATUS_OPTIONS = [
+  { value: 'true', label: __('In Stock', 'kirki-ecommerce') },
+  { value: 'false', label: __('Out of Stock', 'kirki-ecommerce') },
+];
+
+/**
+ * Availability is the one column whose cells are not all the same kind: a row
+ * that tracks inventory edits a quantity, a row that does not edits its stock
+ * status — the same choice the single-variant form offers. Both live here so
+ * the column has one place that decides which mode a row is in, and so a
+ * multi-row edit can skip rows in the other mode rather than writing a value
+ * their cell does not show.
+ */
+const AvailabilityControl = ({ rowIndex, active }: { rowIndex: number; active: boolean }) => {
+  const { control, getValues } = useFormContext<BulkEditFormValues>();
+  /**
+   * Only this row's own gate is watched — watching the whole `variants` array
+   * would re-render every Availability cell on any edit anywhere in the grid.
+   * Other rows' gates are read imperatively at change time instead, which is
+   * also when they actually matter.
+   */
+  const tracksInventory = Boolean(
+    useWatch({ control, name: rowPath(rowIndex, 'track_inventory') }),
+  );
+
+  const matchesMode = (targetRow: number) =>
+    Boolean(getValues(rowPath(targetRow, 'track_inventory'))) === tracksInventory;
+
+  const handleChange = usePropagatedChange('available_quantity', rowIndex, matchesMode);
+  const handleFocus = useCellFocusSelect('available_quantity', rowIndex);
+
+  if (tracksInventory) {
+    return (
+      <Controller
+        control={control}
+        name={rowPath(rowIndex, 'available_quantity')}
+        render={({ field: rhfField, fieldState }) => (
+          <div css={controlWrapperStyle(active)}>
+            <Input
+              ref={rhfField.ref}
+              type="number"
+              invisible
+              placeholder="--"
+              cssOverride={styles.compactInput}
+              value={(rhfField.value as number | null) ?? ''}
+              error={fieldState.invalid}
+              onChange={(event) =>
+                handleChange(
+                  'available_quantity',
+                  event.target.value === '' ? null : Number(event.target.value),
+                )
+              }
+              onFocus={handleFocus}
+              onBlur={rhfField.onBlur}
+            />
+          </div>
+        )}
+      />
+    );
+  }
+
+  return (
+    <Controller
+      control={control}
+      name={rowPath(rowIndex, 'in_stock')}
+      render={({ field: rhfField }) => (
+        <div css={chevronCellStyle(active)}>
+          <Select
+            value={String(Boolean(rhfField.value))}
+            onValueChange={(value) => handleChange('in_stock', value === 'true')}
+          >
+            <SelectTrigger variant="invisible">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {STOCK_STATUS_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       )}
     />
   );
@@ -438,6 +569,7 @@ const ProfileSelectControl = ({
 };
 
 export {
+  AvailabilityControl,
   CheckboxControl,
   MoneyControl,
   NumberControl,

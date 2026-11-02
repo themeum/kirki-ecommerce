@@ -6,7 +6,7 @@ import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import type { AttributeValue } from '@/features/products';
 import { getSortedList } from '@/features/settings/lib/utils';
-import { ArrowDownUp } from '@/icons';
+import { ArrowDownUp } from '@/icons/common';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { SortOrder } from '@/types/list-state';
@@ -41,10 +41,7 @@ const VariantTableFilters = ({
   return (
     <Flex cssOverride={styles.wrapper}>
       <div style={{ width: '160px' }}>
-        <Searchbox
-          onChange={(value) => setSearchValue(value as string)}
-          value={searchValue}
-        />
+        <Searchbox onChange={(value) => setSearchValue(value as string)} value={searchValue} />
       </div>
       <ActionGroup>
         <Button variant="outline" size="icon" onClick={handleSortChange}>

@@ -2,15 +2,24 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for a product brand.
+ *
+ * @since 1.0.0
+ */
 class BrandResource extends Resource
 {
     /**
      * Convert the brand resource to an array.
      *
-     * @return array The brand data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The brand data, including its product count.
      */
     public function to_array()
     {

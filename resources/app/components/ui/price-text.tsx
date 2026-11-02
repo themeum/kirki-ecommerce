@@ -1,7 +1,7 @@
 import Flex from '@/components/ui/flex';
 import Text, { type TextProps } from '@/components/ui/text';
 import type { MoneyObject } from '@/schemas/shared/api';
-import type { FlexAlign, FlexJustify } from '@/types/components/common';
+import type { FlexAlign, FlexDirection, FlexJustify } from '@/types/components/common';
 import { isDefined } from '@/utils/object';
 
 type PriceTextProps = {
@@ -11,6 +11,7 @@ type PriceTextProps = {
   secondaryTextProps?: TextProps;
   justify?: FlexJustify;
   align?: FlexAlign;
+  direction?: FlexDirection;
 };
 
 const PriceText = ({
@@ -20,6 +21,7 @@ const PriceText = ({
   secondaryTextProps,
   justify = 'end',
   align = 'center',
+  direction = '',
 }: PriceTextProps) => {
   const { variant: primaryVariant, ...restPrimaryProps } = primaryTextProps ?? {
     variant: 'small',
@@ -40,7 +42,7 @@ const PriceText = ({
   }
 
   return (
-    <Flex gap={2} align={align} justify={justify}>
+    <Flex direction={direction} gap={2} align={align} justify={justify}>
       <Text variant={primaryVariant} {...restPrimaryProps}>
         {salePrice.display}
       </Text>

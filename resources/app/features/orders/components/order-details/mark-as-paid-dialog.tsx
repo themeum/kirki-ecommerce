@@ -17,7 +17,7 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import type { OrderItem } from '@/features/orders/schemas/catalog/order';
+import type { Order } from '@/features/orders/schemas/catalog/order';
 import { useOfflinePaymentsQuery } from '@/features/settings';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -30,7 +30,7 @@ type MarkAsPaidFormValues = {
 type MarkAsPaidDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  order: OrderItem;
+  order: Order;
   isSaving?: boolean;
   onSubmit: (paymentMethod: string) => void;
 };

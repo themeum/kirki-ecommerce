@@ -31,7 +31,7 @@ $items_count = $cart['items_count'] ?? count($cart_items);
             ?>)</span>
         </h2>
         <a href="<?php echo esc_url(Url::get_cart_url()); ?>" class="kecom-products-section-modify" aria-label="<?php esc_attr_e('Modify cart', 'kirki-ecommerce'); ?>">
-            <?php Icon::render('edit', ['size' => 16]); ?>
+            <?php Icon::render('pen-line', ['size' => 16]); ?>
         </a>
     </div>
     <div class="kecom-product-list">

@@ -46,7 +46,8 @@ if (!$_core_dir) {
 if (!file_exists($_tests_dir . '/includes/functions.php')) {
     fwrite(STDERR, "WordPress test library not found at {$_tests_dir}.\n");
     fwrite(STDERR, "Docker (recommended): composer test:docker:install && composer test:docker:integration\n");
-    fwrite(STDERR, "Host-only: bash bin/install-wp-tests.sh kirki_ecommerce_test wordpress wordpress 127.0.0.1:20101\n");
+    fwrite(STDERR, "Host-only: bash bin/install-wp-tests.sh kirki_ecommerce_test wordpress wordpress 127.0.0.1:<MARIADB_PORT>\n");
+    fwrite(STDERR, "Find MARIADB_PORT with: bin/dev-urls\n");
     exit(1);
 }
 

@@ -40,7 +40,22 @@ const getAttributeValues = (id: number, params: ListQueryParams = {}) => {
     .then((response) => parseData(ResourceCollectionSchema(AttributeValueSchema), response));
 };
 
-const createAttribute = (data: AddVariationFormPayload) => {
+type AttributeValueWrite = {
+  value: string;
+  color: string | null;
+};
+
+type CreateAttributePayload = AddVariationFormPayload & {
+  values?: AttributeValueWrite[];
+};
+
+type BatchAttributeValuesPayload = {
+  attribute_id: number;
+  create: AttributeValueWrite[];
+  update: { id: number; color: string | null }[];
+};
+
+const createAttribute = (data: CreateAttributePayload) => {
   return apiClient
     .post(endpoints.ATTRIBUTES, data)
     .then((response) => parseResponse(AttributeSchema, response));
@@ -49,6 +64,12 @@ const createAttribute = (data: AddVariationFormPayload) => {
 const updateAttribute = ({ id, data }: { id: number; data: AddVariationFormPayload }) => {
   return apiClient
     .put(endpoints.ATTRIBUTE(id), data)
+    .then((response) => parseResponse(AttributeSchema, response));
+};
+
+const batchAttributeValues = ({ attribute_id, create, update }: BatchAttributeValuesPayload) => {
+  return apiClient
+    .post(endpoints.ATTRIBUTE_VALUES_BATCH(attribute_id), { create, update })
     .then((response) => parseResponse(AttributeSchema, response));
 };
 
@@ -138,6 +159,21 @@ const useUpdateAttributeMutation = () => {
   });
 };
 
+const useBatchAttributeValuesMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: batchAttributeValues,
+    onSuccess() {
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.details() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
 const useDeleteAttributeMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -217,6 +253,7 @@ const useBulkDeleteAttributeValuesMutation = () => {
 };
 
 export {
+  batchAttributeValues,
   bulkDeleteAttributeValues,
   createAttribute,
   createAttributeValue,
@@ -230,6 +267,7 @@ export {
   useAttributeQuery,
   useAttributesQuery,
   useAttributeValuesQuery,
+  useBatchAttributeValuesMutation,
   useBulkDeleteAttributeValuesMutation,
   useCreateAttributeMutation,
   useCreateAttributeValueMutation,
@@ -238,3 +276,4 @@ export {
   useUpdateAttributeMutation,
   useUpdateAttributeValueMutation,
 };
+export type { AttributeValueWrite, BatchAttributeValuesPayload, CreateAttributePayload };

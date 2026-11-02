@@ -8,6 +8,7 @@ const buildMethod = (overrides: Partial<ShippingMethodData>): ShippingMethodData
   type: 'weight',
   name: 'Rate by weight',
   is_enabled: true,
+  zoneId: 'zone-1',
   ...overrides,
 });
 

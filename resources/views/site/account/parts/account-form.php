@@ -69,7 +69,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
             class="kecom-btn kecom-btn-secondary kecom-btn-block"
             @click.prevent="openPasswordModal"
         >
-            <?php Icon::render('key'); ?>
+            <?php Icon::render('key-round'); ?>
             <span><?php esc_html_e('Reset Password', 'kirki-ecommerce'); ?></span>
         </button>
     </div>

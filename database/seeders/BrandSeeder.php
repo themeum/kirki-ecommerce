@@ -2,17 +2,25 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the curated brands defined in the seed catalog.
+ *
+ * @since 1.0.0
+ */
 class BrandSeeder extends Seeder
 {
     /**
      * Seed curated brands matching the product catalog.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {

@@ -13,6 +13,10 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
+use function Kirki\Ecommerce\Framework\throw_unless;
+
 defined('ABSPATH') || exit;
 
 /**
@@ -72,9 +76,7 @@ class Razorpay extends PaymentProvider
      */
     public function pay(Order $order)
     {
-        if (!$this->enabled()) {
-            throw new Exception(__('Razorpay is not enabled.', 'kirki-ecommerce-razorpay'));
-        }
+        throw_unless($this->enabled(), __('Razorpay is not enabled.', 'kirki-ecommerce-razorpay'));
 
         try {
             $this->client = $this->get_client();
@@ -91,7 +93,8 @@ class Razorpay extends PaymentProvider
                 'value' => $html,
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('Razorpay Payment Error: %s', 'kirki-ecommerce-razorpay'), $e->getMessage()));
+            /** translator: %s Error Message. */
+            throw_anyway(sprintf(__('Razorpay Payment Error: %s', 'kirki-ecommerce-razorpay'), $e->getMessage()));
         }
     }
 
@@ -155,13 +158,15 @@ class Razorpay extends PaymentProvider
             return false;
         }
 
-        $order_id = $event->payload->payment->entity->notes->order_id ?? null;
-        $order = OrderManager::find($order_id);
+        $order_uuid = $event->payload->payment->entity->notes->order_uuid ?? null;
+        $order = OrderManager::find_by_uuid($order_uuid);
+        throw_if(!$order, __('Razorpay Error: Order Not Found.', 'kirki-ecommerce-razorpay'));
+
         if ($order->payment_status === PaymentStatus::PAID) {
-            return false;
+            return true;
         }
 
-        $this->handle_transaction_response($event);
+        $this->handle_transaction_response($event, $order);
         return true;
     }
 
@@ -182,7 +187,7 @@ class Razorpay extends PaymentProvider
         $webhook_secret = $this->settings['webhook_secret'] ?? '';
 
         if (empty($key_id) || empty($key_secret) || empty($webhook_secret)) {
-            throw new Exception(__('Razorpay credentials are missing.', 'kirki-ecommerce-razorpay'));
+            throw_anyway(__('Razorpay credentials are missing.', 'kirki-ecommerce-razorpay'));
         }
 
         return new RazorpayClient($key_id, $key_secret, $webhook_secret);
@@ -201,9 +206,7 @@ class Razorpay extends PaymentProvider
             'currency' => strtoupper($this->order->currency_code)
         ], RazorpayConstant::API_URL . '/orders');
 
-        if (empty($razorpay_order['id'])) {
-            throw new Exception(__('Razorpay Payment Order ID Not Found.', 'kirki-ecommerce-razorpay'));
-        }
+        throw_if(empty($razorpay_order['id']), __('Razorpay Payment Order ID Not Found.', 'kirki-ecommerce-razorpay'));
 
         return $razorpay_order['id'];
     }
@@ -221,12 +224,10 @@ class Razorpay extends PaymentProvider
         // Respond with a 200 status code to acknowledge the notification.
         http_response_code(200);
 
-        if (empty($payload)) {
-            throw new Exception(__('Invalid Payload From Razorpay.', 'kirki-ecommerce-razorpay'));
-        }
+        throw_if(empty($payload), __('Invalid Payload From Razorpay.', 'kirki-ecommerce-razorpay'));
 
         if (!$this->client->is_verified($payload)) {
-            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-razorpay'));
+            throw_anyway(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-razorpay'));
         }
 
         return json_decode($payload);
@@ -236,41 +237,40 @@ class Razorpay extends PaymentProvider
      * Update the order based on a Razorpay payment event's status.
      *
      * @param object $payload
+     * @param Order $order Order that was placed.
      * @return void
      * @throws Exception If the order update fails.
      */
-    protected function handle_transaction_response(object $payload)
+    protected function handle_transaction_response(object $payload, Order $order)
     {
         $entity   = $payload->payload->payment->entity;
         $status   = $entity->status ?? PaymentStatus::UNPAID;
-        $order_id = $entity->notes->order_id;
 
         DB::begin_transaction();
 
         try {
             switch ($status) {
                 case RazorpayConstant::STATUS_PAYMENT_CAPTURED:
-                    $this->record_transaction($order_id, $entity);
-                    OrderManager::mark_payment_as_paid($order_id);
-                    OrderManager::set_payment_provider_fee($order_id, $entity->fee);
+                    $this->record_transaction($order->id, $entity);
+                    OrderManager::mark_payment_as_paid($order->id);
+                    OrderManager::set_payment_provider_fee($order->id, $this->get_fee_amount($entity));
                     break;
 
                 case RazorpayConstant::STATUS_PAYMENT_FAILED:
-                    $this->record_transaction($order_id, $entity);
-                    OrderManager::mark_payment_as_failed($order_id);
+                    $this->record_transaction($order->id, $entity);
+                    OrderManager::mark_payment_as_failed($order->id);
                     break;
 
                 default:
-                    OrderManager::mark_payment_as_unpaid($order_id);
+                    OrderManager::mark_payment_as_unpaid($order->id);
             }
 
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollback();
 
-            throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-razorpay'), $e->getMessage())
-            );
+            /** translator: %s Error Message. */
+            throw_anyway(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-razorpay'), $e->getMessage()));
         }
     }
 
@@ -285,5 +285,28 @@ class Razorpay extends PaymentProvider
     {
         OrderManager::set_transaction_id($order_id, $entity->id);
         OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
+    }
+
+    /**
+     * Get the Transaction Fee in the order's invoiced currency.
+     *
+     * Razorpay Settlements occur in INR based on the conversion rate at the time of payment.
+     *
+     * @link https://razorpay.com/docs/payments/international-payments/currency-conversion#payment-entity
+     *
+     * @param object $entity Transaction data returned by the gateway.
+     *
+     * @return float Fee amount in the invoiced currency.
+     */
+    protected function get_fee_amount($entity)
+    {
+        $is_foreign_currency = isset($entity->base_currency) && strtoupper($entity->base_currency) !== strtoupper($entity->currency);
+
+        if (!$is_foreign_currency) {
+            return $entity->fee;
+        }
+
+        $exchange_rate = (float) ($entity->base_amount / $entity->amount);
+        return $entity->fee / $exchange_rate;
     }
 }

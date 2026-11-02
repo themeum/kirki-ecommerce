@@ -13,7 +13,7 @@ import { RouteConfig } from '@/config/route-config';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import type { ShippingZone } from '@/features/settings/shipping/types';
 import type { SettingsOutletContext } from '@/features/settings/types';
-import { EditPenIcon, TrashIcon } from '@/icons';
+import { EditPenIcon, TrashIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
@@ -38,7 +38,7 @@ const ShippingZoneActions = ({
   const handleEditAndDelete = (action: string, item: ShippingZone) => {
     if (action === 'edit') {
       confirmAction({
-        action: () => navigate(ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: item.id })),
+        action: () => navigate(ShippingRoutes.get('ShippingZone').buildLink({ zone_id: item.id })),
       });
     } else {
       setUnsavedDataStatus(true);
@@ -57,7 +57,7 @@ const ShippingZoneActions = ({
     }
   };
   return (
-    <ActionGroup gap={2} cssOverride={{ marginLeft: theme.spacing[2] }}>
+    <ActionGroup cssOverride={{ marginLeft: theme.spacing[1] }}>
       <Button
         variant="ghost"
         size="icon-sm"

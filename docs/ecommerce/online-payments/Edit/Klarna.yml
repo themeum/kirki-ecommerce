@@ -14,7 +14,7 @@ http:
       {
         "data": {
           "username": "7be63db8-8b63-4949-a7fa-d3f1b80e4dba",
-          "password": "klarna_test_api_WWVvKm03bHlvUj9pUzcvU2UkN0tzLz9qc0lrdHRaeWYsN2JlNjNkYjgtOGI2My00OTQ5LWE3ZmEtZDNmMWI4MGU0ZGJhLDEsdjVPc0JMMlhad1N0WERYUlFER3Q2SFZNdVJXT3VIak1GSGg2a3QxQktNZz0",
+          "password": "<password>",
           "region": "na",
           "sandbox": true
         }
@@ -39,7 +39,7 @@ examples:
           {
             "data": {
               "username": "7be63db8-8b63-4949-a7fa-d3f1b80e4dba",
-              "password": "klarna_test_api_WWVvKm03bHlvUj9pUzcvU2UkN0tzLz9qc0lrdHRaeWYsN2JlNjNkYjgtOGI2My00OTQ5LWE3ZmEtZDNmMWI4MGU0ZGJhLDEsdjVPc0JMMlhad1N0WERYUlFER3Q2SFZNdVJXT3VIak1GSGg2a3QxQktNZz0",
+              "password": "<password>",
               "region": "na",
               "sandbox": true
             }
@@ -63,7 +63,7 @@ examples:
               "description": "Klarna payment gateway",
               "settings": {
                "username": "7be63db8-8b63-4949-a7fa-d3f1b80e4dba",
-              "password": "klarna_test_api_WWVvKm03bHlvUj9pUzcvU2UkN0tzLz9qc0lrdHRaeWYsN2JlNjNkYjgtOGI2My00OTQ5LWE3ZmEtZDNmMWI4MGU0ZGJhLDEsdjVPc0JMMlhad1N0WERYUlFER3Q2SFZNdVJXT3VIak1GSGg2a3QxQktNZz0",
+              "password": "<password>",
               "region": "na",
               "sandbox": true
               },
@@ -123,7 +123,7 @@ examples:
           {
            "data": {
               "username": "7be63db8-8b63-4949-a7fa-d3f1b80e4dba",
-              "password": "klarna_test_api_WWVvKm03bHlvUj9pUzcvU2UkN0tzLz9qc0lrdHRaeWYsN2JlNjNkYjgtOGI2My00OTQ5LWE3ZmEtZDNmMWI4MGU0ZGJhLDEsdjVPc0JMMlhad1N0WERYUlFER3Q2SFZNdVJXT3VIak1GSGg2a3QxQktNZz0",
+              "password": "<password>",
               "region": "na",
               "sandbox": true
             }

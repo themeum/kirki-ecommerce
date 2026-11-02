@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
 use Kirki\Ecommerce\App\Constants\Pagination;
@@ -16,12 +18,19 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Manages shipping profiles: listing, lookup, creation, updates and deletion, keeping a single default.
+ *
+ * @since 1.0.0
+ */
 class ShippingProfileService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -34,9 +43,11 @@ class ShippingProfileService
     }
 
     /**
-     * Return paginated shipping profiles
+     * Get a page of shipping profiles matching the filters.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, sorting and pagination filters.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
@@ -45,10 +56,12 @@ class ShippingProfileService
     }
 
     /**
-     * Return all shipping profiles
+     * Get all shipping profiles matching the filters, without pagination.
      *
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
+     * @return Collection Collection of ShippingProfile.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -56,11 +69,13 @@ class ShippingProfileService
     }
 
     /**
-     * Find a shipping profile by ID.
+     * Find a shipping profile by ID or throw an exception.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Shipping profile ID.
      * @return ShippingProfile
-     * @throws NotFoundException
+     * @throws NotFoundException When the shipping profile does not exist.
      */
     public function find(int $id)
     {
@@ -74,7 +89,9 @@ class ShippingProfileService
     /**
      * Find the default shipping profile.
      *
-     * @return ShippingProfile|null
+     * @since 1.0.0
+     *
+     * @return ShippingProfile|null Null when no shipping profile is marked as default.
      */
     public function find_default()
     {
@@ -84,7 +101,11 @@ class ShippingProfileService
     /**
      * Create a new shipping profile.
      *
-     * @param CreateShippingProfileDTO $data
+     * Marking it as default clears the flag on every other shipping profile.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateShippingProfileDTO $data Shipping profile data.
      * @return ShippingProfile
      */
     public function create(CreateShippingProfileDTO $data)
@@ -99,11 +120,15 @@ class ShippingProfileService
     }
 
     /**
-     * Updates a shipping profile.
+     * Update a shipping profile.
      *
-     * @param UpdateShippingProfileDTO $data
-     * @throws NotFoundException
-     * @return ShippingProfile
+     * Marking it as default clears the flag on every other shipping profile.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateShippingProfileDTO $data Shipping profile data, including its ID.
+     * @return ShippingProfile|null The reloaded shipping profile.
+     * @throws NotFoundException When the shipping profile does not exist or could not be updated.
      */
     public function update(UpdateShippingProfileDTO $data)
     {
@@ -123,11 +148,13 @@ class ShippingProfileService
     }
 
     /**
-     * Deletes a shipping profile by ID.
+     * Delete a shipping profile by ID.
      *
-     * @param int $id The ID of the shipping profile to delete.
-     * @return bool True if the shipping profile was deleted successfully, false otherwise.
-     * @throws NotFoundException If the shipping profile could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Shipping profile ID.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no shipping profile was deleted.
      */
     public function delete(int $id)
     {
@@ -139,11 +166,13 @@ class ShippingProfileService
     }
 
     /**
-     * Deletes multiple shipping profiles by their IDs.
+     * Delete multiple shipping profiles by their IDs.
      *
-     * @param array $ids The IDs of the shipping profiles to delete.
-     * @return bool True if the shipping profiles were deleted successfully, false otherwise.
-     * @throws NotFoundException If the shipping profiles could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the shipping profiles to delete.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no shipping profile was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -155,16 +184,26 @@ class ShippingProfileService
     }
 
     /**
-     * Deletes all shipping profiles.
+     * Delete all shipping profiles matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search filter selecting the shipping profiles.
+     * @return bool True when rows were deleted.
      */
     public function delete_all(ListFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the filtered and sorted query for the list of shipping profiles.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
+     * @return QueryBuilder
+     */
     protected function list_query(ListFilterDTO $filters)
     {
         $query = ShippingProfile::when($filters->search, function (QueryBuilder $query, $search) {

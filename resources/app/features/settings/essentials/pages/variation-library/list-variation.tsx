@@ -13,7 +13,7 @@ import VariationTable from '@/features/settings/essentials/pages/variation-libra
 import VariationValuePopover from '@/features/settings/essentials/pages/variation-library/variation-value-popover';
 import VariationDetailSkeleton from '@/features/settings/essentials/skeletons/variation-detail-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { SnowflakeIcon } from '@/icons';
+import { SnowflakeIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -61,7 +61,10 @@ const ListVariation = () => {
               }
             />
             {!attributeValueList?.length ? (
-              <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
+              <Card
+                data-search-skip="true"
+                cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}
+              >
                 <CardContent
                   cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}
                 >

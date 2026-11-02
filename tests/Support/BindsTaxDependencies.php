@@ -41,17 +41,19 @@ trait BindsTaxDependencies
      * Boots the real `Application` (not the lighter container
      * `bind_tax_dependencies()` uses) because `TaxStrategyFactory` reads
      * `config('tax-strategies')`, which needs a real `config_path()`. The
-     * real EU country dataset loads along with it - `EuropeanCountryChecker`
-     * needs no faking.
+     * real country dataset loads along with it, and `EuropeanCountryChecker`
+     * reads EU membership straight out of it - so it needs no faking.
      *
      * @param array $tax_regions Same shape the tax settings UI persists:
      *        each entry a region (`code`, `is_enabled`, plus its rate/rule
      *        fields).
      * @param bool $is_tax_inclusive_price
      * @param string $base_currency
+     * @param array<string, mixed> $extra_tax_settings Further keys for the tax group, e.g. `tax_destination`.
+     * @param array<string, mixed> $general_settings   Keys for the general group, e.g. `store_address`.
      * @return void
      */
-    protected function bind_full_tax_settings(array $tax_regions, bool $is_tax_inclusive_price = false, string $base_currency = 'USD'): void
+    protected function bind_full_tax_settings(array $tax_regions, bool $is_tax_inclusive_price = false, string $base_currency = 'USD', array $extra_tax_settings = [], array $general_settings = []): void
     {
         $this->bootstrap_application();
 
@@ -60,62 +62,17 @@ trait BindsTaxDependencies
         $currency = new \stdClass();
         $currency->code = $base_currency;
 
-        $currency_settings_object = new class {
-            public function get($key = null, $default = null)
-            {
-                return $default;
-            }
-        };
-
-        $tax_settings_data = [
-            'tax_regions' => $tax_regions,
-            'is_tax_inclusive_price' => $is_tax_inclusive_price,
-        ];
-
-        $tax_settings_object = new class($tax_settings_data) {
-            private array $data;
-
-            public function __construct(array $data)
-            {
-                $this->data = $data;
-            }
-
-            public function get($key = null, $default = null)
-            {
-                if ($key === null) {
-                    return $this->data;
-                }
-
-                return $this->data[$key] ?? $default;
-            }
-        };
-
-        $settings_factory = new class($currency_settings_object, $tax_settings_object) {
-            private $currency_settings;
-            private $tax_settings;
-
-            public function __construct($currency_settings, $tax_settings)
-            {
-                $this->currency_settings = $currency_settings;
-                $this->tax_settings = $tax_settings;
-            }
-
-            public function get(string $key)
-            {
-                if ($key === 'currency') {
-                    return $this->currency_settings;
-                }
-
-                if ($key === OptionKeys::TAX_SETTINGS) {
-                    return $this->tax_settings;
-                }
-
-                throw new \Exception("Invalid settings key: {$key}");
-            }
-        };
+        $settings_factory = new FakeSettingsFactory([
+            OptionKeys::CURRENCY_SETTINGS => [],
+            OptionKeys::TAX_SETTINGS => array_merge([
+                'tax_regions' => $tax_regions,
+                'is_tax_inclusive_price' => $is_tax_inclusive_price,
+            ], $extra_tax_settings),
+            OptionKeys::GENERAL_SETTINGS => $general_settings,
+        ]);
 
         $currency_service = new class($currency) {
-            private $currency;
+            protected $currency;
 
             public function __construct($currency)
             {
@@ -125,6 +82,16 @@ trait BindsTaxDependencies
             public function get_base_currency()
             {
                 return $this->currency;
+            }
+
+            public function get_currency_preferences()
+            {
+                return [
+                    'currency_format' => 'short',
+                    'decimal_separator' => '.',
+                    'thousand_separator' => ',',
+                    'currency_position' => 'before',
+                ];
             }
         };
 

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Print the addresses of this checkout's Docker stack and Vite dev server.
+# Reads the ports that bin/dev-up saved in .env; without them, shows the
+# Compose defaults (and 5173 for Vite).
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+env_get() {
+	if [ -f .env ]; then
+		grep -E "^$1=" .env | tail -n1 | cut -d= -f2- || true
+	fi
+}
+
+nginx_port="$(env_get NGINX_HTTP_PORT)"
+mariadb_port="$(env_get MARIADB_PORT)"
+phpmyadmin_port="$(env_get PHPMYADMIN_PORT)"
+vite_port="$(env_get VITE_PORT)"
+
+printf 'WordPress   http://localhost:%s\n' "${nginx_port:-20100}"
+printf 'phpMyAdmin  http://localhost:%s\n' "${phpmyadmin_port:-20102}"
+printf 'MariaDB     127.0.0.1:%s\n' "${mariadb_port:-20101}"
+printf 'Vite        http://localhost:%s\n' "${vite_port:-5173}"

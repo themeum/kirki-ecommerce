@@ -4,7 +4,7 @@ import Label from '@/components/ui/label';
 import Text from '@/components/ui/text';
 import { useAddCurrencyDialogContext } from '@/features/settings/multi-currency/contexts/add-currency-dialog-context';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 
 const CurrencyOptionList = () => {
   const { filteredCurrency, formSelected, handleSelectCurrencies } = useAddCurrencyDialogContext();
@@ -14,22 +14,23 @@ const CurrencyOptionList = () => {
       {filteredCurrency?.length > 0 &&
         filteredCurrency.map((currency, index) => (
           <Label htmlFor={`add-currency-checkbox-${index}`} key={index}>
-            <Flex key={index} gap={3} cssOverride={{ width: '100%', cursor: 'pointer' }}>
+            <Flex
+              key={index}
+              gap={3}
+              cssOverride={{ width: '100%', cursor: 'pointer' }}
+              align="center"
+            >
               <Flex gap={2} align="center">
                 <Checkbox
                   id={`add-currency-checkbox-${index}`}
                   checked={formSelected?.some((c) => c.name === currency.name)}
                   onCheckedChange={() => handleSelectCurrencies(currency)}
                 />
+                <span css={scoped(styles.flag)}>{currency.flag}</span>
                 {currency.code}
               </Flex>
               <Flex justify="space-between" cssOverride={{ width: '100%', cursor: 'pointer' }}>
-                <Text
-                  variant="small"
-                  style={{
-                    color: theme.colors.text.subdued,
-                  }}
-                >
+                <Text variant="small" color="subdued">
                   {currency.name}
                 </Text>
                 <Text weight="semibold" cssOverride={styles.symbolText}>
@@ -48,6 +49,12 @@ CurrencyOptionList.displayName = 'CurrencyOptionList';
 export default CurrencyOptionList;
 
 const styles = defineStyles({
+  flag: {
+    display: 'inline-block',
+    width: '28px',
+    fontSize: 20,
+    textAlign: 'center',
+  },
   symbolText: {
     paddingRight: theme.spacing[3],
   },

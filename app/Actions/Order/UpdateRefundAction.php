@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
@@ -9,28 +11,53 @@ use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Updates a refund on an order and syncs the order once refunds complete.
+ *
+ * @since 1.0.0
+ */
 class UpdateRefundAction
 {
+    /** @var OrderService */
     protected $order_service;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderService $order_service Order lookup and update service.
+     */
     public function __construct(OrderService $order_service)
     {
         $this->order_service = $order_service;
     }
 
     // @todo: need to fix this
+    /**
+     * Update a refund from the payload and sync the order's refund state.
+     *
+     * Fails with a not-found error when the order has no refund with the given ID.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateRefundPayloadDTO $dto Order ID, refund ID and the fields to update.
+     * @return \Kirki\Ecommerce\App\Models\Order The order reloaded with its refunds, items and coupons.
+     * @throws Throwable When the update or the order sync fails; the transaction is rolled back.
+     */
     public function execute(UpdateRefundPayloadDTO $dto)
     {
         $order = $this->order_service->find_order_or_fail($dto->order_id);
         $refund = $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $dto->id)->values()->first();
 
-        throw_if(!$refund, __('Refund not found.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(!$refund, __('Refund not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         DB::begin_transaction();
 
@@ -54,6 +81,18 @@ class UpdateRefundAction
     }
 
     // @todo: need to recheck the logic
+    /**
+     * Mark the order as refunded once completed refunds cover the whole refundable total.
+     *
+     * Does nothing for pending or cancelled refunds, and partial refunds are not acted on yet.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\Order  $order         Order with its refunds loaded.
+     * @param \Kirki\Ecommerce\App\Models\Refund $refund        The refund that was updated.
+     * @param string                             $refund_status New status of the refund.
+     * @return void
+     */
     protected function sync_fulfillment_status($order, $refund, $refund_status)
     {
         if ($refund_status === RefundStatus::PENDING) {

@@ -2,27 +2,34 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Exception;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerEmailConfirmationMail;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Wordpress\User;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Handles WordPress user account changes: password, profile fields and email verification.
+ *
+ * @since 1.0.0
+ */
 class UserService
 {
-    /**
-     * Email service instance.
-     *
-     * @var EmailService
-     */
+    /** @var EmailService */
     protected EmailService $email_service;
 
     /**
-     * Constructor.
+     * Create the service.
      *
-     * @param EmailService|null $email_service
+     * @since 1.0.0
+     *
+     * @param EmailService|null $email_service Mailer for verification emails; a new EmailService when omitted.
      */
     public function __construct(?EmailService $email_service = null)
     {
@@ -35,11 +42,13 @@ class UserService
      * wp_set_password() invalidates the user's auth cookie as a side effect,
      * so the session is re-issued afterward to keep the requesting browser logged in.
      *
-     * @param int $user_id
-     * @param string $current_password
-     * @param string $new_password
-     * @throws ValidationException
+     * @since 1.0.0
+     *
+     * @param int    $user_id          WordPress user ID.
+     * @param string $current_password Password the user currently has.
+     * @param string $new_password     Password to set.
      * @return void
+     * @throws ValidationException When the current password is incorrect.
      */
     public function update_password(int $user_id, string $current_password, string $new_password)
     {
@@ -58,10 +67,12 @@ class UserService
     /**
      * Update a WordPress user's fields.
      *
-     * @param int $user_id
-     * @param array $fields
-     * @throws ValidationException
+     * @since 1.0.0
+     *
+     * @param int                  $user_id WordPress user ID.
+     * @param array<string, mixed> $fields  Fields accepted by wp_update_user().
      * @return void
+     * @throws Exception When WordPress fails to update the user.
      */
     public function partial_update(int $user_id, array $fields)
     {
@@ -73,15 +84,16 @@ class UserService
     }
 
     /**
-     * Resend verification email to user.
+     * Resend the email verification message to a user.
+     *
+     * Refuses when the user is missing or already verified, or when the last
+     * message was sent less than two minutes ago.
      *
      * @since 1.0.0
      *
-     * @param int $user_id User ID.
-     *
-     * @throws Exception
-     *
-     * @return bool
+     * @param int $user_id WordPress user ID.
+     * @return bool Always true; failure throws.
+     * @throws Exception When the user is unknown or verified, the cooldown has not elapsed, or the email fails to send.
      */
     public function resend_verification_email(int $user_id)
     {
@@ -111,7 +123,7 @@ class UserService
             'token'  => $token,
         ]);
 
-        $sent = $this->email_service->send_verification_email($user, $verify_url);
+        $sent = app(MailerService::class)->send(CustomerEmailConfirmationMail::make($user, $verify_url), $user->get_email());
 
         throw_if(!$sent, __('Failed to send verification email. Please try again later.', 'kirki-ecommerce'));
 
@@ -119,14 +131,15 @@ class UserService
     }
 
     /**
-     * Verify email with token and link past guest orders.
+     * Verify a user's email address with a token.
+     *
+     * On success the kirki_ecommerce_user_email_verified action fires, which links past guest orders.
      *
      * @since 1.0.0
      *
-     * @param int $user_id User ID.
-     * @param string $token Verification token.
-     *
-     * @return bool
+     * @param int    $user_id WordPress user ID.
+     * @param string $token   Verification token.
+     * @return bool False when the user does not exist or the token is not accepted.
      */
     public function verify_email_token(int $user_id, string $token)
     {

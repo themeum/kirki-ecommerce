@@ -2,11 +2,14 @@
 
 namespace Kirki\Ecommerce\App\Concerns;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderTaxDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderTax;
 use Exception;
 
@@ -14,9 +17,10 @@ use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
- * Keeps an order's tax lines (`order_taxes`) reconciled with its latest
- * calculation. Used by both order creation and order editing, since both
- * recalculate an order's items/tax and both need the tax lines to reflect
+ * Keeps an order's tax lines reconciled with its latest calculation.
+ *
+ * Used by both order creation and order editing, since both recalculate an
+ * order's items/tax and both need the tax lines (`order_taxes`) to reflect
  * the result exactly.
  *
  * Expects the using class to provide:
@@ -25,6 +29,8 @@ use function Kirki\Ecommerce\Framework\throw_if;
  * - an `$order_service` property (OrderService), which owns all persistence
  *   for order_taxes, matching how order_items are only ever touched through
  *   OrderService.
+ *
+ * @since 1.0.0
  */
 trait PersistsOrderTaxes
 {
@@ -32,29 +38,27 @@ trait PersistsOrderTaxes
      * Replace an order's tax lines with a fresh set built from the given
      * calculation result.
      *
-     * @param Order $order
-     * @param CalculationResultDTO $calculated_result
-     * @param string $currency_code
-     * @param float $exchange_rate
-     * @return OrderTax[]
+     * @since 1.0.0
+     *
+     * @param Order                        $order                   Order whose tax lines are rebuilt.
+     * @param CalculationResultDTO         $calculated_result       Latest calculation for the order.
+     * @param array<int|string, OrderItem> $order_items_by_line_key Saved order items, keyed by the line key they were calculated under.
+     * @param string                       $currency_code           Order's transaction currency code.
+     * @param float                        $exchange_rate           Rate from the base currency to the transaction currency.
+     * @return OrderTax[] The newly created order taxes.
+     * @throws Exception When the created lines do not add up to the calculated tax total.
      */
-    protected function sync_order_taxes(Order $order, CalculationResultDTO $calculated_result, string $currency_code, float $exchange_rate)
+    protected function sync_order_taxes(Order $order, CalculationResultDTO $calculated_result, array $order_items_by_line_key, string $currency_code, float $exchange_rate)
     {
         $this->order_service->delete_order_taxes($order->id);
 
-        $order_items_by_variant_id = [];
-
-        foreach ($order->items as $item) {
-            $order_items_by_variant_id[$item->variant_id] = $item;
-        }
-
         $order_taxes = [];
 
-        foreach ($order->items as $item) {
-            $tax_lines = $calculated_result->items[$item->variant_id]->tax_lines ?? [];
+        foreach ($order_items_by_line_key as $line_key => $order_item) {
+            $tax_lines = $calculated_result->items[$line_key]->tax_lines ?? [];
 
             foreach ($tax_lines as $tax_line) {
-                $order_taxes[] = $this->create_order_tax($order, $item->id, OrderTaxType::PRODUCT, $tax_line, $currency_code, $exchange_rate);
+                $order_taxes[] = $this->create_order_tax($order, $order_item->id, OrderTaxType::PRODUCT, $tax_line, $currency_code, $exchange_rate);
             }
         }
 
@@ -63,7 +67,7 @@ trait PersistsOrderTaxes
             // split the shipping tax proportionally across items (e.g. EU);
             // that maps to the order item whose share this line is. A line
             // with no item_id applies to the order's shipping as a whole.
-            $order_item = $tax_line->item_id !== null ? ($order_items_by_variant_id[$tax_line->item_id] ?? null) : null;
+            $order_item = $tax_line->item_id !== null ? ($order_items_by_line_key[$tax_line->item_id] ?? null) : null;
 
             $order_taxes[] = $this->create_order_tax($order, $order_item ? $order_item->id : null, OrderTaxType::SHIPPING, $tax_line, $currency_code, $exchange_rate);
         }
@@ -74,13 +78,17 @@ trait PersistsOrderTaxes
     }
 
     /**
-     * @param Order $order
-     * @param int|null $order_item_id
-     * @param string $type
-     * @param TaxLineDTO $tax_line
-     * @param string $currency_code
-     * @param float $exchange_rate
-     * @return OrderTax
+     * Persist one tax line of an order, converting its amount to the order currency.
+     *
+     * @since 1.0.0
+     *
+     * @param Order      $order         Order the tax line belongs to.
+     * @param int|null   $order_item_id Order item the line applies to, or null for the whole order.
+     * @param string     $type          Tax line type, an OrderTaxType value.
+     * @param TaxLineDTO $tax_line      Calculated tax line.
+     * @param string     $currency_code Order's transaction currency code.
+     * @param float      $exchange_rate Rate from the base currency to the transaction currency.
+     * @return OrderTax The persisted order tax.
      */
     protected function create_order_tax(Order $order, $order_item_id, string $type, TaxLineDTO $tax_line, string $currency_code, float $exchange_rate)
     {
@@ -97,9 +105,14 @@ trait PersistsOrderTaxes
     }
 
     /**
-     * @param OrderTax[] $order_taxes
-     * @param int $expected_total
-     * @throws Exception
+     * Assert the persisted order taxes add up to the calculated tax total.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderTax[] $order_taxes    Order taxes just persisted.
+     * @param int        $expected_total Calculated tax total in minor units of the base currency.
+     * @return void
+     * @throws Exception When the base amounts do not sum to the expected total.
      */
     protected function assert_order_taxes_reconcile(array $order_taxes, int $expected_total)
     {

@@ -6,6 +6,11 @@ use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Storefront locations where a consent notice can be shown.
+ *
+ * @since 1.0.0
+ */
 final class ConsentLocations
 {
     use HasConstants;
@@ -17,7 +22,9 @@ final class ConsentLocations
     /**
      * Get all consent locations with key, label pair.
      *
-     * @return array<string, string>
+     * @since 1.0.0
+     *
+     * @return array<string, string> Translated labels keyed by location.
      */
     public static function get_list()
     {

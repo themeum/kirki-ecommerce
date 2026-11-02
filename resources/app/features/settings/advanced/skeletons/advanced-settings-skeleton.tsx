@@ -11,7 +11,7 @@ const AdvancedSettingsSkeleton = () => (
       cards={[6]}
       header={
         <SettingsPageHeader
-          icon={<SlidersHorizontalIcon />}
+          icon={<SlidersHorizontalIcon size={16} />}
           title={__('Advanced', 'kirki-ecommerce')}
         />
       }

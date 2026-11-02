@@ -6,7 +6,10 @@ use Exception;
 use InvalidArgumentException;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
+
+use function Kirki\Ecommerce\Framework\throw_anyway;
 
 defined('ABSPATH') || exit;
 
@@ -47,7 +50,7 @@ class RazorpayClient
             ->post($endpoint);
 
         if ($response->failed()) {
-            throw new Exception($response->body());
+            throw_anyway($response->body());
         }
 
         return $response->json();
@@ -62,7 +65,7 @@ class RazorpayClient
     protected function get_auth()
     {
         if (empty($this->key_id) || empty($this->key_secret)) {
-            throw new InvalidArgumentException(__('Invalid API Key Or Key Secret.', 'kirki-ecommerce-razorpay'));
+            throw_anyway(__('Invalid API Key Or Key Secret.', 'kirki-ecommerce-razorpay'), InvalidArgumentException::class);
         }
         return base64_encode($this->key_id . ':' . $this->key_secret);
     }
@@ -81,14 +84,13 @@ class RazorpayClient
             'amount' => $order->invoiced_total,
             'currency' => strtoupper($order->currency_code),
             'order_id' => $razorpay_order_id,
-            'callback_url' => Url::get_checkout_success_url($order->uuid),
             'prefill' => [
                 'name' => trim($order->billing_first_name . ' ' . $order->billing_last_name),
                 'email' => $order->billing_email,
                 'contact' => $order->billing_phone,
             ],
             'notes' => [
-                'order_id' => $order->id,
+                'order_uuid' => $order->uuid,
             ],
             'modal' => [
                 'escape' => false,
@@ -99,14 +101,19 @@ class RazorpayClient
         $script_url = esc_url(RazorpayConstant::JS_SCRIPT);
         $options_json = wp_json_encode($options);
         $cancel_url = Url::get_checkout_failed_url($order->uuid);
+        $success_url = Url::get_checkout_success_url($order->uuid);
 
         return <<<HTML
-        <script src="{$script_url}"/></script>
+        <script src="{$script_url}"></script>
         <script>
             var options = {$options_json};
 
             options.modal.ondismiss = function () {
                 window.location.href = "{$cancel_url}";
+            };
+            options.handler = function (response) {
+                const paid = response?.razorpay_payment_id && response?.razorpay_order_id && response?.razorpay_signature;
+                window.location.href = paid ? "{$success_url}" : "{$cancel_url}";
             };
 
             var razorpay = new Razorpay(options);
@@ -123,7 +130,7 @@ class RazorpayClient
      */
     public function is_verified(string $raw_payload): bool
     {
-        $given_signature = $_SERVER['HTTP_X_RAZORPAY_SIGNATURE'] ?? '';
+        $given_signature = Superglobals::server('HTTP_X_RAZORPAY_SIGNATURE', '');
         $expected_signature = hash_hmac(RazorpayConstant::SHA256, $raw_payload, $this->webhook_secret);
 
         return hash_equals($expected_signature, $given_signature);

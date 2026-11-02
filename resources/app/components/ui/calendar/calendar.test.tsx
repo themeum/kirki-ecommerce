@@ -1,9 +1,9 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { endOfMonth, endOfWeek } from 'date-fns';
+import { endOfMonth, endOfWeek, subDays } from 'date-fns';
 import { useState } from 'react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { DateRangePresetKey, DateRangeValue } from '@/components/ui/calendar';
+import type { DateRangePreset, DateRangePresetKey, DateRangeValue } from '@/components/ui/calendar';
 import {
   DatePicker,
   DateRangePicker,
@@ -477,5 +477,210 @@ describe('DateTimePicker', () => {
 
     expect(screen.getByRole('listbox', { name: 'Hour' })).toBeInTheDocument();
     expect(screen.getByRole('grid')).toBeInTheDocument();
+  });
+});
+
+describe('DateRangePicker custom presets', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 5, 10));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const customPresets: DateRangePreset[] = [
+    { key: 'today', label: 'Today', getRange: (today) => ({ from: today, to: today }) },
+    {
+      key: 'last_90',
+      label: 'Last 90 days',
+      getRange: (today) => ({ from: subDays(today, 89), to: today }),
+    },
+  ];
+
+  const renderCustomPresets = (value: DateRangeValue | null) => {
+    render(
+      <DateRangePicker
+        value={value}
+        presets={customPresets}
+        customPresetLabel="Custom"
+        placeholder="Pick a date range"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('combobox'));
+  };
+
+  it('renders the custom presets in the given order, then the status item', () => {
+    renderCustomPresets(null);
+
+    const bar = document.querySelector('[data-slot="range-presets"]');
+    const labels = Array.from(bar?.querySelectorAll('button') ?? []).map((button) => {
+      return button.textContent;
+    });
+
+    expect(labels).toEqual(['Today', 'Last 90 days', 'Custom']);
+  });
+
+  it('marks the matching custom preset as pressed', () => {
+    renderCustomPresets({ from: new Date(2026, 2, 13), to: new Date(2026, 5, 10) });
+
+    expect(screen.getByRole('button', { name: 'Last 90 days' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Custom' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
+  it('marks the status item as pressed when no preset matches', () => {
+    renderCustomPresets({ from: new Date(2026, 5, 2), to: new Date(2026, 5, 4) });
+
+    expect(screen.getByRole('button', { name: 'Custom' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+});
+
+describe('DateRangePicker confirm mode', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 5, 10));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const openConfirmPicker = (value: DateRangeValue | null = null) => {
+    const onChange = vi.fn();
+
+    render(
+      <DateRangePicker
+        value={value}
+        onChange={onChange}
+        confirm
+        presets={['today']}
+        placeholder="Pick a date range"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('combobox'));
+
+    return { onChange };
+  };
+
+  const clickDay = (name: RegExp) => {
+    fireEvent.click(screen.getByRole('button', { name }));
+  };
+
+  it('shows the value in read-only Start and End fields', () => {
+    openConfirmPicker({ from: new Date(2026, 5, 1), to: new Date(2026, 5, 5) });
+
+    const start = screen.getByRole('textbox', { name: 'Start' });
+
+    expect(start).toHaveValue('1 Jun, 26');
+    expect(start).toHaveAttribute('readonly');
+    expect(screen.getByRole('textbox', { name: 'End' })).toHaveValue('5 Jun, 26');
+  });
+
+  it('keeps the pending range and the overlay open after the end day', () => {
+    const { onChange } = openConfirmPicker({
+      from: new Date(2026, 5, 1),
+      to: new Date(2026, 5, 5),
+    });
+
+    clickDay(/June 8th, 2026/);
+    clickDay(/June 9th, 2026/);
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryAllByRole('grid')).not.toHaveLength(0);
+    expect(screen.getByRole('textbox', { name: 'Start' })).toHaveValue('8 Jun, 26');
+    expect(screen.getByRole('textbox', { name: 'End' })).toHaveValue('9 Jun, 26');
+    expect(screen.getByText('2 days')).toBeInTheDocument();
+  });
+
+  it('commits the pending range on Apply and closes', () => {
+    const { onChange } = openConfirmPicker();
+
+    clickDay(/June 3rd, 2026/);
+    clickDay(/June 7th, 2026/);
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+    expect(onChange).toHaveBeenCalledWith({
+      from: new Date(2026, 5, 3, 0, 0),
+      to: new Date(2026, 5, 7, 23, 59),
+    });
+    expect(screen.queryAllByRole('grid')).toHaveLength(0);
+  });
+
+  it('keeps a preset pending until Apply', () => {
+    const { onChange } = openConfirmPicker();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Today' }));
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('textbox', { name: 'Start' })).toHaveValue('10 Jun, 26');
+  });
+
+  it('disables Apply until the pending range has an end', () => {
+    openConfirmPicker();
+
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled();
+
+    clickDay(/June 3rd, 2026/);
+
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled();
+  });
+
+  it('discards the pending range on Cancel', () => {
+    const { onChange } = openConfirmPicker();
+
+    clickDay(/June 3rd, 2026/);
+    clickDay(/June 7th, 2026/);
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryAllByRole('grid')).toHaveLength(0);
+  });
+
+  it('discards the pending range on Escape and reopens with the value', () => {
+    const { onChange } = openConfirmPicker({
+      from: new Date(2026, 5, 1),
+      to: new Date(2026, 5, 5),
+    });
+
+    clickDay(/June 8th, 2026/);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    expect(onChange).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('combobox'));
+
+    expect(screen.getByRole('textbox', { name: 'Start' })).toHaveValue('1 Jun, 26');
+  });
+});
+
+describe('DateRangePicker custom trigger', () => {
+  it('opens the overlay from the custom trigger', () => {
+    render(
+      <DateRangePicker
+        value={null}
+        trigger={<button type="button">Pick dates</button>}
+      />,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Pick dates' });
+
+    expect(screen.queryByRole('combobox')).toBeNull();
+
+    fireEvent.click(trigger);
+
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.queryAllByRole('grid')).not.toHaveLength(0);
   });
 });

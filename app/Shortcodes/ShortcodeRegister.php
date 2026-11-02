@@ -17,25 +17,23 @@ use Kirki\Ecommerce\App\Shortcodes\MiniCartShortcode;
 use function Kirki\Ecommerce\Framework\app;
 
 /**
- * Shortcode register class
+ * Registers the plugin's shortcodes by resolving each shortcode class from the container.
  *
  * @since 1.0.0
  */
 class ShortcodeRegister
 {
     /**
-     * Array of shortcode class names
+     * Fully qualified class names of the shortcodes to register.
      *
      * @var array<int, string>
      */
     protected $shortcodes;
 
     /**
-     * Constructor
+     * Set the shortcode class list and register the shortcodes.
      *
      * @since 1.0.0
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -48,11 +46,11 @@ class ShortcodeRegister
     }
 
     /**
-     * Get all shortcodes.
+     * Get the class names of the shortcodes to register.
      *
      * @since 1.0.0
      *
-     * @return array<int, string>
+     * @return array<int, string> Fully qualified shortcode class names.
      */
     public function get_shortcodes(): array
     {
@@ -60,7 +58,7 @@ class ShortcodeRegister
     }
 
     /**
-     * Register all shortcodes.
+     * Register all shortcodes by instantiating each shortcode class through the container.
      *
      * @since 1.0.0
      *

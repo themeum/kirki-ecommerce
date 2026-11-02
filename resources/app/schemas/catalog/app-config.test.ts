@@ -27,6 +27,12 @@ describe('AppConfigSchema', () => {
         created_at: '2026-01-30T12:21:56.000000Z',
         updated_at: '2026-02-17T07:18:50.000000Z',
       },
+      currency_preferences: {
+        currency_format: 'short',
+        currency_position: 'before',
+        thousand_separator: ',',
+        decimal_separator: '.',
+      },
     });
     expect(result.success).toBe(true);
   });

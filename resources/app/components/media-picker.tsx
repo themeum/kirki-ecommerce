@@ -8,11 +8,11 @@ import Image from '@/components/ui/image';
 import Spinner from '@/components/ui/spinner';
 import Text from '@/components/ui/text';
 import { useMediaLibrary } from '@/hooks';
-import { CloudUpload } from '@/icons';
+import { CloudUpload } from '@/icons/common';
 import type { MediaRef } from '@/schemas/shared/media';
 import { uploadMedia } from '@/services/media';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
+import { defineStyles, flexCenter, mergeCss, scopedMerge } from '@/theme/mixins';
 import { isVideoObject } from '@/utils/media';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
@@ -72,7 +72,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
     onChange,
     onRequestOpen,
     accept = ['image'],
-    placeholder = __('Drag and drop, or upload image', 'kirki-ecommerce'),
+    placeholder = __('Drag and drop, or upload image.', 'kirki-ecommerce'),
     btnText = __('Upload image', 'kirki-ecommerce'),
     size = 'fullWidth',
     disabled = false,
@@ -274,6 +274,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
               aria-label={__('Replace image', 'kirki-ecommerce')}
               disabled={isBusy}
               onClick={openBrowse}
+              cssOverride={styles.overlayActionButton}
             >
               <RefreshCcw size={16} aria-hidden="true" />
             </Button>
@@ -283,7 +284,9 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
               type="button"
               aria-label={__('Remove image', 'kirki-ecommerce')}
               disabled={isBusy}
-              cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
+              cssOverride={mergeCss(styles.overlayActionButton, {
+                '& svg': { color: theme.colors.icon.critical },
+              })}
               onClick={handleRemove}
             >
               <Trash2 size={16} aria-hidden="true" />
@@ -316,7 +319,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
       onDrop={handleDrop}
     >
       <Flex direction="column" align="center" gap={2}>
-        <Button variant="ghost" type="button" disabled={isBusy} onClick={openBrowse}>
+        <Button variant="tertiary" type="button" disabled={isBusy} onClick={openBrowse}>
           <CloudUpload />
           {btnText}
         </Button>
@@ -387,6 +390,12 @@ const styles = defineStyles({
     alignItems: 'center',
     justifyContent: 'center',
     paddingBottom: theme.spacing[1],
+  },
+  overlayActionButton: {
+    backgroundColor: theme.colors.background.solidSurfaceAlt,
+    '&:hover': {
+      backgroundColor: theme.colors.background.solidSurfaceSecondary,
+    },
   },
   uploadOverlay: {
     position: 'absolute',

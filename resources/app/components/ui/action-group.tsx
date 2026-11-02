@@ -5,23 +5,21 @@ import { defineStyles, mergeCss } from '@/theme/mixins';
 
 type ActionGroupProps = ComponentPropsWithoutRef<typeof Flex>;
 
-const ActionGroup = forwardRef<HTMLDivElement, ActionGroupProps>(
-  (props, ref) => {
-    const { cssOverride, gap = 2, children, ...rest } = props;
+const ActionGroup = forwardRef<HTMLDivElement, ActionGroupProps>((props, ref) => {
+  const { cssOverride, gap = 1, children, ...rest } = props;
 
-    return (
-      <Flex
-        ref={ref}
-        gap={gap}
-        data-action-group="true"
-        cssOverride={mergeCss(styles.root, cssOverride)}
-        {...rest}
-      >
-        {children}
-      </Flex>
-    );
-  },
-);
+  return (
+    <Flex
+      ref={ref}
+      gap={gap}
+      data-action-group="true"
+      cssOverride={mergeCss(styles.root, cssOverride)}
+      {...rest}
+    >
+      {children}
+    </Flex>
+  );
+});
 
 ActionGroup.displayName = 'ActionGroup';
 

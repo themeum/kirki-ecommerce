@@ -3,7 +3,16 @@
 define('DB_NAME', getenv('DB_NAME') ?: 'kirki_ecommerce_test');
 define('DB_USER', getenv('DB_USER') ?: 'wordpress');
 define('DB_PASSWORD', getenv('DB_PASSWORD') ?: 'wordpress');
-define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1:20101');
+// bin/dev-up saves this worktree's MariaDB port in the root .env.
+$kirki_db_port = getenv('MARIADB_PORT');
+$kirki_env_file = dirname(__DIR__) . '/.env';
+
+if (!$kirki_db_port && is_readable($kirki_env_file)
+    && preg_match('/^MARIADB_PORT=(\d+)\s*$/m', (string) file_get_contents($kirki_env_file), $kirki_matches)) {
+    $kirki_db_port = $kirki_matches[1];
+}
+
+define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1:' . ($kirki_db_port ?: '20101'));
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 

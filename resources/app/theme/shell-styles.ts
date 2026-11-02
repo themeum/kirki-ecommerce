@@ -16,6 +16,8 @@ const pageEnterKeyframes = keyframes({
 
 const NOT_FOUND_SELECTOR = '[data-not-found="true"]';
 
+const TOAST_CLOSE_BUTTON_CLASS = 'kirki-ecommerce-toast-close-button';
+
 /**
  * WordPress admin shell styles ported from global.scss.
  *
@@ -24,11 +26,14 @@ const NOT_FOUND_SELECTOR = '[data-not-found="true"]';
  * @returns CSS object for shell layout.
  */
 const getShellStyles = (theme: Theme): CSSObject => {
-  const surfaceTertiary = theme.colors.background.surfaceTertiary;
+  const notFoundBackground = theme.colors.background.surface;
 
   return {
+    body: {
+      backgroundColor: theme.colors.background.solidSurfaceSecondary,
+    },
     '#wpcontent': {
-      backgroundColor: surfaceTertiary,
+      backgroundColor: theme.colors.background.solidSurfaceSecondary,
     },
     [APP_ROOT_SELECTOR]: {
       marginLeft: '-20px',
@@ -36,28 +41,45 @@ const getShellStyles = (theme: Theme): CSSObject => {
     [WP_MEDIA_FRAME_SELECTOR]: {
       pointerEvents: 'auto',
     },
+    '.mce-floatpanel': {
+      pointerEvents: 'auto',
+    },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR})`]: {
-      backgroundColor: surfaceTertiary,
+      backgroundColor: notFoundBackground,
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR}) #wpcontent`]: {
       minHeight: 'calc(100vh - 32px)',
-      backgroundColor: surfaceTertiary,
+      backgroundColor: notFoundBackground,
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR}) #wpbody`]: {
-      backgroundColor: surfaceTertiary,
+      backgroundColor: 'transparent',
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR}) #wpbody-content`]: {
       minHeight: 'calc(100vh - 32px - 41px)',
-      backgroundColor: surfaceTertiary,
+      backgroundColor: 'transparent',
     },
     [`#wpwrap:has(${NOT_FOUND_SELECTOR}) #wpfooter`]: {
-      backgroundColor: surfaceTertiary,
+      backgroundColor: 'transparent',
     },
     [`${APP_ROOT_SELECTOR}:has(${NOT_FOUND_SELECTOR})`]: {
       minHeight: 'calc(100vh - 32px - 41px)',
-      backgroundColor: surfaceTertiary,
+      backgroundColor: 'transparent',
+    },
+    [`[data-sonner-toast][data-styled="true"] [data-close-button="true"]`]: {
+      left: 'auto',
+      right: 20,
+      top: '50%',
+      transform: 'translate(35%, -50%)',
+    },
+    [`.kirki-ecommerce-root .${TOAST_CLOSE_BUTTON_CLASS}`]: {
+      borderRadius: `${theme.radius.md} !important`,
+      backgroundColor: 'transparent !important',
+      color: `${theme.colors.icon.primary} !important`,
+      '&:hover': {
+        backgroundColor: `${theme.colors.background.surfaceAlt} !important`,
+      },
     },
   };
 };
 
-export { getShellStyles, pageEnterKeyframes };
+export { getShellStyles, pageEnterKeyframes, TOAST_CLOSE_BUTTON_CLASS };

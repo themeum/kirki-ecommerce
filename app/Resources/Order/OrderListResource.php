@@ -2,11 +2,25 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 
+/**
+ * API resource for an order in admin list views.
+ *
+ * @since 1.0.0
+ */
 class OrderListResource extends Resource
 {
+    /**
+     * Convert the order resource to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The order summary, including totals, statuses and payment and shipping method details.
+     */
     public function to_array()
     {
         return [
@@ -26,6 +40,7 @@ class OrderListResource extends Resource
             'status' => $this->order_status,
             'fulfillment_status' => $this->fulfillment_status,
             'is_refund_initiated' => $this->is_refund_initiated,
+            'is_editable' => $this->is_editable(),
             'payment_status' => $this->payment_status,
             'payment_provider' => $this->payment_provider,
             'payment_provider_name' => $this->payment_metadata['payment_provider']['name'] ?? null,
@@ -34,13 +49,16 @@ class OrderListResource extends Resource
             'shipping_method' => $this->shipping_method,
             'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
             'created_at' => $this->created_at,
+            'archived_at' => $this->archived_at,
         ];
     }
 
     /**
      * Build the customer name from the customer name pair.
      *
-     * @return string|null
+     * @since 1.0.0
+     *
+     * @return string|null Null when both name parts are empty.
      */
     protected function resolve_customer_name()
     {

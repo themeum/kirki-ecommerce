@@ -106,9 +106,40 @@ if (!function_exists('esc_url')) {
     }
 }
 
+if (!function_exists('sanitize_url')) {
+    function sanitize_url($url, $protocols = null)
+    {
+        $url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\[\]\x80-\xff]|i', '', (string) $url);
+
+        return preg_match('#^https?://#i', $url) ? $url : '';
+    }
+}
+
 if (!function_exists('get_permalink')) {
     function get_permalink($post = 0, $leavename = false)
     {
         return 'https://example.test/?p=' . (int) (is_object($post) ? $post->ID : $post);
+    }
+}
+
+if (!function_exists('get_locale')) {
+    function get_locale()
+    {
+        return 'en_US';
+    }
+}
+
+/**
+ * The sorting fallback in CountryData calls this whenever ext-intl is missing,
+ * which is the case on the Unit CI job. It only has to be deterministic and
+ * non-fatal here - the fallback's actual ordering is asserted in the
+ * Integration suite against WordPress's own implementation.
+ */
+if (!function_exists('remove_accents')) {
+    function remove_accents($string)
+    {
+        $transliterated = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string) $string);
+
+        return $transliterated === false ? (string) $string : $transliterated;
     }
 }

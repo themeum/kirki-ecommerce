@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 defined('ABSPATH') || exit;
@@ -134,14 +135,14 @@ class AuthorizenetClient
     public function is_verified($raw_payload): bool
     {
         // Get the headers and convert them to uppercase.
-        $headers = array_change_key_case(getallheaders(), CASE_UPPER);
+        $given_signature = Superglobals::server('HTTP_X_ANET_SIGNATURE');
 
-        if (! isset($headers['X-ANET-SIGNATURE'])) {
+        if (empty($given_signature)) {
             return false;
         }
 
         $calculated_signature = hash_hmac('sha512', $raw_payload, $this->signature_key);
 
-        return hash_equals(strtolower($headers['X-ANET-SIGNATURE']), 'sha512=' . $calculated_signature);
+        return hash_equals(strtolower($given_signature), 'sha512=' . $calculated_signature);
     }
 }

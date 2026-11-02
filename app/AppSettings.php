@@ -2,73 +2,129 @@
 
 namespace Kirki\Ecommerce\App;
 
-use Kirki\Ecommerce\App\Events\SettingsChanged;
+use Kirki\Ecommerce\App\Events\SettingsChangedEvent;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Framework\Concerns\DeepGettable;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Base class for a settings group stored in one WordPress option, layered over the JSON defaults.
+ *
+ * @since 1.0.0
+ */
 abstract class AppSettings
 {
     use DeepGettable;
 
-    /**
-     * Settings values
-     * @var array
-     */
+    /** @var array<string, mixed> */
     protected $settings = [];
 
+    /**
+     * Whether WordPress loads the option on every request. Null lets WordPress decide.
+     *
+     * @var bool|null
+     */
+    protected $autoload = null;
+
+    /**
+     * Load the settings, merging the stored values over the defaults.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->refresh();
     }
 
+    /**
+     * Get the option key under which this settings group is stored.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     abstract public function get_option_key();
 
     /**
-     * Get settings values or a specific value by key
+     * Get all settings values.
      *
-     * @param string|null $key
-     * @return mixed
-     */
-    public function get($key = null, $default = null) // phpcs:ignore
-    {
-        return $this->deep_get($this->settings ?? [], $key, $default);
-    }
-
-    /**
-     * Convert settings to array
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array<string, mixed>
      */
     public function to_array()
     {
         return $this->settings ?? [];
     }
 
+
     /**
-     * Set settings values
+     * Get a setting value by its dot-notation key.
      *
-     * @param array $value
+     * @since 1.0.0
+     *
+     * @param string|string[]|null $key     Dot-notation key or list of key segments.
+     * @param mixed                $default Value returned when the key is missing or empty.
+     * @return mixed
+     */
+    public function get($key = null, $default = null) // phpcs:ignore
+    {
+        return $this->deep_get($this->to_array(), $key, $default);
+    }
+
+    /**
+     * Merge the given values into the stored settings and persist them.
+     *
+     * Top-level keys in `$value` replace existing ones. Dispatches SettingsChangedEvent unless disabled.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $value         Settings values to merge in.
+     * @param bool                 $trigger_event Whether to dispatch the SettingsChangedEvent.
      * @return void
      */
     public function set($value, bool $trigger_event = true)
     {
         $settings = array_merge($this->to_array(), $value);
-        Option::set($this->get_option_key(), $settings);
+        Option::set($this->get_option_key(), $settings, $this->autoload);
         $this->refresh();
 
         if ($trigger_event) {
-            SettingsChanged::dispatch($this->get_option_key());
+            SettingsChangedEvent::dispatch($this->get_option_key());
         }
     }
 
     /**
-     * Refresh settings values
-     * @return static
+     * Get the default settings from the bundled JSON file for this option key.
+     *
+     * @since 1.0.0
+     *
+     * @param string|string[]|null $key     Dot-notation key, or null for all defaults.
+     * @param mixed                $default Value returned when the key is missing from the defaults.
+     * @return mixed All defaults as an array when no key is given, otherwise the value at the key.
+     */
+    public function get_default($key = null, $default = null)
+    {
+        $default_settings = json_decoded_data(resource_path('data/settings/' . $this->get_option_key() . '.json')) ?? [];
+
+        if (is_null($key)) {
+            return $default_settings;
+        }
+
+        return $this->deep_get($default_settings, $key, $default);
+    }
+
+    /**
+     * Reload the settings from the stored option, merged over the defaults.
+     *
+     * @since 1.0.0
+     *
+     * @return $this
      */
     public function refresh()
     {
-        $default_settings = json_decoded_data(resource_path('data/settings/' . $this->get_option_key() . '.json')) ?? [];
+        $default_settings = $this->get_default();
         $current_settings = Option::get($this->get_option_key());
 
         if (is_null($current_settings)) {

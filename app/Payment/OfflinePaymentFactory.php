@@ -8,8 +8,20 @@ use function Kirki\Ecommerce\App\settings;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Builds payment providers for the offline payment methods stored in settings.
+ *
+ * @since 1.0.0
+ */
 class OfflinePaymentFactory
 {
+    /**
+     * Build a provider for each offline payment method in the payment settings.
+     *
+     * @since 1.0.0
+     *
+     * @return PaymentProvider[]
+     */
     public static function make()
     {
         $settings = settings(OptionKeys::PAYMENT_SETTINGS);

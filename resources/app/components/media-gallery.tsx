@@ -17,8 +17,8 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { type CSSObject } from '@emotion/react';
-import { Trash2, Trash2Icon } from 'lucide-react';
-import { useState } from 'react';
+import { Plus, Trash2, Trash2Icon } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
@@ -26,7 +26,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import { useMediaLibrary } from '@/hooks';
-import { MoveIcon, PlusIcon } from '@/icons';
+import { MoveIcon } from '@/icons/common';
 import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
@@ -150,7 +150,12 @@ const SortableItem = ({
               size="icon-sm"
               aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={onDeleteImage}
-              cssOverride={{ backgroundColor: theme.colors.background.fill }}
+              cssOverride={{
+                backgroundColor: theme.colors.background.fill,
+                '&:hover': {
+                  backgroundColor: theme.colors.background.fill,
+                },
+              }}
             >
               <Trash2Icon color={theme.colors.icon.critical} />
             </Button>
@@ -216,15 +221,16 @@ const MediaGallery = ({
   const remainingCount = mediaItems?.length > 3 ? mediaItems?.length - 3 : 0;
   const fourthItem = mediaItems[3] || { url: '' };
 
-  const updateSelectedImageList = (value: boolean, currentIndex: number) => {
-    if (value) {
-      const updatedList = [...selectedImages, currentIndex];
-      setSelectedImages(updatedList);
-    } else {
-      const filteredList = selectedImages?.filter((_item, index) => index !== currentIndex);
-      setSelectedImages(filteredList);
-    }
-  };
+  const updateSelectedImageList = useCallback(
+    (value: boolean, currentIndex: number) => {
+      if (value) {
+        setSelectedImages((prev) => (prev.includes(currentIndex) ? prev : [...prev, currentIndex]));
+      } else {
+        setSelectedImages((prev) => prev.filter((selectedIndex) => selectedIndex !== currentIndex));
+      }
+    },
+    [setSelectedImages],
+  );
 
   const handleSelectAllImages = () => {
     if (selectedImages?.length < mediaItems?.length) {
@@ -243,11 +249,20 @@ const MediaGallery = ({
     onUpdate(filteredMediaItems);
   };
 
-  const handleDeleteSingleImage = (currentIndex: number) => {
-    setSelectedImages((prev) => prev.filter((_item, index) => index !== currentIndex));
-    const filteredMedia = mediaItems?.filter((_item, index) => index !== currentIndex);
-    onUpdate(filteredMedia);
-  };
+  const handleDeleteSingleImage = useCallback(
+    (currentIndex: number) => {
+      setSelectedImages((prev) =>
+        prev
+          .filter((selectedIndex) => selectedIndex !== currentIndex)
+          .map((selectedIndex) =>
+            selectedIndex > currentIndex ? selectedIndex - 1 : selectedIndex,
+          ),
+      );
+      const filteredMedia = mediaItems?.filter((_item, index) => index !== currentIndex);
+      onUpdate(filteredMedia);
+    },
+    [mediaItems, onUpdate, setSelectedImages],
+  );
 
   return (
     <Flex direction="column" gap={2}>
@@ -279,7 +294,7 @@ const MediaGallery = ({
         <>
           {label && (
             <Field data-invalid={error ? true : undefined}>
-              <FieldLabel style={{ minHeight: '23px' }}>{label}</FieldLabel>
+              <FieldLabel style={{ minHeight: '24px' }}>{label}</FieldLabel>
               {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
               {typeof error === 'string' && <FieldError>{error}</FieldError>}
             </Field>
@@ -335,9 +350,8 @@ const MediaGallery = ({
               </button>
             )}
 
-            <div
-              role="button"
-              tabIndex={0}
+            <button
+              type="button"
               css={scopedMerge(styles.galleryItem, styles.addItem)}
               onClick={() => openMediaLibrary(handleOnAddNewImages)}
               aria-label={__('Add images', 'kirki-ecommerce')}
@@ -348,8 +362,8 @@ const MediaGallery = ({
                 }
               }}
             >
-              <PlusIcon height={24} width={24} />
-            </div>
+              <Plus size={24} />
+            </button>
           </div>
         </SortableContext>
       </DndContext>
@@ -439,10 +453,10 @@ const styles = defineStyles({
     border: `2px dashed ${theme.colors.border.gallery}`,
     color: theme.colors.background.fillBrand,
     cursor: 'pointer',
-    background: theme.colors.background.surfaceSecondary,
+    background: theme.colors.background.surfaceAlt,
     ...flexCenter(),
     '&:hover': {
-      background: theme.colors.background.galleryHover,
+      background: theme.colors.background.surfaceSecondary,
     },
     minHeight: '8.5rem',
     minWidth: '8.5rem',

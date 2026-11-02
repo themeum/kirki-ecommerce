@@ -3,9 +3,7 @@
 ## Purpose
 
 Defines the settings section's two-column shell: a left navigation sidebar shown alongside the selected settings page, along with how a settings URL resolves, which page is highlighted, and how the sidebar is searched.
-
 ## Requirements
-
 ### Requirement: Settings renders as a persistent two-column shell
 
 Every route under `/settings` SHALL render inside a shared settings shell consisting of a navigation sidebar on the left and the selected settings page on the right. The sidebar SHALL be present on every settings route, including drill-down pages, and SHALL remain mounted — not destroyed and rebuilt — as the merchant moves between settings pages. Only the right-hand content area SHALL animate on navigation; the sidebar and header SHALL NOT shift, flicker, or replay any entrance animation.
@@ -65,7 +63,9 @@ Exactly one sidebar item SHALL be marked active at a time. An item SHALL be acti
 
 ### Requirement: Drill-down settings pages render inside the shell
 
-All settings drill-down pages — shipping zone, shipping delivery method, tax region, email template editor, and variation library detail pages — SHALL render inside the settings shell rather than as standalone full-page views, and SHALL offer a way back to their parent settings page.
+All settings drill-down pages — shipping zone, shipping delivery method, tax region, and variation library detail pages — SHALL render inside the settings shell rather than as standalone full-page views, and SHALL offer a way back to their parent settings page.
+
+A settings page MAY instead be designated a full-page editor. A full-page editor SHALL render as a standalone page with no settings sidebar and no settings shell chrome, while its URL remains nested under `/settings`, and it SHALL provide its own way back to its parent settings page in its own page header. The email template editor is a full-page editor.
 
 #### Scenario: Opening a tax region
 
@@ -73,9 +73,23 @@ All settings drill-down pages — shipping zone, shipping delivery method, tax r
 - **THEN** the region page renders in the right-hand content area with the sidebar still visible
 - **AND** a back affordance in the page header returns to the Tax settings page
 
+#### Scenario: Opening the email template editor
+
+- **WHEN** the merchant opens the email template editor from the Email settings page
+- **THEN** the editor renders as a standalone full page with no settings sidebar
+- **AND** its own header provides a way back to the Email settings page
+
 ### Requirement: Sidebar navigation items are single-line and searchable
 
-Sidebar items SHALL display an icon and the item's label only; the longer descriptive text associated with each item SHALL NOT be rendered in the sidebar. The sidebar SHALL provide a search box that filters items by both their label and their descriptive text, and SHALL hide any section left with no matching items.
+Sidebar items SHALL display an icon and the item's label only; the longer
+descriptive text associated with each item SHALL NOT be rendered in the sidebar.
+The sidebar SHALL provide a search box. Searching SHALL NOT filter the grouped
+navigation in place — while a query is active the sidebar SHALL hand its content
+over to the settings search capability, which replaces the grouped sections with
+a flat ranked list of matching settings and shows "No results found" when nothing
+matches. The navigation item's descriptive text SHALL remain part of what a query
+can match, so an item still reaches the merchant through wording that never
+appears on screen. Clearing the query SHALL restore the grouped sections.
 
 #### Scenario: Item rendering
 
@@ -85,18 +99,26 @@ Sidebar items SHALL display an icon and the item's label only; the longer descri
 
 #### Scenario: Search matches descriptive text
 
-- **WHEN** the merchant types text that appears only in an item's descriptive text and not in its label
-- **THEN** that item remains visible in the sidebar
+- **WHEN** the merchant types text that appears only in an item's descriptive text
+  and not in its label
+- **THEN** that item is returned among the search results
 
-#### Scenario: Empty sections are hidden
+#### Scenario: Grouping is replaced, not filtered
 
-- **WHEN** a search query matches no items in a section
-- **THEN** that section and its heading are not rendered
+- **WHEN** a search query is active
+- **THEN** the sidebar shows the ranked result list without its section headings
+- **AND** no section heading is shown with a reduced set of its own items beneath it
 
 #### Scenario: No results at all
 
-- **WHEN** a search query matches no items in any section
-- **THEN** a "No settings found" message is shown in place of the sections
+- **WHEN** a search query matches nothing
+- **THEN** a "No results found" message is shown in place of the results list
+
+#### Scenario: Clearing the query restores the sections
+
+- **WHEN** the merchant clears the search box
+- **THEN** all grouped sections and their headings are rendered again in their
+  original order
 
 ### Requirement: A settings page controls its own content width
 
@@ -132,7 +154,7 @@ The sidebar SHALL remain fixed in view while the content column scrolls, positio
 
 ### Requirement: Every settings section is reachable from the sidebar
 
-Each settings page that exists SHALL have a corresponding sidebar entry, and no sidebar entry SHALL be permanently non-navigable. Sections whose full functionality is not yet built SHALL still be navigable and render a placeholder page.
+Each settings page that exists SHALL have a corresponding sidebar entry, and no sidebar entry SHALL be permanently non-navigable. Each sidebar entry SHALL navigate to its own page — an entry SHALL NOT resolve to a page belonging to a different sidebar entry. Sections whose full functionality is not yet built SHALL still be navigable and render a placeholder page.
 
 #### Scenario: Checkout is listed
 
@@ -144,3 +166,16 @@ Each settings page that exists SHALL have a corresponding sidebar entry, and no 
 - **WHEN** the merchant selects the Advanced or License sidebar item
 - **THEN** the item navigates rather than being inert
 - **AND** the right-hand content area renders a placeholder page for that section
+
+#### Scenario: Legal opens the Legal page
+
+- **WHEN** the merchant selects the Legal sidebar item
+- **THEN** the Legal settings page is shown
+- **AND** the Legal item is marked active
+- **AND** no other settings page's content is shown in its place
+
+#### Scenario: No two entries resolve to the same page
+
+- **WHEN** the sidebar renders
+- **THEN** each entry resolves to a distinct settings page
+

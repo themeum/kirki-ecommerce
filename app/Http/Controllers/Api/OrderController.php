@@ -2,12 +2,17 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
-use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
+use Kirki\Ecommerce\App\DTO\Calculation\OrderCalculationInputDTO;
+use Kirki\Ecommerce\App\Resources\Order\OrderEditResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderListResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
+use Kirki\Ecommerce\App\Services\OrderCalculationContextService;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -27,21 +32,46 @@ use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderListRequest;
+use Kirki\Ecommerce\App\Http\Requests\Order\OrderPartialRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundUpdateRequest;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
-use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\Framework\response;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * REST controller for managing orders and their refunds.
+ *
+ * @since 1.0.0
+ */
 class OrderController
 {
+    /** @var OrderService */
     protected $service;
+    /**
+     * Create the controller with the order service.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderService $service
+     */
     public function __construct(OrderService $service)
     {
         $this->service = $service;
     }
+    /**
+     * List orders, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderListRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated orders with a success message.
+     */
     public function get(OrderListRequest $request)
     {
         $params = OrderListFilterDTO::from_array($request->all());
@@ -58,12 +88,21 @@ class OrderController
             'message' => __('Orders retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
+    /**
+     * Create an order from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderCreateRequest $request
+     * @param CreateOrderAction  $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created order with a 201 status.
+     */
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
         $user_id = user()->get_id();
 
         $dto = CreateOrderPayloadDTO::from_request($request);
-        $dto->is_manual = user()->is_admin() && $request->bool('is_manual') ? true : false;
+        $dto->is_manual = $request->bool('is_manual');
         $dto->created_by = !empty($user_id) ? $user_id : null;
 
         $order = $action->execute($dto);
@@ -74,6 +113,14 @@ class OrderController
         ], 201);
     }
 
+    /**
+     * Return a single order by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The order resource.
+     */
     public function show(Request $request)
     {
         $order = $this->service->find_order_or_fail($request->int('id'));
@@ -84,13 +131,71 @@ class OrderController
         ]);
     }
 
+    /**
+     * Return an order opened for an edit, by the route ID.
+     *
+     * It is the order with each line's reachability and live stock values, and the
+     * shipping methods that can be chosen for the order as it is stored.
+     *
+     * @since 1.0.0
+     *
+     * @param Request                        $request
+     * @param OrderCalculationContextService $context_service
+     * @param ShippingService                $shipping_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The order edit resource.
+     * @throws \Kirki\Ecommerce\Framework\Exceptions\NotFoundException When the order does not exist.
+     * @throws \Kirki\Ecommerce\Framework\Exceptions\ValidationException When the order can no longer be edited.
+     */
+    public function edit(Request $request, OrderCalculationContextService $context_service, ShippingService $shipping_service)
+    {
+        $order = $this->service->find_editable_order_or_fail($request->int('id'));
+        $order->load_missing('items.variant.product');
+
+        $context = $context_service->build(OrderCalculationInputDTO::from_order($order), $order);
+
+        return response()->json([
+            'data' => OrderEditResource::make($order, $shipping_service->get_final_available_shipping_options($context)),
+            'message' => __('Order retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Return the enabled carriers of the shipping zone that covers an order's shipping address.
+     *
+     * The list is empty when no enabled zone covers the address.
+     *
+     * @since 1.0.0
+     *
+     * @param Request         $request
+     * @param ShippingService $shipping_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The carriers with their id, name, tracking URL template and logo URL.
+     * @throws \Kirki\Ecommerce\Framework\Exceptions\NotFoundException When the order does not exist.
+     */
+    public function shipping_carriers(Request $request, ShippingService $shipping_service)
+    {
+        $order = $this->service->find_order_or_fail($request->int('id'));
+
+        return response()->json([
+            'data' => $shipping_service->get_carriers_for_address([
+                'country' => $order->shipping_country,
+                'state' => $order->shipping_state,
+            ]),
+            'message' => __('Shipping carriers retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Update an order from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderUpdateRequest $request
+     * @param UpdateOrderAction  $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated order.
+     */
     public function update(OrderUpdateRequest $request, UpdateOrderAction $action)
     {
-        $headers = $request->get_headers();
-        $currency_code = $request->string('currency_code') ?? $headers['kirki-currency-code'] ?? base_currency()->code; //todo: implement change the name later
-
         $dto = UpdateOrderPayloadDTO::from_request($request);
-        $dto->currency_code = $currency_code;
 
         $order = $action->execute($dto);
 
@@ -100,6 +205,52 @@ class OrderController
         ]);
     }
 
+    /**
+     * Update only the note and flags of an order.
+     *
+     * Only the keys in the request change; a null or empty value clears that field.
+     * Totals, items, addresses and statuses are not touched.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderPartialRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated order.
+     * @throws NotFoundException When the order does not exist.
+     */
+    public function partial(OrderPartialRequest $request)
+    {
+        $id = $request->int('id');
+        $input = $request->all();
+        $data = [];
+
+        $order = $this->service->find_order($id);
+
+        throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        if (array_key_exists('order_notes', $input)) {
+            $data['order_notes'] = $input['order_notes'] === '' ? null : $input['order_notes'];
+        }
+
+        if (array_key_exists('flags', $input)) {
+            $data['flags'] = $input['flags'];
+        }
+
+        $this->service->partial_update_order($id, $data);
+
+        return response()->json([
+            'data' => OrderResource::make($this->service->find_order($id)),
+            'message' => __('Order updated', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Delete a single order by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete_order_or_fail($request->int('id'));
@@ -110,6 +261,16 @@ class OrderController
         ]);
     }
 
+    /**
+     * Run a bulk action on orders.
+     *
+     * Supports deleting the given IDs or deleting every order matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $data = $request->all();
@@ -139,6 +300,15 @@ class OrderController
         }
     }
 
+    /**
+     * Perform a lifecycle action on an order on behalf of the current user.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderActionRequest $request
+     * @param PerformOrderAction $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated order.
+     */
     public function action(OrderActionRequest $request, PerformOrderAction $action)
     {
         $dto = PerformOrderActionDTO::from_request($request);
@@ -149,10 +319,19 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($order),
-            'message' => __('Order updated', 'kirki-ecommerce'),
+            'message' => $action->get_message($dto),
         ]);
     }
 
+    /**
+     * Process a refund for an order.
+     *
+     * @since 1.0.0
+     *
+     * @param RefundCreateRequest $request
+     * @param CreateRefundAction  $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The order with the refund applied.
+     */
     public function create_refund(RefundCreateRequest $request, CreateRefundAction $action)
     {
         $dto = CreateRefundPayloadDTO::from_request($request);
@@ -166,6 +345,15 @@ class OrderController
         ]);
     }
 
+    /**
+     * Update an existing refund of an order.
+     *
+     * @since 1.0.0
+     *
+     * @param RefundUpdateRequest $request
+     * @param UpdateRefundAction  $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The order with the refund changes applied.
+     */
     public function update_refund(RefundUpdateRequest $request, UpdateRefundAction $action)
     {
         $dto = UpdateRefundPayloadDTO::from_request($request);
@@ -179,6 +367,15 @@ class OrderController
         ]);
     }
 
+    /**
+     * Delete a refund from an order.
+     *
+     * @since 1.0.0
+     *
+     * @param Request            $request
+     * @param DeleteRefundAction $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The order after the refund was removed.
+     */
     public function delete_refund(Request $request, DeleteRefundAction $action)
     {
         $updated_order = $action->execute($request->int('order_id'), $request->int('id'));

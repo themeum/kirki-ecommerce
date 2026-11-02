@@ -86,11 +86,12 @@ class QuickpayTransactionBuilder
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
+            $price = $this->order->invoiced_shipping_total - $this->order->invoiced_shipping_tax_amount ?? 0;
             $line_items[] = [
                 'item_no' => 'shipping',
                 'item_name' => __('Shipping Charge', 'kirki-ecommerce-quickpay'),
                 'qty' => 1,
-                'item_price' => (int) $this->order->invoiced_shipping_total,
+                'item_price' => (int) $price,
                 'vat_rate' => 0
             ];
         }

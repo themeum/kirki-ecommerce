@@ -88,7 +88,7 @@ examples:
               },
               "available_shipping_methods": [],
               "shipping_method": null,
-              "customer_notes": null,
+              "order_notes": null,
               "ip_address": null,
               "user_agent": null,
               "expires_at": null,

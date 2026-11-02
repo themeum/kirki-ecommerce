@@ -4,9 +4,11 @@ import type {
   ColumnPinningState,
   OnChangeFn,
   PaginationState,
+  Row,
   RowSelectionState,
   SortDirection,
   SortingState,
+  Table as TanStackTable,
   VisibilityState,
 } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -45,7 +47,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowDownFilled, ArrowDownUpFilled, ArrowUpFilled } from '@/icons';
+import { ArrowDownFilled, ArrowDownUpFilled, ArrowUpFilled } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -71,6 +73,13 @@ type DataTableProps<T extends DataTableItem> = {
   cssOverride?: CSSObject;
   hidePagination?: boolean;
   enableRowSelection?: boolean;
+  /**
+   * Whether the selection bar offers "select all N items" when more rows match
+   * than are shown. Off for a table whose bulk action can only address an
+   * enumerated set of rows, where the offer would promise something the action
+   * cannot deliver.
+   */
+  enableSelectAllMatching?: boolean;
   selectionResetKey?: string | number;
   onRowSelectionChange?: (state: DataTableSelectionState) => void;
   bulkActions?: DataTableBulkAction[];
@@ -78,10 +87,18 @@ type DataTableProps<T extends DataTableItem> = {
   columnPinning?: ColumnPinningState;
   columnVisibility?: VisibilityState;
   enableColumnVisibility?: boolean;
-  noCardShadown?: boolean;
+  noCardShadow?: boolean;
 };
 
 const EMPTY_COLUMN_PINNING: ColumnPinningState = {};
+
+/*
+ * The filter toolbar and the selection bar occupy the same slot, so a swap
+ * between them shifts the whole table unless both rows resolve to one height.
+ * 4rem is the filter toolbar's natural height: a 2rem control plus the 1rem
+ * vertical padding its wrapper adds on each side.
+ */
+const TOOLBAR_ROW_HEIGHT = '4rem';
 
 const noop = () => undefined;
 
@@ -119,6 +136,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     cssOverride,
     hidePagination = false,
     enableRowSelection = false,
+    enableSelectAllMatching = true,
     selectionResetKey,
     onRowSelectionChange,
     bulkActions,
@@ -126,7 +144,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     columnPinning = EMPTY_COLUMN_PINNING,
     columnVisibility,
     enableColumnVisibility = true,
-    noCardShadown = false,
+    noCardShadow = false,
   } = props;
 
   const [storedColumnVisibility, toggleColumnVisibility] = useTableColumnVisibility(tableId);
@@ -145,17 +163,56 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     setRowSelection((old) => (typeof updater === 'function' ? updater(old) : updater));
   }, []);
 
+  const lastSelectedRowId = useRef<string | null>(null);
+  const isShiftHeld = useRef(false);
+
+  const handleRowToggle = useCallback((row: Row<T>, table: TanStackTable<T>, value: boolean) => {
+    const pageRows = table.getRowModel().rows;
+    const anchorIndex = pageRows.findIndex((pageRow) => pageRow.id === lastSelectedRowId.current);
+    const targetIndex = pageRows.findIndex((pageRow) => pageRow.id === row.id);
+    const isRangeSelection = isShiftHeld.current && anchorIndex !== -1 && targetIndex !== -1;
+
+    isShiftHeld.current = false;
+    lastSelectedRowId.current = row.id;
+
+    if (!isRangeSelection) {
+      row.toggleSelected(value);
+      return;
+    }
+
+    const rangeRows = pageRows.slice(
+      Math.min(anchorIndex, targetIndex),
+      Math.max(anchorIndex, targetIndex) + 1,
+    );
+
+    table.setRowSelection((old) => {
+      const next = { ...old };
+
+      rangeRows.forEach((rangeRow) => {
+        if (value) {
+          next[rangeRow.id] = true;
+        } else {
+          delete next[rangeRow.id];
+        }
+      });
+
+      return next;
+    });
+  }, []);
+
   const handleSelectAllMatching = useCallback(() => {
     setIsAllMatchingSelected(true);
     setRowSelection({});
   }, []);
 
   const handleClearSelection = useCallback(() => {
+    lastSelectedRowId.current = null;
     setIsAllMatchingSelected(false);
     setRowSelection({});
   }, []);
 
   useEffect(() => {
+    lastSelectedRowId.current = null;
     setIsAllMatchingSelected(false);
     setRowSelection({});
   }, [selectionResetKey]);
@@ -176,16 +233,19 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
           onChange={(value) => table.toggleAllPageRowsSelected(value)}
         />
       ),
-      cell: ({ row }) => (
+      cell: ({ row, table }) => (
         <Checkbox
           value={isAllMatchingSelected || row.getIsSelected()}
-          onChange={(value) => row.toggleSelected(value)}
+          onClick={(event) => {
+            isShiftHeld.current = event.shiftKey;
+          }}
+          onChange={(value) => handleRowToggle(row, table, value)}
         />
       ),
     };
 
     return [selectColumn, ...columns];
-  }, [columns, enableRowSelection, isAllMatchingSelected]);
+  }, [columns, enableRowSelection, isAllMatchingSelected, handleRowToggle]);
 
   const table = useReactTable({
     data,
@@ -275,14 +335,15 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
   const shouldShowPagination = !hidePagination && totalPages > 1;
 
   return (
-    <Flex direction="column" gap={4}>
-      <Card cssOverride={mergeCss(cardStyles.tableCard, noCardShadown && { boxShadow: 'none' })}>
+    <Flex direction="column" gap={4} cssOverride={{ minHeight: 64 }}>
+      <Card cssOverride={cardStyles.tableCard} noShadow={noCardShadow}>
         <CardContent cssOverride={cardStyles.tableContent}>
           {hasSelection ? (
             <DataTableSelectionBar
               selection={selection}
               total={total}
               shownCount={data.length}
+              enableSelectAllMatching={enableSelectAllMatching}
               bulkActions={bulkActions}
               onBulkApply={onBulkApply}
               onSelectAllMatching={handleSelectAllMatching}
@@ -494,11 +555,11 @@ const styles = defineStyles({
   },
   toolbar: {
     width: '100%',
-    minHeight: '3rem',
+    minHeight: TOOLBAR_ROW_HEIGHT,
   },
   toolbarRow: {
     width: '100%',
-    minHeight: '3rem',
+    minHeight: TOOLBAR_ROW_HEIGHT,
     paddingRight: theme.spacing[3],
   },
   toolbarContent: {

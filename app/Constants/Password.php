@@ -2,6 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Constants;
 
+defined('ABSPATH') || exit;
+
+/**
+ * Default and minimum lengths and character options for generated passwords.
+ *
+ * @since 1.0.0
+ */
 class Password
 {
     /**

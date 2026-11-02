@@ -3,10 +3,14 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Models\Collection;
+use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CollectionApiTest extends RestTestCase
 {
+    use ListsHaveRecords;
+
     /**
      * Collection id for the current test.
      *
@@ -204,5 +208,39 @@ class CollectionApiTest extends RestTestCase
         $payload = $this->assert_api_success($response, 201);
 
         return $payload['data'];
+    }
+
+    /**
+     * List collections reports whether the table holds any record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_collections_reports_has_records(): void
+    {
+        Collection::query()->delete();
+
+        $this->assertFalse($this->list_has_records('collections'));
+
+        $this->create_collection(['title' => 'Has Records Collection', 'slug' => 'has-records-collection-' . wp_generate_password(6, false)]);
+
+        $this->assertTrue($this->list_has_records('collections'));
+    }
+
+    /**
+     * List collections keeps has_records true when a search matches nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_collections_has_records_ignores_search(): void
+    {
+        $this->create_collection(['title' => 'Has Records Collection', 'slug' => 'has-records-collection-' . wp_generate_password(6, false)]);
+
+        $response = $this->request('GET', 'collections', ['search' => 'no-such-record-zzz']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame(0, $payload['data']['total']);
+        $this->assertTrue($payload['data']['has_records']);
     }
 }

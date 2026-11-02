@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Constants;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Header and cookie names used to carry the cart token.
+ *
+ * @since 1.0.0
+ */
 class Cart
 {
     use HasConstants;

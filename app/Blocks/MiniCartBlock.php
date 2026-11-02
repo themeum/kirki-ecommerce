@@ -16,24 +16,25 @@ use Kirki\Ecommerce\App\Services\MiniCartService;
 defined('ABSPATH') || exit;
 
 /**
- * Class MiniCartBlock
+ * Registers the kirki-ecommerce/mini-cart block, rendered server-side by the mini cart service.
  *
  * @since 1.0.0
- *
  */
 class MiniCartBlock
 {
     /**
-     * Mini cart service instance.
+     * Mini cart service used to render the block.
      *
      * @var MiniCartService
      */
     protected $service;
 
     /**
-     * Constructor
+     * Store the mini cart service and register the block on init.
      *
      * @since 1.0.0
+     *
+     * @param MiniCartService $service Mini cart service.
      */
     public function __construct(MiniCartService $service)
     {
@@ -42,7 +43,7 @@ class MiniCartBlock
     }
 
     /**
-     * Register block
+     * Register the mini cart block type. Hooked to init.
      *
      * @since 1.0.0
      *

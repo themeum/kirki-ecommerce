@@ -1,0 +1,142 @@
+info:
+  name: PayFast
+  type: http
+  seq: 10
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/payfast"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "merchant_id": "10032514",
+          "merchant_key": "8edn4nf4fnwzx",
+          "pass_phrase": "83b3d0a76ab5cc55b8f3b490ad6c16a5",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/paymongo"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "merchant_id": "10032514",
+              "merchant_key": "8edn4nf4fnwzx",
+              "pass_phrase": "83b3d0a76ab5cc55b8f3b490ad6c16a5",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "payfast",
+              "name": "PayFast",
+              "icon": "payfast",
+              "is_enabled": true,
+              "is_offline": false,
+              "description": "PayFast payment gateway",
+              "settings": {
+                "merchant_id": "10032514",
+                "merchant_key": "8edn4nf4fnwzx",
+                "pass_phrase": "83b3d0a76ab5cc55b8f3b490ad6c16a5",
+                "sandbox": true
+              },
+              "fields": [
+                {
+                  "name": "merchant_id",
+                  "label": "Merchant ID",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "merchant_key",
+                  "label": "Merchant Key",
+                  "type": "password",
+                  "required": true
+                },
+                {
+                  "name": "pass_phrase",
+                  "label": "Pass Phrase",
+                  "type": "password",
+                  "required": true
+                },
+                {
+                  "name": "sandbox",
+                  "label": "Sandbox",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ],
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/payfast",
+              "webhook_events": [
+
+              ]
+            },
+            "message": "Payment method updated successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/paymongo"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+           "data": {
+              "merchant_id": "10032514",
+              "merchant_key": "8edn4nf4fnwzx",
+              "pass_phrase": "83b3d0a76ab5cc55b8f3b490ad6c16a5",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.

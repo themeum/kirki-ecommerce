@@ -34,7 +34,7 @@ import {
   TaxRegionGeneralFormSchema,
 } from '@/features/settings/tax/strategies/general/schemas/forms/tax-region-general-form';
 import GeneralTaxRegionSkeleton from '@/features/settings/tax/strategies/general/skeletons/general-tax-region-skeleton';
-import { TaxIcon } from '@/icons';
+import { TaxIcon } from '@/icons/common';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -190,7 +190,10 @@ const GeneralEditRegion = () => {
                 ]}
               />
 
-              <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.formCard, styles.statesCard)}>
+              <Card
+                data-search-skip="true"
+                cssOverride={mergeCss(cardStyles.formCard, styles.statesCard)}
+              >
                 <CardContent>
                   <HeaderActionsCard
                     header={__('State & Rates', 'kirki-ecommerce')}

@@ -2,12 +2,24 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 
+/**
+ * Validates and sanitizes the payload for updating a refund.
+ *
+ * @since 1.0.0
+ */
 class RefundUpdateRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -19,6 +31,11 @@ class RefundUpdateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

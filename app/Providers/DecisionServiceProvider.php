@@ -2,17 +2,24 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\App\Decisions\DecisionEngine;
 
 use function Kirki\Ecommerce\Framework\config;
 
+/**
+ * Registers the decision engine singleton, built from the decisions config, and its alias.
+ *
+ * @since 1.0.0
+ */
 class DecisionServiceProvider extends ServiceProvider
 {
     /**
-     * Register the hooks to the application.
+     * @inheritDoc
      *
-     * @return void
+     * @since 1.0.0
      */
     public function register()
     {

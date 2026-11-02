@@ -31,14 +31,14 @@ describe('resolveSelectedDestinations', () => {
 });
 
 describe('getDestinationDisplayValue', () => {
-  it('summarises an object destination', () => {
+  it('summarises the first destination and a count of the rest', () => {
     expect(getDestinationDisplayValue({ country: 'US', state: ['5665', '5666', '5667'] })).toBe(
-      '5665 +2…',
+      '5665, +2',
     );
   });
 
   it('falls back to the placeholder when nothing is selected', () => {
-    expect(getDestinationDisplayValue({ country: 'US', state: [] })).toBe('Select regions');
+    expect(getDestinationDisplayValue({ country: 'US', state: [] })).toBe('Select destinations');
   });
 });
 

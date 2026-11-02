@@ -2,14 +2,23 @@
 
 namespace Kirki\Ecommerce\App\Resources\Currency;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 
+/**
+ * API resource for a store currency and its exchange rate.
+ *
+ * @since 1.0.0
+ */
 class CurrencyResource extends Resource
 {
     /**
      * Convert the currency resource to an array.
      *
-     * @return array The currency data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The currency data.
      */
     public function to_array()
     {

@@ -29,7 +29,6 @@ export type Variant = {
   has_limit_per_order: boolean;
   max_per_order: number | null;
   track_inventory?: boolean;
-  is_wishlisted: boolean;
   show_unit_price?: boolean;
   display_unit_price?: string | null;
 };
@@ -52,6 +51,14 @@ export function variantSelector(config: VariantSelectorConfig) {
 
     get selectedVariant(): Variant | null {
       return this.variants.find((v) => v.id === this.selectedVariantId) ?? this.variants[0];
+    },
+
+    get hasMatchingVariant(): boolean {
+      return this.variants.some((variant) =>
+        Object.entries(this.selectedAttributes).every(([name, value]) =>
+          variant.attributes.some((attr) => attr.name === name && attr.value === value),
+        ),
+      );
     },
 
     get maxQuantity(): number | undefined {

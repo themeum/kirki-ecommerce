@@ -2,7 +2,7 @@ import { RulerHorizontalIcon } from '@radix-ui/react-icons';
 import type { ReactNode } from 'react';
 
 import type { UnitPriceValue } from '@/features/products';
-import { AreaIcon, VolumeIcon, WeightIcon } from '@/icons';
+import { AreaIcon, VolumeIcon, WeightIcon } from '@/icons/common';
 import { __ } from '@/wpi18n';
 
 type UnitListItem = {
@@ -32,7 +32,9 @@ type UnitPriceSource = UnitPriceValue & {
   base_sale_price?: number | string | null;
 };
 
-export const DEFAULT_UNIT = 'kg';
+export const DEFAULT_TOTAL_UNIT = 'g';
+
+export const DEFAULT_BASE_UNIT = 'kg';
 
 export const normalizedUnit: NormalizedUnitMap = {
   mg: 0.001,
@@ -112,9 +114,7 @@ export const getUnitShortText = (unit: string | null | undefined): string => {
     return '';
   }
 
-  const match = unitGroups
-    .flatMap((group) => group.items)
-    .find((item) => item.value === unit);
+  const match = unitGroups.flatMap((group) => group.items).find((item) => item.value === unit);
 
   return match?.subText ?? unit;
 };
@@ -133,9 +133,7 @@ const unitGroupMap: UnitGroupMap = {
   sqft: areaUnitList,
 };
 
-export const getSpecifiedUnitList = (
-  unit: string | null | undefined,
-): UnitListItem[] => {
+export const getSpecifiedUnitList = (unit: string | null | undefined): UnitListItem[] => {
   if (!unit) {
     return [];
   }
@@ -147,11 +145,15 @@ export const getSpecifiedUnitList = (
  * base units fit in the total unit. Returns `null` when the unit setup is
  * incomplete or the two units belong to different measurement groups.
  */
-export const calculateBasePricePerUnit = (
-  source: UnitPriceSource,
-): number | null => {
-  const { base_price, base_sale_price, total_unit_amount, total_unit, base_unit_amount, base_unit } =
-    source;
+export const calculateBasePricePerUnit = (source: UnitPriceSource): number | null => {
+  const {
+    base_price,
+    base_sale_price,
+    total_unit_amount,
+    total_unit,
+    base_unit_amount,
+    base_unit,
+  } = source;
 
   const totalFactor = normalizedUnit[total_unit ?? ''];
   const baseFactor = normalizedUnit[base_unit ?? ''];

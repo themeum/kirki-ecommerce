@@ -11,6 +11,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Product\RibbonColor;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
@@ -26,6 +27,7 @@ $product = view_data();
 $media           = $product['media'] ?? [];
 $product_image   = array_shift($media) ?? [];
 $ribbon          = $product['ribbon'] ?? '';
+$ribbon_color    = $product['ribbon_color'] ?? RibbonColor::get_default();
 $attributes      = $product['attributes'] ?? [];
 $additional_info = $product['additional_info'] ?? [];
 
@@ -96,7 +98,7 @@ foreach ($media as $media_item) {
             <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) : ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)) : ?>
-                        <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
+                        <span class="kecom-product-ribbon" style="--kecom-ribbon-color: <?php echo esc_attr($ribbon_color); ?>;"><?php echo esc_html($ribbon); ?></span>
                     <?php endif; ?>
 
                     <h1 class="kecom-product-title"><?php echo esc_html($product['title']); ?></h1>
@@ -107,7 +109,7 @@ foreach ($media as $media_item) {
                             <span class="kecom-product-price-original" x-show="selectedVariant?.sale_price && selectedVariant?.sale_price !== selectedVariant?.price" x-text="selectedVariant?.price"></span>
                             <span class="kecom-product-discount" x-show="selectedVariant?.discount_percentage" x-text="'<?php echo esc_js(__('Save', 'kirki-ecommerce')); ?> ' + selectedVariant?.discount_percentage + '%'"></span>
                         </div>
-                        <div class="kecom-product-unit-price" x-show="Boolean(selectedVariant?.show_unit_price && selectedVariant?.display_unit_price)" x-text="selectedVariant?.display_unit_price" x-cloak></div>
+                        <div class="kecom-product-unit-price" x-show="Boolean(selectedVariant?.display_unit_price)" x-text="selectedVariant?.display_unit_price" x-cloak></div>
                         <?php if (Tax::should_calculate_tax() && Tax::is_tax_inclusive()) : ?>
                             <div class="kecom-product-tax-info">
                                 <?php esc_html_e('Incl. VAT', 'kirki-ecommerce'); ?>
@@ -137,10 +139,8 @@ foreach ($media as $media_item) {
                                         <button 
                                             type="button"
                                             class="kecom-product-variant-color"
-                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
+                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'unavailable': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
                                             :style="{ 'background-color': '<?php echo esc_js($item['color'] ?? $item['value']); ?>' }"
-                                            :disabled="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
-                                            :aria-disabled="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             :aria-pressed="isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             :aria-label="'<?php echo esc_js($attr_name . ': ' . $item['value']); ?>' + (!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? ' (<?php echo esc_js(__('unavailable', 'kirki-ecommerce')); ?>)' : '')"
                                             :title="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? '<?php echo esc_js(__('Out of stock', 'kirki-ecommerce')); ?>' : null"
@@ -150,9 +150,7 @@ foreach ($media as $media_item) {
                                         <button 
                                             type="button"
                                             class="kecom-product-variant-option"
-                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
-                                            :disabled="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
-                                            :aria-disabled="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
+                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'unavailable': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
                                             :aria-pressed="isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             :aria-label="'<?php echo esc_js($attr_name . ': ' . $item['value']); ?>' + (!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? ' (<?php echo esc_js(__('unavailable', 'kirki-ecommerce')); ?>)' : '')"
                                             :title="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? '<?php echo esc_js(__('Out of stock', 'kirki-ecommerce')); ?>' : null"
@@ -214,18 +212,16 @@ foreach ($media as $media_item) {
                 </div>
 
                 <!-- Add to Cart Button -->
-                <div class="kecom-product-info-button-group" x-data="wishlist(selectedVariant?.is_wishlisted || false,variants)" x-init="$watch('selectedVariantId', (val) => {
-                    isWishlisted = wishlistedVariants[val];
-                })">
+                <div class="kecom-product-info-button-group" x-data="wishlist(<?php echo (int) ($product['id'] ?? 0); ?>, kirki_ecommerce.is_wishlisted || false)">
                     <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
                     imageUrl = val || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>';
                 })">
-                        <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
-                            <?php Icon::render('cart'); ?>
-                            <span x-text="selectedVariant?.available ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
+                        <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || !hasMatchingVariant || loading" :class="{ 'kecom-btn-loading': loading }">
+                            <?php Icon::render('shopping-cart'); ?>
+                            <span x-text="selectedVariant?.available && hasMatchingVariant ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
                         </button>
                     </div>
-                    <a class="kecom-btn kecom-btn-block kecom-btn-outline kecom-product-wishlist" href="<?php echo is_user_logged_in() ? '#' : esc_url(Url::get_login_url()) ?>" @click="wishlistItem(selectedVariantId)" :class="{ 'active': wishlistedVariants[selectedVariantId] }">
+                    <a class="kecom-btn kecom-btn-block kecom-btn-outline kecom-product-wishlist" href="<?php echo is_user_logged_in() ? '#' : esc_url(Url::get_login_url()) ?>" @click="wishlistItem(selectedVariantId)" :class="{ 'active': isWishlisted }">
                         <?php Icon::render('heart'); ?>
                         <?php esc_html_e('Add to Wishlist', 'kirki-ecommerce'); ?>
                     </a>

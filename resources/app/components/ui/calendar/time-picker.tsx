@@ -15,7 +15,7 @@ import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import Text from '@/components/ui/text';
 import { DATE_FORMATS, formatDateValue, parseDateValue } from '@/libs/date';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -29,6 +29,7 @@ type TimePickerProps = {
   disabled?: boolean;
   error?: boolean;
   id?: string;
+  placeholder?: string;
   cssOverride?: CSSObject;
 };
 
@@ -109,11 +110,12 @@ TimeColumn.displayName = 'TimeColumn';
 const TimePicker = ({
   value,
   onChange = noop,
-  hourCycle = 24,
+  hourCycle = 12,
   size = 'md',
   disabled = false,
   error = false,
   id,
+  placeholder = __('hh:mm', 'kirki-ecommerce'),
   cssOverride,
 }: TimePickerProps) => {
   const [open, setOpen] = useState(false);
@@ -131,12 +133,7 @@ const TimePicker = ({
 
   const selectedHour = parsedTime ? parsedTime.getHours() : null;
   const selectedMinute = parsedTime ? parsedTime.getMinutes() : null;
-  const meridiem =
-    selectedHour === null
-      ? null
-      : selectedHour >= 12
-        ? MERIDIEM_PM
-        : MERIDIEM_AM;
+  const meridiem = selectedHour === null ? null : selectedHour >= 12 ? MERIDIEM_PM : MERIDIEM_AM;
 
   const hourOptions = (
     isTwelveHour
@@ -153,24 +150,15 @@ const TimePicker = ({
   }));
 
   const selectedHourValue =
-    selectedHour === null
-      ? null
-      : String(isTwelveHour ? selectedHour % 12 || 12 : selectedHour);
+    selectedHour === null ? null : String(isTwelveHour ? selectedHour % 12 || 12 : selectedHour);
 
   const emitTime = (hour: number, minute: number) => {
-    onChange(
-      formatDateValue(
-        new Date(2000, 0, 1, hour, minute),
-        DATE_FORMATS.TIME_INPUT,
-      ),
-    );
+    onChange(formatDateValue(new Date(2000, 0, 1, hour, minute), DATE_FORMATS.TIME_INPUT));
   };
 
   const handleHourSelect = (nextHour: string) => {
     const hour = Number(nextHour);
-    const hour24 = isTwelveHour
-      ? (hour % 12) + (meridiem === MERIDIEM_PM ? 12 : 0)
-      : hour;
+    const hour24 = isTwelveHour ? (hour % 12) + (meridiem === MERIDIEM_PM ? 12 : 0) : hour;
 
     emitTime(hour24, selectedMinute ?? 0);
   };
@@ -194,27 +182,38 @@ const TimePicker = ({
           disabled={disabled}
           cssOverride={mergeCss(styles.fieldSizes[size], cssOverride ?? {})}
         >
-          <InputGroupInput
-            id={id}
-            type="time"
-            value={fieldValue}
-            disabled={disabled}
-            aria-invalid={error || undefined}
-            cssOverride={mergeCss(styles.timeInput, styles.inputSizes[size])}
-            onChange={(event) => {
-              setFieldValue(event.target.value);
+          <div css={scoped(styles.inputWrapper)}>
+            <InputGroupInput
+              id={id}
+              type="time"
+              value={fieldValue}
+              disabled={disabled}
+              aria-invalid={error || undefined}
+              cssOverride={mergeCss(
+                styles.timeInput,
+                styles.inputSizes[size],
+                !fieldValue ? styles.emptyInputText : {},
+              )}
+              onChange={(event) => {
+                setFieldValue(event.target.value);
 
-              if (event.target.value) {
-                onChange(event.target.value);
-              }
-            }}
-            onClick={() => setOpen((prev) => !prev)}
-            onBlur={(event) => {
-              if (!event.target.value) {
-                onChange(null);
-              }
-            }}
-          />
+                if (event.target.value) {
+                  onChange(event.target.value);
+                }
+              }}
+              onClick={() => setOpen((prev) => !prev)}
+              onBlur={(event) => {
+                if (!event.target.value) {
+                  onChange(null);
+                }
+              }}
+            />
+            {!fieldValue && !disabled && (
+              <span css={scopedMerge(styles.placeholderOverlay, styles.inputSizes[size])}>
+                {placeholder}
+              </span>
+            )}
+          </div>
           <InputGroupAddon align="inline-end" cssOverride={styles.timeAddon}>
             <InputGroupButton
               size={size === 'sm' ? 'icon-xs' : 'icon-sm'}
@@ -227,7 +226,9 @@ const TimePicker = ({
               aria-label={__('Choose time', 'kirki-ecommerce')}
               onClick={() => setOpen((isOpen) => !isOpen)}
             >
-              <Text color="disabled"><Clock size={CLOCK_ICON_SIZES[size]} /></Text>
+              <Text color="disabled">
+                <Clock size={CLOCK_ICON_SIZES[size]} />
+              </Text>
             </InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
@@ -286,12 +287,37 @@ const styles = defineStyles({
       display: 'none',
     },
   },
+  emptyInputText: {
+    color: 'transparent',
+    '[data-slot="input-group"]:focus-within &': {
+      color: theme.colors.text.primary,
+    },
+  },
+  inputWrapper: {
+    position: 'relative',
+    display: 'flex',
+    flex: 1,
+    minWidth: 0,
+  },
+  placeholderOverlay: {
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    pointerEvents: 'none',
+    color: theme.colors.text.secondary,
+    opacity: 0.8,
+    backgroundColor: theme.colors.background.fill,
+    '[data-slot="input-group"]:focus-within &': {
+      display: 'none',
+    },
+  },
   fieldSizes: {
     sm: {
       minHeight: '32px',
     },
     md: {
-      minHeight: '36px',
+      minHeight: '32px',
     },
     lg: {
       minHeight: '44px',
@@ -304,7 +330,7 @@ const styles = defineStyles({
       ...theme.typography.tiny(),
     },
     md: {
-      minHeight: '36px',
+      minHeight: '32px',
       padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
       ...theme.typography.small(),
     },

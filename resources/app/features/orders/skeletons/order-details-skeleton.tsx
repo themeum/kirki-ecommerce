@@ -50,7 +50,7 @@ SideCardSkeleton.displayName = 'SideCardSkeleton';
 
 const OrderDetailsSkeleton = () => {
   return (
-    <Page>
+    <Page containerSize="xl">
       <PageHeadingSkeleton>
         <Skeleton width={40} height={32} />
       </PageHeadingSkeleton>

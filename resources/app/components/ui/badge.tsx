@@ -18,14 +18,17 @@ type BadgeVariant =
   | 'info'
   | 'requested';
 
+type BadgeSize = 'default' | 'sm';
+
 type BadgeProps = Omit<ComponentPropsWithoutRef<'span'>, 'className' | 'css'> & {
   variant?: BadgeVariant;
+  size?: BadgeSize;
   asChild?: boolean;
   cssOverride?: CSSObject;
 };
 
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => {
-  const { cssOverride, variant = 'default', asChild = false, ...rest } = props;
+  const { cssOverride, variant = 'default', size = 'default', asChild = false, ...rest } = props;
 
   const Comp = asChild ? Slot : 'span';
   return (
@@ -33,7 +36,8 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => {
       ref={ref}
       data-slot="badge"
       data-variant={variant}
-      css={scopedMerge(styles.base, styles.variants[variant], cssOverride)}
+      data-size={size}
+      css={scopedMerge(styles.base, styles.variants[variant], styles.sizes[size], cssOverride)}
       {...rest}
     />
   );
@@ -43,7 +47,7 @@ Badge.displayName = 'Badge';
 
 const badgeVariantStyles = defineStyles({
   default: {
-    backgroundColor: theme.colors.background.surfaceTertiary,
+    backgroundColor: theme.colors.background.surfaceAlt,
     color: theme.colors.text.secondary,
     'a&:hover': {
       backgroundColor: theme.colors.background.fillHover,
@@ -51,7 +55,7 @@ const badgeVariantStyles = defineStyles({
   },
   secondary: {
     backgroundColor: theme.colors.background.fillSecondary,
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.emphasis,
     'a&:hover': {
       backgroundColor: theme.colors.background.fillSecondaryHover,
     },
@@ -157,7 +161,18 @@ const styles = defineStyles({
     },
   },
   variants: badgeVariantStyles,
+  sizes: {
+    default: {},
+    sm: {
+      padding: `0 ${theme.spacing[1]}`,
+      borderRadius: theme.radius.sm,
+      '& svg': {
+        width: '10px',
+        height: '10px',
+      },
+    },
+  },
 });
 
 export default Badge;
-export type { BadgeProps, BadgeVariant };
+export type { BadgeProps, BadgeSize, BadgeVariant };

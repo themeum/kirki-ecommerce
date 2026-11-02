@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
@@ -29,6 +35,15 @@ const useCouponsQuery = (params: ListParams<CouponListFilter> = {}) =>
     queryKey: couponKeys.list(params),
     queryFn: () => getCoupons(params),
     placeholderData: keepPreviousData,
+  });
+
+const useInfiniteCouponsQuery = (params: ListParams<CouponListFilter> = {}) =>
+  useInfiniteQuery({
+    queryKey: couponKeys.infiniteList(params),
+    queryFn: ({ pageParam }) => getCoupons({ ...params, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage.has_more_pages ? lastPageParam + 1 : undefined,
   });
 
 const getCoupon = (id: string | number) => {
@@ -62,6 +77,7 @@ const useCreateCouponMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Coupon created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.infiniteList() });
     },
     onError(error) {
       toastMutationError(error);
@@ -76,6 +92,7 @@ const useUpdateCouponMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(response.message || __('Coupon updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.infiniteList() });
       void queryClient.invalidateQueries({
         queryKey: couponKeys.detail(variables.id),
       });
@@ -105,6 +122,7 @@ const useCouponActionMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(response.message || __('Coupon updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.infiniteList() });
       void queryClient.invalidateQueries({
         queryKey: couponKeys.detail(variables.id),
       });
@@ -128,6 +146,7 @@ const useDeleteCouponMutation = () => {
 
       void queryClient.invalidateQueries({ queryKey: couponKeys.detail(id) });
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.infiniteList() });
     },
     onError(error) {
       toastMutationError(error);
@@ -148,6 +167,7 @@ const useBulkDeleteCouponsMutation = () => {
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Coupons deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: couponKeys.infiniteList() });
     },
     onError(error) {
       toastMutationError(error);
@@ -191,6 +211,7 @@ export {
   useCreateCouponMutation,
   useDeleteCouponMutation,
   useGenerateNewCodeQuery,
+  useInfiniteCouponsQuery,
   useUpdateCouponMutation,
   useValidateQuery,
 };

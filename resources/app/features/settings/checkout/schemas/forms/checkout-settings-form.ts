@@ -9,6 +9,7 @@ export const CheckoutConfigurationSchema = z.object({
   company_id_validation: z.string().nullish().default(''),
   vat_identification_number_validation: z.string().nullish().default(''),
   has_apply_coupon_code: z.boolean().default(true),
+  show_customer_note: z.boolean().default(false),
 });
 
 const CheckoutSettingsFormShape = z.object({
@@ -16,18 +17,21 @@ const CheckoutSettingsFormShape = z.object({
   checkout_configuration: CheckoutConfigurationSchema.default({}),
 });
 
-export const CheckoutSettingsFormSchema = prepareFormSchema(CheckoutSettingsFormShape).transform((values) => ({
-  is_allowed_guest_checkout: values.is_allowed_guest_checkout,
-  checkout_configuration: {
-    address_line_validation: values.checkout_configuration.address_line_validation || null,
-    phone_number_validation: values.checkout_configuration.phone_number_validation || null,
-    company_name_validation: values.checkout_configuration.company_name_validation || null,
-    company_id_validation: values.checkout_configuration.company_id_validation || null,
-    vat_identification_number_validation:
-      values.checkout_configuration.vat_identification_number_validation || null,
-    has_apply_coupon_code: values.checkout_configuration.has_apply_coupon_code,
-  },
-}));
+export const CheckoutSettingsFormSchema = prepareFormSchema(CheckoutSettingsFormShape).transform(
+  (values) => ({
+    is_allowed_guest_checkout: values.is_allowed_guest_checkout,
+    checkout_configuration: {
+      address_line_validation: values.checkout_configuration.address_line_validation || null,
+      phone_number_validation: values.checkout_configuration.phone_number_validation || null,
+      company_name_validation: values.checkout_configuration.company_name_validation || null,
+      company_id_validation: values.checkout_configuration.company_id_validation || null,
+      vat_identification_number_validation:
+        values.checkout_configuration.vat_identification_number_validation || null,
+      has_apply_coupon_code: values.checkout_configuration.has_apply_coupon_code,
+      show_customer_note: values.checkout_configuration.show_customer_note ?? false,
+    },
+  }),
+);
 
 export type CheckoutSettingsFormInput = z.input<typeof CheckoutSettingsFormSchema>;
 

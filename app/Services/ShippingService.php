@@ -2,27 +2,49 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
+use Kirki\Ecommerce\App\Supports\ShippingCarrierPresets;
+use Kirki\Ecommerce\App\Supports\Weight;
 
 use function Kirki\Ecommerce\App\decision_engine;
 
+/**
+ * Works out which shipping methods apply to a cart and what they cost.
+ *
+ * Reads zones and methods from the shipping settings and applies shipping
+ * rules through the decision engine.
+ *
+ * @since 1.0.0
+ */
 class ShippingService
 {
+    /** @var array<string, mixed> */
     protected $shipping_settings;
 
+    /**
+     * Create the service.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $shipping_settings Shipping settings, including the `shipping_zones` list.
+     */
     public function __construct(array $shipping_settings)
     {
         $this->shipping_settings = $shipping_settings;
     }
 
     /**
-     * Calculate shipping cost for a cart context
+     * Calculate the shipping cost for a cart context.
      *
-     * @param CalculationContextDTO $context
-     * @return int Shipping cost in base currency (minor units)
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart or order calculation context.
+     * @return int Shipping cost in base currency (minor units); 0 when no method is selected.
      */
     public function calculate(CalculationContextDTO $context)
     {
@@ -30,10 +52,14 @@ class ShippingService
     }
 
     /**
-     * Get calculated decision context for a cart/order
+     * Get the decision context for a shipping method after its cost and rules are applied.
      *
-     * @param CalculationContextDTO $context
-     * @param array|null $method
+     * Uses the context's selected method when none is given.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO     $context Cart or order calculation context.
+     * @param array<string, mixed>|null $method  Shipping method definition.
      * @return DecisionContext
      */
     public function get_calculated_decision_context(CalculationContextDTO $context, $method = null)
@@ -59,10 +85,15 @@ class ShippingService
     }
 
     /**
-     * Get available shipping options for a cart/order
+     * Get the shipping options a cart or order can choose from.
      *
-     * @param CalculationContextDTO $context
-     * @return array
+     * Methods whose rules disable them are left out. The pickup fields are `null` for methods that are not
+     * local pickup, and both pickup times are `null` unless pickup time is on and both are set.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart or order calculation context.
+     * @return array<int, array{id: string, name: string, description: string, is_taxable: bool, type: string, address: string|null, pickup_time_start: string|null, pickup_time_end: string|null, base_cost: int}> Options with their cost in base currency (minor units).
      */
     public function get_final_available_shipping_options(CalculationContextDTO $context)
     {
@@ -81,12 +112,23 @@ class ShippingService
                 continue;
             }
 
+            $is_pickup = ($method['type'] ?? null) === ShippingMethodTypes::LOCAL_PICKUP;
+            $pickup_time_start = $method['pickup_time_start'] ?? null;
+            $pickup_time_end = $method['pickup_time_end'] ?? null;
+            $has_pickup_time = $is_pickup
+                && !empty($method['has_pick_time'])
+                && !empty($pickup_time_start)
+                && !empty($pickup_time_end);
+
             $available_options[] = [
                 'id' => $method['id'],
                 'name' => $method['name'],
                 'description' => $method['description'],
                 'is_taxable' => $method['is_taxable'] ?? false,
                 'type' => $method['type'],
+                'address' => $is_pickup ? ($method['address'] ?? null) : null,
+                'pickup_time_start' => $has_pickup_time ? $pickup_time_start : null,
+                'pickup_time_end' => $has_pickup_time ? $pickup_time_end : null,
                 'base_cost' => $decision_context->get_shipping_cost(),
             ];
         }
@@ -95,10 +137,12 @@ class ShippingService
     }
 
     /**
-     * Get available shipping methods for a shipping address
+     * Get the enabled shipping methods of the zone matching a shipping address.
      *
-     * @param array $shipping_address
-     * @return array
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $shipping_address Shipping address with `country` and `state` entries.
+     * @return array<int, array<string, mixed>> Shipping method definitions; empty when no zone matches.
      */
     public function get_available_shipping_methods(array $shipping_address)
     {
@@ -136,6 +180,8 @@ class ShippingService
      * more than one zone. Orders store only the method id, so the list is
      * deduplicated by id and carries just what a filter control needs.
      *
+     * @since 1.0.0
+     *
      * @return array<int, array{id: string, name: string, type: string}>
      */
     public function get_all_shipping_methods()
@@ -171,10 +217,12 @@ class ShippingService
     }
 
     /**
-     * Get selected shipping method for a shipping address
+     * Get the shipping option chosen in the context, if it is still available.
      *
-     * @param CalculationContextDTO $context
-     * @return array|null
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart or order calculation context.
+     * @return array<string, mixed>|null Null when no option matches the context's shipping method ID.
      */
     public function get_selected_shipping_method(CalculationContextDTO $context)
     {
@@ -194,9 +242,36 @@ class ShippingService
     }
 
     /**
-     * Check if the selected shipping method is valid for the context
+     * Build the snapshot of the selected shipping method that an order stores.
      *
-     * @param CalculationContextDTO $context
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Calculation context with the selected shipping method.
+     * @return array<string, mixed>|null Shipping method id, name and type; null when no method is selected.
+     */
+    public function get_selected_shipping_method_snapshot(CalculationContextDTO $context)
+    {
+        $method = $this->get_selected_shipping_method($context);
+
+        if (!$method) {
+            return null;
+        }
+
+        return [
+            'shipping_method' => [
+                'id' => $method['id'],
+                'name' => $method['name'],
+                'type' => $method['type'],
+            ],
+        ];
+    }
+
+    /**
+     * Check whether the context's selected shipping method is currently available.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart or order calculation context.
      * @return bool
      */
     public function has_valid_shipping_method(CalculationContextDTO $context)
@@ -211,11 +286,63 @@ class ShippingService
     }
 
     /**
-     * Find applicable shipping zone based on shipping address
+     * Get the enabled carriers of the zone that covers a shipping address.
      *
-     * @param array $shipping_address
-     * @param array $zones
-     * @return array|null
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $shipping_address Shipping address with `country` and `state` entries.
+     * @return array<int, array{id: string, name: string, tracking_url: string, logo_url: string|null}> Empty when no zone matches.
+     */
+    public function get_carriers_for_address(array $shipping_address)
+    {
+        $zone = $this->find_shipping_zone($shipping_address);
+        $carriers = [];
+
+        foreach ($zone['shipping_carriers'] ?? [] as $carrier) {
+            if (!is_array($carrier) || empty($carrier['is_enabled'])) {
+                continue;
+            }
+
+            $carriers[] = [
+                'id' => (string) ($carrier['id'] ?? ''),
+                'name' => (string) ($carrier['name'] ?? ''),
+                'tracking_url' => (string) ($carrier['tracking_url'] ?? ''),
+                'logo_url' => ShippingCarrierPresets::get_logo_url($carrier),
+            ];
+        }
+
+        return $carriers;
+    }
+
+    /**
+     * Find an enabled carrier by id in the zone that covers a shipping address.
+     *
+     * Carrier ids are only unique within a zone, so the zone is matched first.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $shipping_address Shipping address with `country` and `state` entries.
+     * @param string               $carrier_id       Carrier id.
+     * @return array{id: string, name: string, tracking_url: string, logo_url: string|null}|null Null when the zone has no such enabled carrier.
+     */
+    public function find_carrier_for_address(array $shipping_address, string $carrier_id)
+    {
+        foreach ($this->get_carriers_for_address($shipping_address) as $carrier) {
+            if ($carrier['id'] === $carrier_id) {
+                return $carrier;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Find the first enabled shipping zone whose regions match a shipping address.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $shipping_address Shipping address with `country` and `state` entries.
+     * @return array<string, mixed>|null Null when no zone matches.
      */
     protected function find_shipping_zone(array $shipping_address)
     {
@@ -242,11 +369,16 @@ class ShippingService
     }
 
     /**
-     * Check if destination matches zone regions
+     * Check whether a destination falls inside a zone's regions.
      *
-     * @param string|null $country
-     * @param string|null $state
-     * @param array $regions
+     * A zone without regions matches everywhere, and a region without states
+     * matches its whole country.
+     *
+     * @since 1.0.0
+     *
+     * @param string|null                      $country Destination country code.
+     * @param string|null                      $state   Destination state code.
+     * @param array<int, array<string, mixed>> $regions Zone regions, each with a `country` and optional `states`.
      * @return bool
      */
     protected function matches_zone($country, $state, array $regions)
@@ -276,11 +408,16 @@ class ShippingService
     }
 
     /**
-     * Calculate weight-based shipping cost
+     * Calculate the cost of a weight-based shipping method.
      *
-     * @param CalculationContextDTO $context
-     * @param array $method
-     * @return int|null
+     * Returns 0 when free shipping applies, or the cost of the range the cart's
+     * total weight falls into.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart or order calculation context.
+     * @param array<string, mixed>  $method  Weight-based shipping method definition.
+     * @return int|null Cost in base currency (minor units); null when no range matches.
      */
     protected function calculate_weight_based_cost(CalculationContextDTO $context, array $method)
     {
@@ -288,9 +425,7 @@ class ShippingService
             return 0;
         }
 
-        $total_weight = $context->items->map(function ($item) {
-            return $item->weight * $item->quantity;
-        })->sum();
+        $total_weight = $this->get_total_weight($context);
 
         $ranges = $method['ranges'] ?? [];
 
@@ -298,7 +433,11 @@ class ShippingService
             $from = floatval($range['from'] ?? 0);
             $to = floatval($range['to'] ?? PHP_FLOAT_MAX);
 
-            if ($total_weight >= $from && $total_weight < $to) {
+            if ($total_weight >= $from && !empty($to) && $total_weight <= $to) {
+                return (int) ($range['base_amount'] ?? 0);
+            }
+
+            if ($total_weight >= $from && empty($to)) {
                 return (int) ($range['base_amount'] ?? 0);
             }
         }
@@ -311,12 +450,14 @@ class ShippingService
     }
 
     /**
-     * Apply shipping rules using Decision Engine
+     * Run a shipping method's rules through the decision engine.
      *
-     * @param CalculationContextDTO $context
-     * @param array|null $method
-     * @param int|null $base_cost
-     * @return DecisionContext
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO     $context   Cart or order calculation context.
+     * @param array<string, mixed>|null $method    Shipping method definition holding the `shipping_rules`.
+     * @param int|null                  $base_cost Cost before rules; null marks the method as disabled.
+     * @return DecisionContext The context after the rules ran.
      */
     protected function apply_shipping_rules(CalculationContextDTO $context, $method, $base_cost)
     {
@@ -331,26 +472,44 @@ class ShippingService
     }
 
     /**
-     * Prepare decision context data from calculation context
+     * Get the total weight of the items in the store's weight unit.
      *
-     * @param CalculationContextDTO $context
-     * @param int|null $base_cost
+     * Each line is converted from the unit of its variant before its quantity is applied.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart or order calculation context.
+     * @return int|float
+     */
+    protected function get_total_weight(CalculationContextDTO $context)
+    {
+        $store_unit = Weight::get_store_unit();
+
+        return $context->items->map(function ($item) use ($store_unit) {
+            return Weight::convert($item->weight, $item->weight_unit, $store_unit) * $item->quantity;
+        })->sum();
+    }
+
+    /**
+     * Build the decision context for shipping rules from a calculation context.
+     *
+     * Collects the cart weight, shipping profiles and product categories of the items.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context   Cart or order calculation context.
+     * @param int|null              $base_cost Cost before rules; null marks the context as disabled.
      * @return DecisionContext
      */
     protected function prepare_decision_context(CalculationContextDTO $context, $base_cost = null)
     {
-        $cart_weight = 0;
         $shipping_profiles = [];
         $product_categories = [];
 
         $default_profile = ShippingProfile::where('is_default', true)->first();
         $default_profile_id = $default_profile ? $default_profile->id : null;
 
-        $context->items->each(function ($item) use (&$cart_weight, &$shipping_profiles, &$product_categories, $default_profile_id) {
-            if ($item->weight) {
-                $cart_weight += $item->weight * $item->quantity;
-            }
-
+        $context->items->each(function ($item) use (&$shipping_profiles, &$product_categories, $default_profile_id) {
             $profile_id = $item->shipping_profile_id ? $item->shipping_profile_id : $default_profile_id;
 
             if ($profile_id) {
@@ -364,7 +523,7 @@ class ShippingService
 
         return DecisionContext::from([
             'base_shipping_cost' => $base_cost ?? 0,
-            'cart_weight' => $cart_weight,
+            'cart_weight' => $this->get_total_weight($context),
             'base_cart_subtotal' => $context->get_subtotal() ?? 0,
             'shipping_address' => $context->shipping_address ?? null,
             'shipping_profiles' => array_unique($shipping_profiles),

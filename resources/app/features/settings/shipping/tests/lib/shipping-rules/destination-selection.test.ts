@@ -118,7 +118,7 @@ describe('applyDestinationToRule', () => {
   it('merges the new states into the existing condition value for the same country', () => {
     const rules: ShippingRule[] = [
       {
-        conditions: [{ type: 'destination_region', operator: 'is', value: { country: 'US', states: ['NY'] } }],
+        conditions: [{ type: 'destination_region', operator: '=', value: { country: 'US', states: ['NY'] } }],
         action: { type: 'set_shipping_cost', value: 5 },
       },
     ];
@@ -131,7 +131,7 @@ describe('applyDestinationToRule', () => {
   it('replaces the condition value outright when the country changes', () => {
     const rules: ShippingRule[] = [
       {
-        conditions: [{ type: 'destination_region', operator: 'is', value: { country: 'US', states: ['NY'] } }],
+        conditions: [{ type: 'destination_region', operator: '=', value: { country: 'US', states: ['NY'] } }],
         action: { type: 'set_shipping_cost', value: 5 },
       },
     ];
@@ -143,8 +143,8 @@ describe('applyDestinationToRule', () => {
 
   it('leaves a rule at a different index untouched', () => {
     const rules: ShippingRule[] = [
-      { conditions: [{ type: 'product_category', operator: 'is', value: 'Shoes' }], action: { type: 'set_shipping_cost', value: 5 } },
-      { conditions: [{ type: 'destination_region', operator: 'is', value: { country: 'US', states: [] } }], action: { type: 'set_shipping_cost', value: 5 } },
+      { conditions: [{ type: 'product_categories', operator: '=', value: '1' }], action: { type: 'set_shipping_cost', value: 5 } },
+      { conditions: [{ type: 'destination_region', operator: '=', value: { country: 'US', states: [] } }], action: { type: 'set_shipping_cost', value: 5 } },
     ];
 
     const result = applyDestinationToRule(rules, 1, { country: 'CA', states: ['ON'] });
@@ -154,7 +154,7 @@ describe('applyDestinationToRule', () => {
 
   it('leaves a non-destination condition untouched even at the target index', () => {
     const rules: ShippingRule[] = [
-      { conditions: [{ type: 'product_category', operator: 'is', value: 'Shoes' }], action: { type: 'set_shipping_cost', value: 5 } },
+      { conditions: [{ type: 'product_categories', operator: '=', value: '1' }], action: { type: 'set_shipping_cost', value: 5 } },
     ];
 
     const result = applyDestinationToRule(rules, 0, { country: 'US', states: ['NY'] });

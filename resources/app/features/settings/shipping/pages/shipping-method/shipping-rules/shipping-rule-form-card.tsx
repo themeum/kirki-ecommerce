@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useSearchParams } from 'react-router';
+import { useParams } from 'react-router';
 import { toast } from 'sonner';
 
 import SelectField from '@/components/form/select-field';
@@ -14,7 +14,10 @@ import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import { useCategoriesQuery } from '@/features/categories';
-import { resolveDestinationRegion } from '@/features/settings/shipping/lib/shipping-rules/helper';
+import {
+  getDestinationLabel,
+  resolveDestinationRegion,
+} from '@/features/settings/shipping/lib/shipping-rules/helper';
 import {
   buildRuleDefaultValues,
   type ConditionDataMap,
@@ -27,24 +30,32 @@ import { actionOptionsArray, conditionOptions } from '@/features/settings/shippi
 import type { DestinationConditionValue } from '@/features/settings/shipping/pages/shipping-method/select-destination-dialog';
 import { SelectDestinationPopup } from '@/features/settings/shipping/pages/shipping-method/select-destination-dialog';
 import {
+  NUMERIC_CONDITIONS,
   type ShippingRuleFormInput,
   type ShippingRuleFormPayload,
   ShippingRuleFormSchema,
+  VALUE_ACTIONS,
 } from '@/features/settings/shipping/schemas/forms/shipping-rule-form';
 import { useShippingProfilesQuery } from '@/features/settings/shipping/services/shipping';
-import type { ShippingRegion, ShippingRule, ShippingZone } from '@/features/settings/shipping/types';
+import type {
+  ShippingRegion,
+  ShippingRule,
+  ShippingZone,
+} from '@/features/settings/shipping/types';
 import { useBaseCurrencySymbol } from '@/hooks';
-import { LighteningIcon } from '@/icons';
+import { LighteningIcon } from '@/icons/common';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
 import { settingsKeys } from '@/libs/query-keys';
+import { useCountriesQuery } from '@/services/country';
 import { getErrorMessage } from '@/services/helpers';
 import { updateSettings, useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { noop } from '@/utils/function';
+import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
 type ShippingRuleFormCardProps = {
@@ -54,6 +65,7 @@ type ShippingRuleFormCardProps = {
   ruleIndex?: number;
   onCancel: () => void;
   onSaved: () => void;
+  storeWeightUnit: string;
 };
 
 const ShippingRuleFormCard = ({
@@ -63,22 +75,24 @@ const ShippingRuleFormCard = ({
   ruleIndex = -1,
   onCancel,
   onSaved,
+  storeWeightUnit,
 }: ShippingRuleFormCardProps) => {
-  const [searchParams] = useSearchParams();
-  const zoneID = searchParams.get('zoneId');
+  const { zone_id: zoneId } = useParams();
   const baseCurrencySymbol = useBaseCurrencySymbol();
 
   const [openDestinationPopup, setOpenDestinationPopup] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
 
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
+
   const { data: shippingProfile } = useShippingProfilesQuery({ limit: -1 });
-  const { data: categoryData, isSuccess: categoryLoaded } = useCategoriesQuery({
+  const { data: categoryData } = useCategoriesQuery({
     limit: -1,
   });
+  const { data: countries } = useCountriesQuery({ limit: -1 });
 
   const [conditionData, setConditionData] = useState<ConditionDataMap>({
-    product_category: null,
+    product_categories: null,
     shipping_profile: null,
   });
 
@@ -112,26 +126,19 @@ const ShippingRuleFormCard = ({
     }
 
     const resolved = resolveDestinationSelection(selectedCountry, selectedRegion, mode);
+    const currentConditionValue = form.getValues(
+      'condition_value',
+    ) as DestinationConditionValue | null;
 
     form.setValue('selected_country', resolved.selectedCountry || null);
 
-    if (resolved.conditionValue) {
+    if (
+      resolved.conditionValue &&
+      currentConditionValue?.country !== resolved.conditionValue.country
+    ) {
       form.setValue('condition_value', resolved.conditionValue);
     }
   }, [selectedCountry, selectedRegion, selectedCondition, mode, form]);
-
-  useEffect(() => {
-    if (
-      selectedCondition === 'product_category' &&
-      categoryLoaded &&
-      categoryData?.results
-    ) {
-      setConditionData((prev) => ({
-        ...prev,
-        product_category: categoryData.results,
-      }));
-    }
-  }, [categoryLoaded, categoryData, selectedCondition]);
 
   useEffect(() => {
     if (!selectedCondition) {
@@ -142,17 +149,23 @@ const ShippingRuleFormCard = ({
     }
 
     switch (selectedCondition) {
-      case 'product_category':
+      case 'product_categories':
+        if (!categoryData?.results) {
+          break;
+        }
+        setConditionData((prev) => ({
+          ...prev,
+          product_categories: categoryData.results,
+        }));
         break;
 
       case 'shipping_profile':
+        if (!shippingProfile) {
+          break;
+        }
         setConditionData((prev) => ({
           ...prev,
-          shipping_profile:
-            (shippingProfile as {
-              id: number | string;
-              name: string;
-            }[] | null) ?? null,
+          shipping_profile: shippingProfile,
         }));
         break;
 
@@ -163,7 +176,7 @@ const ShippingRuleFormCard = ({
           },
           methodID: methodId,
           setSelectedRegion: setSelectedRegion as (regions: unknown) => void,
-          activeZoneId: zoneID,
+          activeZoneId: zoneId,
         });
         break;
 
@@ -172,18 +185,22 @@ const ShippingRuleFormCard = ({
     }
   }, [
     selectedCondition,
+    categoryData,
     shippingProfile,
     shippingSettingsData,
     methodId,
-    zoneID,
+    zoneId,
     conditionData,
   ]);
 
   const handleSave = async (payload: ShippingRuleFormPayload) => {
-    const zones = (shippingSettingsData as { shipping_zones: ShippingZone[] })
-      .shipping_zones;
+    if (!isDefined(zoneId)) {
+      return;
+    }
+
+    const zones = (shippingSettingsData as { shipping_zones: ShippingZone[] }).shipping_zones;
     const updatedShippingZones = zones.map((zone) => {
-      if (String(zone.id) !== String(zoneID)) {
+      if (String(zone.id) !== String(zoneId)) {
         return zone;
       }
 
@@ -222,19 +239,47 @@ const ShippingRuleFormCard = ({
     }
   };
 
-  const conditionSelectOptions = conditionOptions.map((option) => ({
-    label: option.title,
-    value: option.value,
-  }));
+  const conditionSelectOptions = conditionOptions.map((option) => {
+    if (option.value === 'cart_weight') {
+      return {
+        label: sprintf('%1$s (%2$s)', option.title, storeWeightUnit),
+        value: option.value,
+      };
+    }
 
-  const actionSelectOptions = actionOptionsArray.map((option) => ({
-    label: option.title,
-    value: option.value,
-  }));
+    if (option.value === 'cart_subtotal') {
+      return {
+        label: sprintf('%1$s (%2$s)', option.title, baseCurrencySymbol),
+        value: option.value,
+      };
+    }
+    return {
+      label: option.title,
+      value: option.value,
+    };
+  });
+
+  const actionSelectOptions = actionOptionsArray.map((option) => {
+    if (VALUE_ACTIONS.includes(option.value ?? '')) {
+      return {
+        label: sprintf('%1$s (%2$s)', option.title, baseCurrencySymbol),
+        value: option.value,
+      };
+    }
+
+    return {
+      label: option.title,
+      value: option.value,
+    };
+  });
 
   return (
     <>
-      <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.formCard, styles.dashedCard)}>
+      <Card
+        data-search-skip="true"
+        cssOverride={mergeCss(cardStyles.formCard, styles.dashedCard)}
+        noShadow
+      >
         <CardContent>
           <Form {...form}>
             <Flex direction="column" gap={4}>
@@ -252,29 +297,35 @@ const ShippingRuleFormCard = ({
                   <SelectField
                     name="condition"
                     options={conditionSelectOptions}
-                    placeholder={__('Product profile', 'kirki-ecommerce')}
+                    placeholder={__('Select condition', 'kirki-ecommerce')}
+                    onValueChange={() => {
+                      form.setValue('operator', '=');
+                      form.setValue('condition_value', null);
+                      form.setValue('selected_country', null);
+                    }}
                   />
-                  {selectedCondition === 'cart_weight' ? (
-                    <SelectField
-                      name="operator"
-                      options={getOperatorOptions(selectedCondition)}
-                    />
+                  {NUMERIC_CONDITIONS.includes(selectedCondition ?? '') ? (
+                    <SelectField name="operator" options={getOperatorOptions(selectedCondition)} />
                   ) : (
                     <Input value={__('is', 'kirki-ecommerce')} readOnly />
                   )}
 
                   {selectedCondition === 'destination_region' ? (
-                    <TextField
-                      name="selected_country"
+                    <Input
+                      value={getDestinationLabel(selectedConditionValue, countries ?? [])}
                       readOnly
                       onClick={() => setOpenDestinationPopup(true)}
                     />
-                  ) : selectedCondition === 'cart_weight' ? (
-                    <TextField name="condition_value" />
+                  ) : NUMERIC_CONDITIONS.includes(selectedCondition ?? '') ? (
+                    <TextField
+                      name="condition_value"
+                      placeholder={__('e.g., 5', 'kirki-ecommerce')}
+                    />
                   ) : (
                     <SelectField
                       name="condition_value"
                       options={getConditionValueOptions(selectedCondition, conditionData)}
+                      placeholder={__('Select value', 'kirki-ecommerce')}
                     />
                   )}
                 </Grid>
@@ -285,14 +336,15 @@ const ShippingRuleFormCard = ({
                   <SelectField
                     name="action"
                     options={actionSelectOptions}
+                    onValueChange={() => form.setValue('action_value', '')}
+                    placeholder={__('Select action', 'kirki-ecommerce')}
                   />
-                  {(selectedAction === 'set_shipping_cost' ||
-                    selectedAction === 'add_shipping_cost') && (
-                      <TextField
-                        name="action_value"
-                        placeholder={sprintf(__('e.g., %s100', 'kirki-ecommerce'), baseCurrencySymbol)}
-                      />
-                    )}
+                  {VALUE_ACTIONS.includes(selectedAction ?? '') && (
+                    <TextField
+                      name="action_value"
+                      placeholder={__('e.g., 1.5', 'kirki-ecommerce')}
+                    />
+                  )}
                 </Grid>
               </Flex>
               <Flex justify="end" gap={2}>
@@ -300,9 +352,7 @@ const ShippingRuleFormCard = ({
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
                 <Button variant="primary" onClick={form.handleSubmit(handleSave)}>
-                  {mode === 'edit'
-                    ? __('Save', 'kirki-ecommerce')
-                    : __('Add Rule', 'kirki-ecommerce')}
+                  {mode === 'edit' ? __('Update', 'kirki-ecommerce') : __('Add', 'kirki-ecommerce')}
                 </Button>
               </Flex>
             </Flex>
@@ -316,19 +366,13 @@ const ShippingRuleFormCard = ({
           selectedRegion={selectedRegion}
           selectedCountry={selectedCountry ?? null}
           setSelectedCountry={(value) => {
-            const next =
-              typeof value === 'function'
-                ? value(selectedCountry ?? null)
-                : value;
+            const next = typeof value === 'function' ? value(selectedCountry ?? null) : value;
             form.setValue('selected_country', next);
           }}
           setSelectedRegion={setSelectedRegion}
           selectedConditionValue={selectedConditionValue}
           setSelectedConditionValue={(value) => {
-            const next =
-              typeof value === 'function'
-                ? value(selectedConditionValue)
-                : value;
+            const next = typeof value === 'function' ? value(selectedConditionValue) : value;
             form.setValue('condition_value', next);
           }}
           setRulesObj={noop}
@@ -352,7 +396,6 @@ export default ShippingRuleFormCard;
 
 const styles = defineStyles({
   dashedCard: {
-    borderStyle: 'dashed',
-    borderColor: theme.colors.border.default,
+    border: `1px dashed ${theme.colors.border.default}`,
   },
 });

@@ -4,13 +4,17 @@ namespace Kirki\Ecommerce\Tests\Unit\Actions\Cart;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\StoredOrderTermsDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\App\Models\Coupon;
+use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\DiscountService;
+use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Tests\Support\BindsTaxDependencies;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
@@ -44,15 +48,26 @@ class RecalculateCartActionTest extends TestCase
         $this->assertSame(11500, $item->base_total);
         $this->assertSame(1, $item->tax_lines[0]->item_id);
 
+        // Tax-exclusive pricing: nothing to extract, so these are untouched pass-throughs of the catalog price.
+        $this->assertSame(10000, $item->base_unit_price);
+        $this->assertSame(10000, $item->base_regular_unit_price);
+        $this->assertSame(10000, $item->base_product_total);
+        // Not on sale: the regular-price total's own tax matches the current-price tax exactly.
+        $this->assertSame(1500, $item->base_regular_tax_amount);
+        $this->assertSame($item->base_tax_amount, $item->base_regular_tax_amount);
+
         $this->assertSame(10000, $result->base_subtotal);
         $this->assertSame(1500, $result->base_tax_total);
         $this->assertSame(11500, $result->base_total);
     }
 
     /**
-     * A single inclusive-tax item: the tax is extracted from (not added on
-     * top of) the subtotal, so the total equals the subtotal minus any
-     * discount - tax is already inside it.
+     * A single inclusive-tax item: the tax is extracted from the total, and
+     * also from the subtotal, unit price and regular unit price - all of
+     * which are always net of tax. Only the total stays gross (the amount
+     * actually charged). With no discount, the base is the item's own
+     * catalog price, so extraction is exact: subtotal + tax reconstructs
+     * the original gross catalog price.
      *
      * @return void
      */
@@ -67,13 +82,252 @@ class RecalculateCartActionTest extends TestCase
         $result = $this->make_action()->execute($context);
         $item = $result->items[1];
 
-        $this->assertSame(12000, $item->base_subtotal);
         $this->assertSame(2000, $item->base_tax_amount);
         $this->assertSame(12000, $item->base_total);
-        $this->assertSame(10000, $item->base_total - $item->base_tax_amount);
 
+        $this->assertSame(10000, $item->base_subtotal);
+        $this->assertSame(12000, $item->base_subtotal + $item->base_tax_amount);
+
+        $this->assertSame(10000, $item->base_unit_price);
+        $this->assertSame(10000, $item->base_regular_unit_price);
+        $this->assertSame(10000, $item->base_product_total);
+        // Not on sale: the regular-price total's own tax matches the current-price tax exactly.
+        $this->assertSame(2000, $item->base_regular_tax_amount);
+        $this->assertSame($item->base_tax_amount, $item->base_regular_tax_amount);
+
+        $this->assertSame(10000, $result->base_subtotal);
         $this->assertSame(12000, $result->base_total);
         $this->assertSame(2000, $result->base_tax_total);
+    }
+
+    /**
+     * An item bought on sale keeps its regular unit price above its charged
+     * unit price after both are extracted of the same embedded tax - the
+     * on-sale ordering strikethrough pricing depends on survives.
+     *
+     * @return void
+     */
+    public function test_sale_item_regular_and_unit_price_both_exclude_tax(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 1, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertLessThan($item->base_regular_unit_price, $item->base_unit_price);
+        $this->assertSame(6667, $item->base_unit_price);
+        $this->assertSame(8334, $item->base_regular_unit_price);
+        $this->assertSame(8334, $item->base_product_total);
+        // On sale: the regular-price total's own tax is computed against
+        // the regular (higher) base, so it differs from the current-price tax.
+        $this->assertSame(1667, $item->base_regular_tax_amount);
+        $this->assertNotSame($item->base_tax_amount, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * A fully-discounted item under tax-inclusive pricing has a zero
+     * taxable base, but the tax is still excluded from its subtotal and
+     * unit prices: the tax before any discount is the base, not the
+     * (zero) tax after it.
+     *
+     * @return void
+     */
+    public function test_fully_discounted_item_under_inclusive_tax_still_excludes_tax(): void
+    {
+        $this->bind_default_region(10, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 11000)], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $discount_service = $this->createMock(DiscountService::class);
+        $discount_service->method('calculate')->willReturn($this->make_discount_result(0, [1 => 11000]));
+
+        $result = $this->make_action(['discount_service' => $discount_service])->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(11000, $item->base_discount_amount);
+        $this->assertSame(0, $item->base_tax_amount);
+        $this->assertSame(0, $item->base_total);
+        $this->assertSame(10000, $item->base_subtotal);
+        $this->assertSame(10000, $item->base_unit_price);
+        $this->assertSame(10000, $item->base_regular_unit_price);
+        $this->assertSame(1000, $item->base_regular_tax_amount);
+        $this->assertSame(1000, $item->base_discount_tax_amount);
+    }
+
+    /**
+     * An order-wide coupon under tax-inclusive pricing lowers the tax, but
+     * not the item's catalog figures: those stay as the catalog had them.
+     *
+     * @return void
+     */
+    public function test_order_coupon_under_inclusive_tax_keeps_catalog_figures(): void
+    {
+        $this->bind_default_region(10, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 11000)], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action(['discount_service' => $this->make_discount_service($this->make_discount_result(0, [1 => 5500]))])->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(500, $item->base_tax_amount);
+        $this->assertSame(5500, $item->base_total);
+        $this->assertSame(10000, $item->base_subtotal);
+        $this->assertSame(500, $item->base_discount_tax_amount);
+        $this->assertSame(11000, $item->base_catalog_regular_price);
+        $this->assertSame(11000, $item->base_catalog_sale_price);
+        $this->assertSame(11000, $item->base_catalog_product_coupon_discounted_subtotal);
+    }
+
+    /**
+     * Only product-scoped coupons reduce the catalog product-coupon-discounted
+     * subtotal; the order-wide coupon's share still lowers the tax.
+     *
+     * @return void
+     */
+    public function test_product_and_order_coupons_split_under_inclusive_tax(): void
+    {
+        $this->bind_default_region(10, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 5500, 2)], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        // 1100 from a product coupon, 990 from an order-wide coupon.
+        $discount_result = $this->make_discount_result(0, [1 => 2090]);
+        $discount_result->product_item_discounts = [1 => 1100];
+
+        $result = $this->make_action(['discount_service' => $this->make_discount_service($discount_result)])->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(9900, $item->base_catalog_product_coupon_discounted_subtotal);
+        $this->assertSame(810, $item->base_tax_amount);
+        $this->assertSame(190, $item->base_discount_tax_amount);
+        $this->assertSame(8910, $item->base_total);
+    }
+
+    /**
+     * A sale item records both catalog unit prices exactly as the variant had them.
+     *
+     * @return void
+     */
+    public function test_sale_item_records_catalog_regular_and_sale_prices(): void
+    {
+        $this->bind_default_region(10, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 9900, 2, ['base_product_total' => 12100])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(12100, $item->base_catalog_regular_price);
+        $this->assertSame(9900, $item->base_catalog_sale_price);
+        $this->assertSame(19800, $item->base_catalog_product_coupon_discounted_subtotal);
+        $this->assertSame(0, $item->base_discount_tax_amount);
+    }
+
+    /**
+     * Under tax-exclusive pricing the catalog figures are already net, and
+     * the discount tax is the tax the discount removed from on top.
+     *
+     * @return void
+     */
+    public function test_catalog_figures_under_exclusive_tax(): void
+    {
+        $this->bind_default_region(15, 0, false);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action(['discount_service' => $this->make_discount_service($this->make_discount_result(0, [1 => 2000]))])->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(10000, $item->base_subtotal);
+        $this->assertSame(10000, $item->base_catalog_sale_price);
+        $this->assertSame(10000, $item->base_catalog_product_coupon_discounted_subtotal);
+        $this->assertSame(1200, $item->base_tax_amount);
+        $this->assertSame(300, $item->base_discount_tax_amount);
+    }
+
+    /**
+     * A zero-rate destination (no configured tax region) produces zero tax
+     * on the regular-price total too, not just the current price - the rate
+     * used is 0, so `calculate_regular_tax_amount()`'s multiplication is a
+     * genuine zero, not a divide-by-zero or skipped computation.
+     *
+     * @return void
+     */
+    public function test_regular_tax_amount_is_zero_for_an_unconfigured_country(): void
+    {
+        $this->bind_full_tax_settings([
+            ['code' => 'BD', 'is_enabled' => true, 'is_central_tax_enabled' => true, 'central_product_tax' => 15, 'central_shipping_tax' => 5, 'rules' => [], 'states' => []],
+        ]);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 1, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'US'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(0, $item->base_tax_amount);
+        $this->assertSame(0, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * The regular-price total's own tax scales with quantity the same way
+     * the total itself does - it's computed against the already
+     * quantity-multiplied `base_product_total`, not the per-unit price.
+     *
+     * @return void
+     */
+    public function test_regular_tax_amount_scales_with_quantity(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 3, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(24999, $item->base_product_total);
+        $this->assertSame(5000, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * The regular-price total's own tax is computed independently of any
+     * item-level coupon discount - a coupon reduces the current-price
+     * taxable base, but the regular price (and its tax) is untouched by it.
+     *
+     * @return void
+     */
+    public function test_regular_tax_amount_is_unaffected_by_an_item_coupon_discount(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 1, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $discount_service = $this->createMock(DiscountService::class);
+        $discount_service->method('calculate')->willReturn($this->make_discount_result(0, [1 => 3000]));
+
+        $result = $this->make_action(['discount_service' => $discount_service])->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(1667, $item->base_regular_tax_amount);
     }
 
     /**
@@ -90,8 +344,12 @@ class RecalculateCartActionTest extends TestCase
     }
 
     /**
-     * The same invariant in inclusive mode: total = subtotal - discount:
-     * tax is already embedded in the subtotal, never added a second time.
+     * In inclusive mode, `total = taxable_amount = net_total - discount` is
+     * unaffected by the subtotal-tax-exclusivity fix - only the subtotal's
+     * own decomposition changes. The subtotal no longer equals
+     * `total + discount`: it now excludes its own embedded tax (computed
+     * pre-discount, at the same rate the discounted taxable amount was
+     * taxed at), so it's smaller than the raw catalog unit price.
      *
      * @return void
      */
@@ -99,7 +357,11 @@ class RecalculateCartActionTest extends TestCase
     {
         $item = $this->calculate_reconciliation_item(true);
 
-        $this->assertSame($item->base_subtotal - $item->base_discount_amount, $item->base_total);
+        $this->assertSame(9000, $item->base_total);
+        $this->assertSame(1000, $item->base_discount_amount);
+        $this->assertSame(1174, $item->base_tax_amount);
+        $this->assertLessThan(10000, $item->base_subtotal);
+        $this->assertSame(8696, $item->base_subtotal);
     }
 
     protected function calculate_reconciliation_item(bool $is_tax_inclusive_price): CalculationItemDTO
@@ -222,6 +484,36 @@ class RecalculateCartActionTest extends TestCase
         $this->assertSame(2100, $result->base_shipping_total);
         $this->assertNull($result->shipping_tax_lines[0]->item_id);
         $this->assertSame(1600, $result->base_tax_total);
+    }
+
+    /**
+     * Tax-inclusive product pricing does not make shipping tax-inclusive
+     * too: shipping is never sold at a tax-inclusive price, so its tax is
+     * still added on top of the shipping subtotal, even while the item's
+     * tax is extracted (not added) because the store's product pricing is
+     * tax-inclusive.
+     *
+     * @return void
+     */
+    public function test_shipping_tax_is_added_on_top_even_under_tax_inclusive_product_pricing(): void
+    {
+        $this->bind_default_region(20, 10, true);
+
+        $context = $this->make_context([$this->make_item(1, 12000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'shipping_method_id' => 7,
+        ]);
+
+        $shipping_service = $this->make_taxable_shipping_service(2000);
+
+        $result = $this->make_action(['shipping_service' => $shipping_service])->execute($context);
+
+        $this->assertSame(12000, $result->items[1]->base_total);
+        $this->assertSame(2000, $result->base_shipping_subtotal);
+        $this->assertSame(200, $result->base_shipping_tax);
+        $this->assertSame(2200, $result->base_shipping_total);
+        $this->assertSame(2200, $result->base_tax_total);
+        $this->assertSame(14200, $result->base_total);
     }
 
     /**
@@ -383,7 +675,7 @@ class RecalculateCartActionTest extends TestCase
 
         $action = $this->make_action([
             'shipping_service' => $shipping_service,
-            'discount_service' => new DiscountService(),
+            'discount_service' => new DiscountService($this->createMock(OrderService::class)),
             'coupon_service' => $coupon_service,
         ]);
 
@@ -464,6 +756,127 @@ class RecalculateCartActionTest extends TestCase
     }
 
     /**
+     * By default tax is calculated from the shipping address.
+     *
+     * @return void
+     */
+    public function test_tax_destination_defaults_to_the_shipping_address(): void
+    {
+        $this->bind_destination_regions();
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'billing_address' => ['country' => 'AU'],
+        ]));
+
+        $this->assertSame(OrderTaxDestination::SHIPPING, $result->tax_destination);
+        $this->assertSame(1500, $result->base_tax_total);
+    }
+
+    /**
+     * The tax destination setting picks the billing address.
+     *
+     * @return void
+     */
+    public function test_tax_destination_setting_picks_the_billing_address(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'billing']);
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'billing_address' => ['country' => 'AU'],
+        ]));
+
+        $this->assertSame(OrderTaxDestination::BILLING, $result->tax_destination);
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
+    /**
+     * The tax destination setting picks the store address.
+     *
+     * @return void
+     */
+    public function test_tax_destination_setting_picks_the_store_address(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'store']);
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+        ]));
+
+        $this->assertSame(OrderTaxDestination::STORE, $result->tax_destination);
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
+    /**
+     * Without a shipping country the store address is used.
+     *
+     * @return void
+     */
+    public function test_missing_shipping_country_falls_back_to_the_store_address(): void
+    {
+        $this->bind_destination_regions();
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)]));
+
+        $this->assertSame(OrderTaxDestination::STORE, $result->tax_destination);
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
+    /**
+     * An unknown tax destination setting is treated as shipping.
+     *
+     * @return void
+     */
+    public function test_unknown_tax_destination_setting_is_treated_as_shipping(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'nowhere']);
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+        ]));
+
+        $this->assertSame(OrderTaxDestination::SHIPPING, $result->tax_destination);
+    }
+
+    /**
+     * With no country in the chosen or the store address, no tax is calculated and no destination is reported.
+     *
+     * @return void
+     */
+    public function test_no_usable_country_reports_no_destination(): void
+    {
+        $this->bind_destination_regions([], []);
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)]));
+
+        $this->assertNull($result->tax_destination);
+        $this->assertSame(0, $result->base_tax_total);
+    }
+
+    /**
+     * Bind a BD region at 15% and an AU region at 10%, with the store in AU unless told otherwise.
+     *
+     * @param array<string, mixed> $tax_settings     Further tax group keys, e.g. `tax_destination`.
+     * @param array<string, mixed> $store_address    The store address.
+     * @return void
+     */
+    protected function bind_destination_regions(array $tax_settings = [], array $store_address = ['country' => 'AU']): void
+    {
+        $region = fn(string $code, int $rate) => [
+            'code' => $code,
+            'is_enabled' => true,
+            'is_central_tax_enabled' => true,
+            'central_product_tax' => $rate,
+            'central_shipping_tax' => 0,
+            'rules' => [],
+            'states' => [],
+        ];
+
+        $this->bind_full_tax_settings([$region('BD', 15), $region('AU', 10)], false, 'USD', $tax_settings, ['store_address' => $store_address]);
+    }
+
+    /**
      * Bind a "BD" central tax region with the given rates, wired through
      * `bind_full_tax_settings()`.
      *
@@ -485,6 +898,194 @@ class RecalculateCartActionTest extends TestCase
                 'states' => [],
             ],
         ], $is_tax_inclusive_price);
+    }
+
+    // An edited order keeps the terms it was placed with
+
+    /**
+     * The tax rate stored on the order is charged, not today's rate.
+     *
+     * @return void
+     */
+    public function test_a_stored_tax_rate_is_charged_instead_of_the_current_rate(): void
+    {
+        $this->bind_default_region(20, 0, false);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD']]);
+        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]]]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(1000, $result->items[1]->base_tax_amount);
+        $this->assertSame(10.0, $result->items[1]->tax_lines[0]->rate);
+        $this->assertSame(11000, $result->base_total);
+    }
+
+    /**
+     * The order's tax mode is kept even when the store prices differently now.
+     *
+     * @return void
+     */
+    public function test_the_stored_tax_mode_wins_over_the_current_store_setting(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD']]);
+        $context->stored = $this->make_stored_terms(['is_tax_inclusive' => false, 'item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]]]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(1000, $result->items[1]->base_tax_amount);
+        $this->assertSame(11000, $result->items[1]->base_total);
+        $this->assertSame(10000, $result->items[1]->base_subtotal);
+    }
+
+    /**
+     * An order that was placed with tax keeps its tax when the store stops charging tax.
+     *
+     * @return void
+     */
+    public function test_stored_tax_is_kept_when_the_store_no_longer_charges_tax(): void
+    {
+        $this->bind_full_tax_settings([], false);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD']]);
+        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]], 'tax_destination' => OrderTaxDestination::SHIPPING]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
+    /**
+     * The tax destination stored on the order wins over the current setting when tax is calculated again.
+     *
+     * @return void
+     */
+    public function test_the_stored_tax_destination_wins_over_the_current_setting(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'billing']);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'billing_address' => ['country' => 'AU'],
+        ]);
+        $context->stored = $this->make_stored_terms(['tax_destination' => OrderTaxDestination::SHIPPING]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(OrderTaxDestination::SHIPPING, $result->tax_destination);
+        $this->assertSame(1500, $result->base_tax_total);
+    }
+
+    /**
+     * An edited order with no stored destination uses the current setting.
+     *
+     * @return void
+     */
+    public function test_the_current_setting_is_used_when_the_order_stored_no_tax_destination(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'billing']);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'billing_address' => ['country' => 'AU'],
+        ]);
+        $context->stored = $this->make_stored_terms(['tax_destination' => null]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(OrderTaxDestination::BILLING, $result->tax_destination);
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
+    /**
+     * A line added in the edit has no stored rate, so the current rate applies to it.
+     *
+     * @return void
+     */
+    public function test_a_new_line_is_taxed_at_the_current_rate_next_to_a_stored_line(): void
+    {
+        $this->bind_default_region(20, 0, false);
+
+        $context = $this->make_context([$this->make_item(1, 10000), $this->make_item(2, 10000)], ['shipping_address' => ['country' => 'BD']]);
+        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]]]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(1000, $result->items[1]->base_tax_amount);
+        $this->assertSame(2000, $result->items[2]->base_tax_amount);
+    }
+
+    /**
+     * The shipping of an edited order is always quoted again.
+     *
+     * @return void
+     */
+    public function test_the_shipping_of_an_edited_order_is_quoted_again(): void
+    {
+        $this->bind_default_region(0, 0, false);
+        $shipping_service = $this->createMock(ShippingService::class);
+        $shipping_service->expects($this->once())->method('calculate')->willReturn(1800);
+        $shipping_service->method('get_selected_shipping_method')->willReturn(['is_taxable' => false]);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD'], 'shipping_method_id' => 'method-0001']);
+        $context->stored = $this->make_stored_terms();
+
+        $result = $this->make_action(['shipping_service' => $shipping_service])->execute($context);
+
+        $this->assertSame(1800, $result->base_shipping_subtotal);
+    }
+
+    /**
+     * A coupon stored on the order is not looked up again, and is not asked of the coupon service.
+     *
+     * @return void
+     */
+    public function test_a_stored_coupon_is_not_looked_up_again(): void
+    {
+        $this->bind_default_region(0, 0, false);
+        $coupon_service = $this->createMock(CouponService::class);
+        $coupon_service->expects($this->once())->method('find_by_codes')->with(['NEWONE'])->willReturn(collection());
+
+        $context = $this->make_context([$this->make_item(1, 10000)], ['coupon_codes' => ['STORED', 'NEWONE']]);
+        $context->stored = $this->make_stored_terms(['coupons' => ['STORED' => new OrderCoupon()]]);
+
+        $this->make_action(['coupon_service' => $coupon_service])->execute($context);
+    }
+
+    /**
+     * A stored coupon sent in another letter case is not asked of the coupon service as a new coupon.
+     *
+     * @return void
+     */
+    public function test_a_stored_coupon_sent_in_another_letter_case_is_not_looked_up_again(): void
+    {
+        $this->bind_default_region(0, 0, false);
+        $coupon_service = $this->createMock(CouponService::class);
+        $coupon_service->expects($this->once())->method('find_by_codes')->with(['NEWONE'])->willReturn(collection());
+
+        $context = $this->make_context([$this->make_item(1, 10000)], ['coupon_codes' => ['stored', 'NEWONE']]);
+        $context->stored = $this->make_stored_terms(['coupons' => ['STORED' => new OrderCoupon()]]);
+
+        $this->make_action(['coupon_service' => $coupon_service])->execute($context);
+    }
+
+    /**
+     * @param array<string, mixed> $overrides Terms to set on top of an order placed with tax-exclusive prices and no stored tax or shipping.
+     * @return StoredOrderTermsDTO
+     */
+    protected function make_stored_terms(array $overrides = []): StoredOrderTermsDTO
+    {
+        $terms = new StoredOrderTermsDTO();
+        $terms->is_tax_inclusive = false;
+        $terms->tax_destination = OrderTaxDestination::SHIPPING;
+
+        foreach ($overrides as $key => $value) {
+            $terms->$key = $value;
+        }
+
+        return $terms;
     }
 
     /**
@@ -510,7 +1111,7 @@ class RecalculateCartActionTest extends TestCase
     protected function make_item(int $variant_id, int $base_unit_price, int $quantity = 1, array $overrides = []): CalculationItemDTO
     {
         $item = new CalculationItemDTO();
-        $item->id = $overrides['id'] ?? $variant_id;
+        $item->line_key = $overrides['id'] ?? $variant_id;
         $item->variant_id = $variant_id;
         $item->product_id = $overrides['product_id'] ?? $variant_id;
         $item->quantity = $quantity;
@@ -529,6 +1130,17 @@ class RecalculateCartActionTest extends TestCase
         $result->item_discounts = $item_discounts;
 
         return $result;
+    }
+
+    /**
+     * @return DiscountService&\PHPUnit\Framework\MockObject\MockObject
+     */
+    protected function make_discount_service(DiscountCalculationResultDTO $discount_result)
+    {
+        $discount_service = $this->createMock(DiscountService::class);
+        $discount_service->method('calculate')->willReturn($discount_result);
+
+        return $discount_service;
     }
 
     /**

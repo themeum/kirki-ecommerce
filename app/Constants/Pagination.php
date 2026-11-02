@@ -2,6 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Constants;
 
+defined('ABSPATH') || exit;
+
+/**
+ * Default pagination limits.
+ *
+ * @since 1.0.0
+ */
 class Pagination
 {
     /**

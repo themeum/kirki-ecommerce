@@ -2,7 +2,7 @@ import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { useAddCurrencyDialogContext } from '@/features/settings/multi-currency/contexts/add-currency-dialog-context';
-import { SearchIcon } from '@/icons';
+import { SearchIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';

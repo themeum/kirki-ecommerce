@@ -1,5 +1,13 @@
 import { isDefined } from '@/utils/object';
 
+export const slugify = (value: string): string =>
+  value
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
 export const toDisplayString = (value: unknown): string => {
   if (typeof value === 'string') {
     return value;
@@ -19,7 +27,7 @@ export const incrementString = (value: string | undefined, by?: string | number)
     return value.slice(0, -1) + by;
   }
 
-  const match = value.match(/^(\D*)(\d*)$/);
+  const match = /^(\D*)(\d*)$/.exec(value);
   if (!match) return value;
 
   const [, prefix, digits] = match;

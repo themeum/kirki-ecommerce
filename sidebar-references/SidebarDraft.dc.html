@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sidebar, draft</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:#f1f1f3;color:#1d1d1f}
+a{color:#1f6fe5;text-decoration:none}a:hover{color:#1557b8;text-decoration:underline}
+input:focus,select:focus{outline:none}
+.tok:focus-within,.fld:focus{border-color:#1f6fe5 !important;box-shadow:0 0 0 3px rgba(31,111,229,.18)}
+button:focus-visible,a:focus-visible{outline:2px solid #1f6fe5;outline-offset:2px}
+button{cursor:pointer}
+.ghost{border:1px solid transparent;background:transparent}
+.ghost:hover{border-color:#d9d9de}
+.ghost:focus{border-color:#1f6fe5;box-shadow:0 0 0 3px rgba(31,111,229,.18)}
+.bare::placeholder{color:#8a8a90}
+.row:hover{background:#f4f4f6 !important}
+</style>
+</helmet>
+<div style="width: 380px; min-height: 1000px; box-sizing: border-box; padding: 24px; background: #f1f1f3; display: flex; flex-direction: column; gap: 16px;">
+
+<div style="background: #ffffff; border: 1px solid #e3e3e6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 14px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{dot}};"></span><span style="font-weight: 500;">{{statusName}}</span><span style="color: #6b6b70;">{{statusMeta}}</span></span>
+<a href="#" style="font-size: 13px; font-weight: 500;">Preview</a>
+</div>
+<select class="fld" value="{{ status }}" onChange="{{ onStatus }}" aria-label="Status" style="height: 40px; padding: 0 10px; font: inherit; font-size: 14px; color: #1d1d1f; background: #ffffff; border: 1px solid #d9d9de; border-radius: 8px;">
+<option value="draft">Draft</option>
+<option value="published">Published</option>
+<option value="scheduled">Scheduled</option>
+</select>
+<sc-if value="{{ isScheduled }}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: minmax(0, 1fr) 110px; gap: 8px;">
+<input class="fld" type="date" value="{{ date }}" onChange="{{ onDate }}" aria-label="Publish date" style="height: 38px; box-sizing: border-box; padding: 0 10px; font: inherit; font-size: 13px; color: #1d1d1f; border: 1px solid #d9d9de; border-radius: 8px;">
+<input class="fld" type="time" value="{{ time }}" onChange="{{ onTime }}" aria-label="Publish time" style="height: 38px; box-sizing: border-box; padding: 0 10px; font: inherit; font-size: 13px; color: #1d1d1f; border: 1px solid #d9d9de; border-radius: 8px;">
+</div>
+</sc-if>
+<div style="display: flex; align-items: center; font-size: 13px; color: #6b6b70;">
+<span style="flex-shrink: 0;">/products/</span>
+<input class="ghost" type="text" value="{{ slug }}" onChange="{{ onSlug }}" aria-label="URL slug" style="flex: 1; min-width: 0; height: 30px; box-sizing: border-box; padding: 0 6px; font: inherit; font-size: 13px; color: #1d1d1f; border-radius: 6px;">
+</div>
+</div>
+
+<div style="background: #ffffff; border: 1px solid #e3e3e6; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+
+<div style="display: flex; flex-direction: column; gap: 6px; position: relative;">
+<span style="font-size: 14px; font-weight: 500;">Category</span>
+<div class="tok" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 40px; box-sizing: border-box; padding: 5px 6px; border: 1px solid #d9d9de; border-radius: 8px;">
+<sc-for list="{{ catsShown }}" as="c" hint-placeholder-count="1">
+<span style="display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 4px 0 8px; background: #f1f1f3; border-radius: 6px; font-size: 13px;"><span style="color: #6b6b70;">{{c.parent}}</span>{{c.name}}<button onClick="{{ c.remove }}" aria-label="Remove category" style="width: 20px; height: 20px; border: none; background: transparent; border-radius: 4px; color: #6b6b70; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></span>
+</sc-for>
+<sc-if value="{{ hasMore }}" hint-placeholder-val="{{ true }}"><button onClick="{{ toggleCats }}" style="height: 28px; padding: 0 8px; border: none; background: transparent; border-radius: 6px; font: inherit; font-size: 13px; font-weight: 500; color: #1f6fe5;">{{moreLabel}}</button></sc-if>
+<input class="bare" type="text" value="{{ catQuery }}" onChange="{{ onCatQuery }}" onFocus="{{ openCats }}" onBlur="{{ blurCats }}" onKeyDown="{{ onCatKey }}" placeholder="{{ catPlaceholder }}" aria-label="Search categories" style="flex: 1; min-width: 80px; height: 28px; border: none; background: transparent; font: inherit; font-size: 13px; color: #1d1d1f; padding: 0 4px;">
+</div>
+<sc-if value="{{ catOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 10; background: #ffffff; border: 1px solid #e3e3e6; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.12); overflow: hidden;">
+<sc-if value="{{ notCreating }}" hint-placeholder-val="{{ true }}">
+<div style="max-height: 264px; overflow: auto; padding: 6px;">
+<sc-for list="{{ catRows }}" as="r" hint-placeholder-count="6">
+<button class="row" onMouseDown="{{ r.toggle }}" style="display: flex; width: 100%; align-items: center; gap: 8px; height: 34px; padding: 0 8px 0 {{r.indent}}; border: none; background: transparent; border-radius: 6px; font: inherit; font-size: 13px; color: #1d1d1f; text-align: left;">
+<span style="width: 16px; height: 16px; box-sizing: border-box; border-radius: 4px; border: 1px solid {{r.boxBorder}}; background: {{r.boxBg}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><sc-if value="{{ r.on }}" hint-placeholder-val="{{ false }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></sc-if></span>
+<span><span style="color: #6b6b70;">{{r.crumb}}</span>{{r.name}}</span>
+</button>
+</sc-for>
+<sc-if value="{{ noMatch }}" hint-placeholder-val="{{ false }}"><div style="padding: 10px 8px; font-size: 13px; color: #6b6b70;">No matching categories</div></sc-if>
+</div>
+<div style="border-top: 1px solid #efeff1; padding: 6px;">
+<button class="row" onMouseDown="{{ startCreate }}" style="display: flex; width: 100%; align-items: center; height: 34px; padding: 0 8px; border: none; background: transparent; border-radius: 6px; font: inherit; font-size: 13px; font-weight: 500; color: #1f6fe5; text-align: left;">{{createLabel}}</button>
+</div>
+</sc-if>
+<sc-if value="{{ creating }}" hint-placeholder-val="{{ false }}">
+<div style="padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+<span style="font-size: 13px; font-weight: 600;">New category</span>
+<input class="fld" type="text" value="{{ newName }}" onChange="{{ onNewName }}" onKeyDown="{{ onNewKey }}" placeholder="Category name" aria-label="Category name" style="height: 36px; box-sizing: border-box; padding: 0 10px; font: inherit; font-size: 13px; color: #1d1d1f; border: 1px solid #d9d9de; border-radius: 8px;">
+<select class="fld" value="{{ newParent }}" onChange="{{ onNewParent }}" aria-label="Parent category" style="height: 36px; padding: 0 8px; font: inherit; font-size: 13px; color: #1d1d1f; background: #ffffff; border: 1px solid #d9d9de; border-radius: 8px;">
+<sc-for list="{{ parentOpts }}" as="p" hint-placeholder-count="4"><option value="{{ p.value }}">{{p.label}}</option></sc-for>
+</select>
+<div style="display: flex; justify-content: flex-end; gap: 6px;">
+<button onClick="{{ cancelCreate }}" style="height: 32px; padding: 0 12px; border: 1px solid #d9d9de; background: #ffffff; border-radius: 6px; font: inherit; font-size: 13px; color: #1d1d1f;">Cancel</button>
+<button onClick="{{ doCreate }}" style="height: 32px; padding: 0 12px; border: none; background: #1f6fe5; border-radius: 6px; font: inherit; font-size: 13px; font-weight: 500; color: #ffffff;">Create</button>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 14px; font-weight: 500;">Brand</span>
+<div class="tok" style="display: flex; gap: 6px; align-items: center; min-height: 40px; box-sizing: border-box; padding: 5px 6px; border: 1px solid #d9d9de; border-radius: 8px;">
+<sc-if value="{{ hasBrand }}" hint-placeholder-val="{{ true }}">
+<span style="display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 4px 0 8px; background: #f1f1f3; border-radius: 6px; font-size: 13px;">{{brand}}<button onClick="{{ removeBrand }}" aria-label="Remove brand" style="width: 20px; height: 20px; border: none; background: transparent; border-radius: 4px; color: #6b6b70; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></span>
+</sc-if>
+<sc-if value="{{ noBrand }}" hint-placeholder-val="{{ false }}">
+<input class="bare" type="text" placeholder="Add brand" onKeyDown="{{ onBrandKey }}" aria-label="Brand" style="flex: 1; height: 28px; border: none; background: transparent; font: inherit; font-size: 13px; color: #1d1d1f; padding: 0 4px;">
+</sc-if>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 14px; font-weight: 500;">Tags</span>
+<div class="tok" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 40px; box-sizing: border-box; padding: 5px 6px; border: 1px solid #d9d9de; border-radius: 8px;">
+<sc-for list="{{ tags }}" as="t" hint-placeholder-count="3">
+<span style="display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 4px 0 8px; background: #f1f1f3; border-radius: 6px; font-size: 13px;">{{t.label}}<button onClick="{{ t.remove }}" aria-label="Remove tag" style="width: 20px; height: 20px; border: none; background: transparent; border-radius: 4px; color: #6b6b70; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></span>
+</sc-for>
+<input class="bare" type="text" value="{{ tagDraft }}" onChange="{{ onTagDraft }}" onKeyDown="{{ onTagKey }}" placeholder="Add tag" aria-label="Add tag" style="flex: 1; min-width: 80px; height: 28px; border: none; background: transparent; font: inherit; font-size: 13px; color: #1d1d1f; padding: 0 4px;">
+</div>
+</div>
+
+<sc-if value="{{ colClosed }}" hint-placeholder-val="{{ true }}">
+<button onClick="{{ openCol }}" style="align-self: flex-start; height: 28px; padding: 0; border: none; background: transparent; font: inherit; font-size: 13px; font-weight: 500; color: #1f6fe5;">+ Add to collection</button>
+</sc-if>
+<sc-if value="{{ colOpen }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<span style="font-size: 14px; font-weight: 500;">Collections</span>
+<div class="tok" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 40px; box-sizing: border-box; padding: 5px 6px; border: 1px solid #d9d9de; border-radius: 8px;">
+<sc-for list="{{ cols }}" as="c" hint-placeholder-count="1">
+<span style="display: inline-flex; align-items: center; gap: 4px; height: 28px; padding: 0 4px 0 8px; background: #f1f1f3; border-radius: 6px; font-size: 13px;">{{c.label}}<button onClick="{{ c.remove }}" aria-label="Remove collection" style="width: 20px; height: 20px; border: none; background: transparent; border-radius: 4px; color: #6b6b70; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></span>
+</sc-for>
+<input class="bare" type="text" value="{{ colDraft }}" onChange="{{ onColDraft }}" onKeyDown="{{ onColKey }}" onBlur="{{ onColBlur }}" autoFocus="{{ colFocus }}" placeholder="Add collection" aria-label="Add collection" style="flex: 1; min-width: 80px; height: 28px; border: none; background: transparent; font: inherit; font-size: 13px; color: #1d1d1f; padding: 0 4px;">
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ ribbonOff }}" hint-placeholder-val="{{ true }}">
+<button onClick="{{ addRibbon }}" style="align-self: flex-start; height: 28px; padding: 0; border: none; background: transparent; font: inherit; font-size: 13px; font-weight: 500; color: #1f6fe5;">+ Add ribbon</button>
+</sc-if>
+<sc-if value="{{ ribbonOn }}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<span style="font-size: 14px; font-weight: 500;">Ribbon</span>
+<button onClick="{{ removeRibbon }}" aria-label="Remove ribbon" style="width: 28px; height: 28px; border: none; background: transparent; border-radius: 6px; color: #6b6b70; display: flex; align-items: center; justify-content: center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+</div>
+<input class="fld" type="text" value="{{ ribbonText }}" onChange="{{ onRibbon }}" placeholder="e.g. Fresh Arrival" aria-label="Ribbon text" style="height: 38px; box-sizing: border-box; padding: 0 10px; font: inherit; font-size: 14px; color: #1d1d1f; border: 1px solid #d9d9de; border-radius: 8px;">
+<div style="display: flex; gap: 8px; align-items: center;">
+<sc-for list="{{ swatches }}" as="s" hint-placeholder-count="5">
+<button onClick="{{ s.pick }}" aria-label="{{ s.name }}" style="width: 24px; height: 24px; border-radius: 50%; border: none; background: {{s.color}}; box-shadow: {{s.ring}};"></button>
+</sc-for>
+<span style="margin-left: auto; display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: .02em; color: #ffffff; background: {{ribbonColor}};">{{ribbonPreview}}</span>
+</div>
+</div>
+</sc-if>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":380,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { allCats: [ { name: 'Clothing Tops', parent: '' }, { name: 'Hoodies', parent: 'Clothing Tops' }, { name: 'Sweatshirts', parent: 'Clothing Tops' }, { name: 'T-Shirts', parent: 'Clothing Tops' }, { name: 'Men', parent: '' }, { name: 'Outerwear', parent: 'Men' }, { name: 'Basics', parent: 'Men' }, { name: 'Women', parent: '' }, { name: 'Outerwear', parent: 'Women' }, { name: 'Basics', parent: 'Women' }, { name: 'Sustainable', parent: '' }, { name: 'Art prints', parent: '' }, { name: 'Gifts', parent: '' } ], catQuery: '', creating: false, newName: '', newParent: '', status: 'draft', date: '', catsOpen: false, colOpen: false, cols: [], ribbon: false, ribbonText: '', ribbonColor: '#6d3fe0', slug: 'botanical-hand-dyed-sweatshirt', cats: ['Clothing Tops › Hoodies', 'Men › Outerwear', 'Women › Outerwear', 'Sustainable', 'Art prints', 'Gifts'], brand: 'Louis Vuitton', tags: ['hoodie', 'van-gogh', 'multicolor'], tagDraft: '', colDraft: '', time: '09:00' };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var S = { draft: ['Draft', ' · Saved 2 min ago', '#9a9aa0'], published: ['Published', ' · 7 Jan 2026', '#1e8e4a'], scheduled: ['Scheduled', '', '#1f6fe5'] };
+    var s = S[st.status];
+    var meta = s[1];
+    if (st.status === 'scheduled') {
+      var d = st.date ? new Date(st.date + 'T00:00') : null;
+      meta = d ? ' · ' + d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' + (st.time || '09:00') : ' · Pick a date';
+    }
+    var tokenKey = function (field, draftField) {
+      return function (e) {
+        var v = (e.target.value || '').trim();
+        if ((e.key === 'Enter' || e.key === ',') && v) {
+          e.preventDefault();
+          var a = st[field].slice(); if (a.indexOf(v) < 0) a.push(v);
+          var u = {}; u[field] = a; u[draftField] = ''; self.setState(u);
+        } else if (e.key === 'Backspace' && !e.target.value && st[field].length) {
+          var b = st[field].slice(0, -1); var w = {}; w[field] = b; self.setState(w);
+        }
+      };
+    };
+    var rm = function (field, i) { return function () { var a = st[field].slice(); a.splice(i, 1); var u = {}; u[field] = a; self.setState(u); }; };
+
+    var cats = st.cats.map(function (c, i) {
+      var parts = c.split(' › ');
+      return { parent: parts.length > 1 ? parts[0] + ' › ' : '', name: parts[parts.length - 1], remove: rm('cats', i) };
+    });
+    var shown = st.catsOpen ? cats : cats.slice(0, 1);
+    var extra = cats.length - 1;
+
+
+    var ALL = st.allCats;
+    var keyOf = function (c) { return c.parent ? c.parent + ' › ' + c.name : c.name; };
+    var q = (st.catQuery || '').trim().toLowerCase();
+    var mkRow = function (c, indent, crumb) {
+      var k = keyOf(c), on = st.cats.indexOf(k) >= 0;
+      return { name: c.name, crumb: crumb, indent: indent, on: on, boxBorder: on ? '#1f6fe5' : '#c9c9ce', boxBg: on ? '#1f6fe5' : '#ffffff',
+        toggle: function (e) { e.preventDefault(); var a = self.state.cats.slice(), i = a.indexOf(k); if (i >= 0) a.splice(i, 1); else a.push(k); self.setState({ cats: a }); } };
+    };
+    var catRows = [];
+    if (q) {
+      ALL.forEach(function (c) { if (c.name.toLowerCase().indexOf(q) >= 0 || (c.parent || '').toLowerCase().indexOf(q) >= 0) catRows.push(mkRow(c, '8px', c.parent ? c.parent + ' › ' : '')); });
+    } else {
+      ALL.filter(function (c) { return !c.parent; }).forEach(function (p) {
+        catRows.push(mkRow(p, '8px', ''));
+        ALL.filter(function (c) { return c.parent === p.name; }).forEach(function (c) { catRows.push(mkRow(c, '32px', '')); });
+      });
+    }
+    var exact = ALL.some(function (c) { return c.name.toLowerCase() === q; });
+    var tops = ALL.filter(function (c) { return !c.parent; });
+    var doCreate = function () {
+      var n = (self.state.newName || '').trim(); if (!n) return;
+      var c = { name: n, parent: self.state.newParent || '' };
+      var all = self.state.allCats.slice(); all.push(c);
+      var a = self.state.cats.slice(); a.push(keyOf(c));
+      self.setState({ allCats: all, cats: a, creating: false, catOpen: false, catQuery: '' });
+    };
+    var SW = [['Purple', '#6d3fe0'], ['Blue', '#1f6fe5'], ['Green', '#1e8e4a'], ['Orange', '#d9650b'], ['Black', '#1d1d1f']];
+
+    return {
+      dot: s[2], statusName: s[0], statusMeta: meta,
+      status: st.status, isScheduled: st.status === 'scheduled',
+      onStatus: function (e) { self.setState({ status: e.target.value }); },
+      date: st.date, time: st.time,
+      onDate: function (e) { self.setState({ date: e.target.value }); },
+      onTime: function (e) { self.setState({ time: e.target.value }); },
+      slug: st.slug, onSlug: function (e) { self.setState({ slug: e.target.value }); },
+
+
+      catOpen: !!st.catOpen, creating: !!st.creating, notCreating: !st.creating,
+      catRows: catRows, noMatch: !!q && catRows.length === 0,
+      catQuery: st.catQuery,
+      createLabel: q && !exact ? '+ Create “' + st.catQuery.trim() + '”' : '+ New category',
+      onCatQuery: function (e) { self.setState({ catQuery: e.target.value, catOpen: true }); },
+      openCats: function () { self.setState({ catOpen: true }); },
+      blurCats: function () { setTimeout(function () { if (!self.state.creating) self.setState({ catOpen: false, catQuery: '' }); }, 120); },
+      onCatKey: function (e) {
+        if (e.key === 'Escape') { self.setState({ catOpen: false, catQuery: '' }); e.target.blur(); }
+        else if (e.key === 'Enter') { e.preventDefault(); if (catRows.length === 1) catRows[0].toggle(e); else if (q && !exact) self.setState({ creating: true, newName: st.catQuery.trim(), newParent: '' }); }
+        else if (e.key === 'Backspace' && !e.target.value && st.cats.length) { self.setState({ cats: st.cats.slice(0, -1) }); }
+      },
+      startCreate: function (e) { e.preventDefault(); self.setState({ creating: true, newName: q && !exact ? st.catQuery.trim() : '', newParent: '' }); },
+      newName: st.newName, newParent: st.newParent,
+      onNewName: function (e) { self.setState({ newName: e.target.value }); },
+      onNewParent: function (e) { self.setState({ newParent: e.target.value }); },
+      onNewKey: function (e) { if (e.key === 'Enter') { e.preventDefault(); doCreate(); } if (e.key === 'Escape') self.setState({ creating: false, catOpen: false }); },
+      parentOpts: [{ value: '', label: 'No parent category' }].concat(tops.map(function (t) { return { value: t.name, label: 'Inside ' + t.name }; })),
+      cancelCreate: function () { self.setState({ creating: false, catOpen: false, catQuery: '' }); },
+      doCreate: doCreate,
+      catsShown: shown,
+      hasMore: extra > 0,
+      moreLabel: st.catsOpen ? 'Show less' : '+' + extra + ' more',
+      toggleCats: function () { self.setState({ catsOpen: !st.catsOpen }); },
+      catPlaceholder: cats.length ? 'Search' : 'Search or add categories',
+
+      hasBrand: !!st.brand, noBrand: !st.brand, brand: st.brand,
+      removeBrand: function () { self.setState({ brand: '' }); },
+      onBrandKey: function (e) { var v = (e.target.value || '').trim(); if (e.key === 'Enter' && v) self.setState({ brand: v }); },
+
+      tags: st.tags.map(function (t, i) { return { label: t, remove: rm('tags', i) }; }),
+      tagDraft: st.tagDraft,
+      onTagDraft: function (e) { self.setState({ tagDraft: e.target.value }); },
+      onTagKey: tokenKey('tags', 'tagDraft'),
+
+      colOpen: st.colOpen || st.cols.length > 0,
+      colClosed: !(st.colOpen || st.cols.length > 0),
+      openCol: function () { self.setState({ colOpen: true }); },
+      cols: st.cols.map(function (c, i) { return { label: c, remove: function () { var a = st.cols.slice(); a.splice(i, 1); self.setState(a.length ? { cols: a } : { cols: a, colOpen: false, colDraft: '' }); } }; }),
+      colFocus: !!st.colOpen && st.cols.length === 0,
+      onColBlur: function (e) { var v = (e.target.value || '').trim(); setTimeout(function () { var c = self.state.cols; if (v && c.indexOf(v) < 0) { self.setState({ cols: c.concat([v]), colDraft: '' }); } else if (!c.length && !v) { self.setState({ colOpen: false, colDraft: '' }); } }, 120); },
+      colDraft: st.colDraft,
+      onColDraft: function (e) { self.setState({ colDraft: e.target.value }); },
+      onColKey: tokenKey('cols', 'colDraft'),
+
+      ribbonOn: st.ribbon, ribbonOff: !st.ribbon,
+      addRibbon: function () { self.setState({ ribbon: true }); },
+      removeRibbon: function () { self.setState({ ribbon: false, ribbonText: '' }); },
+      ribbonText: st.ribbonText,
+      onRibbon: function (e) { self.setState({ ribbonText: e.target.value }); },
+      ribbonColor: st.ribbonColor,
+      ribbonPreview: (st.ribbonText || 'Preview').toUpperCase(),
+      swatches: SW.map(function (w) {
+        return { name: w[0], color: w[1], ring: w[1] === st.ribbonColor ? '0 0 0 2px #ffffff, 0 0 0 4px ' + w[1] : 'none', pick: function () { self.setState({ ribbonColor: w[1] }); } };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

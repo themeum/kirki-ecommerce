@@ -89,6 +89,9 @@ examples:
                   "id": "fsdfdsfsd56df343432jh4",
                   "name": "Local Pickup",
                   "type": "local_pickup",
+                  "address": "12 Main Street, Los Angeles, CA 90001",
+                  "pickup_time_start": "09:00",
+                  "pickup_time_end": "17:00",
                   "cost": 9
                 },
                 {
@@ -99,7 +102,7 @@ examples:
                 }
               ],
               "shipping_method": "fsdfdsfsdfsdf343432jh4",
-              "customer_notes": null,
+              "order_notes": null,
               "ip_address": null,
               "user_agent": null,
               "expires_at": {

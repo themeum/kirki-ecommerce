@@ -32,7 +32,7 @@ const SingleTaxRate = <
   cssOverride,
 }: SingleTaxRateProps<TFieldValues, TName>) => {
   return (
-    <Card cssOverride={mergeCss(cardStyles.innerDarkCard, cssOverride)}>
+    <Card cssOverride={mergeCss(cardStyles.innerDarkCard, cssOverride)} noShadow>
       <CardContent cssOverride={mergeCss({ width: '100%' })}>
         <Flex align="center" justify="space-between" cssOverride={{ height: '56px' }}>
           <Flex direction="column" gap={2}>

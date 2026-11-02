@@ -6,12 +6,19 @@ import { defineStyles, scopedMerge } from '@/theme/mixins';
 
 type CardProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
+  noShadow?: boolean;
 };
 
 const Card = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
-  const { cssOverride, ...rest } = props;
+  const { cssOverride, noShadow = false, ...rest } = props;
 
-  return <div ref={ref} css={scopedMerge(styles.card, cssOverride)} {...rest} />;
+  return (
+    <div
+      ref={ref}
+      css={scopedMerge(styles.card, noShadow && { boxShadow: 'none' }, cssOverride)}
+      {...rest}
+    />
+  );
 });
 
 Card.displayName = 'Card';

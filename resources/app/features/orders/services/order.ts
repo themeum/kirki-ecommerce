@@ -6,15 +6,18 @@ import { endpoints } from '@/config/endpoints';
 import type { OrderListFilter } from '@/features/orders';
 import { orderKeys } from '@/features/orders';
 import type { OrderActionPayload } from '@/features/orders/lib/order-actions';
-import type { OrderItem } from '@/features/orders/schemas/catalog/order';
+import type { Order } from '@/features/orders/schemas/catalog/order';
 import {
   OrderCalculationSchema,
-  OrderItemSchema,
+  OrderEditInfoSchema,
   OrderListItemSchema,
+  OrderSchema,
+  OrderShippingCarrierSchema,
 } from '@/features/orders/schemas/catalog/order';
 import type {
   OrderCalculationRequestPayload,
   OrderFormPayload,
+  OrderPartialPayload,
 } from '@/features/orders/schemas/forms/order-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
@@ -29,9 +32,7 @@ import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const createOrder = (data: OrderFormPayload) => {
-  return apiClient
-    .post(endpoints.ORDERS, data)
-    .then((response) => unwrapResponse<OrderItem>(response));
+  return apiClient.post(endpoints.ORDERS, data).then((response) => unwrapResponse<Order>(response));
 };
 
 const ShippingMethodOptionSchema = z.object({
@@ -60,21 +61,37 @@ const getOrders = (params: ListParams<OrderListFilter> = {}) => {
 };
 
 const getOrder = (id: string | number) => {
+  return apiClient.get(endpoints.ORDER(id)).then((response) => parseData(OrderSchema, response));
+};
+
+const getOrderEditInfo = (id: string | number) => {
   return apiClient
-    .get(endpoints.ORDER(id))
-    .then((response) => parseData(OrderItemSchema, response));
+    .get(endpoints.ORDER_EDIT(id))
+    .then((response) => parseData(OrderEditInfoSchema, response));
+};
+
+const getOrderShippingCarriers = (orderId: string | number) => {
+  return apiClient
+    .get(endpoints.ORDER_SHIPPING_CARRIERS(orderId))
+    .then((response) => parseData(z.array(OrderShippingCarrierSchema), response));
 };
 
 const updateOrder = ({ id, data }: { id: number; data: OrderFormPayload }) => {
   return apiClient
     .put(endpoints.ORDER(id), data)
-    .then((response) => parseResponse(OrderItemSchema, response));
+    .then((response) => parseResponse(OrderSchema, response));
+};
+
+const partialUpdateOrder = ({ id, data }: { id: number; data: Partial<OrderPartialPayload> }) => {
+  return apiClient
+    .patch(endpoints.ORDER(id), data)
+    .then((response) => parseResponse(OrderSchema, response));
 };
 
 const performOrderAction = ({ id, ...payload }: OrderActionPayload & { id: number }) => {
   return apiClient
     .patch(endpoints.ORDER_ACTION(id), payload)
-    .then((response) => parseResponse(OrderItemSchema, response));
+    .then((response) => parseResponse(OrderSchema, response));
 };
 
 const calculateOrder = (data: OrderCalculationRequestPayload) => {
@@ -113,6 +130,14 @@ const useOrderQuery = (id: string | number, enabled = true) => {
   });
 };
 
+const useOrderEditInfoQuery = (id: string | number, enabled = true) => {
+  return useQuery({
+    queryKey: orderKeys.editInfo(id),
+    queryFn: () => getOrderEditInfo(id),
+    enabled: enabled && Boolean(id) && id !== NEW_ITEM_ID,
+  });
+};
+
 const useUpdateOrderMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -120,10 +145,24 @@ const useUpdateOrderMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(response.message || __('Order updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      void queryClient.invalidateQueries({
-        queryKey: orderKeys.detail(variables.id),
-      });
-      void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const usePartialUpdateOrderMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: partialUpdateOrder,
+    onSuccess(response, variables) {
+      toastMutationSuccess(response.message || __('Order updated', 'kirki-ecommerce'));
+      void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
@@ -138,14 +177,19 @@ const useOrderActionMutation = () => {
     onSuccess(response, variables) {
       toastMutationSuccess(response.message || __('Order updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      void queryClient.invalidateQueries({
-        queryKey: orderKeys.detail(variables.id),
-      });
-      void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
     },
+  });
+};
+
+const useOrderShippingCarriersQuery = (orderId: string | number) => {
+  return useQuery({
+    queryKey: orderKeys.shippingCarriers(orderId),
+    queryFn: () => getOrderShippingCarriers(orderId),
   });
 };
 
@@ -162,8 +206,11 @@ export {
   useCreateOrderMutation,
   useOrderActionMutation,
   useOrderCalculationQuery,
+  useOrderEditInfoQuery,
   useOrderQuery,
+  useOrderShippingCarriersQuery,
   useOrdersQuery,
+  usePartialUpdateOrderMutation,
   useShippingMethodsQuery,
   useUpdateOrderMutation,
 };

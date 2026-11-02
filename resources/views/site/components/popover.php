@@ -8,7 +8,7 @@
  *
  * Parameters:
  * @var string      $placement      Placement variant ('bottom-end', 'bottom-start', 'top-end', 'top-start'). Default 'bottom-end'.
- * @var string      $trigger_icon   Icon name to render in trigger button. Default 'dots-vertical'.
+ * @var string      $trigger_icon   Icon name to render in trigger button. Default 'ellipsis-vertical'.
  * @var string      $trigger_text   Optional text to display in trigger button.
  * @var string      $trigger_label  Accessible label for screen readers. Default 'Options'.
  * @var string      $trigger_class  CSS class for trigger button. Default 'kecom-btn kecom-btn-ghost kecom-btn-icon kecom-btn-sm'.
@@ -34,7 +34,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Supports\Icon;
 
 $placement     = $data['placement'] ?? 'bottom-end';
-$trigger_icon  = $data['trigger_icon'] ?? 'dots-vertical';
+$trigger_icon  = $data['trigger_icon'] ?? 'ellipsis-vertical';
 $trigger_text  = $data['trigger_text'] ?? null;
 $trigger_label = $data['trigger_label'] ?? __('Options', 'kirki-ecommerce');
 $trigger_class = $data['trigger_class'] ?? 'kecom-btn kecom-btn-ghost kecom-btn-icon kecom-btn-sm';

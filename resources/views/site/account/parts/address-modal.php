@@ -41,7 +41,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 @click.prevent="closeModal"
                 aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
             >
-                <?php Icon::render('cross', ['size' => 16]); ?>
+                <?php Icon::render('x', ['size' => 16]); ?>
             </button>
         </div>
 
@@ -150,7 +150,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                         >
                             <option value="" x-text="getAvailableStates().length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
                             <template x-for="state in getAvailableStates()" :key="state.id">
-                                <option :value="state.id" x-text="state.name"></option>
+                                <option :value="state.id" x-text="state.name" :selected="formData.state == state.id"></option>
                             </template>
                         </select>
                         <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>

@@ -4,7 +4,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 type FlagCardProps = {
-  onSave: () => void;
+  onSave?: () => void;
 };
 
 const FlagCard = ({ onSave }: FlagCardProps) => {
@@ -14,7 +14,7 @@ const FlagCard = ({ onSave }: FlagCardProps) => {
         <ChipsInputField
           name="flags"
           label={__('Flag', 'kirki-ecommerce')}
-          placeholder={__('i.e Backorder, Urgent', 'kirki-ecommerce')}
+          placeholder={__('e.g. Backorder, Urgent', 'kirki-ecommerce')}
           onCommit={onSave}
         />
       </CardContent>

@@ -18,11 +18,15 @@ export function accountWishlist() {
         init() {
             listen(EVENTS.ACCOUNT_WISHLIST_REMOVED, () => {
                 const totalItems = document.querySelectorAll('.kecom-product-card')?.length;
-                
                 const params = new URLSearchParams(window.location.search);
                 const currentPage = params.get('current_page') ?? 1;
-
                 if (0 === totalItems) {
+                    if (Number(currentPage) === 1) {
+                        const newUrl = window.location.pathname;
+                        window.history.pushState({}, '', newUrl);
+                        window.location.reload();
+                        return;
+                    }
                     params.set('current_page', (Number(currentPage) - 1).toString());
                     window.location.search = params.toString();
                 }

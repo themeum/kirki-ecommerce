@@ -2,8 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\Brand;
+use Kirki\Ecommerce\App\Supports\ListPaginator;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -18,12 +21,19 @@ use Exception;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Manages product brands: listing, lookup and CRUD.
+ *
+ * @since 1.0.0
+ */
 class BrandService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -40,21 +50,27 @@ class BrandService
     }
 
     /**
-     * Return paginated brands
+     * Get a page of brands, with product counts, matching the filters.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, sorting and pagination.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
     {
-        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+        $page = $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+
+        return ListPaginator::from($page, Brand::query());
     }
 
     /**
-     * Return all brands
+     * Get every brand, with product counts, matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting.
+     * @return Collection Collection of Brand models.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -62,11 +78,13 @@ class BrandService
     }
 
     /**
-     * Find a brand by ID.
+     * Find a brand, with its product count, by ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Brand ID.
      * @return Brand
-     * @throws NotFoundException
+     * @throws NotFoundException When the brand does not exist.
      */
     public function find(int $id)
     {
@@ -80,9 +98,12 @@ class BrandService
     /**
      * Create a new brand.
      *
-     * If no slug is provided, it will be generated from the name.
+     * If no slug is provided, it will be generated from the name. The current
+     * user is recorded as creator and updater.
      *
-     * @param CreateBrandDTO $data
+     * @since 1.0.0
+     *
+     * @param CreateBrandDTO $data Brand data.
      * @return Brand
      */
     public function create(CreateBrandDTO $data)
@@ -100,14 +121,16 @@ class BrandService
     }
 
     /**
-     * Updates a brand.
+     * Update a brand.
      *
      * If no slug is provided, it will be generated from the name.
      *
-     * @param UpdateBrandDTO $data
-     * @throws NotFoundException
-     * @throws Exception
-     * @return Brand
+     * @since 1.0.0
+     *
+     * @param UpdateBrandDTO $data Brand data including the ID.
+     * @return Brand The refreshed brand with its product count.
+     * @throws NotFoundException When the brand does not exist.
+     * @throws Exception When the update fails.
      */
     public function update(UpdateBrandDTO $data)
     {
@@ -129,12 +152,13 @@ class BrandService
     }
 
     /**
-     * Deletes a brand by ID.
+     * Delete a brand by ID.
      *
-     * @param int $id The ID of the brand to delete.
-     * @return bool True if the brand was deleted successfully, false otherwise.
-     * @throws NotFoundException If the brand could not be found or deleted.
-     * @throws Exception If the brand could not be deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Brand ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws Exception When no brand was deleted.
      */
     public function delete(int $id)
     {
@@ -146,11 +170,13 @@ class BrandService
     }
 
     /**
-     * Deletes multiple brands by their IDs.
+     * Delete multiple brands by their IDs.
      *
-     * @param array $ids The IDs of the brands to delete.
-     * @return bool True if the brands were deleted successfully, false otherwise.
-     * @throws Exception If the brands could not be deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids Brand IDs.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws Exception When no brand was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -162,16 +188,26 @@ class BrandService
     }
 
     /**
-     * Deletes all brands.
+     * Delete every brand matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search filter.
+     * @return bool|int Number of rows deleted, or false on failure.
      */
     public function delete_all(ListFilterDTO $filters)
     {
         return $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the brand list query with product counts, search and sorting applied.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting.
+     * @return QueryBuilder
+     */
     protected function list_query(ListFilterDTO $filters)
     {
         $query = Brand::with_count('products')

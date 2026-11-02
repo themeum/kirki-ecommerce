@@ -2,14 +2,23 @@
 
 namespace Kirki\Ecommerce\App\Resources\Address;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 
+/**
+ * API resource for a customer address.
+ *
+ * @since 1.0.0
+ */
 class AddressResource extends Resource
 {
     /**
      * Convert the address resource to an array.
      *
-     * @return array The address data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The address data.
      */
     public function to_array()
     {

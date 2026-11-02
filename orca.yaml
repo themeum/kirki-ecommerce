@@ -1,0 +1,8 @@
+# Orca worktree hooks: every worktree gets its own Docker stack on free ports.
+# See "Orca worktrees" in README.md.
+scripts:
+  # Runs in the new worktree. composer install comes first because
+  # wordpress-init activates the plugin, and that needs vendor/ to exist.
+  setup: composer install && bin/dev-up
+  # Runs when the worktree is archived. -v deletes this worktree's database and WordPress volume.
+  archive: docker compose down -v

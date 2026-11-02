@@ -2,12 +2,21 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
+use Kirki\Ecommerce\App\Services\SetupChecklistService;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * Resolves plugin asset URLs and paths and builds the admin JavaScript config.
+ *
+ * @since 1.0.0
+ */
 class Assets
 {
     const ADMIN_PAGE = 'kirki-ecommerce';
@@ -18,7 +27,6 @@ class Assets
      * @since 1.0.0
      *
      * @param string $path Path to append to the assets URL.
-     *
      * @return string
      */
     public static function get_url($path = '')
@@ -33,7 +41,6 @@ class Assets
      * @since 1.0.0
      *
      * @param string $path Path to append to the assets path.
-     *
      * @return string
      */
     public static function get_path($path = '')
@@ -48,7 +55,7 @@ class Assets
      *
      * @since 1.0.0
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array<string, mixed>> Empty when the manifest is missing or invalid.
      */
     public static function get_manifest()
     {
@@ -58,7 +65,7 @@ class Assets
             return $manifest;
         }
 
-        $manifest_path = static::get_path('.vite/manifest.json');
+        $manifest_path = static::get_path('manifest.json');
 
         if (!file_exists($manifest_path)) {
             return $manifest = [];
@@ -70,6 +77,13 @@ class Assets
         return $manifest = is_array($decoded) ? $decoded : [];
     }
 
+    /**
+     * Check whether the current request is the plugin's admin page.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
     public static function is_admin_page()
     {
         if (!is_admin()) {
@@ -85,6 +99,15 @@ class Assets
         return static::ADMIN_PAGE === $page;
     }
 
+    /**
+     * Build the inline script that exposes the plugin config to the admin app.
+     *
+     * The config can be modified through the `DevHookNames::CONFIG_DATA` filter.
+     *
+     * @since 1.0.0
+     *
+     * @return string JavaScript assigning the config to `window.kirki_ecommerce`.
+     */
     public static function get_kirki_ecommerce_configs()
     {
         $config_data = [
@@ -97,13 +120,16 @@ class Assets
             'is_dev' => app()->is_dev_mode(),
             'is_logged_in' => is_user_logged_in(),
             'login_url' => esc_url(wp_login_url()),
+            'assets_url' => esc_url(KIRKI_ECOMMERCE_ASSETS_URL),
+            'is_onboarded' => Onboarding::is_completed(),
+            'is_setup_complete' => app(SetupChecklistService::class)->is_complete(),
         ];
 
-        $config_data = apply_filters('kirki_ecommerce_config_data', $config_data);
+        $config_data = apply_filters(DevHookNames::CONFIG_DATA, $config_data);
 
         return sprintf(
             'window.kirki_ecommerce = %s;',
-            Arr::json_encode($config_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            Arr::json_encode($config_data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG)
         );
     }
 }

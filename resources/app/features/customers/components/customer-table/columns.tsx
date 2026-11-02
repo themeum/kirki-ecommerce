@@ -15,7 +15,8 @@ const customerColumns: ColumnDef<CustomerListItem>[] = [
     header: __('Customer', 'kirki-ecommerce'),
     enableSorting: true,
     cell: ({ row }) => {
-      const photo = row.original?.photo && typeof row.original.photo === 'object' ? row.original.photo : null;
+      const photo =
+        row.original?.photo && typeof row.original.photo === 'object' ? row.original.photo : null;
       return (
         <Flex gap={3} align="center">
           <Image src={photo} size="sm" shape="circle" />
@@ -45,22 +46,22 @@ const customerColumns: ColumnDef<CustomerListItem>[] = [
     cell: ({ row }) => displayMoney('base_amount_spent', row.original),
   },
   {
-    id: 'location',
-    header: __('Location', 'kirki-ecommerce'),
-    enableSorting: true,
-    cell: ({ row }) => row.original?.location || '--',
-  },
-  {
     id: 'last_order_date',
     header: __('Last Order', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => isDefined(row.original.last_order_date) ? formatDateValue(new Date(row.original.last_order_date), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
+    cell: ({ row }) =>
+      isDefined(row.original.last_order_date)
+        ? formatDateValue(new Date(row.original.last_order_date), DATE_FORMATS.HUMAN_READABLE_SHORT)
+        : '--',
   },
   {
     id: 'created_at',
     header: __('Joined at', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => isDefined(row.original.created_at) ? formatDateValue(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
+    cell: ({ row }) =>
+      isDefined(row.original.created_at)
+        ? formatDateValue(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT)
+        : '--',
   },
 ];
 

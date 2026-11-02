@@ -2,6 +2,7 @@ import { defineRoute } from '@/libs/route';
 
 export const RouteConfig = {
   Home: defineRoute('/'),
+  Onboarding: defineRoute('/onboarding'),
 
   Products: defineRoute('/products', {
     CreateProduct: defineRoute('/create'),
@@ -18,8 +19,11 @@ export const RouteConfig = {
 
   Orders: defineRoute('/orders', {
     CreateOrder: defineRoute('/create'),
+    OrderEdit: defineRoute('/:id/edit'),
     OrderDetail: defineRoute('/:id'),
   }),
+
+  Analytics: defineRoute('/analytics'),
 
   Collections: defineRoute('/collections', {
     CollectionDetail: defineRoute('/:id'),
@@ -39,8 +43,9 @@ export const RouteConfig = {
     ProductsSettings: defineRoute('/products'),
     PaymentSettings: defineRoute('/payments'),
     ShippingSettings: defineRoute('/shipping', {
-      ShippingZone: defineRoute('/zone/:zone_Id'),
-      ShippingDeliveryMethod: defineRoute('/delivery-method'),
+      ShippingZone: defineRoute('/zone/:zone_id', {
+        ShippingDeliveryMethod: defineRoute('/method/:method_id'),
+      }),
     }),
     MultiCurrencySettings: defineRoute('/currency'),
     TaxSettings: defineRoute('/tax', {
@@ -50,6 +55,7 @@ export const RouteConfig = {
     }),
     EmailSettings: defineRoute('/email', {
       EditEmailTemplate: defineRoute('/edit-template'),
+      EditNotificationTemplate: defineRoute('/:type/:group/:key'),
     }),
     CheckoutSettings: defineRoute('/checkout'),
     EssentialsSettings: defineRoute('/essentials', {
@@ -58,6 +64,5 @@ export const RouteConfig = {
     }),
     AdvancedSettings: defineRoute('/advanced'),
     LegalSettings: defineRoute('/legal'),
-    LicenseSettings: defineRoute('/license'),
   }),
 };

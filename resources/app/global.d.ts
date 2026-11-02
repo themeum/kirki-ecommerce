@@ -16,6 +16,9 @@ type KirkiEcommerceConfig = {
   rest_nonce: string;
   version: string;
   is_dev: boolean;
+  assets_url: string;
+  is_onboarded: boolean;
+  is_setup_complete: boolean;
 };
 
 type WpI18n = {

@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Customer;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a customer with optional addresses.
+ *
+ * @since 1.0.0
+ */
 class CreateCustomerDTO extends DTO
 {
     /** @var int|null */
@@ -26,6 +33,9 @@ class CreateCustomerDTO extends DTO
 
     /** @var bool */
     public $accepts_marketing = 0;
+
+    /** @var bool  */
+    public $create_wordpress_user = 0;
 
     /** @var string|null */
     public $notes;

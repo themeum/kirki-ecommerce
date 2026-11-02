@@ -1,3 +1,4 @@
+import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -6,7 +7,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { BoxClosedIcon, PlusIcon } from '@/icons';
+import { BoxClosedIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
@@ -32,7 +33,8 @@ const TaxServices = () => {
 
           <Flex direction="column">
             {[1, 2, 3].map((_item, index) => (
-              <Card data-search-skip="true"
+              <Card
+                data-search-skip="true"
                 key={index}
                 data-box-card
                 cssOverride={mergeCss(
@@ -68,8 +70,8 @@ const TaxServices = () => {
                       )}
                     >
                       <Button variant="secondary">
-                        <PlusIcon />
-                        Setup
+                        <PlusIcon size={16} />
+                        {__('Setup', 'kirki-ecommerce')}
                       </Button>
                     </ActionGroup>
                   </Flex>

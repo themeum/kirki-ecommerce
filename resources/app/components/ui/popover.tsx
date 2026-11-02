@@ -1,12 +1,14 @@
 import type { CSSObject } from '@emotion/react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import type {ComponentRef} from 'react';
+import type { ComponentRef } from 'react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
+import { useWordpressMedia } from '@/hooks';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { getOverlayMotionStyles } from '@/theme/overlay-motion';
+import { isTinyMceFloatPanelNode } from '@/utils/richtext';
 
 const Popover = PopoverPrimitive.Root;
 
@@ -25,7 +27,15 @@ const PopoverContent = forwardRef<
   ComponentRef<typeof PopoverPrimitive.Content>,
   PopoverContentProps
 >((props, ref) => {
-  const { cssOverride, align = 'center', sideOffset = 4, ...rest } = props;
+  const {
+    cssOverride,
+    align = 'center',
+    sideOffset = 4,
+    onEscapeKeyDown,
+    onInteractOutside,
+    ...rest
+  } = props;
+  const { isWpMediaFrameOpen, isWpMediaNode } = useWordpressMedia();
 
   return (
     <PopoverPrimitive.Portal container={getPortalContainer()}>
@@ -35,6 +45,24 @@ const PopoverContent = forwardRef<
         sideOffset={sideOffset}
         css={scopedMerge(styles.content, cssOverride)}
         {...rest}
+        onEscapeKeyDown={(event) => {
+          if (isWpMediaFrameOpen()) {
+            event.preventDefault();
+            return;
+          }
+
+          onEscapeKeyDown?.(event);
+        }}
+        onInteractOutside={(event) => {
+          const target = event.detail.originalEvent.target;
+
+          if (isWpMediaFrameOpen() || isWpMediaNode(target) || isTinyMceFloatPanelNode(target)) {
+            event.preventDefault();
+            return;
+          }
+
+          onInteractOutside?.(event);
+        }}
       />
     </PopoverPrimitive.Portal>
   );
@@ -53,15 +81,13 @@ const styles = defineStyles({
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.fill,
-    boxShadow: theme.shadow.md,
+    boxShadow: theme.shadow.popover,
     ...theme.typography.small(),
     color: theme.colors.text.primary,
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing[1],
-    ...getOverlayMotionStyles(
-      'var(--radix-popover-content-transform-origin)',
-    ),
+    ...getOverlayMotionStyles('var(--radix-popover-content-transform-origin)'),
     '&:focus, &:focus-visible': {
       outline: 'none',
     },

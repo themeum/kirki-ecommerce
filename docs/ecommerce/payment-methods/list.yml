@@ -1,0 +1,57 @@
+info:
+  name: List (Payment Methods)
+  type: http
+  seq: 1
+  tags:
+    - payment-methods
+
+http:
+  method: GET
+  url: "{{baseUrl}}/payment-methods"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/payment-methods"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": [
+              {
+                "id": "cash-on-delivery",
+                "name": "Cash on Delivery",
+                "icon": null,
+                "icon_media": null,
+                "is_enabled": true,
+                "is_offline": true,
+                "description": "Pay the courier on delivery."
+              },
+              {
+                "id": "paypal",
+                "name": "PayPal",
+                "icon": "https://example.com/logo.svg",
+                "icon_media": null,
+                "is_enabled": false,
+                "is_offline": false,
+                "description": "PayPal payment gateway"
+              }
+            ],
+            "message": "Payment methods retrieved successfully.",
+            "success": true
+          }

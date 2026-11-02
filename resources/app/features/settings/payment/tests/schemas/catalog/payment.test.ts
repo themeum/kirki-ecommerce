@@ -108,6 +108,16 @@ describe('OfflinePaymentSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts the icon media object', () => {
+    const result = OfflinePaymentSchema.safeParse({
+      id: 'fdsf',
+      name: 'Bank Transfer',
+      icon: 'https://example.com/bank.png',
+      icon_media: { id: 34, url: 'https://example.com/bank.png' },
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('accepts the optional fields being absent beyond id', () => {
     const result = OfflinePaymentSchema.safeParse({ id: 'fdsf' });
     expect(result.success).toBe(true);

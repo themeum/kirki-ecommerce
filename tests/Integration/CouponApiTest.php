@@ -13,10 +13,13 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
+use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CouponApiTest extends RestTestCase
 {
+    use ListsHaveRecords;
+
     use CreatesTestProducts;
 
     /**
@@ -368,6 +371,25 @@ class CouponApiTest extends RestTestCase
     }
 
     /**
+     * Activating a coupon that is already active, or deactivating one that is already inactive, returns 409.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_activation_action_on_coupon_already_in_that_state_returns_409(): void
+    {
+        $coupon = $this->create_coupon(['is_active' => true]);
+
+        $activate = $this->request('PATCH', 'coupons/' . $coupon['id'] . '/action', ['action' => 'activate']);
+        $this->assertSame('The coupon is already activated', $this->assert_api_error($activate, 409)['message']);
+
+        $this->assert_api_success($this->request('PATCH', 'coupons/' . $coupon['id'] . '/action', ['action' => 'deactivate']));
+
+        $deactivate = $this->request('PATCH', 'coupons/' . $coupon['id'] . '/action', ['action' => 'deactivate']);
+        $this->assertSame('The coupon is already deactivated', $this->assert_api_error($deactivate, 409)['message']);
+    }
+
+    /**
      * Create coupon.
      * @param array $overrides Overrides.
      *
@@ -632,5 +654,39 @@ class CouponApiTest extends RestTestCase
         foreach ($excluded as $excluded_id) {
             $this->assertNotContains($excluded_id, $ids, 'Unexpected coupon in the ' . $status . ' list.');
         }
+    }
+
+    /**
+     * List coupons reports whether the table holds any record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_coupons_reports_has_records(): void
+    {
+        Coupon::query()->delete();
+
+        $this->assertFalse($this->list_has_records('coupons'));
+
+        $this->create_coupon(['title' => 'Has Records Coupon']);
+
+        $this->assertTrue($this->list_has_records('coupons'));
+    }
+
+    /**
+     * List coupons keeps has_records true when a search matches nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_coupons_has_records_ignores_search(): void
+    {
+        $this->create_coupon(['title' => 'Has Records Coupon']);
+
+        $response = $this->request('GET', 'coupons', ['search' => 'no-such-record-zzz']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame(0, $payload['data']['total']);
+        $this->assertTrue($payload['data']['has_records']);
     }
 }

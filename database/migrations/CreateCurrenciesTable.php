@@ -2,17 +2,31 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_currencies table, which stores the currencies the store supports.
+ *
+ * @since 1.0.0
+ */
 class CreateCurrenciesTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_currencies table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_currencies', function (Structure $table) {
             $table->id();
-            $table->string('code', 10)->unique();
+            $table->string('code', 10);
             $table->string('name', 100);
             $table->string('symbol', 10)->nullable();
             $table->decimal('exchange_rate', 15, 6)->default(1.000000);
@@ -20,11 +34,19 @@ class CreateCurrenciesTable implements Migration
             $table->boolean('is_active')->default(1);
             $table->timestamps();
 
-            $table->index('is_base');
-            $table->index('is_active');
+            $table->unique('code', 'uq_kecom_currencies_code');
+            $table->index('is_base', 'idx_kecom_currencies_is_base');
+            $table->index('is_active', 'idx_kecom_currencies_is_active');
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_currencies table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_currencies');

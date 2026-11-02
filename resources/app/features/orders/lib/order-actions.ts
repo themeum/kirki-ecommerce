@@ -1,4 +1,10 @@
-import type { FulfillmentStatus, OrderItem, OrderStatus, PaymentStatus } from '@/features/orders/schemas/catalog/order';
+import type {
+  FulfillmentStatus,
+  Order,
+  OrderStatus,
+  PaymentStatus,
+} from '@/features/orders/schemas/catalog/order';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 import orderStateMatrix from '@data/order-state-matrix.json';
 
@@ -15,8 +21,9 @@ const ORDER_ACTIONS = {
   RESUME_FULFILLMENT: 'resume-fulfillment',
   ADD_TRACKING: 'add-tracking',
   MARK_AS_PAID: 'mark-as-paid',
-  SEND_PAYMENT_LINK: 'send-payment-link',
-  SEND_INVOICE: 'send-invoice',
+  // @todo: will implement later
+  // SEND_PAYMENT_LINK: 'send-payment-link',
+  // SEND_INVOICE: 'send-invoice',
   CANCEL_ORDER: 'cancel-order',
   ARCHIVE_ORDER: 'archive-order',
   RESEND_ORDER_EMAIL: 'resend-order-email',
@@ -26,6 +33,7 @@ type OrderAction = (typeof ORDER_ACTIONS)[keyof typeof ORDER_ACTIONS];
 
 type OrderActionPayload = {
   action: OrderAction;
+  carrier_id?: string;
   carrier?: string;
   tracking_number?: string;
   tracking_url?: string;
@@ -59,8 +67,9 @@ const ORDER_ACTION_GROUP: OrderAction[] = [
 
 const PAYMENT_ACTION_GROUP: OrderAction[] = [
   ORDER_ACTIONS.MARK_AS_PAID,
-  ORDER_ACTIONS.SEND_PAYMENT_LINK,
-  ORDER_ACTIONS.SEND_INVOICE,
+  // @todo: will implement later
+  // ORDER_ACTIONS.SEND_PAYMENT_LINK,
+  // ORDER_ACTIONS.SEND_INVOICE,
 ];
 
 const FULFILLMENT_ACTION_GROUP: OrderAction[] = [
@@ -70,7 +79,6 @@ const FULFILLMENT_ACTION_GROUP: OrderAction[] = [
   ORDER_ACTIONS.MARK_AS_HOLD,
   ORDER_ACTIONS.CANCEL_FULFILLMENT,
   ORDER_ACTIONS.RESUME_FULFILLMENT,
-  ORDER_ACTIONS.ADD_TRACKING,
 ];
 
 const getActionLabel = (action: OrderAction): string => {
@@ -83,8 +91,9 @@ const getActionLabel = (action: OrderAction): string => {
     [ORDER_ACTIONS.RESUME_FULFILLMENT]: __('Resume fulfillment', 'kirki-ecommerce'),
     [ORDER_ACTIONS.ADD_TRACKING]: __('Add tracking', 'kirki-ecommerce'),
     [ORDER_ACTIONS.MARK_AS_PAID]: __('Mark as paid', 'kirki-ecommerce'),
-    [ORDER_ACTIONS.SEND_PAYMENT_LINK]: __('Send payment link', 'kirki-ecommerce'),
-    [ORDER_ACTIONS.SEND_INVOICE]: __('Send invoice', 'kirki-ecommerce'),
+    // @todo: will implement later
+    // [ORDER_ACTIONS.SEND_PAYMENT_LINK]: __('Send payment link', 'kirki-ecommerce'),
+    // [ORDER_ACTIONS.SEND_INVOICE]: __('Send invoice', 'kirki-ecommerce'),
     [ORDER_ACTIONS.CANCEL_ORDER]: __('Cancel order', 'kirki-ecommerce'),
     [ORDER_ACTIONS.ARCHIVE_ORDER]: __('Archive order', 'kirki-ecommerce'),
     [ORDER_ACTIONS.RESEND_ORDER_EMAIL]: __('Resend order email', 'kirki-ecommerce'),
@@ -93,10 +102,18 @@ const getActionLabel = (action: OrderAction): string => {
   return labels[action];
 };
 
-const isActionAvailable = (order: OrderItem, action: OrderAction): boolean => {
+const isActionAvailable = (order: Order, action: OrderAction): boolean => {
   const state = ORDER_STATE_MATRIX[order.status];
 
   if (!state) {
+    return false;
+  }
+
+  if (
+    action === ORDER_ACTIONS.ARCHIVE_ORDER &&
+    isDefined(order.archived_at) &&
+    Boolean(order.archived_at)
+  ) {
     return false;
   }
 
@@ -107,8 +124,10 @@ const isActionAvailable = (order: OrderItem, action: OrderAction): boolean => {
   );
 };
 
-const getAvailableActions = (order: OrderItem, group: OrderAction[]): OrderAction[] =>
+const getAvailableActions = (order: Order, group: OrderAction[]): OrderAction[] =>
   group.filter((action) => isActionAvailable(order, action));
+
+export type { OrderAction, OrderActionPayload };
 
 export {
   FULFILLMENT_ACTION_GROUP,
@@ -117,7 +136,5 @@ export {
   isActionAvailable,
   ORDER_ACTION_GROUP,
   ORDER_ACTIONS,
-  type OrderAction,
-  type OrderActionPayload,
-  PAYMENT_ACTION_GROUP};
-
+  PAYMENT_ACTION_GROUP,
+};

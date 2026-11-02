@@ -2,7 +2,11 @@ import { memo, type ReactNode, useEffect, useState } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import BrandFilter from '@/features/products/components/product-table/filter-popup/brand-filter';
@@ -10,7 +14,7 @@ import CategoriesFilter from '@/features/products/components/product-table/filte
 import CollectionFilter from '@/features/products/components/product-table/filter-popup/collection-filter';
 import InventoryTypeFilter from '@/features/products/components/product-table/filter-popup/inventory-filter';
 import StatusFilter from '@/features/products/components/product-table/filter-popup/status-filter';
-import { CloseIcon } from '@/icons';
+import { CloseIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
@@ -136,7 +140,15 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
           </ActionGroup>
         </Flex>
 
-        <Flex direction="column" gap={4} cssOverride={{ padding: `${theme.spacing[2]} ${theme.spacing[3]}`, overflowY: 'auto', minHeight: '400px' }}>
+        <Flex
+          direction="column"
+          gap={4}
+          cssOverride={{
+            padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
+            overflowY: 'auto',
+            minHeight: '400px',
+          }}
+        >
           <CategoriesFilter
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'category_ids')}
@@ -161,11 +173,7 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
 
         <Flex cssOverride={styles.footer}>
           <ActionGroup>
-            <Button
-              variant="ghost"
-              onClick={handleOnClearFilter}
-              disabled={!hasFilter}
-            >
+            <Button variant="ghost" onClick={handleOnClearFilter} disabled={!hasFilter}>
               {__('Clear Filter', 'kirki-ecommerce')}
             </Button>
             <Button variant="primary" onClick={handleOnApplyFilter}>

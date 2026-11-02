@@ -16,6 +16,7 @@ describe('getSettings("email") against a documented-divergent payload', () => {
           success: true,
           message: '',
           data: {
+            default_template: { colors: { background: {}, typography: {}, button: {} } },
             admin_emails: {
               order_notifications: { order_placed: { name: 'Order placed', is_enabled: true } },
             },

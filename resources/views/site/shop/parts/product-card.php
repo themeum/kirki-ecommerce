@@ -28,28 +28,30 @@ $title                   = $product['title'];
 $product_url             = $product['product_url'];
 $image_url               = $product['image_url'];
 $ribbon_text             = $product['ribbon_text'];
+$ribbon_color            = $product['ribbon_color'];
 $category_name           = $product['category_name'];
 $display_price           = $product['display_price'];
 $formatted_regular_price = $product['formatted_regular_price'];
 $in_sale                 = $product['in_sale'];
 $out_of_stock            = $product['out_of_stock'];
 $has_variants            = $product['has_variants'];
+$product_id              = $product['product_id'];
 $variant_id              = $product['variant_id'];
 $cart_url                = $product['cart_url'];
 $is_wishlisted           = $product['is_wishlisted'];
 $display_context         = $data['context'] ?? null;
 ?>
-<div class="kecom-product-card" x-data="<?php printf('wishlist(%s, %s, \'%s\')', $is_wishlisted ? 'true' : 'false', 'null', esc_js($display_context)); ?>">
+<div class="kecom-product-card" x-data="<?php printf('wishlist(%d, %s, \'%s\')', (int) $product_id, $is_wishlisted ? 'true' : 'false', esc_js($display_context)); ?>">
     <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
         <?php if (!empty($ribbon_text)) : ?>
-            <span class="kecom-product-card-ribbon"><?php echo esc_html($ribbon_text); ?></span>
+            <span class="kecom-product-card-ribbon" style="--kecom-ribbon-color: <?php echo esc_attr($ribbon_color); ?>;"><?php echo esc_html($ribbon_text); ?></span>
         <?php endif; ?>
         <?php if ($image_url) : ?>
             <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
         <?php endif; ?>
     </a>
     <?php if (is_user_logged_in()) : ?>
-    <span class="kecom-product-card-wishlist" id="<?php echo esc_attr($variant_id) ?>" :class="{ 'active' : isWishlisted }" @click.prevent="wishlistItem(<?php echo esc_attr($variant_id); ?>);">
+    <span class="kecom-product-card-wishlist" id="<?php echo esc_attr($product_id) ?>" :class="{ 'active' : isWishlisted }" @click.prevent="wishlistItem();">
         <?php Icon::render('heart'); ?>
     </span>
     <?php else : ?>
@@ -94,7 +96,7 @@ $display_context         = $data['context'] ?? null;
                 :disabled="loading"
                 :class="{ 'kecom-btn-loading': loading }"
             >
-                <?php Icon::render('cart'); ?>
+                <?php Icon::render('shopping-cart'); ?>
                 <span x-text="buttonText"></span>
             </button>
         </div>

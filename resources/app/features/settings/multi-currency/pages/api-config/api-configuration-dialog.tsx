@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm, useFormContext, useWatch } from 'react-hook-form';
 
-import CheckboxField from '@/components/form/checkbox-field';
 import PasswordField from '@/components/form/password-field';
 import SelectField from '@/components/form/select-field';
 import ActionGroup from '@/components/ui/action-group';
@@ -19,14 +18,14 @@ import {
 } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Text from '@/components/ui/text';
+import { getProviderConfig } from '@/features/settings/multi-currency/lib/currency-list';
 import {
   type ApiConfigurationFormInput,
   type ApiConfigurationFormPayload,
   ApiConfigurationFormSchema,
 } from '@/features/settings/multi-currency/schemas/forms/api-configuration-form';
 import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
-import { ConfigureKeyIcon } from '@/icons';
+import { ConfigureKeyIcon } from '@/icons/common';
 import { getDefaults } from '@/libs/zod';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -55,10 +54,11 @@ const ApiConfigurationPopup = ({
   });
 
   const { control } = useFormContext<MultiCurrencySettingsFormInput>();
-  const apiConfig = useWatch({
+  const [apiProvider, apiConfigs] = useWatch({
     control,
-    name: 'api_config',
+    name: ['api_provider', 'api_configs'],
   });
+  const apiConfig = getProviderConfig(apiConfigs, apiProvider);
 
   useEffect(() => {
     if (!isOpen) {
@@ -71,8 +71,6 @@ const ApiConfigurationPopup = ({
         ? {
             api_key: apiConfig.api_key,
             update_frequency: apiConfig.update_frequency,
-            fallback_behaviour: apiConfig.fallback_behaviour,
-            is_cache_enabled: apiConfig.is_cache_enabled,
           }
         : apiConfigurationDefaultValues,
     );
@@ -90,17 +88,6 @@ const ApiConfigurationPopup = ({
     {
       label: __('Daily (24 hours)', 'kirki-ecommerce'),
       value: 'daily_24_hours',
-    },
-  ];
-
-  const fallbackOptions = [
-    {
-      label: __('Use base currency only', 'kirki-ecommerce'),
-      value: 'base_currency',
-    },
-    {
-      label: __('Use last known rate', 'kirki-ecommerce'),
-      value: 'last_known_rate',
     },
   ];
 
@@ -134,32 +121,21 @@ const ApiConfigurationPopup = ({
                   name="api_key"
                   label={__('API Key', 'kirki-ecommerce')}
                   placeholder="******"
-                />
-                <Text variant="paragraph" weight="medium" color="secondary">
-                  {
+                  description={
                     /* translators: %s: provider name */
                     sprintf(
                       __(
-                        'Your API key is encrypted and stored securely. Get your API key from %s',
+                        'Your API key is stored securely. Get your API key from %s',
                         'kirki-ecommerce',
                       ),
                       providerName,
                     )
                   }
-                </Text>
+                />
                 <SelectField
                   name="update_frequency"
                   label={__('Update Frequency', 'kirki-ecommerce')}
                   options={updateFrequencyOptions}
-                />
-                <SelectField
-                  name="fallback_behaviour"
-                  label={__('Fallback Behavior', 'kirki-ecommerce')}
-                  options={fallbackOptions}
-                />
-                <CheckboxField
-                  name="is_cache_enabled"
-                  label={__('Cache exchange rates to reduce API calls', 'kirki-ecommerce')}
                 />
               </Flex>
             </DialogBody>

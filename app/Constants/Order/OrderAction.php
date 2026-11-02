@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Constants\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Actions a merchant can perform on an order.
+ *
+ * @since 1.0.0
+ */
 final class OrderAction
 {
     use HasConstants;
@@ -16,8 +23,8 @@ final class OrderAction
     const RESUME_FULFILLMENT = 'resume-fulfillment';
     const ADD_TRACKING = 'add-tracking';
     const MARK_AS_PAID = 'mark-as-paid';
-    const SEND_PAYMENT_LINK = 'send-payment-link';
-    const SEND_INVOICE = 'send-invoice';
+    // const SEND_PAYMENT_LINK = 'send-payment-link';
+    // const SEND_INVOICE = 'send-invoice';
     const INITIATE_REFUND = 'initiate-refund';
     const APPROVE_REFUND = 'approve-refund';
     const DECLINE_REFUND = 'decline-refund';

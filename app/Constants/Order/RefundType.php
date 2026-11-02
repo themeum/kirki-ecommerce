@@ -2,6 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Constants\Order;
 
+defined('ABSPATH') || exit;
+
+/**
+ * Kinds of refund: full or partial.
+ *
+ * @since 1.0.0
+ */
 final class RefundType
 {
     const FULL = 'full';

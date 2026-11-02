@@ -2,9 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Actions\Customer;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Concerns\ResolvesAddressDefaults;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\CustomerService;
+use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -12,11 +16,29 @@ use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Updates a customer together with its addresses in one transaction.
+ *
+ * @since 1.0.0
+ */
 class UpdateCustomerAction
 {
+    use ResolvesAddressDefaults;
+
+    /** @var CustomerService */
     protected $customer_service;
+
+    /** @var AddressService */
     protected $address_service;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param CustomerService $customer_service Customer persistence service.
+     * @param AddressService  $address_service  Address persistence service.
+     */
     public function __construct(
         CustomerService $customer_service,
         AddressService $address_service
@@ -26,18 +48,23 @@ class UpdateCustomerAction
     }
 
     /**
-     * Updates a customer with the given address.
+     * Update a customer and reconcile its addresses against the submitted list.
      *
-     * The customer and address will be updated in a single transaction.
-     * If either the customer or address cannot be updated, a Throwable will be thrown.
+     * The customer and its addresses are updated in a single transaction. Each
+     * of the customer's existing addresses not referenced by the submitted
+     * list (by ID) is deleted; each submitted address carrying an ID updates
+     * that existing address; each submitted address without one is created.
+     * Default shipping and default billing are then resolved across the full
+     * submitted set the same way address creation resolves them.
      *
-     * @param UpdateCustomerDTO $customer_payload
-     * @param UpdateAddressDTO $billing_address_payload
-     * @param UpdateAddressDTO $shipping_address_payload
-     * @return Customer
-     * @throws Throwable
+     * @since 1.0.0
+     *
+     * @param UpdateCustomerDTO  $customer_payload Customer data to save.
+     * @param UpdateAddressDTO[] $address_payloads The full set of addresses the customer should end up with.
+     * @return Customer The updated customer.
+     * @throws Throwable When the customer or an address cannot be saved; the transaction is rolled back.
      */
-    public function execute(UpdateCustomerDTO $customer_payload, UpdateAddressDTO $shipping_address_payload, UpdateAddressDTO $billing_address_payload)
+    public function execute(UpdateCustomerDTO $customer_payload, array $address_payloads)
     {
         DB::begin_transaction();
 
@@ -46,17 +73,26 @@ class UpdateCustomerAction
 
             throw_if(empty($customer), __('Customer could not be updated.', 'kirki-ecommerce'));
 
-            $shipping_address_payload->customer_id = $customer->id;
-            $shipping_address_payload->id = $customer->shipping_address->id;
-            $shipping_address_payload->type = $customer->shipping_address->type;
+            $current_address_ids = $customer->addresses->pluck('id')->all();
+            $submitted_address_ids = array_filter(array_map(function ($address_payload) {
+                return $address_payload->id;
+            }, $address_payloads));
 
-            $this->address_service->update($shipping_address_payload);
+            $ids_to_delete = array_diff($current_address_ids, $submitted_address_ids);
 
-            $billing_address_payload->customer_id = $customer->id;
-            $billing_address_payload->id = $customer->billing_address->id;
-            $billing_address_payload->type = $customer->billing_address->type;
+            if (!empty($ids_to_delete)) {
+                $this->address_service->bulk_delete($ids_to_delete);
+            }
 
-            $this->address_service->update($billing_address_payload);
+            foreach ($this->resolve_addresses($address_payloads) as $address_payload) {
+                $address_payload->customer_id = $customer->id;
+
+                if (!empty($address_payload->id)) {
+                    $this->address_service->update_without_transaction($address_payload);
+                } else {
+                    $this->address_service->create_without_transaction(CreateAddressDTO::from_array($address_payload->all()));
+                }
+            }
 
             DB::commit();
 

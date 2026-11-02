@@ -2,12 +2,24 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Brand;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for creating a brand.
+ *
+ * @since 1.0.0
+ */
 class BrandCreateRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -20,6 +32,11 @@ class BrandCreateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

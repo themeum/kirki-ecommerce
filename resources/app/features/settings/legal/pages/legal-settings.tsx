@@ -8,7 +8,6 @@ import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
-import EmptyState from '@/components/ui/empty-state';
 import Flex from '@/components/ui/flex';
 import {
   StackedItem,
@@ -34,7 +33,7 @@ import type { ConsentFormPayload } from '@/features/settings/legal/schemas/forms
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
 import { useConfirmDelete } from '@/hooks';
-import { EditPenIcon, TrashIcon } from '@/icons';
+import { EditPenIcon, TrashIcon } from '@/icons/common';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -165,13 +164,6 @@ const LegalSettings = () => {
 
               {isLoading && <StackedListSkeleton rowCount={2} actionCount={3} />}
 
-              {!isLoading && consents.length === 0 && (
-                <EmptyState
-                  icon={<ScaleIcon size={20} />}
-                  text={__('Legal consents will be shown here', 'kirki-ecommerce')}
-                />
-              )}
-
               {!isLoading && consents.length > 0 && (
                 <StackedItems>
                   {consents.map((consent) => {
@@ -196,7 +188,6 @@ const LegalSettings = () => {
                             {locations.map((location) => (
                               <Badge
                                 key={location}
-                                variant="secondary"
                                 cssOverride={{ padding: `${theme.spacing[1]} ${theme.spacing[2]}` }}
                               >
                                 {locationLabels[location]}
@@ -214,9 +205,7 @@ const LegalSettings = () => {
                               variant="outline"
                               size="icon-sm"
                               aria-label={__('Delete', 'kirki-ecommerce')}
-                              cssOverride={mergeCss(styles.actionButton, {
-                                '& svg': { color: theme.colors.icon.critical },
-                              })}
+                              cssOverride={styles.actionButton}
                               onClick={() => handleDelete(consent)}
                             >
                               <TrashIcon />

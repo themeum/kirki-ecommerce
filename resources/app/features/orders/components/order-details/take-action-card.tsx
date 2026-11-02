@@ -4,7 +4,13 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import {
   FULFILLMENT_ACTION_GROUP,
@@ -13,15 +19,13 @@ import {
   ORDER_ACTIONS,
   type OrderAction,
 } from '@/features/orders/lib/order-actions';
-import { getFulfillmentBadgeInfo, getFulfillmentHint } from '@/features/orders/lib/order-badge';
-import type { OrderItem } from '@/features/orders/schemas/catalog/order';
-import { theme } from '@/theme';
+import { getOrderStateBadgeInfo } from '@/features/orders/lib/order-badge';
+import type { Order } from '@/features/orders/schemas/catalog/order';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type TakeActionCardProps = {
-  order: OrderItem;
+  order: Order;
   onAction: (action: OrderAction) => void;
   isPerforming?: boolean;
 };
@@ -30,7 +34,7 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
   const [selectedAction, setSelectedAction] = useState<OrderAction | ''>('');
 
   const availableActions = getAvailableActions(order, FULFILLMENT_ACTION_GROUP);
-  const fulfillmentBadge = getFulfillmentBadgeInfo(order.fulfillment_status);
+  const orderState = getOrderStateBadgeInfo(order.status);
 
   const handleUpdate = () => {
     if (!selectedAction) {
@@ -49,19 +53,25 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
       <CardContent>
         <Flex direction="column" gap={4}>
           <Flex justify="space-between" align="center">
-            <Flex gap={2} align="center">
-              <span css={scoped(styles.statusDot)} />
-              <Text variant="tiny">{fulfillmentBadge.text}</Text>
+            <Flex gap={1} align="center">
+              {orderState.icon}
+              <Text variant="tiny" color={orderState.textColor}>
+                {orderState.text}
+              </Text>
             </Flex>
-            <Text variant="tiny" color="secondary">
-              {getFulfillmentHint(order.fulfillment_status)}
+            <Text variant="tiny" color="subdued">
+              {orderState.hintText}
             </Text>
           </Flex>
 
           {availableActions.length > 0 && (
             <Flex direction="column" gap={4}>
               <Field>
-                <FieldLabel><Text variant="small" weight="medium">{__('Take an Action', 'kirki-ecommerce')}</Text></FieldLabel>
+                <FieldLabel>
+                  <Text variant="small" weight="medium">
+                    {__('Take an Action', 'kirki-ecommerce')}
+                  </Text>
+                </FieldLabel>
                 <Select
                   value={selectedAction}
                   onValueChange={(value) => setSelectedAction(value as OrderAction)}
@@ -86,7 +96,9 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
                 loading={isPerforming}
                 onClick={handleUpdate}
               >
-                <Text variant="tiny" weight="medium" color="light">{__('Update', 'kirki-ecommerce')}</Text>
+                <Text variant="tiny" weight="medium" color="light">
+                  {__('Update', 'kirki-ecommerce')}
+                </Text>
               </Button>
             </Flex>
           )}
@@ -99,13 +111,3 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
 TakeActionCard.displayName = 'TakeActionCard';
 
 export default TakeActionCard;
-
-const styles = defineStyles({
-  statusDot: {
-    width: '8px',
-    height: '8px',
-    borderRadius: theme.radius.full,
-    backgroundColor: theme.colors.background.fillBrand,
-    flexShrink: 0,
-  },
-});

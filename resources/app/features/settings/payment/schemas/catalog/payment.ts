@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { MediaRefSchema } from '@/schemas/shared/media';
+
 /**
  * Covers three surfaces that all return "an online payment provider" with
  * different subsets of fields: the list (`GET /online-payments`), the detail
@@ -72,6 +74,7 @@ export const OfflinePaymentSchema = z
     id: z.union([z.string(), z.number()]),
     name: z.string().nullish(),
     icon: z.string().nullish(),
+    icon_media: MediaRefSchema.nullish(),
     is_enabled: z.boolean().nullish(),
     is_offline: z.boolean().nullish(),
     instructions: z.string().nullish(),
@@ -80,6 +83,18 @@ export const OfflinePaymentSchema = z
   .passthrough();
 
 export type OfflinePayment = z.infer<typeof OfflinePaymentSchema>;
+
+/**
+ * `GET /payment-methods` lists every registered provider, offline and online,
+ * with the offline list shape (`icon_media` included so the offline edit
+ * dialog can open straight from a row). `is_offline` discriminates which
+ * per-kind endpoints a row's actions must use.
+ */
+export const PaymentMethodSchema = OfflinePaymentSchema.extend({
+  description: z.string().nullish(),
+});
+
+export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
 
 /**
  * The offline providers embedded in `GET /settings/payment` are the same
@@ -91,4 +106,5 @@ export type OfflinePayment = z.infer<typeof OfflinePaymentSchema>;
  */
 export const OfflinePaymentSettingsSchema = OfflinePaymentSchema.extend({
   id: z.union([z.string(), z.number()]).optional(),
+  icon: z.union([z.string(), z.number()]).nullish(),
 });

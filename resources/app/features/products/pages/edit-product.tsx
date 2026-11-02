@@ -1,11 +1,12 @@
 import { useNavigate, useParams } from 'react-router';
 
-import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
+import QueryErrorState from '@/components/ui/query-error-state';
 import { RouteConfig } from '@/config/route-config';
 import ProductForm from '@/features/products/components/product-form/product-form';
 import { mapProductToFormValues, type ProductFormPayload } from '@/features/products/schemas/forms/product-form';
 import {
+  useBulkTrashProductsMutation,
+  useDeleteProductMutation,
   useDuplicateProductMutation,
   useProductQuery,
   useUpdateProductMutation,
@@ -21,22 +22,20 @@ const EditProduct = () => {
     data: product,
     isLoading,
     isError,
+    isFetching,
+    refetch,
   } = useProductQuery(id!, Boolean(id));
   const updateProductMutation = useUpdateProductMutation();
   const duplicateProductMutation = useDuplicateProductMutation();
+  const trashProductMutation = useBulkTrashProductsMutation();
+  const deleteProductMutation = useDeleteProductMutation();
 
   if (isLoading) {
     return <ProductFormSkeleton />;
   }
 
   if (isError || !product) {
-    return (
-      <Flex justify="center" align="center" cssOverride={{ minHeight: 200 }}>
-        <Text color="secondary">
-          {__('Product could not be loaded.', 'kirki-ecommerce')}
-        </Text>
-      </Flex>
-    );
+    return <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />;
   }
 
   const handleSubmit = async (data: ProductFormPayload) => {
@@ -54,6 +53,16 @@ const EditProduct = () => {
     }
   };
 
+  const handleTrash = async () => {
+    await trashProductMutation.mutateAsync({ ids: [Number(id)] });
+    void navigate(RouteConfig.Products.buildLink());
+  };
+
+  const handleDelete = async () => {
+    await deleteProductMutation.mutateAsync(Number(id));
+    void navigate(RouteConfig.Products.buildLink());
+  };
+
   return (
     <ProductForm
       key={product.id}
@@ -64,6 +73,10 @@ const EditProduct = () => {
       isSubmitting={updateProductMutation.isPending}
       onDuplicate={handleDuplicate}
       isDuplicating={duplicateProductMutation.isPending}
+      onTrash={handleTrash}
+      isTrashing={trashProductMutation.isPending}
+      onDelete={handleDelete}
+      isDeleting={deleteProductMutation.isPending}
     />
   );
 };

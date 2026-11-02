@@ -9,7 +9,6 @@ use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
-use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -77,38 +76,16 @@ class Square extends PaymentProvider
         }
 
         try {
-            $payload = [
-                'idempotency_key' => SquareConstant::PREFIX . $order->uuid,
-                'order' => [
-                    'location_id' => $this->settings['location_id'],
-                    'reference_id' => $order->uuid,
-                    'line_items' => SquareTransactionBuilder::build_line_items($order),
-                ],
-                'checkout_options' => [
-                    'redirect_url' => Url::get_checkout_success_url($order->uuid),
-                    'enable_coupon' => false,
-                ],
-                'pre_populated_data' => [
-                    'buyer_email' => $order->billing_email ?? null,
-                    'buyer_address' => [
-                        'address_line_1' => $order->billing_address_line1 ?? null,
-                        'address_line_2' => $order->billing_address_line2 ?? null,
-                        'postal_code' => $order->billing_postal_code ?? null,
-                        'country' => $order->billing_country ?? null,
-                        'first_name' => $order->billing_first_name ?? null,
-                        'last_name' => $order->billing_last_name ?? null
-                    ]
-                ]
-            ];
+            $payload = SquareTransactionBuilder::build_payment_link_payload($order, $this->settings['location_id']);
+            $checkout_url = $this->get_client()->create_payment_link($payload)['payment_link']['long_url'] ?? '';
 
-            $response = $this->get_client()->create_payment_link($payload);
-
-            if (empty($response['payment_link']['long_url'])) {
+            if (empty($checkout_url)) {
                 throw new Exception(__('Square checkout link not found.', 'kirki-ecommerce-square'));
             }
+
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
-                'value' => $response['payment_link']['long_url'],
+                'value' => $checkout_url,
             ]);
         } catch (Exception $e) {
             throw new Exception(sprintf(__('Square Payment Error: %s', 'kirki-ecommerce-square'), $e->getMessage()));

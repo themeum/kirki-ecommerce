@@ -13,6 +13,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Template;
 
+use function Kirki\Ecommerce\App\settings;
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
@@ -24,6 +25,7 @@ $cart = $data->cart ?? null;
 $shipping_address = $cart["shipping_address"] ?? [];
 $billing_address = $cart["billing_address"] ?? [];
 $available_shipping_methods = $cart["available_shipping_methods"] ?? [];
+$show_customer_note = (bool) settings('checkout.checkout_configuration.show_customer_note');
 ?>
 
 <?php Template::get_header(); ?>
@@ -38,6 +40,20 @@ $available_shipping_methods = $cart["available_shipping_methods"] ?? [];
                 <?php include_view('site.checkout.parts.billing-form', compact('countries', 'billing_address')); ?>
                 <?php include_view('site.checkout.parts.shipping-methods'); ?>
                 <?php include_view('site.checkout.parts.payment-methods', compact('payment_gateways')); ?>
+
+                <?php if ($show_customer_note) : ?>
+                    <div class="kecom-order-note-section">
+                        <div class="kecom-field">
+                            <label class="kecom-field-label" for="checkout-order-notes"><?php esc_html_e('Leave a Note (Optional)', 'kirki-ecommerce'); ?></label>
+                            <textarea
+                                class="kecom-textarea"
+                                id="checkout-order-notes"
+                                name="order_notes"
+                                placeholder="<?php esc_attr_e('e.g., Leave at front door, call before delivery, or special handling instructions', 'kirki-ecommerce'); ?>"
+                                x-model="orderNotes"></textarea>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
 
             <!-- Right Column -->

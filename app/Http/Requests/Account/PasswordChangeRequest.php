@@ -2,12 +2,24 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Account;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Password;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for changing the customer's password.
+ *
+ * @since 1.0.0
+ */
 class PasswordChangeRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -17,6 +29,11 @@ class PasswordChangeRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         // Sanitizer::TEXT runs sanitize_text_field(), which strips tags and

@@ -40,6 +40,7 @@ describe('CouponFormSchema', () => {
       eligible_item_type: null,
       discount_value_type: 'fixed',
       discount_amount: '10',
+      is_active: true,
       start_datetime: expectedDateTime('2026-06-01', '09:00'),
       has_end_datetime: false,
       end_datetime: null,
@@ -133,6 +134,16 @@ describe('CouponFormSchema', () => {
       has_customer_limit: false,
       customer_limit: 5,
     });
+    expect(result.usage_limit).toBeNull();
+    expect(result.customer_limit).toBeNull();
+  });
+
+  it('keeps an untouched usage_limit and customer_limit present as null rather than dropping the keys', () => {
+    const { usage_limit, customer_limit, ...withoutLimits } = base;
+    const result = CouponFormSchema.parse(withoutLimits);
+
+    expect('usage_limit' in result).toBe(true);
+    expect('customer_limit' in result).toBe(true);
     expect(result.usage_limit).toBeNull();
     expect(result.customer_limit).toBeNull();
   });
@@ -252,7 +263,7 @@ describe('CouponFormSchema', () => {
   const customer = (id: number) => ({
     id,
     first_name: `Customer ${id}`,
-    last_name: null,
+    last_name: `Lastname ${id}`,
     email: `customer${id}@example.com`,
   });
 
@@ -290,6 +301,16 @@ describe('CouponFormSchema', () => {
     expect(result.customer_exclude_eligibility).toBe('customers');
     expect(result.customer_ids).toEqual([]);
     expect(result.exclude_customer_ids).toEqual([]);
+  });
+
+  it('carries first_time_buyer_only for a guests-only coupon', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      customer_include_eligibility: 'guests',
+      first_time_buyer_only: true,
+    });
+    expect(result.customer_include_eligibility).toBe('guests');
+    expect(result.first_time_buyer_only).toBe(true);
   });
 
   it('rejects an eligibility value that belongs to the other side', () => {

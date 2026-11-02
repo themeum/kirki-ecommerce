@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Currency\CurrencyExchangeFactory;
 use Kirki\Ecommerce\App\Currency\CurrencyExchangeManager;
@@ -12,12 +14,17 @@ use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use function Kirki\Ecommerce\Framework\config;
 
+/**
+ * Registers the currency exchange factory and manager, configured from the currency settings.
+ *
+ * @since 1.0.0
+ */
 class CurrencyServiceProvider extends ServiceProvider
 {
     /**
-     * Register the services.
+     * @inheritDoc
      *
-     * @return void
+     * @since 1.0.0
      */
     public function register()
     {
@@ -34,7 +41,8 @@ class CurrencyServiceProvider extends ServiceProvider
             $settings = Settings::get(OptionKeys::CURRENCY_SETTINGS);
 
             $active_provider_id = $settings->get('api_provider') ?? '';
-            $config = $settings->get('api_config') ?? [];
+            $configs = $settings->get('api_configs');
+            $config = is_array($configs) && is_array($configs[$active_provider_id] ?? null) ? $configs[$active_provider_id] : [];
 
             return new CurrencyExchangeManager($factory, $service, $active_provider_id, $config);
         });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { CollectionFormSchema } from '@/features/collections/schemas/forms/collection-form';
+import type { ProductSelection } from '@/features/products';
 
 describe('CollectionFormSchema', () => {
   const base = {
@@ -11,6 +12,16 @@ describe('CollectionFormSchema', () => {
     seo_title: '',
     seo_description: '',
   };
+
+  const productSelection = (productId: number): ProductSelection => ({
+    productId,
+    productTitle: `Product ${productId}`,
+    thumbnail: null,
+    inStock: true,
+    regularPrice: { raw: 10, display: '$10', currency: { code: 'USD', symbol: '$' } },
+    salePrice: null,
+    variants: [],
+  });
 
   it('produces the exact payload for a fully filled form', () => {
     const result = CollectionFormSchema.parse({
@@ -28,7 +39,17 @@ describe('CollectionFormSchema', () => {
       banner: 5,
       seo_title: 'Winter Sale',
       seo_description: 'Shop the winter sale',
+      product_ids: [],
     });
+  });
+
+  it('maps selected products to product_ids', () => {
+    const result = CollectionFormSchema.parse({
+      ...base,
+      products: [productSelection(1), productSelection(2)],
+    });
+
+    expect(result.product_ids).toEqual([1, 2]);
   });
 
   it('sends null for blank description, seo_title, and seo_description', () => {

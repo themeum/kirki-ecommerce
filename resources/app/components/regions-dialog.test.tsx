@@ -83,7 +83,7 @@ describe('RegionsDialog', () => {
     expect(onDone.mock.calls[0][0]).toEqual({
       title: null,
       countries: ['US'],
-      regions: [{ country: 'US', states: [1, 2, 3], hasDeselectedState: false, flag: '🇺🇸' }],
+      regions: [{ country: 'US', states: ['1', '2', '3'], hasDeselectedState: false, flag: '🇺🇸' }],
     });
   });
 
@@ -117,7 +117,7 @@ describe('RegionsDialog', () => {
 
     await vi.waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(onDone.mock.calls[0][0].regions).toEqual([
-      { country: 'US', states: [1, 3], hasDeselectedState: true, flag: '🇺🇸' },
+      { country: 'US', states: ['1', '3'], hasDeselectedState: true, flag: '🇺🇸' },
     ]);
     expect(countryCheckbox('US')).toHaveAttribute('data-state', 'indeterminate');
   });
@@ -133,7 +133,7 @@ describe('RegionsDialog', () => {
     expect(onDone.mock.calls[0][0]).toEqual({
       title: null,
       countries: ['CA'],
-      regions: [{ country: 'CA', states: [11], hasDeselectedState: true, flag: '🇨🇦' }],
+      regions: [{ country: 'CA', states: ['11'], hasDeselectedState: true, flag: '🇨🇦' }],
     });
   });
 
@@ -223,7 +223,7 @@ describe('RegionsDialog', () => {
 
     await vi.waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(onDone.mock.calls[0][0].regions).toEqual([
-      { country: 'CA', states: [11], hasDeselectedState: false, flag: '🇨🇦' },
+      { country: 'CA', states: ['11'], hasDeselectedState: false, flag: '🇨🇦' },
     ]);
   });
 

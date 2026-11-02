@@ -7,11 +7,9 @@ describe('ProductsSettingsFormSchema', () => {
     weight_unit: 'kg',
     dimension_unit: 'm',
     shop_page: null,
-    is_unit_price_visible: false,
     is_enabled_reviews: false,
     is_enabled_star_ratings: false,
     low_stock_threshold: null,
-    barcode_generation: null,
   };
 
   it('produces the exact payload for a fully filled form', () => {
@@ -32,7 +30,6 @@ describe('ProductsSettingsFormSchema', () => {
 
   it('defaults booleans to false', () => {
     const result = ProductsSettingsFormSchema.parse(base);
-    expect(result.is_unit_price_visible).toBe(false);
     expect(result.is_enabled_reviews).toBe(false);
     expect(result.is_enabled_star_ratings).toBe(false);
   });

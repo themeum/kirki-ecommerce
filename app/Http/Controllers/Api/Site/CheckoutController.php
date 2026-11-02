@@ -2,21 +2,38 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Concerns\HasCartToken;
-use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 
-use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * REST controller that places orders from the storefront checkout.
+ *
+ * @since 1.0.0
+ */
 class CheckoutController
 {
     use HasCartToken;
+
+    /**
+     * Place an order for the current shopper from the validated checkout request.
+     *
+     * Only administrators can flag the order as manual. The guest cart token and, for logged-in shoppers, the customer are attached to the order.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderCreateRequest $request
+     * @param CreateOrderAction  $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created order with a 201 status.
+     */
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
         $user_id = user()->get_id();

@@ -2,15 +2,25 @@
 
 namespace Kirki\Ecommerce\App\Resources\Customer;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for a customer with addresses and tags.
+ *
+ * @since 1.0.0
+ */
 class CustomerResource extends Resource
 {
     /**
      * Convert the customer resource to an array.
      *
-     * @return array The customer data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The customer data, including addresses and tags.
      */
     public function to_array()
     {
@@ -22,8 +32,10 @@ class CustomerResource extends Resource
             'email' => $this->email,
             'phone' => $this->phone,
             'photo' => MediaAttachment::make($this->photo),
-            'shipping_address' => $this->shipping_address,
-            'billing_address' => $this->billing_address,
+            'addresses' => AddressResource::collection($this->addresses ?? []),
+            'accepts_marketing' => (bool) $this->accepts_marketing,
+            'notes' => $this->notes,
+            'language' => $this->language,
             'tags' => $this->tags ?? [],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

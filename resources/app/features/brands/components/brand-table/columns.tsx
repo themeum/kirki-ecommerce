@@ -2,21 +2,38 @@ import type { ColumnDef } from '@tanstack/react-table';
 
 import Image from '@/components/ui/image';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const styles = defineStyles({
   descriptionCell: {
     maxWidth: '240px',
   },
+  clickable: {
+    padding: 0,
+    border: 'none',
+    background: 'none',
+    font: 'inherit',
+    color: 'inherit',
+    textAlign: 'left',
+    cursor: 'pointer',
+  },
 });
 
-const brandColumns: ColumnDef<Brand>[] = [
+type BrandColumnsOptions = {
+  onEdit: (brand: Brand) => void;
+};
+
+const createBrandColumns = ({ onEdit }: BrandColumnsOptions): ColumnDef<Brand>[] => [
   {
     id: 'name',
     header: __('Name', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => row.original?.name || '--',
+    cell: ({ row }) => (
+      <button type="button" css={scoped(styles.clickable)} onClick={() => onEdit(row.original)}>
+        {row.original?.name || '--'}
+      </button>
+    ),
   },
   {
     id: 'logo',
@@ -51,4 +68,4 @@ const brandColumns: ColumnDef<Brand>[] = [
   },
 ];
 
-export { brandColumns };
+export { createBrandColumns };

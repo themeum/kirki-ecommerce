@@ -79,6 +79,7 @@ function prepare(config: InternalAxiosRequestConfig) {
 
   config.headers.Accept = 'application/json';
   config.headers['Content-Type'] = 'application/json';
+  config.headers['X-Kecom-Timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   if (rest_nonce) {
     config.headers['X-WP-Nonce'] = rest_nonce;

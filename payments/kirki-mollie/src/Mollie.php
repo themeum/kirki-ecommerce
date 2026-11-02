@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -82,7 +83,7 @@ class Mollie extends PaymentProvider
 
         try {
             $response = $this->client->post([
-                'description' => 'Order #' . $order->id,
+                'description' => 'Order ' . $order->id,
                 'amount' => [
                     'currency' => strtoupper($order->currency_code),
                     'value' => $this->format_amount($order->invoiced_total, $order->currency_code),
@@ -153,8 +154,7 @@ class Mollie extends PaymentProvider
      */
     public function webhook()
     {
-        $payload = Request::capture();
-        $payment_id = $payload->get('id', null, 'string');
+        $payment_id = Superglobals::post('id');
 
         http_response_code(200);
 
@@ -224,20 +224,16 @@ class Mollie extends PaymentProvider
         DB::begin_transaction();
 
         try {
-            switch ($payment) {
-                case $this->is_paid($payment):
-                    $this->record_transaction($order_id, $payment);
-                    OrderManager::mark_payment_as_paid($order_id);
-                    break;
-
-                case $this->is_unsuccessful($payment):
-                    $this->record_transaction($order_id, $payment);
-                    OrderManager::mark_payment_as_failed($order_id);
-                    break;
-
-                case $payment['status'] === MollieConstant::PAYMENT_STATUS_PENDING:
-                    OrderManager::mark_payment_as_pending($order_id);
-                    break;
+            if ($this->is_paid($payment)) {
+                $this->record_transaction($order_id, $payment);
+                OrderManager::mark_payment_as_paid($order_id);
+            } elseif ($this->is_unsuccessful($payment)) {
+                $this->record_transaction($order_id, $payment);
+                OrderManager::mark_payment_as_failed($order_id);
+            } elseif ($payment['status'] === MollieConstant::PAYMENT_STATUS_PENDING) {
+                OrderManager::mark_payment_as_pending($order_id);
+            } else {
+                OrderManager::mark_payment_as_unpaid($order_id);
             }
 
             DB::commit();

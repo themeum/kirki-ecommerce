@@ -122,7 +122,7 @@ const ConsentDialog = ({
               <Text variant="small" weight="medium">
                 {__('Display on', 'kirki-ecommerce')}
               </Text>
-              <Flex gap={2}>
+              <Flex gap={2} direction="column">
                 <CheckboxField name="show_on_signup" label={__('Signup page', 'kirki-ecommerce')} />
                 <CheckboxField name="show_on_login" label={__('Login page', 'kirki-ecommerce')} />
                 <CheckboxField name="show_on_checkout" label={__('Checkout', 'kirki-ecommerce')} />

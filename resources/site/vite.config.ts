@@ -22,6 +22,16 @@ export default defineConfig({
     outDir: path.resolve(__dirname, '../../assets'),
     emptyOutDir: false,
     cssCodeSplit: false,
+    // Keep the i18n calls readable for `wp i18n make-pot`, which
+    // translate.wordpress.org runs over the shipped files: never rename the
+    // i18n functions, never merge `c ? __('A') : __('B')` into `__(c ? 'A' : 'B')`,
+    // and keep the translator comments. See docs/translations.md.
+    minify: 'terser',
+    terserOptions: {
+      compress: { conditionals: false },
+      mangle: { reserved: ['__', '_x', '_n', '_nx'] },
+      format: { comments: /translators:/i },
+    },
     rollupOptions: {
       input: {
         site: path.resolve(__dirname, 'ts/index.ts'),

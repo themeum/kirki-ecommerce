@@ -14,7 +14,6 @@ const buildVariant = (overrides: Partial<ProductVariant> = {}): ProductVariant =
   base_price_money_object: { raw: 100, display: '$100.00', currency: { code: 'USD', symbol: '$' } },
   display_price: 100,
   display_price_money_object: { raw: 100, display: '$100.00', currency: { code: 'USD', symbol: '$' } },
-  show_unit_price: false,
   base_unit: null,
   base_unit_amount: null,
   total_unit: null,

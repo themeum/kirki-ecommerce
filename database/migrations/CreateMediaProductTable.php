@@ -2,12 +2,26 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_media_product table, the ordered pivot linking media attachments to products.
+ *
+ * @since 1.0.0
+ */
 class CreateMediaProductTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_media_product table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_media_product', function (Structure $table) {
@@ -16,20 +30,27 @@ class CreateMediaProductTable implements Migration
             $table->integer('ordering')->default(0);
             $table->timestamps();
 
-            $table->primary(['media_id', 'product_id'], 'pk_media_product');
+            $table->primary(['media_id', 'product_id']);
 
-            $table->index('ordering');
-            $table->foreign('product_id', 'fk_media_product_product_id')
+            $table->index('ordering', 'idx_kecom_media_product_ordering');
+            $table->foreign('product_id', 'fk_kecom_media_product_product_id')
                 ->references('id')
                 ->on('kirki_ecommerce_products')
                 ->cascade_on_delete();
-            $table->foreign('media_id', 'fk_media_product_media_id')
+            $table->foreign('media_id', 'fk_kecom_media_product_media_id')
                 ->references('id')
                 ->on('posts')
                 ->cascade_on_delete();
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_media_product table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_media_product');

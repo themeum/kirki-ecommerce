@@ -15,7 +15,7 @@ import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
 import type { FillCommitPayload } from '@/features/bulk-edit/contexts/cell-selection-context';
 import { useColumnVisibility } from '@/features/bulk-edit/hooks/use-column-visibility';
-import { bulkEditColumnGroups, bulkEditColumns } from '@/features/bulk-edit/lib/columns';
+import { bulkEditColumnGroups, bulkEditColumns, SKU_FIELD } from '@/features/bulk-edit/lib/columns';
 import { editableKindOf } from '@/features/bulk-edit/lib/editable-kind';
 import { buildBulkEditPayload } from '@/features/bulk-edit/lib/payload';
 import BulkEditTable, {
@@ -25,6 +25,7 @@ import ColumnVisibilityMenu from '@/features/bulk-edit/pages/column-visibility-m
 import { BulkEditFormSchema } from '@/features/bulk-edit/schemas/forms/bulk-edit-form';
 import {
   useBulkVariantsQuery,
+  useGenerateVariantSkusMutation,
   useUpdateBulkVariantsMutation,
 } from '@/features/bulk-edit/services/bulk-edit';
 import BulkEditTableSkeleton from '@/features/bulk-edit/skeletons/bulk-edit-table-skeleton';
@@ -86,6 +87,8 @@ const BulkEditPage = () => {
 
   const { data: bulkData, isLoading } = useBulkVariantsQuery(ids);
   const { mutate: updateBulkVariants, isPending } = useUpdateBulkVariantsMutation();
+  const { mutate: generateVariantSkus, isPending: isGeneratingSkus } =
+    useGenerateVariantSkusMutation();
   const [columnVisibility, setColumnVisibility] = useColumnVisibility();
   const tableRef = useRef<BulkEditTableHandle>(null);
   const hasLoadedRef = useRef(false);
@@ -116,9 +119,55 @@ const BulkEditPage = () => {
   const isDirty = formState.isDirty;
   const { isBlocked, proceedNavigation, cancelNavigation } = useUnsavedNavigationGuard(isDirty);
 
+  /**
+   * Composes a fresh SKU per row from that row's own product data, rather
+   * than copying one value across the range the way every other column does.
+   * One request for the whole set, because the sequence is read from stored
+   * SKUs and nothing is written until Save — so per-row requests would each
+   * read the same maximum and hand back the same number.
+   */
+  const handleGenerateSkus = (rows: number[]) => {
+    const currentVariants = getValues('variants');
+    const rowByVariantId = new Map<number, number>();
+
+    rows.forEach((row) => {
+      const variantId = currentVariants[row]?.id;
+      if (typeof variantId === 'number') {
+        rowByVariantId.set(variantId, row);
+      }
+    });
+
+    if (rowByVariantId.size === 0) {
+      return;
+    }
+
+    generateVariantSkus(Array.from(rowByVariantId.keys()), {
+      onSuccess: (response) => {
+        response.data.forEach((generated) => {
+          const row = rowByVariantId.get(generated.variant_id);
+          if (row === undefined) {
+            return;
+          }
+          setValue(`variants.${row}.sku`, generated.sku, { shouldDirty: true });
+        });
+      },
+    });
+  };
+
   const handleFillCommit = (payload: FillCommitPayload) => {
-    const sourceVariant = getValues(`variants.${payload.sourceRow}`);
+    /**
+     * The whole dragged range, origin included. Every other column excludes the
+     * origin because it holds the value being copied outward; SKU copies
+     * nothing, so excluding it would just skip the cell the merchant dragged
+     * from.
+     */
+    if (payload.field === SKU_FIELD) {
+      handleGenerateSkus(payload.rows);
+      return;
+    }
+
     const targetRows = payload.rows.filter((row) => row !== payload.sourceRow);
+    const sourceVariant = getValues(`variants.${payload.sourceRow}`);
 
     if (payload.field === 'base_price_per_unit') {
       targetRows.forEach((row) => {
@@ -128,6 +177,27 @@ const BulkEditPage = () => {
           });
         });
       });
+      return;
+    }
+
+    /**
+     * The Availability column holds a quantity on rows that track inventory and
+     * a stock status on rows that do not, so a fill copies whichever value the
+     * row it started from is showing and skips rows in the other state —
+     * writing a value a target's cell does not display would be invisible to
+     * the merchant. `track_inventory` itself is never copied.
+     */
+    if (payload.field === 'available_quantity') {
+      const sourceTracks = Boolean(sourceVariant.track_inventory);
+      const field = sourceTracks ? 'available_quantity' : 'in_stock';
+
+      targetRows
+        .filter((row) => Boolean(getValues(`variants.${row}.track_inventory`)) === sourceTracks)
+        .forEach((row) => {
+          setValue(`variants.${row}.${field}` as never, sourceVariant[field] as never, {
+            shouldDirty: true,
+          });
+        });
       return;
     }
 
@@ -237,6 +307,7 @@ const BulkEditPage = () => {
           _n('Editing %d variant', 'Editing %d variants', variants.length, 'kirki-ecommerce'),
           variants.length,
         )}
+        sticky
         cssOverride={styles.heading}
         containerSize="fullWidth"
         hasBack
@@ -269,7 +340,7 @@ const BulkEditPage = () => {
         {isDirty && <Badge variant="secondary">{__('Unsaved Changes', 'kirki-ecommerce')}</Badge>}
       </PageHeading>
 
-      <PageContent containerSize="none">
+      <PageContent containerSize="none" cssOverride={{ marginTop: '0px' }}>
         <FullPageContainer cssOverride={styles.pageBackground}>
           {isEmptySelection ? (
             <Flex
@@ -309,6 +380,8 @@ const BulkEditPage = () => {
                   onFillCommit={handleFillCommit}
                   onTypeToEdit={handleTypeToEdit}
                   onSpaceToggle={handleSpaceToggle}
+                  onGenerateSkus={handleGenerateSkus}
+                  isGeneratingSkus={isGeneratingSkus}
                 />
               </FormProvider>
             </Card>

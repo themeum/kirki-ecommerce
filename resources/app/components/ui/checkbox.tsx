@@ -126,7 +126,7 @@ const styles = defineStyles({
     lineHeight: 0,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.sm,
-    backgroundColor: 'transparent',
+    backgroundColor: theme.colors.background.fill,
     color: theme.colors.background.surfaceTertiary,
     '&:focus-visible': {
       ...uiFocusRing(theme),

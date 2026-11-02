@@ -131,6 +131,7 @@ const DateField = <
           disabled={disabled}
           error={error}
           size={size}
+          placeholder={placeholder}
         />
       );
     }

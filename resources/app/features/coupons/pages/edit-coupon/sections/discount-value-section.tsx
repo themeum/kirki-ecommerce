@@ -1,17 +1,22 @@
+import { PlusIcon } from 'lucide-react';
+import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import CategoriesDropdownField from '@/components/form/categories-dropdown-field';
 import NumberField from '@/components/form/number-field';
 import SelectField from '@/components/form/select-field';
+import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { useCategoriesQuery } from '@/features/categories';
-import ProductSelectionField from '@/features/coupons/components/fields/product-selection-field';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
+import { ProductSelectionField } from '@/features/products';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const DiscountValueSection = () => {
@@ -22,6 +27,8 @@ const DiscountValueSection = () => {
   })
   const discountTarget = useWatch({ control, name: 'discount_target' });
   const eligibleItemType = useWatch({ control, name: 'eligible_item_type' });
+  const products = useWatch({ control, name: 'products' });
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
   const { data: categoryData } = useCategoriesQuery(
     { limit: -1 },
     eligibleItemType === 'specific-categories',
@@ -73,7 +80,28 @@ const DiscountValueSection = () => {
                     { value: 'specific-categories', label: __('Specific Categories', 'kirki-ecommerce') },
                   ]}
                 />
-                {eligibleItemType === 'specific-products' && <ProductSelectionField />}
+                {eligibleItemType === 'specific-products' && (
+                  <Flex direction="column" gap={3}>
+                    <ProductSelectionField
+                      name="products"
+                      control={control}
+                      open={productPickerOpen}
+                      onOpenChange={setProductPickerOpen}
+                    />
+                    {products && products.length > 0 && (
+                      <Button
+                        variant="outline"
+                        cssOverride={styles.addMoreButton}
+                        onClick={() => setProductPickerOpen(true)}
+                      >
+                        <PlusIcon />
+                        <Text variant="small" weight="medium">
+                          {__('Add More', 'kirki-ecommerce')}
+                        </Text>
+                      </Button>
+                    )}
+                  </Flex>
+                )}
                 {eligibleItemType === 'specific-categories' && (
                   <CategoriesDropdownField
                     name="categories"
@@ -92,3 +120,10 @@ const DiscountValueSection = () => {
 };
 
 export default DiscountValueSection
+
+const styles = defineStyles({
+  addMoreButton: {
+    width: '100%',
+    gap: theme.spacing[2],
+  },
+});

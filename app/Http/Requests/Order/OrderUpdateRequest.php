@@ -2,18 +2,30 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
-use function Kirki\Ecommerce\App\customer;
-
+/**
+ * Validates and sanitizes the payload for updating an order.
+ *
+ * @since 1.0.0
+ */
 class OrderUpdateRequest extends Request
 {
-    public function authorize()
-    {
-        return customer()->is_admin();
-    }
+    use ValidatesAddressFields;
 
+    /**
+     * Default the customer ID before validation.
+     *
+     * A missing customer ID becomes 0. A missing currency is left empty, so the order keeps its own currency.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $customer_id = $this->input('customer_id') ?? null;
@@ -23,14 +35,22 @@ class OrderUpdateRequest extends Request
         ]);
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
+        $shipping_country = (string) $this->input('shipping_country');
+        $billing_country = (string) $this->input('billing_country');
+
         return [
             'id' => 'required|integer',
             'customer_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
             'items.*.id' => 'nullable|integer',
-            'items.*.variant_id' => 'required|integer',
+            'items.*.variant_id' => 'nullable|integer',
             'items.*.quantity' => 'required|integer|min:1',
 
             'currency_code' => 'nullable|string',
@@ -44,9 +64,9 @@ class OrderUpdateRequest extends Request
             'shipping_address_line1' => 'required|string',
             'shipping_address_line2' => 'nullable|string',
             'shipping_city' => 'required|string',
-            'shipping_state' => 'required|string',
-            'shipping_postal_code' => 'required|string',
-            'shipping_country' => 'required|string',
+            'shipping_state' => static::address_field_rule($shipping_country, 'state'),
+            'shipping_postal_code' => static::address_field_rule($shipping_country, 'postal_code'),
+            'shipping_country' => ['required', 'string', static::selling_country_rule()],
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
             'shipping_company' => 'nullable|string',
@@ -56,21 +76,41 @@ class OrderUpdateRequest extends Request
             'billing_address_line1' => 'required|string',
             'billing_address_line2' => 'nullable|string',
             'billing_city' => 'required|string',
-            'billing_state' => 'required|string',
-            'billing_postal_code' => 'required|string',
-            'billing_country' => 'required|string',
+            'billing_state' => static::address_field_rule($billing_country, 'state'),
+            'billing_postal_code' => static::address_field_rule($billing_country, 'postal_code'),
+            'billing_country' => ['required', 'string', static::selling_country_rule()],
             'billing_phone' => 'nullable|string',
             'billing_email' => 'nullable|email',
             'billing_company' => 'nullable|string',
 
+            'customer_first_name' => 'required|string',
+            'customer_last_name' => 'required|string',
             'customer_email' => 'nullable|email',
             'customer_phone' => 'nullable|string',
-            'admin_notes' => 'nullable|string',
+            'order_notes' => 'nullable|string',
             'flags' => 'nullable|array',
             'flags.*' => 'string',
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
+    public function messages()
+    {
+        return [
+            'shipping_state.required' => static::state_required_message((string) $this->input('shipping_country')),
+            'billing_state.required' => static::state_required_message((string) $this->input('billing_country')),
+        ];
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [
@@ -111,9 +151,11 @@ class OrderUpdateRequest extends Request
             'billing_email' => Sanitizer::EMAIL,
             'billing_company' => Sanitizer::TEXT,
 
+            'customer_first_name' => Sanitizer::TEXT,
+            'customer_last_name' => Sanitizer::TEXT,
             'customer_email' => Sanitizer::EMAIL,
             'customer_phone' => Sanitizer::TEXT,
-            'admin_notes' => Sanitizer::TEXT,
+            'order_notes' => Sanitizer::TEXTAREA,
             'flags' => Sanitizer::ARRAY,
             'flags.*' => Sanitizer::TEXT,
         ];

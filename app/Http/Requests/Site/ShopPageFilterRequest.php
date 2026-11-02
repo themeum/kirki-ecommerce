@@ -3,7 +3,6 @@
 /**
  * Shop Page Request Handler.
  *
- * @package Kirki\Ecommerce\App\Http\Controllers\Site
  * @author Themeum <support@themeum.com>
  * @link https://themeum.com
  * @since 1.0.0
@@ -11,22 +10,22 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Site;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 /**
- * Class ShopPageFilterRequest
+ * Validates and sanitizes the shop page filter, search, sort and pagination input.
  *
  * @since 1.0.0
  */
 class ShopPageFilterRequest extends Request
 {
     /**
-     * Validate the request.
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return array
      */
     public function rules()
     {
@@ -43,11 +42,9 @@ class ShopPageFilterRequest extends Request
     }
 
     /**
-     * Filters
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return array
      */
     public function filters()
     {

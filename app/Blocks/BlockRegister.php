@@ -17,27 +17,23 @@ use Kirki\Ecommerce\App\Blocks\MiniCartBlock;
 use function Kirki\Ecommerce\Framework\app;
 
 /**
- * Block register class
+ * Registers the plugin's blocks by resolving each block class from the container.
  *
  * @since 1.0.0
  */
 class BlockRegister
 {
     /**
-     * Array of block class names
-     *
-     * @since 1.0.0
+     * Fully qualified class names of the blocks to register.
      *
      * @var array<int, string>
      */
     protected $blocks;
 
     /**
-     * Constructor
+     * Set the block class list and register the blocks.
      *
      * @since 1.0.0
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -49,11 +45,11 @@ class BlockRegister
     }
 
     /**
-     * Get all shortcodes.
+     * Get the class names of the blocks to register.
      *
      * @since 1.0.0
      *
-     * @return array<int, string>
+     * @return array<int, string> Fully qualified block class names.
      */
     public function get_blocks(): array
     {
@@ -61,7 +57,7 @@ class BlockRegister
     }
 
     /**
-     * Register all blocks.
+     * Register all blocks by instantiating each block class through the container.
      *
      * @since 1.0.0
      *

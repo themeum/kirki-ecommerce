@@ -9,7 +9,9 @@ const LegalSettingsSkeleton = () => (
   <Container size="sm">
     <SettingsPageSkeleton
       cards={[3]}
-      header={<SettingsPageHeader icon={<ScaleIcon />} title={__('Legal', 'kirki-ecommerce')} />}
+      header={
+        <SettingsPageHeader icon={<ScaleIcon size={16} />} title={__('Legal', 'kirki-ecommerce')} />
+      }
     />
   </Container>
 );

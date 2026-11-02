@@ -2,10 +2,24 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 
+/**
+ * API resource for a product schema definition.
+ *
+ * @since 1.0.0
+ */
 class ProductSchemaResource extends Resource
 {
+    /**
+     * Convert the product schema resource to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The schema data, including its default flag and schema definition.
+     */
     public function to_array()
     {
         return [

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Tag\TagCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Tag\TagUpdateRequest;
@@ -18,15 +20,38 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing tags.
+ *
+ * @since 1.0.0
+ */
 class TagController
 {
+    /** @var TagService */
     protected $service;
 
+    /**
+     * Create the controller with its tag service.
+     *
+     * @since 1.0.0
+     *
+     * @param TagService $service
+     */
     public function __construct(TagService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List tags, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated tags with a success message.
+     */
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
@@ -48,6 +73,14 @@ class TagController
         ]);
     }
 
+    /**
+     * Create a tag from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param TagCreateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created tag with a 201 status.
+     */
     public function create(TagCreateRequest $request)
     {
         $payload = CreateTagDTO::from_request($request);
@@ -60,6 +93,14 @@ class TagController
         ], Response::CREATED);
     }
 
+    /**
+     * Return a single tag by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The tag resource.
+     */
     public function show(Request $request)
     {
         $tag = $this->service->find($request->int('id'));
@@ -70,6 +111,14 @@ class TagController
         ]);
     }
 
+    /**
+     * Update a tag from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param TagUpdateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated tag.
+     */
     public function update(TagUpdateRequest $request)
     {
         $payload = UpdateTagDTO::from_request($request);
@@ -82,6 +131,14 @@ class TagController
         ]);
     }
 
+    /**
+     * Delete a single tag by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -92,6 +149,16 @@ class TagController
         ]);
     }
 
+    /**
+     * Run a bulk action on tags.
+     *
+     * Supports deleting the given IDs or deleting every tag matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $validated = $request->validated();

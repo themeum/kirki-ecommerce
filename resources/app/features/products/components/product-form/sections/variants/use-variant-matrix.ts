@@ -1,6 +1,10 @@
 import { useFormContext } from 'react-hook-form';
 
-import { formatComboLabel, syncVariantMatrix } from '@/features/products/lib/variant-matrix';
+import {
+  formatComboLabel,
+  remapAttributeValues,
+  syncVariantMatrix,
+} from '@/features/products/lib/variant-matrix';
 import type { Attribute } from '@/features/products/schemas/catalog/attribute';
 import type {
   ProductFormInput,
@@ -25,12 +29,15 @@ export const savedVariants = (variants: ProductFormVariantInput[]) =>
 export const useVariantMatrix = () => {
   const { getValues, setValue } = useFormContext<ProductFormInput>();
 
-  const prepare = (nextAttributes: AttributeList): MatrixMutation => {
+  const prepare = (
+    nextAttributes: AttributeList,
+    currentVariants = getValues('variants') ?? [],
+  ): MatrixMutation => {
     const previousAttributes = (getValues('attributes') ?? []);
     const { variants, discarded } = syncVariantMatrix({
       attributes: nextAttributes,
       previousAttributes,
-      variants: getValues('variants') ?? [],
+      variants: currentVariants,
     });
 
     return {
@@ -69,6 +76,18 @@ export const useVariantMatrix = () => {
         currentAttributes().map((item) =>
           item.id === attribute.id ? attribute : item,
         ),
+      ),
+
+    replaceAttribute: (
+      previousId: number,
+      attribute: Attribute,
+      valueIdMap: Map<number, number>,
+    ) =>
+      prepare(
+        currentAttributes().map((item) =>
+          item.id === previousId ? attribute : item,
+        ),
+        remapAttributeValues(getValues('variants') ?? [], valueIdMap),
       ),
 
     removeAttribute: (id: number) =>

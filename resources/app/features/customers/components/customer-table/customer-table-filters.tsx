@@ -1,7 +1,5 @@
-import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import FilterPopup from '@/features/customers/components/customer-table/filter-popup/filter-popup';
 import type { CustomerListFilter } from '@/features/customers/types';
 import { customerListOptions } from '@/features/customers/types';
 import { useDataTableParams } from '@/hooks';
@@ -24,10 +22,6 @@ const CustomerTableFilters = () => {
           clearable
         />
       </div>
-
-      <ActionGroup>
-        <FilterPopup />
-      </ActionGroup>
     </Flex>
   );
 };

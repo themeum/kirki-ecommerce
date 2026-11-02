@@ -2,8 +2,16 @@
 
 namespace Kirki\Ecommerce\App\DTO\Order;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\DTO\Calculation\OrderCalculationInputDTO;
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Input payload for editing an order: items, coupons, addresses and notes.
+ *
+ * @since 1.0.0
+ */
 class UpdateOrderPayloadDTO extends DTO
 {
     /** @var int */
@@ -91,17 +99,35 @@ class UpdateOrderPayloadDTO extends DTO
     public $billing_company;
 
     /** @var string|null */
+    public $customer_first_name;
+
+    /** @var string|null */
+    public $customer_last_name;
+
+    /** @var string|null */
     public $customer_email;
 
     /** @var string|null */
     public $customer_phone;
 
     /** @var string|null */
-    public $admin_notes;
+    public $order_notes;
 
     /** @var string[]|null */
     public $flags;
 
     /** @var int|null */
     public $is_manual;
+
+    /**
+     * Get the part of this payload that the calculation context builder reads.
+     *
+     * @since 1.0.0
+     *
+     * @return OrderCalculationInputDTO
+     */
+    public function to_calculation_input()
+    {
+        return OrderCalculationInputDTO::from_payload($this->to_array());
+    }
 }

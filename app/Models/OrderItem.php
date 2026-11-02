@@ -2,12 +2,21 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
+/**
+ * Model for a line item of an order, snapshotting the product, variant and prices at purchase time.
+ *
+ * @since 1.0.0
+ */
 class OrderItem extends Model
 {
+    /** @inheritDoc */
     protected $table = 'kirki_ecommerce_order_items';
 
+    /** @inheritDoc */
     protected $fillable = [
         'order_id',
         'product_id',
@@ -23,6 +32,18 @@ class OrderItem extends Model
         'base_discount_amount',
         'invoiced_price',
         'base_price',
+        'invoiced_regular_price',
+        'base_regular_price',
+        'invoiced_regular_tax_total',
+        'base_regular_tax_total',
+        'invoiced_catalog_regular_price',
+        'base_catalog_regular_price',
+        'invoiced_catalog_sale_price',
+        'base_catalog_sale_price',
+        'invoiced_catalog_product_coupon_discounted_subtotal',
+        'base_catalog_product_coupon_discounted_subtotal',
+        'invoiced_discount_tax_total',
+        'base_discount_tax_total',
         'quantity',
         'invoiced_subtotal',
         'base_subtotal',
@@ -34,6 +55,7 @@ class OrderItem extends Model
         'product_data',
     ];
 
+    /** @inheritDoc */
     protected $casts = [
         'order_id' => 'integer',
         'product_id' => 'integer',
@@ -42,28 +64,71 @@ class OrderItem extends Model
         'weight' => 'float',
         'product_data' => 'json',
         'quantity' => 'integer',
+        'invoiced_catalog_regular_price' => 'integer',
+        'base_catalog_regular_price' => 'integer',
+        'invoiced_catalog_sale_price' => 'integer',
+        'base_catalog_sale_price' => 'integer',
+        'invoiced_catalog_product_coupon_discounted_subtotal' => 'integer',
+        'base_catalog_product_coupon_discounted_subtotal' => 'integer',
+        'invoiced_discount_tax_total' => 'integer',
+        'base_discount_tax_total' => 'integer',
     ];
 
+    /**
+     * Define the order this item belongs to.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsTo
+     */
     public function order()
     {
         return $this->belongs_to(Order::class, 'order_id');
     }
 
+    /**
+     * Define the product this item was purchased from.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsTo
+     */
     public function product()
     {
         return $this->belongs_to(Product::class, 'product_id');
     }
 
+    /**
+     * Define the variant this item was purchased as.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsTo
+     */
     public function variant()
     {
         return $this->belongs_to(Variant::class, 'variant_id');
     }
 
+    /**
+     * Define the coupon discount attributions applied to this item.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
     public function order_item_coupons()
     {
         return $this->has_many(OrderItemCoupon::class, 'order_item_id');
     }
 
+    /**
+     * Define the tax lines charged on this item.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
     public function taxes()
     {
         return $this->has_many(OrderTax::class, 'order_item_id');

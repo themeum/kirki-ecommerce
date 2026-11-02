@@ -4,7 +4,10 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import MultiSelect, { type MultiSelectOption } from '@/components/ui/multi-select';
-import { useCollectionsQuery, useCreateCollectionMutation } from '@/features/collections/services/collection';
+import {
+  useCollectionsQuery,
+  useCreateCollectionMutation,
+} from '@/features/collections/services/collection';
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import { __ } from '@/wpi18n';
 
@@ -22,7 +25,6 @@ type CollectionsFieldProps<
   description?: ReactNode;
   infoText?: ReactNode;
   placeholder?: string;
-  createLabel?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
 };
@@ -45,8 +47,7 @@ const CollectionsField = <
   label,
   description,
   infoText,
-  placeholder = __('Type to add collections..', 'kirki-ecommerce'),
-  createLabel = __('Add Collection', 'kirki-ecommerce'),
+  placeholder = __('Add collections', 'kirki-ecommerce'),
   disabled,
   cssOverride,
 }: CollectionsFieldProps<TFieldValues, TName>) => {
@@ -69,12 +70,10 @@ const CollectionsField = <
       name={name}
       render={({ field, fieldState }) => {
         const selectedCollections = (field.value ?? []) as CollectionRef[];
-        const selected: MultiSelectOption[] = selectedCollections.map(
-          (collection) => ({
-            value: collection.id,
-            title: collection.title,
-          }),
-        );
+        const selected: MultiSelectOption[] = selectedCollections.map((collection) => ({
+          value: collection.id,
+          title: collection.title,
+        }));
 
         const handleChange = (next: MultiSelectOption[]) => {
           field.onChange(
@@ -91,10 +90,7 @@ const CollectionsField = <
             const response = await createCollectionMutation.mutateAsync({
               title,
             });
-            field.onChange([
-              { id: response.data.id, title },
-              ...selectedCollections,
-            ]);
+            field.onChange([{ id: response.data.id, title }, ...selectedCollections]);
             clearErrors(name);
           } catch (error) {
             const fieldErrors = getErrorsObject((error as ErrorResponse).errors);
@@ -107,20 +103,19 @@ const CollectionsField = <
         };
 
         return (
-          <Field
-            data-invalid={fieldState.invalid || undefined}
-            cssOverride={cssOverride}
-          >
+          <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
             {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
             <MultiSelect
               options={options}
               value={selected}
               onChange={handleChange}
               onCreate={handleCreate}
-              createLabel={createLabel}
               placeholder={placeholder}
+              selectedPlaceholder={__('Add more', 'kirki-ecommerce')}
+              emptyStateText={__('Add your first collection', 'kirki-ecommerce')}
               disabled={disabled}
               error={Boolean(fieldState.error)}
+              maxVisibleRows={2}
             />
             {description && <FieldDescription>{description}</FieldDescription>}
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

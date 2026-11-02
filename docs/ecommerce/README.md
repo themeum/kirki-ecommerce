@@ -16,9 +16,9 @@ docker compose up -d --build
 
 | Item | Value |
 |------|--------|
-| WordPress | http://localhost:20100 |
+| WordPress | `WP_URL` from the root `.env` (run `bin/dev-urls`; default `http://localhost:20100`) |
 | Admin login | `admin` / `demo` |
-| API base | `http://localhost:20100/wp-json/kirki/ecommerce/v1` |
+| API base | `<WordPress URL>/wp-json/kirki/ecommerce/v1` |
 
 ---
 
@@ -92,7 +92,7 @@ cp .env.example .env
 ```env
 auth_username=admin
 auth_password=demo
-base_url=http://localhost:20100/wp-json/kirki/ecommerce/v1
+base_url=http://localhost:<NGINX_HTTP_PORT>/wp-json/kirki/ecommerce/v1
 ```
 
 | Variable | Purpose |
@@ -101,7 +101,7 @@ base_url=http://localhost:20100/wp-json/kirki/ecommerce/v1
 | `auth_username` | WordPress user for Basic Auth |
 | `auth_password` | That user’s password |
 
-If you changed `NGINX_HTTP_PORT` or admin credentials in the project root `.env`, update these values to match.
+Use the `NGINX_HTTP_PORT` from the project root `.env` (`bin/dev-urls` prints it). `bin/dev-up` can pick a new port for a worktree, so update `base_url` when the port changes. Update the credentials too if you changed them in the root `.env`.
 
 > Keep `docs/ecommerce/.env` local. Root `.gitignore` already ignores `.env`.
 
@@ -138,7 +138,7 @@ Folders and requests use `auth: inherit`, so they pick this up automatically. Yo
 
 ## 7. Smoke test
 
-1. Confirm WordPress is up: http://localhost:20100
+1. Confirm WordPress is up: open the WordPress URL from `bin/dev-urls`
 2. In Bruno, select environment **Kirki Ecommerce Env**
 3. Open **App Config** → **App Config** (or **Test** → **Test API**)
 4. Click **Send**
@@ -160,7 +160,7 @@ Request URLs look like:
 
 ```text
 {{baseUrl}}/products
-→ http://localhost:20100/wp-json/kirki/ecommerce/v1/products
+→ http://localhost:<NGINX_HTTP_PORT>/wp-json/kirki/ecommerce/v1/products
 ```
 
 ---
@@ -172,7 +172,7 @@ Request URLs look like:
 | Collection won’t open | Select the `docs/ecommerce` folder (must contain `opencollection.yml`) |
 | `{{baseUrl}}` empty / wrong host | `docs/ecommerce/.env` exists; env **Kirki Ecommerce Env** is selected |
 | `401 Unauthorized` | `auth_username` / `auth_password` match a WP user with API access |
-| Connection refused | `docker compose ps`; port matches `base_url` (default `20100`) |
+| Connection refused | `docker compose ps`; port matches `base_url` (see `bin/dev-urls`) |
 | Env vars not updating | Restart Bruno or reopen the collection after editing `.env` |
 | Folders/files look wrong after git pull | Close and reopen the collection |
 

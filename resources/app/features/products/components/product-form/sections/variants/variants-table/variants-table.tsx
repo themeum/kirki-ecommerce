@@ -21,7 +21,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 import { RouteConfig } from '@/config/route-config';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { useBaseCurrencySymbol } from '@/hooks';
-import { EditIcon } from '@/icons';
+import { EditIcon } from '@/icons/common';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -134,9 +134,6 @@ const VariantsTable = () => {
               ))}
             </SelectContent>
           </Select>
-          {/* <Button variant="outline" onClick={() => setExpandVariation((prev) => !prev)}>
-            <ChevronUpDownIcon />
-          </Button> */}
         </Flex>
         <ActionGroup>
           <Button variant="secondary" onClick={handleBulkEditVariants}>
@@ -194,7 +191,7 @@ const VariantsTable = () => {
                         </Button>
                       </Flex>
                     </TableHead>
-                    <TableHead cssOverride={{ width: '170px' }}>
+                    <TableHead cssOverride={{ width: '120px' }}>
                       <NumberInput
                         placeholder={sprintf(__('%s0.00', 'kirki-ecommerce'), currencySymbol)}
                         cssOverride={{ textAlign: 'center' }}
@@ -217,7 +214,7 @@ const VariantsTable = () => {
                     <TableHead cssOverride={{ width: '242px' }}>
                       {__('Variants', 'kirki-ecommerce')}
                     </TableHead>
-                    <TableHead cssOverride={{ width: '170px' }}>
+                    <TableHead cssOverride={{ width: '120px' }}>
                       {__('Price', 'kirki-ecommerce')}
                     </TableHead>
                     <TableHead>{__('Availability', 'kirki-ecommerce')}</TableHead>

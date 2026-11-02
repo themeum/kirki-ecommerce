@@ -1,4 +1,5 @@
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { PlusIcon } from 'lucide-react';
+import { type Dispatch, type SetStateAction, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Grid from '@/components/ui/grid';
@@ -13,15 +14,14 @@ import {
 import Text from '@/components/ui/text';
 import { AddStatePopup } from '@/features/settings/tax/shared/components/tax-rules/add-state-dialog';
 import { getDestinationDisplayValue } from '@/features/settings/tax/shared/lib/tax-rules/helper';
-import type {
-  SelectOption,
-  TaxConditionRow,
-  TaxRegionState,
+import type { TaxConditionRow, TaxRegionState } from '@/features/settings/tax/shared/lib/utils';
+import {
+  taxRuleConditionOptions,
+  taxRuleOperatorOptions,
 } from '@/features/settings/tax/shared/lib/utils';
-import { taxProfileConditionOptions } from '@/features/settings/tax/shared/lib/utils';
-import { PlusIcon, TrashIcon } from '@/icons';
+import { TrashIcon } from '@/icons/common';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { uuid } from '@/utils';
 import { toDisplayString } from '@/utils/string';
 import { __ } from '@/wpi18n';
@@ -38,7 +38,6 @@ type ConditionRowProps = {
   conditions: TaxConditionRow[];
   setConditions: Dispatch<SetStateAction<TaxConditionRow[]>>;
   getConditionValue: (condition: string) => ConditionOption[];
-  conditionOptions: SelectOption[];
   selectedCountries: (string | number)[];
   setSelectedCountries: Dispatch<SetStateAction<(string | number)[]>>;
   from?: string;
@@ -60,7 +59,6 @@ const ConditionRow = (props: ConditionRowProps) => {
     conditions,
     setConditions,
     getConditionValue,
-    conditionOptions,
     selectedCountries,
     setSelectedCountries,
     states,
@@ -97,20 +95,6 @@ const ConditionRow = (props: ConditionRowProps) => {
   const handleDeleteConditionRow = (id: string) => {
     setConditions((prev) => prev.filter((row) => row.id !== id));
   };
-  const rowConditionOptions = index === 1 ? taxProfileConditionOptions : conditionOptions;
-  const isConditionLocked = rowConditionOptions.length === 1;
-  const lockedConditionValue = rowConditionOptions[0]?.value;
-
-  useEffect(() => {
-    if (isConditionLocked && lockedConditionValue && row.condition !== lockedConditionValue) {
-      setConditions((prev) =>
-        prev.map((item) =>
-          item.id === row.id ? { ...item, condition: lockedConditionValue } : item,
-        ),
-      );
-    }
-  }, [isConditionLocked, lockedConditionValue, row.condition, row.id, setConditions]);
-
   return (
     <div key={row.id} css={scoped(styles.row)}>
       {index > 0 ? (
@@ -127,15 +111,18 @@ const ConditionRow = (props: ConditionRowProps) => {
         }
       >
         <Select
-          value={isConditionLocked ? lockedConditionValue : row.condition}
-          onValueChange={(value) => updateCondition(row.id, 'condition', value)}
-          disabled={isConditionLocked}
+          value={row.condition}
+          onValueChange={(value) => {
+            updateCondition(row.id, 'condition', value);
+            updateCondition(row.id, 'value', null);
+            updateCondition(row.id, 'operator', '=');
+          }}
         >
-          <SelectTrigger cssOverride={mergeCss(isConditionLocked && styles.lockedConditionTrigger)}>
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {rowConditionOptions.map((option) => (
+            {taxRuleConditionOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.title}
               </SelectItem>
@@ -143,12 +130,26 @@ const ConditionRow = (props: ConditionRowProps) => {
           </SelectContent>
         </Select>
 
-        <Input value={__('is', 'kirki-ecommerce')} readOnly />
+        <Select
+          value={row.operator ?? '='}
+          onValueChange={(value) => updateCondition(row.id, 'operator', value)}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {taxRuleOperatorOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         {row.condition === 'destination_region' ? (
           <Input
             readOnly
-            value={getDestinationDisplayValue(row?.value)}
+            value={getDestinationDisplayValue(row?.value, states)}
             onClick={() => setShowStatesPopup(true)}
             placeholder={__('Value', 'kirki-ecommerce')}
           />
@@ -177,8 +178,10 @@ const ConditionRow = (props: ConditionRowProps) => {
             onClick={handleAddConditionRow}
             cssOverride={styles.conditionActions}
             data-tax-rule-condition-action
+            aria-label={__('Add another condition', 'kirki-ecommerce')}
+            title={__('Add another condition', 'kirki-ecommerce')}
           >
-            <PlusIcon />
+            <PlusIcon size={16} />
           </Button>
         )}
         {index > 0 && (
@@ -186,9 +189,7 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
-            cssOverride={mergeCss(styles.conditionActions, {
-              '& svg': { color: theme.colors.icon.critical },
-            })}
+            cssOverride={styles.conditionActions}
             data-tax-rule-condition-action
           >
             <TrashIcon />
@@ -225,22 +226,10 @@ const styles = defineStyles({
   conditionGrid: {
     marginTop: theme.spacing[2],
   },
-  lockedConditionTrigger: {
-    '&[data-disabled]': {
-      backgroundColor: theme.colors.background.fill,
-      color: 'inherit',
-      opacity: 1,
-      borderColor: theme.colors.border.default,
-    },
-    '&[data-disabled] svg': {
-      display: 'none',
-    },
-  },
   conditionActions: {
     opacity: 0,
     visibility: 'hidden',
     transition: 'opacity 0.2s ease',
-    display: 'none',
     gap: theme.spacing[2],
     padding: theme.spacing[2],
   },

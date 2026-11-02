@@ -2,8 +2,32 @@
  * Checkout Address types, initializers, and validation logic
  */
 
+import type { AddressFieldMode, AddressRule } from '../types';
 import { config } from '../utils';
 import type { CountryState } from './address-modal';
+
+/**
+ * Used when a country has no published rule. Built per call rather than held
+ * in a module constant so the label is translated at call time, after
+ * wp.i18n is available.
+ */
+function fallbackRule(): AddressRule {
+  return {
+    state: { mode: 'optional', label: window.wp.i18n.__('Region', 'kirki-ecommerce') },
+    postal_code: { mode: 'optional' },
+  };
+}
+
+export function getAddressRule(code: string): AddressRule {
+  if (!code) {
+    return fallbackRule();
+  }
+  return config.address_rules?.[code.toUpperCase()] ?? fallbackRule();
+}
+
+export function getFieldMode(code: string, field: keyof AddressRule): AddressFieldMode {
+  return getAddressRule(code)[field].mode;
+}
 
 export function getStatesForCountry(
   code: string,
@@ -128,12 +152,10 @@ export function toBillingOrderFields(address: CheckoutAddress): BillingOrderFiel
   };
 }
 
-export function validateAddress(
-  address: CheckoutAddress,
-  states: CountryState[],
-): Record<string, string> {
-  const { __ } = window.wp.i18n;
+export function validateAddress(address: CheckoutAddress): Record<string, string> {
+  const { __, sprintf } = window.wp.i18n;
   const errors: Record<string, string> = {};
+  const rule = getAddressRule(address.country);
 
   if (!address.country?.trim()) {
     errors.country = __('Country is required', 'kirki-ecommerce');
@@ -150,10 +172,16 @@ export function validateAddress(
   if (!address.city?.trim()) {
     errors.city = __('City is required', 'kirki-ecommerce');
   }
-  if (states.length > 0 && !address.state?.toString().trim()) {
-    errors.state = __('State is required', 'kirki-ecommerce');
+  if (rule.state.mode === 'required' && !address.state?.toString().trim()) {
+    // The label is the country's own term, so a Japanese address asks for a
+    // prefecture rather than a state.
+    errors.state = sprintf(
+      /* translators: %s is the country's term for its subdivision, e.g. State, Prefecture, Emirate. */
+      __('%s is required', 'kirki-ecommerce'),
+      rule.state.label,
+    );
   }
-  if (!address.postal_code?.trim()) {
+  if (rule.postal_code.mode === 'required' && !address.postal_code?.trim()) {
     errors.postal_code = __('Postal code is required', 'kirki-ecommerce');
   }
   if (address.phone && !/^\+?(?=(?:\D*\d){7,15}\D*$)[\d\s().-]+$/.test(address.phone)) {

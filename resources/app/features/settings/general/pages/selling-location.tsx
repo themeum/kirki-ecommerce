@@ -31,11 +31,11 @@ const SellingLocation = () => {
     name: 'selling_location_type',
   });
   const previousSellingLocation = useRef(sellingLocation);
-  const { data: countryList } = useCountriesQuery({ limit: -1 });
+  const { data: countryList } = useCountriesQuery({ limit: -1, only_selling_countries: false });
 
   const countryOptions = (countryList ?? []).map((country) => ({
     title: country.name,
-    value: country.name,
+    value: country.code,
   }));
 
   useEffect(() => {

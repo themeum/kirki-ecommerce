@@ -19,7 +19,6 @@ import type {
   TaxRegionState,
   TaxRule,
 } from '@/features/settings/tax/shared/lib/utils';
-import { taxProfileConditionOptions } from '@/features/settings/tax/shared/lib/utils';
 import { updateRegionState } from '@/features/settings/tax/strategies/general/lib/region-tax';
 import {
   type TaxRegionStateFormInput,
@@ -27,7 +26,7 @@ import {
   TaxRegionStateFormSchema,
 } from '@/features/settings/tax/strategies/general/schemas/forms/tax-region-state-form';
 import GeneralTaxRegionStateSkeleton from '@/features/settings/tax/strategies/general/skeletons/general-tax-region-state-skeleton';
-import { TaxIcon } from '@/icons';
+import { TaxIcon } from '@/icons/common';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -188,7 +187,6 @@ const GeneralEditRegionState = () => {
             states={countryStates}
             destinationLabel={country?.name ?? code}
             updateTaxRules={updateStateRules}
-            conditionOptions={taxProfileConditionOptions}
           />
         </Flex>
       </Form>

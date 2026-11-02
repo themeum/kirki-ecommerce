@@ -14,12 +14,26 @@ describe('BaseUnitFormSchema', () => {
     });
 
     expect(result).toEqual({
-      total_unit_amount: '500',
+      total_unit_amount: 500,
       total_unit: 'g',
-      base_unit_amount: '100',
+      base_unit_amount: 100,
       base_unit: 'g',
       base_price: '9.99',
     });
+  });
+
+  it('maps a cleared price and cleared unit amounts to null rather than empty strings', () => {
+    const result = BaseUnitFormSchema.parse({
+      total_unit_amount: '',
+      total_unit: 'g',
+      base_unit_amount: '',
+      base_unit: 'g',
+      base_price: '',
+    });
+
+    expect(result.total_unit_amount).toBeNull();
+    expect(result.base_unit_amount).toBeNull();
+    expect(result.base_price).toBeNull();
   });
 
   it('maps undefined fields to null', () => {

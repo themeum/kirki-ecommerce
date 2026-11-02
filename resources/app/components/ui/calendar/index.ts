@@ -1,6 +1,7 @@
 export type { CalendarProps } from '@/components/ui/calendar/calendar';
 export { default as Calendar } from '@/components/ui/calendar/calendar';
 export type {
+  DateRangePreset,
   DateRangePresetKey,
   DateRangePresetsPosition,
 } from '@/components/ui/calendar/calendar-presets';

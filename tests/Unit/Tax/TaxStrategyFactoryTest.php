@@ -26,7 +26,7 @@ class TaxStrategyFactoryTest extends TestCase
             ['code' => 'BD', 'is_enabled' => true, 'is_central_tax_enabled' => true, 'central_product_tax' => 15, 'central_shipping_tax' => 5, 'rules' => [], 'states' => []],
         ]);
 
-        $strategy = TaxStrategyFactory::make(['country' => 'BD']);
+        $strategy = TaxStrategyFactory::make('BD');
 
         $this->assertInstanceOf(DefaultTaxStrategy::class, $strategy);
     }
@@ -43,7 +43,7 @@ class TaxStrategyFactoryTest extends TestCase
             ['code' => 'EU', 'is_enabled' => true, 'type' => 'oss', 'rules' => [], 'countries' => [['code' => 'AT', 'name' => 'Austria', 'rate' => 20]]],
         ]);
 
-        $strategy = TaxStrategyFactory::make(['country' => 'AT']);
+        $strategy = TaxStrategyFactory::make('AT');
 
         $this->assertInstanceOf(EUTaxStrategy::class, $strategy);
     }
@@ -60,7 +60,7 @@ class TaxStrategyFactoryTest extends TestCase
 
         $this->expectException(Exception::class);
 
-        TaxStrategyFactory::make([]);
+        TaxStrategyFactory::make('');
     }
 
     /**
@@ -76,7 +76,7 @@ class TaxStrategyFactoryTest extends TestCase
 
         $this->expectException(Exception::class);
 
-        TaxStrategyFactory::make(['country' => 'US']);
+        TaxStrategyFactory::make('US');
     }
 
     /**
@@ -93,11 +93,11 @@ class TaxStrategyFactoryTest extends TestCase
 
         $this->expectException(Exception::class);
 
-        TaxStrategyFactory::make(['country' => 'BD']);
+        TaxStrategyFactory::make('BD');
     }
 
     /**
-     * `Tax::get_tax_strategy()` never throws - an empty address returns
+     * `Tax::get_tax_strategy()` never throws - an empty country returns
      * null immediately, without ever reaching the factory.
      *
      * @return void
@@ -106,7 +106,7 @@ class TaxStrategyFactoryTest extends TestCase
     {
         $this->bind_full_tax_settings([]);
 
-        $this->assertNull(Tax::get_tax_strategy([]));
+        $this->assertNull(Tax::get_tax_strategy(''));
     }
 
     /**
@@ -122,7 +122,7 @@ class TaxStrategyFactoryTest extends TestCase
             ['code' => 'BD', 'is_enabled' => true, 'is_central_tax_enabled' => true, 'central_product_tax' => 15, 'central_shipping_tax' => 5, 'rules' => [], 'states' => []],
         ]);
 
-        $this->assertNull(Tax::get_tax_strategy(['country' => 'US']));
+        $this->assertNull(Tax::get_tax_strategy('US'));
     }
 
     /**
@@ -137,7 +137,7 @@ class TaxStrategyFactoryTest extends TestCase
             ['code' => 'BD', 'is_enabled' => true, 'is_central_tax_enabled' => true, 'central_product_tax' => 15, 'central_shipping_tax' => 5, 'rules' => [], 'states' => []],
         ]);
 
-        $strategy = Tax::get_tax_strategy(['country' => 'BD']);
+        $strategy = Tax::get_tax_strategy('BD');
 
         $this->assertInstanceOf(DefaultTaxStrategy::class, $strategy);
     }

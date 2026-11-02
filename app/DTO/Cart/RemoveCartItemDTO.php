@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Cart;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for removing an item from a user's or guest's cart.
+ *
+ * @since 1.0.0
+ */
 class RemoveCartItemDTO extends DTO
 {
     /** @var int|null */

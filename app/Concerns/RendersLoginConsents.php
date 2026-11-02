@@ -1,14 +1,5 @@
 <?php
 
-/**
- * Shared rendering and reading of consents on the wp-login.php forms.
- *
- * @package Kirki\Ecommerce\App\Concerns
- * @author Themeum <support@themeum.com>
- * @link https://themeum.com
- * @since 1.0.0
- */
-
 namespace Kirki\Ecommerce\App\Concerns;
 
 use Kirki\Ecommerce\App\Constants\ConsentMethods;
@@ -17,24 +8,35 @@ use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\with_prefix;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Shared rendering and reading of consents on the wp-login.php forms.
+ *
+ * @since 1.0.0
+ */
 trait RendersLoginConsents
 {
     /**
      * The field the consent checkboxes are posted under.
+     *
+     * @var string
      */
     protected static $consent_field = 'kecom_consents';
 
     /**
      * Render the consents configured for a location.
      *
-     * Styles are inlined because wp_enqueue_scripts does not fire on
-     * wp-login.php, so the storefront bundle is not present there.
+     * Styles are added as an inline style on a dedicated handle because
+     * wp_enqueue_scripts does not fire on wp-login.php, so the storefront
+     * bundle is not present there. WordPress prints the late-enqueued style
+     * in the login footer.
      *
-     * @param string $location
+     * @since 1.0.0
      *
+     * @param string $location Login form location to render consents for.
      * @return void
      */
     protected function render_consents(string $location)
@@ -45,7 +47,14 @@ trait RendersLoginConsents
             return;
         }
 
-        echo '<style>.kecom-login-consent{margin-bottom:16px;display:block;font-size:13px;line-height:1.5}.kecom-login-consent input{margin-right:6px}</style>';
+        $style_handle = with_prefix('login-consents');
+
+        wp_register_style($style_handle, false, [], app()->version());
+        wp_enqueue_style($style_handle);
+        wp_add_inline_style(
+            $style_handle,
+            '.kecom-login-consent{margin-bottom:16px;display:block;font-size:13px;line-height:1.5}.kecom-login-consent input{margin-right:6px}'
+        );
 
         foreach ($consents as $consent) {
             if (!in_array($consent['method'], ConsentMethods::get_checkbox_methods(), true)) {
@@ -66,8 +75,9 @@ trait RendersLoginConsents
     /**
      * Get the ids of the mandatory consents the request did not accept.
      *
-     * @param string $location
+     * @since 1.0.0
      *
+     * @param string $location Login form location the consents were shown at.
      * @return string[]
      */
     protected function get_unaccepted_consent_ids(string $location)

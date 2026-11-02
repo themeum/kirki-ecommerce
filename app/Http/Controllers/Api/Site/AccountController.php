@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Account\UpdateAccountProfileAction;
 use Kirki\Ecommerce\App\DTO\Account\UpdateProfilePayloadDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
@@ -33,30 +35,23 @@ use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
 /**
- * Class AccountController
+ * REST controller for the logged-in customer's account: profile, password, orders and email verification.
  *
  * @since 1.0.0
  */
 class AccountController
 {
-    /**
-     * Data list limit.
-     *
-     * @since 1.0.0
-     *
-     * @var int
-     */
+    /** @var int */
     protected $list_limit = 10;
 
     /**
-     * Update profile.
+     * Update the logged-in customer's profile from the validated request.
      *
      * @since 1.0.0
      *
-     * @param ProfileUpdateRequest $request Request.
-     * @param UpdateAccountProfileAction $action Action.
-     *
-     * @return Response response.
+     * @param ProfileUpdateRequest       $request
+     * @param UpdateAccountProfileAction $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated customer.
      */
     public function update_profile(ProfileUpdateRequest $request, UpdateAccountProfileAction $action)
     {
@@ -72,14 +67,13 @@ class AccountController
     }
 
     /**
-     * Change password.
+     * Change the logged-in user's password after checking the current one.
      *
      * @since 1.0.0
      *
-     * @param PasswordChangeRequest $request Request.
-     * @param UserService $user_service User service.
-     *
-     * @return Response response.
+     * @param PasswordChangeRequest $request
+     * @param UserService           $user_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response with `data` set to true.
      */
     public function change_password(PasswordChangeRequest $request, UserService $user_service)
     {
@@ -94,14 +88,15 @@ class AccountController
     }
 
     /**
-     * Customer orders.
+     * List the logged-in customer's orders, one page at a time.
+     *
+     * With `format=html` the order rows are rendered through the account orders view instead of returned as data.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
-     * @param OrderService $order_service Order service.
-     *
-     * @return Response JSON response.
+     * @param Request      $request
+     * @param OrderService $order_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The requested page of orders, or of rendered order rows.
      */
     public function customer_orders(Request $request, OrderService $order_service)
     {
@@ -132,14 +127,13 @@ class AccountController
     }
 
     /**
-     * Resend verification email to the current logged-in user.
+     * Resend the verification email to the logged-in user.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
-     * @param UserService $user_service User service.
-     *
-     * @return Response JSON response.
+     * @param Request     $request
+     * @param UserService $user_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response; a 401 response for guests, or a 422 response when sending fails.
      */
     public function resend_verification_email(Request $request, UserService $user_service)
     {

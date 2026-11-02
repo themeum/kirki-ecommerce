@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Dispatch, SetStateAction } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 
@@ -25,8 +25,14 @@ import {
   useAvailableCurrenciesQuery,
 } from '@/features/settings/multi-currency/services/currency';
 
+export type AddCurrencyStep = 'select' | 'rates';
+
 export type UseAddCurrencyDialogProps = {
   form: UseFormReturn<AddCurrencyPopupFormInput, unknown, AddCurrencyPopupFormPayload>;
+  step: AddCurrencyStep;
+  baseCurrencyCode: string;
+  handleNext: () => void;
+  handleBack: () => void;
   openPopup: boolean;
   setOpenPopup: Dispatch<SetStateAction<boolean>>;
   searchValue: string;
@@ -37,11 +43,14 @@ export type UseAddCurrencyDialogProps = {
   handleSearchCurrency: (event: unknown) => void;
   handleClosePopup: () => void;
   handleSubmit: (values: AddCurrencyPopupFormPayload) => void;
+  handleCloseAutoFocus: (event: Event) => void;
 };
 
 export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
   const [openPopup, setOpenPopup] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [step, setStep] = useState<AddCurrencyStep>('select');
+  const pendingFocusId = useRef<string | null>(null);
 
   const { data: availableCurrencies } = useAvailableCurrenciesQuery({ limit: -1 });
   const { data: allCurrenciesData } = useAllCurrenciesQuery({}, openPopup);
@@ -62,13 +71,18 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
     name: 'selectedCurrencies',
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!openPopup) {
       return;
     }
     form.reset({ selectedCurrencies: [] });
     setSearchValue('');
+    setStep('select');
   }, [openPopup, form]);
+
+  const baseCurrencyCode = useMemo(() => {
+    return formCurrencies?.find((currency) => currency.is_base)?.code ?? 'USD';
+  }, [formCurrencies]);
 
   const allCurrency = useMemo(() => {
     return filterUnaddedCurrencies(allCurrenciesData ?? [], [
@@ -81,35 +95,60 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
     return getSearchedValue(searchValue, allCurrency);
   }, [searchValue, allCurrency]);
 
-  const handleSelectCurrencies = (currency: CurrencyOption) => {
-    const next = toggleCurrencySelection(form.getValues('selectedCurrencies'), currency);
-    form.setValue('selectedCurrencies', next, { shouldDirty: true });
-  };
+  const handleSelectCurrencies = useCallback(
+    (currency: CurrencyOption) => {
+      const next = toggleCurrencySelection(formSelected, currency);
+      form.setValue('selectedCurrencies', next, { shouldDirty: true });
+    },
+    [form, formSelected],
+  );
 
   const handleSearchCurrency = (event: unknown) => {
     setSearchValue(resolveSearchInputValue(event));
   };
 
+  const handleNext = () => {
+    if (!formSelected?.length) {
+      return;
+    }
+    setStep('rates');
+  };
+
+  const handleBack = () => {
+    setStep('select');
+  };
+
   const handleClosePopup = () => {
-    setSearchValue('');
-    form.reset({ selectedCurrencies: [] });
     setOpenPopup(false);
   };
 
   const handleSubmit = (values: AddCurrencyPopupFormPayload) => {
-    append(
-      values.selectedCurrencies.map((currency) => ({
-        ...currency,
-        exchange_rate: null,
-      })),
-    );
-    setSearchValue('');
-    form.reset({ selectedCurrencies: [] });
+    const firstNewIndex = formCurrencies?.length ?? 0;
+
+    append(values.selectedCurrencies, { shouldFocus: false });
+    pendingFocusId.current = `currencies.${firstNewIndex}.exchange_rate`;
     setOpenPopup(false);
+  };
+
+  const handleCloseAutoFocus = (event: Event) => {
+    const inputId = pendingFocusId.current;
+    pendingFocusId.current = null;
+
+    if (!inputId) {
+      return;
+    }
+
+    // Keep the dialog from returning focus to its trigger; focus the first new rate instead.
+    event.preventDefault();
+    document.getElementById(inputId)?.focus();
   };
 
   return {
     form,
+    step,
+    baseCurrencyCode,
+    handleNext,
+    handleBack,
     openPopup,
     setOpenPopup,
     searchValue,
@@ -120,5 +159,6 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
     handleSearchCurrency,
     handleClosePopup,
     handleSubmit,
+    handleCloseAutoFocus,
   };
 };

@@ -2,10 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Models\Coupon;
+use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
@@ -23,22 +26,52 @@ use Kirki\Ecommerce\App\Facades\Money;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
-use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Validates coupons against a cart context and calculates their discounts.
+ *
+ * @since 1.0.0
+ */
 class DiscountService
 {
+    /** @var OrderService */
+    protected $order_service;
+
     /**
-     * Validate coupon.
+     * Set up the service.
      *
-     * @param Coupon $coupon
-     * @param CalculationContextDTO $context
-     * @param string[]|null $already_applied_coupon_codes Codes of coupons already confirmed valid in this same
-     *        calculation. Only `calculate()`'s batch loop needs to pass this explicitly - it validates coupons
-     *        one at a time, so `$context->coupon_codes` (the full candidate list) still includes ones not yet
-     *        confirmed valid. Every other caller can omit it: it defaults to `$context->coupon_codes` as-is,
-     *        which is the cart's currently-applied coupons (e.g. applying a new coupon to a cart) - including
-     *        the coupon's own code when it's a duplicate of one already applied, so that case is still caught.
-     * @throws ValidationException
+     * @since 1.0.0
+     *
+     * @param OrderService $order_service Buyer order and coupon-usage counts.
+     */
+    public function __construct(OrderService $order_service)
+    {
+        $this->order_service = $order_service;
+    }
+
+    /**
+     * Validate that a coupon can be applied to the given cart context.
+     *
+     * Checks status, item eligibility, spend and usage conditions, region,
+     * customer eligibility and conflicts with other applied coupons.
+     *
+     * @since 1.0.0
+     *
+     * @param Coupon                $coupon                       Coupon to validate.
+     * @param CalculationContextDTO $context                      Cart context to validate against.
+     * @param string[]|null         $already_applied_coupon_codes Codes of coupons already confirmed valid in this same
+     *                                                            calculation. Only `calculate()`'s batch loop needs to
+     *                                                            pass this explicitly - it validates coupons one at a
+     *                                                            time, so `$context->coupon_codes` (the full candidate
+     *                                                            list) still includes ones not yet confirmed valid.
+     *                                                            Every other caller can omit it: it defaults to
+     *                                                            `$context->coupon_codes` as-is, which is the cart's
+     *                                                            currently-applied coupons (e.g. applying a new coupon
+     *                                                            to a cart) - including the coupon's own code when it's
+     *                                                            a duplicate of one already applied, so that case is
+     *                                                            still caught.
+     * @return void
+     * @throws ValidationException When the coupon cannot be applied.
      */
     public function validate_coupon(Coupon $coupon, CalculationContextDTO $context, ?array $already_applied_coupon_codes = null)
     {
@@ -54,6 +87,15 @@ class DiscountService
         $this->validate_against_other_applied_coupons($coupon, $already_applied_coupon_codes);
     }
 
+    /**
+     * Ensure the coupon is currently active.
+     *
+     * @since 1.0.0
+     *
+     * @param Coupon $coupon Coupon to check.
+     * @return void
+     * @throws ValidationException When the coupon has expired, is inactive or has not started yet.
+     */
     protected function validate_status(Coupon $coupon)
     {
         $status = $coupon->get_status();
@@ -70,6 +112,16 @@ class DiscountService
         }
     }
 
+    /**
+     * Ensure the cart has at least one item the coupon applies to.
+     *
+     * @since 1.0.0
+     *
+     * @param Coupon                $coupon  Coupon to check.
+     * @param CalculationContextDTO $context Cart context.
+     * @return void
+     * @throws ValidationException When no cart item is eligible.
+     */
     protected function validate_items_eligibility(Coupon $coupon, CalculationContextDTO $context)
     {
         // A coupon that declares no item scope - free shipping, buy x get y -
@@ -83,6 +135,16 @@ class DiscountService
         throw_if($eligible_items->is_empty(), __('No eligible items found.', 'kirki-ecommerce'), ValidationException::class);
     }
 
+    /**
+     * Ensure the coupon's shipping, usage-limit, minimum-spend and per-customer limit conditions are met.
+     *
+     * @since 1.0.0
+     *
+     * @param Coupon                $coupon  Coupon to check.
+     * @param CalculationContextDTO $context Cart context.
+     * @return void
+     * @throws ValidationException When a condition is not met.
+     */
     protected function validate_conditions(Coupon $coupon, CalculationContextDTO $context)
     {
         throw_if($coupon->discount_type === DiscountType::FREE_SHIPPING && $context->shipping_subtotal <= 0, __('Free shipping coupon cannot be applied when shipping cost is zero.', 'kirki-ecommerce'), ValidationException::class);
@@ -96,23 +158,30 @@ class DiscountService
 
         // Has customer limit
         if ($coupon->has_customer_limit && $coupon->customer_limit > 0) {
-            throw_if(!$context->customer_id || empty(user()->get_id()), __('Please login to use this coupon.', 'kirki-ecommerce'), ValidationException::class);
+            $this->ensure_buyer_identity($context);
 
-            $current_customer_usage = $coupon->order_coupons()
-                ->where('customer_id', $context->customer_id)
-                ->where_null('usage_reversed_at')
-                ->count();
+            $current_customer_usage = $this->order_service->count_coupon_usages($coupon->id, $context->customer_id, $context->customer_email, $context->order_id);
 
             throw_if($current_customer_usage >= $coupon->customer_limit, __('You have reached the usage limit for this coupon.', 'kirki-ecommerce'), ValidationException::class);
         }
     }
 
+    /**
+     * Ensure the current customer is eligible under the coupon's include/exclude rules and first-time-buyer setting.
+     *
+     * @since 1.0.0
+     *
+     * @param Coupon                $coupon  Coupon to check.
+     * @param CalculationContextDTO $context Cart context.
+     * @return void
+     * @throws ValidationException When the customer is not eligible.
+     */
     protected function validate_customers_eligibility(Coupon $coupon, CalculationContextDTO $context)
     {
         $excluded_customers = $coupon->customers->filter(fn($customer) => !empty($customer->pivot['is_excluded']));
         $included_customers = $coupon->customers->reject(fn($customer) => !empty($customer->pivot['is_excluded']));
 
-        $is_registered_customer = !empty($context->customer_id);
+        $is_registered_customer = !empty($context->customer_id) || !empty($context->user_id);
 
         // Include only registered customers
         throw_if($coupon->customer_include_eligibility === CustomerIncludeEligibility::CUSTOMERS && !$is_registered_customer, __('Please login to use this coupon.', 'kirki-ecommerce'), ValidationException::class);
@@ -138,12 +207,41 @@ class DiscountService
 
         // First time buyer
         if ($coupon->first_time_buyer_only) {
-            throw_if(!$context->customer_id || empty(user()->get_id()), __('Please login to use this coupon.', 'kirki-ecommerce'), ValidationException::class);
+            $this->ensure_buyer_identity($context);
 
-            throw_if($context->customer_order_count > 0, __('This coupon is only available for first time buyers.', 'kirki-ecommerce'), ValidationException::class);
+            $prior_orders = $this->order_service->count_prior_orders($context->customer_id, $context->customer_email, $context->order_id);
+
+            throw_if($prior_orders > 0, __('This coupon is only available for first time buyers.', 'kirki-ecommerce'), ValidationException::class);
         }
     }
 
+    /**
+     * Ensure the buyer can be identified by a customer record or an email.
+     *
+     * The context's email is already resolved from the customer record or account when there
+     * is one, so it is empty only for a guest who has not entered an email yet.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart context.
+     * @return void
+     * @throws ValidationException When the buyer has neither.
+     */
+    protected function ensure_buyer_identity(CalculationContextDTO $context)
+    {
+        throw_if(empty($context->customer_id) && empty($context->customer_email), __('Please enter your email address to use this coupon.', 'kirki-ecommerce'), ValidationException::class);
+    }
+
+    /**
+     * Ensure the shipping address falls inside the coupon's target countries and states.
+     *
+     * @since 1.0.0
+     *
+     * @param Coupon                $coupon  Coupon to check.
+     * @param CalculationContextDTO $context Cart context.
+     * @return void
+     * @throws ValidationException When the shipping address is missing or outside the target region.
+     */
     protected function validate_region(Coupon $coupon, CalculationContextDTO $context)
     {
         if ($coupon->target_country_type === TargetCountryType::SPECIFIC_COUNTRIES && !empty($coupon->target_countries)) {
@@ -167,13 +265,18 @@ class DiscountService
 
     /**
      * Reject a coupon that's already applied, and serve as the seam for a
-     * future coupon-combinability rule. Every other combination is allowed
-     * today - a future rule (reading `coupons.combinations`) plugs in here
+     * future coupon-combinability rule.
+     *
+     * Every other combination is allowed today, except a second free shipping
+     * coupon - a future rule (reading `coupons.combinations`) plugs in here
      * without touching calculation math.
      *
-     * @param Coupon $coupon
-     * @param string[] $already_applied_coupon_codes
-     * @throws ValidationException
+     * @since 1.0.0
+     *
+     * @param Coupon   $coupon                       Coupon to check.
+     * @param string[] $already_applied_coupon_codes Codes of coupons already applied.
+     * @return void
+     * @throws ValidationException When the coupon is a duplicate, or a free shipping coupon is already applied.
      */
     protected function validate_against_other_applied_coupons(Coupon $coupon, array $already_applied_coupon_codes)
     {
@@ -196,21 +299,30 @@ class DiscountService
      * reported back via `invalid_coupons`, rather than aborting the whole
      * calculation - the remaining valid coupons still apply.
      *
-     * @param CalculationContextDTO $context
-     * @param Coupon[] $coupons
+     * Coupons that stay on an edited order (`$context->stored->coupons`) are
+     * not validated: they apply with the terms stored on the order. They are
+     * priced in the same passes as the other coupons, before them within a pass.
+     * A stored coupon was applied earlier, so it keeps the amount it promised
+     * and a new coupon takes from what is left.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart context.
+     * @param Coupon[]              $coupons Coupons applied to the cart.
      * @return DiscountCalculationResultDTO
      */
     public function calculate(CalculationContextDTO $context, array $coupons)
     {
         $result = new DiscountCalculationResultDTO();
+        $stored_coupons = $context->stored ? $context->stored->coupons : [];
 
-        if (empty($coupons)) {
+        if (empty($coupons) && empty($stored_coupons)) {
             return $result;
         }
 
         $valid_coupons = [];
-        $already_applied_codes = [];
-        $has_free_shipping_applied = false;
+        $already_applied_codes = array_keys($stored_coupons);
+        $has_free_shipping_applied = $this->has_stored_free_shipping($stored_coupons);
 
         foreach ($coupons as $coupon) {
             try {
@@ -228,7 +340,7 @@ class DiscountService
             }
         }
 
-        if (empty($valid_coupons)) {
+        if (empty($valid_coupons) && empty($stored_coupons)) {
             return $result;
         }
 
@@ -236,78 +348,180 @@ class DiscountService
         $remaining_per_item = [];
 
         foreach ($context->items as $item) {
-            $remaining_per_item[$item->variant_id] = $item->base_unit_price * $item->quantity;
+            $remaining_per_item[$item->line_key] = $item->base_unit_price * $item->quantity;
         }
 
         // Pass 1: item-scoped coupons apply directly and independently to their
         // eligible items - two item-scoped coupons on the same item both apply,
         // summed, neither capping nor excluding the other.
+        foreach ($stored_coupons as $stored_coupon) {
+            if ($stored_coupon->discount_type !== DiscountType::AMOUNT_OFF || $stored_coupon->discount_target !== DiscountTarget::PRODUCTS) {
+                continue;
+            }
+
+            $this->add_coupon_result($result, $this->apply_stored_item_scoped_amount_off($context, $stored_coupon), $remaining_per_item);
+        }
+
         foreach ($valid_coupons as $coupon) {
             if ($coupon->discount_type !== DiscountType::AMOUNT_OFF || $coupon->discount_target !== DiscountTarget::PRODUCTS) {
                 continue;
             }
 
-            $coupon_result = $this->apply_item_scoped_amount_off($context, $coupon);
-            $result->coupon_results[] = $coupon_result;
-
-            foreach ($coupon_result->item_discounts as $variant_id => $amount) {
-                $result->item_discounts[$variant_id] = ($result->item_discounts[$variant_id] ?? 0) + $amount;
-                $remaining_per_item[$variant_id] = max(0, ($remaining_per_item[$variant_id] ?? 0) - $amount);
-            }
+            $this->add_coupon_result($result, $this->apply_item_scoped_amount_off($context, $coupon), $remaining_per_item);
         }
 
         // Pass 2: cart-wide coupons apply sequentially against whatever subtotal
         // pass 1 (and each earlier pass-2 coupon) left remaining.
+        foreach ($stored_coupons as $stored_coupon) {
+            if ($stored_coupon->discount_type !== DiscountType::AMOUNT_OFF || $stored_coupon->discount_target !== DiscountTarget::ORDER) {
+                continue;
+            }
+
+            $this->add_coupon_result($result, $this->apply_stored_order_scoped_amount_off($stored_coupon, $remaining_per_item), $remaining_per_item);
+        }
+
         foreach ($valid_coupons as $coupon) {
             if ($coupon->discount_type !== DiscountType::AMOUNT_OFF || $coupon->discount_target !== DiscountTarget::ORDER) {
                 continue;
             }
 
-            $coupon_result = $this->apply_order_scoped_amount_off($coupon, $remaining_per_item);
-            $result->coupon_results[] = $coupon_result;
-
-            foreach ($coupon_result->item_discounts as $variant_id => $amount) {
-                $result->item_discounts[$variant_id] = ($result->item_discounts[$variant_id] ?? 0) + $amount;
-                $remaining_per_item[$variant_id] = max(0, ($remaining_per_item[$variant_id] ?? 0) - $amount);
-            }
+            $this->add_coupon_result($result, $this->apply_order_scoped_amount_off($coupon, $remaining_per_item), $remaining_per_item);
         }
 
         // Free shipping - waives up to $context->shipping_subtotal
-        foreach ($valid_coupons as $coupon) {
-            if ($coupon->discount_type !== DiscountType::FREE_SHIPPING) {
-                continue;
+        foreach ($stored_coupons as $stored_coupon) {
+            if ($stored_coupon->discount_type === DiscountType::FREE_SHIPPING) {
+                $this->add_free_shipping_result($result, $context, $this->make_stored_coupon($stored_coupon), $stored_coupon);
             }
+        }
 
-            $shipping_discount_amount = max(0, $context->shipping_subtotal);
-
-            $result->shipping_discount += $shipping_discount_amount;
-
-            $coupon_result = new CouponDiscountResultDTO();
-            $coupon_result->coupon = $coupon;
-            $coupon_result->shipping_discount = $shipping_discount_amount;
-            $coupon_result->total_discount = $shipping_discount_amount;
-
-            $result->coupon_results[] = $coupon_result;
+        foreach ($valid_coupons as $coupon) {
+            if ($coupon->discount_type === DiscountType::FREE_SHIPPING) {
+                $this->add_free_shipping_result($result, $context, $coupon);
+            }
         }
 
         // Buy-x-get-y is not implemented yet - record the coupon as applied
         // with no discount, matching today's no-op, rather than dropping it.
-        foreach ($valid_coupons as $coupon) {
-            if ($coupon->discount_type !== DiscountType::BUY_X_GET_Y) {
-                continue;
+        foreach ($stored_coupons as $stored_coupon) {
+            if ($stored_coupon->discount_type === DiscountType::BUY_X_GET_Y) {
+                $coupon_result = new CouponDiscountResultDTO();
+                $coupon_result->coupon = $this->make_stored_coupon($stored_coupon);
+                $coupon_result->order_coupon = $stored_coupon;
+                $result->coupon_results[] = $coupon_result;
             }
+        }
 
-            $coupon_result = new CouponDiscountResultDTO();
-            $coupon_result->coupon = $coupon;
-            $result->coupon_results[] = $coupon_result;
+        foreach ($valid_coupons as $coupon) {
+            if ($coupon->discount_type === DiscountType::BUY_X_GET_Y) {
+                $coupon_result = new CouponDiscountResultDTO();
+                $coupon_result->coupon = $coupon;
+                $result->coupon_results[] = $coupon_result;
+            }
         }
 
         $this->clamp_item_discounts($context, $result);
+        $result->product_item_discounts = $this->sum_product_item_discounts($result->coupon_results);
 
         return $result;
     }
 
     /**
+     * Add a coupon's result to the calculation and take its item discounts off the remaining subtotals.
+     *
+     * @since 1.0.0
+     *
+     * @param DiscountCalculationResultDTO $result              Calculation result, adjusted in place.
+     * @param CouponDiscountResultDTO      $coupon_result       Result of one coupon.
+     * @param array<int|string, int>       $remaining_per_item  Remaining subtotal in minor units per line key, adjusted in place.
+     * @return void
+     */
+    protected function add_coupon_result(DiscountCalculationResultDTO $result, CouponDiscountResultDTO $coupon_result, array &$remaining_per_item)
+    {
+        $result->coupon_results[] = $coupon_result;
+
+        foreach ($coupon_result->item_discounts as $line_key => $amount) {
+            $result->item_discounts[$line_key] = ($result->item_discounts[$line_key] ?? 0) + $amount;
+            $remaining_per_item[$line_key] = max(0, ($remaining_per_item[$line_key] ?? 0) - $amount);
+        }
+    }
+
+    /**
+     * Add a free shipping coupon's result: it waives the whole shipping charge.
+     *
+     * @since 1.0.0
+     *
+     * @param DiscountCalculationResultDTO $result       Calculation result, adjusted in place.
+     * @param CalculationContextDTO        $context      Cart context.
+     * @param Coupon                       $coupon       Free shipping coupon.
+     * @param OrderCoupon|null             $order_coupon Order coupon it was priced from, for a stored coupon.
+     * @return void
+     */
+    protected function add_free_shipping_result(DiscountCalculationResultDTO $result, CalculationContextDTO $context, Coupon $coupon, ?OrderCoupon $order_coupon = null)
+    {
+        $shipping_discount_amount = max(0, $context->shipping_subtotal);
+
+        $result->shipping_discount += $shipping_discount_amount;
+
+        $coupon_result = new CouponDiscountResultDTO();
+        $coupon_result->coupon = $coupon;
+        $coupon_result->order_coupon = $order_coupon;
+        $coupon_result->shipping_discount = $shipping_discount_amount;
+        $coupon_result->total_discount = $shipping_discount_amount;
+
+        $result->coupon_results[] = $coupon_result;
+    }
+
+    /**
+     * Check whether any stored coupon is a free shipping coupon.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, OrderCoupon> $stored_coupons Coupons that stay on the edited order.
+     * @return bool
+     */
+    protected function has_stored_free_shipping(array $stored_coupons)
+    {
+        foreach ($stored_coupons as $stored_coupon) {
+            if ($stored_coupon->discount_type === DiscountType::FREE_SHIPPING) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Sum each item's discount from product-scoped coupons only.
+     *
+     * Runs after clamp_item_discounts(), so it reads the clamped amounts and
+     * never exceeds the item's total discount.
+     *
+     * @since 1.0.0
+     *
+     * @param CouponDiscountResultDTO[] $coupon_results Applied coupon results.
+     * @return array<int|string, int> Discount in minor units, keyed by line key.
+     */
+    protected function sum_product_item_discounts(array $coupon_results)
+    {
+        $product_item_discounts = [];
+
+        foreach ($coupon_results as $coupon_result) {
+            if ($coupon_result->coupon->discount_target !== DiscountTarget::PRODUCTS) {
+                continue;
+            }
+
+            foreach ($coupon_result->item_discounts as $line_key => $amount) {
+                $product_item_discounts[$line_key] = ($product_item_discounts[$line_key] ?? 0) + $amount;
+            }
+        }
+
+        return $product_item_discounts;
+    }
+
+    /**
+     * Cap each item's combined coupon discounts at the item's subtotal.
+     *
      * Two item-scoped coupons on the same item are each capped individually
      * at that item's subtotal, but their sum can still exceed it. When that
      * happens, coupons are honored in application order - whichever coupon
@@ -318,19 +532,22 @@ class DiscountService
      * zero). Every coupon's reported total still reconciles exactly with
      * what was actually applied.
      *
-     * @param CalculationContextDTO $context
-     * @param DiscountCalculationResultDTO $result
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO        $context Cart context.
+     * @param DiscountCalculationResultDTO $result  Calculation result, adjusted in place.
+     * @return void
      */
     protected function clamp_item_discounts(CalculationContextDTO $context, DiscountCalculationResultDTO $result)
     {
         $item_subtotals = [];
 
         foreach ($context->items as $item) {
-            $item_subtotals[$item->variant_id] = $item->base_unit_price * $item->quantity;
+            $item_subtotals[$item->line_key] = $item->base_unit_price * $item->quantity;
         }
 
-        foreach ($result->item_discounts as $variant_id => $total_for_item) {
-            $subtotal = $item_subtotals[$variant_id] ?? 0;
+        foreach ($result->item_discounts as $line_key => $total_for_item) {
+            $subtotal = $item_subtotals[$line_key] ?? 0;
 
             if ($total_for_item <= $subtotal) {
                 continue;
@@ -339,11 +556,11 @@ class DiscountService
             $remaining = $subtotal;
 
             foreach ($result->coupon_results as $coupon_result) {
-                if (empty($coupon_result->item_discounts[$variant_id])) {
+                if (empty($coupon_result->item_discounts[$line_key])) {
                     continue;
                 }
 
-                $old_amount = $coupon_result->item_discounts[$variant_id];
+                $old_amount = $coupon_result->item_discounts[$line_key];
                 $new_amount = $remaining > 0 ? min($old_amount, $remaining) : 0;
                 $remaining -= $new_amount;
 
@@ -354,13 +571,13 @@ class DiscountService
                 $coupon_result->total_discount -= ($old_amount - $new_amount);
 
                 if ($new_amount > 0) {
-                    $coupon_result->item_discounts[$variant_id] = $new_amount;
+                    $coupon_result->item_discounts[$line_key] = $new_amount;
                 } else {
-                    unset($coupon_result->item_discounts[$variant_id]);
+                    unset($coupon_result->item_discounts[$line_key]);
                 }
             }
 
-            $result->item_discounts[$variant_id] = $subtotal;
+            $result->item_discounts[$line_key] = $subtotal;
         }
     }
 
@@ -368,8 +585,10 @@ class DiscountService
      * Apply an item-scoped amount-off coupon: each eligible item is discounted
      * independently against its own subtotal.
      *
-     * @param CalculationContextDTO $context
-     * @param Coupon $coupon
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart context.
+     * @param Coupon                $coupon  Coupon to apply.
      * @return CouponDiscountResultDTO
      */
     protected function apply_item_scoped_amount_off(CalculationContextDTO $context, Coupon $coupon)
@@ -388,7 +607,7 @@ class DiscountService
                 $amount = $this->get_percent_discounted_amount($coupon->discount_amount_percentage, $item_subtotal);
             }
 
-            $coupon_result->item_discounts[$item->variant_id] = $amount;
+            $coupon_result->item_discounts[$item->line_key] = $amount;
             $coupon_result->total_discount += $amount;
         });
 
@@ -399,8 +618,10 @@ class DiscountService
      * Apply a cart-wide amount-off coupon against the subtotal remaining after
      * earlier passes, allocating the total exactly across items by weight.
      *
-     * @param Coupon $coupon
-     * @param array<int, int> $remaining_per_item
+     * @since 1.0.0
+     *
+     * @param Coupon          $coupon             Coupon to apply.
+     * @param array<int|string, int> $remaining_per_item Remaining subtotal in minor units, keyed by line key.
      * @return CouponDiscountResultDTO
      */
     protected function apply_order_scoped_amount_off(Coupon $coupon, array $remaining_per_item)
@@ -427,10 +648,107 @@ class DiscountService
     }
 
     /**
+     * Apply a stored item-scoped amount-off coupon: only the lines it discounted before are discounted.
+     *
+     * A percentage coupon takes its stored rate of the line's new subtotal. A fixed coupon gives
+     * the amount it was set to when it was first applied, capped at the line's new subtotal. A line
+     * the coupon did not discount before gets nothing, whatever the coupon's original conditions were.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart context.
+     * @param OrderCoupon           $stored  Coupon as stored on the order, with its item rows loaded.
+     * @return CouponDiscountResultDTO
+     */
+    protected function apply_stored_item_scoped_amount_off(CalculationContextDTO $context, OrderCoupon $stored)
+    {
+        $coupon_result = new CouponDiscountResultDTO();
+        $coupon_result->coupon = $this->make_stored_coupon($stored);
+        $coupon_result->order_coupon = $stored;
+
+        $stored_shares = [];
+
+        foreach ($stored->order_item_coupons as $item_coupon) {
+            $stored_shares[$item_coupon->order_item_id] = $item_coupon->base_discount_amount;
+        }
+
+        foreach ($context->items as $item) {
+            if ($item->order_item_id === null || !isset($stored_shares[$item->order_item_id])) {
+                continue;
+            }
+
+            $item_subtotal = $item->base_unit_price * $item->quantity;
+
+            $amount = $stored->discount_rate !== null
+                ? $this->get_percent_discounted_amount($stored->discount_rate, $item_subtotal)
+                : $this->get_fixed_discounted_amount($stored->base_max_discount_amount ?? $stored_shares[$item->order_item_id], $item_subtotal);
+
+            $coupon_result->item_discounts[$item->line_key] = $amount;
+            $coupon_result->total_discount += $amount;
+        }
+
+        return $coupon_result;
+    }
+
+    /**
+     * Apply a stored cart-wide amount-off coupon to every line, including lines added since the order was placed.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderCoupon            $stored             Coupon as stored on the order.
+     * @param array<int|string, int> $remaining_per_item Remaining subtotal in minor units, keyed by line key.
+     * @return CouponDiscountResultDTO
+     */
+    protected function apply_stored_order_scoped_amount_off(OrderCoupon $stored, array $remaining_per_item)
+    {
+        $coupon_result = $this->apply_order_scoped_amount_off($this->make_stored_coupon($stored), $remaining_per_item);
+        $coupon_result->order_coupon = $stored;
+
+        return $coupon_result;
+    }
+
+    /**
+     * Build an unsaved coupon from the terms stored on an order, for pricing and display.
+     *
+     * A percentage coupon is told by its stored rate. A fixed cart-wide coupon uses
+     * its original promised maximum, independently of the currently applied amount.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderCoupon $stored Coupon as stored on the order.
+     * @return Coupon
+     */
+    protected function make_stored_coupon(OrderCoupon $stored)
+    {
+        $coupon = new Coupon();
+        $coupon->id = $stored->coupon_id;
+        $coupon->code = $stored->code;
+        $coupon->title = $stored->title;
+        $coupon->discount_type = $stored->discount_type;
+        $coupon->discount_target = $stored->discount_target;
+
+        if ($stored->discount_type !== DiscountType::AMOUNT_OFF) {
+            return $coupon;
+        }
+
+        $is_percentage = $stored->discount_rate !== null;
+
+        $coupon->discount_value_type = $is_percentage ? DiscountValueType::PERCENTAGE : DiscountValueType::FIXED;
+        $coupon->discount_amount_percentage = $stored->discount_rate;
+        $coupon->base_discount_amount_fixed = !$is_percentage
+            ? ($stored->base_max_discount_amount ?? $stored->base_discount_amount)
+            : null;
+
+        return $coupon;
+    }
+
+    /**
      * Get fixed discounted amount, capped at the amount it is being applied against.
      *
-     * @param int $discount_amount
-     * @param int $amount
+     * @since 1.0.0
+     *
+     * @param int $discount_amount Fixed discount in minor units.
+     * @param int $amount          Amount the discount applies to, in minor units.
      * @return int
      */
     protected function get_fixed_discounted_amount($discount_amount, $amount)
@@ -443,11 +761,13 @@ class DiscountService
     }
 
     /**
-     * Get percent wise discounted amount.
+     * Get the percentage discount for an amount, rounded half up and capped at that amount.
      *
-     * @param int|float $discount_amount
-     * @param int $amount
-     * @return int
+     * @since 1.0.0
+     *
+     * @param int|float $discount_amount Discount percentage.
+     * @param int       $amount          Amount the discount applies to, in minor units.
+     * @return int Discount in minor units.
      */
     protected function get_percent_discounted_amount($discount_amount, $amount)
     {
@@ -463,16 +783,19 @@ class DiscountService
     }
 
     /**
-     * Split a total amount across weighted buckets so every share is an exact
-     * integer minor unit and the shares sum to exactly `$total_amount` - no
-     * fractional unit lost or invented. Uses the largest-remainder method:
-     * each bucket's share is truncated down first, then the leftover minor
-     * units are handed out one at a time to the buckets with the largest
-     * truncated remainder (ties broken by key, for determinism).
+     * Split a total amount across weighted buckets.
      *
-     * @param int $total_amount
-     * @param array<int|string, int> $weights
-     * @return array<int|string, int>
+     * Every share is an exact integer minor unit and the shares sum to exactly
+     * `$total_amount` - no fractional unit lost or invented. Uses the
+     * largest-remainder method: each bucket's share is truncated down first,
+     * then the leftover minor units are handed out one at a time to the buckets
+     * with the largest truncated remainder (ties broken by key, for determinism).
+     *
+     * @since 1.0.0
+     *
+     * @param int                    $total_amount Amount to split, in minor units.
+     * @param array<int|string, int> $weights      Weight per bucket.
+     * @return array<int|string, int> Share per bucket, keyed like $weights.
      */
     protected function allocate_by_weight($total_amount, array $weights)
     {
@@ -523,10 +846,15 @@ class DiscountService
     }
 
     /**
-     * Get eligible items.
+     * Get the cart items the coupon applies to.
      *
-     * @param CalculationContextDTO $context
-     * @param Coupon $coupon
+     * All items for free shipping, all-products and order-targeted coupons;
+     * otherwise only items matching the coupon's products or categories.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Cart context.
+     * @param Coupon                $coupon  Coupon being evaluated.
      * @return Collection
      */
     protected function get_eligible_items(CalculationContextDTO $context, Coupon $coupon)

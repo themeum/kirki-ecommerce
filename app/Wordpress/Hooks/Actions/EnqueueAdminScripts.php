@@ -2,32 +2,57 @@
 
 namespace Kirki\Ecommerce\App\Wordpress\Hooks\Actions;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Supports\Assets;
-use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
+use Kirki\Ecommerce\App\Supports\HtmlStyle;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 
 use function Kirki\Ecommerce\Framework\app;
 
 /**
- * This hook is responsible for enqueueing the admin script.
+ * Enqueues the admin app's scripts and styles on the plugin's admin pages.
  *
  * @since 1.0.0
  */
 class EnqueueAdminScripts extends BaseHook
 {
+    /** Used when `KECOM_VITE_DEV_SERVER` is not defined. */
     protected const VITE_DEV_SERVER = 'http://localhost:5173';
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name()
     {
-        return HookNames::ADMIN_ENQUEUE_SCRIPT;
+        return WPHookNames::ADMIN_ENQUEUE_SCRIPT;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type()
     {
         return HookTypes::ACTION;
     }
 
+    /**
+     * Enqueue the editor and media assets and the admin app bundle on the plugin's admin pages.
+     *
+     * Runs on the `admin_enqueue_scripts` action. Uses the Vite dev server in dev mode
+     * and the built manifest otherwise.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments, unused.
+     * @return void
+     */
     public function handle(...$args)
     {
         if (!Assets::is_admin_page()) {
@@ -38,6 +63,12 @@ class EnqueueAdminScripts extends BaseHook
         wp_enqueue_editor();
         wp_enqueue_media();
 
+        $admin_style_handle = 'kirki-ecommerce-admin-styles';
+
+        wp_register_style($admin_style_handle, false, [], app()->version());
+        wp_enqueue_style($admin_style_handle);
+        wp_add_inline_style($admin_style_handle, HtmlStyle::build_style_block(HtmlStyle::richtext_styles()));
+
         if (app()->is_dev_mode()) {
             $this->enqueue_vite_dev_scripts();
             return;
@@ -46,8 +77,16 @@ class EnqueueAdminScripts extends BaseHook
         $this->enqueue_production_scripts();
     }
 
+    /**
+     * Enqueue the app's scripts served by the Vite dev server.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function enqueue_vite_dev_scripts()
     {
+        $vite_dev_server = $this->get_vite_dev_server();
         $vite_refresh_handle = app()->prefix() . 'vite-refresh';
 
         wp_enqueue_script(
@@ -62,13 +101,13 @@ class EnqueueAdminScripts extends BaseHook
             $vite_refresh_handle,
             'kirkiEcommerceViteRefresh',
             [
-                'refreshUrl' => esc_url_raw(static::VITE_DEV_SERVER . '/@react-refresh'),
+                'refreshUrl' => esc_url_raw($vite_dev_server . '/@react-refresh'),
             ]
         );
 
         wp_enqueue_script(
             app()->prefix() . 'vite-client',
-            static::VITE_DEV_SERVER . '/@vite/client',
+            $vite_dev_server . '/@vite/client',
             [$vite_refresh_handle],
             null,
             true
@@ -76,7 +115,7 @@ class EnqueueAdminScripts extends BaseHook
 
         wp_enqueue_script(
             app()->prefix() . 'app',
-            static::VITE_DEV_SERVER . '/main.tsx',
+            $vite_dev_server . '/main.tsx',
             [app()->prefix() . 'vite-client'],
             null,
             true
@@ -85,6 +124,32 @@ class EnqueueAdminScripts extends BaseHook
         add_filter('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
     }
 
+    /**
+     * Get the origin of the Vite dev server.
+     *
+     * Each Docker stack sets its own port with the `KECOM_VITE_DEV_SERVER` constant,
+     * so several worktrees can run their dev servers at the same time.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
+    protected function get_vite_dev_server()
+    {
+        if (defined('KECOM_VITE_DEV_SERVER') && is_string(KECOM_VITE_DEV_SERVER) && KECOM_VITE_DEV_SERVER !== '') {
+            return untrailingslashit(KECOM_VITE_DEV_SERVER);
+        }
+
+        return static::VITE_DEV_SERVER;
+    }
+
+    /**
+     * Get the URL of the bundled Vite refresh helper script.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     protected function get_vite_refresh_script_url()
     {
         return plugins_url(
@@ -93,9 +158,16 @@ class EnqueueAdminScripts extends BaseHook
         );
     }
 
+    /**
+     * Enqueue the built vendor chunks and entry bundle listed in the Vite manifest.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function enqueue_production_scripts()
     {
-        $manifest = Assets::get_manifest();
+        $manifest = $this->get_manifest();
         $entry = $manifest['main.tsx'] ?? null;
 
         if (!$entry) {
@@ -134,15 +206,80 @@ class EnqueueAdminScripts extends BaseHook
             $dependencies[] = $vendor_handle;
         }
 
+        $bundle_handle = app()->prefix() . 'bundle';
+
         wp_enqueue_script(
-            app()->prefix() . 'bundle',
+            $bundle_handle,
             KIRKI_ECOMMERCE_ASSETS_URL . '/' . $entry['file'],
-            $dependencies,
+            array_merge(['wp-i18n'], $dependencies),
             null,
             true
         );
 
+        $this->add_script_translations($manifest, $bundle_handle);
+
         add_filter('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
+    }
+
+    /**
+     * Get the Vite build manifest.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected function get_manifest()
+    {
+        return Assets::get_manifest();
+    }
+
+    /**
+     * Pass the translations of every built JS file to `wp.i18n` before the entry bundle runs.
+     *
+     * The app loads its chunks through `import()`, so WordPress never sees them and
+     * `wp_set_script_translations()` cannot reach their strings. Each file gets a
+     * handle that is registered only long enough for core's `load_script_textdomain()`
+     * to find its JSON file. The result is printed before the entry bundle with the
+     * same snippet core uses, and `setLocaleData()` merges every file into one
+     * dictionary for the text domain.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, array<string, mixed>> $manifest Vite build manifest.
+     * @param string                              $handle   Entry bundle handle.
+     * @return void
+     */
+    protected function add_script_translations($manifest, $handle)
+    {
+        $domain = 'kirki-ecommerce';
+
+        foreach ($manifest as $chunk) {
+            $file = $chunk['file'] ?? '';
+
+            if (substr($file, -3) !== '.js') {
+                continue;
+            }
+
+            $chunk_handle = app()->prefix() . 'i18n-' . md5($file);
+
+            wp_register_script($chunk_handle, KIRKI_ECOMMERCE_ASSETS_URL . '/' . $file, [], app()->version(), true);
+            $translations = load_script_textdomain($chunk_handle, $domain, KIRKI_ECOMMERCE_PLUGIN_PATH . 'languages');
+            wp_deregister_script($chunk_handle);
+
+            if (!$translations) {
+                continue;
+            }
+
+            wp_add_inline_script(
+                $handle,
+                sprintf(
+                    '( function( domain, translations ) { var localeData = translations.locale_data[ domain ] || translations.locale_data.messages; localeData[""].domain = domain; wp.i18n.setLocaleData( localeData, domain ); } )( "%s", %s );',
+                    $domain,
+                    $translations
+                ),
+                'before'
+            );
+        }
     }
 
     /**
@@ -153,9 +290,10 @@ class EnqueueAdminScripts extends BaseHook
      * the `<script src>` tag, so any tag rewriting there also hits the inline
      * config and localization snippets.
      *
-     * @param array $attributes
+     * @since 1.0.0
      *
-     * @return array
+     * @param array<string, mixed> $attributes Script tag attributes.
+     * @return array<string, mixed> Attributes with `type` set to `module` for the app's handles.
      */
     public function add_module_type_to_scripts($attributes)
     {

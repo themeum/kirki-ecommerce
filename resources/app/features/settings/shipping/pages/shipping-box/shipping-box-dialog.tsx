@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import NumberField from '@/components/form/number-field';
 import SelectField from '@/components/form/select-field';
@@ -20,7 +20,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import ShippingBoxPreview from '@/features/settings/shipping/components/shipping-box-preview/shipping-box-preview';
 import type { ShippingBox } from '@/features/settings/shipping/schemas/catalog/shipping';
 import {
   type ShippingBoxFormInput,
@@ -73,21 +72,14 @@ const ShippingBoxPopup = ({
   onSave = noop,
 }: ShippingBoxPopupProps) => {
   const { data: productSettingsData } = useSettingsQuery('product');
-  const { mutateAsync: createBox, isPending: isCreating } =
-    useCreateShippingBoxMutation();
-  const { mutateAsync: updateBox, isPending: isUpdating } =
-    useUpdateShippingBoxMutation();
+  const { mutateAsync: createBox, isPending: isCreating } = useCreateShippingBoxMutation();
+  const { mutateAsync: updateBox, isPending: isUpdating } = useUpdateShippingBoxMutation();
   const isSubmitting = isCreating || isUpdating;
 
   const form = useForm<ShippingBoxFormInput, unknown, ShippingBoxFormPayload>({
     resolver: zodResolver(ShippingBoxFormSchema),
     defaultValues: getDefaults(ShippingBoxFormSchema),
   });
-
-  const length = useWatch({ control: form.control, name: 'length' });
-  const width = useWatch({ control: form.control, name: 'width' });
-  const height = useWatch({ control: form.control, name: 'height' });
-  const unit = useWatch({ control: form.control, name: 'unit' });
 
   useEffect(() => {
     if (!isOpen || !selectedItem) {
@@ -167,23 +159,15 @@ const ShippingBoxPopup = ({
               placeholder={__('e.g. Small Package', 'kirki-ecommerce')}
             />
             <div>
-              <Card data-search-skip="true"
-                cssOverride={mergeCss(
-                  cardStyles.innerCard,
-                  styles.dimensionsCard,
-                )}
+              <Card
+                data-search-skip="true"
+                cssOverride={mergeCss(cardStyles.innerCard, styles.dimensionsCard)}
               >
                 <CardContent cssOverride={cardStyles.innerContent}>
                   <span css={scoped(styles.dimensionsLabel)}>
-                    <Text weight="medium">
-                      {__('Dimensions', 'kirki-ecommerce')}
-                    </Text>
+                    <Text weight="medium">{__('Dimensions', 'kirki-ecommerce')}</Text>
                   </span>
-                  <Flex
-                    gap={2}
-                    align="flex-end"
-                    cssOverride={styles.dimensionsRow}
-                  >
+                  <Flex gap={2} align="flex-end" cssOverride={styles.dimensionsRow}>
                     <NumberField
                       name="length"
                       label={__('Length', 'kirki-ecommerce')}
@@ -216,27 +200,11 @@ const ShippingBoxPopup = ({
                   </Flex>
                 </CardContent>
               </Card>
-              <Card
-                cssOverride={mergeCss(cardStyles.darkCard, styles.previewCard)}
-              >
-                <CardContent cssOverride={styles.previewContent}>
-                  <ShippingBoxPreview
-                    length={Number(length) || 0}
-                    width={Number(width) || 0}
-                    height={Number(height) || 0}
-                    unit={unit ?? 'in'}
-                  />
-                </CardContent>
-              </Card>
             </div>
           </DialogBody>
           <Separator cssOverride={styles.footerSeparator} />
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={handleOnclosePopup}
-              disabled={isSubmitting}
-            >
+            <Button variant="outline" onClick={handleOnclosePopup} disabled={isSubmitting}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
@@ -244,9 +212,7 @@ const ShippingBoxPopup = ({
               onClick={form.handleSubmit(handleCreateOrUpdateBox)}
               loading={isSubmitting}
             >
-              {selectedItem
-                ? __('Update', 'kirki-ecommerce')
-                : __('Add', 'kirki-ecommerce')}
+              {selectedItem ? __('Update', 'kirki-ecommerce') : __('Add', 'kirki-ecommerce')}
             </Button>
           </DialogFooter>
         </Form>
@@ -292,15 +258,6 @@ const styles = defineStyles({
     flex: '0 0 auto',
     minWidth: 0,
     width: 'auto',
-  },
-  previewCard: {
-    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
-    marginTop: `-${theme.spacing[2]}`,
-    height: '230px',
-  },
-  previewContent: {
-    padding: theme.spacing[1],
-    height: '100%',
   },
   footerSeparator: {
     margin: theme.spacing[0],

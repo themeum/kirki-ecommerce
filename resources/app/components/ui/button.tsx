@@ -196,7 +196,7 @@ const styles = defineStyles({
   },
   sizes: {
     xs: {
-      ...theme.typography.tiny(),
+      ...theme.typography.tiny('medium'),
       height: '24px',
       padding: `0 ${theme.spacing[2]}`,
       borderRadius: theme.radius.md,
@@ -206,7 +206,7 @@ const styles = defineStyles({
       },
     },
     sm: {
-      ...theme.typography.tiny(),
+      ...theme.typography.tiny('medium'),
       height: '28px',
       padding: '0 10px',
       '& svg': {
@@ -223,7 +223,7 @@ const styles = defineStyles({
       },
     },
     lg: {
-      ...theme.typography.small(),
+      ...theme.typography.small('medium'),
       height: '36px',
       padding: `0 ${theme.spacing[4]}`,
       '& svg': {

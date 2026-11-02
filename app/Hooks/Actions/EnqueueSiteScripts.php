@@ -11,38 +11,37 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Actions;
 
+defined('ABSPATH') || exit;
+
+use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Supports\Assets;
+use Kirki\Ecommerce\App\Supports\HtmlStyle;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
-use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
 use function Kirki\Ecommerce\Framework\app;
 
 /**
- * Class EnqueueSiteScripts
+ * Enqueues the storefront script and stylesheet on wp_enqueue_scripts.
  *
  * @since 1.0.0
  */
 class EnqueueSiteScripts extends BaseHook
 {
     /**
-     * Get the hook name.
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return string The hook name.
      */
     public function get_name(): string
     {
-        return HookNames::WP_ENQUEUE_SCRIPT;
+        return WPHookNames::WP_ENQUEUE_SCRIPT;
     }
 
     /**
-     * Get the hook type.
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return string The hook type.
      */
     public function get_type(): string
     {
@@ -50,11 +49,9 @@ class EnqueueSiteScripts extends BaseHook
     }
 
     /**
-     * Get the hook priority.
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return int The hook priority.
      */
     public function get_priority(): int
     {
@@ -62,12 +59,11 @@ class EnqueueSiteScripts extends BaseHook
     }
 
     /**
-     * Handle the hook.
+     * Enqueue the site script and stylesheet with their inline styles, config and translations.
      *
      * @since 1.0.0
      *
-     * @param array $args Hook arguments.
-     *
+     * @param mixed ...$args Hook arguments, unused.
      * @return void
      */
     public function handle(...$args)
@@ -78,9 +74,11 @@ class EnqueueSiteScripts extends BaseHook
         wp_enqueue_script($site_js_handler, Assets::get_url('js/site.js'), ['wp-i18n'], app()->version(), true);
         wp_enqueue_style($site_css_handler, Assets::get_url('css/site.css'), [], app()->version());
 
+        wp_add_inline_style($site_css_handler, HtmlStyle::build_style_block(HtmlStyle::richtext_styles()));
+
         wp_add_inline_script($site_js_handler, Assets::get_kirki_ecommerce_configs(), 'before');
 
         // Set script translation data for wp-i18n
-        wp_set_script_translations($site_js_handler, 'kirki-ecommerce', KIRKI_ECOMMERCE_PLUGIN_PATH . '/languages');
+        wp_set_script_translations($site_js_handler, 'kirki-ecommerce', KIRKI_ECOMMERCE_PLUGIN_PATH . 'languages');
     }
 }

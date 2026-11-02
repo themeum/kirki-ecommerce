@@ -3,32 +3,38 @@ import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
-import DataTable from '@/components/data-table';
+import DataTable, { DataTableEmptyState } from '@/components/data-table';
 import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
+import Button from '@/components/ui/button';
 import CategoryAddEditPopover from '@/features/categories/components/category-add-edit-dialog';
 import CategoryTableFilters from '@/features/categories/components/category-table/category-table-filters';
-import { categoryColumns } from '@/features/categories/components/category-table/columns';
+import { createCategoryColumns } from '@/features/categories/components/category-table/columns';
 import type { Category } from '@/features/categories/schemas/catalog/category';
 import {
   useBulkDeleteCategoriesMutation,
-  useCategoriesQuery,
   useDeleteCategoryMutation,
 } from '@/features/categories/services/category';
 import { categoryListOptions } from '@/features/categories/types';
 import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
+import type { ListingTableProps } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 const categoryBulkActions: DataTableBulkAction[] = [
-  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+  { value: 'delete', title: __('Move to trash', 'kirki-ecommerce'), destructive: true },
 ];
 
-const CategoryTable = () => {
-  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams(categoryListOptions);
+const CategoryTable = ({ data, isLoading = false }: ListingTableProps<Category>) => {
+  const {
+    pagination,
+    sorting,
+    onPaginationChange,
+    onSortingChange,
+    selectionResetKey,
+    clearFilters,
+  } = useDataTableParams(categoryListOptions);
 
-  const { data, isFetching } = useCategoriesQuery(params);
   const deleteMutation = useDeleteCategoryMutation();
   const bulkDeleteMutation = useBulkDeleteCategoriesMutation();
   const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
@@ -62,7 +68,7 @@ const CategoryTable = () => {
 
   const columns = useMemo<ColumnDef<Category>[]>(
     () => [
-      ...categoryColumns,
+      ...createCategoryColumns({ onEdit: setEditingItem }),
       {
         id: 'actions',
         header: '',
@@ -108,7 +114,7 @@ const CategoryTable = () => {
         onPaginationChange={onPaginationChange}
         sorting={sorting}
         onSortingChange={onSortingChange}
-        isLoading={isFetching}
+        isLoading={isLoading}
         enableRowSelection
         selectionResetKey={selectionResetKey}
         bulkActions={categoryBulkActions}
@@ -116,6 +122,16 @@ const CategoryTable = () => {
         columnPinning={{ right: ['actions'] }}
         density="compact"
         toolbar={<CategoryTableFilters />}
+        emptyState={
+          <DataTableEmptyState
+            title={__('No categories found', 'kirki-ecommerce')}
+            actions={
+              <Button variant="secondary" onClick={clearFilters}>
+                {__('Clear Search', 'kirki-ecommerce')}
+              </Button>
+            }
+          />
+        }
       />
       {deleteConfirmation}
       {editingItem && (

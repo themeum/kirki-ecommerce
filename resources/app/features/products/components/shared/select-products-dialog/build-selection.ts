@@ -22,6 +22,11 @@ const buildVariantSelections = (
         label || variant.sku || __('Default', 'kirki-ecommerce'),
       thumbnail: variant.media?.url ?? product.image ?? null,
       inStock: variant.in_stock,
+      availableQuantity: variant.available_quantity,
+      allowBackOrder: variant.allow_back_order,
+      trackInventory: variant.track_inventory,
+      hasLimitPerOrder: variant.has_limit_per_order,
+      maxPerOrder: variant.max_per_order,
       regularPrice: variant.base_price_money_object,
       salePrice: variant.base_sale_price_money_object,
     });

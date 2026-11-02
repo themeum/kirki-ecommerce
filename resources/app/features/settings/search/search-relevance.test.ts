@@ -22,9 +22,8 @@ const relevant: [query: string, expected: string[]][] = [
   ['store address', ['general.store-address']],
   ['invoice id', ['general.invoice-id']],
   ['calculate tax', ['general.calculate-tax']],
-  ['barcode', ['essentials.barcode-generation']],
   ['reviews', ['products.reviews']],
-  ['payment gateways', ['payments.online']],
+  ['payment gateways', ['payments.methods']],
   ['variation', ['essentials.variation-library']],
   ['structured data', ['essentials.schema-profile']],
   ['email template', ['email.default-template']],
@@ -49,7 +48,7 @@ const related: [query: string, expected: string[]][] = [
   ['countries i sell to', ['general.selling-locations']],
   ['box size', ['shipping.boxes']],
   ['tax included in price', ['tax.collection']],
-  ['digital wallet', ['payments.online']],
+  ['digital wallet', ['payments.methods']],
   ['bulky items', ['shipping.profiles']],
 ];
 
@@ -64,7 +63,6 @@ const partial: [query: string, expected: string[]][] = [
   ['shipp', ['nav.shipping', 'shipping.zones']],
   ['varia', ['essentials.variation-library']],
   ['curren', ['currency.preferences', 'nav.currency']],
-  ['barcod', ['essentials.barcode-generation']],
   ['invoic', ['general.invoice-id']],
   ['guest ch', ['checkout.guest-checkout']],
 ];
@@ -72,17 +70,15 @@ const partial: [query: string, expected: string[]][] = [
 const keyworded: [query: string, expected: string[]][] = [
   ['parcel', ['shipping.boxes']],
   ['gst', ['tax.regions', 'tax.profile', 'tax.collection', 'nav.tax']],
-  ['bank transfer', ['payments.offline']],
-  ['upc', ['essentials.barcode-generation']],
+  ['bank transfer', ['payments.methods']],
   ['seo', ['essentials.schema-profile']],
-  ['cash on delivery', ['payments.offline']],
+  ['cash on delivery', ['payments.methods']],
   ['turn off tax', ['general.calculate-tax']],
 ];
 
 const literal: [query: string, expected: string[]][] = [
   ['va', ['essentials.variation-library', 'tax.regions']],
-  ['va zo', ['tax.regions']],
-  ['gtin', ['essentials.barcode-generation']],
+  ['va re', ['tax.regions']],
 ];
 
 const absent = [
@@ -136,7 +132,7 @@ describe('settings search relevance', () => {
   });
 
   it('drops a card that matches only part of a multi-word query', () => {
-    expect(topResults('digital wallet')).toEqual(['payments.online']);
+    expect(topResults('digital wallet')).toEqual(['payments.methods']);
   });
 
   it('does not append literal matches to a query that already found something', () => {

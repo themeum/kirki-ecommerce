@@ -2,6 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Constants\Order;
 
+defined('ABSPATH') || exit;
+
+/**
+ * Statuses of a refund.
+ *
+ * @since 1.0.0
+ */
 final class RefundStatus
 {
     const PENDING = 'pending';

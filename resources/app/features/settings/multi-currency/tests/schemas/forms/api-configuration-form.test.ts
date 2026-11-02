@@ -7,14 +7,10 @@ describe('ApiConfigurationFormSchema', () => {
     const result = ApiConfigurationFormSchema.parse({
       api_key: 'secret-key',
       update_frequency: 'every_1_hour',
-      fallback_behaviour: 'last_known_rate',
-      is_cache_enabled: true,
     });
     expect(result).toEqual({
       api_key: 'secret-key',
       update_frequency: 'every_1_hour',
-      fallback_behaviour: 'last_known_rate',
-      is_cache_enabled: true,
     });
   });
 
@@ -23,9 +19,16 @@ describe('ApiConfigurationFormSchema', () => {
       ApiConfigurationFormSchema.safeParse({
         api_key: '',
         update_frequency: '',
-        fallback_behaviour: 'base_currency',
-        is_cache_enabled: false,
       }).success,
     ).toBe(false);
+  });
+
+  it('does not send a fallback behaviour', () => {
+    const result = ApiConfigurationFormSchema.parse({
+      api_key: 'secret-key',
+      update_frequency: 'every_1_hour',
+      fallback_behaviour: 'last_known_rate',
+    });
+    expect(result).not.toHaveProperty('fallback_behaviour');
   });
 });

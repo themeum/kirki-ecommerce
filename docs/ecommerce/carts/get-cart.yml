@@ -41,6 +41,7 @@ examples:
             "data": {
               "id": "15",
               "user_id": 2,
+              "customer_email": "jane@example.com",
               "cart_token": "38c51e6c-e936-472c-9cc3-5d90587f9cf6",
               "currency": {
                 "code": "USD",
@@ -123,6 +124,9 @@ examples:
                   "id": "fsdfdsfsd56df343432jh4",
                   "name": "Local Pickup",
                   "type": "local_pickup",
+                  "address": "12 Main Street, Los Angeles, CA 90001",
+                  "pickup_time_start": "09:00",
+                  "pickup_time_end": "17:00",
                   "display_cost_money_object": { "raw": 9, "display": "$9.00", "currency": { "code": "USD", "symbol": "$" } }
                 },
                 {
@@ -133,7 +137,7 @@ examples:
                 }
               ],
               "shipping_method": "fsdfdsfsdfsdf343432jh4",
-              "customer_notes": null,
+              "order_notes": null,
               "ip_address": null,
               "user_agent": null,
               "expires_at": {

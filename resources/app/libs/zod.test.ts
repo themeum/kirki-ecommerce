@@ -7,6 +7,7 @@ import {
   getDefaults,
   isEmptyValue,
   mediaId,
+  moneyOrNull,
   numberOrNull,
   pickFormValues,
   prepareFormSchema,
@@ -246,6 +247,11 @@ describe('mediaId', () => {
     expect(result.logo).toEqual({ id: 9, poster: null });
   });
 
+  it('does not treat an object with id and type but no url as media', () => {
+    const result = schema.parse({ logo: { id: 'method-0002', type: 'local_pickup' } });
+    expect(result.logo).toBeNull();
+  });
+
   it('maps empty and nullish values to null', () => {
     expect(schema.parse({ logo: null }).logo).toBeNull();
     expect(schema.parse({ logo: undefined }).logo).toBeNull();
@@ -288,6 +294,27 @@ describe('numberOrNull', () => {
 
   it('maps a non-numeric string to null', () => {
     expect(schema.parse({ quantity: 'abc' }).quantity).toBeNull();
+  });
+});
+
+describe('moneyOrNull', () => {
+  const schema = z.object({ base_price: moneyOrNull() });
+
+  it('maps empty string, whitespace, null, and undefined to null', () => {
+    expect(schema.parse({ base_price: '' }).base_price).toBeNull();
+    expect(schema.parse({ base_price: '   ' }).base_price).toBeNull();
+    expect(schema.parse({ base_price: null }).base_price).toBeNull();
+    expect(schema.parse({ base_price: undefined }).base_price).toBeNull();
+  });
+
+  it('passes a supplied amount through unchanged', () => {
+    expect(schema.parse({ base_price: 12.5 }).base_price).toBe(12.5);
+    expect(schema.parse({ base_price: '12.50' }).base_price).toBe('12.50');
+  });
+
+  it('keeps zero as a value rather than treating it as blank', () => {
+    expect(schema.parse({ base_price: 0 }).base_price).toBe(0);
+    expect(schema.parse({ base_price: '0' }).base_price).toBe('0');
   });
 });
 

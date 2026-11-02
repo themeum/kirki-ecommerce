@@ -69,15 +69,17 @@ const AdvancedSettings = () => {
                     )}
                   </Text>
                 </Flex>
-                <Button
-                  onClick={() => void runFixMutation.mutate()}
-                  loading={runFixMutation.isPending}
-                  disabled={!hasPageError || runFixMutation.isPending}
-                  size="sm"
-                >
-                  <Hammer size="12" />
-                  {__('Run Fix', 'kirki-ecommerce')}
-                </Button>
+                {hasPageError && (
+                  <Button
+                    onClick={() => void runFixMutation.mutate()}
+                    loading={runFixMutation.isPending}
+                    disabled={runFixMutation.isPending}
+                    size="sm"
+                  >
+                    <Hammer size="12" />
+                    {__('Run Fix', 'kirki-ecommerce')}
+                  </Button>
+                )}
               </Flex>
 
               <Flex direction="column" gap={3} cssOverride={styles.contentWrapper}>

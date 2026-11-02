@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Attribute;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 
+/**
+ * Filters for listing product attributes, adding the attribute type to the shared list filters.
+ *
+ * @since 1.0.0
+ */
 class AttributeListFilterDTO extends ListFilterDTO
 {
     /** @var string|null */

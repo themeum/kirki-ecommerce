@@ -90,8 +90,8 @@ extract($data);
                         @input="delete billingErrors.city">
                     <span class="kecom-field-error" x-show="billingErrors.city" x-text="billingErrors.city"></span>
                 </div>
-                <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.state }">
-                    <label class="kecom-field-label" for="billing-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
+                <div class="kecom-field" x-show="billingRule.state.mode !== 'hidden'" :class="{ 'kecom-field-error-state': billingErrors.state }">
+                    <label class="kecom-field-label" for="billing-state" x-text="billingRule.state.label"></label>
                     <select
                         class="kecom-select"
                         id="billing-state"
@@ -99,14 +99,14 @@ extract($data);
                         :disabled="billingStates.length === 0"
                         x-model="billingAddress.state"
                         @change="onBillingStateChange">
-                        <option value="" x-text="billingStates.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
+                        <option value="" x-text="billingStates.length ? '<?php esc_attr_e('Select', 'kirki-ecommerce'); ?> ' + billingRule.state.label : '<?php esc_attr_e('Not applicable', 'kirki-ecommerce'); ?>'"></option>
                         <template x-for="state in billingStates" :key="state.id">
                             <option :value="state.id" x-text="state.name" :selected="String(state.id) === String(billingAddress.state)"></option>
                         </template>
                     </select>
                     <span class="kecom-field-error" x-show="billingErrors.state" x-text="billingErrors.state"></span>
                 </div>
-                <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.postal_code }">
+                <div class="kecom-field" x-show="billingRule.postal_code.mode !== 'hidden'" :class="{ 'kecom-field-error-state': billingErrors.postal_code }">
                     <label class="kecom-field-label" for="billing-postal-code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
                     <input
                         class="kecom-input"

@@ -132,10 +132,79 @@ describe('useDataTableParams selectionResetKey', () => {
   });
 });
 
+describe('useDataTableParams hasActiveFilters', () => {
+  it('is false when the address holds only paging and sorting', () => {
+    const { result } = renderUseDataTableParams(filterOptions, [
+      '/?page=3&limit=20&sort_by=name&sort_order=desc',
+    ]);
+
+    expect(result.current.hasActiveFilters).toBe(false);
+  });
+
+  it('is true when the address holds a search term', () => {
+    const { result } = renderUseDataTableParams(filterOptions, ['/?search=shoes']);
+
+    expect(result.current.hasActiveFilters).toBe(true);
+  });
+
+  it('is true when the address holds a date range', () => {
+    const { result } = renderUseDataTableParams(filterOptions, [
+      '/?from_date=2026-01-01&to_date=2026-01-31',
+    ]);
+
+    expect(result.current.hasActiveFilters).toBe(true);
+  });
+
+  it('is true when the address holds a declared filter', () => {
+    const { result } = renderUseDataTableParams(filterOptions, ['/?status=draft']);
+
+    expect(result.current.hasActiveFilters).toBe(true);
+  });
+
+  it('is false when a declared filter is present with an empty value', () => {
+    const { result } = renderUseDataTableParams(filterOptions, ['/?status=']);
+
+    expect(result.current.hasActiveFilters).toBe(false);
+  });
+});
+
+describe('useDataTableParams clearFilters', () => {
+  it('removes the search, date range and filters, and returns to page one', () => {
+    const { result } = renderUseDataTableParams(filterOptions, [
+      '/?page=4&search=shoes&status=draft&from_date=2026-01-01&to_date=2026-01-31',
+    ]);
+
+    act(() => {
+      result.current.clearFilters();
+    });
+
+    expect(result.current.params.search).toBe('');
+    expect(result.current.params.status).toBeUndefined();
+    expect(result.current.params.from_date).toBeNull();
+    expect(result.current.params.to_date).toBeNull();
+    expect(result.current.params.page).toBe(1);
+    expect(result.current.hasActiveFilters).toBe(false);
+  });
+
+  it('keeps the sort and the page size', () => {
+    const { result } = renderUseDataTableParams(filterOptions, [
+      '/?search=shoes&sort_by=name&sort_order=desc&limit=20',
+    ]);
+
+    act(() => {
+      result.current.clearFilters();
+    });
+
+    expect(result.current.params.sort_by).toBe('name');
+    expect(result.current.params.sort_order).toBe('desc');
+    expect(result.current.params.limit).toBe(20);
+  });
+});
+
 describe('useDataTableParams handler stability', () => {
   it('keeps handler identities across an address change', () => {
     const { result } = renderUseDataTableParams(filterOptions);
-    const { onPaginationChange, onSortingChange } = result.current;
+    const { onPaginationChange, onSortingChange, clearFilters } = result.current;
 
     act(() => {
       result.current.onPaginationChange({ pageIndex: 1, pageSize: 10 });
@@ -143,5 +212,6 @@ describe('useDataTableParams handler stability', () => {
 
     expect(result.current.onPaginationChange).toBe(onPaginationChange);
     expect(result.current.onSortingChange).toBe(onSortingChange);
+    expect(result.current.clearFilters).toBe(clearFilters);
   });
 });

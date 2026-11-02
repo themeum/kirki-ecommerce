@@ -7,7 +7,6 @@ type BulkEditPayloadVariant = Pick<
   | 'sku'
   | 'barcode'
   | 'base_price'
-  | 'show_unit_price'
   | 'base_unit'
   | 'base_unit_amount'
   | 'total_unit'
@@ -50,7 +49,6 @@ const buildBulkEditPayload = (variants: ProductVariant[]): BulkEditPayload => ({
     sku: variant.sku,
     barcode: variant.barcode,
     base_price: variant.base_price,
-    show_unit_price: variant.show_unit_price,
     base_unit: variant.base_unit,
     base_unit_amount: variant.base_unit_amount,
     total_unit: variant.total_unit,

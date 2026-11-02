@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { CloseIcon, ListFilter } from '@/icons';
+import { CloseIcon, ListFilter } from '@/icons/common';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __, _n, sprintf } from '@/wpi18n';

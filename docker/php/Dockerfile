@@ -1,5 +1,8 @@
 FROM php:7.4-fpm
 
+# Bullseye is end-of-life and its security suite now 404s; build from the frozen archive.
+RUN printf 'deb http://archive.debian.org/debian bullseye main\n' > /etc/apt/sources.list
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libpng-dev \
@@ -7,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfreetype6-dev \
     libicu-dev \
     libonig-dev \
+    socat \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \

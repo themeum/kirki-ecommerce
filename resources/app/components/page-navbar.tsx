@@ -4,7 +4,7 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { ArrowLeftIcon } from '@/icons';
+import { ArrowLeftIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';

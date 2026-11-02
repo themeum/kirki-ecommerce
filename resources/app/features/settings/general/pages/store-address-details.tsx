@@ -56,7 +56,11 @@ const StoreAddressDetails = () => {
               placeholder={__('Enter Postcode / Zip', 'kirki-ecommerce')}
             />
 
-            <CountryField name="store_address.country" label={__('Country', 'kirki-ecommerce')} />
+            <CountryField
+              name="store_address.country"
+              label={__('Country', 'kirki-ecommerce')}
+              only_selling_countries={false}
+            />
 
             <StateField
               name="store_address.state"

@@ -37,8 +37,9 @@ export default Container;
 const styles = defineStyles({
   root: {
     maxWidth: '1024px',
+    width: `calc(100% - ${theme.spacing[8]})`,
     margin: `${theme.spacing[0]} auto`,
-    padding: theme.spacing[0],
+    padding: 0,
   },
   sizes: {
     sm: {
@@ -48,16 +49,21 @@ const styles = defineStyles({
       maxWidth: '752px',
     },
     lg: {
-      maxWidth: '900px',
+      maxWidth: '960px',
     },
     xl: {
       maxWidth: '1024px',
     },
+    xxl: {
+      maxWidth: '1200px',
+    },
     fullWidth: {
       maxWidth: '100%',
+      width: '100%',
     },
     fluid: {
       maxWidth: '100%',
+      width: '100%',
       padding: `${theme.spacing[0]} ${theme.spacing[6]}`,
     },
   },

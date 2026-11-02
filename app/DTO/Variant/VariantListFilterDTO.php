@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Variant;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 
+/**
+ * Filters for listing product variants, adding catalog and inventory filters to the shared list filters.
+ *
+ * @since 1.0.0
+ */
 class VariantListFilterDTO extends ListFilterDTO
 {
     /** @var string|null */

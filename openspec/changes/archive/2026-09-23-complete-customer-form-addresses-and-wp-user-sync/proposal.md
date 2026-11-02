@@ -1,0 +1,30 @@
+## Why
+
+The admin customer create/edit page needs to support six behavioral cases around WordPress-user linking, email uniqueness, email sync, and multiple addresses — but the backend doesn't support most of them today: `create_wordpress_user` is validated but never read (a WordPress user is always created), there is no email→existing-WordPress-user lookup anywhere in the app, a duplicate email on create surfaces as a generic 500 instead of a field-level validation error, and there is no mechanism keeping a customer's email in sync with its linked WordPress user's email in either direction. Separately, the address model is split: `CreateCustomerDTO` already carries an `addresses[]` array from an earlier change, but it's unreachable because `CustomerCreateRequest` never validates an `addresses` key, and the entire update path (`CustomerUpdateRequest`, `UpdateCustomerAction`, `CustomerResource`) plus the two new, not-yet-wired frontend components are still built on the older singular `shipping_address`/`billing_address` model. This change closes both gaps together, since the frontend page can't be completed against a backend that only half-supports it.
+
+## What Changes
+
+- **BREAKING**: `CustomerCreateRequest` and `CustomerUpdateRequest` drop `shipping_address`/`billing_address` request fields entirely in favor of a single `addresses[]` array (each item: name, contact, address lines, city/state/postal/country, `type` home/office/others, `label` for a custom "others" name, `is_default_shipping`/`is_default_billing`). Addresses remain fully optional on both create and update.
+- **BREAKING**: `UpdateCustomerAction::execute()` signature changes from `execute(UpdateCustomerDTO, UpdateAddressDTO $shipping, UpdateAddressDTO $billing)` to `execute(UpdateCustomerDTO, array $addresses)`, reconciling the submitted array against the customer's existing addresses (create new, update existing, delete omitted) instead of unconditionally dereferencing exactly one shipping and one billing address.
+- `CreateCustomerAction::create_user()` now: attaches to an existing WordPress user found by email when one exists; otherwise creates a new WordPress user only when `create_wordpress_user` is true; otherwise leaves the customer without a linked WordPress user.
+- `customers.email` gains request-level uniqueness validation (`unique:customers,email`, self-excluding on update) — a duplicate now returns a structured 422 field error instead of a generic 500. No database-level unique constraint is added (see design.md for why).
+- Two new WordPress hooks keep a customer's email and WordPress-user link in sync going forward, in both directions: `profile_update` pushes a changed WordPress-user email onto its linked customer; `user_register` retroactively attaches a newly created WordPress user to an existing, user-less customer sharing that email.
+- `CustomerResource` outputs `addresses[]` instead of `shipping_address`/`billing_address`, and adds the previously-dropped `accepts_marketing`, `notes`, and `language` fields.
+- Frontend: `customer-form.ts`'s `AddressFormShape` gains `label` and a `type` enum; per-address validation moves to a `superRefine` on the `addresses` array (required fields only apply to a touched row); `customer-address-card.tsx` is rebuilt from a single hardcoded billing card into a repeatable list (`useFieldArray`) with a Home/Office/Other type radio, per the reference design; `customer-basic-info.tsx` disables the email field when editing and gates `create_wordpress_user` to create-only; the catalog `CustomerSchema` moves from singular `shipping_address`/`billing_address` (plus the already-dead `is_billing_same_as_shipping`) to `addresses[]`.
+
+## Capabilities
+
+### New Capabilities
+- `customer-wordpress-user-linking`: contract for resolving which WordPress user (if any) a customer being created links to — attach to an existing user by email, create one only when requested and none exists, or leave unlinked.
+- `customer-email-uniqueness`: contract for rejecting a customer create/update whose email already belongs to another customer, as a field-level validation error.
+- `customer-wordpress-user-email-sync`: contract for keeping a customer's email and its WordPress-user link consistent after creation, in both directions (WordPress user's email changes → customer email updates; a new WordPress user is created matching an unlinked customer's email → that customer gets linked).
+- `customer-address-update-reconciliation`: contract for updating a customer's addresses from a submitted list — creating, updating, and deleting addresses to match, with default-shipping/default-billing resolved the same way creation already resolves them.
+
+### Modified Capabilities
+(none — `customer-address-provisioning`'s existing creation-time contract and default-resolution algorithm are unchanged by this proposal; only how addresses reach the DTO from HTTP changes, which is not a spec-level behavior.)
+
+## Impact
+
+- Backend: `app/Http/Requests/Customer/CustomerCreateRequest.php`, `CustomerUpdateRequest.php`, `app/Concerns/ValidatesAddressFields.php`, `app/DTO/Customer/UpdateCustomerDTO.php`, `app/Actions/Customer/CreateCustomerAction.php`, `UpdateCustomerAction.php`, new `app/Concerns/ResolvesAddressDefaults.php`, `app/Services/CustomerService.php`, `app/Http/Controllers/Api/CustomerController.php`, `app/Resources/Customer/CustomerResource.php`, new `app/Wordpress/Hooks/Actions/SyncCustomerEmailFromWordPressUser.php` and `AttachCustomerToNewWordPressUser.php`, `config/hooks.php`.
+- Frontend: `resources/app/features/customers/schemas/forms/customer-form.ts`, `schemas/catalog/customer.ts`, `pages/customer-details/customer-basic-info.tsx`, `customer-address-card.tsx` (+ new `address-card-item.tsx`), `customer-details.tsx`. `resources/app/features/orders/components/order-create/customer/add-customer-dialog.tsx` is expected to keep working unchanged.
+- Tests: `tests/Integration/Actions/Customer/CreateCustomerActionTest.php`, new `UpdateCustomerActionTest.php`, `tests/Integration/CustomerApiTest.php`, `resources/app/features/customers/tests/schemas/forms/customer-form.test.ts`.

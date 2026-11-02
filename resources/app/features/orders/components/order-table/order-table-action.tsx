@@ -27,6 +27,7 @@ const OrderTableAction = memo(() => {
           value={params.search || ''}
           delay={500}
           onChange={(value) => handleSearchChange(value as string)}
+          clearable
         />
       </div>
       <ActionGroup>

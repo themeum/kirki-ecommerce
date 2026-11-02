@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\ShippingBox;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a shipping box.
+ *
+ * @since 1.0.0
+ */
 class CreateShippingBoxDTO extends DTO
 {
     /** @var string */

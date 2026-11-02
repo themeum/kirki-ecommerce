@@ -2,15 +2,24 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for a product tag.
+ *
+ * @since 1.0.0
+ */
 class TagResource extends Resource
 {
     /**
      * Convert the tag resource to an array.
      *
-     * @return array The tag data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The tag data, including its product count.
      */
     public function to_array()
     {

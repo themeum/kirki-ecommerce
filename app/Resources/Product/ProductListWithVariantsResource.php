@@ -2,20 +2,32 @@
 
 namespace Kirki\Ecommerce\App\Resources\Product;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Supports\ProductAttributeFormatter;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * API resource for a product in list views that also includes its variants and attributes.
+ *
+ * @since 1.0.0
+ */
 class ProductListWithVariantsResource extends Resource
 {
     /**
      * Convert the product resource to an array.
      *
-     * @return array The product data as an associative array.
+     * Prices are the lowest across the product's variants and inventory sums the tracked variants.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The product summary, with availability, prices, attributes and variants.
      */
     public function to_array()
     {
@@ -27,6 +39,8 @@ class ProductListWithVariantsResource extends Resource
             $inventory += $variant->track_inventory ? $variant->available_quantity : 0;
             $min_price = min($min_price, $variant->base_price);
             $min_base_sale_price = min($min_base_sale_price, $variant->base_sale_price);
+
+            $variant->set_relation('product', $this->resource);
         }
 
         $display_currency = Money::resolve_display_currency();
@@ -54,52 +68,12 @@ class ProductListWithVariantsResource extends Resource
             'display_sale_price_money_object' => !is_null($min_base_sale_price) ? Money::prepare_amount_object_from_minor($min_base_sale_price, null, $display_currency) : null,
             'status' => $this->status,
             'has_variants' => $this->has_variants,
-            'attributes' => !empty($this->attributes) ? $this->format_attributes($this->attributes->to_array(), $this->attribute_values->to_array()) : [],
+            'attributes' => !empty($this->attributes)
+                ? ProductAttributeFormatter::format($this->attributes->to_array(), $this->attribute_values->to_array(), $this->variants)
+                : [],
             'variants' => VariantResource::collection($this->variants),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
-    }
-
-    protected function format_attributes($attributes, $attribute_values)
-    {
-        $attribute_values_map = [];
-
-        foreach ($attribute_values as $attribute_value) {
-            $attribute_values_map[$attribute_value['attribute_id']][] = [
-                'id' => $attribute_value['id'],
-                'value' => $attribute_value['value'],
-                'color' => $attribute_value['color'],
-            ];
-        }
-
-        foreach ($this->variants as $variant) {
-            foreach ($variant->attribute_values as $attribute_value) {
-                $attribute_id = $attribute_value->attribute_id;
-                $existing_ids = array_column($attribute_values_map[$attribute_id] ?? [], 'id');
-
-                if (in_array($attribute_value->id, $existing_ids, true)) {
-                    continue;
-                }
-
-                $attribute_values_map[$attribute_id][] = [
-                    'id' => $attribute_value->id,
-                    'value' => $attribute_value->value,
-                    'color' => $attribute_value->color,
-                ];
-            }
-        }
-
-        $attribute_map = [];
-
-        foreach ($attributes as $attribute) {
-            $attribute_map[] = [
-                'id' => $attribute['id'],
-                'name' => $attribute['name'],
-                'values' => $attribute_values_map[$attribute['id']] ?? [],
-            ];
-        }
-
-        return $attribute_map;
     }
 }

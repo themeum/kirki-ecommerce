@@ -3,10 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getProfileUsage } from '@/features/settings/shipping/lib/shipping-profile/utils';
 import type { ShippingZone } from '@/features/settings/shipping/types';
 
-const buildZone = (
-  id: string | number,
-  profileNames: (string | null)[],
-): ShippingZone => ({
+const buildZone = (id: string | number, profileNames: (string | null)[]): ShippingZone => ({
   id,
   title: `Zone ${id}`,
   is_enabled: true,
@@ -15,17 +12,18 @@ const buildZone = (
     {
       id: `method-${id}`,
       type: 'flat_rate',
+      zoneId: `zone-${id}`,
       shipping_rules: profileNames.map((profileName) => ({
         conditions:
           profileName === null
-            ? [{ type: 'product_category', operator: 'is', value: 'shoes' }]
+            ? [{ type: 'product_categories', operator: '=', value: '1' }]
             : [
-              {
-                type: 'shipping_profile',
-                operator: 'is',
-                value: profileName,
-              },
-            ],
+                {
+                  type: 'shipping_profile',
+                  operator: '=',
+                  value: profileName,
+                },
+              ],
         action: { type: 'add_amount', value: 5 },
       })),
     },

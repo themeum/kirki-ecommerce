@@ -1,11 +1,10 @@
 import { z } from 'zod';
 
+import { CurrencySettingsSchema } from '@/schemas/catalog/settings';
+
 /**
- * Same shape as the products feature's `ProductCurrencySchema` (both are the
- * lightweight id/code/name/symbol currency reference, not the full
- * `Currency` entity from `schemas/catalog/currency.ts`) — defined locally
- * rather than imported so this root-level config schema doesn't depend on a
- * feature.
+ * The lightweight id/code/name/symbol currency reference, not the full
+ * `Currency` entity from `schemas/catalog/currency.ts`.
  */
 const AppConfigCurrencySchema = z.object({
   id: z.number(),
@@ -34,6 +33,12 @@ export const AppConfigSchema = z
     version: z.string().nullish(),
     current_user: AppConfigUserSchema.nullish(),
     base_currency: AppConfigCurrencySchema.nullish(),
+    currency_preferences: CurrencySettingsSchema.pick({
+      currency_format: true,
+      currency_position: true,
+      thousand_separator: true,
+      decimal_separator: true,
+    }).nullish(),
   })
   .passthrough();
 

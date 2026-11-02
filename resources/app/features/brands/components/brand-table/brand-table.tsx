@@ -2,34 +2,39 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import type { DataTableBulkAction } from '@/components/data-table';
-import type { DataTableSelectionState } from '@/components/data-table';
-import DataTable from '@/components/data-table';
+import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
+import DataTable, { DataTableEmptyState } from '@/components/data-table';
 import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
+import Button from '@/components/ui/button';
 import BrandAddEditPopover from '@/features/brands/components/brand-add-edit-dialog';
 import BrandTableFilters from '@/features/brands/components/brand-table/brand-table-filters';
-import { brandColumns } from '@/features/brands/components/brand-table/columns';
+import { createBrandColumns } from '@/features/brands/components/brand-table/columns';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
 import {
-  useBrandsQuery,
   useBulkDeleteBrandsMutation,
   useDeleteBrandMutation,
 } from '@/features/brands/services/brand';
 import { brandListOptions } from '@/features/brands/types';
 import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
+import type { ListingTableProps } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 const brandBulkActions: DataTableBulkAction[] = [
   { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
 ];
 
-const BrandTable = () => {
-  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams(brandListOptions);
+const BrandTable = ({ data, isLoading = false }: ListingTableProps<Brand>) => {
+  const {
+    pagination,
+    sorting,
+    onPaginationChange,
+    onSortingChange,
+    selectionResetKey,
+    clearFilters,
+  } = useDataTableParams(brandListOptions);
 
-  const { data, isFetching } = useBrandsQuery(params);
   const deleteMutation = useDeleteBrandMutation();
   const bulkDeleteMutation = useBulkDeleteBrandsMutation();
   const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
@@ -63,7 +68,7 @@ const BrandTable = () => {
 
   const columns = useMemo<ColumnDef<Brand>[]>(
     () => [
-      ...brandColumns,
+      ...createBrandColumns({ onEdit: setEditingItem }),
       {
         id: 'actions',
         header: '',
@@ -109,7 +114,7 @@ const BrandTable = () => {
         onPaginationChange={onPaginationChange}
         sorting={sorting}
         onSortingChange={onSortingChange}
-        isLoading={isFetching}
+        isLoading={isLoading}
         enableRowSelection
         selectionResetKey={selectionResetKey}
         bulkActions={brandBulkActions}
@@ -117,6 +122,16 @@ const BrandTable = () => {
         columnPinning={{ right: ['actions'] }}
         density="compact"
         toolbar={<BrandTableFilters />}
+        emptyState={
+          <DataTableEmptyState
+            title={__('No brands found', 'kirki-ecommerce')}
+            actions={
+              <Button variant="secondary" onClick={clearFilters}>
+                {__('Clear Search', 'kirki-ecommerce')}
+              </Button>
+            }
+          />
+        }
       />
       {deleteConfirmation}
       {editingItem && (

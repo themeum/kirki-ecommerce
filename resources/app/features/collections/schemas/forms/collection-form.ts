@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { ProductSelectionSchema } from '@/features/products/schemas/catalog/product-selection';
 import { mediaId, prepareFormSchema, required } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
@@ -10,6 +11,7 @@ const CollectionFormShape = z.object({
   banner: mediaId(),
   seo_title: z.string().nullish().default(''),
   seo_description: z.string().nullish().default(''),
+  products: z.array(ProductSelectionSchema).nullish().default([]),
 });
 
 const CollectionFormSchema = prepareFormSchema(CollectionFormShape).transform((values) => ({
@@ -19,6 +21,7 @@ const CollectionFormSchema = prepareFormSchema(CollectionFormShape).transform((v
   banner: values.banner,
   seo_title: values.seo_title || null,
   seo_description: values.seo_description || null,
+  product_ids: (values.products ?? []).map((product) => product.productId),
 }));
 
 type CollectionFormInput = z.input<typeof CollectionFormSchema>;

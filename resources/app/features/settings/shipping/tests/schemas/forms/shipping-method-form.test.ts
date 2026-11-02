@@ -119,6 +119,74 @@ describe('ShippingMethodFormSchema', () => {
     ).toBe(false);
   });
 
+  it('allows a range row with no upper bound', () => {
+    const result = ShippingMethodFormSchema.parse({
+      type: 'weight',
+      name: 'Heavy Items',
+      ranges: [{ from: '10', to: '', base_amount: '15' }],
+    });
+
+    if (result.type !== 'weight') {
+      throw new Error('expected a weight-type result');
+    }
+    expect(result.ranges).toEqual([{ from: 10, to: null, base_amount: 15 }]);
+  });
+
+  it('rejects a non-last range row with no upper bound', () => {
+    expect(
+      ShippingMethodFormSchema.safeParse({
+        type: 'weight',
+        name: 'Heavy Items',
+        ranges: [
+          { from: '0', to: '', base_amount: '15' },
+          { from: '10', to: '20', base_amount: '25' },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects a range row whose To is not greater than its From', () => {
+    expect(
+      ShippingMethodFormSchema.safeParse({
+        type: 'weight',
+        name: 'Heavy Items',
+        ranges: [{ from: '10', to: '10', base_amount: '15' }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it('rejects a range row whose From overlaps the previous range', () => {
+    expect(
+      ShippingMethodFormSchema.safeParse({
+        type: 'weight',
+        name: 'Heavy Items',
+        ranges: [
+          { from: '0', to: '10', base_amount: '15' },
+          { from: '10', to: '20', base_amount: '25' },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it('accepts consecutive non-overlapping ranges', () => {
+    const result = ShippingMethodFormSchema.parse({
+      type: 'weight',
+      name: 'Heavy Items',
+      ranges: [
+        { from: '0', to: '10', base_amount: '15' },
+        { from: '11', to: '', base_amount: '25' },
+      ],
+    });
+
+    if (result.type !== 'weight') {
+      throw new Error('expected a weight-type result');
+    }
+    expect(result.ranges).toEqual([
+      { from: 0, to: 10, base_amount: 15 },
+      { from: 11, to: null, base_amount: 25 },
+    ]);
+  });
+
   it('rejects an incomplete range row', () => {
     expect(
       ShippingMethodFormSchema.safeParse({

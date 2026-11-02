@@ -41,7 +41,7 @@ if (empty($consents)) {
     <?php endforeach; ?>
 
     <div x-show="consentError" x-cloak class="kecom-alert kecom-alert-error kecom-mt-4">
-        <?php Icon::render('information', ['size' => 20]); ?>
+        <?php Icon::render('info', ['size' => 20]); ?>
         <p x-text="consentError"></p>
     </div>
 </div>

@@ -7,6 +7,11 @@ export const ProductVariantSelectionSchema = z.object({
   variantLabel: z.string(),
   thumbnail: z.string().nullish(),
   inStock: z.boolean(),
+  availableQuantity: z.number(),
+  allowBackOrder: z.boolean(),
+  trackInventory: z.boolean(),
+  hasLimitPerOrder: z.boolean(),
+  maxPerOrder: z.number().nullable(),
   regularPrice: MoneyObjectSchema,
   salePrice: MoneyObjectSchema.nullish(),
 });

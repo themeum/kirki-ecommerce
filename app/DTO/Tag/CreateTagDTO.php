@@ -2,8 +2,15 @@
 
 namespace Kirki\Ecommerce\App\DTO\Tag;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a product tag.
+ *
+ * @since 1.0.0
+ */
 class CreateTagDTO extends DTO
 {
     /** @var string */

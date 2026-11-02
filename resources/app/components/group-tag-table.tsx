@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Chip from '@/components/ui/chip';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { MinusIcon } from '@/icons';
+import { MinusIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -73,8 +73,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
     isEditable,
   } = props;
 
-  const [groupedValueData, setGroupedValueData] =
-    useState<GroupedValues>(selectedValues);
+  const [groupedValueData, setGroupedValueData] = useState<GroupedValues>(selectedValues);
 
   useEffect(() => {
     setGroupedValueData(selectedValues);
@@ -85,16 +84,11 @@ const GroupTagTable = (props: GroupTagTableProps) => {
     onChange(valueArray);
   };
   const handleDeleteSingleTag = (tagName: string | number, groupName: string) => {
-    const filteredArray = groupedValueData[groupName].filter(
-      (tag) => tag !== tagName,
-    );
+    const filteredArray = groupedValueData[groupName].filter((tag) => tag !== tagName);
     clearSelectedData(filteredArray, groupName);
   };
 
-  const clearSelectedData = (
-    filteredArray: (string | number)[],
-    groupName: string,
-  ) => {
+  const clearSelectedData = (filteredArray: (string | number)[], groupName: string) => {
     if (filteredArray.length > 0) {
       onChange({ ...groupedValueData, [groupName]: filteredArray });
       setGroupedValueData((prev) => ({
@@ -133,30 +127,24 @@ const GroupTagTable = (props: GroupTagTableProps) => {
       )}
       {hasSelectedValues ? (
         <Card
-          cssOverride={mergeCss(cardStyles.innerCard,
+          cssOverride={mergeCss(
+            cardStyles.innerCard,
             hasSelect ? styles.cardBottomRounded : styles.cardAllRounded,
-            styles.cardBorder)}
+            styles.cardBorder,
+          )}
         >
           <CardContent cssOverride={cardStyles.innerContent}>
             <Flex gap={2} direction="column">
               {(Object.keys(groupedValueData) || []).map((groupName, index) => (
                 <div key={index} css={scoped(styles.hoverParent)}>
-                  <Flex
-                    key={index}
-                    align="center" justify="space-between">
+                  <Flex key={index} align="center" justify="space-between">
                     <Flex gap={2} align="center">
                       {groupDetails[groupName]?.icon}
-                      <Text
-                        variant="small"
-                        color="subdued"
-                        cssOverride={styles.mutedText}
-                      >
+                      <Text variant="small" color="subdued" cssOverride={styles.mutedText}>
                         {groupDetails[groupName]?.title}
                       </Text>
                     </Flex>
-                    <Flex
-                      gap={2}
-                      align="center" justify="space-between">
+                    <Flex gap={2} align="center" justify="space-between">
                       {isEditable && (
                         <Button
                           variant="link"
@@ -173,14 +161,11 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                           text={String(tagName)}
                           key={innerIndex}
                           closeIcon={
-                            isEditable &&
-                              !requiredFields[groupName]?.includes(tagName) ? (
+                            isEditable && !requiredFields[groupName]?.includes(tagName) ? (
                               <MinusIcon />
                             ) : null
                           }
-                          onRemove={() =>
-                            handleDeleteSingleTag(tagName, groupName)
-                          }
+                          onRemove={() => handleDeleteSingleTag(tagName, groupName)}
                         />
                       ))}
                     </Flex>

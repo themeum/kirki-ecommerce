@@ -3,6 +3,7 @@ x-wordpress-volumes: &wordpress-volumes
   - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
   - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
   - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
+  - ./docker/scripts/wpcli-entrypoint.sh:/usr/local/bin/wpcli-entrypoint.sh:ro
 
 services:
   nginx:
@@ -37,6 +38,7 @@ services:
       DB_HOST: mariadb
       WP_URL: ${WP_URL:-http://localhost:20100}
       KECOM_WEBHOOK_BASE_URL: ${KECOM_WEBHOOK_BASE_URL:-http://localhost:20100}
+      VITE_PORT: ${VITE_PORT:-5173}
       XDEBUG_MODE: ${XDEBUG_MODE:-off}
       XDEBUG_CLIENT_HOST: ${XDEBUG_CLIENT_HOST:-host.docker.internal}
       XDEBUG_CLIENT_PORT: ${XDEBUG_CLIENT_PORT:-9003}
@@ -102,7 +104,7 @@ services:
       - kirki
     profiles:
       - tools
-    entrypoint: ['wp', '--allow-root']
+    entrypoint: ['/bin/sh', '/usr/local/bin/wpcli-entrypoint.sh']
     command: ['--info']
 
   wordpress-init:

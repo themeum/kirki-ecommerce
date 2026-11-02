@@ -52,7 +52,7 @@ extract($data);
                     :class="{ 'kecom-btn-loading': removingCouponCode === appliedCoupon.code }"
                     :disabled="couponLoading"
                     aria-label="<?php esc_attr_e('Remove discount code', 'kirki-ecommerce'); ?>">
-                    <?php Icon::render('cross', ['size' => 16]); ?>
+                    <?php Icon::render('x', ['size' => 16]); ?>
                 </button>
             </div>
         </template>

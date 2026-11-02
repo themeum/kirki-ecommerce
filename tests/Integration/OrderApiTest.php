@@ -12,10 +12,12 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
@@ -23,6 +25,7 @@ use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Models\Cart;
@@ -30,15 +33,19 @@ use Kirki\Ecommerce\App\Models\CartCoupon;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderItemCoupon;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
+use Kirki\Ecommerce\Tests\Support\EnablesPaymentProviders;
+use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
 use Exception;
@@ -48,7 +55,10 @@ use function Kirki\Ecommerce\Framework\app;
 
 class OrderApiTest extends RestTestCase
 {
+    use ListsHaveRecords;
+
     use CreatesTestProducts;
+    use EnablesPaymentProviders;
     use SeedsTestShipping;
 
     /**
@@ -82,6 +92,26 @@ class OrderApiTest extends RestTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->enable_payment_provider();
+
+        // A test that enables tax (`enable_us_inclusive_tax()`) is observed
+        // to leak that setting into a later test in the same run despite
+        // `RestTestCase::tearDown()`'s own cache resets, so every test in
+        // this class starts from a known, explicit tax-disabled baseline
+        // rather than relying on a prior test's cleanup.
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
+
         $this->seed_base_currency();
         $this->seed_shipping_settings();
 
@@ -210,6 +240,103 @@ class OrderApiTest extends RestTestCase
         $this->assertFalse($payload['data']['payment_provider_is_offline']);
         $this->assertEquals('Standard Delivery', $payload['data']['shipping_method_name']);
         $this->assertEquals('flat_rate', $payload['data']['shipping_method_type']);
+        $this->assertFalse($payload['data']['is_tax_inclusive']);
+    }
+
+    /**
+     * The order resource reports whether the store priced items inclusive
+     * of tax when the order was placed, recorded on the order itself.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_show_order_reports_the_tax_inclusive_setting_recorded_on_the_order(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $response = $this->request('GET', 'orders/' . $this->order_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertTrue($payload['data']['is_tax_inclusive']);
+    }
+
+    /**
+     * The recorded is_tax_inclusive flag is a historical snapshot of the
+     * setting at order placement time, not a live read - an order placed
+     * under tax-inclusive pricing still reports true even after the store
+     * later switches to tax-exclusive pricing, since its persisted prices
+     * were never recalculated under the new setting.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_is_tax_inclusive_stays_a_historical_snapshot_after_the_setting_changes(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
+
+        $response = $this->request('GET', 'orders/' . $this->order_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertTrue($payload['data']['is_tax_inclusive']);
+    }
+
+    /**
+     * An edit keeps the tax mode the order was placed with, even when the
+     * store has switched its tax setting since.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_keeps_the_tax_mode_the_order_was_placed_with(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+        $placed_total = Order::find($this->order_id)->base_total;
+
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'quantity' => 1],
+            ],
+        ])));
+
+        $payload = $this->assert_api_success($this->request('GET', 'orders/' . $this->order_id));
+
+        $this->assertTrue($payload['data']['is_tax_inclusive']);
+        $this->assertSame($placed_total, Order::find($this->order_id)->base_total);
     }
 
     /**
@@ -250,6 +377,30 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * The order list and the order detail both report whether the order can be edited.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_order_list_and_detail_expose_is_editable(): void
+    {
+        $editable_id = (int) $this->create_order()['id'];
+        $paid_id = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::PAID);
+
+        $editable = $this->assert_api_success($this->request('GET', 'orders/' . $editable_id));
+        $paid = $this->assert_api_success($this->request('GET', 'orders/' . $paid_id));
+
+        $this->assertTrue($editable['data']['is_editable']);
+        $this->assertFalse($paid['data']['is_editable']);
+
+        $list = $this->assert_api_success($this->request('GET', 'orders', ['page' => 1, 'limit' => 50]));
+        $is_editable_by_id = array_column($list['data']['results'], 'is_editable', 'id');
+
+        $this->assertTrue($is_editable_by_id[$editable_id]);
+        $this->assertFalse($is_editable_by_id[$paid_id]);
+    }
+
+    /**
      * Update order changes notes.
      *
      * @return void
@@ -264,7 +415,7 @@ class OrderApiTest extends RestTestCase
         $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'customer_id' => $customer_id,
-            'admin_notes' => 'Updated notes',
+            'order_notes' => 'Updated notes',
             'items' => [
                 [
                     'id' => $order['items'][0]['id'] ?? null,
@@ -275,7 +426,283 @@ class OrderApiTest extends RestTestCase
         ]));
 
         $payload = $this->assert_api_success($response);
-        $this->assertEquals('Updated notes', $payload['data']['admin_notes']);
+        $this->assertEquals('Updated notes', $payload['data']['order_notes']);
+    }
+
+    /**
+     * Spec scenario: Order created with a note.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_stores_order_notes_and_hides_old_note_keys(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Ring the bell']);
+        $this->order_id = $order['id'];
+
+        $this->assertSame('Ring the bell', $order['order_notes']);
+        $this->assertArrayNotHasKey('customer_notes', $order);
+        $this->assertArrayNotHasKey('admin_notes', $order);
+        $this->assertSame('Ring the bell', Order::find($order['id'])->order_notes);
+    }
+
+    /**
+     * Spec scenario: Order created without a note.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_without_order_notes_stores_null(): void
+    {
+        $payload = $this->order_payload();
+        unset($payload['order_notes']);
+
+        $order = $this->assert_api_success($this->request('POST', 'orders', $payload), 201)['data'];
+        $this->order_id = $order['id'];
+
+        $this->assertArrayHasKey('order_notes', $order);
+        $this->assertNull($order['order_notes']);
+    }
+
+    /**
+     * Spec scenario: Old field names sent (create and update).
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_old_note_keys_are_ignored_on_create_and_update(): void
+    {
+        $payload = $this->order_payload(['customer_notes' => 'Old customer', 'admin_notes' => 'Old admin']);
+        unset($payload['order_notes']);
+
+        $order = $this->assert_api_success($this->request('POST', 'orders', $payload), 201)['data'];
+        $this->order_id = $order['id'];
+
+        $this->assertNull($order['order_notes']);
+        $this->assertArrayNotHasKey('customer_notes', $order);
+        $this->assertArrayNotHasKey('admin_notes', $order);
+        $this->assertNull(Order::find($order['id'])->order_notes);
+
+        $update = $this->order_payload([
+            'id' => $order['id'],
+            'customer_notes' => 'Old customer',
+            'admin_notes' => 'Old admin',
+            'items' => [[
+                'id' => $order['items'][0]['id'] ?? null,
+                'variant_id' => $this->variant_id,
+                'quantity' => 1,
+            ]],
+        ]);
+        unset($update['order_notes']);
+
+        $updated = $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $update))['data'];
+
+        $this->assertNull($updated['order_notes']);
+        $this->assertArrayNotHasKey('customer_notes', $updated);
+        $this->assertArrayNotHasKey('admin_notes', $updated);
+    }
+
+    /**
+     * Spec scenario: Merchant clears a note.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_with_null_order_notes_clears_the_note(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Will be cleared']);
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'order_notes' => null,
+            'items' => [[
+                'id' => $order['items'][0]['id'] ?? null,
+                'variant_id' => $this->variant_id,
+                'quantity' => 1,
+            ]],
+        ])));
+
+        $this->assertNull($payload['data']['order_notes']);
+        $this->assertNull(Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Note with line breaks.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_order_notes_keep_line_breaks(): void
+    {
+        $order = $this->create_order(['order_notes' => "First line\nSecond line"]);
+        $this->order_id = $order['id'];
+
+        $this->assertSame("First line\nSecond line", $order['order_notes']);
+        $this->assertSame("First line\nSecond line", Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * A manual order stores the customer contact details posted with it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_manual_order_persists_customer_contact_details(): void
+    {
+        $order = $this->create_order([
+            'customer_first_name' => 'Jane',
+            'customer_last_name' => 'Roe',
+            'customer_email' => 'jane@example.com',
+            'customer_phone' => '+1 555 0100',
+        ]);
+        $this->order_id = $order['id'];
+
+        $this->assertEquals('Jane', $order['customer']['first_name']);
+        $this->assertEquals('Roe', $order['customer']['last_name']);
+        $this->assertEquals('jane@example.com', $order['customer']['email']);
+        $this->assertEquals('+1 555 0100', $order['customer']['phone']);
+    }
+
+    /**
+     * A manual order stores only the posted customer details, with no
+     * fallback to the placing admin's account or to billing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_manual_order_does_not_fall_back_for_missing_customer_contact(): void
+    {
+        $order = $this->create_order([
+            'customer_email' => null,
+            'customer_phone' => null,
+            'billing_email' => 'billing@example.com',
+            'billing_phone' => '+1 555 0199',
+        ]);
+        $this->order_id = $order['id'];
+
+        $this->assertNull($order['customer']['email']);
+        $this->assertNull($order['customer']['phone']);
+    }
+
+    /**
+     * Updating an order replaces its stored customer contact details.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_changes_customer_contact_details(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
+            'customer_id' => $customer_id,
+            'customer_first_name' => 'Jane',
+            'customer_last_name' => 'Roe',
+            'customer_email' => 'jane@example.com',
+            'customer_phone' => '+1 555 0100',
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals('Jane', $payload['data']['customer']['first_name']);
+        $this->assertEquals('Roe', $payload['data']['customer']['last_name']);
+        $this->assertEquals('jane@example.com', $payload['data']['customer']['email']);
+        $this->assertEquals('+1 555 0100', $payload['data']['customer']['phone']);
+    }
+
+    /**
+     * Updating an order without a customer name fails validation.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_requires_customer_name(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'customer_first_name' => '',
+            'customer_last_name' => '',
+        ]));
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * A user the admin route gate admits through manage_options, without the
+     * administrator role, can create a manual order.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_manage_options_user_without_administrator_role_creates_manual_order(): void
+    {
+        wp_set_current_user($this->create_store_manager_user());
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assertTrue($order['is_manual']);
+    }
+
+    /**
+     * A user the admin route gate admits through manage_options, without the
+     * administrator role, can update an order.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_manage_options_user_without_administrator_role_updates_order(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        wp_set_current_user($this->create_store_manager_user());
+
+        $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'order_notes' => 'Updated by store manager',
+            'items' => [
+                [
+                    'id' => $order['items'][0]['id'] ?? null,
+                    'variant_id' => $this->variant_id,
+                    'quantity' => 1,
+                ],
+            ],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals('Updated by store manager', $payload['data']['order_notes']);
+    }
+
+    /**
+     * A shopper cannot flag their checkout order as manual.
+     *
+     * The request's own authorize() rejects it, and the framework reports a
+     * failed request authorization as 401 rather than 403.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_shopper_cannot_flag_checkout_order_as_manual(): void
+    {
+        wp_set_current_user($this->create_shopper_user());
+        $this->add_to_shopper_cart();
+
+        $order_count_before = Order::count();
+
+        $response = $this->request('POST', 'checkout', $this->order_payload(['is_manual' => true]));
+
+        $this->assert_api_error($response, 401);
+        $this->assertEquals($order_count_before, Order::count());
     }
 
     /**
@@ -294,7 +721,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
-            'admin_notes' => 'Guest order edit',
+            'order_notes' => 'Guest order edit',
             'items' => [
                 [
                     'id' => $order['items'][0]['id'] ?? null,
@@ -328,6 +755,330 @@ class OrderApiTest extends RestTestCase
         $this->assertIsArray($item->product_data);
         $this->assertArrayHasKey('product', $item->product_data);
         $this->assertArrayHasKey('variant', $item->product_data);
+    }
+
+    /**
+     * An item bought while a sale price is active records the regular price
+     * next to the sale price it was charged.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_regular_price_for_item_bought_on_sale(): void
+    {
+        $regular_price = Variant::find($this->variant_id)->base_price;
+        Variant::find($this->variant_id)->update(['base_sale_price' => $regular_price - 1000]);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+        $this->assertEquals($regular_price - 1000, $item->base_price);
+        $this->assertEquals($regular_price, $item->base_regular_price);
+        $this->assertEquals($regular_price, $item->invoiced_regular_price);
+    }
+
+    /**
+     * An item bought with no sale price records a regular price equal to its
+     * charged price.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_regular_price_equal_to_price_when_not_on_sale(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+        $this->assertEquals($item->base_price, $item->base_regular_price);
+        $this->assertEquals($item->invoiced_price, $item->invoiced_regular_price);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an order item's recorded price and
+     * regular price both exclude the tax embedded in the variant's catalog
+     * price - on the same terms as its subtotal - rather than persisting
+     * the raw (tax-inclusive) catalog price as-is.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_tax_exclusive_price_and_regular_price_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $catalog_price = Variant::find($this->variant_id)->base_price;
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+
+        $this->assertLessThan($catalog_price, $item->base_price);
+        $this->assertSame($item->base_price, $item->base_regular_price);
+        $this->assertSame($item->invoiced_price, $item->invoiced_regular_price);
+        $this->assertEquals(2499, $item->base_price);
+        // Not on sale: the regular-price total's own recorded tax matches the current-price tax exactly.
+        $this->assertEquals($item->base_tax_total, $item->base_regular_tax_total);
+        $this->assertEquals($item->invoiced_tax_total, $item->invoiced_regular_tax_total);
+        $this->assertEquals(500, $item->base_regular_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an item newly added while editing an
+     * existing order also records a tax-exclusive price and regular price -
+     * the same fix as order creation, applied to the add-item-to-an-
+     * existing-order path.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_records_tax_exclusive_regular_price_for_added_item_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+
+        $added_variant_id = $this->default_variant_id($this->create_product());
+        $added_catalog_price = Variant::find($added_variant_id)->base_price;
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'quantity' => 1],
+                ['variant_id' => $added_variant_id, 'quantity' => 1],
+            ],
+        ])));
+
+        $added_item = OrderItem::where('order_id', $this->order_id)->where('variant_id', $added_variant_id)->first();
+
+        $this->assertLessThan($added_catalog_price, $added_item->base_price);
+        $this->assertSame($added_item->base_price, $added_item->base_regular_price);
+        $this->assertEquals(2499, $added_item->base_regular_price);
+        // Not on sale: the regular-price total's own recorded tax matches the current-price tax exactly.
+        $this->assertEquals($added_item->base_tax_total, $added_item->base_regular_tax_total);
+        $this->assertEquals(500, $added_item->base_regular_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing, re-quantifying an existing order item
+     * recalculates its recorded regular-price tax total for the new
+     * quantity - the same recalculate-on-quantity-change behavior its
+     * subtotal and current-price tax total already have - rather than
+     * carrying forward a stale, now-understated figure.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_scales_regular_tax_total_with_quantity_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+
+        $original_regular_tax_total = OrderItem::find($existing_item_id)->base_regular_tax_total;
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'quantity' => 2],
+            ],
+        ])));
+
+        $updated_item = OrderItem::find($existing_item_id);
+
+        $this->assertEquals(2, $updated_item->quantity);
+        $this->assertGreaterThan($original_regular_tax_total, $updated_item->base_regular_tax_total);
+        // Still not on sale: the recalculated regular-price tax still matches the recalculated current-price tax exactly.
+        $this->assertEquals($updated_item->base_tax_total, $updated_item->base_regular_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an item bought while a sale price is
+     * active records a regular-price tax total computed against its
+     * (higher) regular price - distinct from its current-price tax total,
+     * which is computed against the (lower) sale price it was actually
+     * charged.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_regular_tax_total_for_item_bought_on_sale_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $regular_price = Variant::find($this->variant_id)->base_price;
+        Variant::find($this->variant_id)->update(['base_sale_price' => $regular_price - 1000]);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+
+        $this->assertLessThan($item->base_regular_price, $item->base_price);
+        $this->assertNotEquals($item->base_tax_total, $item->base_regular_tax_total);
+        $this->assertGreaterThan($item->base_tax_total, $item->base_regular_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an item bought on sale with a product
+     * coupon and an order-wide coupon records its catalog prices exactly as
+     * the variant had them (tax included), its total after the product
+     * coupon only, and the tax both coupons removed.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_catalog_prices_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $regular_price = Variant::find($this->variant_id)->base_price;
+        Variant::find($this->variant_id)->update(['base_sale_price' => 2400]);
+
+        $product_coupon = Coupon::create([
+            'title' => 'Product Coupon',
+            'code' => 'CATPROD' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'discount_value_type' => DiscountValueType::FIXED,
+            'base_discount_amount_fixed' => 400,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'is_active' => true,
+        ]);
+
+        $order_coupon = Coupon::create([
+            'title' => 'Order Coupon',
+            'code' => 'CATORD' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::ORDER,
+            'discount_value_type' => DiscountValueType::PERCENTAGE,
+            'discount_amount_percentage' => 10,
+            'is_active' => true,
+        ]);
+
+        $order = $this->create_order([
+            'is_manual' => false,
+            'coupon_codes' => [$product_coupon->code, $order_coupon->code],
+        ]);
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+
+        $this->assertSame($regular_price, $item->base_catalog_regular_price);
+        $this->assertSame(2400, $item->base_catalog_sale_price);
+        $this->assertSame(2000, $item->base_catalog_product_coupon_discounted_subtotal);
+        // Tax before any discount on 2400 at 20% inclusive is 400.
+        $this->assertLessThan(400, (int) $item->base_tax_total);
+        $this->assertSame(400 - (int) $item->base_tax_total, $item->base_discount_tax_total);
+
+        $this->assertSame($item->base_catalog_regular_price, $item->invoiced_catalog_regular_price);
+        $this->assertSame($item->base_catalog_sale_price, $item->invoiced_catalog_sale_price);
+        $this->assertSame($item->base_catalog_product_coupon_discounted_subtotal, $item->invoiced_catalog_product_coupon_discounted_subtotal);
+        $this->assertSame($item->base_discount_tax_total, $item->invoiced_discount_tax_total);
+    }
+
+    /**
+     * Editing an order's quantity refreshes the item's catalog figures from
+     * the same recalculation as its other totals.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_refreshes_catalog_prices_from_the_recalculation(): void
+    {
+        $catalog_price = Variant::find($this->variant_id)->base_price;
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'quantity' => 3],
+            ],
+        ])));
+
+        $item = OrderItem::find($existing_item_id);
+
+        $this->assertSame($catalog_price, $item->base_catalog_regular_price);
+        $this->assertSame($catalog_price, $item->base_catalog_sale_price);
+        $this->assertSame($catalog_price * 3, $item->base_catalog_product_coupon_discounted_subtotal);
+        $this->assertSame(0, $item->base_discount_tax_total);
+    }
+
+    /**
+     * Editing an order keeps an existing item's regular price as it was sold,
+     * even when the variant was repriced, and records the current regular
+     * price for an item added in the edit.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_keeps_existing_regular_price_and_records_it_for_added_items(): void
+    {
+        $original_regular_price = Variant::find($this->variant_id)->base_price;
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        Variant::find($this->variant_id)->update(['base_price' => $original_regular_price + 500]);
+
+        $added_variant_id = $this->default_variant_id($this->create_product());
+        $added_regular_price = Variant::find($added_variant_id)->base_price;
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'items' => [
+                ['id' => $existing_item_id, 'quantity' => 2],
+                ['variant_id' => $added_variant_id, 'quantity' => 1],
+            ],
+        ])));
+
+        $existing_item = OrderItem::find($existing_item_id);
+        $this->assertEquals(2, $existing_item->quantity);
+        $this->assertEquals($original_regular_price, $existing_item->base_regular_price);
+        $this->assertEquals($original_regular_price, $existing_item->invoiced_regular_price);
+
+        $added_item = OrderItem::where('order_id', $this->order_id)->where('variant_id', $added_variant_id)->first();
+        $this->assertEquals($added_regular_price, $added_item->base_regular_price);
+    }
+
+    /**
+     * Adding an item to an existing order works when its product has no media,
+     * leaving the item without an image instead of failing the update.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_adds_item_for_product_without_media(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+        $added_variant_id = $this->default_variant_id($this->create_product());
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'items' => [
+                ['id' => $order['items'][0]['id'], 'variant_id' => $this->variant_id, 'quantity' => 1],
+                ['variant_id' => $added_variant_id, 'quantity' => 1],
+            ],
+        ])));
+
+        $added_item = OrderItem::where('order_id', $this->order_id)->where('variant_id', $added_variant_id)->first();
+        $this->assertNotNull($added_item);
+        $this->assertNull($added_item->product_image);
     }
 
     /**
@@ -417,6 +1168,210 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * Spec scenario: Note only.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_updates_note_and_keeps_flags(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Old note']);
+        $this->order_id = $order['id'];
+        Order::find($this->order_id)->update(['flags' => ['gift']]);
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'order_notes' => 'New note',
+        ]));
+
+        $this->assertSame('New note', $payload['data']['order_notes']);
+        $this->assertEquals(['gift'], $payload['data']['flags']);
+        $this->assertSame('New note', Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Flags only.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_updates_flags_and_keeps_note(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Keep me']);
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'flags' => ['gift', 'priority'],
+        ]));
+
+        $this->assertEquals(['gift', 'priority'], $payload['data']['flags']);
+        $this->assertSame('Keep me', $payload['data']['order_notes']);
+    }
+
+    /**
+     * Spec scenario: Note and flags together.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_updates_note_and_flags_together(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'order_notes' => 'Both',
+            'flags' => ['urgent'],
+        ]));
+
+        $this->assertSame('Both', $payload['data']['order_notes']);
+        $this->assertEquals(['urgent'], $payload['data']['flags']);
+    }
+
+    /**
+     * Spec scenario: Clear the note.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_clears_the_note_with_null_or_empty_text(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Will be cleared']);
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => null]));
+        $this->assertNull($payload['data']['order_notes']);
+        $this->assertNull(Order::find($this->order_id)->order_notes);
+
+        Order::find($this->order_id)->update(['order_notes' => 'Again']);
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => '']));
+        $this->assertNull($payload['data']['order_notes']);
+        $this->assertNull(Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Clear the flags.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_clears_the_flags_with_null_or_empty_list(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        Order::find($this->order_id)->update(['flags' => ['gift']]);
+        $this->assertNotNull(Order::find($this->order_id)->get_attributes()['flags']);
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['flags' => []]));
+        $this->assertNull(Order::find($this->order_id)->get_attributes()['flags']);
+
+        Order::find($this->order_id)->update(['flags' => ['gift']]);
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['flags' => null]));
+        $this->assertNull(Order::find($this->order_id)->get_attributes()['flags']);
+    }
+
+    /**
+     * Spec scenario: Line breaks and plain text.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_keeps_line_breaks_and_strips_tags(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'order_notes' => "First <b>line</b>\nSecond line<script>alert(1)</script>",
+        ]));
+
+        $note = Order::find($this->order_id)->order_notes;
+        $this->assertStringContainsString("\n", $note);
+        $this->assertStringNotContainsString('<b>', $note);
+        $this->assertStringNotContainsString('<script>', $note);
+    }
+
+    /**
+     * Spec scenario: Other order data is not touched.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_does_not_change_other_order_data(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $before = Order::find($this->order_id);
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => 'Only this']));
+
+        $after = Order::find($this->order_id);
+        $this->assertSame($before->total, $after->total);
+        $this->assertSame($before->order_status, $after->order_status);
+        $this->assertSame($before->shipping_first_name, $after->shipping_first_name);
+        $this->assertCount(count($order['items']), $after->items);
+    }
+
+    /**
+     * Spec scenario: Empty request.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_without_note_or_flags_returns_422(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Unchanged']);
+        $this->order_id = $order['id'];
+
+        $this->assert_validation_error($this->request('PATCH', 'orders/' . $this->order_id, []));
+
+        $this->assertSame('Unchanged', Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Invalid flags value.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_with_invalid_flags_returns_422(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assert_validation_error($this->request('PATCH', 'orders/' . $this->order_id, ['flags' => 'gift']));
+    }
+
+    /**
+     * Spec scenario: Order not found.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_returns_404_for_a_missing_order(): void
+    {
+        $this->assert_api_error($this->request('PATCH', 'orders/999999', ['order_notes' => 'x']), 404);
+    }
+
+    /**
+     * Spec scenario: Order in any status.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_works_on_a_cancelled_order(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        Order::find($this->order_id)->update(['order_status' => OrderStatus::UNPAID_CANCELLED]);
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => 'After cancel']));
+
+        $this->assertSame('After cancel', $payload['data']['order_notes']);
+    }
+
+    /**
      * Delete order removes record.
      *
      * @return void
@@ -477,6 +1432,102 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * Referencing a variant ID that does not exist returns a 404, not a 500.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_returns_404_for_nonexistent_variant(): void
+    {
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'items' => [
+                ['variant_id' => 999999, 'quantity' => 1],
+            ],
+        ]));
+
+        $this->assert_api_error($response, 404);
+    }
+
+    /**
+     * Requesting more than the variant's per-order limit returns a 422, not a 500.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_returns_422_when_quantity_exceeds_per_order_limit(): void
+    {
+        Variant::find($this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => 1]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'items' => [
+                ['variant_id' => $this->variant_id, 'quantity' => 2],
+            ],
+        ]));
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An item whose product became draft after being added to the cart blocks checkout.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_rejects_item_whose_product_is_draft(): void
+    {
+        $product_id = Variant::find($this->variant_id)->product_id;
+        Product::find($product_id)->update(['status' => ProductStatus::DRAFT]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload());
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An item whose product was trashed after being added to the cart blocks checkout.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_rejects_item_whose_product_is_trashed(): void
+    {
+        $product_id = Variant::find($this->variant_id)->product_id;
+        Product::find($product_id)->update(['status' => ProductStatus::TRASHED]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload());
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An item whose variant was made not visible after being added to the cart blocks checkout.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_rejects_item_whose_variant_is_not_visible(): void
+    {
+        Variant::find($this->variant_id)->update(['is_visible' => false]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload());
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An order with only available items is unaffected by the availability check.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_succeeds_when_item_is_available(): void
+    {
+        $response = $this->request('POST', 'orders', $this->order_payload());
+
+        $this->assert_api_success($response, 201);
+    }
+
+    /**
      * Unauthenticated request returns 401.
      *
      * @return void
@@ -509,6 +1560,50 @@ class OrderApiTest extends RestTestCase
 
         $this->assertSame(200, $stored->invoiced_payment_provider_fee);
         $this->assertSame(100, $stored->base_payment_provider_fee);
+    }
+
+    /**
+     * The base-currency fee is divided by the order's frozen rate exactly.
+     * 256115 / 2.896 is exactly 88437.5 minor units, which must round up;
+     * the float reciprocal 1 / 2.896 rounds it down to 88437.
+     *
+     * @return void
+     */
+    public function test_set_payment_provider_fee_base_fee_is_exact_at_half_unit_boundary(): void
+    {
+        $currency_code = $this->create_test_currency(['code' => 'CHF', 'exchange_rate' => 2.896]);
+
+        $order = $this->create_order(['currency_code' => $currency_code]);
+        $this->order_id = $order['id'];
+
+        OrderManager::set_payment_provider_fee($this->order_id, 256115);
+
+        $stored = OrderManager::find($this->order_id);
+
+        $this->assertSame(256115, $stored->invoiced_payment_provider_fee);
+        $this->assertSame(88438, $stored->base_payment_provider_fee);
+    }
+
+    /**
+     * A fee in a zero-decimal order currency is converted using that
+     * currency's own minor-unit scale: 30000 yen at 150 per base unit is
+     * 200.00 in the base currency.
+     *
+     * @return void
+     */
+    public function test_set_payment_provider_fee_zero_decimal_order_currency(): void
+    {
+        $currency_code = $this->create_test_currency(['code' => 'JPY', 'exchange_rate' => 150]);
+
+        $order = $this->create_order(['currency_code' => $currency_code]);
+        $this->order_id = $order['id'];
+
+        OrderManager::set_payment_provider_fee($this->order_id, 30000);
+
+        $stored = OrderManager::find($this->order_id);
+
+        $this->assertSame(30000, $stored->invoiced_payment_provider_fee);
+        $this->assertSame(20000, $stored->base_payment_provider_fee);
     }
 
     /**
@@ -576,6 +1671,10 @@ class OrderApiTest extends RestTestCase
         $order = $this->create_order();
         $this->order_id = $order['id'];
 
+        // The order had to be placed with PayPal enabled; turn it off again so
+        // PayPal's own "not enabled" error proves the provider was resolved.
+        $this->assert_api_success($this->request('PATCH', 'online-payments/paypal', ['is_enabled' => false]));
+
         $order_model = OrderManager::find($this->order_id);
 
         $this->expectException(Exception::class);
@@ -600,8 +1699,9 @@ class OrderApiTest extends RestTestCase
         ]);
 
         wp_set_current_user($user_id);
+        $this->add_to_shopper_cart();
 
-        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+        $response = $this->request('POST', 'checkout', $this->order_payload(['is_manual' => false]));
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
 
@@ -610,27 +1710,6 @@ class OrderApiTest extends RestTestCase
         $this->assertNotNull($customer);
         $this->assertEquals($customer->id, $payload['data']['customer_id']);
         $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->exists());
-    }
-
-    /**
-     * An authenticated user who already has a customer record reuses it
-     * instead of getting a duplicate one provisioned.
-     *
-     * @return void
-     */
-    public function test_checkout_reuses_existing_customer_without_duplicating(): void
-    {
-        $user_id = $this->create_shopper_user();
-        $existing_customer = $this->provision_customer_for_user($user_id);
-
-        wp_set_current_user($user_id);
-
-        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
-        $payload = $this->assert_api_success($response, 201);
-        $this->order_id = $payload['data']['id'];
-
-        $this->assertEquals($existing_customer->id, $payload['data']['customer_id']);
-        $this->assertEquals(1, Customer::where('user_id', $user_id)->count());
     }
 
     /**
@@ -673,8 +1752,9 @@ class OrderApiTest extends RestTestCase
         $wp_user = get_userdata($user_id);
 
         wp_set_current_user($user_id);
+        $this->add_to_shopper_cart();
 
-        $response = $this->request('POST', 'orders', $this->order_payload([
+        $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
             'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Fallback',
@@ -707,8 +1787,9 @@ class OrderApiTest extends RestTestCase
         $wp_user = get_userdata($user_id);
 
         wp_set_current_user($user_id);
+        $this->add_to_shopper_cart();
 
-        $response = $this->request('POST', 'orders', $this->order_payload([
+        $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
             'billing_first_name' => 'Fallback',
             'billing_last_name' => 'Billing',
@@ -738,8 +1819,9 @@ class OrderApiTest extends RestTestCase
         $wp_user = get_userdata($user_id);
 
         wp_set_current_user($user_id);
+        $this->add_to_shopper_cart();
 
-        $response = $this->request('POST', 'orders', $this->order_payload([
+        $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
             'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Fallback',
@@ -773,6 +1855,7 @@ class OrderApiTest extends RestTestCase
 
         $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
             'is_manual' => false,
+            'customer_email' => null,
             'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Guest',
             'billing_last_name' => 'Shopper',
@@ -792,6 +1875,100 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * Placing an order is rate limited, so the checkout cannot be used to spam orders.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_checkout_is_rate_limited(): void
+    {
+        for ($attempt = 1; $attempt <= 10; $attempt++) {
+            $response = $this->request('POST', 'checkout', []);
+            $this->assertNotEquals(429, $response->get_status());
+        }
+
+        $this->assert_api_error($this->request('POST', 'checkout', []), 429);
+    }
+
+    /**
+     * A guest checkout is rejected when the store does not allow guest checkout.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_checkout_rejects_guest_when_guest_checkout_disabled(): void
+    {
+        Settings::update('checkout.is_allowed_guest_checkout', false);
+        $this->logout();
+        $order_count_before = Order::count();
+
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'payment_provider' => 'paypal',
+            'customer_email' => 'guest-' . wp_generate_password(8, false) . '@example.com',
+        ]));
+
+        $this->assert_api_error($response, 401);
+        $this->assertEquals($order_count_before, Order::count());
+    }
+
+    /**
+     * A guest checkout with the email of an existing account that has no
+     * customer record does not create a customer under that account.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_checkout_guest_with_existing_user_email_does_not_attach_to_user(): void
+    {
+        Settings::update('checkout.is_allowed_guest_checkout', true);
+        $email = 'account-owner-' . wp_generate_password(8, false) . '@example.com';
+        $user_id = $this->create_shopper_user(['user_email' => $email]);
+        $this->logout();
+
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'customer_email' => $email,
+            'shipping_email' => $email,
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $this->assertNull(Order::find($this->order_id)->customer_id);
+        $this->assertNull(Customer::where('user_id', $user_id)->first());
+        $this->assertCount(0, Customer::where('email', $email)->get());
+    }
+
+    /**
+     * A guest checkout with the email of an account that has a customer
+     * record succeeds like any other guest order, so the response does not
+     * reveal that the account exists, and the order is not linked to it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_checkout_guest_with_existing_customer_email_does_not_reveal_account(): void
+    {
+        Settings::update('checkout.is_allowed_guest_checkout', true);
+        $user_id = $this->create_shopper_user();
+        $customer = $this->provision_customer_for_user($user_id);
+        $email = get_userdata($user_id)->user_email;
+        $orders_before = Order::where('customer_id', $customer->id)->count();
+        $this->logout();
+
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'customer_email' => $email,
+            'shipping_email' => $email,
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $this->assertNull(Order::find($this->order_id)->customer_id);
+        $this->assertEquals($orders_before, Order::where('customer_id', $customer->id)->count());
+    }
+
+    /**
      * A guest checkout that submits a distinct customer_email persists that
      * value on the order rather than falling back to billing_email, and
      * rejects the submission with a validation error when it's missing.
@@ -800,6 +1977,7 @@ class OrderApiTest extends RestTestCase
      */
     public function test_checkout_guest_order_saves_submitted_customer_email(): void
     {
+        Settings::update('checkout.is_allowed_guest_checkout', true);
         $admin_id = get_current_user_id();
         $this->logout();
 
@@ -808,7 +1986,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
-            'payment_provider' => 'unregistered-test-provider',
+            'payment_provider' => 'paypal',
             'customer_email' => $customer_email,
             'billing_email' => $billing_email,
         ]));
@@ -830,11 +2008,13 @@ class OrderApiTest extends RestTestCase
      */
     public function test_checkout_guest_order_requires_customer_email(): void
     {
+        Settings::update('checkout.is_allowed_guest_checkout', true);
         $this->logout();
 
         $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
-            'payment_provider' => 'unregistered-test-provider',
+            'customer_email' => null,
+            'payment_provider' => 'paypal',
             'billing_email' => 'billing-' . wp_generate_password(8, false) . '@example.com',
         ]));
 
@@ -855,8 +2035,9 @@ class OrderApiTest extends RestTestCase
     {
         $user_id = $this->create_shopper_user();
         wp_set_current_user($user_id);
+        $this->add_to_shopper_cart();
 
-        $response = $this->request('POST', 'orders', $this->order_payload([
+        $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
         ]));
         $payload = $this->assert_api_success($response, 201);
@@ -882,8 +2063,9 @@ class OrderApiTest extends RestTestCase
     {
         $user_id = $this->create_shopper_user();
         wp_set_current_user($user_id);
+        $this->add_to_shopper_cart();
 
-        $response = $this->request('POST', 'orders', $this->order_payload([
+        $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
             'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Fallback',
@@ -938,16 +2120,18 @@ class OrderApiTest extends RestTestCase
         $user_id = $this->create_shopper_user();
         wp_set_current_user($user_id);
 
+        // The cart refuses more than is in stock, so sell out after adding.
+        $this->add_to_shopper_cart($limited_variant_id);
+        Variant::where('id', $limited_variant_id)->update(['available_quantity' => 0]);
+
         $order_count_before = Order::count();
 
-        $response = $this->request('POST', 'orders', $this->order_payload([
+        $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
-            'items' => [
-                ['variant_id' => $limited_variant_id, 'quantity' => 2],
-            ],
         ]));
 
-        $this->assert_api_error($response, 500);
+        // The stock check in the context builder refuses the sold-out line before any order is written.
+        $this->assert_api_error($response, 422);
 
         $customer = Customer::where('user_id', $user_id)->first();
 
@@ -989,13 +2173,9 @@ class OrderApiTest extends RestTestCase
         $user_id = $this->create_shopper_user();
         wp_set_current_user($user_id);
 
-        $response = $this->request('POST', 'orders', $this->order_payload([
-            'is_manual' => false,
-            'coupon_codes' => [$coupon->code],
-        ]));
+        $order = $this->place_shopper_order($user_id, ['coupon_codes' => [$coupon->code]]);
 
-        $payload = $this->assert_api_success($response, 201);
-        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping']);
+        $this->assertEquals(0.0, Money::prepare_amount_from_minor($order->base_shipping_total));
     }
 
     /**
@@ -1016,9 +2196,7 @@ class OrderApiTest extends RestTestCase
 
         $this->provision_customer_for_user($user_id);
 
-        $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
-            'is_manual' => false,
-        ])), 201);
+        $this->place_shopper_order($user_id);
 
         $coupon = Coupon::create([
             'title' => 'First Time Buyer',
@@ -1029,13 +2207,9 @@ class OrderApiTest extends RestTestCase
             'is_active' => true,
         ]);
 
-        $response = $this->request('POST', 'orders', $this->order_payload([
-            'is_manual' => false,
-            'coupon_codes' => [$coupon->code],
-        ]));
+        $order = $this->place_shopper_order($user_id, ['coupon_codes' => [$coupon->code]]);
 
-        $payload = $this->assert_api_success($response, 201);
-        $this->assertEquals(10.0, $payload['data']['totals']['base_shipping']);
+        $this->assertEquals(10.0, Money::prepare_amount_from_minor($order->base_shipping_total));
     }
 
     /**
@@ -1063,13 +2237,9 @@ class OrderApiTest extends RestTestCase
         $user_id = $this->create_shopper_user();
         wp_set_current_user($user_id);
 
-        $response = $this->request('POST', 'orders', $this->order_payload([
-            'is_manual' => false,
-            'coupon_codes' => [$coupon->code],
-        ]));
+        $order = $this->place_shopper_order($user_id, ['coupon_codes' => [$coupon->code]]);
 
-        $payload = $this->assert_api_success($response, 201);
-        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping']);
+        $this->assertEquals(0.0, Money::prepare_amount_from_minor($order->base_shipping_total));
     }
 
     /**
@@ -1095,19 +2265,141 @@ class OrderApiTest extends RestTestCase
         $user_id = $this->create_shopper_user();
         wp_set_current_user($user_id);
 
-        $first = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
-            'is_manual' => false,
-            'coupon_codes' => [$coupon->code],
-        ])), 201);
-        $this->assertEquals(0.0, $first['data']['totals']['base_shipping']);
+        $first = $this->place_shopper_order($user_id, ['coupon_codes' => [$coupon->code]]);
+        $this->assertEquals(0.0, Money::prepare_amount_from_minor($first->base_shipping_total));
 
-        $second = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
-            'is_manual' => false,
-            'coupon_codes' => [$coupon->code],
-        ])), 201);
+        $second = $this->place_shopper_order($user_id, ['coupon_codes' => [$coupon->code]]);
 
-        $this->assertGreaterThan(0.0, $second['data']['totals']['base_shipping']);
-        $this->assertCount(0, OrderCoupon::where('order_id', $second['data']['id'])->get());
+        $this->assertGreaterThan(0.0, Money::prepare_amount_from_minor($second->base_shipping_total));
+        $this->assertCount(0, OrderCoupon::where('order_id', $second->id)->get());
+    }
+
+    /**
+     * An admin-created guest order with a new email gets a first-time-buyer coupon: the
+     * signed-in admin is not treated as the buyer, and the entered email identifies them.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_admin_guest_order_with_new_email_applies_first_time_buyer_coupon(): void
+    {
+        $coupon = $this->create_buyer_scoped_coupon(['first_time_buyer_only' => true]);
+
+        $order = $this->create_order([
+            'customer_email' => 'new-guest-' . wp_generate_password(6, false) . '@example.com',
+            'coupon_codes' => [$coupon->code],
+        ]);
+        $this->order_id = $order['id'];
+
+        $this->assertEquals(0.0, Money::prepare_amount_from_minor(Order::find($order['id'])->base_shipping_total));
+    }
+
+    /**
+     * An admin-created order for a customer who has ordered before drops a first-time-buyer coupon.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_admin_order_for_customer_with_prior_order_drops_first_time_buyer_coupon(): void
+    {
+        $coupon = $this->create_buyer_scoped_coupon(['first_time_buyer_only' => true]);
+        $customer_id = $this->create_customer()['id'];
+
+        $this->create_order(['customer_id' => $customer_id]);
+        $order = $this->create_order([
+            'customer_id' => $customer_id,
+            'coupon_codes' => [$coupon->code],
+        ]);
+        $this->order_id = $order['id'];
+
+        $this->assertEquals(10.0, Money::prepare_amount_from_minor(Order::find($order['id'])->base_shipping_total));
+        $this->assertCount(0, OrderCoupon::where('order_id', $order['id'])->get());
+    }
+
+    /**
+     * A guest checkout whose email already has an order drops a first-time-buyer coupon,
+     * while a guest with a new email keeps it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_guest_checkout_first_time_buyer_coupon_is_judged_by_email(): void
+    {
+        $coupon = $this->create_buyer_scoped_coupon(['first_time_buyer_only' => true]);
+        $email = 'repeat-' . wp_generate_password(6, false) . '@example.com';
+
+        $first = $this->place_guest_order($email, ['coupon_codes' => [$coupon->code]]);
+        $this->assertEquals(0.0, Money::prepare_amount_from_minor($first->base_shipping_total));
+
+        $second = $this->place_guest_order(strtoupper($email), ['coupon_codes' => [$coupon->code]]);
+
+        $this->assertEquals(10.0, Money::prepare_amount_from_minor($second->base_shipping_total));
+        $this->assertCount(0, OrderCoupon::where('order_id', $second->id)->get());
+    }
+
+    /**
+     * A guest checkout whose email already used a once-per-customer coupon drops it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_guest_checkout_customer_usage_limit_is_judged_by_email(): void
+    {
+        $coupon = $this->create_buyer_scoped_coupon(['has_customer_limit' => true, 'customer_limit' => 1]);
+        $email = 'limited-' . wp_generate_password(6, false) . '@example.com';
+
+        $first = $this->place_guest_order($email, ['coupon_codes' => [$coupon->code]]);
+        $this->assertEquals(0.0, Money::prepare_amount_from_minor($first->base_shipping_total));
+
+        $second = $this->place_guest_order($email, ['coupon_codes' => [$coupon->code]]);
+
+        $this->assertEquals(10.0, Money::prepare_amount_from_minor($second->base_shipping_total));
+        $this->assertCount(0, OrderCoupon::where('order_id', $second->id)->get());
+    }
+
+    /**
+     * Editing the buyer's only order keeps its first-time-buyer and once-per-customer
+     * coupons: the edited order does not count against itself.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_editing_buyers_only_order_keeps_buyer_scoped_coupons(): void
+    {
+        $first_time = $this->create_buyer_scoped_coupon(['first_time_buyer_only' => true]);
+        $once = $this->create_buyer_scoped_coupon([
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::ORDER,
+            'discount_value_type' => DiscountValueType::PERCENTAGE,
+            'discount_amount_percentage' => 10,
+            'has_customer_limit' => true,
+            'customer_limit' => 1,
+        ]);
+        $customer_id = $this->create_customer()['id'];
+
+        $order = $this->create_order([
+            'customer_id' => $customer_id,
+            'coupon_codes' => [$first_time->code, $once->code],
+        ]);
+        $this->order_id = $order['id'];
+        $this->assertCount(2, OrderCoupon::where('order_id', $order['id'])->get());
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'coupon_codes' => [$first_time->code, $once->code],
+            'order_notes' => 'Unrelated edit',
+            'items' => [
+                [
+                    'id' => $order['items'][0]['id'] ?? null,
+                    'variant_id' => $this->variant_id,
+                    'quantity' => 1,
+                ],
+            ],
+        ])));
+
+        $this->assertEquals(0.0, Money::prepare_amount_from_minor(Order::find($order['id'])->base_shipping_total));
+        $this->assertCount(2, OrderCoupon::where('order_id', $order['id'])->where_null('usage_reversed_at')->get());
     }
 
     /**
@@ -1302,6 +2594,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
         ])));
@@ -1334,6 +2627,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [],
         ])));
@@ -1367,9 +2661,10 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
-            'admin_notes' => 'Unrelated edit',
+            'order_notes' => 'Unrelated edit',
         ])));
 
         $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
@@ -1380,9 +2675,8 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Editing an already-cancelled order (its coupon usage already reversed
-     * by cancellation) must not resurrect that reversed usage as active just
-     * because the coupon-attribution rows get regenerated by the edit.
+     * A cancelled order cannot be edited, so its coupon usage, already
+     * reversed by the cancellation, can never be made active again by an edit.
      *
      * @return void
      */
@@ -1404,12 +2698,12 @@ class OrderApiTest extends RestTestCase
 
         $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
 
-        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+        $this->assert_api_error($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
-            'admin_notes' => 'Edited after cancellation',
-        ])));
+            'order_notes' => 'Edited after cancellation',
+        ])), 422);
 
         $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
 
@@ -1486,13 +2780,13 @@ class OrderApiTest extends RestTestCase
 
     /**
      * `sync_order_coupons()` fails loudly, instead of silently under-recording,
-     * when a coupon result attributes a discount to a variant that has no
+     * when a coupon result attributes a discount to a line that has no
      * matching order item - the fail-loud backstop this change adds in place
      * of the previous silent `continue`.
      *
      * @return void
      */
-    public function test_sync_order_coupons_throws_when_item_discount_references_unmatched_variant(): void
+    public function test_sync_order_coupons_throws_when_item_discount_references_unmatched_line(): void
     {
         $order = $this->create_order();
         $this->order_id = $order['id'];
@@ -1525,7 +2819,7 @@ class OrderApiTest extends RestTestCase
 
         $this->expectException(Exception::class);
 
-        $sync_order_coupons->invoke($action, $order_model, $calculated_result, 'USD', 1.0);
+        $sync_order_coupons->invoke($action, $order_model, $calculated_result, [0 => OrderItem::find($order['items'][0]['id'])], 'USD', 1.0);
     }
 
     /**
@@ -1549,7 +2843,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
-            'payment_provider' => 'unregistered-test-provider',
+            'payment_provider' => 'paypal',
         ]));
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
@@ -1580,7 +2874,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
-            'payment_provider' => 'unregistered-test-provider',
+            'payment_provider' => 'paypal',
         ]));
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
@@ -1700,6 +2994,106 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * Create an editor granted manage_options - a store manager without the administrator role.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_store_manager_user(): int
+    {
+        $user_id = static::factory()->user->create(['role' => 'editor']);
+        get_userdata($user_id)->add_cap('manage_options');
+
+        return $user_id;
+    }
+
+    /**
+     * Put a variant in the current user's cart, the way a shopper does
+     * before calling the checkout endpoint (which orders what is in the cart).
+     *
+     * @param int|null $variant_id Variant to add; defaults to the fixture variant.
+     * @param int      $quantity   Quantity to add.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function add_to_shopper_cart(?int $variant_id = null, int $quantity = 1): void
+    {
+        $this->assert_api_success($this->request('POST', 'cart/items', [
+            'variant_id' => $variant_id ?? $this->variant_id,
+            'quantity' => $quantity,
+        ]));
+    }
+
+    /**
+     * Place a non-manual order for a shopper through CreateOrderAction with the
+     * payload's own items and coupon codes, bypassing the cart.
+     *
+     * For checkout-time coupon tests: the cart validates a coupon when it is
+     * applied, so a coupon the checkout should silently drop cannot reach
+     * checkout through the cart.
+     *
+     * @param int   $user_id   The shopper's WordPress user ID.
+     * @param array $overrides Order payload overrides.
+     *
+     * @return Order
+     * @since 1.0.0
+     */
+    protected function place_shopper_order(int $user_id, array $overrides = []): Order
+    {
+        $customer = Customer::where('user_id', $user_id)->first();
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload(array_merge(['is_manual' => false], $overrides)));
+        $dto->created_by = $user_id;
+        $dto->customer_id = $customer ? $customer->id : null;
+        $dto->currency_code = 'USD';
+
+        return app()->make(CreateOrderAction::class)->execute($dto);
+    }
+
+    /**
+     * Place a storefront checkout order as a guest with the given contact email.
+     *
+     * @param string $email     Guest contact email.
+     * @param array  $overrides Order payload overrides.
+     *
+     * @return Order
+     * @since 1.0.0
+     */
+    protected function place_guest_order(string $email, array $overrides = []): Order
+    {
+        wp_set_current_user(0);
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload(array_merge([
+            'is_manual' => false,
+            'customer_email' => $email,
+        ], $overrides)));
+        $dto->created_by = null;
+        $dto->currency_code = 'USD';
+
+        return app()->make(CreateOrderAction::class)->execute($dto);
+    }
+
+    /**
+     * Create an active free-shipping coupon with buyer-scoped rules.
+     *
+     * @param array $attributes Coupon attributes, such as `first_time_buyer_only` or `customer_limit`.
+     *
+     * @return Coupon
+     * @since 1.0.0
+     */
+    protected function create_buyer_scoped_coupon(array $attributes): Coupon
+    {
+        return Coupon::create(array_merge([
+            'title' => 'Buyer Scoped',
+            'code' => 'BUYER' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'is_active' => true,
+        ], $attributes));
+    }
+
+    /**
      * Provision a customer record (with addresses) linked to an existing
      * WordPress user, simulating a shopper who already has one.
      *
@@ -1787,6 +3181,40 @@ class OrderApiTest extends RestTestCase
         $payload = $this->assert_api_success($response, 201);
 
         return $payload['data'];
+    }
+
+    /**
+     * Enable a central US tax region under tax-inclusive pricing, matching
+     * `order_payload()`'s default `shipping_country`.
+     *
+     * @param int|float $product_tax_rate
+     * @return void
+     * @since 1.0.0
+     */
+    protected function enable_us_inclusive_tax($product_tax_rate): void
+    {
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => true,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [
+                    [
+                        'code' => 'US',
+                        'is_enabled' => true,
+                        'type' => null,
+                        'is_central_tax_enabled' => true,
+                        'central_product_tax' => $product_tax_rate,
+                        'central_shipping_tax' => 0,
+                        'states' => [],
+                        'rules' => [],
+                    ],
+                ],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
     }
 
     /**
@@ -1881,6 +3309,9 @@ class OrderApiTest extends RestTestCase
             'payment_provider' => 'paypal',
             'shipping_method' => 'method-0001',
             'is_manual' => true,
+            'customer_first_name' => 'John',
+            'customer_last_name' => 'Doe',
+            'customer_email' => 'buyer@example.com',
             'shipping_first_name' => 'John',
             'shipping_last_name' => 'Doe',
             'shipping_address_line1' => '123 Main St',
@@ -1895,8 +3326,7 @@ class OrderApiTest extends RestTestCase
             'billing_state' => 'NY',
             'billing_postal_code' => '10001',
             'billing_country' => 'US',
-            'customer_notes' => 'Test order',
-            'admin_notes' => 'Test order',
+            'order_notes' => 'Test order',
         ];
 
         return array_merge($payload, $overrides);
@@ -2312,5 +3742,39 @@ class OrderApiTest extends RestTestCase
         $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
 
         $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * List orders reports whether the table holds any record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_reports_has_records(): void
+    {
+        Order::query()->delete();
+
+        $this->assertFalse($this->list_has_records('orders'));
+
+        $this->create_order();
+
+        $this->assertTrue($this->list_has_records('orders'));
+    }
+
+    /**
+     * List orders keeps has_records true when a search matches nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_has_records_ignores_search(): void
+    {
+        $this->create_order();
+
+        $response = $this->request('GET', 'orders', ['search' => 'no-such-record-zzz']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame(0, $payload['data']['total']);
+        $this->assertTrue($payload['data']['has_records']);
     }
 }

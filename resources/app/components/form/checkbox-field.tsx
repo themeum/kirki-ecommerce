@@ -51,7 +51,7 @@ const CheckboxField = <
               aria-invalid={fieldState.invalid}
             />
             {label && (
-              <FieldLabel htmlFor={fieldId} infoText={infoText}>
+              <FieldLabel htmlFor={fieldId} infoText={infoText} cssOverride={{ cursor: 'pointer' }}>
                 {label}
               </FieldLabel>
             )}

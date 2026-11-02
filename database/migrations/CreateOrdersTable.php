@@ -2,18 +2,33 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_orders table, which stores orders.
+ *
+ * @since 1.0.0
+ */
 class CreateOrdersTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_orders table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_orders', function (Structure $table) {
             $table->id();
             $table->uuid('uuid')->nullable();
             $table->string('order_number', 50)->nullable();
+            $table->string('invoice_number', 50)->nullable();
             $table->unsigned_big_integer('customer_id')->nullable();
             $table->string('order_status', 50)->default('pending')->comment('Available: pending, unpaid_processing, paid_unfulfilled, paid_processing, paid_shipped, shipped_unpaid, delivered_unpaid, completed, on_hold_paid, on_hold_unpaid, paid_cancelled, unpaid_cancelled, failed_cancelled, failed_unfulfilled, failed_processing, failed_shipped, failed_delivered, failed_on_hold, refund_requested, refund_in_progress, refunded, refund_declined, returned_pending_refund, refunded_partially');
             $table->string('fulfillment_status', 50)->default('unfulfilled')->comment('Available: unfulfilled, processing, shipped, delivered, on-hold, cancelled, delivered-refund-processing, returned-refund-pending, returned-refund-processing, returned, delivered');
@@ -24,26 +39,28 @@ class CreateOrdersTable implements Migration
             $table->string('base_currency_code', 3);
             $table->decimal('exchange_rate', 15, 6)->nullable()->comment('Exchange rate at time of order for accurate historical reporting');
 
-            $table->integer('invoiced_subtotal')->default(0);
-            $table->integer('base_subtotal')->default(0);
+            $table->integer('invoiced_subtotal')->default(0)->comment('Sum of the item subtotals: net of tax, before discounts, in the invoiced currency, minor units');
+            $table->integer('base_subtotal')->default(0)->comment('Sum of the item subtotals: net of tax, before discounts, in the base currency, minor units');
 
             $table->string('tax_id_number', 100)->nullable();
             $table->string('tax_id_type', 50)->nullable()->comment('Available: vat, gst, ein, etc.');
             $table->boolean('reverse_charge')->default(0)->comment('EU reverse charge mechanism');
 
-            $table->integer('invoiced_shipping_total')->default(0);
-            $table->integer('base_shipping_total')->default(0);
+            $table->integer('invoiced_shipping_total')->default(0)->comment('Shipping after shipping discount, with shipping tax added on top (shipping tax is never inclusive), in the invoiced currency, minor units');
+            $table->integer('base_shipping_total')->default(0)->comment('Shipping after shipping discount, with shipping tax added on top (shipping tax is never inclusive), in the base currency, minor units');
 
-            $table->string('coupon_code', 100)->nullable();
-            $table->integer('invoiced_discount_total')->default(0);
-            $table->integer('base_discount_total')->default(0);
-            $table->text('discount_details')->nullable()->comment('JSON snapshot of discount details');
+            $table->integer('invoiced_discount_total')->default(0)->comment('Item discounts plus shipping discount; item discounts include tax when is_tax_inclusive is true, in the invoiced currency, minor units');
+            $table->integer('base_discount_total')->default(0)->comment('Item discounts plus shipping discount; item discounts include tax when is_tax_inclusive is true, in the base currency, minor units');
 
-            $table->integer('invoiced_tax_total')->default(0);
-            $table->integer('base_tax_total')->default(0);
+            $table->integer('invoiced_tax_total')->default(0)->comment('Tax on all items plus shipping tax, after discounts, in the invoiced currency, minor units');
+            $table->integer('base_tax_total')->default(0)->comment('Tax on all items plus shipping tax, after discounts, in the base currency, minor units');
+            $table->integer('invoiced_shipping_tax_amount')->default(0)->comment('The tax part of shipping_total, in the invoiced currency, minor units');
+            $table->integer('base_shipping_tax_amount')->default(0)->comment('The tax part of shipping_total, in the base currency, minor units');
+            $table->boolean('is_tax_inclusive')->default(0)->comment('Whether the store priced items inclusive of tax when this order was last calculated');
+            $table->string('tax_destination', 20)->nullable()->comment('Address the tax was calculated from when this order was last calculated. Available: shipping, billing, store. Null when no tax was calculated');
 
-            $table->integer('invoiced_total')->default(0);
-            $table->integer('base_total')->default(0);
+            $table->integer('invoiced_total')->default(0)->comment('Amount payable: item totals plus shipping_total, never below zero; always includes tax; excludes payment_provider_fee, in the invoiced currency, minor units');
+            $table->integer('base_total')->default(0)->comment('Amount payable: item totals plus shipping_total, never below zero; always includes tax; excludes payment_provider_fee, in the base currency, minor units');
 
             $table->integer('items_count')->default(0);
             $table->decimal('total_weight', 10, 2)->nullable();
@@ -51,8 +68,8 @@ class CreateOrdersTable implements Migration
             $table->string('payment_status', 50)->default('pending')->comment('Available: paid, unpaid, failed, refunding, refunded');
             $table->string('payment_provider', 100)->nullable();
             $table->string('payment_transaction_id')->nullable();
-            $table->integer('invoiced_payment_provider_fee')->default(0);
-            $table->integer('base_payment_provider_fee')->default(0);
+            $table->integer('invoiced_payment_provider_fee')->default(0)->comment('Fee the payment provider charged, recorded after payment from the provider response; not part of total, in the invoiced currency, minor units');
+            $table->integer('base_payment_provider_fee')->default(0)->comment('Fee the payment provider charged, recorded after payment from the provider response; not part of total, in the base currency, minor units');
             $table->text('payment_metadata')->nullable();
 
             $table->string('shipping_method', 100)->nullable();
@@ -94,8 +111,7 @@ class CreateOrdersTable implements Migration
             $table->ip_address('ip_address')->nullable();
             $table->text('user_agent')->nullable();
 
-            $table->text('customer_notes')->nullable();
-            $table->text('admin_notes')->nullable();
+            $table->text('order_notes')->nullable();
             $table->text('flags')->nullable()->comment('Comma separated admin flags, i.e. Backorder, Urgent');
 
             $table->text('cancellation_reason')->nullable();
@@ -112,38 +128,46 @@ class CreateOrdersTable implements Migration
             $table->timestamp('archived_at')->nullable()->comment('The order was archived by an admin');
             $table->timestamps();
 
-            $table->foreign('created_by')->on('users')->references('ID')->null_on_delete();
-            $table->foreign('updated_by')->on('users')->references('ID')->null_on_delete();
+            $table->foreign('created_by', 'fk_kecom_orders_created_by')->on('users')->references('ID')->null_on_delete();
+            $table->foreign('updated_by', 'fk_kecom_orders_updated_by')->on('users')->references('ID')->null_on_delete();
 
-            $table->index('order_number');
-            $table->index('uuid');
-            $table->index('customer_email');
-            $table->index('ip_address', 'idx_fraud_detection');
+            $table->index('order_number', 'idx_kecom_orders_order_number');
+            $table->index('invoice_number', 'idx_kecom_orders_invoice_number');
+            $table->index('uuid', 'idx_kecom_orders_uuid');
+            $table->index('customer_email', 'idx_kecom_orders_customer_email');
+            $table->index('ip_address', 'idx_kecom_orders_ip_address');
 
-            $table->index(['customer_id', 'created_at'], 'idx_customer_orders');
-            $table->index(['customer_id', 'order_status', 'created_at'], 'idx_customer_status_orders');
+            $table->index(['customer_id', 'created_at'], 'idx_kecom_orders_customer_id_created_at');
+            $table->index(['customer_id', 'order_status', 'created_at'], 'idx_kecom_orders_customer_id_order_status_created_at');
 
-            $table->index(['created_at', 'order_status'], 'idx_recent_orders');
-            $table->index(['order_status', 'payment_status', 'created_at'], 'idx_status_payment_date');
-            $table->index(['payment_status', 'order_status', 'updated_at'], 'idx_payment_order_tracking');
+            $table->index(['created_at', 'order_status'], 'idx_kecom_orders_created_at_order_status');
+            $table->index(['order_status', 'payment_status', 'created_at'], 'idx_kecom_orders_order_status_payment_status_created_at');
+            $table->index(['payment_status', 'order_status', 'updated_at'], 'idx_kecom_orders_payment_status_order_status_updated_at');
 
-            $table->index(['paid_at', 'order_status'], 'idx_paid_orders');
-            $table->index(['fulfilled_at'], 'idx_fulfilled_orders');
-            $table->index(['shipped_at'], 'idx_shipped_orders');
+            $table->index(['paid_at', 'order_status'], 'idx_kecom_orders_paid_at_order_status');
+            $table->index(['fulfilled_at'], 'idx_kecom_orders_fulfilled_at');
+            $table->index(['shipped_at'], 'idx_kecom_orders_shipped_at');
 
-            $table->index(['payment_provider', 'payment_status'], 'idx_payment_provider_tracking');
-            $table->index(['shipping_country', 'created_at'], 'idx_country_orders');
+            $table->index(['payment_provider', 'payment_status'], 'idx_kecom_orders_payment_provider_payment_status');
+            $table->index(['shipping_country', 'created_at'], 'idx_kecom_orders_shipping_country_created_at');
 
-            $table->index('payment_transaction_id');
-            $table->index(['base_currency_code', 'created_at'], 'idx_base_currency_reporting');
+            $table->index('payment_transaction_id', 'idx_kecom_orders_payment_transaction_id');
+            $table->index(['base_currency_code', 'created_at'], 'idx_kecom_orders_base_currency_code_created_at');
 
-            $table->foreign('customer_id')
+            $table->foreign('customer_id', 'fk_kecom_orders_customer_id')
                 ->references('id')
                 ->on('kirki_ecommerce_customers')
                 ->null_on_delete();
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_orders table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_orders');

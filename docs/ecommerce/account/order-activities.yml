@@ -53,8 +53,8 @@ examples:
                 {
                   "id": 12,
                   "order_id": 4,
-                  "activity_type": "comment-added",
-                  "description": "Packed and ready to ship.",
+                  "activity_type": "shipped",
+                  "description": "Order #ORD-6A8D37D5A1299 was shipped.",
                   "created_by": 1,
                   "author_name": "Admin",
                   "created_at": "2026-08-23 14:02:10"
@@ -121,9 +121,12 @@ docs: |-
   ## Order Activities (Customer)
 
   Returns the **currently authenticated customer's own** view of an
-  order's paginated activity timeline — the exact same activities an admin
-  sees on **Orders → List Activities**, admin comments included. There is
-  no visibility split between "internal" and "customer-facing" activities.
+  order's paginated activity timeline. Only customer-visible activity types
+  are returned: order-placed, processing, fulfillment-resumed, shipped,
+  delivered, cancelled, tracking-added and on-hold. Comments, payment and
+  refund activities are never returned, and `total` counts only the
+  visible ones. Entries have the same fields as the admin endpoint, except
+  `notify_customer`.
 
   - `page` / `limit` work exactly like the admin endpoint: `limit`
     defaults to 10, `page` defaults to 1, and `limit=-1` returns

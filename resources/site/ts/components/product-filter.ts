@@ -40,3 +40,34 @@ export function productFilter(config: ProductFilterConfig = {}) {
     },
   };
 }
+
+const SIDEBAR_FILTER_PARAMS = ['category_ids[]', 'brand_ids[]', 'attribute_value_ids[]'];
+
+export function shopSidebar() {
+  return {
+    applyFilters(event: Event) {
+      const target = event.target as HTMLInputElement;
+
+      if (target.type !== 'checkbox') {
+        return;
+      }
+
+      const sidebar = event.currentTarget as HTMLElement;
+      const params = new URLSearchParams(window.location.search);
+
+      SIDEBAR_FILTER_PARAMS.forEach((name) => {
+        params.delete(name);
+      });
+      params.delete(PAGE_PARAM);
+
+      SIDEBAR_FILTER_PARAMS.forEach((name) => {
+        sidebar.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`).forEach((checkbox) => {
+          params.append(name, checkbox.value);
+        });
+      });
+
+      const queryString = params.toString();
+      window.location.href = `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
+    },
+  };
+}

@@ -2,12 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\DTO\Variant\VariantListFilterDTO;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Supports\ListPaginator;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -22,12 +25,19 @@ use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Manages product variants: listing, lookup, creation, updates, stock counters and deletion.
+ *
+ * @since 1.0.0
+ */
 class VariantService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -49,10 +59,12 @@ class VariantService
     }
 
     /**
-     * Get all variants with product and media.
+     * Get all variants matching the filters, with their product and media.
      *
-     * @param VariantListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param VariantListFilterDTO $filters Search, product, stock, date and sorting filters.
+     * @return Collection Collection of Variant.
      */
     public function all(VariantListFilterDTO $filters)
     {
@@ -60,21 +72,27 @@ class VariantService
     }
 
     /**
-     * Get all variants with product and media.
+     * Get a page of variants matching the filters, with their product and media.
      *
-     * @param VariantListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param VariantListFilterDTO $filters Search, product, stock, date, sorting and pagination filters.
      * @return Paginator
      */
     public function paginated(VariantListFilterDTO $filters)
     {
-        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+        $page = $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+
+        return ListPaginator::from($page, Variant::query());
     }
 
     /**
-     * Get all variants with product and media by ids.
+     * Get the variants with the given IDs, with their product and media.
      *
-     * @param array $ids
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param int[] $ids Variant IDs.
+     * @return Collection Collection of Variant.
      */
     public function get_by_ids(array $ids)
     {
@@ -82,11 +100,13 @@ class VariantService
     }
 
     /**
-     * Find a variant by ID.
+     * Find a variant by ID or throw an exception.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Variant ID.
      * @return Variant
-     * @throws NotFoundException
+     * @throws NotFoundException When the variant does not exist.
      */
     public function find(int $id)
     {
@@ -100,7 +120,9 @@ class VariantService
     /**
      * Find a variant by ID without throwing when missing.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Variant ID.
      * @return Variant|null
      */
     public function find_or_null(int $id)
@@ -109,9 +131,11 @@ class VariantService
     }
 
     /**
-     * Create a new variant.
+     * Create a new variant and sync its attribute values.
      *
-     * @param CreateVariantDTO $data
+     * @since 1.0.0
+     *
+     * @param CreateVariantDTO $data Variant data.
      * @return Variant
      */
     public function create(CreateVariantDTO $data)
@@ -125,17 +149,19 @@ class VariantService
 
         $variant->attribute_values()->sync($data->attribute_values);
 
+        $this->ensure_single_default((int) $variant->product_id, $variant->is_default ? (int) $variant->id : null);
+
         return $variant;
     }
 
     /**
-     * Updates a variant.
+     * Update a variant and sync its attribute values.
      *
-     * If no slug is provided, it will be generated from the name.
+     * @since 1.0.0
      *
-     * @param UpdateVariantDTO $data
-     * @throws NotFoundException
+     * @param UpdateVariantDTO $data Variant data, including its ID.
      * @return Variant
+     * @throws NotFoundException When the variant does not exist or could not be updated.
      */
     public function update(UpdateVariantDTO $data)
     {
@@ -154,10 +180,14 @@ class VariantService
     }
 
     /**
-     * Partial update
-     * @param mixed $id
-     * @param array $data
-     * @return Variant|null
+     * Update only the given fields of a variant.
+     *
+     * @since 1.0.0
+     *
+     * @param int                  $id   Variant ID.
+     * @param array<string, mixed> $data Column values to update.
+     * @return Variant|null The reloaded variant; null when the update failed.
+     * @throws NotFoundException When the variant does not exist.
      */
     public function partial_update($id, array $data)
     {
@@ -165,25 +195,31 @@ class VariantService
     }
 
     /**
-     * Bulk update
-     * @param array $variants
-     * @return array
+     * Update several variants in one transaction.
+     *
+     * Rolls back and throws when any variant cannot be updated.
+     *
+     * @since 1.0.0
+     *
+     * @param array<int, array<string, mixed>> $variants Column values per variant, each including its `id`.
+     * @return Variant[] The updated variants.
+     * @throws NotFoundException When no variants are given, one has no ID, or one cannot be updated.
      */
     public function bulk_update(array $variants)
     {
-        throw_if(empty($variants), __('No variants selected.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(empty($variants), __('No variants selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         DB::begin_transaction();
 
         $updated_variants = [];
 
         foreach ($variants as $variant) {
-            throw_if(empty($variant['id']), __('Variant id is required.', 'kirki-ecommerce'), NotFoundException::class);
+            throw_if(empty($variant['id']), __('Variant id is required.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
             $updated_variant = $this->update_variant($variant['id'], $variant);
 
             if (!$updated_variant) {
-                DB::roll_back();
+                DB::rollback();
 
                 throw_anyway(
                     sprintf(
@@ -191,7 +227,8 @@ class VariantService
                         __('Variant with id %s could not be updated.', 'kirki-ecommerce'),
                         $variant['id']
                     ),
-                    NotFoundException::class
+                    NotFoundException::class,
+                    Response::NOT_FOUND
                 );
             }
 
@@ -204,12 +241,14 @@ class VariantService
     }
 
     /**
-     * Increment a variant by ID.
+     * Increment a numeric column of a variant.
      *
-     * @param int $id
-     * @param string $column
-     * @param int $amount
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param int    $id     Variant ID.
+     * @param string $column Column to increment.
+     * @param int    $amount Amount to add.
+     * @return bool True when a row was updated.
      */
     public function increment(int $id, string $column, int $amount = 1)
     {
@@ -217,12 +256,14 @@ class VariantService
     }
 
     /**
-     * Decrement a variant by ID.
-
-     * @param int $id
-     * @param string $column
-     * @param int $amount
-     * @return bool
+     * Decrement a numeric column of a variant.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $id     Variant ID.
+     * @param string $column Column to decrement.
+     * @param int    $amount Amount to subtract.
+     * @return bool True when a row was updated.
      */
     public function decrement(int $id, string $column, int $amount = 1)
     {
@@ -230,44 +271,172 @@ class VariantService
     }
 
     /**
-     * Deletes a variant by ID.
+     * Decrease the available quantity of a variant in one statement.
      *
-     * @param int $id The ID of the variant to delete.
-     * @return bool True if the variant was deleted successfully, false otherwise.
-     * @throws NotFoundException If the variant could not be found or deleted.
+     * When stock is required, the statement only matches a row that still holds
+     * the amount, so concurrent requests cannot take the same stock twice.
+     *
+     * @since 1.0.0
+     *
+     * @param int  $id            Variant ID.
+     * @param int  $amount        Amount to subtract.
+     * @param bool $require_stock Whether the available quantity must cover the amount.
+     * @return bool False when the amount is not positive or no row matched.
+     */
+    public function decrement_available(int $id, int $amount, bool $require_stock)
+    {
+        if ($amount <= 0) {
+            return false;
+        }
+
+        $query = Variant::query()->where('id', $id);
+
+        if ($require_stock) {
+            $query->where('available_quantity', '>=', $amount);
+        }
+
+        return (bool) $query->decrement('available_quantity', $amount);
+    }
+
+    /**
+     * Move an amount from available to committed in one statement.
+     *
+     * When stock is required, the statement only matches a row that still holds
+     * the amount, so concurrent requests cannot reserve the same stock twice.
+     * Both columns change together, so a failed reserve changes neither.
+     *
+     * @since 1.0.0
+     *
+     * @param int  $id            Variant ID.
+     * @param int  $amount        Amount to reserve.
+     * @param bool $require_stock Whether the available quantity must cover the amount.
+     * @return bool False when the amount is not positive or no row matched.
+     */
+    public function reserve_available(int $id, int $amount, bool $require_stock)
+    {
+        if ($amount <= 0) {
+            return false;
+        }
+
+        $query = Variant::query()->where('id', $id);
+
+        if ($require_stock) {
+            $query->where('available_quantity', '>=', $amount);
+        }
+
+        return (bool) $query->decrement('available_quantity', $amount, ['committed_quantity' => $query->raw('committed_quantity + ' . $amount)]);
+    }
+
+    /**
+     * Move at most the committed quantity back to available in one statement.
+     *
+     * The amount moved is the smaller of the request and the committed quantity
+     * at the moment of the update. MySQL applies the assignments from left to
+     * right, so available_quantity must stay before committed_quantity: it has to
+     * read the committed quantity before that column is reduced.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id     Variant ID.
+     * @param int $amount Amount to release.
+     * @return bool False when the amount is not positive or nothing was committed.
+     */
+    public function release_committed(int $id, int $amount)
+    {
+        if ($amount <= 0) {
+            return false;
+        }
+
+        $query = Variant::query()->where('id', $id)->where('committed_quantity', '>', 0);
+
+        return (bool) $query->update([
+            'available_quantity' => $query->raw('available_quantity + LEAST(committed_quantity, ' . $amount . ')'),
+            'committed_quantity' => $query->raw('committed_quantity - LEAST(committed_quantity, ' . $amount . ')'),
+        ]);
+    }
+
+    /**
+     * Remove at most the committed quantity in one statement.
+     *
+     * The amount removed is the smaller of the request and the committed quantity
+     * at the moment of the update.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id     Variant ID.
+     * @param int $amount Amount to confirm.
+     * @return bool False when the amount is not positive or nothing was committed.
+     */
+    public function confirm_committed(int $id, int $amount)
+    {
+        if ($amount <= 0) {
+            return false;
+        }
+
+        $query = Variant::query()->where('id', $id)->where('committed_quantity', '>', 0);
+
+        return (bool) $query->update([
+            'committed_quantity' => $query->raw('committed_quantity - LEAST(committed_quantity, ' . $amount . ')'),
+        ]);
+    }
+
+    /**
+     * Delete a variant by ID.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id Variant ID.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no variant was deleted.
      */
     public function delete(int $id)
     {
+        $product_ids = $this->product_ids_of([$id]);
+
         $is_deleted = (bool) Variant::query()->where('id', $id)->delete();
 
         /* translators: %s: variant ID */
         throw_if(!$is_deleted, sprintf(__('Variant with id %s could not be deleted.', 'kirki-ecommerce'), $id), NotFoundException::class, Response::NOT_FOUND);
 
+        foreach ($product_ids as $product_id) {
+            $this->ensure_single_default($product_id);
+        }
+
         return true;
     }
 
     /**
-     * Deletes multiple variants by their IDs.
+     * Delete multiple variants by their IDs.
      *
-     * @param array $ids The IDs of the variants to delete.
-     * @return bool True if the variants were deleted successfully, false otherwise.
-     * @throws NotFoundException If the variants could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the variants to delete.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no IDs are given or no variant was deleted.
      */
     public function bulk_delete(array $ids)
     {
         throw_if(empty($ids), __('No variants selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
+        $product_ids = $this->product_ids_of($ids);
+
         $is_deleted = (bool) Variant::where_in('id', $ids)->delete();
 
         throw_if(!$is_deleted, __('Variants could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        foreach ($product_ids as $product_id) {
+            $this->ensure_single_default($product_id);
+        }
 
         return true;
     }
 
     /**
-     * Deletes all variants.
+     * Delete every variant.
      *
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @return bool True when rows were deleted.
      */
     public function delete_all()
     {
@@ -275,25 +444,84 @@ class VariantService
     }
 
     /**
-     * Update a variant by ID.
+     * Update a variant and reload it with its product, media and attribute values.
      *
-     * @param int $id
-     * @param array $data
-     * @return Variant|false
+     * @since 1.0.0
+     *
+     * @param int                  $id   Variant ID.
+     * @param array<string, mixed> $data Column values to update.
+     * @return Variant|false False when the update did not succeed.
+     * @throws NotFoundException When the variant does not exist.
      */
     protected function update_variant(int $id, array $data)
     {
         $variant = Variant::find($id);
 
-        throw_if(empty($variant), __('Variant not found!', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(empty($variant), __('Variant not found!', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
-        return $variant->update($data) ? $variant->load('product.media', 'attribute_values') : false;
+        if (!$variant->update($data)) {
+            return false;
+        }
+
+        if (array_key_exists('is_default', $data)) {
+            $this->ensure_single_default((int) $variant->product_id, $variant->is_default ? (int) $variant->id : null);
+        }
+
+        return $variant->load('product.media', 'attribute_values');
     }
 
     /**
-     * List query.
+     * Get the IDs of the products that own the given variants.
      *
-     * @param VariantListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param int[] $variant_ids Variant IDs.
+     * @return int[] Distinct product IDs.
+     */
+    protected function product_ids_of(array $variant_ids): array
+    {
+        return array_values(array_unique(array_map('intval', Variant::where_in('id', $variant_ids)->pluck('product_id')->all())));
+    }
+
+    /**
+     * Make exactly one variant of a product the default one.
+     *
+     * Keeps the preferred variant. Without one, keeps the lowest-ID variant that is already default, or the lowest-ID variant when none is. Every other variant of the product is cleared.
+     *
+     * @since 1.0.0
+     *
+     * @param int      $product_id   Product ID.
+     * @param int|null $preferred_id Variant to make the default, or null to keep the current default.
+     * @return void
+     */
+    protected function ensure_single_default(int $product_id, ?int $preferred_id = null): void
+    {
+        $default_id = $preferred_id;
+
+        if (!$default_id) {
+            $current = Variant::where('product_id', $product_id)->where('is_default', true)->order_by('id')->first()
+                ?: Variant::where('product_id', $product_id)->order_by('id')->first();
+
+            $default_id = $current ? (int) $current->id : null;
+        }
+
+        if (!$default_id) {
+            return;
+        }
+
+        Variant::where('product_id', $product_id)->where('id', '!=', $default_id)->where('is_default', true)->update(['is_default' => false]);
+        Variant::where('id', $default_id)->where('is_default', false)->update(['is_default' => true]);
+    }
+
+    /**
+     * Build the filtered and sorted query for the list of variants.
+     *
+     * Filters by product search text or SKU, product brand, category, collection and
+     * status, stock state and creation date range.
+     *
+     * @since 1.0.0
+     *
+     * @param VariantListFilterDTO $filters Search, product, stock, date and sorting filters.
      * @return QueryBuilder
      */
     protected function list_query(VariantListFilterDTO $filters)

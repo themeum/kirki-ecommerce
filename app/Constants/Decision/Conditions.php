@@ -2,9 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Constants\Decision;
 
+defined('ABSPATH') || exit;
+
+/**
+ * Conditions a decision rule can be matched on.
+ *
+ * @since 1.0.0
+ */
 final class Conditions
 {
-    const PRODUCT_PROFILE = 'product_profile';
     const TAX_PROFILE = 'tax_profile';
     const CART_WEIGHT = 'cart_weight';
     const DESTINATION_REGION = 'destination_region';

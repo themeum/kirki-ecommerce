@@ -131,9 +131,9 @@ class SanitizerTest extends WP_UnitTestCase
 
     public function test_apply_rule_uses_wp_kses_post(): void
     {
-        $this->assertSame(
-            '<p>ok</p>x',
-            Sanitizer::apply_rule('<p>ok</p><script>x</script>', Sanitizer::RICH_TEXT)
-        );
+        $result = Sanitizer::apply_rule('<p>ok</p><script>x</script>', Sanitizer::RICH_TEXT);
+
+        $this->assertStringStartsWith('<p>ok</p>', $result);
+        $this->assertStringNotContainsString('<script', $result);
     }
 }

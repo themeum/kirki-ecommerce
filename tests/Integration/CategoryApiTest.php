@@ -3,10 +3,14 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Models\Category;
+use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CategoryApiTest extends RestTestCase
 {
+    use ListsHaveRecords;
+
     /**
      * Category id for the current test.
      *
@@ -204,5 +208,39 @@ class CategoryApiTest extends RestTestCase
         $payload = $this->assert_api_success($response, 201);
 
         return $payload['data'];
+    }
+
+    /**
+     * List categories reports whether the table holds any record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_categories_reports_has_records(): void
+    {
+        Category::query()->delete();
+
+        $this->assertFalse($this->list_has_records('categories'));
+
+        $this->create_category(['name' => 'Has Records Category', 'slug' => 'has-records-category-' . wp_generate_password(6, false)]);
+
+        $this->assertTrue($this->list_has_records('categories'));
+    }
+
+    /**
+     * List categories keeps has_records true when a search matches nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_categories_has_records_ignores_search(): void
+    {
+        $this->create_category(['name' => 'Has Records Category', 'slug' => 'has-records-category-' . wp_generate_password(6, false)]);
+
+        $response = $this->request('GET', 'categories', ['search' => 'no-such-record-zzz']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame(0, $payload['data']['total']);
+        $this->assertTrue($payload['data']['has_records']);
     }
 }

@@ -2,25 +2,37 @@
 
 namespace Kirki\Ecommerce\App\Currency\Providers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Currency\Contracts\CurrencyProvider;
 use Kirki\Ecommerce\App\Currency\DTO\APIUsageDTO;
 use Kirki\Ecommerce\App\Currency\DTO\ExchangeRateDTO;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Exception;
+
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\resource_url;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Exchange rate provider backed by the exchangerate-api.com v6 API.
+ *
+ * @since 1.0.0
+ */
 class ExchangeRatesApiProvider implements CurrencyProvider
 {
     const API_URL = 'https://v6.exchangerate-api.com/v6';
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $config = [];
 
     /**
-     * Set the configuration for the provider.
+     * @inheritDoc
      *
-     * @param array $config
+     * @since 1.0.0
      */
     public function set_config(array $config)
     {
@@ -28,9 +40,9 @@ class ExchangeRatesApiProvider implements CurrencyProvider
     }
 
     /**
-     * Get the ID of the provider.
+     * @inheritDoc
      *
-     * @return string
+     * @since 1.0.0
      */
     public function get_id()
     {
@@ -38,9 +50,9 @@ class ExchangeRatesApiProvider implements CurrencyProvider
     }
 
     /**
-     * Get the name of the provider.
+     * @inheritDoc
      *
-     * @return string
+     * @since 1.0.0
      */
     public function get_name()
     {
@@ -48,19 +60,19 @@ class ExchangeRatesApiProvider implements CurrencyProvider
     }
 
     /**
-     * Get the icon of the provider.
+     * @inheritDoc
      *
-     * @return string
+     * @since 1.0.0
      */
     public function get_icon()
     {
-        return resource_url('images/currency-exchange-providers/exchangeratesapi.png');
+        return app()->base_url('/resources/images/currency-exchange-providers/exchangeratesapi.png');
     }
 
     /**
-     * Get the description of the provider.
+     * @inheritDoc
      *
-     * @return string
+     * @since 1.0.0
      */
     public function get_description()
     {
@@ -68,11 +80,18 @@ class ExchangeRatesApiProvider implements CurrencyProvider
     }
 
     /**
-     * Get the exchange rates for the given base currency and symbols.
+     * Get the latest exchange rates for the base currency from the exchangerate-api.com endpoint.
      *
-     * @param string $base_currency
-     * @param array $symbols
+     * Returns every rate the API provides, since the API has no symbol filter.
+     * Throws through `throw_if()` when the API key is missing or invalid, the
+     * request fails, or the API reports a non-success result.
+     *
+     * @since 1.0.0
+     *
+     * @param string   $base_currency Currency code the rates are relative to.
+     * @param string[] $symbols       Currency codes requested; unused by this provider.
      * @return ExchangeRateDTO
+     * @throws Exception When the API key is missing or invalid, the request fails, or the API reports a non-success result.
      */
     public function get_rates(string $base_currency, array $symbols)
     {
@@ -100,11 +119,11 @@ class ExchangeRatesApiProvider implements CurrencyProvider
     /**
      * Get the API usage data for the current billing period.
      *
-     * Uses the dedicated /usage endpoint which returns structured JSON
-     * with current_usage, limit, and remaining counts.
+     * This provider does not expose usage, so every field of the returned DTO is null.
+     *
+     * @since 1.0.0
      *
      * @return APIUsageDTO
-     * @throws Exception
      */
     public function get_usage(): APIUsageDTO
     {

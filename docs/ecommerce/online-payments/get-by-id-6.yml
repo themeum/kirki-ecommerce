@@ -42,8 +42,8 @@ examples:
               "settings": {
                 "is_enabled": true,
                 "publishable_key": "pk_test_51Ssd7hCjeaAiRLwdjA364H9sPKLHHfVdbIvg7tdnXZsq8fvLEVzpe8f7rGe0qwx8aAtjceCLvBtzPrC5QK66u14b00rIsKTNg5",
-                "secret_key": "sk_test_51Ssd7hCjeaAiRLwdNGeXgSAj3EGxTEtHwTQeOEAGuRP0JeyGatuQidGAFVDlnwBGZcdf53qrg2p92z4CE5hcL55i00gdIVXemi",
-                "webhook_secret": "whsec_koUc0U92I4eL5wSm5zIhN66Ot5o2NckD"
+                "secret_key": "<secret_key>",
+                "webhook_secret": "<webhook_secret>"
               },
               "fields": [
                 {

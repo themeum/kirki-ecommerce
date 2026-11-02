@@ -2,11 +2,17 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
-use Exception;
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Wordpress\User;
 
 use function Kirki\Ecommerce\Framework\include_view;
 
+/**
+ * Sends the plugin's transactional emails through wp_mail().
+ *
+ * @since 1.0.0
+ */
 class EmailService
 {
     /**
@@ -14,12 +20,11 @@ class EmailService
      *
      * @since 1.0.0
      *
-     * @param string $to Recipient email address.
-     * @param string $subject Email subject.
-     * @param string $template View template name.
-     * @param array $data Data to pass to the view.
-     * @param array $headers Optional custom headers.
-     *
+     * @param string   $to       Recipient email address.
+     * @param string   $subject  Email subject.
+     * @param string   $template View template name.
+     * @param array    $data     Data to pass to the view.
+     * @param string[] $headers  Custom headers; defaults to an HTML content type header.
      * @return bool Whether the email was sent successfully.
      */
     public function send_html_email(string $to, string $subject, string $template, array $data = [], array $headers = [])
@@ -39,14 +44,13 @@ class EmailService
     }
 
     /**
-     * Send email verification notification to a user.
+     * Send the email verification notification to a user.
      *
      * @since 1.0.0
      *
-     * @param User $user User instance.
+     * @param User   $user       Recipient.
      * @param string $verify_url Verification URL.
-     *
-     * @return bool Whether the email was sent successfully.
+     * @return bool False when the user has no email address or sending fails.
      */
     public function send_verification_email(User $user, string $verify_url)
     {

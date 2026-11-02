@@ -29,6 +29,9 @@ const currencyKeys = {
 };
 
 const paymentKeys = {
+  methods: {
+    all: ['PaymentMethods'] as const,
+  },
   online: {
     all: ['OnlinePayments'] as const,
   },
