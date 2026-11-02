@@ -354,6 +354,7 @@ export const OrderListItemSchema = OrderSchema.pick({
     payment_provider_icon: z.string().nullish(),
     payment_provider_is_offline: z.boolean().nullish(),
     created_at: z.string(),
+    archived_at: z.string().nullish(),
   }),
 );
 
