@@ -16,7 +16,7 @@ class AttachmentRuleTest extends WP_UnitTestCase
      */
     protected function attachment(string $mime_type): int
     {
-        return (int) self::factory()->attachment->create(['post_mime_type' => $mime_type]);
+        return (int) static::factory()->attachment->create(['post_mime_type' => $mime_type]);
     }
 
     /**
@@ -70,7 +70,7 @@ class AttachmentRuleTest extends WP_UnitTestCase
      */
     public function test_non_attachment_fails(): void
     {
-        $post_id = self::factory()->post->create();
+        $post_id = static::factory()->post->create();
 
         foreach ([$post_id, 999999, 0, 'abc'] as $value) {
             $rule = $this->make_rule(['image'], $value);
