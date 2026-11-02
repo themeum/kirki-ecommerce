@@ -1,16 +1,23 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CircleOff } from 'lucide-react';
 import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 import CheckboxField from '@/components/form/checkbox-field';
+import ActionGroup from '@/components/ui/action-group';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
+import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
+import { stemWord } from '@/features/settings/search/search-engine.mjs';
+import { useSettingsSearchTarget } from '@/features/settings/search/settings-search-context';
 import TaxCollectionField from '@/features/settings/tax/shared/components/fields/tax-collection-field';
 import TaxProfile from '@/features/settings/tax/shared/components/tax-profile/tax-profile';
 import TaxRegions from '@/features/settings/tax/shared/components/tax-region-list';
@@ -28,7 +35,7 @@ import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const TaxCollectionOptions = () => {
@@ -56,7 +63,12 @@ const TaxCollectionOptions = () => {
 };
 
 const TaxSettings = () => {
-  const { data: taxSettings, isLoading } = useSettingsQuery('tax');
+  const navigate = useNavigate();
+  const { setTarget } = useSettingsSearchTarget();
+  const { data: taxSettings, isLoading: isTaxLoading } = useSettingsQuery('tax');
+  const { data: generalSettings, isLoading: isGeneralLoading } = useSettingsQuery('general');
+  const isLoading = isTaxLoading || isGeneralLoading;
+  const isTaxCalculationDisabled = generalSettings?.is_tax_calculation_enabled === false;
   const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'tax'>();
 
   const form = useForm<TaxSettingsFormInput, unknown, TaxSettingsFormPayload>({
@@ -105,6 +117,18 @@ const TaxSettings = () => {
     await handleSaveTaxSettings(TaxSettingsFormSchema.parse(form.getValues()), updatedRegions);
   };
 
+  const handleEnableTax = () => {
+    const route = RouteConfig.Settings.get('GeneralSettings').buildLink();
+
+    setTarget({
+      searchId: 'general.calculate-tax',
+      route,
+      terms: ['calculate', 'tax'].map(stemWord),
+      prefixes: [],
+    });
+    void navigate(route);
+  };
+
   useSettingsPageActions({
     isDirty,
     isSaving,
@@ -117,34 +141,74 @@ const TaxSettings = () => {
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader icon={<TaxIcon />} title={__('Tax', 'kirki-ecommerce')} />
-          <Card
-            data-search-id="tax.collection"
-            data-search-keywords="inclusive, exclusive, vat, gst, price display"
-            data-search-title={__('Tax Collection', 'kirki-ecommerce')}
-            cssOverride={cardStyles.formCard}
+          {isTaxCalculationDisabled && (
+            <Card cssOverride={cardStyles.formCard}>
+              <CardContent>
+                <Flex gap={2} align="start">
+                  <CircleOff size={20} color={theme.colors.icon.secondary} />
+                  <Flex
+                    align="center"
+                    justify="space-between"
+                    gap={4}
+                    cssOverride={{ width: '100%' }}
+                  >
+                    <Flex direction="column" gap={1}>
+                      <Text weight="semibold" variant="heading6">
+                        {__('Tax calculation is turned off', 'kirki-ecommerce')}
+                      </Text>
+                      <Text color="secondary">
+                        {__(
+                          'Enable "Calculate tax" in General settings to edit the tax options.',
+                          'kirki-ecommerce',
+                        )}
+                      </Text>
+                    </Flex>
+                    <ActionGroup>
+                      <Button variant="secondary" onClick={handleEnableTax}>
+                        {__('Enable tax', 'kirki-ecommerce')}
+                      </Button>
+                    </ActionGroup>
+                  </Flex>
+                </Flex>
+              </CardContent>
+            </Card>
+          )}
+          <Flex
+            direction="column"
+            gap={4}
+            inert={isTaxCalculationDisabled}
+            aria-disabled={isTaxCalculationDisabled || undefined}
+            cssOverride={mergeCss(isTaxCalculationDisabled && styles.disabledSection)}
           >
-            <CardContent>
-              <Flex direction="column" gap={4}>
-                <Flex direction="column">
-                  <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>
-                    {__('How would you like to collect tax?', 'kirki-ecommerce')}
-                  </Text>
-                  <Text color="secondary">
-                    {__(
-                      'Whether product prices are shown with tax included or added separately.',
-                      'kirki-ecommerce',
-                    )}
-                  </Text>
+            <Card
+              data-search-id="tax.collection"
+              data-search-keywords="inclusive, exclusive, vat, gst, price display"
+              data-search-title={__('Tax Collection', 'kirki-ecommerce')}
+              cssOverride={cardStyles.formCard}
+            >
+              <CardContent>
+                <Flex direction="column" gap={4}>
+                  <Flex direction="column">
+                    <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>
+                      {__('How would you like to collect tax?', 'kirki-ecommerce')}
+                    </Text>
+                    <Text color="secondary">
+                      {__(
+                        'Whether product prices are shown with tax included or added separately.',
+                        'kirki-ecommerce',
+                      )}
+                    </Text>
+                  </Flex>
+                  <Flex direction="column" gap={3}>
+                    <TaxCollectionField />
+                    <TaxCollectionOptions />
+                  </Flex>
                 </Flex>
-                <Flex direction="column" gap={3}>
-                  <TaxCollectionField />
-                  <TaxCollectionOptions />
-                </Flex>
-              </Flex>
-            </CardContent>
-          </Card>
-          <TaxRegions handleSave={handleSaveFromRegions} />
-          <TaxProfile />
+              </CardContent>
+            </Card>
+            <TaxRegions handleSave={handleSaveFromRegions} />
+            <TaxProfile />
+          </Flex>
         </Flex>
       </Form>
     </Container>
@@ -158,6 +222,11 @@ TaxSettings.displayName = 'TaxSettings';
 export default TaxSettings;
 
 const styles = defineStyles({
+  disabledSection: {
+    opacity: 0.5,
+    pointerEvents: 'none',
+    userSelect: 'none',
+  },
   separator: {
     marginBottom: theme.spacing[3],
   },
