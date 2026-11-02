@@ -252,7 +252,7 @@ class PageInlineScript extends BaseHook
             $has_limit_per_order = (bool) ($variant['has_limit_per_order'] ?? false);
             $max_per_order       = $has_limit_per_order ? intval($variant['max_per_order'] ?? 0) : null;
             $track_inventory     = (bool) ($variant['track_inventory'] ?? false);
-            $image               = $variant['media']['url'] ?? null;
+            $image               = $variant['media']['url'] ?? ($images[0]['url'] ?? null);
 
             $variant_attrs = [];
             foreach ($variant['attribute_values'] ?? [] as $attr_value_id) {
