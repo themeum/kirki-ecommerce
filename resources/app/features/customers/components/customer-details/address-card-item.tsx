@@ -113,11 +113,7 @@ const AddressCardItem = ({
           />
           <Grid columns={3}>
             <TextField name={`addresses.${index}.city`} label={__('City', 'kirki-ecommerce')} />
-            <StateField
-              country={country}
-              name={`addresses.${index}.state`}
-              label={__('State', 'kirki-ecommerce')}
-            />
+            <StateField country={country} name={`addresses.${index}.state`} />
             <TextField
               name={`addresses.${index}.postal_code`}
               label={__('Zip code', 'kirki-ecommerce')}

@@ -54,3 +54,41 @@ describe('Combobox search', () => {
     expect(screen.getByText('Allemagne')).toBeInTheDocument();
   });
 });
+
+describe('Combobox type-to-open', () => {
+  it('opens with the typed character in the search box', () => {
+    render(<Combobox options={OPTIONS} onChange={vi.fn()} />);
+
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'J' });
+
+    expect(screen.getByPlaceholderText('Search...')).toHaveValue('J');
+  });
+
+  it('focuses the search box with the caret after the typed character', () => {
+    render(<Combobox options={OPTIONS} onChange={vi.fn()} />);
+
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'b' });
+
+    const input: HTMLInputElement = screen.getByPlaceholderText('Search...');
+
+    expect(input).toHaveFocus();
+    expect(input.selectionStart).toBe(1);
+    expect(input.selectionEnd).toBe(1);
+  });
+
+  it('stays closed for non-character keys', () => {
+    render(<Combobox options={OPTIONS} onChange={vi.fn()} />);
+
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Tab' });
+
+    expect(screen.queryByPlaceholderText('Search...')).not.toBeInTheDocument();
+  });
+
+  it('stays closed when disabled', () => {
+    render(<Combobox options={OPTIONS} onChange={vi.fn()} disabled />);
+
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'J' });
+
+    expect(screen.queryByPlaceholderText('Search...')).not.toBeInTheDocument();
+  });
+});
