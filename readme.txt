@@ -1,5 +1,5 @@
 === Kirki eCommerce ===
-Contributors: Kirki
+Contributors: themeum
 Tags: ecommerce, online store, shopping cart, checkout, payments
 Requires at least: 6.8
 Tested up to: 7.1
@@ -220,7 +220,8 @@ The result is a complete eCommerce foundation that can work on its own while rem
 
 If something doesn't work as expected, or a feature you need is missing, we want to hear about it.
 
-* Share feedback or feature ideas in the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform) or join the [Kirki eCommerce Facebook community](https://www.facebook.com/groups/557837446451017).
+* Share feedback or feature ideas in the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform)
+ or join the [Kirki eCommerce Facebook community](https://www.facebook.com/groups/kirkicommunity).
 * Report a bug on [GitHub Issues](https://github.com/themeum/kirki-ecommerce/issues).
 
 == Source Code ==
@@ -273,7 +274,7 @@ Open an issue on the [GitHub repository](https://github.com/themeum/kirki-ecomme
 
 = How do I share feedback or request a feature? =
 
-Fill out the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform) or join the [Kirki eCommerce Facebook community](https://www.facebook.com/groups/557837446451017).
+Fill out the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform) or join the [Kirki eCommerce Facebook community](https://www.facebook.com/groups/kirkicommunity).
 
 == External Services ==
 
