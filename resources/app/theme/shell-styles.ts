@@ -41,6 +41,10 @@ const getShellStyles = (theme: Theme): CSSObject => {
     [WP_MEDIA_FRAME_SELECTOR]: {
       pointerEvents: 'auto',
     },
+    [`${WP_MEDIA_FRAME_SELECTOR} .media-modal`]: {
+      borderRadius: theme.radius.lg,
+      overflow: 'hidden',
+    },
     '.mce-floatpanel': {
       pointerEvents: 'auto',
     },
