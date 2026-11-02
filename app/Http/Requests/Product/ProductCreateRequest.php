@@ -5,12 +5,14 @@ namespace Kirki\Ecommerce\App\Http\Requests\Product;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\ValidatesVariantMatrix;
+use Kirki\Ecommerce\App\Constants\Product\ProductMediaTypes;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Rules\AttachmentRule;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Supports\Somoy;
@@ -92,13 +94,13 @@ class ProductCreateRequest extends Request
             'seo_keywords.*' => 'string',
             'og_title' => 'string|nullable|max:500',
             'og_description' => 'string|nullable',
-            'og_image' => 'integer|nullable',
+            'og_image' => ['integer', 'nullable', AttachmentRule::of(ProductMediaTypes::ALLOWED)],
             'schema_id' => 'integer|nullable',
             'has_variants' => 'boolean|nullable',
 
             //media
             'media' => 'array|nullable',
-            'media.*' => 'integer',
+            'media.*' => ['integer', AttachmentRule::of(ProductMediaTypes::ALLOWED)],
 
             //categories
             'categories' => 'array|nullable',
@@ -124,7 +126,7 @@ class ProductCreateRequest extends Request
             'variants.*.attribute_values' => 'required_if:has_variants,true|array',
             'variants.*.attribute_values.*' => 'required_if:has_variants,true|integer',
 
-            'variants.*.media' => 'integer|nullable',
+            'variants.*.media' => ['integer', 'nullable', AttachmentRule::of(ProductMediaTypes::ALLOWED)],
             'variants.*.sku' => 'string|nullable|max:100|unique:' . Variant::get_table_name() . ',sku',
             'variants.*.barcode' => 'string|nullable|max:100',
 
@@ -187,7 +189,7 @@ class ProductCreateRequest extends Request
             'ribbon_color' => Sanitizer::TEXT,
             'brand_id' => Sanitizer::INT,
             'short_description' => Sanitizer::TEXT,
-            'description' => Sanitizer::TEXT,
+            'description' => Sanitizer::RICH_TEXT,
             'additional_info' => Sanitizer::ARRAY,
             'seo_title' => Sanitizer::TEXT,
             'seo_description' => Sanitizer::TEXT,

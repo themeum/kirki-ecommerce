@@ -4,6 +4,7 @@ import type {
   OrderStatus,
   PaymentStatus,
 } from '@/features/orders/schemas/catalog/order';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 import orderStateMatrix from '@data/order-state-matrix.json';
 
@@ -105,6 +106,14 @@ const isActionAvailable = (order: Order, action: OrderAction): boolean => {
   const state = ORDER_STATE_MATRIX[order.status];
 
   if (!state) {
+    return false;
+  }
+
+  if (
+    action === ORDER_ACTIONS.ARCHIVE_ORDER &&
+    isDefined(order.archived_at) &&
+    Boolean(order.archived_at)
+  ) {
     return false;
   }
 

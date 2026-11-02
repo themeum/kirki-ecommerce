@@ -4,8 +4,7 @@ import { z } from 'zod';
 import { endpoints } from '@/config/endpoints';
 import { bulkEditKeys } from '@/features/bulk-edit';
 import { inventoryKeys } from '@/features/inventory';
-import { productKeys } from '@/features/products';
-import { VariantSchema } from '@/features/products';
+import { productKeys, VariantSchema } from '@/features/products';
 import { apiClient } from '@/libs/api';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
 import {
@@ -78,6 +77,8 @@ const useUpdateBulkVariantsMutation = () => {
       void queryClient.invalidateQueries({ queryKey: bulkEditKeys.all });
       void queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
+      void queryClient.invalidateQueries({ queryKey: productKeys.details() });
     },
     onError(error) {
       toastMutationError(error);

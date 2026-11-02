@@ -88,12 +88,13 @@ class ShippingService
     /**
      * Get the shipping options a cart or order can choose from.
      *
-     * Methods whose rules disable them are left out.
+     * Methods whose rules disable them are left out. The pickup fields are `null` for methods that are not
+     * local pickup, and both pickup times are `null` unless pickup time is on and both are set.
      *
      * @since 1.0.0
      *
      * @param CalculationContextDTO $context Cart or order calculation context.
-     * @return array<int, array{id: string, name: string, description: string, is_taxable: bool, type: string, base_cost: int}> Options with their cost in base currency (minor units).
+     * @return array<int, array{id: string, name: string, description: string, is_taxable: bool, type: string, address: string|null, pickup_time_start: string|null, pickup_time_end: string|null, base_cost: int}> Options with their cost in base currency (minor units).
      */
     public function get_final_available_shipping_options(CalculationContextDTO $context)
     {
@@ -112,12 +113,23 @@ class ShippingService
                 continue;
             }
 
+            $is_pickup = ($method['type'] ?? null) === ShippingMethodTypes::LOCAL_PICKUP;
+            $pickup_time_start = $method['pickup_time_start'] ?? null;
+            $pickup_time_end = $method['pickup_time_end'] ?? null;
+            $has_pickup_time = $is_pickup
+                && !empty($method['has_pick_time'])
+                && !empty($pickup_time_start)
+                && !empty($pickup_time_end);
+
             $available_options[] = [
                 'id' => $method['id'],
                 'name' => $method['name'],
                 'description' => $method['description'],
                 'is_taxable' => $method['is_taxable'] ?? false,
                 'type' => $method['type'],
+                'address' => $is_pickup ? ($method['address'] ?? null) : null,
+                'pickup_time_start' => $has_pickup_time ? $pickup_time_start : null,
+                'pickup_time_end' => $has_pickup_time ? $pickup_time_end : null,
                 'base_cost' => $decision_context->get_shipping_cost(),
             ];
         }
