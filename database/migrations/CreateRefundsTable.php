@@ -38,7 +38,7 @@ class CreateRefundsTable implements Migration
 
             $table->unsigned_big_integer('created_by')->nullable()->comment('WordPress user ID who created the refund');
             $table->unsigned_big_integer('updated_by')->nullable()->comment('WordPress user ID who updated the refund');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->index('status', 'idx_kecom_refunds_status');
 

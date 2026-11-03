@@ -34,7 +34,7 @@ class CreateBrandsTable implements Migration
             $table->boolean('is_active')->default(1);
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('slug', 'uq_kecom_brands_slug');
             $table->foreign('created_by', 'fk_kecom_brands_created_by')->on('users')->references('ID')->null_on_delete();

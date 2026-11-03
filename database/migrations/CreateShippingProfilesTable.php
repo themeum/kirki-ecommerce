@@ -28,7 +28,7 @@ class CreateShippingProfilesTable implements Migration
             $table->id();
             $table->string('name', 100);
             $table->boolean('is_default')->default(0);
-            $table->timestamps();
+            $table->datetimes();
         });
     }
 

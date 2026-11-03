@@ -32,7 +32,7 @@ class CreateLanguagesTable implements Migration
             $table->boolean('is_default')->default(0)->comment('Default language (only one should be 1)');
             $table->boolean('is_active')->default(1)->comment('Enable/disable language');
             $table->string('text_direction', 3)->default('ltr')->comment('Text direction: ltr or rtl');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('code', 'uq_kecom_languages_code');
             $table->index('is_default', 'idx_kecom_languages_is_default');

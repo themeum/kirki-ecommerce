@@ -59,7 +59,7 @@ class CreateProductsTable implements Migration
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
 
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('slug', 'uq_kecom_products_slug');
             $table->index('brand_id', 'idx_kecom_products_brand_id');

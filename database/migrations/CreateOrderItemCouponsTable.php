@@ -32,7 +32,7 @@ class CreateOrderItemCouponsTable implements Migration
             $table->big_integer('invoiced_discount_amount')->default(0)->comment('Share of the coupon discount given to this order item; includes tax when orders.is_tax_inclusive is true; in the invoiced currency, minor units');
             $table->big_integer('base_discount_amount')->default(0)->comment('Share of the coupon discount given to this order item; includes tax when orders.is_tax_inclusive is true; in the base currency, minor units');
 
-            $table->timestamps();
+            $table->datetimes();
 
             $table->foreign('order_item_id', 'fk_kecom_order_item_coupons_order_item_id')
                 ->references('id')

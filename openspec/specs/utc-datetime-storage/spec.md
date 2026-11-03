@@ -8,15 +8,20 @@ Makes sure every stored date and time is a UTC value that does not depend on the
 
 ### Requirement: Date columns use DATETIME
 
-Every date and time column that the plugin declares by name on a plugin table SHALL have the database type `datetime`, not `timestamp`. Columns that store a Unix number in an integer column, such as the queue tables, are not date columns. `created_at` and `updated_at` come from the framework `timestamps()` call and follow the framework, so they are not covered until it creates `datetime`.
+Every date and time column on a plugin table SHALL have the database type `datetime`, not `timestamp`. This includes `created_at` and `updated_at`. Columns that store a Unix number in an integer column, such as the queue tables, are not date columns.
 
 #### Scenario: Schema of a fresh install
 - **WHEN** the plugin is installed fresh and its tables are created
-- **THEN** no named date column of any plugin table has the database type `timestamp`
+- **THEN** no date column of any plugin table, including `created_at` and `updated_at`, has the database type `timestamp`
 
 #### Scenario: Named date columns
 - **WHEN** a reader inspects `orders.paid_at`, `orders.shipped_at`, `products.published_at` and `carts.expires_at`
 - **THEN** each has the database type `datetime`
+
+#### Scenario: Audit columns
+- **WHEN** a reader inspects `created_at` and `updated_at` on any plugin table that has them
+- **THEN** each has the database type `datetime`
+- **AND** `created_at` defaults to the current time and `updated_at` is nullable
 
 ### Requirement: Stored dates are UTC
 

@@ -27,7 +27,7 @@ class CreateProductTagsTable implements Migration
         Schema::create('kirki_ecommerce_product_tags', function (Structure $table) {
             $table->unsigned_big_integer('product_id');
             $table->unsigned_big_integer('tag_id');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->primary(['product_id', 'tag_id']);
 
