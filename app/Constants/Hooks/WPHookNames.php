@@ -12,6 +12,7 @@ defined('ABSPATH') || exit;
 class WPHookNames extends \Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames
 {
     public const WP_HEAD = 'wp_head';
+    public const WP_ROBOTS = 'wp_robots';
     public const LOGIN_FORM = 'login_form';
     public const REGISTER_FORM = 'register_form';
     public const DISPLAY_POST_STATES = 'display_post_states';
