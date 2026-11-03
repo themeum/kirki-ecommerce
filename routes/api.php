@@ -251,6 +251,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::get('/online-payments/{id}', [OnlinePaymentController::class, 'show']);
     Route::put('/online-payments/{id}', [OnlinePaymentController::class, 'update']);
     Route::patch('/online-payments/{id}', [OnlinePaymentController::class, 'set_enabled']);
+    Route::delete('/online-payments/{id}', [OnlinePaymentController::class, 'uninstall']);
 
     // Offline Payments
     Route::get('/offline-payments', [OfflinePaymentController::class, 'get']);

@@ -157,16 +157,30 @@ class PaymentProvider
     }
 
     /**
-     * Get the URL of a provider's bundled logo.
+     * Get the URL of a provider's logo.
+     *
+     * The logo is `assets/logo.svg` in the plugin folder that holds the
+     * provider class. The URL is empty when the class is not in a plugin folder
+     * or the file does not exist.
      *
      * @since 1.0.0
      *
-     * @param string $name Provider slug used in the payments/kirki-{name} folder.
+     * @param string $name Provider slug. Kept for the callers of the old signature.
      * @return string
      */
     public function icon_url(string $name)
     {
-        return app()->base_url(sprintf('/payments/kirki-%s/assets/logo.svg', $name));
+        $class_file = wp_normalize_path((new \ReflectionClass($this))->getFileName());
+        $plugins_dir = trailingslashit(wp_normalize_path(WP_PLUGIN_DIR));
+
+        if (strpos($class_file, $plugins_dir) !== 0) {
+            return '';
+        }
+
+        $folder = strtok(substr($class_file, strlen($plugins_dir)), '/');
+        $logo = $plugins_dir . $folder . '/assets/logo.svg';
+
+        return $folder && file_exists($logo) ? plugins_url($folder . '/assets/logo.svg') : '';
     }
 
     /**
