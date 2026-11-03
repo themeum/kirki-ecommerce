@@ -115,11 +115,12 @@ products. A click runs two phases. The button shows each phase inside itself:
 its text changes to the phase message, and a bar runs along its bottom edge.
 
 1. **"Downloading product sample..."** This phase is simulated. The bar fills to
-   70% in about 2.5 seconds. No request is sent. The remote download is not built
-   yet.
+   70% in about 2.5 seconds. No request is sent. The real download happens in the
+   next phase, inside the request.
 2. **"Creating products..."** The app calls `POST /onboarding/sample-data`. This
-   is the endpoint that the onboarding wizard uses. It loads the demo products
-   that come with the plugin and the inactive `WELCOME50` starter coupon (see
+   is the endpoint that the onboarding wizard uses. It downloads the sample
+   products of the store's industry, with their categories, tags and images, and
+   creates them with the inactive `WELCOME50` starter coupon (see
    [`docs/onboarding.md`](onboarding.md#5-loading-sample-data)). The bar moves slowly toward 95% while the request
    runs.
 
@@ -345,10 +346,11 @@ until every step completes again.
 - **The "Cash on delivery" button only opens Payment settings.** It does not enable
   Cash on Delivery.
 - **No CSV import.** Step 1 has only **Add products** and **Load sample data**.
-- **The sample download is simulated.** The "Downloading product sample..." phase
-  is a timer. The products come from the plugin, not from a remote server.
-- **Sample data needs an empty store.** The import does nothing when a product
-  exists, so the button does not show then.
+- **The download progress is simulated.** The "Downloading product sample..." phase
+  is a timer. The products and images are downloaded during "Creating products...".
+- **The button needs an empty store.** The button shows only while the store has no
+  products. The import itself skips only the sample products that exist (matched
+  by SKU), so a load that was cut off can be run again.
 - **Template gallery is a placeholder.** There is no template catalog or API.
 - **Overview is all time only.** There is no date range, comparison or chart.
 - **Net sales subtracts the full refund.** Refunds do not record how much of them

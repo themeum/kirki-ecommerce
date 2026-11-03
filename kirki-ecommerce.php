@@ -82,6 +82,14 @@ define('KIRKI_ECOMMERCE_MODE', 'development');
 defined('KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL')
     || define('KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL', 'https://kirki-ecommerce.s3.us-east-1.amazonaws.com/gateways');
 
+/**
+ * The base URL of the store presets and the sample products (public S3 bucket).
+ * A definition in wp-config.php wins.
+ * @var string
+ */
+defined('KIRKI_ECOMMERCE_PRESETS_URL')
+    || define('KIRKI_ECOMMERCE_PRESETS_URL', 'https://kirki-ecommerce.s3.us-east-1.amazonaws.com/preconfigured-data');
+
 require_once KIRKI_ECOMMERCE_PLUGIN_PATH . 'vendor/autoload.php';
 
 // Register activation, deactivation, and uninstall hooks

@@ -31,7 +31,7 @@ Activate the plugin from **Plugins**. The next admin page load opens the wizard 
 |---|---|
 | **Add your first product** | Opens the create-product page (`/products/create`). |
 | **Go to Dashboard** | Opens the plugin's home route (`/`). |
-| **Click here to load sample data!** (link below the card) | Adds demo products and a starter coupon, then opens the products list (`/products`). |
+| **Click here to load sample data!** (link below the card) | Adds the sample products of the store's industry and a starter coupon, then opens the products list (`/products`). |
 
 No action shows while setup or a migration runs. Each action replaces the wizard in
 the browser history, so Back does not return to it. When WooCommerce is found and
@@ -166,15 +166,28 @@ The text in the presets is English.
 
 ### 4.1 Where the data comes from
 
-The presets come from one file bundled with the plugin,
-`resources/data/preconfigured-data.json`. No external request is made.
-`LocalPresetSource` reads the file through `PresetRepository` and builds the
-records of one store from the saved store settings: the industry, the store
-address country and state, the base currency and the tax switch.
+The presets come from a static file on S3, `presets.json`, below the base URL in
+the `KIRKI_ECOMMERCE_PRESETS_URL` constant. The plugin file defines it, and a
+definition in `wp-config.php` wins:
 
-**Failures are silent.** When the file is missing or cannot be decoded, nothing
-is written and the failure is logged. Store setup still succeeds, and the
-*Configurations* row still completes.
+```php
+define('KIRKI_ECOMMERCE_PRESETS_URL', 'https://kirki-ecommerce.s3.us-east-1.amazonaws.com/preconfigured-data');
+```
+
+The plugin does not ship the file. `LocalPresetSource` reads it through
+`PresetRepository` (one request, 10-second timeout) and builds the records of one
+store from the saved store settings: the industry, the store address country and
+state, the base currency and the tax switch. The editable source, the S3 layout
+and the publish command are described in [`docs/preset-data.md`](preset-data.md).
+
+The plugin requests only an `https://` URL, or an `http://` URL on `localhost`,
+`127.0.0.1`, `host.docker.internal` or a `.test` host. The file must carry a
+`version` that the plugin supports (currently `2`).
+
+**Failures are silent.** When the request fails, the URL is not trusted, the
+status is not 2xx, the body is not JSON, or the version is not supported, nothing
+is written and the failure is logged with the URL and the status. Store setup
+still succeeds, and the *Configurations* row still completes.
 
 **Once per store.** When the presets end, with data or without, store setup
 records `kirki_ecommerce_presets_applied_at`. A setup that runs again does not
@@ -188,7 +201,6 @@ kind, and each kind's inserter reads only its key:
 
 | Key | Holds |
 |---|---|
-| `categories` | The industry's category tree, two levels (`name`, `description`, `children`) |
 | `attributes` | `name`, `slug`, `type` (`color` or `list`), `values` (`value`, optional hex `color`) |
 | `schema_profiles` | Stored fields of each record |
 | `shipping_profiles`, `tax_profiles` | `key`, `name`, `is_default` |
@@ -208,12 +220,12 @@ type other than flat rate or local pickup, a rule action that is not allowed for
 its profile kind, or a rule for a profile that was not created. The rest is
 still written.
 
-### 4.3 The bundled data file
+### 4.3 The preset data file
 
 | Section | Holds | Applies to |
 |---|---|---|
 | `common` | Color attribute, default schema profile, *General* shipping profile, *Standard* tax profile, generic shipping methods, zone titles, legal pages and consents | Every store |
-| `industries.<slug>` | Categories, attributes, shipping profiles and their rule templates, tax profiles | The chosen industry. *Other*, or an industry with no entry, gets nothing from this section. |
+| `industries.<slug>` | Attributes, shipping profiles and their rule templates, tax profiles. No categories and no tags: they are in the industry's products file (section 5). | The chosen industry. *Other* has an entry with attributes only. An industry with no entry gets nothing from this section. |
 | `countries.<ISO2>` | `bloc`, `gdpr`, shipping methods with local-currency amounts, `tax` (mode, rates, rates per tax profile, `source` or `sources`, `verified_at`) | The chosen country |
 | `blocs.<code>` | Member country codes of a trade bloc (`EU`, `GCC`) | Countries whose entry names the bloc |
 
@@ -224,8 +236,7 @@ dataset. A unit test fails if `blocs.EU` does not match that dataset.
 
 | Preset | What the store gets | Skipped when |
 |---|---|---|
-| Categories | The industry's category tree, two levels (for example *Women › Dresses* for Fashion & Apparel). *Other* gets none. | Any category exists |
-| Attributes | *Color* (30 named colours with hex codes) plus the industry's attributes (for example *Size* and *Material* for Fashion & Apparel) | An attribute with the same slug exists (checked per attribute) |
+| Attributes | *Color* (30 named colours with hex codes) plus the industry's attributes (for example *Size* and *Material* for Fashion & Apparel). The industry's extra colours, such as *Marigold*, are not added here: the sample data adds them when a product needs them. | An attribute with the same slug exists (checked per attribute) |
 | Schema profile | One default profile with every field the schema picker supports | Any schema profile exists |
 | Shipping profiles | *General* (default) plus the industry's profiles, such as *Fragile* or *Perishable* | A profile with the same name exists. *General* is the default only when no default exists. |
 | Tax profiles | *Standard* (default) plus the industry's profiles, such as *Food*. Created even when the merchant does not collect tax. | A profile with the same name exists |
@@ -237,6 +248,9 @@ dataset. A unit test fails if `blocs.EU` does not match that dataset.
 Each kind checks its own target. A kind that fails is logged, and the other
 kinds are still written. Profiles are written before zones and the tax region,
 whose rules need their ids.
+
+Store setup creates **no categories and no tags**. They come with the sample data
+(section 5), or from the merchant, or from the WooCommerce migration.
 
 ### 4.5 Shipping amounts follow the currency
 
@@ -308,20 +322,53 @@ products list opens. When it fails, an error toast shows and the link comes back
 **Add your first product** and **Go to Dashboard** stay usable during the import.
 
 The import calls `POST /wp-json/kirki/ecommerce/v1/onboarding/sample-data`,
-which is only available after onboarding. It currently adds the demo products
-bundled with the plugin, with their images imported into the media library. It
-first creates any attribute or value the demo products need that the store does
-not have (for example *Material*, which only some industries get), and reuses
-the ones that exist. It does not create categories, and the demo products have
-no category.
+which is only available after onboarding. It reads two files from the preset
+location (section 4.1): `<industry>/products.json` and `presets.json`. A store
+whose industry is *Other*, or whose industry has no products file (S3 answers 404
+or 403), gets the `other` set, `other/products.json`. A products file holds the
+industry's categories, tags and products. Every industry has five sample products:
+a simple product, a product with variants, a product on sale, a product with an
+order limit or unit pricing, and a product with mixed stock levels. Their titles
+say which one they are.
 
-With the demo products, the import creates the starter coupon `WELCOME50`: 50%
+First, the import **finds or creates the categories and tags** of the file, by
+slug. A new category is created under its parent, with its level. A category or
+tag that the store already has with the same slug (made by the merchant, or
+brought in by the WooCommerce migration) is reused and never changed.
+
+Then, for each product, the import:
+
+1. **Skips it** when the store has a variant with one of its SKUs.
+2. **Links its categories and tags by slug.**
+3. **Creates missing attribute values from the presets.** The definitions are the
+   common attributes and the industry's attributes, merged by slug. When a variant
+   uses *Color: Marigold* and the store's *Color* attribute has no *Marigold*, the
+   value is created with the hex code of the industry's `color` entry. A missing
+   attribute is created the same way. Existing attributes and values are reused
+   and never changed.
+4. **Downloads the images** from `<industry>/images/` into the media library. An
+   image that an earlier load already downloaded (matched by its full URL) is
+   reused. An image that fails to download is left out, and the product is still
+   created.
+5. **Creates the product**, published, with the slug of the file, its ribbon,
+   descriptions and variants. Each variant gets its SKU, price, sale price, cost,
+   stock, low-stock threshold, backorder setting, order limit, weight in grams and
+   unit price (for example *per 100 g*).
+
+Prices in the data are numbers such as `"38.00"`. They are used in the store's
+base currency, with no exchange rate: 38.00 is 38.00 EUR in a euro store and
+¥38 in a yen store.
+
+Each product is created on its own, so a load that was cut off (for example by a
+PHP time limit on slow image downloads) can run again and creates only the
+products that are missing. A product that fails is logged, and the next one still
+runs. When the products file or `presets.json` cannot be read, the request fails
+with `503` and creates nothing, not even a category.
+
+With the sample products, the import creates the starter coupon `WELCOME50`: 50%
 off the order, all products, every customer, no end date, **inactive**. The
 merchant turns it on in Coupons. When a coupon with that code already exists,
 it is left unchanged. The store presets do not create a coupon.
-
-The import does nothing if the store already has products: no demo products and
-no coupon.
 
 ## 6. When the wizard is shown
 
@@ -344,7 +391,9 @@ the REST API stays protected by its own capability checks.
 |---|---|
 | `kirki_ecommerce_store_created` (action) | React to a new store. Receives the submitted setup values: store name, industry, country, address, currency, tax answers and Tax ID. |
 | `StorePresetService::apply(PresetContext $context)` | Apply the presets. `PresetContext::from_settings()` builds the context from the saved settings. |
-| `SampleDataImporter::import()` | Placeholder for the remote sample data import. It currently loads the bundled demo products and the starter coupon. |
+| `SampleDataImporter::import()` | Load the sample products of the saved industry and the starter coupon. Throws with a `503` status when the data cannot be read. |
+| `PresetRepository::get_products(string $industry)` | Read the products file of an industry (categories, tags, products and the `set` it came from), with the `other` fallback. Returns `null` when it cannot be read. |
+| `KIRKI_ECOMMERCE_PRESETS_URL` (constant) | Point the plugin at another preset location, for example a test bucket. |
 
 ## 8. Resetting onboarding in development
 
@@ -361,9 +410,18 @@ from step one.
 
 ## 9. Requirements and limitations
 
-- **Demo prices are not converted.** The bundled demo products carry fixed price
+- **Sample prices are not converted.** The sample products carry fixed price
   figures written for US dollars. In a store with another base currency the same
-  figures are shown in that currency (for example ৳25 for a hoodie).
+  figures are shown in that currency (for example ৳38 for a tote bag).
+- **A store without sample data has no categories.** Store setup creates none.
+  The merchant creates them, migrates them from WooCommerce, or loads sample data.
+- **Sample categories can sit next to migrated ones.** Sample data loaded after a
+  WooCommerce migration adds its categories and tags next to the merchant's own.
+  Only a category or tag with the same slug is shared.
+- **Every store depends on one public bucket.** The presets and the sample data
+  come from `kirki-ecommerce.s3.us-east-1.amazonaws.com`. While a file there is
+  missing or not public, store setup applies no presets and sample data fails
+  with `503`.
 - **The Tax ID is not printed on invoices yet.** It is stored and editable, but no
   invoice template reads it.
 - **Preset rates are a starting point, not tax advice.** Rates change. Each
@@ -373,7 +431,7 @@ from step one.
 - **Not every VAT country has a tax preset.** 97 countries have one. Countries
   whose 2026 rate could not be confirmed from a source (for example Ghana, Iran,
   Malaysia, Brazil, Russia and Vietnam) get no tax region until a sourced rate is
-  added to `resources/data/preconfigured-data.json`.
+  added to the preset data and published (see [`docs/preset-data.md`](preset-data.md)).
 - **Most countries have no tax profile rules.** About 60 taxed countries get
   only the standard rate, because no source gave their rates by category. A
   category with more than one rate in a country (for example food in Spain or
@@ -382,12 +440,15 @@ from step one.
 - **No shipping outside the preset zones.** There is no Rest of World zone. A
   shopper outside the Domestic and Regional zones sees no shipping method until
   the merchant adds a zone.
-- **A data file that cannot be read is not reported.** The merchant sees the
-  *Configurations* row complete. The Home checklist still shows shipping and
-  tax as steps to do.
-- **New data needs a plugin release.** Rates and industry data ship in the
-  plugin, so a corrected rate reaches stores only with an update, and only
-  stores set up after it.
+- **Presets that cannot be read are not reported, and are not tried again.** When
+  S3 cannot be reached during store setup, the merchant sees the *Configurations*
+  row complete, and the store has no preset attributes, profiles, zones, tax
+  region or legal pages. The presets count as applied, so a
+  later setup does not request them again. The Home checklist still shows
+  shipping and tax as steps to do.
+- **New data reaches only new stores.** A corrected rate or a new sample product is
+  live as soon as it is published to S3, with no plugin release. Presets are
+  applied once, so stores that were set up before it do not get the change.
 - **US local sales tax is not included.** Only the state base rate of the home
   state is set. City and county rates are not.
 - **Shipping tax uses the product rate.** A state or country without its own
@@ -418,10 +479,16 @@ from step one.
   are preset from the industry and country instead of asked for, and the setup
   checklist on the Home page leads the merchant to review them.
 - **Presets cover fewer countries than a tax service.** Rates come from a
-  bundled file, not from a live tax service, and only countries with
+  static file, not from a live tax service, and only countries with
   a national VAT or GST have a tax preset.
-- **No remote calls.** Country detection is local, and the presets and sample
-  data come from the plugin itself. Nothing is sent off the site.
+- **Presets and sample data are downloaded.** Country detection is local. Store
+  setup downloads `presets.json`, and loading sample data downloads the products
+  file and the images, from the preset location. These are plain GET requests,
+  and no site data is sent. WooCommerce's sample products come in a CSV file in
+  the plugin instead.
+- **Sample products follow the industry.** WooCommerce imports one sample catalog
+  for every store. Here each industry has its own products, categories and tags,
+  and store setup creates no categories or tags of its own.
 - **Shorter.** Three steps (four when collecting tax), with only store name, country
   and currency required.
 - **Prefill from WooCommerce.** WooCommerce's wizard does not read another plugin's

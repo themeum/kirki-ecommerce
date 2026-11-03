@@ -126,6 +126,9 @@ find "$STAGE_DIR" -depth \( -name "__MACOSX" -o -iname "Thumbs.db" -o -iname "de
   -o -iname "README.md" -o -iname "CHANGELOG.md" \) -exec rm -rf {} +
 # Vite HMR helper: development only.
 rm -rf "$STAGE_DIR/resources/assets"
+# Preset data and sample product images: the plugin reads them from S3, and
+# `npm run publish:presets` uploads them from here.
+rm -rf "$STAGE_DIR/resources/data/preconfigured-data"
 # Defines ABSPATH for the test suite only; it is in autoload-dev, which the
 # --no-dev install leaves out of the autoloader.
 rm -f "$STAGE_DIR/bootstrap/abspath.php"

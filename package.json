@@ -8,6 +8,8 @@
     "build:payments": "node bin/build-payment-zips.js",
     "publish:payments": "node bin/publish-payment-gateways.js",
     "test:payments": "node --test bin/test/*.test.js",
+    "check:presets": "node bin/check-presets.js",
+    "publish:presets": "node bin/publish-presets.js",
     "s3:up": "docker compose -f docker-compose.payments.yml up -d s3 && docker compose -f docker-compose.payments.yml run --rm s3-setup",
     "s3:down": "docker compose -f docker-compose.payments.yml down",
     "make:payment-loader-plugin": "bash dev-tools/load-kirki-payment-gateways/build.sh",

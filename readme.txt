@@ -300,6 +300,14 @@ The plugin can also connect to a currency exchange rate service to convert displ
 
 - **ExchangeRate-API:** [Terms](https://www.exchangerate-api.com/terms) | [Privacy](https://www.exchangerate-api.com/terms#privacy)
 
+The plugin downloads static files from a Kirki eCommerce storage bucket on **Amazon S3** ([aws.amazon.com/s3](https://aws.amazon.com/s3/)), at `kirki-ecommerce.s3.us-east-1.amazonaws.com`. These are plain downloads. No customer, order or site data is sent, other than what every web request carries (such as the server's IP address).
+
+* When a store owner completes the setup wizard, the plugin downloads the store presets (attributes, shipping and tax presets, and legal page templates).
+* When a store owner chooses to load sample data, the plugin downloads the sample categories, tags and products of the store's industry, and their images.
+* When a store owner opens the list of payment gateways to add, the plugin downloads the gateway catalog, and the store owner's browser loads the gateway logos. The plugin downloads the gateway plugin that the store owner chooses to install.
+
+- **Amazon S3:** [Terms](https://aws.amazon.com/service-terms/) | [Privacy](https://aws.amazon.com/privacy/)
+
 == Third-Party Libraries ==
 
 Kirki eCommerce is licensed under GPLv2 or later. It bundles the following GPL-compatible libraries. Each keeps its own license.

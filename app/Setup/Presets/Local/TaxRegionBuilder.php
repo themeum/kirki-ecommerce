@@ -11,7 +11,7 @@ use Kirki\Ecommerce\App\Tax\Strategies\EUTaxStrategy;
 defined('ABSPATH') || exit;
 
 /**
- * Builds the tax region of a store's country from the bundled preset data.
+ * Builds the tax region of a store's country from the preset data.
  *
  * @since 1.0.0
  */

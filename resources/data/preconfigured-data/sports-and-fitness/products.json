@@ -1,0 +1,393 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "training",
+      "name": "Training",
+      "parent": null
+    },
+    {
+      "slug": "yoga",
+      "name": "Yoga",
+      "parent": "training"
+    },
+    {
+      "slug": "strength",
+      "name": "Strength",
+      "parent": "training"
+    },
+    {
+      "slug": "hydration",
+      "name": "Hydration",
+      "parent": null
+    },
+    {
+      "slug": "bottles",
+      "name": "Bottles",
+      "parent": "hydration"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "eco",
+      "name": "Eco"
+    },
+    {
+      "slug": "home-gym",
+      "name": "Home Gym"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "strength",
+      "name": "Strength"
+    },
+    {
+      "slug": "travel",
+      "name": "Travel"
+    },
+    {
+      "slug": "yoga",
+      "name": "Yoga"
+    }
+  ],
+  "products": [
+    {
+      "slug": "cork-yoga-block",
+      "title": "Cork Yoga Block · Simple product",
+      "short_description": "Firm natural cork block for support and balance.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA firm yoga block made from natural cork, with rounded edges and a non-slip surface.",
+      "ribbon": null,
+      "categories": [
+        "yoga"
+      ],
+      "tags": [
+        "yoga",
+        "eco"
+      ],
+      "images": [
+        "cork-yoga-block-1.jpg",
+        "cork-yoga-block-2.jpg",
+        "cork-yoga-block-3.jpg",
+        "cork-yoga-block-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-SPT-CYB",
+          "options": {},
+          "image": null,
+          "price": "22.00",
+          "sale_price": null,
+          "cost": "9.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 600,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "yoga-mat",
+      "title": "Yoga Mat · With variants",
+      "short_description": "Natural rubber yoga mat with a grippy top.",
+      "description": "Sample product: 2 attributes (Color, Thickness), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA natural rubber yoga mat with a smooth, grippy top layer. Comes with a cotton carry strap.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "yoga"
+      ],
+      "tags": [
+        "yoga",
+        "eco",
+        "new-arrival"
+      ],
+      "images": [
+        "yoga-mat-lilac.jpg",
+        "yoga-mat-coral.jpg",
+        "yoga-mat-teal.jpg",
+        "yoga-mat-2.jpg",
+        "yoga-mat-3.jpg",
+        "yoga-mat-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-SPT-YM-LILA-4MM",
+          "options": {
+            "color": "Lilac",
+            "thickness": "4 mm"
+          },
+          "image": "yoga-mat-lilac.jpg",
+          "price": "78.00",
+          "sale_price": null,
+          "cost": "31.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2200,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-SPT-YM-LILA-6MM",
+          "options": {
+            "color": "Lilac",
+            "thickness": "6 mm"
+          },
+          "image": "yoga-mat-lilac.jpg",
+          "price": "88.00",
+          "sale_price": null,
+          "cost": "35.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2800,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-SPT-YM-CORA-4MM",
+          "options": {
+            "color": "Coral",
+            "thickness": "4 mm"
+          },
+          "image": "yoga-mat-coral.jpg",
+          "price": "78.00",
+          "sale_price": null,
+          "cost": "31.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2200,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-SPT-YM-CORA-6MM",
+          "options": {
+            "color": "Coral",
+            "thickness": "6 mm"
+          },
+          "image": "yoga-mat-coral.jpg",
+          "price": "88.00",
+          "sale_price": null,
+          "cost": "35.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2800,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-SPT-YM-TEAL-4MM",
+          "options": {
+            "color": "Teal",
+            "thickness": "4 mm"
+          },
+          "image": "yoga-mat-teal.jpg",
+          "price": "78.00",
+          "sale_price": null,
+          "cost": "31.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2200,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-SPT-YM-TEAL-6MM",
+          "options": {
+            "color": "Teal",
+            "thickness": "6 mm"
+          },
+          "image": "yoga-mat-teal.jpg",
+          "price": "88.00",
+          "sale_price": null,
+          "cost": "35.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2800,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "resistance-band-set",
+      "title": "Resistance Band Set · On sale",
+      "short_description": "Three fabric resistance bands in a cotton pouch.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nThree fabric loop bands, light, medium and heavy, that stay in place without rolling. Comes in a cotton pouch.",
+      "ribbon": null,
+      "categories": [
+        "strength"
+      ],
+      "tags": [
+        "strength",
+        "home-gym",
+        "travel"
+      ],
+      "images": [
+        "resistance-band-set-1.jpg",
+        "resistance-band-set-2.jpg",
+        "resistance-band-set-3.jpg",
+        "resistance-band-set-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-SPT-RBS",
+          "options": {},
+          "image": null,
+          "price": "36.00",
+          "sale_price": "27.00",
+          "cost": "14.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 300,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "insulated-water-bottle",
+      "title": "Insulated Water Bottle · Order limit",
+      "short_description": "Steel bottle that keeps drinks cold for 24 hours. Up to 3 per order.",
+      "description": "Sample product: 1 attribute (Size), and customers can buy at most 3 per order. Edit it or delete it.\n\nA double-wall stainless steel bottle that keeps drinks cold for 24 hours and hot for 12. Leak-proof lid with a carry loop.",
+      "ribbon": null,
+      "categories": [
+        "bottles"
+      ],
+      "tags": [
+        "eco",
+        "travel",
+        "bestseller"
+      ],
+      "images": [
+        "insulated-water-bottle-1.jpg",
+        "insulated-water-bottle-2.jpg",
+        "insulated-water-bottle-3.jpg",
+        "insulated-water-bottle-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-SPT-IWB-500ML",
+          "options": {
+            "size": "500 ml"
+          },
+          "image": null,
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 3,
+          "weight_g": 350,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-SPT-IWB-750ML",
+          "options": {
+            "size": "750 ml"
+          },
+          "image": null,
+          "price": "36.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 3,
+          "weight_g": 420,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "cast-iron-kettlebell",
+      "title": "Cast-Iron Kettlebell · Stock levels",
+      "short_description": "Powder-coated cast-iron kettlebell.",
+      "description": "Sample product: Weight 12 kg is low in stock, and Weight 16 kg is out of stock but still sells on backorder. Edit it or delete it.\n\nA single-piece cast-iron kettlebell with a smooth, wide handle and a flat base. Powder coated for grip.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "strength"
+      ],
+      "tags": [
+        "strength",
+        "home-gym"
+      ],
+      "images": [
+        "cast-iron-kettlebell-1.jpg",
+        "cast-iron-kettlebell-2.jpg",
+        "cast-iron-kettlebell-3.jpg",
+        "cast-iron-kettlebell-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-SPT-CIK-8KG",
+          "options": {
+            "weight": "8 kg"
+          },
+          "image": null,
+          "price": "55.00",
+          "sale_price": null,
+          "cost": "22.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 8000,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-SPT-CIK-12KG",
+          "options": {
+            "weight": "12 kg"
+          },
+          "image": null,
+          "price": "69.00",
+          "sale_price": null,
+          "cost": "28.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 12000,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-SPT-CIK-16KG",
+          "options": {
+            "weight": "16 kg"
+          },
+          "image": null,
+          "price": "85.00",
+          "sale_price": null,
+          "cost": "34.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 16000,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

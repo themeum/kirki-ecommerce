@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Payment;
 defined('ABSPATH') || exit;
 
 use Exception;
+use Kirki\Ecommerce\App\Supports\RemoteUrl;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Cache;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
@@ -26,8 +27,6 @@ class PaymentGatewayCatalog
     public const FRESH_CACHE_TTL = 15 * MINUTE_IN_SECONDS;
 
     public const STALE_CACHE_TTL = 7 * DAY_IN_SECONDS;
-
-    protected const LOCAL_HOST_PATTERN = '/^(localhost|127\.0\.0\.1|host\.docker\.internal|.+\.test)$/';
 
     /**
      * Get the base URL of the remote gateway server, without a trailing slash.
@@ -104,21 +103,7 @@ class PaymentGatewayCatalog
      */
     public static function is_trusted_url(string $url, string $base_url)
     {
-        $base_url = rtrim($base_url, '/');
-
-        if (strpos($url, $base_url . '/') !== 0) {
-            return false;
-        }
-
-        $parts = wp_parse_url($url);
-        $scheme = $parts['scheme'] ?? '';
-        $host = $parts['host'] ?? '';
-
-        if ($scheme === 'https') {
-            return true;
-        }
-
-        return $scheme === 'http' && preg_match(static::LOCAL_HOST_PATTERN, $host) === 1;
+        return RemoteUrl::is_trusted($url, $base_url);
     }
 
     /**

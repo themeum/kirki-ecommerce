@@ -4,52 +4,56 @@ namespace Kirki\Ecommerce\App\Setup;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\RemoteUrl;
+use Kirki\Ecommerce\Framework\Supports\Facades\Http;
+
 /**
- * Imports images bundled with the plugin into the WordPress media library.
+ * Downloads sample product images into the WordPress media library.
  *
  * @since 1.0.0
  */
 class MediaImporter
 {
     /**
-     * Post meta recording the bundled filename an attachment was imported from.
+     * Post meta recording the URL an attachment was downloaded from.
      *
-     * Looking this up before importing is what keeps a repeated onboarding run
-     * from creating a second copy of every image.
+     * Looking this up before downloading is what keeps a repeated sample data
+     * load from creating a second copy of every image.
      */
-    const SOURCE_META_KEY = '_kirki_ecommerce_onboarding_image';
+    const SOURCE_META_KEY = '_kirki_ecommerce_sample_image_url';
 
     /**
-     * Import a file bundled with the plugin into the WordPress media library.
+     * Download an image into the WordPress media library.
      *
      * Returns null rather than throwing on any failure, so a store that cannot
-     * write to the uploads directory still gets its catalog - just without
-     * imagery - instead of a fatal during the version update.
+     * download or write images still gets its products - just without imagery.
      *
      * @since 1.0.0
      *
-     * @param string $absolute_path Absolute path to the bundled source file.
+     * @param string $url      The image URL.
+     * @param string $base_url The base URL the image must belong to.
      * @return int|null The attachment ID, or null when the import failed.
      */
-    public function import($absolute_path)
+    public function import_url(string $url, string $base_url)
     {
-        if (!is_readable($absolute_path)) {
-            return null;
-        }
-
-        $filename = basename($absolute_path);
-        $existing = $this->find_existing($filename);
+        $existing = $this->find_existing($url);
 
         if ($existing) {
             return $existing;
         }
 
-        $contents = file_get_contents($absolute_path);
-
-        if (false === $contents) {
+        if (!RemoteUrl::is_trusted($url, $base_url)) {
             return null;
         }
 
+        $response = Http::timeout(15)->get($url);
+        $contents = $response->successful() ? $response->body() : '';
+
+        if ($contents === '') {
+            return null;
+        }
+
+        $filename = sanitize_file_name(rawurldecode(basename((string) wp_parse_url($url, PHP_URL_PATH))));
         $upload = wp_upload_bits($filename, null, $contents);
 
         if (!empty($upload['error']) || empty($upload['file'])) {
@@ -63,29 +67,29 @@ class MediaImporter
         }
 
         $this->generate_metadata($attachment_id, $upload['file']);
-        update_post_meta($attachment_id, static::SOURCE_META_KEY, $filename);
+        update_post_meta($attachment_id, static::SOURCE_META_KEY, $url);
 
         return $attachment_id;
     }
 
     /**
-     * Find an attachment previously imported from the same bundled filename.
+     * Find an attachment previously downloaded from the same URL.
      *
      * @since 1.0.0
      *
-     * @param string $filename The bundled source filename.
+     * @param string $url The image URL.
      * @return int|null The existing attachment ID, or null when none was imported.
      */
-    protected function find_existing($filename)
+    protected function find_existing($url)
     {
         $found = get_posts([
             'post_type' => 'attachment',
             'post_status' => 'inherit',
             'posts_per_page' => 1,
             'fields' => 'ids',
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one lookup per bundled image, on install only.
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one lookup per sample image, on request only.
             'meta_key' => static::SOURCE_META_KEY,
-            'meta_value' => $filename,
+            'meta_value' => $url,
         ]);
 
         return !empty($found) ? (int) $found[0] : null;
