@@ -175,8 +175,9 @@ export const useEmailTemplatePreviewSync = (
     const address = generalSettings?.store_address;
     const country = countries.find((item) => item.code === address?.country);
     const state = country?.states?.find((item) => String(item.id) === String(address?.state));
-    
+
     return {
+      site_title: window.kirki_ecommerce.site_title,
       store_name: generalSettings?.store_name ?? '',
       store_email: generalSettings?.store_email ?? '',
       store_phone: generalSettings?.store_phone ?? '',

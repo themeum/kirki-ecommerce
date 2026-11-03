@@ -30,6 +30,10 @@ import { __ } from '@/wpi18n';
 
 const DEFAULT_SHORTCODES = [
   {
+    label: __('Site Title', 'kirki-ecommerce'),
+    value: '{site_title}',
+  },
+  {
     label: __('Store Name', 'kirki-ecommerce'),
     value: '{store_name}',
   },

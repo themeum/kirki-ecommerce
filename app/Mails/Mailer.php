@@ -204,6 +204,7 @@ abstract class Mailer implements Mailable
             'body' => $body,
             'additional_description' => $settings->get('default_template.additional_description') ?? '',
             'footer' => $settings->get('default_template.footer') ?? '',
+            'site_title' => get_bloginfo('name'),
             'store_name' => $general_settings->get('store_name'),
             'store_email' => $general_settings->get('store_email'),
             'store_phone' => $general_settings->get('store_phone'),

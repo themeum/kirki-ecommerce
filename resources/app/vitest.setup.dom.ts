@@ -7,6 +7,7 @@ import '@testing-library/jest-dom/vitest';
 // populated explicitly here rather than relying on that guard.
 window.kirki_ecommerce = {
   site_url: 'https://example.test',
+  site_title: 'Example Site',
   rest_url_base: 'https://example.test/wp-json/kirki/ecommerce/v1',
   rest_nonce: 'test-nonce',
   version: 'test',
