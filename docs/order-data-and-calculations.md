@@ -36,6 +36,9 @@ what happens today when an order is edited. Section 9 lists the decisions we nee
 **Money is saved as whole numbers (cents).**
 $25.00 is saved as `2500`. This avoids rounding errors. In this page we write the number and the dollar value together, for example `2500` ($25.00). Each money column is a signed 64-bit integer (`BIGINT`), so a large amount in a currency with a small unit, such as IDR, is never cut off.
 
+**Dates are saved in UTC.**
+Order dates such as `paid_at`, `shipped_at` and `estimated_delivery_date` are `DATETIME` columns that hold UTC. They do not change when the database server time zone changes.
+
 **`base_` and `invoiced_` columns.**
 
 | Prefix | Meaning | Example (store is USD, customer pays EUR at rate 0.92) |

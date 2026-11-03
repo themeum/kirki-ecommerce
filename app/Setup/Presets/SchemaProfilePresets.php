@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Setup\Presets;
 
 use Kirki\Ecommerce\App\Models\ProductSchema;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
 defined('ABSPATH') || exit;
@@ -18,7 +19,8 @@ class SchemaProfilePresets
      * Create the preset schema profiles when the store has none.
      *
      * The schema column is encoded here because the bulk insert bypasses the
-     * model's set_schema_attribute mutator.
+     * model's set_schema_attribute mutator. The timestamps are set here for the
+     * same reason, in UTC.
      *
      * @since 1.0.0
      *
@@ -29,6 +31,7 @@ class SchemaProfilePresets
     public function apply(array $presets, PresetContext $context)
     {
         $rows = [];
+        $now = Date::now('UTC')->to_date_time_string();
 
         foreach ($presets['schema_profiles'] ?? [] as $profile) {
             $name = sanitize_text_field($profile['name'] ?? '');
@@ -41,6 +44,8 @@ class SchemaProfilePresets
                 'name' => $name,
                 'is_default' => !empty($profile['is_default']),
                 'schema' => wp_json_encode(array_map(fn($fields) => array_map('sanitize_text_field', (array) $fields), $profile['schema'])),
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
 

@@ -119,13 +119,13 @@ class CreateOrdersTable implements Migration
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
 
-            $table->timestamp('paid_at')->nullable()->comment('Payment confirmation time');
-            $table->timestamp('shipped_at')->nullable()->comment('The order is handed over to the shipping carrier');
-            $table->timestamp('cancelled_at')->nullable()->comment('The order was cancelled by the customer or admin');
-            $table->timestamp('fulfilled_at')->nullable()->comment('The order has been completely prepared, packed, and is ready to ship');
-            $table->timestamp('estimated_delivery_date')->nullable();
-            $table->timestamp('delivered_at')->nullable()->comment('The order was delivered to the customer by the shipping carrier');
-            $table->timestamp('archived_at')->nullable()->comment('The order was archived by an admin');
+            $table->datetime('paid_at')->nullable()->comment('Payment confirmation time');
+            $table->datetime('shipped_at')->nullable()->comment('The order is handed over to the shipping carrier');
+            $table->datetime('cancelled_at')->nullable()->comment('The order was cancelled by the customer or admin');
+            $table->datetime('fulfilled_at')->nullable()->comment('The order has been completely prepared, packed, and is ready to ship');
+            $table->datetime('estimated_delivery_date')->nullable();
+            $table->datetime('delivered_at')->nullable()->comment('The order was delivered to the customer by the shipping carrier');
+            $table->datetime('archived_at')->nullable()->comment('The order was archived by an admin');
             $table->timestamps();
 
             $table->foreign('created_by', 'fk_kecom_orders_created_by')->on('users')->references('ID')->null_on_delete();

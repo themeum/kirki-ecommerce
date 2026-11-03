@@ -46,7 +46,7 @@ class CreateCartsTable implements Migration
             $table->text('billing_address')->nullable();
             $table->boolean('is_billing_same_as_shipping')->default(false);
 
-            $table->timestamp('expires_at')->nullable()->comment('Cart expiration timestamp for cleanup of abandoned carts');
+            $table->datetime('expires_at')->nullable()->comment('Cart expiration timestamp for cleanup of abandoned carts');
             $table->timestamps();
 
             $table->index('cart_token', 'idx_kecom_carts_cart_token');
