@@ -143,3 +143,10 @@ if (!function_exists('remove_accents')) {
         return $transliterated === false ? (string) $string : $transliterated;
     }
 }
+
+if (!function_exists('wp_strip_all_tags')) {
+    function wp_strip_all_tags($text, $remove_breaks = false)
+    {
+        return trim(strip_tags((string) $text));
+    }
+}
