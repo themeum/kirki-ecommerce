@@ -127,22 +127,22 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
       </Flex>
       <DropdownMenuContent style={{ width: '288px', maxHeight: '522px' }}>
         <Flex cssOverride={styles.header}>
-          <Text>{__('Filter', 'kirki-ecommerce')}</Text>
-          <ActionGroup>
+          <Flex align="center" justify="space-between" cssOverride={{ width: '100%' }}>
+            <Text weight="semibold">{__('Filter', 'kirki-ecommerce')}</Text>
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               onClick={handleFilterClose}
               cssOverride={styles.closeButton}
             >
               <CloseIcon />
             </Button>
-          </ActionGroup>
+          </Flex>
         </Flex>
 
         <Flex
           direction="column"
-          gap={4}
+          gap={3}
           cssOverride={{
             padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
             overflowY: 'auto',
@@ -196,7 +196,7 @@ const styles = defineStyles({
     top: '-4px',
     position: 'sticky',
     backgroundColor: theme.colors.background.surface,
-    padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[3]} ${theme.spacing[1]} ${theme.spacing[3]}`,
     zIndex: 100,
   },
   closeButton: {

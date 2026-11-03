@@ -31,7 +31,7 @@ class CreateAttributesTable implements Migration
             $table->string('type', 50)->default('list')->comment('Supported values: color, list');
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('slug', 'uq_kecom_attributes_slug');
             $table->foreign('created_by', 'fk_kecom_attributes_created_by')->on('users')->references('ID')->null_on_delete();

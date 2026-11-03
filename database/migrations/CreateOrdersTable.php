@@ -126,7 +126,7 @@ class CreateOrdersTable implements Migration
             $table->datetime('estimated_delivery_date')->nullable();
             $table->datetime('delivered_at')->nullable()->comment('The order was delivered to the customer by the shipping carrier');
             $table->datetime('archived_at')->nullable()->comment('The order was archived by an admin');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->foreign('created_by', 'fk_kecom_orders_created_by')->on('users')->references('ID')->null_on_delete();
             $table->foreign('updated_by', 'fk_kecom_orders_updated_by')->on('users')->references('ID')->null_on_delete();

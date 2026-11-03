@@ -31,7 +31,7 @@ class CreateCartItemsTable implements Migration
             $table->unsigned_big_integer('variant_id')->nullable();
             $table->integer('quantity')->default(1);
 
-            $table->timestamps();
+            $table->datetimes();
 
             $table->foreign('cart_id', 'fk_kecom_cart_items_cart_id')
                 ->references('id')

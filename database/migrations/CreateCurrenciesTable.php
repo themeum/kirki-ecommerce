@@ -32,7 +32,7 @@ class CreateCurrenciesTable implements Migration
             $table->decimal('exchange_rate', 15, 6)->default(1.000000);
             $table->boolean('is_base')->default(0);
             $table->boolean('is_active')->default(1);
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('code', 'uq_kecom_currencies_code');
             $table->index('is_base', 'idx_kecom_currencies_is_base');

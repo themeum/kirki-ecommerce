@@ -69,7 +69,7 @@ class CreateOrderItemsTable implements Migration
             $table->decimal('weight', 10, 2)->nullable();
             $table->string('weight_unit', 10)->nullable()->comment('Unit of measurement for weight. Example: g, kg, lb, oz');
             $table->text('product_data')->nullable()->comment('JSON snapshot of product/variant data');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->foreign('order_id', 'fk_kecom_order_items_order_id')
                 ->references('id')

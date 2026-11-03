@@ -31,7 +31,7 @@ class CreateTagsTable implements Migration
             $table->text('description')->nullable();
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('slug', 'uq_kecom_tags_slug');
             $table->foreign('created_by', 'fk_kecom_tags_created_by')->on('users')->references('ID')->null_on_delete();

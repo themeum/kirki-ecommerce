@@ -34,7 +34,7 @@ class CreateMigrationRunsTable implements Migration
             $table->text('last_error')->nullable();
             $table->datetime('started_at')->nullable();
             $table->datetime('finished_at')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->index(['source', 'status'], 'idx_kecom_migration_runs_source_status');
         });

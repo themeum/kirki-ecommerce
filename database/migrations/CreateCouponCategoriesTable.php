@@ -27,7 +27,7 @@ class CreateCouponCategoriesTable implements Migration
         Schema::create('kirki_ecommerce_coupon_categories', function (Structure $table) {
             $table->unsigned_big_integer('coupon_id');
             $table->unsigned_big_integer('category_id');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->primary(['coupon_id', 'category_id']);
 

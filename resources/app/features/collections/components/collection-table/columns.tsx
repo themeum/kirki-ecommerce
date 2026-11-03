@@ -6,10 +6,27 @@ import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
 import type { Collection } from '@/features/collections/schemas/catalog/collection';
 import { DATE_FORMATS } from '@/libs/date';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-const collectionColumns: ColumnDef<Collection>[] = [
+const styles = defineStyles({
+  clickable: {
+    padding: 0,
+    border: 'none',
+    background: 'none',
+    font: 'inherit',
+    color: 'inherit',
+    textAlign: 'left',
+    cursor: 'pointer',
+  },
+});
+
+type CollectionColumnsOptions = {
+  onEdit: (collection: Collection) => void;
+};
+
+const createCollectionColumns = ({ onEdit }: CollectionColumnsOptions): ColumnDef<Collection>[] => [
   {
     id: 'title',
     header: __('Collection', 'kirki-ecommerce'),
@@ -17,10 +34,12 @@ const collectionColumns: ColumnDef<Collection>[] = [
     cell: ({ row }) => {
       const banner = row.original?.banner && typeof row.original.banner === 'object' ? row.original.banner : null;
       return (
-        <Flex gap={2} align="center">
-          <Image size="sm" src={banner} />
-          <Text variant="small">{row.original?.title || '--'}</Text>
-        </Flex>
+        <button type="button" css={scoped(styles.clickable)} onClick={() => onEdit(row.original)}>
+          <Flex gap={2} align="center">
+            <Image size="sm" src={banner} />
+            <Text variant="small">{row.original?.title || '--'}</Text>
+          </Flex>
+        </button>
       );
     },
   },
@@ -38,4 +57,4 @@ const collectionColumns: ColumnDef<Collection>[] = [
   },
 ];
 
-export { collectionColumns };
+export { createCollectionColumns };

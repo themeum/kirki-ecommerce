@@ -66,7 +66,7 @@ class CreateVariantsTable implements Migration
             $table->unsigned_big_integer('created_by');
             $table->unsigned_big_integer('updated_by');
 
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('sku', 'uq_kecom_variants_sku');
             $table->index('is_visible', 'idx_kecom_variants_is_visible');

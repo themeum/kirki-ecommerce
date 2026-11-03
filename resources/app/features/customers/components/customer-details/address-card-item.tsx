@@ -26,6 +26,7 @@ type AddressCardItemProps = {
   onRemove: () => void;
   showRemove?: boolean;
   onExclusiveDefault: (field: 'is_default_shipping' | 'is_default_billing') => void;
+  noShadowCard?: boolean;
 };
 
 const AddressCardItem = ({
@@ -33,6 +34,7 @@ const AddressCardItem = ({
   onRemove,
   onExclusiveDefault,
   showRemove = false,
+  noShadowCard,
 }: AddressCardItemProps) => {
   const { control } = useFormContext<CustomerFormInput>();
   const type = useWatch({ control, name: `addresses.${index}.type` });
@@ -46,6 +48,7 @@ const AddressCardItem = ({
           opacity: 1,
         },
       }}
+      noShadow={noShadowCard}
     >
       <CardContent>
         {showRemove && (

@@ -62,7 +62,7 @@ class CreateCouponsTable implements Migration
             $table->text('combinations')->nullable()->comment('Array of combinations as JSON');
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('code', 'uq_kecom_coupons_code');
             $table->foreign('created_by', 'fk_kecom_coupons_created_by')->on('users')->references('ID')->null_on_delete();

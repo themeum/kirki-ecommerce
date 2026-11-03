@@ -28,7 +28,7 @@ class CreateCouponCustomersTable implements Migration
             $table->unsigned_big_integer('coupon_id');
             $table->unsigned_big_integer('customer_id');
             $table->boolean('is_excluded')->default(0);
-            $table->timestamps();
+            $table->datetimes();
 
             $table->primary(['coupon_id', 'customer_id', 'is_excluded']);
 

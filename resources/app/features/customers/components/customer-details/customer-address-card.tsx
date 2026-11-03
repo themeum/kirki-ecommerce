@@ -31,7 +31,7 @@ const NEW_ADDRESS: AddressFormValues = {
   label: '',
 };
 
-const CustomerAddressCard = () => {
+const CustomerAddressCard = ({ noShadowCard} : { noShadowCard?: boolean }) => {
   const { control } = useFormContext<CustomerFormInput>();
   const { fields, append, remove, update } = useFieldArray({ control, name: 'addresses' });
   const addresses = (useWatch({ control, name: 'addresses' }) ?? []) as AddressFormValues[];
@@ -59,6 +59,7 @@ const CustomerAddressCard = () => {
     <Flex direction="column" gap={4}>
       {fields.map((field, index) => (
         <AddressCardItem
+          noShadowCard={noShadowCard}
           key={field.id}
           index={index}
           onRemove={() => remove(index)}

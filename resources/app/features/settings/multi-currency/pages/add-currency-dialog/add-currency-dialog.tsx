@@ -63,7 +63,6 @@ const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) =
         }}
       >
         <DialogContent onCloseAutoFocus={handleCloseAutoFocus}>
-          <DialogCloseButton />
           <DialogHeader cssOverride={{ flexDirection: 'row', gap: theme.spacing[1] }}>
             {isRatesStep && (
               <Button
@@ -83,6 +82,7 @@ const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) =
                   : __('Select Additional Currencies', 'kirki-ecommerce')}
               </Text>
             </DialogTitle>
+            <DialogCloseButton cssOverride={{top: theme.spacing[2]}} />
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>

@@ -33,7 +33,7 @@ class CreateShippingBoxesTable implements Migration
             $table->decimal('length', 10, 2);
             $table->string('unit', 10)->default('cm'); // Assuming 'cm' as default, or maybe 'in'
             $table->boolean('is_default')->default(0);
-            $table->timestamps();
+            $table->datetimes();
 
             $table->index('is_default', 'idx_kecom_shipping_boxes_is_default');
         });
