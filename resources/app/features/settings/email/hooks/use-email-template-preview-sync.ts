@@ -1,12 +1,15 @@
 import type { RefObject } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
+import { interpolateShortcodes } from '@/features/settings/email/lib/shortcode';
 import { resolveLogoUrl } from '@/features/settings/email/lib/template';
 import type {
   EmailTemplateFormInput,
   EmailTemplateFormPayload,
 } from '@/features/settings/email/schemas/forms/email-template-form';
+import { useCountriesQuery } from '@/services/country';
+import { useSettingsQuery } from '@/services/settings';
 
 const POSITION_TO_ALIGN = {
   start: 'left',
@@ -23,7 +26,11 @@ const POSITION_TO_ALIGN = {
  * This hook applies the current form values to the already-rendered iframe
  * document in place — no preview request is ever re-issued after mount.
  */
-const applyValuesToDocument = (doc: Document, values: EmailTemplateFormInput) => {
+const applyValuesToDocument = (
+  doc: Document,
+  values: EmailTemplateFormInput,
+  variables: Record<string, string>,
+) => {
   const logoUrl = resolveLogoUrl(values.logo);
   if (logoUrl) {
     doc.querySelectorAll<HTMLElement>('[data-email-part~="logo"]').forEach((el) => {
@@ -146,7 +153,7 @@ const applyValuesToDocument = (doc: Document, values: EmailTemplateFormInput) =>
 
   contentApplicators.forEach(({ path, value }) => {
     doc.querySelectorAll<HTMLElement>(`[data-email-part~="${path}"]`).forEach((el) => {
-      el.innerHTML = value ?? '';
+      el.innerHTML = interpolateShortcodes(value ?? '', variables);
       const row = el.closest('tr');
       if (row) {
         row.style.display = value ? '' : 'none';
@@ -160,6 +167,32 @@ export const useEmailTemplatePreviewSync = (
   form: UseFormReturn<EmailTemplateFormInput, unknown, EmailTemplateFormPayload>,
   isReady: boolean,
 ) => {
+  const { data: generalSettings } = useSettingsQuery('general');
+
+  const { data: countries = [] } = useCountriesQuery({ limit: -1, only_selling_countries: false });
+
+  const variables = useMemo(() => {
+    const address = generalSettings?.store_address;
+    const country = countries.find((item) => item.code === address?.country);
+    const state = country?.states?.find((item) => String(item.id) === String(address?.state));
+    
+    return {
+      store_name: generalSettings?.store_name ?? '',
+      store_email: generalSettings?.store_email ?? '',
+      store_phone: generalSettings?.store_phone ?? '',
+      store_address: [
+        address?.address_line_1,
+        address?.address_line_2,
+        address?.city,
+        state?.name ?? address?.state,
+        country?.name ?? address?.country,
+        address?.postal_code,
+      ]
+        .filter(Boolean)
+        .join(', '),
+    };
+  }, [generalSettings, countries]);
+
   useEffect(() => {
     if (!isReady) {
       return;
@@ -170,12 +203,12 @@ export const useEmailTemplatePreviewSync = (
       return;
     }
 
-    applyValuesToDocument(doc, form.getValues());
+    applyValuesToDocument(doc, form.getValues(), variables);
 
     const subscription = form.watch((values) => {
-      applyValuesToDocument(doc, values as EmailTemplateFormInput);
+      applyValuesToDocument(doc, values as EmailTemplateFormInput, variables);
     });
 
     return () => subscription.unsubscribe();
-  }, [isReady, iframeRef, form]);
+  }, [isReady, iframeRef, form, variables]);
 };
