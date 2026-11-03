@@ -136,7 +136,7 @@ const MultiCurrencySettings = () => {
             data-search-keywords="multi currency, exchange rate, conversion"
             cssOverride={cardStyles.innerCard}
           >
-            <CardContent cssOverride={{ paddingBottom: theme.spacing[4] }}>
+            <CardContent>
               <Flex direction="column" gap={3}>
                 <Flex
                   justify="space-between"
@@ -153,7 +153,10 @@ const MultiCurrencySettings = () => {
                       )}
                     </Text>
                   </Flex>
-                  <AddCurrencyPopup onOpenChange={setIsAddCurrencyOpen} />
+                  <AddCurrencyPopup
+                    onOpenChange={setIsAddCurrencyOpen}
+                    isSelectingBaseCurrency={isDefined(currencies) && currencies.length === 0}
+                  />
                 </Flex>
                 <AvailableCurrencyList />
                 {isDefined(currencies) && currencies.length > 1 && (

@@ -211,13 +211,15 @@ const VariantsTable = () => {
                   </>
                 ) : (
                   <>
-                    <TableHead cssOverride={{ width: '242px' }}>
+                    <TableHead cssOverride={{ width: '200px' }}>
                       {__('Variants', 'kirki-ecommerce')}
                     </TableHead>
-                    <TableHead cssOverride={{ width: '120px' }}>
+                    <TableHead cssOverride={{ width: '160px' }}>
                       {__('Price', 'kirki-ecommerce')}
                     </TableHead>
-                    <TableHead>{__('Availability', 'kirki-ecommerce')}</TableHead>
+                    <TableHead cssOverride={{ width: '120px' }}>
+                      {__('Availability', 'kirki-ecommerce')}
+                    </TableHead>
                     <TableHead cssOverride={{ width: '64px' }}>
                       <Button
                         variant="ghost"

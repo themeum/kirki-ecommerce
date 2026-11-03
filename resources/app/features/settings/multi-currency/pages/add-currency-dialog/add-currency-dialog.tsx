@@ -27,6 +27,7 @@ import { __ } from '@/wpi18n';
 
 type AddCurrencyDialogPanelProps = {
   onOpenChange?: (open: boolean) => void;
+  isSelectingBaseCurrency?: boolean;
 };
 
 const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) => {
@@ -41,6 +42,7 @@ const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) =
     step,
     handleNext,
     handleBack,
+    isSelectingBaseCurrency,
   } = useAddCurrencyDialogContext();
 
   useEffect(() => {
@@ -79,10 +81,12 @@ const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) =
               <Text variant="heading6" weight="semibold">
                 {isRatesStep
                   ? __('Set Exchange Rates', 'kirki-ecommerce')
-                  : __('Select Additional Currencies', 'kirki-ecommerce')}
+                  : isSelectingBaseCurrency
+                    ? __('Select Base Currency', 'kirki-ecommerce')
+                    : __('Select Additional Currencies', 'kirki-ecommerce')}
               </Text>
             </DialogTitle>
-            <DialogCloseButton cssOverride={{top: theme.spacing[2]}} />
+            <DialogCloseButton cssOverride={{ top: theme.spacing[2] }} />
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -102,8 +106,15 @@ const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) =
                     {__('Cancel', 'kirki-ecommerce')}
                   </Button>
                 </DialogClose>
-                {isRatesStep ? (
-                  <Button key="save" type="submit" variant="primary">
+                {isRatesStep || isSelectingBaseCurrency ? (
+                  <Button
+                    key="save"
+                    type="submit"
+                    variant="primary"
+                    disabled={
+                      isSelectingBaseCurrency && (!formSelected || formSelected.length === 0)
+                    }
+                  >
                     {__('Save', 'kirki-ecommerce')}
                   </Button>
                 ) : (
@@ -129,9 +140,12 @@ const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) =
 
 AddCurrencyDialogPanel.displayName = 'AddCurrencyDialogPanel';
 
-const AddCurrencyPopup = ({ onOpenChange }: AddCurrencyDialogPanelProps) => {
+const AddCurrencyPopup = ({
+  onOpenChange,
+  isSelectingBaseCurrency,
+}: AddCurrencyDialogPanelProps) => {
   return (
-    <AddCurrencyDialogProvider>
+    <AddCurrencyDialogProvider isSelectingBaseCurrency={isSelectingBaseCurrency}>
       <AddCurrencyDialogPanel onOpenChange={onOpenChange} />
     </AddCurrencyDialogProvider>
   );
