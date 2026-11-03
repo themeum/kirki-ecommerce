@@ -198,6 +198,7 @@ const OnboardingWizardForm = ({ prefill }: OnboardingWizardFormProps) => {
 
   const sampleData = useSampleDataImport({
     onLoaded: () => leaveTo(RouteConfig.Products.template),
+    loadedPauseMs: 0,
   });
 
   const summaryRows = useMemo(() => {
@@ -343,6 +344,7 @@ const OnboardingWizardForm = ({ prefill }: OnboardingWizardFormProps) => {
         footerMode === 'default' && (
           <SampleDataLink
             phase={sampleData.phase}
+            progress={sampleData.progress}
             isDisabled={!isSetupReady}
             onLoad={() => void sampleData.start()}
           />
@@ -370,6 +372,7 @@ const OnboardingWizardForm = ({ prefill }: OnboardingWizardFormProps) => {
             rowStates={completionRowStates}
             footerMode={footerMode}
             errorMessage={errorMessage}
+            isActionDisabled={sampleData.isImporting}
             onRetry={createStore.isError ? handleRetry : migration.retry}
             onAddFirstProduct={() => leaveTo(RouteConfig.Products.get('CreateProduct').buildLink())}
             onGoToDashboard={() => leaveTo(RouteConfig.Home.template)}

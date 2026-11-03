@@ -26,6 +26,7 @@ type SetupCompleteStepProps = {
   rowStates: SetupRowState[];
   footerMode: SetupFooterMode;
   errorMessage?: string;
+  isActionDisabled?: boolean;
   onRetry: () => void;
   onAddFirstProduct: () => void;
   onGoToDashboard: () => void;
@@ -36,6 +37,7 @@ const SetupCompleteStep = ({
   rowStates,
   footerMode,
   errorMessage,
+  isActionDisabled = false,
   onRetry,
   onAddFirstProduct,
   onGoToDashboard,
@@ -68,10 +70,15 @@ const SetupCompleteStep = ({
           )}
           {footerMode === 'default' && (
             <Grid columns={2} gap={3}>
-              <Button size="lg" onClick={onAddFirstProduct}>
+              <Button size="lg" onClick={onAddFirstProduct} disabled={isActionDisabled}>
                 {__('Add your first product', 'kirki-ecommerce')}
               </Button>
-              <Button variant="outline" size="lg" onClick={onGoToDashboard}>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={onGoToDashboard}
+                disabled={isActionDisabled}
+              >
                 {__('Go to Dashboard', 'kirki-ecommerce')}
               </Button>
             </Grid>

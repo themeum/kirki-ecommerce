@@ -76,10 +76,7 @@ const SetupChecklistStep = ({
               {actions.map((action) => {
                 const Icon = action.icon;
 
-                if (
-                  action.kind === 'sample-data' &&
-                  (sampleData.phase === 'downloading' || sampleData.phase === 'creating')
-                ) {
+                if (action.kind === 'sample-data' && sampleData.isImporting) {
                   return (
                     <Button
                       key={action.label}
@@ -88,7 +85,7 @@ const SetupChecklistStep = ({
                       aria-busy="true"
                       cssOverride={styles.importingButton}
                     >
-                      <SampleDataProgress phase={sampleData.phase} progress={sampleData.progress} />
+                      <SampleDataProgress progress={sampleData.progress} />
                     </Button>
                   );
                 }

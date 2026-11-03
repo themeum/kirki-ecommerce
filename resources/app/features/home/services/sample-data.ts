@@ -17,7 +17,7 @@ const useImportSampleDataMutation = () => {
   return useMutation({
     mutationFn: importSampleData,
     onSuccess() {
-      return queryClient.invalidateQueries();
+      void queryClient.invalidateQueries();
     },
     onError(error) {
       toastMutationError(error);

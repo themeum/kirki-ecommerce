@@ -1,18 +1,22 @@
+import type { CSSProperties } from 'react';
+
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
-import Spinner from '@/components/ui/spinner';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type SampleDataLinkProps = {
-  phase: 'idle' | 'downloading' | 'creating' | 'done';
+  phase: 'idle' | 'downloading' | 'done';
+  progress: number;
   isDisabled: boolean;
   onLoad: () => void;
 };
 
-const SampleDataLink = ({ phase, isDisabled, onLoad }: SampleDataLinkProps) => {
+const SampleDataLink = ({ phase, progress, isDisabled, onLoad }: SampleDataLinkProps) => {
+  const progressText = __('Downloading sample data...', 'kirki-ecommerce');
+
   return (
     <Flex justify="center" align="center" cssOverride={styles.root}>
       {phase === 'idle' ? (
@@ -20,12 +24,22 @@ const SampleDataLink = ({ phase, isDisabled, onLoad }: SampleDataLinkProps) => {
           {__('Click here to load sample data!', 'kirki-ecommerce')}
         </Button>
       ) : (
-        <Flex gap={2} align="center">
-          <Spinner cssOverride={styles.spinner} />
+        <Flex direction="column" gap={2} align="center">
+          <div
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progress)}
+            aria-valuetext={progressText}
+            css={scoped(styles.track)}
+          >
+            <div
+              css={scoped(styles.fill)}
+              style={{ '--sample-data-progress-width': `${progress}%` } as CSSProperties}
+            />
+          </div>
           <Text color="subdued" variant="small">
-            {phase === 'downloading'
-              ? __('Downloading product sample...', 'kirki-ecommerce')
-              : __('Creating products...', 'kirki-ecommerce')}
+            {progressText}
           </Text>
         </Flex>
       )}
@@ -40,7 +54,7 @@ export default SampleDataLink;
 const styles = defineStyles({
   root: {
     width: '100%',
-    minHeight: '24px',
+    minHeight: '32px',
     marginTop: '-12px',
   },
   link: {
@@ -48,13 +62,18 @@ const styles = defineStyles({
     textDecoration: 'underline',
     ...theme.typography.small('medium'),
   },
-  spinner: {
-    width: '20px',
-    height: '20px',
-    color: theme.colors.icon.brand,
-    '& svg': {
-      width: '20px',
-      height: '20px',
-    },
+  track: {
+    width: '174px',
+    height: '4px',
+    overflow: 'hidden',
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    borderRadius: theme.radius.full,
+  },
+  fill: {
+    height: '100%',
+    width: 'var(--sample-data-progress-width)',
+    backgroundColor: theme.colors.background.fillBrand,
+    borderRadius: 'inherit',
+    transition: 'width 0.1s linear',
   },
 });

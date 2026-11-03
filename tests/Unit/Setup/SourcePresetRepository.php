@@ -24,4 +24,25 @@ class SourcePresetRepository extends PresetRepository
 
         return $status === 200 ? json_decode(file_get_contents($file), true) : null;
     }
+
+    protected function fetch_many(array $paths)
+    {
+        $results = [];
+
+        foreach ($paths as $path => $version) {
+            $data = $this->fetch($path, $version, $status);
+            $results[$path] = [$data, $status];
+        }
+
+        return $results;
+    }
+
+    protected function cached_presets()
+    {
+        return null;
+    }
+
+    protected function cache_presets(array $data)
+    {
+    }
 }

@@ -316,19 +316,30 @@ When setup fails, the retry action SHALL replace both buttons.
 
 Below the card, outside it, the screen SHALL show a link "Click here to load sample
 data!". The link SHALL be shown in every completion state, and SHALL be disabled until
-every summary row is completed. Clicking it SHALL load the sample data in two visible
-phases, each shown with a spinner and text in place of the link:
+every summary row is completed. Clicking it SHALL send the sample data request at
+once, and SHALL show, in place of the link, a progress bar 174 px wide, centered, with
+the text "Downloading sample data..." below it. No spinner SHALL be shown. The text
+SHALL NOT change while the request runs, and the bar SHALL cover the whole import,
+the download and the record creation.
 
-1. "Downloading product sample..."
-2. "Creating products..." while the sample data request runs.
+The server reports no progress, so the bar SHALL move by time:
 
-No progress bar SHALL be shown. While the import runs, the link SHALL ignore clicks,
-and "Add your first product" and "Go to Dashboard" SHALL stay usable.
+- The bar SHALL move from 0% to 95% in 10 seconds, fast at the start and slower near
+  95%.
+- After 10 seconds, the bar SHALL move slowly from 95% toward 99%, and SHALL NOT
+  reach 100% before the request succeeds.
 
-- When the import succeeds, the merchant SHALL be taken to the products list page,
-  and the wizard SHALL NOT stay in the browser's back history.
-- When the import fails, the merchant SHALL see an error, and the link SHALL show
-  again and be usable.
+The bar SHALL never move backward while the request runs. When the request succeeds,
+the bar SHALL go to 100%, also when this is before 10 seconds.
+
+From the click until the request succeeds or fails, "Add your first product" and
+"Go to Dashboard" SHALL be disabled, and the progress bar SHALL ignore clicks.
+
+- When the import succeeds, the merchant SHALL be taken to the products list page at
+  once, with no pause and no wait for other data of the screen to load again. The
+  wizard SHALL NOT stay in the browser's back history.
+- When the import fails, the merchant SHALL see an error, the bar SHALL go away, the
+  link SHALL show again and be usable, and both buttons SHALL be usable again.
 
 #### Scenario: Add your first product
 
@@ -348,17 +359,37 @@ and "Add your first product" and "Go to Dashboard" SHALL stay usable.
 #### Scenario: Load sample data
 
 - **WHEN** the merchant clicks "Click here to load sample data!" and loading succeeds
-- **THEN** a spinner with "Downloading product sample..." shows, then "Creating products...", and then the merchant is taken to the products list page, where the sample products are listed
+- **THEN** the sample data request is sent at once, a progress bar with "Downloading sample data..." shows in place of the link, and the merchant is then taken to the products list page, where the sample products are listed
 
-#### Scenario: Leaving during the import
+#### Scenario: Bar fills 95% in 10 seconds
+
+- **WHEN** the sample data request is still running 10 seconds after the click
+- **THEN** the bar shows 95%, and the text is still "Downloading sample data..."
+
+#### Scenario: Slow request does not complete the bar
+
+- **WHEN** the sample data request is still running more than 10 seconds after the click
+- **THEN** the bar moves toward 99% but stays below 100%, and the text is still "Downloading sample data..."
+
+#### Scenario: Fast request completes the bar
+
+- **WHEN** the sample data request succeeds 4 seconds after the click
+- **THEN** the merchant is taken to the products list page at once, without waiting for the 10 second curve
+
+#### Scenario: No delay after the import
+
+- **WHEN** the sample data request succeeds
+- **THEN** the products list page opens at once, with no pause and no wait for the completion screen's other data to load again
+
+#### Scenario: Buttons disabled during the import
 
 - **WHEN** the sample data import is running
-- **THEN** "Add your first product" and "Go to Dashboard" can still be clicked
+- **THEN** "Add your first product" and "Go to Dashboard" cannot be clicked
 
 #### Scenario: Sample data fails
 
 - **WHEN** the sample data request returns an error
-- **THEN** an error is shown, the merchant stays on the completion screen, and the link "Click here to load sample data!" is usable again
+- **THEN** an error is shown, the merchant stays on the completion screen, the progress bar goes away, the link "Click here to load sample data!" is usable again, and "Add your first product" and "Go to Dashboard" can be clicked
 
 ### Requirement: Store Tax step
 

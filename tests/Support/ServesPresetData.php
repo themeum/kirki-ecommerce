@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\Tests\Support;
 
+use Kirki\Ecommerce\App\Setup\Presets\PresetRepository;
+use Kirki\Ecommerce\Framework\Supports\Facades\Cache;
 use WP_Error;
 
 /**
@@ -26,6 +28,9 @@ trait ServesPresetData
     {
         $base_url = rtrim(constant('KIRKI_ECOMMERCE_PRESETS_URL'), '/') . '/';
         $plugin_dir = dirname(__DIR__, 2);
+
+        // Store setup commits the test transaction, so presets cached by an earlier test would survive.
+        Cache::forget(PresetRepository::cache_key($base_url));
 
         add_filter('pre_http_request', function ($reply, $args, $url) use ($base_url, $plugin_dir, $overrides) {
             if (strpos($url, $base_url) !== 0) {

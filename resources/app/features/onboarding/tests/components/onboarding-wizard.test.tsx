@@ -1,9 +1,15 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import OnboardingWizard from '@/features/onboarding/components/onboarding-wizard';
 import { DRAFT_STORAGE_KEY } from '@/features/onboarding/lib/onboarding-draft';
+
+type SampleDataState = {
+  phase: 'idle' | 'downloading' | 'done';
+  progress: number;
+};
 
 const { createStore, sampleData } = vi.hoisted(() => ({
   createStore: {
@@ -15,8 +21,8 @@ const { createStore, sampleData } = vi.hoisted(() => ({
     mutate: vi.fn(),
   },
   sampleData: {
-    phase: 'idle' as const,
     start: vi.fn(),
+    setState: (_state: SampleDataState): void => undefined,
     onLoaded: (): void => undefined,
   },
 }));
@@ -48,13 +54,23 @@ vi.mock('@/features/onboarding/services/onboarding', () => ({
   useOnboardingDefaultsQuery: () => ({ data: defaults.data, isPending: false }),
 }));
 
-vi.mock('@/features/home', () => ({
-  useSampleDataImport: ({ onLoaded }: { onLoaded: () => void }) => {
-    sampleData.onLoaded = onLoaded;
+vi.mock('@/features/home', async () => {
+  const { useState } = await vi.importActual<typeof React>('react');
 
-    return { phase: sampleData.phase, start: sampleData.start };
-  },
-}));
+  return {
+    useSampleDataImport: ({ onLoaded }: { onLoaded: () => void }) => {
+      const [state, setState] = useState<SampleDataState>({ phase: 'idle', progress: 0 });
+      sampleData.onLoaded = onLoaded;
+      sampleData.setState = setState;
+
+      return {
+        ...state,
+        start: sampleData.start,
+        isImporting: state.phase === 'downloading',
+      };
+    },
+  };
+});
 
 vi.mock('@/features/settings', () => ({
   useAllCurrenciesQuery: () => ({ data: [{ code: 'EUR', name: 'Euro', symbol: '€' }] }),
@@ -78,6 +94,8 @@ const waitForSetupReady = () =>
 
 const getProgress = () =>
   Number(document.querySelector('div[role="progressbar"]')?.getAttribute('aria-valuenow'));
+
+const getSampleDataBar = () => document.querySelector('[role="progressbar"][aria-valuetext]');
 
 const renderWizard = () =>
   render(
@@ -266,6 +284,60 @@ describe('onboarding wizard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Go to Dashboard' }));
     expect(await screen.findByText('Dashboard')).toBeInTheDocument();
+  });
+
+  it('shows a progress bar and disables the actions while the sample data loads', async () => {
+    createStore.isSuccess = true;
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+    act(() => sampleData.setState({ phase: 'downloading', progress: 46.4 }));
+
+    const sampleBar = getSampleDataBar();
+    expect(sampleBar).toHaveAttribute('aria-valuenow', '46');
+    expect(sampleBar).toHaveAttribute('aria-valuetext', 'Downloading sample data...');
+    expect(screen.getByText('Downloading sample data...')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Click here to load sample data!' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add your first product' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Go to Dashboard' })).toBeDisabled();
+
+    act(() => sampleData.setState({ phase: 'downloading', progress: 97 }));
+    expect(getSampleDataBar()).toHaveAttribute('aria-valuenow', '97');
+    expect(screen.getByText('Downloading sample data...')).toBeInTheDocument();
+    expect(screen.queryByText(/^Creating/)).not.toBeInTheDocument();
+  });
+
+  it('enables the actions when the sample data is loaded', async () => {
+    createStore.isSuccess = true;
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+    act(() => sampleData.setState({ phase: 'done', progress: 100 }));
+
+    expect(getSampleDataBar()).toHaveAttribute('aria-valuenow', '100');
+    expect(screen.getByRole('button', { name: 'Add your first product' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Go to Dashboard' })).toBeEnabled();
+  });
+
+  it('enables the actions again when the sample data fails', async () => {
+    createStore.isSuccess = true;
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+    act(() => sampleData.setState({ phase: 'downloading', progress: 30 }));
+    act(() => sampleData.setState({ phase: 'idle', progress: 0 }));
+
+    expect(screen.getByRole('button', { name: 'Click here to load sample data!' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Add your first product' })).toBeEnabled();
+    expect(screen.queryByText('Downloading sample data...')).not.toBeInTheDocument();
   });
 
   it('opens the products list when the sample data is loaded', async () => {
