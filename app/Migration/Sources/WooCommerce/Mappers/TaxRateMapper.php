@@ -99,12 +99,16 @@ class TaxRateMapper
      *
      * @param array<string, mixed> $rate The tax rate item.
      * @return void
-     * @throws SkipItemException When the rate is for a state, another class, all countries or is not a number.
+     * @throws SkipItemException When the rate is for a postcode, city, state, another class, all countries or is not a number.
      */
     protected function check(array $rate)
     {
         if ($rate['class'] !== '') {
             throw new SkipItemException(esc_html__('Only the standard tax class is migrated.', 'kirki-ecommerce'));
+        }
+
+        if (!empty($rate['has_locations'])) {
+            throw new SkipItemException(esc_html__('A rate for some postcodes or cities is not migrated.', 'kirki-ecommerce'));
         }
 
         if ($rate['country'] === '') {

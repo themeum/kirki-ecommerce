@@ -372,7 +372,7 @@ class ProductMapper
         $sale_price = $this->sale_price($meta);
         $regular = $meta['_regular_price'] ?? '';
         $regular = $regular !== '' ? $regular : ($meta['_price'] ?? '');
-        $weight = $meta['_weight'] ?? ($parent_meta['_weight'] ?? '');
+        $weight = ($meta['_weight'] ?? '') !== '' ? $meta['_weight'] : ($parent_meta['_weight'] ?? '');
         $backorders = $stock_meta['_backorders'] ?? 'no';
         $sku = trim((string) ($meta['_sku'] ?? ''));
         $thumbnail = (int) ($meta['_thumbnail_id'] ?? 0);
@@ -385,7 +385,7 @@ class ProductMapper
             'base_sale_price' => $sale_price !== null ? Money::to_minor($sale_price) : null,
             'weight' => $weight !== '' ? (float) $weight : null,
             'weight_unit' => $weight !== '' ? $this->kirki_weight_unit() : null,
-            'charge_taxes' => ($meta['_tax_status'] ?? ($parent_meta['_tax_status'] ?? 'taxable')) !== 'none',
+            'charge_taxes' => ($parent_meta['_tax_status'] ?? 'taxable') !== 'none',
             'allow_back_order' => in_array($backorders, ['yes', 'notify'], true),
             'track_inventory' => ($stock_meta['_manage_stock'] ?? 'no') === 'yes',
             'available_quantity' => max(0, (int) ($stock_meta['_stock'] ?? 0)),
@@ -401,7 +401,7 @@ class ProductMapper
     }
 
     /**
-     * Get the meta that holds the stock settings. A variation can leave stock management to its parent.
+     * Get the meta that holds the stock settings. A variation that does not manage stock follows its parent when the parent manages it.
      *
      * @since 1.0.0
      *
@@ -412,7 +412,7 @@ class ProductMapper
      */
     protected function stock_meta(array $meta, array $parent_meta, bool $is_variation)
     {
-        if ($is_variation && ($meta['_manage_stock'] ?? 'no') === 'parent') {
+        if ($is_variation && ($meta['_manage_stock'] ?? 'no') !== 'yes' && ($parent_meta['_manage_stock'] ?? 'no') === 'yes') {
             return array_merge($parent_meta, ['_stock_status' => $meta['_stock_status'] ?? ($parent_meta['_stock_status'] ?? 'instock')]);
         }
 

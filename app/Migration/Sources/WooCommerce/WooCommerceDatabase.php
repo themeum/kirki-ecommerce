@@ -145,6 +145,20 @@ class WooCommerceDatabase
     }
 
     /**
+     * Check whether the "Locations not covered by your other zones" zone has shipping methods.
+     *
+     * That zone has id 0 and no row in the zones table.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public function has_rest_of_world_methods()
+    {
+        return $this->has_table('woocommerce_shipping_zone_methods') && DB::table('woocommerce_shipping_zone_methods')->where('zone_id', 0)->exists();
+    }
+
+    /**
      * Read the next terms of a taxonomy after a term id, with their image id.
      *
      * @since 1.0.0

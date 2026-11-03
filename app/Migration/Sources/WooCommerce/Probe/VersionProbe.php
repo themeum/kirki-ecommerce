@@ -13,7 +13,7 @@ use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\WooCommerceDatabase;
  */
 class VersionProbe
 {
-    /** The lowest WooCommerce version that is read. It is the first release with the order storage tables. */
+    /** The lowest WooCommerce version that is read. It is the first release that has the order storage tables, which a store can turn on from 7.1. */
     public const MINIMUM_VERSION = '7.0.0';
 
     /** @var WooCommerceDatabase */

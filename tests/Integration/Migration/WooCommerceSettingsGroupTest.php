@@ -347,6 +347,45 @@ class WooCommerceSettingsGroupTest extends RestTestCase
     }
 
     /**
+     * A rate that applies to some postcodes or cities only is skipped, so it does not apply to the whole country.
+     *
+     * @return void
+     */
+    public function test_tax_rate_with_postcodes_is_skipped()
+    {
+        $rate = $this->tax_rate(['tax_rate_country' => 'GB', 'tax_rate' => '20']);
+        $this->insert_woo_row('woocommerce_tax_rate_locations', ['location_code' => 'SW1', 'tax_rate_id' => $rate, 'location_type' => 'postcode']);
+
+        $this->migrate();
+
+        $this->assertStringContainsString('postcodes or cities', MigrationRun::query()->first()->skipped_items[0]['reason']);
+        $this->assertSame([], Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->to_array()['tax_regions']);
+    }
+
+    /**
+     * Free shipping that needs a minimum amount or a coupon is left out, and the rest of world zone is reported.
+     *
+     * @return void
+     */
+    public function test_conditional_free_shipping_and_rest_of_world_are_not_widened()
+    {
+        Settings::get(OptionKeys::SHIPPING_SETTINGS)->refresh()->set(['shipping_zones' => []], false);
+        $zone = $this->insert_woo_row('woocommerce_shipping_zones', ['zone_name' => 'Europe', 'zone_order' => 1]);
+        $this->insert_woo_row('woocommerce_shipping_zone_locations', ['zone_id' => $zone, 'location_code' => 'DE', 'location_type' => 'country']);
+        $this->shipping_method($zone, 'free_shipping', 1, ['title' => 'Free over 50', 'requires' => 'min_amount', 'min_amount' => '50']);
+        $this->shipping_method($zone, 'free_shipping', 2, ['title' => 'Free', 'requires' => '']);
+        $this->shipping_method(0, 'flat_rate', 3, ['title' => 'Everywhere', 'cost' => '9']);
+
+        $progress = $this->migrate();
+
+        $zones = Settings::get(OptionKeys::SHIPPING_SETTINGS)->refresh()->to_array()['shipping_zones'];
+        $this->assertCount(1, $zones);
+        $this->assertSame(['Free'], array_column($zones[0]['shipping_methods'], 'name'));
+        $this->assertStringContainsString('needs a minimum amount or a coupon', implode(' ', $progress['notes']));
+        $this->assertStringContainsString('no zone for locations that no other zone covers', implode(' ', array_column(MigrationRun::query()->first()->skipped_items, 'reason')));
+    }
+
+    /**
      * A zone with no whole-country location is skipped, so it does not ship to a wider area.
      *
      * @return void

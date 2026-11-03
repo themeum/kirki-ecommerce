@@ -253,6 +253,7 @@ class SettingsReader
         }
 
         $items = [];
+        $located = $this->database->has_table('woocommerce_tax_rate_locations');
 
         foreach (DB::table('woocommerce_tax_rates')->where('tax_rate_id', '>', $after)->order_by('tax_rate_id')->limit($limit)->get() as $row) {
             $row = (array) $row;
@@ -265,6 +266,7 @@ class SettingsReader
                 'name' => (string) $row['tax_rate_name'],
                 'class' => (string) $row['tax_rate_class'],
                 'applies_to_shipping' => (int) $row['tax_rate_shipping'] === 1,
+                'has_locations' => $located && DB::table('woocommerce_tax_rate_locations')->where('tax_rate_id', (int) $row['tax_rate_id'])->exists(),
             ];
         }
 
@@ -288,7 +290,18 @@ class SettingsReader
 
         $items = [];
 
-        foreach (DB::table('woocommerce_shipping_zones')->where('zone_id', '>', $after)->order_by('zone_id')->limit($limit)->get() as $row) {
+        if ($after === 0 && $limit > 0 && $this->database->has_rest_of_world_methods()) {
+            $items[] = [
+                'id' => static::ZONE_OFFSET,
+                'kind' => 'shipping_zone',
+                'name' => __('Locations not covered by your other zones', 'kirki-ecommerce'),
+                'locations' => [],
+                'methods' => $this->zone_methods(0),
+                'rest_of_world' => true,
+            ];
+        }
+
+        foreach (DB::table('woocommerce_shipping_zones')->where('zone_id', '>', $after)->order_by('zone_id')->limit($limit - count($items))->get() as $row) {
             $row = (array) $row;
             $zone_id = (int) $row['zone_id'];
             $items[] = [

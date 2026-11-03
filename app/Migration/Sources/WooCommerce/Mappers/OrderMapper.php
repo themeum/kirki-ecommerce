@@ -10,7 +10,7 @@ use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Migration\Core\RecordLedger;
 use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Constants\WooCommerceOrderStatus;
-use Kirki\Ecommerce\App\Models\Coupon;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 /**
  * Maps one normalized WooCommerce order to the rows Kirki saves for an order.
@@ -115,7 +115,7 @@ class OrderMapper
             ],
             'items' => $items,
             'taxes' => $this->taxes($source, $currency),
-            'coupons' => $this->coupons($source, $currency, $inclusive),
+            'coupons' => $this->coupons($source, $currency, $inclusive, $ledger),
             'notes' => $this->activity_notes($source),
             'refunds' => $this->refunds($source, $currency),
             'notes_for_report' => $notes,
@@ -271,26 +271,27 @@ class OrderMapper
     }
 
     /**
-     * Map the coupon lines of an order, matching each to the Kirki coupon with the same code.
+     * Map the coupon lines of an order, matching each to the Kirki coupon that the migration made from it.
      *
      * @since 1.0.0
      *
      * @param array<string, mixed> $source    The normalized order.
      * @param string               $currency  The order currency.
      * @param bool                 $inclusive Whether prices include tax.
+     * @param RecordLedger         $ledger    The links between source and Kirki records.
      * @return array<int, array<string, mixed>>
      */
-    protected function coupons(array $source, string $currency, bool $inclusive)
+    protected function coupons(array $source, string $currency, bool $inclusive, RecordLedger $ledger)
     {
         $coupons = [];
 
         foreach ($this->lines_of($source, 'coupon') as $line) {
             $discount = (float) ($line['meta']['discount_amount'] ?? 0) + ($inclusive ? (float) ($line['meta']['discount_amount_tax'] ?? 0) : 0);
-            $coupon = Coupon::query()->where('code', $line['name'])->first();
+            $coupon_id = $this->migrated_coupon_id($line['name'], $ledger);
 
             $coupons[] = array_merge(
                 [
-                    'coupon_id' => $coupon ? (int) $coupon->id : null,
+                    'coupon_id' => $coupon_id,
                     'code' => $line['name'],
                     'title' => $line['name'],
                     'coupon_snapshot' => ['source' => 'woocommerce', 'code' => $line['name']],
@@ -300,6 +301,22 @@ class OrderMapper
         }
 
         return $coupons;
+    }
+
+    /**
+     * Get the Kirki coupon made from the WooCommerce coupon with a code. The code can differ in Kirki when it was already used.
+     *
+     * @since 1.0.0
+     *
+     * @param string       $code   The coupon code in WooCommerce.
+     * @param RecordLedger $ledger The links between source and Kirki records.
+     * @return int|null Null when that coupon was not migrated.
+     */
+    protected function migrated_coupon_id(string $code, RecordLedger $ledger)
+    {
+        $post = DB::table('posts')->where('post_type', 'shop_coupon')->where('post_title', $code)->first();
+
+        return $post ? $ledger->resolve('coupon', (int) ((array) $post)['ID']) : null;
     }
 
     /**

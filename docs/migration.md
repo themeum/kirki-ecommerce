@@ -187,10 +187,20 @@ for the migration:
   location that is a state, continent or postcode is left out, and a zone with no
   whole-country location is skipped. The state of the store address is not copied.
 - **Tax classes.** Only the standard tax class becomes a tax region. Rates of other
-  classes are skipped. Several rates of one country are added into one rate.
+  classes are skipped. A rate that applies to some postcodes or cities only is also
+  skipped, because it would apply to the whole country. Several rates of one country
+  are added into one rate.
 - **Shipping.** Flat rate, free shipping and local pickup are kept. A flat rate cost
-  that is a formula is saved as 0 with a note. Shipping classes and other methods
-  are not migrated.
+  that is a formula is saved as 0 with a note. A free shipping method that needs a
+  minimum amount or a coupon is left out with a note, because Kirki would make it free
+  for everyone. The zone for locations that no other zone covers has no Kirki
+  equivalent, so its methods are skipped. Shipping classes and other methods are not
+  migrated.
+- **Variations.** A variation that has no stock management, weight or tax status of
+  its own follows its parent, as in WooCommerce. The tax status always comes from the
+  parent product.
+- **Order coupons.** An order keeps its link to the coupon that the migration made
+  from the WooCommerce coupon, also when the code got a suffix.
 - **Coupons.** Kirki has no maximum spend, exclude sale items, individual use, item
   limit or excluded products and categories. They are listed in a note. Kirki limits
   a coupon to products or to categories, not both.

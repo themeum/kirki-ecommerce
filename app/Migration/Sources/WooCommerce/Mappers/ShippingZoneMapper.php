@@ -31,6 +31,10 @@ class ShippingZoneMapper
      */
     public function map(array $zone)
     {
+        if (!empty($zone['rest_of_world'])) {
+            throw new SkipItemException(esc_html__('Kirki eCommerce has no zone for locations that no other zone covers. Its shipping methods are not migrated.', 'kirki-ecommerce'));
+        }
+
         $notes = [];
         $regions = $this->regions($zone, $notes);
 
@@ -110,6 +114,15 @@ class ShippingZoneMapper
                     __('Zone "%1$s": the shipping method "%2$s" is not supported and was left out.', 'kirki-ecommerce'),
                     $zone['name'],
                     $type
+                );
+                continue;
+            }
+
+            if ($type === 'free_shipping' && ($settings['requires'] ?? '') !== '') {
+                $notes[] = sprintf(
+                    /* translators: %s: zone name */
+                    __('Zone "%s": a free shipping method that needs a minimum amount or a coupon was left out, because it would be free for everyone.', 'kirki-ecommerce'),
+                    $zone['name']
                 );
                 continue;
             }

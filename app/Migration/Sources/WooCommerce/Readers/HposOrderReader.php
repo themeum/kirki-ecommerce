@@ -60,7 +60,7 @@ class HposOrderReader extends AbstractOrderReader
                 'date_completed_gmt' => $this->date($data['date_completed_gmt'] ?? null),
                 'customer_user_id' => (int) $row['customer_id'],
                 'order_total' => $this->amount($row['total_amount']),
-                'cart_tax' => $this->amount((float) $row['tax_amount'] - (float) $shipping_tax),
+                'cart_tax' => $this->amount($row['tax_amount']),
                 'shipping_total' => $this->amount($data['shipping_total_amount'] ?? 0),
                 'shipping_tax' => $shipping_tax,
                 'discount_total' => $this->amount($data['discount_total_amount'] ?? 0),

@@ -87,7 +87,7 @@ class SettingsGroup extends WooCommerceGroup
      */
     public function count()
     {
-        return 1 + $this->database->count_tax_rates() + $this->database->count_shipping_zones();
+        return 1 + $this->database->count_tax_rates() + $this->database->count_shipping_zones() + ($this->database->has_rest_of_world_methods() ? 1 : 0);
     }
 
     /**

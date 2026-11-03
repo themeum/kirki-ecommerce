@@ -228,6 +228,27 @@ class WooCommerceOrdersGroupTest extends RestTestCase
     }
 
     /**
+     * A coupon line links to the coupon the migration made, even when its code was changed because Kirki already had it.
+     *
+     * @return void
+     */
+    public function test_coupon_line_links_to_the_renamed_coupon()
+    {
+        Coupon::create(['title' => 'SAVE5', 'code' => 'SAVE5', 'discount_type' => 'amount_off_order', 'discount_target' => 'order', 'discount_value_type' => 'fixed_amount', 'eligible_item_type' => 'all_products', 'is_active' => true]);
+        $coupon = $this->woo_product(['post_type' => 'shop_coupon', 'post_title' => 'SAVE5'], ['discount_type' => 'fixed_cart', 'coupon_amount' => '5']);
+        $order_id = $this->legacy_order($this->order_attributes([]), [
+            ['type' => 'coupon', 'name' => 'SAVE5', 'meta' => ['discount_amount' => '5', 'discount_amount_tax' => '0']],
+        ], [], []);
+
+        $this->migrate(['coupons', 'orders']);
+
+        $map = new RecordLedger('woocommerce');
+        $order_coupon = OrderCoupon::query()->where('order_id', $map->resolve('order', $order_id))->first();
+        $this->assertSame($map->resolve('coupon', $coupon), (int) $order_coupon->coupon_id);
+        $this->assertSame('SAVE5-2', Coupon::find($order_coupon->coupon_id)->code);
+    }
+
+    /**
      * A line that points to a product that is not in Kirki is saved with its name and SKU, and reported.
      *
      * @return void
@@ -491,7 +512,7 @@ class WooCommerceOrdersGroupTest extends RestTestCase
 
         $this->insert_woo_row('wc_orders', [
             'id' => $id, 'status' => $order['status'], 'currency' => $order['currency'], 'type' => 'shop_order',
-            'tax_amount' => (string) ((float) $order['cart_tax'] + (float) $order['shipping_tax']), 'total_amount' => $order['order_total'],
+            'tax_amount' => (string) $order['cart_tax'], 'total_amount' => $order['order_total'],
             'customer_id' => $order['customer_user_id'], 'billing_email' => $order['billing']['email'], 'date_created_gmt' => $order['date_created'],
             'date_updated_gmt' => $order['date_modified'], 'payment_method' => $order['payment_method'], 'payment_method_title' => $order['payment_method_title'],
             'transaction_id' => $order['transaction_id'], 'customer_note' => $order['customer_note'],

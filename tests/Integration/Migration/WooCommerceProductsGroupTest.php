@@ -183,6 +183,34 @@ class WooCommerceProductsGroupTest extends RestTestCase
     }
 
     /**
+     * A variation with no stock, weight or tax status of its own follows the parent, as it does in WooCommerce.
+     *
+     * @return void
+     */
+    public function test_variation_follows_the_parent_for_stock_weight_and_tax()
+    {
+        $id = $this->woo_product(['post_title' => 'Poster'], [
+            '_product_attributes' => ['color' => ['name' => 'Color', 'value' => 'Red | Blue', 'position' => 0, 'is_visible' => 1, 'is_variation' => 1, 'is_taxonomy' => 0]],
+            '_manage_stock' => 'yes', '_stock' => '9', '_weight' => '2', '_tax_status' => 'none',
+        ]);
+        wp_set_object_terms($id, ['variable'], 'product_type');
+        $this->woo_product(['post_title' => 'Poster Red', 'post_type' => 'product_variation', 'post_parent' => $id], ['_regular_price' => '10', 'attribute_color' => 'Red', '_manage_stock' => 'no', '_weight' => '', '_tax_status' => 'taxable']);
+        $this->woo_product(['post_title' => 'Poster Blue', 'post_type' => 'product_variation', 'post_parent' => $id], ['_regular_price' => '10', 'attribute_color' => 'Blue', '_manage_stock' => 'yes', '_stock' => '4', '_weight' => '3']);
+
+        $this->migrate(['attributes', 'products']);
+
+        $map = new RecordLedger('woocommerce');
+        $variants = Variant::query()->where('product_id', $map->resolve('product', $id))->order_by('id')->get();
+
+        $this->assertTrue((bool) $variants[0]->track_inventory);
+        $this->assertSame(9, (int) $variants[0]->available_quantity);
+        $this->assertEquals(2, $variants[0]->weight);
+        $this->assertFalse((bool) $variants[0]->charge_taxes);
+        $this->assertSame(4, (int) $variants[1]->available_quantity);
+        $this->assertEquals(3, $variants[1]->weight);
+    }
+
+    /**
      * A product-level custom attribute creates a Kirki attribute by name and reuses it for the next product.
      *
      * @return void
