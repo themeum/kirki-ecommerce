@@ -83,6 +83,7 @@ class ProductSeeder
         $this->set = $catalog['set'];
         $category_ids = $this->ensure_categories($catalog['categories'] ?? []);
         $tag_ids = $this->ensure_tags($catalog['tags'] ?? []);
+        $this->prefetch_images($catalog['products']);
         $action = app()->make(CreateProductAction::class);
         $created = 0;
 
@@ -176,6 +177,36 @@ class ProductSeeder
         }
 
         return $ids;
+    }
+
+    /**
+     * Download the images of every product that will be created, all at once.
+     *
+     * Products the store already has are left out. The attachments fill the
+     * per-request cache that import() reads.
+     *
+     * @since 1.0.0
+     *
+     * @param array<int, array<string, mixed>> $products Sample products.
+     * @return void
+     */
+    protected function prefetch_images(array $products)
+    {
+        $urls = [];
+
+        foreach ($products as $product) {
+            if ($this->exists($product)) {
+                continue;
+            }
+
+            $filenames = array_merge($product['images'] ?? [], array_filter(array_column($product['variants'] ?? [], 'image')));
+
+            foreach ($filenames as $filename) {
+                $urls[] = $this->presets->get_image_url($this->set, $filename);
+            }
+        }
+
+        $this->attachments = array_merge($this->attachments, $this->importer->import_urls($urls, $this->presets->get_base_url()));
     }
 
     /**

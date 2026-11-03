@@ -430,6 +430,36 @@ class StorePresetsTest extends RestTestCase
         $this->assertFalse(Coupon::query()->exists());
     }
 
+    public function test_failed_presets_read_with_good_products_creates_nothing(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->serve_preset_data(['presets.json' => 500]);
+        app()->instance(PresetRepository::class, new PresetRepository());
+
+        try {
+            $this->assert_api_error($this->request('POST', 'onboarding/sample-data'), 503);
+        } finally {
+            static::forget_singleton(PresetRepository::class);
+        }
+
+        $this->assertFalse(Product::query()->exists());
+        $this->assertFalse(Category::query()->exists());
+        $this->assertFalse(Coupon::query()->exists());
+    }
+
+    public function test_sample_data_after_store_setup_reads_the_presets_from_the_cache(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        static::forget_singleton(PresetRepository::class);
+        $this->preset_requests = [];
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame(5, Product::query()->count());
+        $this->assertContains('fashion-and-apparel/products.json', $this->preset_requests);
+        $this->assertNotContains('presets.json', $this->preset_requests);
+    }
+
     public function test_failed_images_still_create_the_products(): void
     {
         $this->setup_store(['industry' => 'fashion-and-apparel']);
@@ -447,6 +477,85 @@ class StorePresetsTest extends RestTestCase
 
         $this->assertSame(5, Product::query()->count());
         $this->assertEmpty(Product::query()->where('slug', 'canvas-tote-bag')->first()->media()->get()->all());
+    }
+
+    public function test_sample_images_are_requested_once_before_any_product(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->delete_sample_attachments();
+        $products_at_request = [];
+
+        add_filter('pre_http_request', function ($reply, $args, $url) use (&$products_at_request) {
+            if (strpos($url, '/images/') !== false) {
+                $products_at_request[] = Product::query()->count();
+            }
+
+            return $reply;
+        }, 1, 3);
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertCount(22, $this->image_requests());
+        $this->assertSame($this->image_requests(), array_values(array_unique($this->image_requests())));
+        $this->assertSame([0], array_values(array_unique($products_at_request)));
+        $this->assertSame(5, Product::query()->count());
+    }
+
+    public function test_a_second_load_reuses_the_imported_images(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->delete_sample_attachments();
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+        Variant::query()->delete();
+        Product::query()->delete();
+        $this->preset_requests = [];
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame([], $this->image_requests());
+        $this->assertCount(4, Product::query()->where('slug', 'canvas-tote-bag')->first()->media()->get()->all());
+    }
+
+    public function test_a_skipped_product_gets_no_image_request(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->delete_sample_attachments();
+        app()->make(CreateProductAction::class)->execute(
+            CreateProductDTO::from_array(['title' => 'Mine', 'slug' => 'mine', 'status' => 'published']),
+            [CreateVariantDTO::from_array(['sku' => 'SMP-FSH-CTB', 'base_price' => 100, 'is_default' => true])]
+        );
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertCount(18, $this->image_requests());
+        $this->assertEmpty(array_filter($this->image_requests(), fn($path) => strpos($path, 'canvas-tote-bag') !== false));
+    }
+
+    /**
+     * Delete the sample images that earlier tests imported.
+     *
+     * Store setup commits the test's transaction, so attachments of earlier
+     * tests survive and would be reused instead of requested.
+     *
+     * @return void
+     */
+    protected function delete_sample_attachments(): void
+    {
+        $imported = get_posts(['post_type' => 'attachment', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => MediaImporter::SOURCE_META_KEY]);
+
+        foreach ($imported as $attachment_id) {
+            wp_delete_attachment($attachment_id, true);
+        }
+    }
+
+    /**
+     * Get the image paths requested from the preset location, in order.
+     *
+     * @return string[]
+     */
+    protected function image_requests(): array
+    {
+        return array_values(array_filter($this->preset_requests, fn($path) => strpos($path, '/images/') !== false));
     }
 
     public function test_one_default_shipping_and_tax_profile_each(): void

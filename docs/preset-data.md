@@ -197,6 +197,13 @@ names an image that is not uploaded yet. JSON files get
 `Content-Type: application/json` and `Cache-Control: max-age=60`. Nothing is
 deleted from the bucket.
 
+A site keeps a `presets.json` that it read for 1 hour (see
+[`docs/onboarding.md`](onboarding.md#41-where-the-data-comes-from)). A site that
+read the file in the hour before a publish gets the new file only after that hour
+ends. To test a publish on such a site at once, delete its cached copy, for
+example with `wp eval 'Kirki\Ecommerce\Framework\Supports\Facades\Cache::forget(Kirki\Ecommerce\App\Setup\Presets\PresetRepository::cache_key(KIRKI_ECOMMERCE_PRESETS_URL));'`.
+Products files and images are not cached by the plugin.
+
 | Variable | Default | Meaning |
 |---|---|---|
 | `PRESETS_S3_ENDPOINT` | empty (AWS S3) | Another S3-compatible endpoint, for example a test bucket. |

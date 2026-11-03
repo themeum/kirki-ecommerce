@@ -23,6 +23,13 @@ class MediaImporter
     const SOURCE_META_KEY = '_kirki_ecommerce_sample_image_url';
 
     /**
+     * The maximum number of image downloads in flight at once.
+     *
+     * Every industry names 22 sample images, so one load is one batch.
+     */
+    const CONCURRENCY = 25;
+
+    /**
      * Download an image into the WordPress media library.
      *
      * Returns null rather than throwing on any failure, so a store that cannot
@@ -36,23 +43,65 @@ class MediaImporter
      */
     public function import_url(string $url, string $base_url)
     {
-        $existing = $this->find_existing($url);
+        return $this->import_urls([$url], $base_url)[$url];
+    }
 
-        if ($existing) {
-            return $existing;
+    /**
+     * Download several images into the WordPress media library at the same time.
+     *
+     * An image imported earlier from the same URL is reused, and an untrusted
+     * URL is skipped; neither is requested. The other images are requested
+     * together, then stored one by one. A failed download gives null for that
+     * image only.
+     *
+     * @since 1.0.0
+     *
+     * @param string[] $urls     The image URLs.
+     * @param string   $base_url The base URL the images must belong to.
+     * @return array<string, int|null> Attachment IDs keyed by URL, null where the import failed.
+     */
+    public function import_urls(array $urls, string $base_url)
+    {
+        $results = [];
+        $pending = [];
+
+        foreach (array_unique($urls) as $url) {
+            $results[$url] = $this->find_existing($url);
+
+            if ($results[$url] === null && RemoteUrl::is_trusted($url, $base_url)) {
+                $pending[] = $url;
+            }
         }
 
-        if (!RemoteUrl::is_trusted($url, $base_url)) {
-            return null;
+        if (empty($pending)) {
+            return $results;
         }
 
-        $response = Http::timeout(15)->get($url);
-        $contents = $response->successful() ? $response->body() : '';
+        $responses = Http::pool(function ($pool) use ($pending) {
+            foreach ($pending as $url) {
+                $pool->as($url)->timeout(15)->get($url);
+            }
+        }, ['concurrency' => static::CONCURRENCY]);
 
-        if ($contents === '') {
-            return null;
+        foreach ($pending as $url) {
+            $contents = $responses[$url]->successful() ? $responses[$url]->body() : '';
+            $results[$url] = $contents !== '' ? $this->store($url, $contents) : null;
         }
 
+        return $results;
+    }
+
+    /**
+     * Write a downloaded image to the uploads folder and register it as an attachment.
+     *
+     * @since 1.0.0
+     *
+     * @param string $url      The image URL, recorded as the attachment's source.
+     * @param string $contents The image file contents.
+     * @return int|null The attachment ID, or null when the file could not be stored.
+     */
+    protected function store(string $url, string $contents)
+    {
         $filename = sanitize_file_name(rawurldecode(basename((string) wp_parse_url($url, PHP_URL_PATH))));
         $upload = wp_upload_bits($filename, null, $contents);
 

@@ -184,6 +184,12 @@ The plugin requests only an `https://` URL, or an `http://` URL on `localhost`,
 `127.0.0.1`, `host.docker.internal` or a `.test` host. The file must carry a
 `version` that the plugin supports (currently `2`).
 
+**Kept for one hour.** A successful read is kept in the plugin cache for 1 hour,
+under a key for the base URL (`PresetRepository::cache_key()`). Store setup and
+sample data loading in that hour use the kept copy and do not request the file.
+A failed read is not kept. So a newly published `presets.json` reaches a store
+that read the file in the last hour only after that hour ends.
+
 **Failures are silent.** When the request fails, the URL is not trusted, the
 status is not 2xx, the body is not JSON, or the version is not supported, nothing
 is written and the failure is logged with the URL and the status. Store setup
@@ -323,9 +329,11 @@ products list opens. When it fails, an error toast shows and the link comes back
 
 The import calls `POST /wp-json/kirki/ecommerce/v1/onboarding/sample-data`,
 which is only available after onboarding. It reads two files from the preset
-location (section 4.1): `<industry>/products.json` and `presets.json`. A store
+location (section 4.1): `<industry>/products.json` and `presets.json`. It uses
+the kept copy of `presets.json` when store setup read it in the last hour, and
+otherwise requests the two files at the same time. A store
 whose industry is *Other*, or whose industry has no products file (S3 answers 404
-or 403), gets the `other` set, `other/products.json`. A products file holds the
+or 403), gets the `other` set, `other/products.json`, with one more request. A products file holds the
 industry's categories, tags and products. Every industry has five sample products:
 a simple product, a product with variants, a product on sale, a product with an
 order limit or unit pricing, and a product with mixed stock levels. Their titles
@@ -335,6 +343,15 @@ First, the import **finds or creates the categories and tags** of the file, by
 slug. A new category is created under its parent, with its level. A category or
 tag that the store already has with the same slug (made by the merchant, or
 brought in by the WooCommerce migration) is reused and never changed.
+
+Next, the import **downloads the images** of all the products it will create
+(the product images and the variant images) from `<industry>/images/` into the
+media library. It sends the requests at the same time, up to 25 at once, so the
+22 images of an industry take about as long as the slowest one. Each URL is
+requested one time. An image that an earlier load already downloaded (matched by
+its full URL) is reused and not requested. The images of a product that the store
+already has (step 1 below) are not requested. An image that fails to download is
+left out, and its product is still created.
 
 Then, for each product, the import:
 
@@ -346,22 +363,18 @@ Then, for each product, the import:
    value is created with the hex code of the industry's `color` entry. A missing
    attribute is created the same way. Existing attributes and values are reused
    and never changed.
-4. **Downloads the images** from `<industry>/images/` into the media library. An
-   image that an earlier load already downloaded (matched by its full URL) is
-   reused. An image that fails to download is left out, and the product is still
-   created.
-5. **Creates the product**, published, with the slug of the file, its ribbon,
-   descriptions and variants. Each variant gets its SKU, price, sale price, cost,
-   stock, low-stock threshold, backorder setting, order limit, weight in grams and
-   unit price (for example *per 100 g*).
+4. **Creates the product**, published, with the slug of the file, its ribbon,
+   descriptions, images and variants. Each variant gets its SKU, price, sale price,
+   cost, stock, low-stock threshold, backorder setting, order limit, weight in
+   grams, image and unit price (for example *per 100 g*).
 
 Prices in the data are numbers such as `"38.00"`. They are used in the store's
 base currency, with no exchange rate: 38.00 is 38.00 EUR in a euro store and
 ¥38 in a yen store.
 
 Each product is created on its own, so a load that was cut off (for example by a
-PHP time limit on slow image downloads) can run again and creates only the
-products that are missing. A product that fails is logged, and the next one still
+PHP time limit on a slow network) can run again and creates only the products
+that are missing. The images that the first load already stored are reused. A product that fails is logged, and the next one still
 runs. When the products file or `presets.json` cannot be read, the request fails
 with `503` and creates nothing, not even a category.
 
