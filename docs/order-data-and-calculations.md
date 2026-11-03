@@ -34,7 +34,7 @@ what happens today when an order is edited. Section 9 lists the decisions we nee
 ## 2. Five ideas to know first
 
 **Money is saved as whole numbers (cents).**
-$25.00 is saved as `2500`. This avoids rounding errors. In this page we write the number and the dollar value together, for example `2500` ($25.00).
+$25.00 is saved as `2500`. This avoids rounding errors. In this page we write the number and the dollar value together, for example `2500` ($25.00). Each money column is a signed 64-bit integer (`BIGINT`), so a large amount in a currency with a small unit, such as IDR, is never cut off.
 
 **`base_` and `invoiced_` columns.**
 
