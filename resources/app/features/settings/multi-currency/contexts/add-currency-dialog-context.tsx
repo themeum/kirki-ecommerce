@@ -8,10 +8,14 @@ const AddCurrencyDialogContext = createContext<UseAddCurrencyDialogProps | null>
 
 type AddCurrencyDialogProviderProps = {
   children: ReactNode;
+  isSelectingBaseCurrency?: boolean;
 };
 
-const AddCurrencyDialogProvider = ({ children }: AddCurrencyDialogProviderProps) => {
-  const dialog = useAddCurrencyDialog();
+const AddCurrencyDialogProvider = ({
+  children,
+  isSelectingBaseCurrency = false,
+}: AddCurrencyDialogProviderProps) => {
+  const dialog = useAddCurrencyDialog({ isSelectingBaseCurrency });
 
   const value = useMemo<UseAddCurrencyDialogProps>(() => dialog, [dialog]);
 

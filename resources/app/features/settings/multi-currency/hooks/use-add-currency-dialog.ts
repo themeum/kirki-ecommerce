@@ -8,6 +8,7 @@ import { getSearchedValue } from '@/features/settings/lib/utils';
 import {
   filterUnaddedCurrencies,
   resolveSearchInputValue,
+  selectBaseCurrency,
   toggleCurrencySelection,
 } from '@/features/settings/multi-currency/lib/currency-selection';
 import type {
@@ -44,9 +45,16 @@ export type UseAddCurrencyDialogProps = {
   handleClosePopup: () => void;
   handleSubmit: (values: AddCurrencyPopupFormPayload) => void;
   handleCloseAutoFocus: (event: Event) => void;
+  isSelectingBaseCurrency?: boolean;
 };
 
-export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
+type UseAddCurrencyDialogOptions = {
+  isSelectingBaseCurrency?: boolean;
+};
+
+export const useAddCurrencyDialog = ({
+  isSelectingBaseCurrency = false,
+}: UseAddCurrencyDialogOptions = {}): UseAddCurrencyDialogProps => {
   const [openPopup, setOpenPopup] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const [step, setStep] = useState<AddCurrencyStep>('select');
@@ -81,7 +89,7 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
   }, [openPopup, form]);
 
   const baseCurrencyCode = useMemo(() => {
-    return formCurrencies?.find((currency) => currency.is_base)?.code ?? 'USD';
+    return formCurrencies?.find((currency) => currency.is_base)?.code ?? '';
   }, [formCurrencies]);
 
   const allCurrency = useMemo(() => {
@@ -97,10 +105,10 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
 
   const handleSelectCurrencies = useCallback(
     (currency: CurrencyOption) => {
-      const next = toggleCurrencySelection(formSelected, currency);
-      form.setValue('selectedCurrencies', next, { shouldDirty: true });
+      const select = isSelectingBaseCurrency ? selectBaseCurrency : toggleCurrencySelection;
+      form.setValue('selectedCurrencies', select(formSelected, currency), { shouldDirty: true });
     },
-    [form, formSelected],
+    [form, formSelected, isSelectingBaseCurrency],
   );
 
   const handleSearchCurrency = (event: unknown) => {
@@ -160,5 +168,6 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
     handleClosePopup,
     handleSubmit,
     handleCloseAutoFocus,
+    isSelectingBaseCurrency,
   };
 };
