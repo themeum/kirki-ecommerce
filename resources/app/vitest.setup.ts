@@ -8,6 +8,7 @@
 // a request even before MSW gets a chance to intercept it.
 (window as { kirki_ecommerce?: Record<string, unknown> }).kirki_ecommerce ??= {
   site_url: 'https://example.test',
+  site_title: 'Example Site',
   rest_url_base: 'https://example.test/wp-json/kirki/ecommerce/v1',
   rest_nonce: 'test-nonce',
   version: 'test',

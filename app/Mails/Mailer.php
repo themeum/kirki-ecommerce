@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use InvalidArgumentException;
 use Kirki\Ecommerce\App\Contracts\Mailable;
 use Kirki\Ecommerce\App\Parsers\ShortcodeParser;
+use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 use function Kirki\Ecommerce\Framework\collection;
@@ -191,6 +192,8 @@ abstract class Mailer implements Mailable
     public function get_variables()
     {
         $general_settings = Settings::get('general');
+        $country_code = $general_settings->get('store_address.country');
+        $state_id = $general_settings->get('store_address.state');
 
         $settings = Settings::get('email');
         $heading = $this->get_email_settings_value('heading');
@@ -201,6 +204,7 @@ abstract class Mailer implements Mailable
             'body' => $body,
             'additional_description' => $settings->get('default_template.additional_description') ?? '',
             'footer' => $settings->get('default_template.footer') ?? '',
+            'site_title' => get_bloginfo('name'),
             'store_name' => $general_settings->get('store_name'),
             'store_email' => $general_settings->get('store_email'),
             'store_phone' => $general_settings->get('store_phone'),
@@ -208,8 +212,8 @@ abstract class Mailer implements Mailable
                 'address_line_1' => $general_settings->get('store_address.address_line_1'),
                 'address_line_2' => $general_settings->get('store_address.address_line_2'),
                 'city' => $general_settings->get('store_address.city'),
-                'state' => $general_settings->get('store_address.state'),
-                'country' => $general_settings->get('store_address.country'),
+                'state' => CountryData::get_state_name((string) $country_code, $state_id) ?? $state_id,
+                'country' => CountryData::get_country_name((string) $country_code) ?? $country_code,
                 'postal_code' => $general_settings->get('store_address.postal_code'),
             ])->filter(fn($value) => !empty($value))->join(', '),
         ];

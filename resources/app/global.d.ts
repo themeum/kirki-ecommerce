@@ -12,6 +12,7 @@ import '@tanstack/react-table';
 
 type KirkiEcommerceConfig = {
   site_url: string;
+  site_title: string;
   rest_url_base: string;
   rest_nonce: string;
   version: string;
