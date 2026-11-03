@@ -1,5 +1,10 @@
 import { type CSSObject } from '@emotion/react';
-import { forwardRef, type HTMLAttributes, type TdHTMLAttributes, type ThHTMLAttributes } from 'react';
+import {
+  forwardRef,
+  type HTMLAttributes,
+  type TdHTMLAttributes,
+  type ThHTMLAttributes,
+} from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
@@ -12,18 +17,18 @@ type TableProps = Omit<HTMLAttributes<HTMLTableElement>, 'css'> & {
 };
 
 const Table = forwardRef<HTMLTableElement, TableProps>((props, ref) => {
-  const {
-    density = 'default',
-    fixed,
-    cssOverride,
-    ...rest
-  } = props;
+  const { density = 'default', fixed, cssOverride, ...rest } = props;
 
   return (
     <div data-slot="table-container" css={scoped(styles.container)}>
       <table
         ref={ref}
-        css={scopedMerge(styles.base, styles.densities[density], fixed && styles.fixed, cssOverride)}
+        css={scopedMerge(
+          styles.base,
+          styles.densities[density],
+          fixed && styles.fixed,
+          cssOverride,
+        )}
         {...rest}
       />
     </div>
@@ -32,20 +37,15 @@ const Table = forwardRef<HTMLTableElement, TableProps>((props, ref) => {
 
 Table.displayName = 'Table';
 
-type TableHeaderProps = Omit<
-  HTMLAttributes<HTMLTableSectionElement>,
-  'css'
-> & {
+type TableHeaderProps = Omit<HTMLAttributes<HTMLTableSectionElement>, 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return <thead ref={ref} css={scopedMerge(cssOverride)} {...rest} />;
-  },
-);
+  return <thead ref={ref} css={scopedMerge(cssOverride)} {...rest} />;
+});
 
 TableHeader.displayName = 'TableHeader';
 
@@ -53,32 +53,23 @@ type TableBodyProps = Omit<HTMLAttributes<HTMLTableSectionElement>, 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return <tbody ref={ref} css={scopedMerge(cssOverride)} {...rest} />;
-  },
-);
+  return <tbody ref={ref} css={scopedMerge(cssOverride)} {...rest} />;
+});
 
 TableBody.displayName = 'TableBody';
 
-type TableFooterProps = Omit<
-  HTMLAttributes<HTMLTableSectionElement>,
-  'css'
-> & {
+type TableFooterProps = Omit<HTMLAttributes<HTMLTableSectionElement>, 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const TableFooter = forwardRef<HTMLTableSectionElement, TableFooterProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const TableFooter = forwardRef<HTMLTableSectionElement, TableFooterProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <tfoot ref={ref} css={scopedMerge(styles.footer, cssOverride)} {...rest} />
-    );
-  },
-);
+  return <tfoot ref={ref} css={scopedMerge(styles.footer, cssOverride)} {...rest} />;
+});
 
 TableFooter.displayName = 'TableFooter';
 
@@ -87,106 +78,88 @@ type TableRowProps = Omit<HTMLAttributes<HTMLTableRowElement>, 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
-  (props, ref) => {
-    const { active, cssOverride, ...rest } = props;
+const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>((props, ref) => {
+  const { active, cssOverride, ...rest } = props;
 
-    return (
-      <tr
-        ref={ref}
-        data-active={active ? 'true' : undefined}
-        css={scopedMerge(cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <tr
+      ref={ref}
+      data-active={active ? 'true' : undefined}
+      css={scopedMerge(cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 TableRow.displayName = 'TableRow';
 
-type TableHeadProps = Omit<
-  ThHTMLAttributes<HTMLTableCellElement>,
-  'css'
-> & {
+type TableHeadProps = Omit<ThHTMLAttributes<HTMLTableCellElement>, 'css'> & {
   onlyCheckbox?: boolean;
   alignment?: TableAlignment;
   cssOverride?: CSSObject;
 };
 
-const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>(
-  (props, ref) => {
-    const { onlyCheckbox, alignment, cssOverride, ...rest } = props;
+const TableHead = forwardRef<HTMLTableCellElement, TableHeadProps>((props, ref) => {
+  const { onlyCheckbox, alignment, cssOverride, ...rest } = props;
 
-    return (
-      <th
-        ref={ref}
-        data-only-checkbox={onlyCheckbox ? 'true' : undefined}
-        css={scopedMerge(styles.head, onlyCheckbox && styles.onlyCheckbox, alignment && styles.headAlignments[alignment], cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <th
+      ref={ref}
+      data-only-checkbox={onlyCheckbox ? 'true' : undefined}
+      css={scopedMerge(
+        styles.head,
+        onlyCheckbox && styles.onlyCheckbox,
+        alignment && styles.headAlignments[alignment],
+        cssOverride,
+      )}
+      {...rest}
+    />
+  );
+});
 
 TableHead.displayName = 'TableHead';
 
-type TableCellProps = Omit<
-  TdHTMLAttributes<HTMLTableCellElement>,
-  'css'
-> & {
+type TableCellProps = Omit<TdHTMLAttributes<HTMLTableCellElement>, 'css'> & {
   onlyCheckbox?: boolean;
   alignment?: TableAlignment;
   disabled?: boolean;
   cssOverride?: CSSObject;
 };
 
-const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
-  (props, ref) => {
-    const { onlyCheckbox, alignment, disabled, cssOverride, ...rest } = props;
+const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>((props, ref) => {
+  const { onlyCheckbox, alignment, disabled, cssOverride, ...rest } = props;
 
-    return (
-      <td
-        ref={ref}
-        data-only-checkbox={onlyCheckbox ? 'true' : undefined}
-        data-disabled={disabled ? 'true' : undefined}
-        css={scopedMerge(styles.cell, onlyCheckbox && styles.onlyCheckbox, alignment && styles.cellAlignments[alignment], cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <td
+      ref={ref}
+      data-only-checkbox={onlyCheckbox ? 'true' : undefined}
+      data-disabled={disabled ? 'true' : undefined}
+      css={scopedMerge(
+        styles.cell,
+        onlyCheckbox && styles.onlyCheckbox,
+        alignment && styles.cellAlignments[alignment],
+        cssOverride,
+      )}
+      {...rest}
+    />
+  );
+});
 
 TableCell.displayName = 'TableCell';
 
-type TableCaptionProps = Omit<
-  HTMLAttributes<HTMLTableCaptionElement>,
-  'css'
-> & {
+type TableCaptionProps = Omit<HTMLAttributes<HTMLTableCaptionElement>, 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const TableCaption = forwardRef<HTMLTableCaptionElement, TableCaptionProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const TableCaption = forwardRef<HTMLTableCaptionElement, TableCaptionProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <caption ref={ref} css={scopedMerge(styles.caption, cssOverride)} {...rest} />
-    );
-  },
-);
+  return <caption ref={ref} css={scopedMerge(styles.caption, cssOverride)} {...rest} />;
+});
 
 TableCaption.displayName = 'TableCaption';
 
-export {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow
-};
+export { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow };
 
 const styles = defineStyles({
   container: {
@@ -204,7 +177,6 @@ const styles = defineStyles({
     '& thead': {
       backgroundColor: theme.colors.background.surfaceAlt,
       color: theme.colors.text.secondary,
-      border: `1px solid ${theme.colors.border.tertiary}`,
     },
     '& th, & td': {
       padding: theme.spacing[3],

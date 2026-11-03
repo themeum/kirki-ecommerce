@@ -62,7 +62,7 @@ const AddOrEditAttribute = ({
     defaultValues: toProductAttributeFormValues(source ?? applied, applied?.values ?? []),
   });
 
-  const { apply, isApplying, pending, confirmPending, cancelPending, describeDiscarded } =
+  const { apply, isApplying, pending, confirmPending, cancelPending } =
     useApplyAttribute({
       form,
       attributes,
@@ -136,13 +136,12 @@ const AddOrEditAttribute = ({
           title={__('Remove variations?', 'kirki-ecommerce')}
           subtitle={sprintf(
             _n(
-              '%1$d saved variation will be deleted when you save this product: %2$s',
-              '%1$d saved variations will be deleted when you save this product: %2$s',
+              '%1$d saved variation will be deleted when you save this product.',
+              '%1$d saved variations will be deleted when you save this product.',
               pendingCount,
               'kirki-ecommerce',
             ),
             pendingCount,
-            describeDiscarded(pending.discarded),
           )}
           onConfirm={() => {
             void confirmPending();
