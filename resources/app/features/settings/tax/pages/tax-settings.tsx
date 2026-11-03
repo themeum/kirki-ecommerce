@@ -16,7 +16,6 @@ import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { stemWord } from '@/features/settings/search/search-engine.mjs';
 import { useSettingsSearchTarget } from '@/features/settings/search/settings-search-context';
 import TaxCollectionField from '@/features/settings/tax/shared/components/fields/tax-collection-field';
 import TaxProfile from '@/features/settings/tax/shared/components/tax-profile/tax-profile';
@@ -123,8 +122,9 @@ const TaxSettings = () => {
     setTarget({
       searchId: 'general.calculate-tax',
       route,
-      terms: ['calculate', 'tax'].map(stemWord),
+      terms: [],
       prefixes: [],
+      markText: false,
     });
     void navigate(route);
   };
