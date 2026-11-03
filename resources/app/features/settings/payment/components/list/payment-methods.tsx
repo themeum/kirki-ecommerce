@@ -50,6 +50,7 @@ import {
   useReorderPaymentMethodsMutation,
   useSetEnabledOfflinePaymentMutation,
   useSetEnabledOnlinePaymentMutation,
+  useUninstallOnlinePaymentMutation,
 } from '@/features/settings/payment/services/payment';
 import { useConfirmDelete } from '@/hooks';
 import { getPortalContainer } from '@/libs/portal-container';
@@ -72,6 +73,7 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
   const { mutate: setEnabledOfflinePayment } = useSetEnabledOfflinePaymentMutation();
   const { mutate: deleteOfflinePayment } = useDeleteOfflinePaymentMutation();
   const { mutate: setEnabledOnlinePayment } = useSetEnabledOnlinePaymentMutation();
+  const { mutate: uninstallOnlinePayment } = useUninstallOnlinePaymentMutation();
   const { mutate: reorderPaymentMethods } = useReorderPaymentMethodsMutation();
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
@@ -128,7 +130,19 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
       return;
     }
 
-    // @todo: there is no endpoint for deleting online payment methods
+    confirmDelete(
+      {
+        title: __('Remove payment gateway?', 'kirki-ecommerce'),
+        confirmText: __('Remove', 'kirki-ecommerce'),
+        description: __(
+          'The gateway plugin will be deactivated and deleted. Customers will no longer be able to pay with it.',
+          'kirki-ecommerce',
+        ),
+      },
+      () => {
+        uninstallOnlinePayment(method.id);
+      },
+    );
   };
 
   const handleEdit = async (method: PaymentMethod) => {

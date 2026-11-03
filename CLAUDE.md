@@ -127,6 +127,20 @@ belong to the upstream package, not this project.
 
 ---
 
+## 2a. Use the themeum/framework first
+
+Before you call a native WordPress or PHP function, check whether
+`themeum/framework` already wraps it. If it does, use the framework version.
+Examples: `Cache` (not transients), `Http` (not `wp_remote_*`), `File` (not
+`unlink`/`hash_file`), `Extension` (not `Plugin_Upgrader`), `Superglobals` and
+`Request` (not `$_GET`/`$_POST`).
+
+If the framework feature is buggy or incomplete, do not work around it with a
+native call. Stop and tell me what is wrong, so I can improve the framework
+first.
+
+---
+
 ## 3. React / TypeScript Coding Standards
 
 Full standards live in `.claude/rules/react-standards.md`, which loads when

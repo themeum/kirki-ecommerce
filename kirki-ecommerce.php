@@ -74,6 +74,14 @@ define('KIRKI_ECOMMERCE_PREFIX', 'kirki_ecommerce_');
  */
 define('KIRKI_ECOMMERCE_MODE', 'development');
 
+/**
+ * The base URL of the remote payment gateway catalog (public S3 bucket).
+ * A definition in wp-config.php wins, so local work can use the local S3.
+ * @var string
+ */
+defined('KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL')
+    || define('KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL', 'https://kirki-ecommerce.s3.us-east-1.amazonaws.com/gateways');
+
 require_once KIRKI_ECOMMERCE_PLUGIN_PATH . 'vendor/autoload.php';
 
 // Register activation, deactivation, and uninstall hooks
