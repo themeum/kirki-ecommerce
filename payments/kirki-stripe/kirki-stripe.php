@@ -5,6 +5,7 @@
  * Plugin URI:        https://kirki.com/
  * Description:       Stripe payment gateway for Kirki ecommerce.
  * Version:           1.0.0
+ * Order:             10
  * Author:            Kirki
  * Author URI:        https://kirki.com/
  * License:           GPL-2.0-or-later

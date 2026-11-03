@@ -147,6 +147,7 @@ const useUpdateOrderMutation = () => {
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
       void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
@@ -163,6 +164,7 @@ const usePartialUpdateOrderMutation = () => {
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
       void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
@@ -179,6 +181,7 @@ const useOrderActionMutation = () => {
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
       void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
     },
     onError(error) {
       toastMutationError(error);

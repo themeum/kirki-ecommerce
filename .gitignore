@@ -60,3 +60,6 @@ languages/kirki-ecommerce.pot
 .vscode/launch.json
 
 .cursor/debug-*.log
+
+# Built payment gateway zips (npm run build:payments)
+/gateways/
