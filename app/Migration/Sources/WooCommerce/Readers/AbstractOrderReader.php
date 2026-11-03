@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Readers;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 /**
@@ -242,6 +243,6 @@ abstract class AbstractOrderReader implements OrderReader
      */
     protected function timestamp_date($timestamp)
     {
-        return (int) $timestamp > 0 ? gmdate('Y-m-d H:i:s', (int) $timestamp) : null;
+        return (int) $timestamp > 0 ? Date::create_from_timestamp((int) $timestamp, 'UTC')->to_date_time_string() : null;
     }
 }

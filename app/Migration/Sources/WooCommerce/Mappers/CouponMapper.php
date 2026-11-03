@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Migration\Core\RecordLedger;
 use Kirki\Ecommerce\App\Migration\Core\SkipItemException;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\App\Models\Customer;
 
 /**
@@ -167,7 +168,7 @@ class CouponMapper
         $minimum = (string) ($meta['minimum_amount'] ?? '');
 
         $coupon['has_end_datetime'] = $expires > 0;
-        $coupon['end_datetime'] = $expires > 0 ? gmdate('Y-m-d H:i:s', $expires) : null;
+        $coupon['end_datetime'] = $expires > 0 ? Date::create_from_timestamp($expires, 'UTC')->to_date_time_string() : null;
         $coupon['has_usage_limit'] = $usage_limit > 0;
         $coupon['usage_limit'] = $usage_limit > 0 ? $usage_limit : null;
         $coupon['has_customer_limit'] = $per_customer > 0;

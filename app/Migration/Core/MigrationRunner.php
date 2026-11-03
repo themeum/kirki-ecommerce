@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Migration\DTO\GroupDTO;
 use Kirki\Ecommerce\App\Migration\DTO\ScanResultDTO;
 use Kirki\Ecommerce\App\Migration\Models\MigrationRecordLedger;
 use Kirki\Ecommerce\App\Migration\Models\MigrationRun;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Throwable;
 
 /**
@@ -134,7 +135,7 @@ class MigrationRunner
             'status' => RunStatus::PENDING,
             'groups' => $groups,
             'skipped_items' => [],
-            'started_at' => current_time('mysql', true),
+            'started_at' => Date::now('UTC')->to_date_time_string(),
         ]);
     }
 
@@ -254,7 +255,7 @@ class MigrationRunner
      */
     protected function finish(MigrationRun $run)
     {
-        $run->update(['status' => RunStatus::DONE, 'finished_at' => current_time('mysql', true)]);
+        $run->update(['status' => RunStatus::DONE, 'finished_at' => Date::now('UTC')->to_date_time_string()]);
     }
 
     /**

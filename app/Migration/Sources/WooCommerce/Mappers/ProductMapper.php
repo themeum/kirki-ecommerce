@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Migration\Core\RecordLedger;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\App\Migration\Core\SkipItemException;
 
 /**
@@ -436,7 +437,7 @@ class ProductMapper
 
         $from = (int) ($meta['_sale_price_dates_from'] ?? 0);
         $to = (int) ($meta['_sale_price_dates_to'] ?? 0);
-        $now = time();
+        $now = Date::now()->get_timestamp();
 
         if (($from && $from > $now) || ($to && $to < $now)) {
             return null;
