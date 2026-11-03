@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import MoneyField from '@/components/form/money-field';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type GroupPriceCellProps = {
@@ -22,7 +21,7 @@ type PriceEditForm = {
 const GroupPriceCell = ({ minPrice, maxPrice, currencySymbol, onCommit }: GroupPriceCellProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const form = useForm<PriceEditForm>({ defaultValues: { amount: minPrice } });
-  const amount = useWatch({ control: form.control, name: 'amount' });
+  // const amount = useWatch({ control: form.control, name: 'amount' });
 
   useEffect(() => {
     if (!isEditing) {
@@ -33,18 +32,6 @@ const GroupPriceCell = ({ minPrice, maxPrice, currencySymbol, onCommit }: GroupP
     // just committed) and re-seeding would fight the user's typing.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [minPrice, isEditing]);
-
-  useEffect(() => {
-    if (!isEditing || amount === '' || !isDefined(amount)) {
-      return;
-    }
-
-    const parsed = Number(amount);
-
-    if (Number.isFinite(parsed)) {
-      onCommit(parsed);
-    }
-  }, [amount, isEditing, onCommit]);
 
   if (!isEditing) {
     const label =
@@ -66,8 +53,10 @@ const GroupPriceCell = ({ minPrice, maxPrice, currencySymbol, onCommit }: GroupP
         }}
         css={scoped({ cursor: 'pointer' })}
       >
-        <div css={scoped(styles.wrapper)}>
-          <Text variant="small">{label}</Text>
+        <div data-price-cell css={scoped(styles.wrapper)}>
+          <Text variant="small" truncate>
+            {label}
+          </Text>
         </div>
       </div>
     );
@@ -76,8 +65,19 @@ const GroupPriceCell = ({ minPrice, maxPrice, currencySymbol, onCommit }: GroupP
   return (
     <div onBlur={() => setIsEditing(false)}>
       <FormProvider {...form}>
-        {/* eslint-disable-next-line jsx-a11y/no-autofocus -- switches into edit mode only on an explicit click, so focusing the only field is expected */}
-        <MoneyField name="amount" currencySymbol={currencySymbol} autoFocus />
+        <MoneyField
+          name="amount"
+          currencySymbol={currencySymbol}
+          // eslint-disable-next-line jsx-a11y/no-autofocus -- switches into edit mode only on an explicit click, so focusing the only field is expected
+          autoFocus
+          onChange={(value) => {
+            const parsed = Number(value);
+
+            if (Number.isFinite(parsed)) {
+              onCommit(parsed);
+            }
+          }}
+        />
       </FormProvider>
     </div>
   );
@@ -92,7 +92,7 @@ const styles = defineStyles({
     width: '100%',
     height: 36,
     borderRadius: theme.radius.lg,
-    border: `1px solid ${theme.colors.border.default}`,
+    border: `1px solid transparent`,
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     display: 'flex',
     alignItems: 'center',
