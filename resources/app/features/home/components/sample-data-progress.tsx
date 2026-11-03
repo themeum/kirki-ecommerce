@@ -5,18 +5,13 @@ import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type SampleDataProgressProps = {
-  phase: 'downloading' | 'creating';
   progress: number;
 };
 
-const SampleDataProgress = ({ phase, progress }: SampleDataProgressProps) => {
+const SampleDataProgress = ({ progress }: SampleDataProgressProps) => {
   return (
     <>
-      <span>
-        {phase === 'downloading'
-          ? __('Downloading product sample...', 'kirki-ecommerce')
-          : __('Creating products...', 'kirki-ecommerce')}
-      </span>
+      <span>{__('Downloading sample data...', 'kirki-ecommerce')}</span>
       <span
         aria-hidden="true"
         css={scoped(styles.fill)}

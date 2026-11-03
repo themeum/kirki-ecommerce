@@ -321,11 +321,24 @@ can set.
 ## 5. Loading sample data
 
 The link **Click here to load sample data!** sits below the completion card. It runs
-the same import as the Home checklist (see [`docs/home.md`](home.md)), but shows a
-spinner and text instead of a progress bar: first "Downloading product sample...",
-then "Creating products..." while the request runs. When the import succeeds, the
-products list opens. When it fails, an error toast shows and the link comes back.
-**Add your first product** and **Go to Dashboard** stay usable during the import.
+the same import as the Home checklist (see [`docs/home.md`](home.md#6-loading-sample-data)).
+A click sends the request at once and shows, in place of the link, a small progress
+bar with the text "Downloading sample data..." below it. The text does not change,
+and the bar covers the whole import, the download and the record creation:
+
+- The bar moves from 0% to 95% in 10 seconds, fast at the start and slower near 95%.
+- After 10 seconds, the bar moves slowly toward 99%. It does not show 100% before
+  the request succeeds.
+- When the request succeeds, the bar goes to 100%, also before 10 seconds.
+
+**The progress is time-based.** The request is one call, and the server reports no
+progress.
+
+**Add your first product** and **Go to Dashboard** are disabled from the click until
+the request ends. When the import succeeds, the products list opens at once. The
+app marks its cached data as old so that it loads again, but it does not wait for
+that reload. When the import fails, an error toast shows, the link comes back, and
+the buttons work again.
 
 The import calls `POST /wp-json/kirki/ecommerce/v1/onboarding/sample-data`,
 which is only available after onboarding. It reads two files from the preset
@@ -512,4 +525,7 @@ from step one.
   field empty.
 - **The state of the address is not prefilled.** Kirki names states by its own ids.
 - **The migration is all or nothing.** There is no choice of groups, and no revert.
+- **The sample data progress is an estimate.** WooCommerce's CSV importer shows the
+  real number of rows done. Here the bar follows a fixed 10 second curve, because
+  the import is one request.
 
