@@ -1,0 +1,405 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "guitars",
+      "name": "Guitars & Ukuleles",
+      "parent": null
+    },
+    {
+      "slug": "acoustic",
+      "name": "Acoustic Guitars",
+      "parent": "guitars"
+    },
+    {
+      "slug": "ukuleles",
+      "name": "Ukuleles",
+      "parent": "guitars"
+    },
+    {
+      "slug": "percussion",
+      "name": "Percussion",
+      "parent": null
+    },
+    {
+      "slug": "hand-percussion",
+      "name": "Hand Percussion",
+      "parent": "percussion"
+    },
+    {
+      "slug": "accessories",
+      "name": "Accessories",
+      "parent": null
+    },
+    {
+      "slug": "straps",
+      "name": "Straps",
+      "parent": "accessories"
+    },
+    {
+      "slug": "strings",
+      "name": "Strings",
+      "parent": "accessories"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "beginner",
+      "name": "Beginner"
+    },
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "guitar",
+      "name": "Guitar"
+    },
+    {
+      "slug": "leather",
+      "name": "Leather"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "strings",
+      "name": "Strings"
+    }
+  ],
+  "products": [
+    {
+      "slug": "kalimba",
+      "title": "Kalimba · Simple product",
+      "short_description": "17-key thumb piano in solid wood.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA 17-key kalimba made from solid mahogany, tuned to C major. Comes with a tuning hammer.",
+      "ribbon": null,
+      "categories": [
+        "hand-percussion"
+      ],
+      "tags": [
+        "gift-idea",
+        "beginner"
+      ],
+      "images": [
+        "kalimba-1.jpg",
+        "kalimba-2.jpg",
+        "kalimba-3.jpg",
+        "kalimba-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-MUS-K",
+          "options": {},
+          "image": null,
+          "price": "45.00",
+          "sale_price": null,
+          "cost": "18.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 300,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "leather-guitar-strap",
+      "title": "Leather Guitar Strap · With variants",
+      "short_description": "Full-grain leather guitar strap.",
+      "description": "Sample product: 2 attributes (Color, Length), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA guitar strap in full-grain leather that softens with use, with adjustable length.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "straps"
+      ],
+      "tags": [
+        "leather",
+        "new-arrival"
+      ],
+      "images": [
+        "leather-guitar-strap-cherry.jpg",
+        "leather-guitar-strap-teal.jpg",
+        "leather-guitar-strap-mustard.jpg",
+        "leather-guitar-strap-2.jpg",
+        "leather-guitar-strap-3.jpg",
+        "leather-guitar-strap-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-MUS-LGS-CHER-STAN",
+          "options": {
+            "color": "Cherry",
+            "length": "Standard"
+          },
+          "image": "leather-guitar-strap-cherry.jpg",
+          "price": "39.00",
+          "sale_price": null,
+          "cost": "16.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 200,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-MUS-LGS-CHER-LONG",
+          "options": {
+            "color": "Cherry",
+            "length": "Long"
+          },
+          "image": "leather-guitar-strap-cherry.jpg",
+          "price": "39.00",
+          "sale_price": null,
+          "cost": "16.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 200,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-MUS-LGS-TEAL-STAN",
+          "options": {
+            "color": "Teal",
+            "length": "Standard"
+          },
+          "image": "leather-guitar-strap-teal.jpg",
+          "price": "39.00",
+          "sale_price": null,
+          "cost": "16.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 200,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-MUS-LGS-TEAL-LONG",
+          "options": {
+            "color": "Teal",
+            "length": "Long"
+          },
+          "image": "leather-guitar-strap-teal.jpg",
+          "price": "39.00",
+          "sale_price": null,
+          "cost": "16.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 200,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-MUS-LGS-MUST-STAN",
+          "options": {
+            "color": "Mustard",
+            "length": "Standard"
+          },
+          "image": "leather-guitar-strap-mustard.jpg",
+          "price": "39.00",
+          "sale_price": null,
+          "cost": "16.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 200,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-MUS-LGS-MUST-LONG",
+          "options": {
+            "color": "Mustard",
+            "length": "Long"
+          },
+          "image": "leather-guitar-strap-mustard.jpg",
+          "price": "39.00",
+          "sale_price": null,
+          "cost": "16.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 200,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "concert-ukulele",
+      "title": "Concert Ukulele · On sale",
+      "short_description": "Mahogany concert ukulele with a warm tone.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA concert-size ukulele with a mahogany body and a warm, full tone. Comes with a padded gig bag.",
+      "ribbon": null,
+      "categories": [
+        "ukuleles"
+      ],
+      "tags": [
+        "beginner",
+        "gift-idea"
+      ],
+      "images": [
+        "concert-ukulele-1.jpg",
+        "concert-ukulele-2.jpg",
+        "concert-ukulele-3.jpg",
+        "concert-ukulele-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-MUS-CU",
+          "options": {},
+          "image": null,
+          "price": "129.00",
+          "sale_price": "99.00",
+          "cost": "52.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 700,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "acoustic-guitar-strings",
+      "title": "Acoustic Guitar Strings · Order limit",
+      "short_description": "Phosphor bronze strings. Up to 5 sets per order.",
+      "description": "Sample product: 1 attribute (Gauge), and customers can buy at most 5 per order. Edit it or delete it.\n\nA set of six phosphor bronze acoustic guitar strings with a bright, balanced tone.",
+      "ribbon": null,
+      "categories": [
+        "strings"
+      ],
+      "tags": [
+        "strings",
+        "beginner"
+      ],
+      "images": [
+        "acoustic-guitar-strings-1.jpg",
+        "acoustic-guitar-strings-2.jpg",
+        "acoustic-guitar-strings-3.jpg",
+        "acoustic-guitar-strings-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-MUS-AGS-LIGH",
+          "options": {
+            "gauge": "Light"
+          },
+          "image": null,
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 5,
+          "weight_g": 40,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-MUS-AGS-MEDI",
+          "options": {
+            "gauge": "Medium"
+          },
+          "image": null,
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 5,
+          "weight_g": 40,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "acoustic-guitar",
+      "title": "Acoustic Guitar · Stock levels",
+      "short_description": "Dreadnought acoustic guitar with a solid spruce top.",
+      "description": "Sample product: Finish Sunburst is low in stock, and Finish Black is out of stock but still sells on backorder. Edit it or delete it.\n\nA dreadnought acoustic guitar with a solid spruce top and mahogany back and sides. Set up and ready to play.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "acoustic"
+      ],
+      "tags": [
+        "guitar",
+        "bestseller"
+      ],
+      "images": [
+        "acoustic-guitar-1.jpg",
+        "acoustic-guitar-2.jpg",
+        "acoustic-guitar-3.jpg",
+        "acoustic-guitar-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-MUS-AG-NATU",
+          "options": {
+            "finish": "Natural"
+          },
+          "image": null,
+          "price": "349.00",
+          "sale_price": null,
+          "cost": "140.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2200,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-MUS-AG-SUNB",
+          "options": {
+            "finish": "Sunburst"
+          },
+          "image": null,
+          "price": "349.00",
+          "sale_price": null,
+          "cost": "140.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2200,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-MUS-AG-BLAC",
+          "options": {
+            "finish": "Black"
+          },
+          "image": null,
+          "price": "349.00",
+          "sale_price": null,
+          "cost": "140.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 2200,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

@@ -26,7 +26,7 @@ The build runs `composer update` and installs production dependencies only. Afte
 1. Builds the admin app (`resources/app`) and the storefront (`resources/site`) into `assets/`.
 2. Installs production Composer dependencies and restores the scoped framework layout.
 3. Copies an allow-list of folders into `build/kirki-ecommerce/`.
-4. Removes hidden files, logs, Markdown files and the translation template.
+4. Removes hidden files, logs, Markdown files and the translation template. It also removes the preset data source (`resources/data/preconfigured-data/`, which holds the sample product images too): the plugin reads it from S3 (see `docs/preset-data.md`).
 5. Switches the plugin to production mode and creates the zip.
 
 To keep a file out of the zip, add a removal line to `bin/make-package.sh` next to the existing ones. There is no `.distignore` file.

@@ -113,6 +113,7 @@ class OnboardingController
      *
      * @param Request $request
      * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response, or a 409 before onboarding is complete.
+     * @throws \Exception With a 503 status when the sample data cannot be downloaded.
      */
     public function import_sample_data(Request $request)
     {

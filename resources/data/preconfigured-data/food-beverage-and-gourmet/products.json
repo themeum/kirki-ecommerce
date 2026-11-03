@@ -1,0 +1,420 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "coffee-tea",
+      "name": "Coffee & Tea",
+      "parent": null
+    },
+    {
+      "slug": "coffee",
+      "name": "Coffee",
+      "parent": "coffee-tea"
+    },
+    {
+      "slug": "tea",
+      "name": "Tea",
+      "parent": "coffee-tea"
+    },
+    {
+      "slug": "pantry",
+      "name": "Pantry",
+      "parent": null
+    },
+    {
+      "slug": "oils",
+      "name": "Oils",
+      "parent": "pantry"
+    },
+    {
+      "slug": "honey",
+      "name": "Honey & Spreads",
+      "parent": "pantry"
+    },
+    {
+      "slug": "sweets",
+      "name": "Sweets",
+      "parent": null
+    },
+    {
+      "slug": "chocolate",
+      "name": "Chocolate",
+      "parent": "sweets"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "fresh",
+      "name": "Fresh"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "organic",
+      "name": "Organic"
+    },
+    {
+      "slug": "single-origin",
+      "name": "Single-Origin"
+    },
+    {
+      "slug": "vegan",
+      "name": "Vegan"
+    }
+  ],
+  "products": [
+    {
+      "slug": "coffee-beans",
+      "title": "Single-Origin Coffee Beans · Simple product",
+      "short_description": "250 g of whole-bean coffee, roasted to order.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nMedium-roast whole beans from a single farm, with notes of cocoa and stone fruit. Roasted in small batches.",
+      "ribbon": null,
+      "categories": [
+        "coffee"
+      ],
+      "tags": [
+        "single-origin",
+        "organic",
+        "bestseller"
+      ],
+      "images": [
+        "coffee-beans-1.jpg",
+        "coffee-beans-2.jpg",
+        "coffee-beans-3.jpg",
+        "coffee-beans-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FOD-CB",
+          "options": {},
+          "image": null,
+          "price": "18.00",
+          "sale_price": null,
+          "cost": "7.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 280,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "loose-leaf-tea",
+      "title": "Loose-Leaf Tea · With variants",
+      "short_description": "Whole-leaf tea in a resealable tin.",
+      "description": "Sample product: 2 attributes (Blend, Weight), 6 variants. Each blend has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nWhole-leaf and flower tea packed in an airtight tin to keep it fresh. Each tin makes about 25 to 50 cups.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "tea"
+      ],
+      "tags": [
+        "organic",
+        "gift-idea",
+        "new-arrival"
+      ],
+      "images": [
+        "loose-leaf-tea-berry-hibiscus.jpg",
+        "loose-leaf-tea-matcha.jpg",
+        "loose-leaf-tea-butterfly-pea.jpg",
+        "loose-leaf-tea-2.jpg",
+        "loose-leaf-tea-3.jpg",
+        "loose-leaf-tea-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FOD-LLT-BH-50G",
+          "options": {
+            "blend": "Berry Hibiscus",
+            "weight": "50 g"
+          },
+          "image": "loose-leaf-tea-berry-hibiscus.jpg",
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-FOD-LLT-BH-100G",
+          "options": {
+            "blend": "Berry Hibiscus",
+            "weight": "100 g"
+          },
+          "image": "loose-leaf-tea-berry-hibiscus.jpg",
+          "price": "24.00",
+          "sale_price": null,
+          "cost": "10.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 190,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FOD-LLT-MATC-50G",
+          "options": {
+            "blend": "Matcha",
+            "weight": "50 g"
+          },
+          "image": "loose-leaf-tea-matcha.jpg",
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FOD-LLT-MATC-100G",
+          "options": {
+            "blend": "Matcha",
+            "weight": "100 g"
+          },
+          "image": "loose-leaf-tea-matcha.jpg",
+          "price": "24.00",
+          "sale_price": null,
+          "cost": "10.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 190,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FOD-LLT-BP-50G",
+          "options": {
+            "blend": "Butterfly Pea",
+            "weight": "50 g"
+          },
+          "image": "loose-leaf-tea-butterfly-pea.jpg",
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FOD-LLT-BP-100G",
+          "options": {
+            "blend": "Butterfly Pea",
+            "weight": "100 g"
+          },
+          "image": "loose-leaf-tea-butterfly-pea.jpg",
+          "price": "24.00",
+          "sale_price": null,
+          "cost": "10.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 190,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "olive-oil-gift-set",
+      "title": "Olive Oil Gift Set · On sale",
+      "short_description": "Two bottles of extra virgin olive oil in a gift box.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nTwo 250 ml bottles of cold-pressed extra virgin olive oil, one early harvest and one late harvest, in a gift box.",
+      "ribbon": null,
+      "categories": [
+        "oils"
+      ],
+      "tags": [
+        "gift-idea",
+        "organic"
+      ],
+      "images": [
+        "olive-oil-gift-set-1.jpg",
+        "olive-oil-gift-set-2.jpg",
+        "olive-oil-gift-set-3.jpg",
+        "olive-oil-gift-set-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FOD-OOGS",
+          "options": {},
+          "image": null,
+          "price": "46.00",
+          "sale_price": "34.00",
+          "cost": "18.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1200,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "wildflower-honey",
+      "title": "Wildflower Honey · Unit pricing",
+      "short_description": "Raw wildflower honey in a glass jar, priced per 100 g.",
+      "description": "Sample product: 1 attribute (Size), and the price is also shown per 100 g. Edit it or delete it.\n\nRaw, unfiltered honey from wildflower meadows. Thick and golden, with a floral taste.",
+      "ribbon": {
+        "text": "Fresh",
+        "color": "#3F7D3A"
+      },
+      "categories": [
+        "honey"
+      ],
+      "tags": [
+        "organic",
+        "fresh"
+      ],
+      "images": [
+        "wildflower-honey-1.jpg",
+        "wildflower-honey-2.jpg",
+        "wildflower-honey-3.jpg",
+        "wildflower-honey-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FOD-WH-350G",
+          "options": {
+            "size": "350 g"
+          },
+          "image": null,
+          "price": "16.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 520,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 350,
+            "total_unit": "g"
+          },
+          "is_default": true
+        },
+        {
+          "sku": "SMP-FOD-WH-500G",
+          "options": {
+            "size": "500 g"
+          },
+          "image": null,
+          "price": "21.00",
+          "sale_price": null,
+          "cost": "8.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 720,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 500,
+            "total_unit": "g"
+          },
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "dark-chocolate-bar",
+      "title": "Dark Chocolate Bar · Stock levels",
+      "short_description": "Single-origin dark chocolate, 80 g.",
+      "description": "Sample product: Cacao 85% is low in stock, and Cacao 100% is out of stock but still sells on backorder. Edit it or delete it.\n\nBean-to-bar dark chocolate made in small batches from single-origin cacao.",
+      "ribbon": null,
+      "categories": [
+        "chocolate"
+      ],
+      "tags": [
+        "single-origin",
+        "vegan",
+        "bestseller"
+      ],
+      "images": [
+        "dark-chocolate-bar-1.jpg",
+        "dark-chocolate-bar-2.jpg",
+        "dark-chocolate-bar-3.jpg",
+        "dark-chocolate-bar-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FOD-DCB-70",
+          "options": {
+            "cacao": "70%"
+          },
+          "image": null,
+          "price": "7.00",
+          "sale_price": null,
+          "cost": "3.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 90,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-FOD-DCB-85",
+          "options": {
+            "cacao": "85%"
+          },
+          "image": null,
+          "price": "7.00",
+          "sale_price": null,
+          "cost": "3.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 90,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FOD-DCB-100",
+          "options": {
+            "cacao": "100%"
+          },
+          "image": null,
+          "price": "7.00",
+          "sale_price": null,
+          "cost": "3.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 90,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

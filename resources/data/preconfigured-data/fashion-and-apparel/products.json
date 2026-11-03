@@ -1,0 +1,583 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "clothing",
+      "name": "Clothing",
+      "parent": null
+    },
+    {
+      "slug": "shirts",
+      "name": "Shirts",
+      "parent": "clothing"
+    },
+    {
+      "slug": "knitwear",
+      "name": "Knitwear",
+      "parent": "clothing"
+    },
+    {
+      "slug": "accessories",
+      "name": "Accessories",
+      "parent": null
+    },
+    {
+      "slug": "bags",
+      "name": "Bags",
+      "parent": "accessories"
+    },
+    {
+      "slug": "belts",
+      "name": "Belts",
+      "parent": "accessories"
+    },
+    {
+      "slug": "footwear",
+      "name": "Footwear",
+      "parent": null
+    },
+    {
+      "slug": "sneakers",
+      "name": "Sneakers",
+      "parent": "footwear"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "everyday",
+      "name": "Everyday"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "leather",
+      "name": "Leather"
+    },
+    {
+      "slug": "linen",
+      "name": "Linen"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "summer",
+      "name": "Summer"
+    },
+    {
+      "slug": "winter",
+      "name": "Winter"
+    },
+    {
+      "slug": "wool",
+      "name": "Wool"
+    }
+  ],
+  "products": [
+    {
+      "slug": "canvas-tote-bag",
+      "title": "Canvas Tote Bag · Simple product",
+      "short_description": "Heavyweight cotton canvas tote with vegetable-tanned leather straps.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA structured everyday tote in natural cotton canvas, with a flat base and long leather straps fixed with brass rivets. Fits a laptop, a book and the day's essentials.",
+      "ribbon": null,
+      "categories": [
+        "bags"
+      ],
+      "tags": [
+        "everyday",
+        "gift-idea",
+        "bestseller"
+      ],
+      "images": [
+        "canvas-tote-bag-1.jpg",
+        "canvas-tote-bag-2.jpg",
+        "canvas-tote-bag-3.jpg",
+        "canvas-tote-bag-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FSH-CTB",
+          "options": {},
+          "image": null,
+          "price": "38.00",
+          "sale_price": null,
+          "cost": "15.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 450,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "linen-shirt",
+      "title": "Linen Shirt · With variants",
+      "short_description": "Relaxed short-sleeve shirt in breathable washed linen.",
+      "description": "Sample product: 2 attributes (Color, Size), 12 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA relaxed short-sleeve shirt in soft washed linen, with a point collar and mother-of-pearl buttons. Light, breathable and easy to wear all summer.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "shirts"
+      ],
+      "tags": [
+        "linen",
+        "summer",
+        "new-arrival"
+      ],
+      "images": [
+        "linen-shirt-coral.jpg",
+        "linen-shirt-marigold.jpg",
+        "linen-shirt-cobalt.jpg",
+        "linen-shirt-2.jpg",
+        "linen-shirt-3.jpg",
+        "linen-shirt-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FSH-LS-CORA-S",
+          "options": {
+            "color": "Coral",
+            "size": "S"
+          },
+          "image": "linen-shirt-coral.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-FSH-LS-CORA-M",
+          "options": {
+            "color": "Coral",
+            "size": "M"
+          },
+          "image": "linen-shirt-coral.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-CORA-L",
+          "options": {
+            "color": "Coral",
+            "size": "L"
+          },
+          "image": "linen-shirt-coral.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-CORA-XL",
+          "options": {
+            "color": "Coral",
+            "size": "XL"
+          },
+          "image": "linen-shirt-coral.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-MARI-S",
+          "options": {
+            "color": "Marigold",
+            "size": "S"
+          },
+          "image": "linen-shirt-marigold.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-MARI-M",
+          "options": {
+            "color": "Marigold",
+            "size": "M"
+          },
+          "image": "linen-shirt-marigold.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-MARI-L",
+          "options": {
+            "color": "Marigold",
+            "size": "L"
+          },
+          "image": "linen-shirt-marigold.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-MARI-XL",
+          "options": {
+            "color": "Marigold",
+            "size": "XL"
+          },
+          "image": "linen-shirt-marigold.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-COBA-S",
+          "options": {
+            "color": "Cobalt",
+            "size": "S"
+          },
+          "image": "linen-shirt-cobalt.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-COBA-M",
+          "options": {
+            "color": "Cobalt",
+            "size": "M"
+          },
+          "image": "linen-shirt-cobalt.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-COBA-L",
+          "options": {
+            "color": "Cobalt",
+            "size": "L"
+          },
+          "image": "linen-shirt-cobalt.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LS-COBA-XL",
+          "options": {
+            "color": "Cobalt",
+            "size": "XL"
+          },
+          "image": "linen-shirt-cobalt.jpg",
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "wool-scarf",
+      "title": "Wool Scarf · On sale",
+      "short_description": "Lightweight merino scarf with a twisted fringe.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA soft, lightweight merino wool scarf in heathered camel, finished with a short twisted fringe. Warm without bulk.",
+      "ribbon": null,
+      "categories": [
+        "knitwear"
+      ],
+      "tags": [
+        "wool",
+        "winter",
+        "gift-idea"
+      ],
+      "images": [
+        "wool-scarf-1.jpg",
+        "wool-scarf-2.jpg",
+        "wool-scarf-3.jpg",
+        "wool-scarf-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FSH-WS",
+          "options": {},
+          "image": null,
+          "price": "65.00",
+          "sale_price": "49.00",
+          "cost": "26.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 180,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "leather-belt",
+      "title": "Leather Belt · Order limit",
+      "short_description": "Full-grain leather belt with a brushed buckle.",
+      "description": "Sample product: 1 attribute (Size), and customers can buy at most 2 per order. Edit it or delete it.\n\nA classic 3.5 cm belt in dark brown full-grain leather, with tonal edge stitching and a brushed silver-tone buckle.",
+      "ribbon": null,
+      "categories": [
+        "belts"
+      ],
+      "tags": [
+        "leather",
+        "everyday"
+      ],
+      "images": [
+        "leather-belt-1.jpg",
+        "leather-belt-2.jpg",
+        "leather-belt-3.jpg",
+        "leather-belt-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FSH-LB-32",
+          "options": {
+            "size": "32"
+          },
+          "image": null,
+          "price": "56.00",
+          "sale_price": null,
+          "cost": "22.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 2,
+          "weight_g": 160,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-FSH-LB-34",
+          "options": {
+            "size": "34"
+          },
+          "image": null,
+          "price": "56.00",
+          "sale_price": null,
+          "cost": "22.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 2,
+          "weight_g": 160,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LB-36",
+          "options": {
+            "size": "36"
+          },
+          "image": null,
+          "price": "56.00",
+          "sale_price": null,
+          "cost": "22.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 2,
+          "weight_g": 160,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LB-38",
+          "options": {
+            "size": "38"
+          },
+          "image": null,
+          "price": "56.00",
+          "sale_price": null,
+          "cost": "22.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 2,
+          "weight_g": 160,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "leather-sneakers",
+      "title": "Leather Sneakers · Stock levels",
+      "short_description": "Minimal low-top sneakers in smooth leather with a gum sole.",
+      "description": "Sample product: Size 41 is low in stock, and Size 44 is out of stock but still sells on backorder. Edit it or delete it.\n\nClean low-top sneakers in off-white full-grain leather, on a natural gum rubber cupsole. Made to go with everything.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "sneakers"
+      ],
+      "tags": [
+        "leather",
+        "everyday",
+        "bestseller"
+      ],
+      "images": [
+        "leather-sneakers-1.jpg",
+        "leather-sneakers-2.jpg",
+        "leather-sneakers-3.jpg",
+        "leather-sneakers-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-FSH-LSN-40",
+          "options": {
+            "size": "40"
+          },
+          "image": null,
+          "price": "95.00",
+          "sale_price": null,
+          "cost": "38.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 900,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-FSH-LSN-41",
+          "options": {
+            "size": "41"
+          },
+          "image": null,
+          "price": "95.00",
+          "sale_price": null,
+          "cost": "38.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 900,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LSN-42",
+          "options": {
+            "size": "42"
+          },
+          "image": null,
+          "price": "95.00",
+          "sale_price": null,
+          "cost": "38.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 900,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LSN-43",
+          "options": {
+            "size": "43"
+          },
+          "image": null,
+          "price": "95.00",
+          "sale_price": null,
+          "cost": "38.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 900,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-FSH-LSN-44",
+          "options": {
+            "size": "44"
+          },
+          "image": null,
+          "price": "95.00",
+          "sale_price": null,
+          "cost": "38.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 900,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

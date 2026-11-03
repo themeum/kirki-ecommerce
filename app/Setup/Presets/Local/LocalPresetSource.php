@@ -8,7 +8,7 @@ use Kirki\Ecommerce\App\Setup\Presets\PresetRepository;
 defined('ABSPATH') || exit;
 
 /**
- * Builds the store's preset records from the bundled data file.
+ * Builds the store's preset records from the remote preset data.
  *
  * Each key holds the records of one preset kind, ready for its inserter.
  *
@@ -47,7 +47,7 @@ class LocalPresetSource
      * @since 1.0.0
      *
      * @param PresetContext $context The store's answers.
-     * @return array<string, mixed>|null The records by preset kind, or null when the data file cannot be read.
+     * @return array<string, mixed>|null The records by preset kind, or null when the presets cannot be read.
      */
     public function fetch(PresetContext $context)
     {
@@ -63,7 +63,6 @@ class LocalPresetSource
         $is_gdpr = !empty($this->presets->get_country($context->country)['gdpr']);
 
         return [
-            'categories' => $industry['categories'] ?? [],
             'attributes' => array_merge($common['attributes'] ?? [], $industry['attributes'] ?? []),
             'schema_profiles' => $common['schema_profiles'] ?? [],
             'shipping_profiles' => $shipping_profiles,

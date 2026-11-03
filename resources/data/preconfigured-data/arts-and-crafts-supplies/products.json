@@ -1,0 +1,422 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "painting",
+      "name": "Painting",
+      "parent": null
+    },
+    {
+      "slug": "watercolors",
+      "name": "Watercolors",
+      "parent": "painting"
+    },
+    {
+      "slug": "brushes",
+      "name": "Brushes",
+      "parent": "painting"
+    },
+    {
+      "slug": "paper",
+      "name": "Paper",
+      "parent": null
+    },
+    {
+      "slug": "sketchbooks",
+      "name": "Sketchbooks",
+      "parent": "paper"
+    },
+    {
+      "slug": "craft",
+      "name": "Craft",
+      "parent": null
+    },
+    {
+      "slug": "yarn",
+      "name": "Yarn",
+      "parent": "craft"
+    },
+    {
+      "slug": "clay",
+      "name": "Clay",
+      "parent": "craft"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "beginner",
+      "name": "Beginner"
+    },
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "drawing",
+      "name": "Drawing"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "painting",
+      "name": "Painting"
+    },
+    {
+      "slug": "sculpting",
+      "name": "Sculpting"
+    },
+    {
+      "slug": "wool",
+      "name": "Wool"
+    }
+  ],
+  "products": [
+    {
+      "slug": "watercolor-set",
+      "title": "Watercolor Set · Simple product",
+      "short_description": "Twelve artist-grade watercolor pans in a metal tin.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nTwelve artist-grade watercolor half pans in a metal tin with a mixing palette in the lid.",
+      "ribbon": null,
+      "categories": [
+        "watercolors"
+      ],
+      "tags": [
+        "painting",
+        "gift-idea",
+        "bestseller"
+      ],
+      "images": [
+        "watercolor-set-1.jpg",
+        "watercolor-set-2.jpg",
+        "watercolor-set-3.jpg",
+        "watercolor-set-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ART-WS",
+          "options": {},
+          "image": null,
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "merino-yarn",
+      "title": "Merino Yarn · With variants",
+      "short_description": "Soft superwash merino yarn, 100 g skein.",
+      "description": "Sample product: 2 attributes (Color, Weight), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA soft, superwash merino yarn that is easy to knit and easy to wash. 100 g per skein.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "yarn"
+      ],
+      "tags": [
+        "wool",
+        "new-arrival"
+      ],
+      "images": [
+        "merino-yarn-marigold.jpg",
+        "merino-yarn-fuchsia.jpg",
+        "merino-yarn-teal.jpg",
+        "merino-yarn-2.jpg",
+        "merino-yarn-3.jpg",
+        "merino-yarn-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ART-MY-MARI-DK",
+          "options": {
+            "color": "Marigold",
+            "weight": "DK"
+          },
+          "image": "merino-yarn-marigold.jpg",
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 110,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-ART-MY-MARI-WORS",
+          "options": {
+            "color": "Marigold",
+            "weight": "Worsted"
+          },
+          "image": "merino-yarn-marigold.jpg",
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 110,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ART-MY-FUCH-DK",
+          "options": {
+            "color": "Fuchsia",
+            "weight": "DK"
+          },
+          "image": "merino-yarn-fuchsia.jpg",
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 110,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ART-MY-FUCH-WORS",
+          "options": {
+            "color": "Fuchsia",
+            "weight": "Worsted"
+          },
+          "image": "merino-yarn-fuchsia.jpg",
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 110,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ART-MY-TEAL-DK",
+          "options": {
+            "color": "Teal",
+            "weight": "DK"
+          },
+          "image": "merino-yarn-teal.jpg",
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 110,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ART-MY-TEAL-WORS",
+          "options": {
+            "color": "Teal",
+            "weight": "Worsted"
+          },
+          "image": "merino-yarn-teal.jpg",
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 110,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "brush-set",
+      "title": "Brush Set · On sale",
+      "short_description": "Six synthetic brushes in a canvas roll.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nSix synthetic brushes in round and flat shapes, with wooden handles, in a canvas roll.",
+      "ribbon": null,
+      "categories": [
+        "brushes"
+      ],
+      "tags": [
+        "painting",
+        "beginner"
+      ],
+      "images": [
+        "brush-set-1.jpg",
+        "brush-set-2.jpg",
+        "brush-set-3.jpg",
+        "brush-set-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ART-BS",
+          "options": {},
+          "image": null,
+          "price": "34.00",
+          "sale_price": "25.00",
+          "cost": "14.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 150,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "air-dry-clay",
+      "title": "Air-Dry Clay · Unit pricing",
+      "short_description": "1 kg block of air-dry modelling clay, priced per 100 g.",
+      "description": "Sample product: 1 attribute (Color), and the price is also shown per 100 g. Edit it or delete it.\n\nA smooth air-dry clay that needs no kiln. Shape it, leave it to dry for 24 hours, then sand or paint it.",
+      "ribbon": null,
+      "categories": [
+        "clay"
+      ],
+      "tags": [
+        "sculpting",
+        "beginner"
+      ],
+      "images": [
+        "air-dry-clay-1.jpg",
+        "air-dry-clay-2.jpg",
+        "air-dry-clay-3.jpg",
+        "air-dry-clay-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ART-ADC-WHIT",
+          "options": {
+            "color": "White"
+          },
+          "image": null,
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1050,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 1000,
+            "total_unit": "g"
+          },
+          "is_default": true
+        },
+        {
+          "sku": "SMP-ART-ADC-TERR",
+          "options": {
+            "color": "Terracotta"
+          },
+          "image": null,
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1050,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 1000,
+            "total_unit": "g"
+          },
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "sketchbook",
+      "title": "Sketchbook · Stock levels",
+      "short_description": "Hardcover sketchbook with heavy paper.",
+      "description": "Sample product: Size A4 is low in stock, and Size A3 is out of stock but still sells on backorder. Edit it or delete it.\n\nA hardcover sketchbook with 120 g/m² paper that takes pencil, ink and light washes.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "sketchbooks"
+      ],
+      "tags": [
+        "drawing",
+        "bestseller"
+      ],
+      "images": [
+        "sketchbook-1.jpg",
+        "sketchbook-2.jpg",
+        "sketchbook-3.jpg",
+        "sketchbook-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ART-S-A5",
+          "options": {
+            "size": "A5"
+          },
+          "image": null,
+          "price": "16.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 450,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-ART-S-A4",
+          "options": {
+            "size": "A4"
+          },
+          "image": null,
+          "price": "22.00",
+          "sale_price": null,
+          "cost": "9.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 800,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ART-S-A3",
+          "options": {
+            "size": "A3"
+          },
+          "image": null,
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 1500,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

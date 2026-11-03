@@ -1,0 +1,420 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "stationery",
+      "name": "Stationery",
+      "parent": null
+    },
+    {
+      "slug": "notebooks",
+      "name": "Notebooks",
+      "parent": "stationery"
+    },
+    {
+      "slug": "pens",
+      "name": "Pens",
+      "parent": "stationery"
+    },
+    {
+      "slug": "desk",
+      "name": "Desk",
+      "parent": null
+    },
+    {
+      "slug": "organizers",
+      "name": "Organizers",
+      "parent": "desk"
+    },
+    {
+      "slug": "gifts",
+      "name": "Gifts",
+      "parent": null
+    },
+    {
+      "slug": "gift-wrap",
+      "name": "Gift Wrap",
+      "parent": "gifts"
+    },
+    {
+      "slug": "gift-sets",
+      "name": "Gift Sets",
+      "parent": "gifts"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "desk",
+      "name": "Desk"
+    },
+    {
+      "slug": "eco",
+      "name": "Eco"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "notebook",
+      "name": "Notebook"
+    },
+    {
+      "slug": "pen",
+      "name": "Pen"
+    },
+    {
+      "slug": "writing",
+      "name": "Writing"
+    }
+  ],
+  "products": [
+    {
+      "slug": "linen-notebook",
+      "title": "Linen Notebook · Simple product",
+      "short_description": "A5 hardcover notebook bound in linen cloth.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nAn A5 hardcover notebook bound in dusty blue linen, with 192 cream dot-grid pages, rounded corners and a ribbon bookmark. Lies flat when open.",
+      "ribbon": null,
+      "categories": [
+        "notebooks"
+      ],
+      "tags": [
+        "notebook",
+        "writing",
+        "bestseller"
+      ],
+      "images": [
+        "linen-notebook-1.jpg",
+        "linen-notebook-2.jpg",
+        "linen-notebook-3.jpg",
+        "linen-notebook-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BSG-LN",
+          "options": {},
+          "image": null,
+          "price": "22.00",
+          "sale_price": null,
+          "cost": "9.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 380,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "fountain-pen",
+      "title": "Fountain Pen · With variants",
+      "short_description": "Weighted fountain pen with a steel nib.",
+      "description": "Sample product: 2 attributes (Color, Nib), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA balanced fountain pen with a lacquered barrel and a polished steel nib. Takes standard ink cartridges or a converter, both included.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "pens"
+      ],
+      "tags": [
+        "pen",
+        "writing",
+        "gift-idea"
+      ],
+      "images": [
+        "fountain-pen-coral.jpg",
+        "fountain-pen-cobalt.jpg",
+        "fountain-pen-mint.jpg",
+        "fountain-pen-2.jpg",
+        "fountain-pen-3.jpg",
+        "fountain-pen-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BSG-FP-CORA-FINE",
+          "options": {
+            "color": "Coral",
+            "nib": "Fine"
+          },
+          "image": "fountain-pen-coral.jpg",
+          "price": "45.00",
+          "sale_price": null,
+          "cost": "18.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-BSG-FP-CORA-MEDI",
+          "options": {
+            "color": "Coral",
+            "nib": "Medium"
+          },
+          "image": "fountain-pen-coral.jpg",
+          "price": "45.00",
+          "sale_price": null,
+          "cost": "18.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BSG-FP-COBA-FINE",
+          "options": {
+            "color": "Cobalt",
+            "nib": "Fine"
+          },
+          "image": "fountain-pen-cobalt.jpg",
+          "price": "45.00",
+          "sale_price": null,
+          "cost": "18.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BSG-FP-COBA-MEDI",
+          "options": {
+            "color": "Cobalt",
+            "nib": "Medium"
+          },
+          "image": "fountain-pen-cobalt.jpg",
+          "price": "45.00",
+          "sale_price": null,
+          "cost": "18.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BSG-FP-MINT-FINE",
+          "options": {
+            "color": "Mint",
+            "nib": "Fine"
+          },
+          "image": "fountain-pen-mint.jpg",
+          "price": "45.00",
+          "sale_price": null,
+          "cost": "18.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BSG-FP-MINT-MEDI",
+          "options": {
+            "color": "Mint",
+            "nib": "Medium"
+          },
+          "image": "fountain-pen-mint.jpg",
+          "price": "45.00",
+          "sale_price": null,
+          "cost": "18.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "walnut-desk-organizer",
+      "title": "Walnut Desk Organizer · On sale",
+      "short_description": "Solid walnut tray with compartments for pens and notes.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA low desk organizer turned from solid walnut, with one long tray for pens and two square compartments for clips and sticky notes.",
+      "ribbon": null,
+      "categories": [
+        "organizers"
+      ],
+      "tags": [
+        "desk",
+        "gift-idea"
+      ],
+      "images": [
+        "walnut-desk-organizer-1.jpg",
+        "walnut-desk-organizer-2.jpg",
+        "walnut-desk-organizer-3.jpg",
+        "walnut-desk-organizer-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BSG-WDO",
+          "options": {},
+          "image": null,
+          "price": "58.00",
+          "sale_price": "42.00",
+          "cost": "23.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 900,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "kraft-gift-wrap",
+      "title": "Kraft Gift Wrap · Unit pricing",
+      "short_description": "Recycled kraft paper on a roll, priced per metre.",
+      "description": "Sample product: 1 attribute (Length), and the price is also shown per 1 m. Edit it or delete it.\n\nSturdy recycled kraft wrapping paper, 70 cm wide. Plain brown, so it works with any ribbon or stamp.",
+      "ribbon": null,
+      "categories": [
+        "gift-wrap"
+      ],
+      "tags": [
+        "gift-idea",
+        "eco"
+      ],
+      "images": [
+        "kraft-gift-wrap-1.jpg",
+        "kraft-gift-wrap-2.jpg",
+        "kraft-gift-wrap-3.jpg",
+        "kraft-gift-wrap-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BSG-KGW-5M",
+          "options": {
+            "length": "5 m"
+          },
+          "image": null,
+          "price": "9.00",
+          "sale_price": null,
+          "cost": "4.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 300,
+          "unit_price": {
+            "base_amount": 1,
+            "base_unit": "m",
+            "total_amount": 5,
+            "total_unit": "m"
+          },
+          "is_default": true
+        },
+        {
+          "sku": "SMP-BSG-KGW-10M",
+          "options": {
+            "length": "10 m"
+          },
+          "image": null,
+          "price": "16.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 580,
+          "unit_price": {
+            "base_amount": 1,
+            "base_unit": "m",
+            "total_amount": 10,
+            "total_unit": "m"
+          },
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "wax-seal-kit",
+      "title": "Wax Seal Kit · Stock levels",
+      "short_description": "Brass seal stamp, wax sticks and a spoon in a gift box.",
+      "description": "Sample product: Wax color Gold is low in stock, and Wax color Forest Green is out of stock but still sells on backorder. Edit it or delete it.\n\nA brass wax seal stamp with a wooden handle, six sealing wax sticks and a melting spoon, packed in a lidded gift box.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "gift-sets"
+      ],
+      "tags": [
+        "gift-idea",
+        "writing",
+        "bestseller"
+      ],
+      "images": [
+        "wax-seal-kit-1.jpg",
+        "wax-seal-kit-2.jpg",
+        "wax-seal-kit-3.jpg",
+        "wax-seal-kit-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BSG-WSK-BURG",
+          "options": {
+            "wax-color": "Burgundy"
+          },
+          "image": null,
+          "price": "34.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 400,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-BSG-WSK-GOLD",
+          "options": {
+            "wax-color": "Gold"
+          },
+          "image": null,
+          "price": "34.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 400,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BSG-WSK-FG",
+          "options": {
+            "wax-color": "Forest Green"
+          },
+          "image": null,
+          "price": "34.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 400,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

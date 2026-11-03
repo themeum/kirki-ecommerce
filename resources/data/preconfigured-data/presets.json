@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "blocs": {
     "EU": [
       "AT",
@@ -312,56 +312,6 @@
   },
   "industries": {
     "books-stationery-and-gifts": {
-      "categories": [
-        {
-          "name": "Books",
-          "children": [
-            {
-              "name": "Fiction"
-            },
-            {
-              "name": "Non-Fiction"
-            },
-            {
-              "name": "Children's Books"
-            },
-            {
-              "name": "Comics & Graphic Novels"
-            }
-          ]
-        },
-        {
-          "name": "Stationery",
-          "children": [
-            {
-              "name": "Notebooks & Journals"
-            },
-            {
-              "name": "Pens & Pencils"
-            },
-            {
-              "name": "Planners & Calendars"
-            },
-            {
-              "name": "Desk Accessories"
-            }
-          ]
-        },
-        {
-          "name": "Gifts",
-          "children": [
-            {
-              "name": "Gift Sets"
-            },
-            {
-              "name": "Greeting Cards"
-            },
-            {
-              "name": "Gift Wrap"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Format",
@@ -400,6 +350,63 @@
               "value": "Letter"
             }
           ]
+        },
+        {
+          "name": "Nib",
+          "slug": "nib",
+          "type": "list",
+          "values": [
+            {
+              "value": "Fine"
+            },
+            {
+              "value": "Medium"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Cobalt",
+              "color": "#2456C9"
+            },
+            {
+              "value": "Mint",
+              "color": "#8FD8C0"
+            }
+          ]
+        },
+        {
+          "name": "Length",
+          "slug": "length",
+          "type": "list",
+          "values": [
+            {
+              "value": "5 m"
+            },
+            {
+              "value": "10 m"
+            }
+          ]
+        },
+        {
+          "name": "Wax color",
+          "slug": "wax-color",
+          "type": "list",
+          "values": [
+            {
+              "value": "Burgundy"
+            },
+            {
+              "value": "Gold"
+            },
+            {
+              "value": "Forest Green"
+            }
+          ]
         }
       ],
       "shipping_profiles": [
@@ -431,84 +438,6 @@
       ]
     },
     "fashion-and-apparel": {
-      "categories": [
-        {
-          "name": "Women",
-          "children": [
-            {
-              "name": "Dresses"
-            },
-            {
-              "name": "Tops"
-            },
-            {
-              "name": "Bottoms"
-            },
-            {
-              "name": "Outerwear"
-            }
-          ]
-        },
-        {
-          "name": "Men",
-          "children": [
-            {
-              "name": "Shirts"
-            },
-            {
-              "name": "T-Shirts"
-            },
-            {
-              "name": "Trousers"
-            },
-            {
-              "name": "Outerwear"
-            }
-          ]
-        },
-        {
-          "name": "Kids",
-          "children": [
-            {
-              "name": "Girls"
-            },
-            {
-              "name": "Boys"
-            },
-            {
-              "name": "Baby"
-            }
-          ]
-        },
-        {
-          "name": "Footwear",
-          "children": [
-            {
-              "name": "Sneakers"
-            },
-            {
-              "name": "Boots"
-            },
-            {
-              "name": "Sandals"
-            }
-          ]
-        },
-        {
-          "name": "Accessories",
-          "children": [
-            {
-              "name": "Bags"
-            },
-            {
-              "name": "Belts"
-            },
-            {
-              "name": "Hats & Scarves"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Size",
@@ -532,6 +461,33 @@
             },
             {
               "value": "XXL"
+            },
+            {
+              "value": "32"
+            },
+            {
+              "value": "34"
+            },
+            {
+              "value": "36"
+            },
+            {
+              "value": "38"
+            },
+            {
+              "value": "40"
+            },
+            {
+              "value": "41"
+            },
+            {
+              "value": "42"
+            },
+            {
+              "value": "43"
+            },
+            {
+              "value": "44"
             }
           ]
         },
@@ -560,6 +516,21 @@
             },
             {
               "value": "Leather"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Marigold",
+              "color": "#F2A93B"
+            },
+            {
+              "value": "Cobalt",
+              "color": "#2F5BC9"
             }
           ]
         }
@@ -593,84 +564,6 @@
       ]
     },
     "home-decor-and-furniture": {
-      "categories": [
-        {
-          "name": "Furniture",
-          "children": [
-            {
-              "name": "Living Room"
-            },
-            {
-              "name": "Bedroom"
-            },
-            {
-              "name": "Dining"
-            },
-            {
-              "name": "Office"
-            }
-          ]
-        },
-        {
-          "name": "Decor",
-          "children": [
-            {
-              "name": "Wall Art"
-            },
-            {
-              "name": "Mirrors"
-            },
-            {
-              "name": "Vases"
-            },
-            {
-              "name": "Candles"
-            }
-          ]
-        },
-        {
-          "name": "Lighting",
-          "children": [
-            {
-              "name": "Lamps"
-            },
-            {
-              "name": "Ceiling Lights"
-            }
-          ]
-        },
-        {
-          "name": "Textiles",
-          "children": [
-            {
-              "name": "Bedding"
-            },
-            {
-              "name": "Cushions"
-            },
-            {
-              "name": "Rugs"
-            },
-            {
-              "name": "Curtains"
-            }
-          ]
-        },
-        {
-          "name": "Kitchen & Dining",
-          "children": [
-            {
-              "name": "Tableware"
-            },
-            {
-              "name": "Cookware"
-            },
-            {
-              "name": "Storage"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Material",
@@ -722,6 +615,52 @@
             },
             {
               "value": "Distressed"
+            },
+            {
+              "value": "Natural Oak"
+            },
+            {
+              "value": "Black Oak"
+            },
+            {
+              "value": "Walnut"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Marigold",
+              "color": "#F0A93A"
+            }
+          ]
+        },
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "45 × 45 cm"
+            },
+            {
+              "value": "50 × 50 cm"
+            }
+          ]
+        },
+        {
+          "name": "Scent",
+          "slug": "scent",
+          "type": "list",
+          "values": [
+            {
+              "value": "Cedar"
+            },
+            {
+              "value": "Fig"
             }
           ]
         }
@@ -797,81 +736,6 @@
       "tax_profiles": []
     },
     "beauty-cosmetics-and-personal-care": {
-      "categories": [
-        {
-          "name": "Skincare",
-          "children": [
-            {
-              "name": "Cleansers"
-            },
-            {
-              "name": "Moisturizers"
-            },
-            {
-              "name": "Serums"
-            },
-            {
-              "name": "Sun Care"
-            }
-          ]
-        },
-        {
-          "name": "Makeup",
-          "children": [
-            {
-              "name": "Face"
-            },
-            {
-              "name": "Eyes"
-            },
-            {
-              "name": "Lips"
-            },
-            {
-              "name": "Nails"
-            }
-          ]
-        },
-        {
-          "name": "Hair Care",
-          "children": [
-            {
-              "name": "Shampoo & Conditioner"
-            },
-            {
-              "name": "Styling"
-            },
-            {
-              "name": "Treatments"
-            }
-          ]
-        },
-        {
-          "name": "Fragrance",
-          "children": [
-            {
-              "name": "Women's Fragrance"
-            },
-            {
-              "name": "Men's Fragrance"
-            }
-          ]
-        },
-        {
-          "name": "Bath & Body",
-          "children": [
-            {
-              "name": "Body Wash"
-            },
-            {
-              "name": "Body Lotion"
-            },
-            {
-              "name": "Hand Care"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Volume",
@@ -901,22 +765,39 @@
         {
           "name": "Shade",
           "slug": "shade",
-          "type": "list",
+          "type": "color",
           "values": [
             {
-              "value": "Fair"
+              "value": "Fair",
+              "color": "#F3D9C4"
             },
             {
-              "value": "Light"
+              "value": "Light",
+              "color": "#E6BC98"
             },
             {
-              "value": "Medium"
+              "value": "Medium",
+              "color": "#C99470"
             },
             {
-              "value": "Tan"
+              "value": "Tan",
+              "color": "#A9714B"
             },
             {
-              "value": "Deep"
+              "value": "Deep",
+              "color": "#6B4430"
+            },
+            {
+              "value": "Coral",
+              "color": "#F06A5A"
+            },
+            {
+              "value": "Fuchsia",
+              "color": "#D13A86"
+            },
+            {
+              "value": "Cherry",
+              "color": "#C2202F"
             }
           ]
         },
@@ -939,6 +820,48 @@
             },
             {
               "value": "Sensitive"
+            }
+          ]
+        },
+        {
+          "name": "Finish",
+          "slug": "finish",
+          "type": "list",
+          "values": [
+            {
+              "value": "Sheer"
+            },
+            {
+              "value": "Satin"
+            }
+          ]
+        },
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "50 ml"
+            },
+            {
+              "value": "100 ml"
+            }
+          ]
+        },
+        {
+          "name": "Scent",
+          "slug": "scent",
+          "type": "list",
+          "values": [
+            {
+              "value": "Rosemary"
+            },
+            {
+              "value": "Lavender"
+            },
+            {
+              "value": "Unscented"
             }
           ]
         }
@@ -989,86 +912,6 @@
       ]
     },
     "food-beverage-and-gourmet": {
-      "categories": [
-        {
-          "name": "Pantry",
-          "children": [
-            {
-              "name": "Oils & Vinegars"
-            },
-            {
-              "name": "Spices & Seasonings"
-            },
-            {
-              "name": "Sauces"
-            },
-            {
-              "name": "Pasta & Grains"
-            }
-          ]
-        },
-        {
-          "name": "Snacks & Sweets",
-          "children": [
-            {
-              "name": "Chocolate"
-            },
-            {
-              "name": "Biscuits"
-            },
-            {
-              "name": "Nuts & Dried Fruit"
-            }
-          ]
-        },
-        {
-          "name": "Beverages",
-          "children": [
-            {
-              "name": "Coffee"
-            },
-            {
-              "name": "Tea"
-            },
-            {
-              "name": "Juices & Soft Drinks"
-            }
-          ]
-        },
-        {
-          "name": "Wine & Spirits",
-          "children": [
-            {
-              "name": "Wine"
-            },
-            {
-              "name": "Beer"
-            },
-            {
-              "name": "Spirits"
-            }
-          ]
-        },
-        {
-          "name": "Fresh & Chilled",
-          "children": [
-            {
-              "name": "Cheese"
-            },
-            {
-              "name": "Charcuterie"
-            }
-          ]
-        },
-        {
-          "name": "Gift Hampers",
-          "children": [
-            {
-              "name": "Hampers"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Weight",
@@ -1086,6 +929,9 @@
             },
             {
               "value": "1 kg"
+            },
+            {
+              "value": "50 g"
             }
           ]
         },
@@ -1105,6 +951,54 @@
             },
             {
               "value": "Pack of 12"
+            }
+          ]
+        },
+        {
+          "name": "Blend",
+          "slug": "blend",
+          "type": "color",
+          "values": [
+            {
+              "value": "Berry Hibiscus",
+              "color": "#B0284F"
+            },
+            {
+              "value": "Matcha",
+              "color": "#7DB343"
+            },
+            {
+              "value": "Butterfly Pea",
+              "color": "#3C59C8"
+            }
+          ]
+        },
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "350 g"
+            },
+            {
+              "value": "500 g"
+            }
+          ]
+        },
+        {
+          "name": "Cacao",
+          "slug": "cacao",
+          "type": "list",
+          "values": [
+            {
+              "value": "70%"
+            },
+            {
+              "value": "85%"
+            },
+            {
+              "value": "100%"
             }
           ]
         }
@@ -1189,72 +1083,6 @@
       ]
     },
     "electronics-and-accessories": {
-      "categories": [
-        {
-          "name": "Phones & Tablets",
-          "children": [
-            {
-              "name": "Smartphones"
-            },
-            {
-              "name": "Tablets"
-            },
-            {
-              "name": "Cases & Screen Protectors"
-            }
-          ]
-        },
-        {
-          "name": "Computers",
-          "children": [
-            {
-              "name": "Laptops"
-            },
-            {
-              "name": "Monitors"
-            },
-            {
-              "name": "Keyboards & Mice"
-            }
-          ]
-        },
-        {
-          "name": "Audio",
-          "children": [
-            {
-              "name": "Headphones"
-            },
-            {
-              "name": "Speakers"
-            }
-          ]
-        },
-        {
-          "name": "Wearables",
-          "children": [
-            {
-              "name": "Smartwatches"
-            },
-            {
-              "name": "Fitness Trackers"
-            }
-          ]
-        },
-        {
-          "name": "Accessories",
-          "children": [
-            {
-              "name": "Chargers & Cables"
-            },
-            {
-              "name": "Power Banks"
-            },
-            {
-              "name": "Storage"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Storage",
@@ -1300,6 +1128,63 @@
             },
             {
               "value": "64 GB"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Lilac",
+              "color": "#B9A3E3"
+            },
+            {
+              "value": "Mint",
+              "color": "#9EDDC6"
+            }
+          ]
+        },
+        {
+          "name": "Bundle",
+          "slug": "bundle",
+          "type": "list",
+          "values": [
+            {
+              "value": "Headphones only"
+            },
+            {
+              "value": "With carry case"
+            }
+          ]
+        },
+        {
+          "name": "Length",
+          "slug": "length",
+          "type": "list",
+          "values": [
+            {
+              "value": "1 m"
+            },
+            {
+              "value": "2 m"
+            }
+          ]
+        },
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "6.1\""
+            },
+            {
+              "value": "6.3\""
+            },
+            {
+              "value": "6.9\""
             }
           ]
         }
@@ -1349,75 +1234,6 @@
       "tax_profiles": []
     },
     "sports-and-fitness": {
-      "categories": [
-        {
-          "name": "Fitness Equipment",
-          "children": [
-            {
-              "name": "Weights"
-            },
-            {
-              "name": "Yoga & Pilates"
-            },
-            {
-              "name": "Cardio"
-            }
-          ]
-        },
-        {
-          "name": "Sportswear",
-          "children": [
-            {
-              "name": "Women's Sportswear"
-            },
-            {
-              "name": "Men's Sportswear"
-            },
-            {
-              "name": "Sports Shoes"
-            }
-          ]
-        },
-        {
-          "name": "Outdoor",
-          "children": [
-            {
-              "name": "Camping"
-            },
-            {
-              "name": "Hiking"
-            },
-            {
-              "name": "Cycling"
-            }
-          ]
-        },
-        {
-          "name": "Team Sports",
-          "children": [
-            {
-              "name": "Football"
-            },
-            {
-              "name": "Basketball"
-            },
-            {
-              "name": "Racket Sports"
-            }
-          ]
-        },
-        {
-          "name": "Nutrition",
-          "children": [
-            {
-              "name": "Protein"
-            },
-            {
-              "name": "Energy & Hydration"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Size",
@@ -1441,6 +1257,12 @@
             },
             {
               "value": "XXL"
+            },
+            {
+              "value": "500 ml"
+            },
+            {
+              "value": "750 ml"
             }
           ]
         },
@@ -1463,6 +1285,46 @@
             },
             {
               "value": "20 kg"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Lilac",
+              "color": "#B49BDB"
+            }
+          ]
+        },
+        {
+          "name": "Thickness",
+          "slug": "thickness",
+          "type": "list",
+          "values": [
+            {
+              "value": "4 mm"
+            },
+            {
+              "value": "6 mm"
+            }
+          ]
+        },
+        {
+          "name": "Weight",
+          "slug": "weight",
+          "type": "list",
+          "values": [
+            {
+              "value": "8 kg"
+            },
+            {
+              "value": "12 kg"
+            },
+            {
+              "value": "16 kg"
             }
           ]
         }
@@ -1508,86 +1370,6 @@
       "tax_profiles": []
     },
     "pet-supplies": {
-      "categories": [
-        {
-          "name": "Dogs",
-          "children": [
-            {
-              "name": "Dog Food"
-            },
-            {
-              "name": "Dog Toys"
-            },
-            {
-              "name": "Beds"
-            },
-            {
-              "name": "Collars & Leads"
-            }
-          ]
-        },
-        {
-          "name": "Cats",
-          "children": [
-            {
-              "name": "Cat Food"
-            },
-            {
-              "name": "Cat Toys"
-            },
-            {
-              "name": "Litter"
-            },
-            {
-              "name": "Scratchers"
-            }
-          ]
-        },
-        {
-          "name": "Small Animals",
-          "children": [
-            {
-              "name": "Food"
-            },
-            {
-              "name": "Cages & Habitats"
-            }
-          ]
-        },
-        {
-          "name": "Fish & Aquatics",
-          "children": [
-            {
-              "name": "Fish Food"
-            },
-            {
-              "name": "Aquariums"
-            }
-          ]
-        },
-        {
-          "name": "Birds",
-          "children": [
-            {
-              "name": "Bird Food"
-            },
-            {
-              "name": "Cages"
-            }
-          ]
-        },
-        {
-          "name": "Health & Grooming",
-          "children": [
-            {
-              "name": "Grooming"
-            },
-            {
-              "name": "Health Care"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Size",
@@ -1630,6 +1412,20 @@
             },
             {
               "value": "Turkey"
+            },
+            {
+              "value": "Salmon"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Sunshine",
+              "color": "#F4C430"
             }
           ]
         }
@@ -1680,86 +1476,6 @@
       ]
     },
     "baby-and-kids": {
-      "categories": [
-        {
-          "name": "Baby Clothing",
-          "children": [
-            {
-              "name": "Bodysuits"
-            },
-            {
-              "name": "Sleepwear"
-            },
-            {
-              "name": "Outerwear"
-            }
-          ]
-        },
-        {
-          "name": "Feeding",
-          "children": [
-            {
-              "name": "Bottles"
-            },
-            {
-              "name": "Bibs"
-            },
-            {
-              "name": "Highchairs"
-            }
-          ]
-        },
-        {
-          "name": "Nursery",
-          "children": [
-            {
-              "name": "Cots & Cribs"
-            },
-            {
-              "name": "Bedding"
-            },
-            {
-              "name": "Storage"
-            }
-          ]
-        },
-        {
-          "name": "Travel",
-          "children": [
-            {
-              "name": "Strollers"
-            },
-            {
-              "name": "Car Seats"
-            },
-            {
-              "name": "Baby Carriers"
-            }
-          ]
-        },
-        {
-          "name": "Toys",
-          "children": [
-            {
-              "name": "Baby Toys"
-            },
-            {
-              "name": "Learning Toys"
-            }
-          ]
-        },
-        {
-          "name": "Bath & Care",
-          "children": [
-            {
-              "name": "Diapers"
-            },
-            {
-              "name": "Bath Time"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Age",
@@ -1789,6 +1505,57 @@
             },
             {
               "value": "4-5 years"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Butter",
+              "color": "#F6DC7A"
+            },
+            {
+              "value": "Peach",
+              "color": "#F6B094"
+            },
+            {
+              "value": "Sky",
+              "color": "#9CCBEB"
+            },
+            {
+              "value": "Sage",
+              "color": "#9CAF88"
+            },
+            {
+              "value": "Sand",
+              "color": "#D8C3A0"
+            },
+            {
+              "value": "Cream",
+              "color": "#F3EBD8"
+            },
+            {
+              "value": "Blush",
+              "color": "#E8B4B0"
+            }
+          ]
+        },
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "0–3 m"
+            },
+            {
+              "value": "3–6 m"
+            },
+            {
+              "value": "6–12 m"
             }
           ]
         }
@@ -1826,72 +1593,6 @@
       ]
     },
     "jewelry-and-watches": {
-      "categories": [
-        {
-          "name": "Rings",
-          "children": [
-            {
-              "name": "Engagement Rings"
-            },
-            {
-              "name": "Wedding Bands"
-            },
-            {
-              "name": "Fashion Rings"
-            }
-          ]
-        },
-        {
-          "name": "Necklaces & Pendants",
-          "children": [
-            {
-              "name": "Necklaces"
-            },
-            {
-              "name": "Pendants"
-            }
-          ]
-        },
-        {
-          "name": "Earrings",
-          "children": [
-            {
-              "name": "Studs"
-            },
-            {
-              "name": "Hoops"
-            },
-            {
-              "name": "Drop Earrings"
-            }
-          ]
-        },
-        {
-          "name": "Bracelets",
-          "children": [
-            {
-              "name": "Bangles"
-            },
-            {
-              "name": "Chain Bracelets"
-            }
-          ]
-        },
-        {
-          "name": "Watches",
-          "children": [
-            {
-              "name": "Women's Watches"
-            },
-            {
-              "name": "Men's Watches"
-            },
-            {
-              "name": "Smart Watches"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Metal",
@@ -1973,6 +1674,66 @@
               "value": "24 in"
             }
           ]
+        },
+        {
+          "name": "Stone",
+          "slug": "stone",
+          "type": "color",
+          "values": [
+            {
+              "value": "Emerald",
+              "color": "#1E8C5A"
+            },
+            {
+              "value": "Ruby",
+              "color": "#B5173A"
+            },
+            {
+              "value": "Sapphire",
+              "color": "#1F4FB5"
+            }
+          ]
+        },
+        {
+          "name": "Length",
+          "slug": "length",
+          "type": "list",
+          "values": [
+            {
+              "value": "40 cm"
+            },
+            {
+              "value": "45 cm"
+            },
+            {
+              "value": "16 cm"
+            },
+            {
+              "value": "18 cm"
+            },
+            {
+              "value": "20 cm"
+            }
+          ]
+        },
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "5"
+            },
+            {
+              "value": "6"
+            },
+            {
+              "value": "7"
+            },
+            {
+              "value": "8"
+            }
+          ]
         }
       ],
       "shipping_profiles": [
@@ -2004,92 +1765,6 @@
       ]
     },
     "automotive-parts-and-accessories": {
-      "categories": [
-        {
-          "name": "Parts",
-          "children": [
-            {
-              "name": "Brakes"
-            },
-            {
-              "name": "Filters"
-            },
-            {
-              "name": "Engine Parts"
-            },
-            {
-              "name": "Suspension"
-            }
-          ]
-        },
-        {
-          "name": "Car Care",
-          "children": [
-            {
-              "name": "Cleaning"
-            },
-            {
-              "name": "Polish & Wax"
-            },
-            {
-              "name": "Fluids & Oils"
-            }
-          ]
-        },
-        {
-          "name": "Interior Accessories",
-          "children": [
-            {
-              "name": "Seat Covers"
-            },
-            {
-              "name": "Floor Mats"
-            },
-            {
-              "name": "Organizers"
-            }
-          ]
-        },
-        {
-          "name": "Exterior Accessories",
-          "children": [
-            {
-              "name": "Lighting"
-            },
-            {
-              "name": "Roof Racks"
-            },
-            {
-              "name": "Wipers"
-            }
-          ]
-        },
-        {
-          "name": "Tools & Equipment",
-          "children": [
-            {
-              "name": "Hand Tools"
-            },
-            {
-              "name": "Diagnostic Tools"
-            }
-          ]
-        },
-        {
-          "name": "Electronics",
-          "children": [
-            {
-              "name": "Dash Cams"
-            },
-            {
-              "name": "Car Audio"
-            },
-            {
-              "name": "Chargers"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Position",
@@ -2143,6 +1818,56 @@
               "value": "Unpainted"
             }
           ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Racing Red",
+              "color": "#C8282E"
+            },
+            {
+              "value": "Sunflower",
+              "color": "#F2B71F"
+            }
+          ]
+        },
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "37 cm"
+            },
+            {
+              "value": "39 cm"
+            },
+            {
+              "value": "500 ml"
+            },
+            {
+              "value": "1 L"
+            }
+          ]
+        },
+        {
+          "name": "Fit",
+          "slug": "fit",
+          "type": "list",
+          "values": [
+            {
+              "value": "Compact"
+            },
+            {
+              "value": "Sedan"
+            },
+            {
+              "value": "SUV"
+            }
+          ]
         }
       ],
       "shipping_profiles": [
@@ -2186,78 +1911,6 @@
       "tax_profiles": []
     },
     "toys-games-and-hobbies": {
-      "categories": [
-        {
-          "name": "Toys",
-          "children": [
-            {
-              "name": "Action Figures"
-            },
-            {
-              "name": "Dolls"
-            },
-            {
-              "name": "Building Sets"
-            },
-            {
-              "name": "Plush Toys"
-            }
-          ]
-        },
-        {
-          "name": "Games & Puzzles",
-          "children": [
-            {
-              "name": "Board Games"
-            },
-            {
-              "name": "Card Games"
-            },
-            {
-              "name": "Puzzles"
-            }
-          ]
-        },
-        {
-          "name": "Outdoor Play",
-          "children": [
-            {
-              "name": "Ride-Ons"
-            },
-            {
-              "name": "Water Play"
-            },
-            {
-              "name": "Sports Toys"
-            }
-          ]
-        },
-        {
-          "name": "Educational",
-          "children": [
-            {
-              "name": "STEM Toys"
-            },
-            {
-              "name": "Arts for Kids"
-            }
-          ]
-        },
-        {
-          "name": "Hobbies",
-          "children": [
-            {
-              "name": "Model Kits"
-            },
-            {
-              "name": "Remote Control"
-            },
-            {
-              "name": "Collectibles"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Age Range",
@@ -2278,6 +1931,67 @@
             },
             {
               "value": "13+ years"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Rainbow",
+              "color": "#E8553F"
+            },
+            {
+              "value": "Pastel",
+              "color": "#F2C6C2"
+            },
+            {
+              "value": "Jewel",
+              "color": "#1F6F78"
+            }
+          ]
+        },
+        {
+          "name": "Pieces",
+          "slug": "pieces",
+          "type": "list",
+          "values": [
+            {
+              "value": "30 pieces"
+            },
+            {
+              "value": "60 pieces"
+            }
+          ]
+        },
+        {
+          "name": "Back",
+          "slug": "back",
+          "type": "list",
+          "values": [
+            {
+              "value": "Navy"
+            },
+            {
+              "value": "Burgundy"
+            }
+          ]
+        },
+        {
+          "name": "Set",
+          "slug": "set",
+          "type": "list",
+          "values": [
+            {
+              "value": "20 pieces"
+            },
+            {
+              "value": "40 pieces"
+            },
+            {
+              "value": "80 pieces"
             }
           ]
         }
@@ -2310,75 +2024,6 @@
       "tax_profiles": []
     },
     "health-and-wellness": {
-      "categories": [
-        {
-          "name": "Vitamins & Supplements",
-          "children": [
-            {
-              "name": "Multivitamins"
-            },
-            {
-              "name": "Minerals"
-            },
-            {
-              "name": "Herbal Supplements"
-            },
-            {
-              "name": "Protein"
-            }
-          ]
-        },
-        {
-          "name": "Personal Care",
-          "children": [
-            {
-              "name": "Oral Care"
-            },
-            {
-              "name": "Skin Care"
-            }
-          ]
-        },
-        {
-          "name": "Fitness & Recovery",
-          "children": [
-            {
-              "name": "Massage"
-            },
-            {
-              "name": "Supports & Braces"
-            }
-          ]
-        },
-        {
-          "name": "Health Monitors",
-          "children": [
-            {
-              "name": "Blood Pressure"
-            },
-            {
-              "name": "Thermometers"
-            },
-            {
-              "name": "Scales"
-            }
-          ]
-        },
-        {
-          "name": "Wellness",
-          "children": [
-            {
-              "name": "Sleep"
-            },
-            {
-              "name": "Aromatherapy"
-            },
-            {
-              "name": "Tea & Infusions"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Count",
@@ -2420,6 +2065,59 @@
               "value": "Lemon"
             }
           ]
+        },
+        {
+          "name": "Strap",
+          "slug": "strap",
+          "type": "list",
+          "values": [
+            {
+              "value": "Elastic"
+            },
+            {
+              "value": "Adjustable"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Lilac",
+              "color": "#BBA4E0"
+            }
+          ]
+        },
+        {
+          "name": "Scent",
+          "slug": "scent",
+          "type": "list",
+          "values": [
+            {
+              "value": "Eucalyptus"
+            },
+            {
+              "value": "Lavender"
+            }
+          ]
+        },
+        {
+          "name": "Weight",
+          "slug": "weight",
+          "type": "list",
+          "values": [
+            {
+              "value": "5 kg"
+            },
+            {
+              "value": "7 kg"
+            },
+            {
+              "value": "9 kg"
+            }
+          ]
         }
       ],
       "shipping_profiles": [
@@ -2451,75 +2149,6 @@
       ]
     },
     "arts-and-crafts-supplies": {
-      "categories": [
-        {
-          "name": "Painting",
-          "children": [
-            {
-              "name": "Paints"
-            },
-            {
-              "name": "Brushes"
-            },
-            {
-              "name": "Canvases"
-            }
-          ]
-        },
-        {
-          "name": "Drawing",
-          "children": [
-            {
-              "name": "Pencils & Charcoal"
-            },
-            {
-              "name": "Markers"
-            },
-            {
-              "name": "Sketchbooks"
-            }
-          ]
-        },
-        {
-          "name": "Paper Crafts",
-          "children": [
-            {
-              "name": "Paper & Card"
-            },
-            {
-              "name": "Scrapbooking"
-            },
-            {
-              "name": "Stamps"
-            }
-          ]
-        },
-        {
-          "name": "Sewing & Knitting",
-          "children": [
-            {
-              "name": "Yarn"
-            },
-            {
-              "name": "Fabric"
-            },
-            {
-              "name": "Notions"
-            }
-          ]
-        },
-        {
-          "name": "Kids' Crafts",
-          "children": [
-            {
-              "name": "Craft Kits"
-            },
-            {
-              "name": "Clay & Dough"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Size",
@@ -2556,6 +2185,38 @@
             },
             {
               "value": "Pack of 24"
+            }
+          ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Marigold",
+              "color": "#F0A433"
+            },
+            {
+              "value": "Fuchsia",
+              "color": "#D23C88"
+            },
+            {
+              "value": "Terracotta",
+              "color": "#C8664A"
+            }
+          ]
+        },
+        {
+          "name": "Weight",
+          "slug": "weight",
+          "type": "list",
+          "values": [
+            {
+              "value": "DK"
+            },
+            {
+              "value": "Worsted"
             }
           ]
         }
@@ -2601,89 +2262,6 @@
       "tax_profiles": []
     },
     "musical-instruments": {
-      "categories": [
-        {
-          "name": "Guitars & Basses",
-          "children": [
-            {
-              "name": "Acoustic Guitars"
-            },
-            {
-              "name": "Electric Guitars"
-            },
-            {
-              "name": "Bass Guitars"
-            }
-          ]
-        },
-        {
-          "name": "Keyboards & Pianos",
-          "children": [
-            {
-              "name": "Digital Pianos"
-            },
-            {
-              "name": "Keyboards"
-            },
-            {
-              "name": "MIDI Controllers"
-            }
-          ]
-        },
-        {
-          "name": "Drums & Percussion",
-          "children": [
-            {
-              "name": "Drum Kits"
-            },
-            {
-              "name": "Percussion"
-            }
-          ]
-        },
-        {
-          "name": "Wind & Strings",
-          "children": [
-            {
-              "name": "Wind Instruments"
-            },
-            {
-              "name": "String Instruments"
-            }
-          ]
-        },
-        {
-          "name": "Audio & Recording",
-          "children": [
-            {
-              "name": "Microphones"
-            },
-            {
-              "name": "Audio Interfaces"
-            },
-            {
-              "name": "Headphones"
-            }
-          ]
-        },
-        {
-          "name": "Accessories",
-          "children": [
-            {
-              "name": "Strings"
-            },
-            {
-              "name": "Cases & Bags"
-            },
-            {
-              "name": "Stands"
-            },
-            {
-              "name": "Sheet Music"
-            }
-          ]
-        }
-      ],
       "attributes": [
         {
           "name": "Size",
@@ -2738,6 +2316,47 @@
               "value": "Left-handed"
             }
           ]
+        },
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Cherry",
+              "color": "#B8202E"
+            },
+            {
+              "value": "Mustard",
+              "color": "#D9A21F"
+            }
+          ]
+        },
+        {
+          "name": "Length",
+          "slug": "length",
+          "type": "list",
+          "values": [
+            {
+              "value": "Standard"
+            },
+            {
+              "value": "Long"
+            }
+          ]
+        },
+        {
+          "name": "Gauge",
+          "slug": "gauge",
+          "type": "list",
+          "values": [
+            {
+              "value": "Light"
+            },
+            {
+              "value": "Medium"
+            }
+          ]
         }
       ],
       "shipping_profiles": [
@@ -2782,6 +2401,54 @@
         {
           "key": "sheet_music",
           "name": "Sheet Music"
+        }
+      ]
+    },
+    "other": {
+      "attributes": [
+        {
+          "name": "Color",
+          "slug": "color",
+          "type": "color",
+          "values": [
+            {
+              "value": "Cobalt",
+              "color": "#2856C6"
+            },
+            {
+              "value": "Tomato",
+              "color": "#E2462F"
+            },
+            {
+              "value": "Sunflower",
+              "color": "#F4BE26"
+            },
+            {
+              "value": "Sand",
+              "color": "#D8C3A0"
+            },
+            {
+              "value": "Charcoal",
+              "color": "#36454F"
+            },
+            {
+              "value": "Sage",
+              "color": "#9CAF88"
+            }
+          ]
+        },
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "Standard"
+            },
+            {
+              "value": "Large"
+            }
+          ]
         }
       ]
     }
