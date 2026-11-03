@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Providers\OrderServiceProvider;
 use Kirki\Ecommerce\App\Providers\SettingsServiceProvider;
 use Kirki\Ecommerce\App\Providers\PaymentServiceProvider;
 use Kirki\Ecommerce\App\Providers\CurrencyServiceProvider;
+use Kirki\Ecommerce\App\Migration\Providers\MigrationServiceProvider;
 use Kirki\Ecommerce\App\Providers\OrderActivityServiceProvider;
 use Kirki\Ecommerce\App\Providers\RateLimiterServiceProvider;
 use Kirki\Ecommerce\Framework\Queue\QueueServiceProvider;
@@ -24,4 +25,5 @@ return [
     OrderActivityServiceProvider::class,
     RateLimiterServiceProvider::class,
     QueueServiceProvider::class,
+    MigrationServiceProvider::class,
 ];

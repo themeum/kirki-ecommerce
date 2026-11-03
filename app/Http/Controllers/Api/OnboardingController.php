@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\DTO\Onboarding\StoreSetupDTO;
+use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Readers\OnboardingDefaultsReader;
 use Kirki\Ecommerce\App\Http\Requests\Settings\OnboardingRequest;
 use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Services\SampleDataImporter;
@@ -50,6 +51,26 @@ class OnboardingController
         $this->store_setup_service = $store_setup_service;
         $this->sample_data_importer = $sample_data_importer;
         $this->currency_service = $currency_service;
+    }
+
+    /**
+     * Get the first answers for the wizard, read from WooCommerce when it is installed.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The source name and the values, or a null source when WooCommerce is not usable.
+     */
+    public function defaults(Request $request)
+    {
+        $values = (new OnboardingDefaultsReader())->read();
+
+        return response()->json([
+            'data' => [
+                'source' => $values === null ? null : 'woocommerce',
+                'values' => $values ?? (object) [],
+            ],
+        ]);
     }
 
     /**

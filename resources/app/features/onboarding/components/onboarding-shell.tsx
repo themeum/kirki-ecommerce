@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { getStepProgress } from '@/features/onboarding/lib/progress';
 import {
   COMPLETION_STEP,
   getStepTitle,
@@ -13,16 +14,31 @@ import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
+type OnboardingShellProgress = {
+  percent: number;
+  title: string;
+  message: string;
+};
+
 type OnboardingShellProps = {
   step: OnboardingStep;
   stepCount: number;
   children: ReactNode;
   afterCard?: ReactNode;
+  progressOverride?: OnboardingShellProgress;
 };
 
-const OnboardingShell = ({ step, stepCount, children, afterCard }: OnboardingShellProps) => {
+const OnboardingShell = ({
+  step,
+  stepCount,
+  children,
+  afterCard,
+  progressOverride,
+}: OnboardingShellProps) => {
   const isCompletion = step === COMPLETION_STEP;
-  const progress = isCompletion ? 100 : (step / stepCount) * 100;
+  const progress = progressOverride
+    ? progressOverride.percent
+    : getStepProgress(isCompletion ? stepCount : step, stepCount);
 
   return (
     <div css={scoped(styles.overlay)}>
@@ -45,11 +61,13 @@ const OnboardingShell = ({ step, stepCount, children, afterCard }: OnboardingShe
               <div css={scoped(styles.fill)} style={{ width: `${progress}%` }} />
             </div>
             <Flex justify="space-between">
-              <Text variant="small" color="secondary">
-                {!isCompletion && sprintf(__('Step %d', 'kirki-ecommerce'), step + 1)}
+              <Text variant="small" color="secondary" aria-live="polite">
+                {progressOverride
+                  ? progressOverride.message
+                  : !isCompletion && sprintf(__('Step %d', 'kirki-ecommerce'), step + 1)}
               </Text>
               <Text variant="small" color="secondary">
-                {getStepTitle(step)}
+                {progressOverride ? progressOverride.title : getStepTitle(step)}
               </Text>
             </Flex>
           </Flex>
@@ -64,6 +82,7 @@ const OnboardingShell = ({ step, stepCount, children, afterCard }: OnboardingShe
 OnboardingShell.displayName = 'OnboardingShell';
 
 export default OnboardingShell;
+export type { OnboardingShellProgress };
 
 const hideAdminChrome = css({
   'html.wp-toolbar': {

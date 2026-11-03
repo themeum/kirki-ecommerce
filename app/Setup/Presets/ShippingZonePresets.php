@@ -100,7 +100,8 @@ class ShippingZonePresets
             $code = strtoupper((string) ($region['country'] ?? ''));
 
             if (isset($countries[$code])) {
-                $regions[] = ['country' => $code, 'states' => array_map('strval', (array) ($region['states'] ?? []))];
+                $states = array_map('strval', (array) ($region['states'] ?? []));
+                $regions[] = ['country' => $code, 'states' => empty($states) ? CountryData::state_ids($code) : $states];
             }
         }
 
