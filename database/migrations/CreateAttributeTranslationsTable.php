@@ -29,7 +29,7 @@ class CreateAttributeTranslationsTable implements Migration
             $table->unsigned_big_integer('attribute_id');
             $table->string('language_code')->comment('Language ID for this translation');
             $table->string('name', 100);
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique(['attribute_id', 'language_code'], 'uq_kecom_attribute_translations_attribute_id_language_code');
             $table->index('language_code', 'idx_kecom_attribute_translations_language_code');

@@ -28,7 +28,7 @@ class CreateMediaProductTable implements Migration
             $table->unsigned_big_integer('product_id');
             $table->unsigned_big_integer('media_id');
             $table->integer('ordering')->default(0);
-            $table->timestamps();
+            $table->datetimes();
 
             $table->primary(['media_id', 'product_id']);
 

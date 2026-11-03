@@ -36,7 +36,7 @@ class CreateProductTranslationsTable implements Migration
             $table->text('seo_description')->nullable();
             $table->text('seo_keywords')->nullable();
 
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique(['product_id', 'language_code'], 'uq_kecom_product_translations_product_id_language_code');
             $table->index('language_code', 'idx_kecom_product_translations_language_code');

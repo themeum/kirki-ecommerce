@@ -41,7 +41,7 @@ class CreateAddressesTable implements Migration
             $table->string('label', 255)->nullable();
             $table->boolean('is_default_shipping')->default(0);
             $table->boolean('is_default_billing')->default(0);
-            $table->timestamps();
+            $table->datetimes();
 
             $table->foreign('customer_id', 'fk_kecom_addresses_customer_id')
                 ->references('id')

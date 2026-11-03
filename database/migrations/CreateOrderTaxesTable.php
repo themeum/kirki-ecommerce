@@ -36,7 +36,7 @@ class CreateOrderTaxesTable implements Migration
             $table->big_integer('invoiced_amount')->default(0)->comment('Tax charged at this rate on the item or on shipping (see type), in the invoiced currency, minor units');
             $table->big_integer('base_amount')->default(0)->comment('Tax charged at this rate on the item or on shipping (see type), in the base currency, minor units; all rows of an order add up exactly to orders.base_tax_total');
 
-            $table->timestamps();
+            $table->datetimes();
 
             $table->foreign('order_id', 'fk_kecom_order_taxes_order_id')
                 ->references('id')

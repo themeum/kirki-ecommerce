@@ -37,7 +37,7 @@ class CreateCategoriesTable implements Migration
             $table->boolean('is_deletable')->default(1);
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('slug', 'uq_kecom_categories_slug');
             $table->foreign('created_by', 'fk_kecom_categories_created_by')->on('users')->references('ID')->null_on_delete();

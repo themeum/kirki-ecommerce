@@ -28,7 +28,7 @@ class CreateCollectionProductTable implements Migration
             $table->unsigned_big_integer('collection_id');
             $table->unsigned_big_integer('product_id');
             $table->integer('ordering')->default(0);
-            $table->timestamps();
+            $table->datetimes();
 
             $table->primary(['collection_id', 'product_id']);
             $table->index('ordering', 'idx_kecom_collection_product_ordering');

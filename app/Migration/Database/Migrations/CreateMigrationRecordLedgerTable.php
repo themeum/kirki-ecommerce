@@ -33,7 +33,7 @@ class CreateMigrationRecordLedgerTable implements Migration
             $table->unsigned_big_integer('run_id')->nullable();
             $table->string('origin', 20)->default('created')->comment('created or reused');
             $table->long_text('previous_value')->nullable()->comment('Value a revert puts back, for settings');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique(['source', 'entity', 'source_id'], 'uq_kecom_migration_record_ledger_source_entity');
             $table->index(['entity', 'kirki_ecommerce_id'], 'idx_kecom_migration_record_ledger_kirki');

@@ -105,24 +105,42 @@ class UtcDateTimeStorageTest extends RestTestCase
     }
 
     /**
-     * No named date column is a TIMESTAMP.
-     *
-     * created_at and updated_at are left out: they come from the framework timestamps() call, which the
-     * framework itself will change to create DATETIME. Remove the exclusion when it does.
+     * No date column of any plugin table is a TIMESTAMP, created_at and updated_at included.
      *
      * @return void
      * @since 1.0.0
      */
-    public function test_no_named_date_column_is_a_timestamp(): void
+    public function test_no_date_column_is_a_timestamp(): void
     {
         $timestamps = (array) DB::select(
             "select concat(TABLE_NAME, '.', COLUMN_NAME) as name from information_schema.COLUMNS"
-            . " where TABLE_SCHEMA = database() and TABLE_NAME like %s and DATA_TYPE = 'timestamp'"
-            . " and COLUMN_NAME not in ('created_at', 'updated_at')",
+            . " where TABLE_SCHEMA = database() and TABLE_NAME like %s and DATA_TYPE = 'timestamp'",
             [DB::connection()->get_table_prefix() . 'kirki_ecommerce_%']
         );
 
         $this->assertSame([], array_column($timestamps, 'name'), 'Plugin date columns that are still timestamp.');
+    }
+
+    /**
+     * The audit columns are DATETIME: created_at defaults to the current time and updated_at is nullable.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_audit_columns_are_datetime(): void
+    {
+        $rows = (array) DB::select(
+            'select COLUMN_NAME as name, DATA_TYPE as type, IS_NULLABLE as nullable, COLUMN_DEFAULT as col_default'
+            . ' from information_schema.COLUMNS where TABLE_SCHEMA = database() and TABLE_NAME = %s'
+            . " and COLUMN_NAME in ('created_at', 'updated_at')",
+            [$this->table('orders')]
+        );
+        $columns = array_column($rows, null, 'name');
+
+        $this->assertSame('datetime', $columns['created_at']['type'] ?? null);
+        $this->assertStringContainsStringIgnoringCase('current_timestamp', (string) ($columns['created_at']['col_default'] ?? ''));
+        $this->assertSame('datetime', $columns['updated_at']['type'] ?? null);
+        $this->assertSame('YES', $columns['updated_at']['nullable'] ?? null);
     }
 
     /**

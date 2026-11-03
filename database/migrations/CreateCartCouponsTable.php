@@ -28,7 +28,7 @@ class CreateCartCouponsTable implements Migration
             $table->id();
             $table->unsigned_big_integer('cart_id');
             $table->unsigned_big_integer('coupon_id');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique(['cart_id', 'coupon_id'], 'uq_kecom_cart_coupons_cart_id_coupon_id');
 
