@@ -10,7 +10,7 @@ import DataTableRowActions from '@/components/data-table/data-table-row-actions'
 import Button from '@/components/ui/button';
 import { RouteConfig } from '@/config/route-config';
 import CollectionTableFilters from '@/features/collections/components/collection-table/collection-table-filters';
-import { collectionColumns } from '@/features/collections/components/collection-table/columns';
+import { createCollectionColumns } from '@/features/collections/components/collection-table/columns';
 import type { Collection } from '@/features/collections/schemas/catalog/collection';
 import {
   useBulkDeleteCollectionsMutation,
@@ -76,7 +76,7 @@ const CollectionTable = ({ data, isLoading = false }: ListingTableProps<Collecti
 
   const columns = useMemo<ColumnDef<Collection>[]>(
     () => [
-      ...collectionColumns,
+      ...createCollectionColumns({ onEdit: handleRowClick }),
       {
         id: 'actions',
         header: '',
@@ -128,7 +128,6 @@ const CollectionTable = ({ data, isLoading = false }: ListingTableProps<Collecti
         bulkActions={collectionBulkActions}
         onBulkApply={handleBulkApply}
         columnPinning={{ right: ['actions'] }}
-        onRowClick={handleRowClick}
         toolbar={<CollectionTableFilters />}
         emptyState={
           <DataTableEmptyState

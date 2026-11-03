@@ -236,7 +236,7 @@ const CategoriesField = <
               placeholder={placeholder}
               selectedPlaceholder={__('Add more', 'kirki-ecommerce')}
               emptyText={__('No matching categories', 'kirki-ecommerce')}
-              emptyStateText={__('Add your first category', 'kirki-ecommerce')}
+              emptyStateText={__('Type a category name to add it.', 'kirki-ecommerce')}
               disabled={disabled}
               error={Boolean(fieldState.error)}
             />

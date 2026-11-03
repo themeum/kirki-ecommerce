@@ -105,7 +105,7 @@ const Brand = () => {
         onCreate={handleCreate}
         placeholder={__('Add brand', 'kirki-ecommerce')}
         emptyText={__('No brands found.', 'kirki-ecommerce')}
-        emptyStateText={__('Add your first brand', 'kirki-ecommerce')}
+        emptyStateText={__('Type a brand name to add it.', 'kirki-ecommerce')}
       />
     </Field>
   );

@@ -133,7 +133,7 @@ const ProductTable = (props: ProductTableProps) => {
       cssOverride={mergeCss(cardStyles.innerCard, cardStyles.tableCardRounded, styles.tableCard)}
     >
       <CardContent cssOverride={cardStyles.tableContent}>
-        <Table>
+        <Table cssOverride={styles.table}>
           <TableHeader>
             <TableRow>
               <TableHead onlyCheckbox>
@@ -199,5 +199,10 @@ export default ProductTable;
 const styles = defineStyles({
   tableCard: {
     overflow: 'auto',
+  },
+  table: {
+    '& thead': {
+      border: 'none',
+    },
   },
 });
