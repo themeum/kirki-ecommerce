@@ -20,11 +20,14 @@ use Kirki\Ecommerce\App\Supports\Onboarding;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
+use Kirki\Ecommerce\Tests\Support\ServesPresetData;
 
 use function Kirki\Ecommerce\Framework\app;
 
 class OnboardingApiTest extends RestTestCase
 {
+    use ServesPresetData;
+
     /**
      * Prepare state before each test.
      *
@@ -39,6 +42,7 @@ class OnboardingApiTest extends RestTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->serve_preset_data();
         $this->reset_seeder_queue();
         Currency::query()->delete();
     }
@@ -378,23 +382,6 @@ class OnboardingApiTest extends RestTestCase
     }
 
     /**
-     * Sample data on a store that already has products creates no coupon.
-     *
-     * @return void
-     * @since 1.0.0
-     */
-    public function test_sample_data_creates_no_coupon_when_products_exist(): void
-    {
-        $this->assert_api_success($this->request('POST', 'onboarding', $this->payload()));
-        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
-        Coupon::query()->delete();
-
-        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
-
-        $this->assertFalse(Coupon::query()->exists());
-    }
-
-    /**
      * Store setup writes every preset kind for the saved industry and country.
      *
      * @return void
@@ -406,7 +393,7 @@ class OnboardingApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('POST', 'onboarding', $this->preset_payload()));
 
-        $this->assertTrue(Category::query()->where('name', 'Women')->exists());
+        $this->assertFalse(Category::query()->exists());
         $this->assertTrue(Attribute::query()->where('slug', 'size')->exists());
         $this->assertSame(1, ProductSchema::query()->count());
         $this->assertFalse(Coupon::query()->exists());
@@ -432,7 +419,7 @@ class OnboardingApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('POST', 'onboarding', $this->preset_payload()));
 
-        $this->assertFalse(Category::query()->exists());
+        $this->assertFalse(Attribute::query()->where('slug', 'size')->exists());
         $this->assertFalse(ShippingProfile::query()->exists());
         $this->assertEmpty(Option::get(OptionKeys::SHIPPING_SETTINGS)['shipping_zones'] ?? []);
     }
@@ -464,7 +451,7 @@ class OnboardingApiTest extends RestTestCase
         }
 
         $this->assertEmpty(Option::get(OptionKeys::SHIPPING_SETTINGS)['shipping_zones'] ?? []);
-        $this->assertTrue(Category::query()->where('name', 'Women')->exists());
+        $this->assertTrue(Attribute::query()->where('slug', 'size')->exists());
         $this->assertCount(3, Option::get(OptionKeys::LEGAL_SETTINGS)['consents']);
         $this->assertCount(1, Option::get(OptionKeys::TAX_SETTINGS)['tax_regions']);
         $this->assertNotEmpty(Option::get(OptionKeys::PRESETS_APPLIED_AT));

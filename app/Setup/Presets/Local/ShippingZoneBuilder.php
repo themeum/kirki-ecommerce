@@ -10,7 +10,7 @@ use Kirki\Ecommerce\App\Supports\CountryData;
 defined('ABSPATH') || exit;
 
 /**
- * Builds the Domestic and Regional shipping zones of a store from the bundled preset data.
+ * Builds the Domestic and Regional shipping zones of a store from the preset data.
  *
  * @since 1.0.0
  */

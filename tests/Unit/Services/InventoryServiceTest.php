@@ -135,4 +135,18 @@ class InventoryServiceTest extends TestCase
 
         $this->service->release_all_reserved_stock($order);
     }
+
+    public function test_confirm_all_reserved_stock_skips_lines_whose_variant_was_deleted(): void
+    {
+        $order = new Order();
+        $order->set_relation('items', collection([
+            new OrderItem(['variant_id' => null, 'quantity' => 4]),
+            new OrderItem(['variant_id' => 7, 'quantity' => 2]),
+        ]));
+
+        $this->stub_variant(['track_inventory' => true]);
+        $this->variant_service->expects($this->once())->method('confirm_committed')->with(7, 2)->willReturn(true);
+
+        $this->service->confirm_all_reserved_stock($order);
+    }
 }

@@ -69,8 +69,8 @@ const AddCustomerDialog = ({
           </DialogHeader>
           <DialogBody>
             <Flex direction="column" gap={4}>
-              <CustomerBasicInfo />
-              <CustomerAddressCard />
+              <CustomerBasicInfo noShadowCard />
+              <CustomerAddressCard noShadowCard />
             </Flex>
           </DialogBody>
           <DialogFooter>

@@ -33,27 +33,35 @@ const StateSelector = ({
     label: state.name,
   }));
 
+  const isCountrySelected = isDefined(country) && country !== '';
+
   return (
     <Field data-invalid={error ? true : undefined}>
       <FieldLabel>
-        {country ? getStateLabel(country) : label || __('State / Province', 'kirki-ecommerce')}
+        {isCountrySelected
+          ? getStateLabel(country)
+          : label || __('State / Province', 'kirki-ecommerce')}
       </FieldLabel>
       <Combobox
         options={options}
         value={value}
         onChange={(next) => onChange(Array.isArray(next) ? (next[0] ?? '') : next)}
         error={Boolean(error)}
-        disabled={!isDefined(country) || disabled}
+        disabled={!isCountrySelected || disabled}
         placeholder={
-          isDefined(country)
+          isCountrySelected
             ? sprintf(
                 /* translators: %s: state label */
                 __('Select %s', 'kirki-ecommerce'),
-                getStateLabel(country),
+                getStateLabel(country).toLowerCase(),
               )
             : __('Select a country first', 'kirki-ecommerce')
         }
-        emptyText={__('No states found for this country.', 'kirki-ecommerce')}
+        emptyText={sprintf(
+          /* translators: %s: state label */
+          __('No %s found for this country.', 'kirki-ecommerce'),
+          getStateLabel(country).toLowerCase(),
+        )}
         listCss={styles.wrapper}
         searchInputCss={styles.searchInput}
       />
@@ -69,7 +77,7 @@ export default StateSelector;
 
 const styles = defineStyles({
   wrapper: {
-    height: '220px',
+    maxHeight: '220px',
     overflowY: 'scroll',
     overflowX: 'hidden',
     borderTop: `1px solid ${theme.colors.border.muted}`,

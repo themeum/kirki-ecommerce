@@ -29,7 +29,7 @@ class CreateRefundsTable implements Migration
             $table->unsigned_big_integer('order_id');
             $table->string('status', 50)->default('pending')->comment('Supported values: pending, completed, failed, cancelled');
 
-            $table->integer('invoiced_amount')->comment('Refund amount in cents, in the order currency');
+            $table->big_integer('invoiced_amount')->comment('Refund amount in the order currency, minor units');
             $table->text('reason')->nullable();
 
             $table->string('refund_type', 50)->default('partial')->comment('Supported values: partial, full');
@@ -38,7 +38,7 @@ class CreateRefundsTable implements Migration
 
             $table->unsigned_big_integer('created_by')->nullable()->comment('WordPress user ID who created the refund');
             $table->unsigned_big_integer('updated_by')->nullable()->comment('WordPress user ID who updated the refund');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->index('status', 'idx_kecom_refunds_status');
 

@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\DTO\Onboarding\StoreSetupDTO;
+use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Readers\OnboardingDefaultsReader;
 use Kirki\Ecommerce\App\Http\Requests\Settings\OnboardingRequest;
 use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Services\SampleDataImporter;
@@ -53,6 +54,26 @@ class OnboardingController
     }
 
     /**
+     * Get the first answers for the wizard, read from WooCommerce when it is installed.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The source name and the values, or a null source when WooCommerce is not usable.
+     */
+    public function defaults(Request $request)
+    {
+        $values = (new OnboardingDefaultsReader())->read();
+
+        return response()->json([
+            'data' => [
+                'source' => $values === null ? null : 'woocommerce',
+                'values' => $values ?? (object) [],
+            ],
+        ]);
+    }
+
+    /**
      * Set up the store from the onboarding answers and record onboarding as complete.
      *
      * @since 1.0.0
@@ -92,6 +113,7 @@ class OnboardingController
      *
      * @param Request $request
      * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response, or a 409 before onboarding is complete.
+     * @throws \Exception With a 503 status when the sample data cannot be downloaded.
      */
     public function import_sample_data(Request $request)
     {

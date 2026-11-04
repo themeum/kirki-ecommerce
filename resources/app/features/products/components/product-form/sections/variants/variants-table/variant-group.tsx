@@ -17,6 +17,7 @@ import {
 import { getAttributeByValueId } from '@/features/products/lib/utils';
 import { getVariantIndexArray } from '@/features/products/lib/variant-group';
 import { InfoIcon } from '@/icons/common';
+import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 import GroupPriceCell from './group-price-cell';
@@ -93,7 +94,12 @@ const VariantGroup = ({
   return (
     <>
       <TableRow
-        cssOverride={{ cursor: 'pointer' }}
+        cssOverride={{
+          cursor: 'pointer',
+          ':hover [data-price-cell]': {
+            border: `1px solid ${theme.colors.border.default}`,
+          },
+        }}
         onClick={() => handleParentCheckboxClick(!isGroupFullySelected, [parentId])}
       >
         <TableCell onlyCheckbox onClick={stopPropagation}>
@@ -106,7 +112,7 @@ const VariantGroup = ({
             onCheckedChange={(checked) => handleParentCheckboxClick(checked === true, [parentId])}
           />
         </TableCell>
-        <TableCell cssOverride={{ width: '242px' }}>
+        <TableCell cssOverride={{ width: '200px' }}>
           <Flex gap={3} align="center">
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- keeps the thumbnail's media picker click from also toggling row selection; the thumbnail control itself is the interactive element */}
             <div onClick={stopPropagation}>
@@ -130,7 +136,7 @@ const VariantGroup = ({
             </Flex>
           </Flex>
         </TableCell>
-        <TableCell cssOverride={{ width: '170px' }} onClick={stopPropagation}>
+        <TableCell cssOverride={{ width: '160px' }} onClick={stopPropagation}>
           <GroupPriceCell
             minPrice={combinedData.minPrice}
             maxPrice={combinedData.maxPrice}
@@ -138,7 +144,7 @@ const VariantGroup = ({
             onCommit={(value) => handleOnParentValueChange(value, 'base_price')}
           />
         </TableCell>
-        <TableCell cssOverride={{ width: '170px' }}>
+        <TableCell cssOverride={{ width: '120px' }}>
           {groupStatus && (
             <Flex
               align="center"

@@ -30,7 +30,7 @@ class CreateAttributeValuesTable implements Migration
             $table->string('value', 255);
             $table->string('color', 10)->nullable()->comment('Hex color code');
             $table->unsigned_big_integer('media')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique(['attribute_id', 'value'], 'uq_kecom_attribute_values_attribute_id_value');
             $table->index('value', 'idx_kecom_attribute_values_value');

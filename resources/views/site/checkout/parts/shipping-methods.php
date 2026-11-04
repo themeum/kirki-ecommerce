@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Shipping Methods Part
  *
@@ -18,20 +19,20 @@ defined('ABSPATH') || exit;
             <label class="kecom-radio kecom-shipping-option">
                 <div class="kecom-shipping-option-main">
                     <input class="kecom-radio-input"
-                            type="radio"
-                            name="shipping_method"
-                            :value="shipping.id"
-                            x-model="selectedShippingMethod"
-                            @change="setShippingMethod(shipping.id)">
+                        type="radio"
+                        name="shipping_method"
+                        :value="shipping.id"
+                        x-model="selectedShippingMethod"
+                        @change="setShippingMethod(shipping.id)">
                     <div class="kecom-radio-label">
                         <span class="kecom-shipping-name" x-text="shipping.name"></span>
                         <span class="kecom-shipping-description" x-text="shipping.description"></span>
                     </div>
-                    <div class="kecom-shipping-price" x-text="shipping?.display_cost_money_object?.display"></div>
+                    <div class="kecom-shipping-price" x-text="shipping?.display_cost_money_object?.raw === 0 ? '<?php echo esc_js(__('Free', 'kirki-ecommerce')); ?>' : shipping?.display_cost_money_object?.display"></div>
                 </div>
                 <div class="kecom-shipping-option-details"
-                     x-show="selectedShippingMethod === shipping.id && shipping.type === 'local_pickup' && (shipping.address || pickupTimeRange(shipping))"
-                     x-cloak>
+                    x-show="selectedShippingMethod === shipping.id && shipping.type === 'local_pickup' && (shipping.address || pickupTimeRange(shipping))"
+                    x-cloak>
                     <div class="kecom-shipping-option-detail" x-show="shipping.address">
                         <?php Icon::render('map-pin', ['size' => 16]); ?>
                         <span x-text="shipping.address"></span>

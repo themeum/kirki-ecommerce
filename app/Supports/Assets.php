@@ -112,6 +112,7 @@ class Assets
     {
         $config_data = [
             'site_url' => esc_url(site_url()),
+            'site_title' => get_bloginfo('name'),
             'kecom_nonce' => esc_attr(wp_create_nonce('kirki_ecommerce_nonce')),
             'ajax_url' => esc_url(admin_url('admin-ajax.php')),
             'rest_nonce' => esc_attr(wp_create_nonce('wp_rest')),

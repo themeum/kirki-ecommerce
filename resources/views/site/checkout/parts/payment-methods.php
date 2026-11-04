@@ -6,6 +6,8 @@
  * @package Kirki\Ecommerce\Templates
  */
 
+use Kirki\Ecommerce\App\Supports\Icon;
+
 defined('ABSPATH') || exit;
 
 $payment_gateways = $data['payment_gateways'] ?? [];
@@ -15,6 +17,11 @@ $payment_gateways = $data['payment_gateways'] ?? [];
 <div class="kecom-payment-section">
     <h2 class="kecom-section-title"><?php esc_html_e('Payment', 'kirki-ecommerce'); ?></h2>
     <div class="kecom-payment-methods">
+        <?php if (empty($payment_gateways)) : ?>
+            <div class="kecom-text-base kecom-text-subdued">
+                <?php esc_html_e('No payment methods found!', 'kirki-ecommerce'); ?>
+            </div>
+        <?php endif; ?>
         <?php foreach ($payment_gateways as $payment_gateway) : ?>
             <label class="kecom-radio kecom-payment-option">
                 <input class="kecom-radio-input"
@@ -46,5 +53,9 @@ $payment_gateways = $data['payment_gateways'] ?? [];
                 </div>
             </label>
         <?php endforeach; ?>
+    </div>
+    <div x-show="paymentMethodError" x-cloak class="kecom-alert kecom-alert-error kecom-mt-4">
+        <?php Icon::render('info', ['size' => 20]); ?>
+        <p x-text="paymentMethodError"></p>
     </div>
 </div>

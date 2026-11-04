@@ -36,7 +36,7 @@ class CreateWishlistTable implements Migration
             $table->unsigned_big_integer('user_id');
             $table->unsigned_big_integer('product_id');
             $table->unsigned_big_integer('variant_id')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->index(['user_id', 'product_id'], 'idx_kecom_wishlist_user_id_product_id');
 

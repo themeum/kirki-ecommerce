@@ -52,14 +52,14 @@ class CreateProductsTable implements Migration
             $table->unsigned_big_integer('schema_id')->nullable();
 
             $table->boolean('has_variants')->default(0);
-            $table->timestamp('published_at')->nullable();
-            $table->timestamp('trashed_at')->nullable();
-            $table->timestamp('scheduled_at')->nullable();
+            $table->datetime('published_at')->nullable();
+            $table->datetime('trashed_at')->nullable();
+            $table->datetime('scheduled_at')->nullable();
 
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
 
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique('slug', 'uq_kecom_products_slug');
             $table->index('brand_id', 'idx_kecom_products_brand_id');

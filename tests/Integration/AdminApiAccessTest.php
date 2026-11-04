@@ -23,6 +23,7 @@ class AdminApiAccessTest extends RestTestCase
             'list customers' => ['GET', 'customers'],
             'update settings' => ['PUT', 'settings'],
             'install payment add-on' => ['POST', 'online-payments/install'],
+            'remove payment add-on' => ['DELETE', 'online-payments/fakepay'],
             'create product' => ['POST', 'products'],
             'app config' => ['GET', 'app-config'],
             'setup checklist' => ['GET', 'setup-checklist'],

@@ -247,7 +247,7 @@ class SettingsUpdateRequest extends Request
             'data.store_address.postal_code' => 'nullable|string',
             'data.store_address.country' => 'nullable|string',
             'data.selling_location_type' => 'required|string|in:' . implode(',', SellingLocationType::get_constant_values()),
-            'data.selling_countries' => 'nullable|array',
+            'data.selling_countries' => 'required_unless:data.selling_location_type,' . SellingLocationType::ALL_COUNTRIES . '|nullable|array',
             'data.order_number' => 'nullable|array',
             'data.order_number.prefix' => 'string|regex:~^[^/\\\\]*$~',
             'data.order_number.suffix' => 'string|regex:~^[^/\\\\]*$~',

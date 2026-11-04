@@ -60,3 +60,9 @@ languages/kirki-ecommerce.pot
 .vscode/launch.json
 
 .cursor/debug-*.log
+
+# Built payment gateway zips (npm run build:payments)
+/gateways/
+
+# Sample product images (kept on S3, see docs/preset-data.md)
+/resources/data/preconfigured-data/*/images/

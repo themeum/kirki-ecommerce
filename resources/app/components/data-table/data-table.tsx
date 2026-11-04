@@ -144,7 +144,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     columnPinning = EMPTY_COLUMN_PINNING,
     columnVisibility,
     enableColumnVisibility = true,
-    noCardShadow = false,
+    noCardShadow = true,
   } = props;
 
   const [storedColumnVisibility, toggleColumnVisibility] = useTableColumnVisibility(tableId);
@@ -524,19 +524,6 @@ const styles = defineStyles({
    * pinned cell keeps those lines running to the edge of the table.
    */
   pinnedColumns: {
-    '& thead th[data-pinned="left"]': {
-      boxShadow: `inset 0 1px 0 ${theme.colors.border.tertiary},
-        inset 1px 0 0 ${theme.colors.border.tertiary},
-        inset 0 -1px 0 ${theme.colors.border.tertiary}`,
-    },
-    '& thead th[data-pinned="right"]': {
-      boxShadow: `inset 0 1px 0 ${theme.colors.border.tertiary},
-        inset -1px 0 0 ${theme.colors.border.tertiary},
-        inset 0 -1px 0 ${theme.colors.border.tertiary}`,
-    },
-    '& tbody td[data-pinned]': {
-      boxShadow: `inset 0 -1px 0 ${theme.colors.border.tertiary}`,
-    },
     '& tbody tr:hover td[data-pinned], & tbody tr[data-active="true"] td[data-pinned]': {
       backgroundColor: theme.colors.background.solidSurfaceAlt,
     },

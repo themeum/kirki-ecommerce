@@ -13,6 +13,7 @@ type MediaGalleryFieldProps<
   description?: ReactNode;
   infoText?: ReactNode;
   cssOverride?: CSSObject;
+  accept?: AcceptedMediaTypes[];
 };
 
 const MediaGalleryField = <
@@ -24,6 +25,7 @@ const MediaGalleryField = <
   description,
   infoText,
   cssOverride,
+  accept,
 }: MediaGalleryFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -38,6 +40,7 @@ const MediaGalleryField = <
             mediaItems={field.value ?? []}
             onUpdate={(items) => field.onChange(items)}
             error={Boolean(fieldState.error)}
+            accept={accept}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

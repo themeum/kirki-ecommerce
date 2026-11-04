@@ -1189,4 +1189,131 @@ class ProductApiTest extends RestTestCase
 
         $this->assertFalse($this->list_has_records('products'));
     }
+
+    /**
+     * Create an attachment with the given MIME type.
+     *
+     * @param string $mime_type The attachment MIME type.
+     * @return int The attachment ID.
+     * @since 1.0.0
+     */
+    protected function create_attachment(string $mime_type): int
+    {
+        return (int) self::factory()->attachment->create(['post_mime_type' => $mime_type]);
+    }
+
+    /**
+     * Product media accepts image attachments.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_product_accepts_image_media(): void
+    {
+        $image = $this->create_attachment('image/jpeg');
+
+        $response = $this->request('POST', 'products', $this->product_payload(['media' => [$image]]));
+
+        $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * Product media rejects video attachments on create, naming the field.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_product_rejects_video_media(): void
+    {
+        $video = $this->create_attachment('video/mp4');
+
+        $response = $this->request('POST', 'products', $this->product_payload(['media' => [$video]]));
+
+        $this->assertArrayHasKey('media.0', $this->assert_validation_error($response)['errors']);
+    }
+
+    /**
+     * Variant media and og_image reject non-image attachments on create.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_product_rejects_video_variant_media_and_og_image(): void
+    {
+        $audio = $this->create_attachment('audio/mpeg');
+        $payload = $this->product_payload(['og_image' => $audio]);
+        $payload['variants'][0]['media'] = $audio;
+
+        $errors = $this->assert_validation_error($this->request('POST', 'products', $payload))['errors'];
+
+        $this->assertArrayHasKey('og_image', $errors);
+        $this->assertArrayHasKey('variants.0.media', $errors);
+    }
+
+    /**
+     * Update rejects a video added to the gallery and leaves the product unchanged.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_product_rejects_added_video_media(): void
+    {
+        $product = $this->create_product(['title' => 'Before']);
+        $video = $this->create_attachment('video/mp4');
+
+        $response = $this->request('PUT', 'products/' . $product['id'], $this->product_payload([
+            'id' => $product['id'],
+            'title' => 'After',
+            'media' => [$video],
+            'variants' => $this->variants_for_update($product),
+        ]));
+
+        $this->assertArrayHasKey('media.0', $this->assert_validation_error($response)['errors']);
+
+        $shown = $this->assert_api_success($this->request('GET', 'products/' . $product['id']))['data'];
+        $this->assertSame('Before', $shown['title']);
+    }
+
+    /**
+     * Update rejects a product whose payload still lists a video it already held.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_product_rejects_video_the_product_already_holds(): void
+    {
+        $attachment = $this->create_attachment('image/jpeg');
+        $product = $this->create_product(['media' => [$attachment]]);
+        wp_update_post(['ID' => $attachment, 'post_mime_type' => 'video/mp4']);
+
+        $response = $this->request('PUT', 'products/' . $product['id'], $this->product_payload([
+            'id' => $product['id'],
+            'media' => [$attachment],
+            'variants' => $this->variants_for_update($product),
+        ]));
+
+        $this->assertArrayHasKey('media.0', $this->assert_validation_error($response)['errors']);
+    }
+
+    /**
+     * Update accepts a product once the video it held is removed from the payload.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_product_accepts_when_old_video_is_removed(): void
+    {
+        $attachment = $this->create_attachment('image/jpeg');
+        $product = $this->create_product(['media' => [$attachment]]);
+        wp_update_post(['ID' => $attachment, 'post_mime_type' => 'video/mp4']);
+        $image = $this->create_attachment('image/png');
+
+        $response = $this->request('PUT', 'products/' . $product['id'], $this->product_payload([
+            'id' => $product['id'],
+            'media' => [$image],
+            'variants' => $this->variants_for_update($product),
+        ]));
+
+        $this->assert_api_success($response);
+    }
 }

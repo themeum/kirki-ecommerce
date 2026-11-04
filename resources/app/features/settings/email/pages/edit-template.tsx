@@ -28,6 +28,29 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
+const DEFAULT_SHORTCODES = [
+  {
+    label: __('Site Title', 'kirki-ecommerce'),
+    value: '{site_title}',
+  },
+  {
+    label: __('Store Name', 'kirki-ecommerce'),
+    value: '{store_name}',
+  },
+  {
+    label: __('Store email', 'kirki-ecommerce'),
+    value: '{store_email}',
+  },
+  {
+    label: __('Store phone', 'kirki-ecommerce'),
+    value: '{store_phone}',
+  },
+  {
+    label: __('Store address', 'kirki-ecommerce'),
+    value: '{store_address}',
+  },
+];
+
 const EditTemplateContent = () => {
   const { form, loaded, heightValue } = useEditTemplate();
   const sendTestEmailMutation = useSendTestEmailMutation();
@@ -184,11 +207,13 @@ const EditTemplateContent = () => {
                   name="additional_description"
                   label={__('Additional Description', 'kirki-ecommerce')}
                   rootBlockElement="div"
+                  shortcodes={DEFAULT_SHORTCODES}
                 />
                 <RichTextField
                   name="footer"
                   label={__('Footer', 'kirki-ecommerce')}
                   rootBlockElement="div"
+                  shortcodes={DEFAULT_SHORTCODES}
                 />
               </Flex>
             </CardContent>

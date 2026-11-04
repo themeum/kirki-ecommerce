@@ -16,6 +16,7 @@ use Kirki\Ecommerce\App\DTO\Currency\UpdateCurrencyDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
@@ -265,6 +266,11 @@ class CurrencyService
     public function insert(array $items)
     {
         $items_array = collection($items)->map(fn($item) => $item instanceof Arrayable ? $item->to_array() : $item)->all();
+
+        // A bulk insert skips the model timestamps, so set them here in UTC.
+        $now = Date::now('UTC')->to_date_time_string();
+        $items_array = array_map(fn($item) => array_merge(['created_at' => $now, 'updated_at' => $now], $item), $items_array);
+
         $base_index = array_key_first(array_filter($items_array, fn($item) => !empty($item['is_base'])));
 
         if (is_null($base_index) && !empty($items_array) && !$this->get_base_currency()) {

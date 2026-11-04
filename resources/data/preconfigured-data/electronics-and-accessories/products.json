@@ -1,0 +1,402 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "audio",
+      "name": "Audio",
+      "parent": null
+    },
+    {
+      "slug": "headphones",
+      "name": "Headphones",
+      "parent": "audio"
+    },
+    {
+      "slug": "speakers",
+      "name": "Speakers",
+      "parent": "audio"
+    },
+    {
+      "slug": "accessories",
+      "name": "Accessories",
+      "parent": null
+    },
+    {
+      "slug": "chargers",
+      "name": "Chargers",
+      "parent": "accessories"
+    },
+    {
+      "slug": "cables",
+      "name": "Cables",
+      "parent": "accessories"
+    },
+    {
+      "slug": "cases",
+      "name": "Cases",
+      "parent": "accessories"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "audio",
+      "name": "Audio"
+    },
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "leather",
+      "name": "Leather"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "travel",
+      "name": "Travel"
+    },
+    {
+      "slug": "usb-c",
+      "name": "USB-C"
+    },
+    {
+      "slug": "wireless",
+      "name": "Wireless"
+    }
+  ],
+  "products": [
+    {
+      "slug": "wireless-charging-pad",
+      "title": "Wireless Charging Pad · Simple product",
+      "short_description": "Slim fabric-topped wireless charger.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA slim wireless charging pad with a soft fabric top and an aluminium base. Works with any Qi-enabled phone.",
+      "ribbon": null,
+      "categories": [
+        "chargers"
+      ],
+      "tags": [
+        "wireless",
+        "bestseller"
+      ],
+      "images": [
+        "wireless-charging-pad-1.jpg",
+        "wireless-charging-pad-2.jpg",
+        "wireless-charging-pad-3.jpg",
+        "wireless-charging-pad-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ELC-WCP",
+          "options": {},
+          "image": null,
+          "price": "39.00",
+          "sale_price": null,
+          "cost": "16.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 150,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "wireless-headphones",
+      "title": "Wireless Headphones · With variants",
+      "short_description": "Over-ear wireless headphones with noise cancelling.",
+      "description": "Sample product: 2 attributes (Color, Bundle), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nOver-ear wireless headphones with active noise cancelling, soft memory-foam cushions and up to 40 hours of battery.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "headphones"
+      ],
+      "tags": [
+        "wireless",
+        "audio",
+        "new-arrival"
+      ],
+      "images": [
+        "wireless-headphones-lilac.jpg",
+        "wireless-headphones-mint.jpg",
+        "wireless-headphones-coral.jpg",
+        "wireless-headphones-2.jpg",
+        "wireless-headphones-3.jpg",
+        "wireless-headphones-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ELC-WH-LILA-HO",
+          "options": {
+            "color": "Lilac",
+            "bundle": "Headphones only"
+          },
+          "image": "wireless-headphones-lilac.jpg",
+          "price": "149.00",
+          "sale_price": null,
+          "cost": "60.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 260,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-ELC-WH-LILA-WCC",
+          "options": {
+            "color": "Lilac",
+            "bundle": "With carry case"
+          },
+          "image": "wireless-headphones-lilac.jpg",
+          "price": "169.00",
+          "sale_price": null,
+          "cost": "68.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 260,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ELC-WH-MINT-HO",
+          "options": {
+            "color": "Mint",
+            "bundle": "Headphones only"
+          },
+          "image": "wireless-headphones-mint.jpg",
+          "price": "149.00",
+          "sale_price": null,
+          "cost": "60.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 260,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ELC-WH-MINT-WCC",
+          "options": {
+            "color": "Mint",
+            "bundle": "With carry case"
+          },
+          "image": "wireless-headphones-mint.jpg",
+          "price": "169.00",
+          "sale_price": null,
+          "cost": "68.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 260,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ELC-WH-CORA-HO",
+          "options": {
+            "color": "Coral",
+            "bundle": "Headphones only"
+          },
+          "image": "wireless-headphones-coral.jpg",
+          "price": "149.00",
+          "sale_price": null,
+          "cost": "60.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 260,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ELC-WH-CORA-WCC",
+          "options": {
+            "color": "Coral",
+            "bundle": "With carry case"
+          },
+          "image": "wireless-headphones-coral.jpg",
+          "price": "169.00",
+          "sale_price": null,
+          "cost": "68.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 260,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "bluetooth-speaker",
+      "title": "Bluetooth Speaker · On sale",
+      "short_description": "Compact fabric speaker with 12-hour battery.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA compact Bluetooth speaker wrapped in woven fabric, with clear, full sound and a 12-hour battery. Splash resistant.",
+      "ribbon": null,
+      "categories": [
+        "speakers"
+      ],
+      "tags": [
+        "wireless",
+        "audio",
+        "travel"
+      ],
+      "images": [
+        "bluetooth-speaker-1.jpg",
+        "bluetooth-speaker-2.jpg",
+        "bluetooth-speaker-3.jpg",
+        "bluetooth-speaker-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ELC-BS",
+          "options": {},
+          "image": null,
+          "price": "99.00",
+          "sale_price": "74.00",
+          "cost": "40.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 600,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "usb-c-cable",
+      "title": "USB-C Cable · Order limit",
+      "short_description": "Braided USB-C cable, up to 5 per order.",
+      "description": "Sample product: 1 attribute (Length), and customers can buy at most 5 per order. Edit it or delete it.\n\nA tough braided USB-C to USB-C cable that supports fast charging and data transfer.",
+      "ribbon": null,
+      "categories": [
+        "cables"
+      ],
+      "tags": [
+        "usb-c",
+        "travel"
+      ],
+      "images": [
+        "usb-c-cable-1.jpg",
+        "usb-c-cable-2.jpg",
+        "usb-c-cable-3.jpg",
+        "usb-c-cable-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ELC-UCC-1M",
+          "options": {
+            "length": "1 m"
+          },
+          "image": null,
+          "price": "19.00",
+          "sale_price": null,
+          "cost": "8.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 5,
+          "weight_g": 50,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-ELC-UCC-2M",
+          "options": {
+            "length": "2 m"
+          },
+          "image": null,
+          "price": "24.00",
+          "sale_price": null,
+          "cost": "10.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 5,
+          "weight_g": 80,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "phone-case",
+      "title": "Phone Case · Stock levels",
+      "short_description": "Slim leather phone case.",
+      "description": "Sample product: Size 6.3\" is low in stock, and Size 6.9\" is out of stock but still sells on backorder. Edit it or delete it.\n\nA slim case in soft vegetable-tanned leather that darkens nicely with use. Raised edges protect the screen and camera.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "cases"
+      ],
+      "tags": [
+        "leather",
+        "bestseller"
+      ],
+      "images": [
+        "phone-case-1.jpg",
+        "phone-case-2.jpg",
+        "phone-case-3.jpg",
+        "phone-case-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-ELC-PC-61",
+          "options": {
+            "size": "6.1\""
+          },
+          "image": null,
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 40,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-ELC-PC-63",
+          "options": {
+            "size": "6.3\""
+          },
+          "image": null,
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 40,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-ELC-PC-69",
+          "options": {
+            "size": "6.9\""
+          },
+          "image": null,
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 40,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

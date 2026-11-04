@@ -4,7 +4,6 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Setup\Presets\AttributePresets;
-use Kirki\Ecommerce\App\Setup\Presets\CategoryPresets;
 use Kirki\Ecommerce\App\Setup\Presets\LegalPresets;
 use Kirki\Ecommerce\App\Setup\Presets\Local\LocalPresetSource;
 use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
@@ -40,12 +39,12 @@ class StorePresetService
     }
 
     /**
-     * Build the presets from the bundled data file and insert them.
+     * Build the presets from the remote preset data and insert them.
      *
      * Profiles are inserted before zones and the tax region, whose rules
      * reference them by id. A kind that fails is logged and the others still
      * run, so a store never loses all presets to one bad record. When the
-     * data file cannot be read, nothing is written. Either way the presets
+     * presets cannot be read, nothing is written. Either way the presets
      * count as applied, so they are never applied twice.
      *
      * The source is resolved from the container here, because the router
@@ -79,7 +78,6 @@ class StorePresetService
     protected function insert(array $presets, PresetContext $context)
     {
         $inserters = [
-            CategoryPresets::class,
             AttributePresets::class,
             SchemaProfilePresets::class,
             ShippingProfilePresets::class,

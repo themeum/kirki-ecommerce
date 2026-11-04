@@ -28,7 +28,7 @@ class CreateAttributeValueProductTable implements Migration
             $table->unsigned_big_integer('product_id');
             $table->unsigned_big_integer('attribute_value_id');
             $table->integer('ordering')->default(0);
-            $table->timestamps();
+            $table->datetimes();
 
             $table->primary(['product_id', 'attribute_value_id']);
             $table->index('ordering', 'idx_kecom_attribute_value_product_ordering');

@@ -2,19 +2,15 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Setup;
 
-use Kirki\Ecommerce\App\Setup\Presets\PresetRepository;
 use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\Framework\Managers\LogManager;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 /**
- * Guards the shape and the internal references of the bundled preset data.
+ * Guards the shape and the internal references of the preset source data.
  */
 class PresetRepositoryTest extends TestCase
 {
-    /** @var string[] */
-    protected $temporary_files = [];
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,18 +23,9 @@ class PresetRepositoryTest extends TestCase
         CountryData::flush();
     }
 
-    protected function tearDown(): void
+    public function test_sections_are_read_from_the_source_data(): void
     {
-        foreach ($this->temporary_files as $file) {
-            @unlink($file);
-        }
-
-        parent::tearDown();
-    }
-
-    public function test_sections_are_read_from_the_bundled_file(): void
-    {
-        $repository = new PresetRepository();
+        $repository = new SourcePresetRepository();
 
         $this->assertNotEmpty($repository->get_common()['attributes']);
         $this->assertNotEmpty($repository->get_industry('fashion-and-apparel'));
@@ -48,36 +35,16 @@ class PresetRepositoryTest extends TestCase
 
     public function test_unknown_entries_are_empty(): void
     {
-        $repository = new PresetRepository();
+        $repository = new SourcePresetRepository();
 
-        $this->assertSame([], $repository->get_industry('other'));
+        $this->assertSame([], $repository->get_industry('no-such-industry'));
         $this->assertSame([], $repository->get_country('ZZ'));
         $this->assertSame([], $repository->get_bloc('NOPE'));
     }
 
-    public function test_missing_file_yields_no_presets(): void
-    {
-        $repository = new PresetRepository(sys_get_temp_dir() . '/kirki-presets-missing-' . uniqid() . '.json');
-
-        $this->assertSame([], $repository->get_common());
-        $this->assertSame([], $repository->get_country('GB'));
-    }
-
-    public function test_invalid_json_yields_no_presets(): void
-    {
-        $file = tempnam(sys_get_temp_dir(), 'kirki-presets-');
-        $this->temporary_files[] = $file;
-        file_put_contents($file, '{ not json');
-
-        $repository = new PresetRepository($file);
-
-        $this->assertSame([], $repository->get_common());
-        $this->assertSame([], $repository->get_industry('fashion-and-apparel'));
-    }
-
     public function test_every_tax_entry_records_its_source_and_verification_date(): void
     {
-        foreach ((new PresetRepository())->get_countries() as $code => $country) {
+        foreach ((new SourcePresetRepository())->get_countries() as $code => $country) {
             if (empty($country['tax'])) {
                 continue;
             }
@@ -89,7 +56,7 @@ class PresetRepositoryTest extends TestCase
 
     public function test_country_codes_and_state_ids_exist_in_the_country_dataset(): void
     {
-        $repository = new PresetRepository();
+        $repository = new SourcePresetRepository();
         $index = CountryData::index();
 
         foreach ($repository->get_countries() as $code => $country) {
@@ -113,7 +80,7 @@ class PresetRepositoryTest extends TestCase
             }
         }
 
-        $bloc = (new PresetRepository())->get_bloc('EU');
+        $bloc = (new SourcePresetRepository())->get_bloc('EU');
         sort($bloc);
         sort($dataset_members);
 
@@ -122,7 +89,7 @@ class PresetRepositoryTest extends TestCase
 
     public function test_every_eu_member_has_a_standard_rate(): void
     {
-        $repository = new PresetRepository();
+        $repository = new SourcePresetRepository();
 
         foreach ($repository->get_bloc('EU') as $code) {
             $tax = $repository->get_country($code)['tax'] ?? [];
@@ -134,7 +101,7 @@ class PresetRepositoryTest extends TestCase
 
     public function test_every_named_bloc_exists(): void
     {
-        $repository = new PresetRepository();
+        $repository = new SourcePresetRepository();
 
         foreach ($repository->get_countries() as $code => $country) {
             if (empty($country['bloc'])) {
@@ -147,7 +114,7 @@ class PresetRepositoryTest extends TestCase
 
     public function test_profile_references_resolve_to_known_profile_keys(): void
     {
-        $repository = new PresetRepository();
+        $repository = new SourcePresetRepository();
         $common = $repository->get_common();
         $common_shipping_keys = array_column($common['shipping_profiles'], 'key');
         $all_tax_keys = array_column($common['tax_profiles'], 'key');
@@ -176,7 +143,7 @@ class PresetRepositoryTest extends TestCase
 
     public function test_shipping_rules_target_only_preset_zone_kinds(): void
     {
-        foreach ((new PresetRepository())->get_industries() as $slug => $industry) {
+        foreach ((new SourcePresetRepository())->get_industries() as $slug => $industry) {
             foreach ($industry['shipping_rules'] ?? [] as $rule) {
                 $this->assertNotEmpty($rule['zones'], "{$slug} rule targets no zone");
                 $this->assertSame([], array_values(array_diff($rule['zones'], ['*', 'domestic', 'regional'])), "{$slug} rule targets an unknown zone kind");
@@ -184,19 +151,11 @@ class PresetRepositoryTest extends TestCase
         }
     }
 
-    public function test_every_industry_has_a_two_level_category_tree(): void
+    public function test_industries_hold_no_categories_or_tags(): void
     {
-        foreach ((new PresetRepository())->get_industries() as $slug => $industry) {
-            $this->assertNotEmpty($industry['categories'] ?? [], "{$slug} has no categories");
-
-            foreach ($industry['categories'] as $category) {
-                $this->assertNotEmpty($category['name'], "{$slug} has a category with no name");
-
-                foreach ($category['children'] ?? [] as $child) {
-                    $this->assertNotEmpty($child['name'], "{$slug} has a subcategory with no name");
-                    $this->assertArrayNotHasKey('children', $child, "{$slug} category tree is deeper than two levels");
-                }
-            }
+        foreach ((new SourcePresetRepository())->get_industries() as $slug => $industry) {
+            $this->assertArrayNotHasKey('categories', $industry, "{$slug} has categories; they belong in its products file");
+            $this->assertArrayNotHasKey('tags', $industry, "{$slug} has tags; they belong in its products file");
         }
     }
 
@@ -204,11 +163,11 @@ class PresetRepositoryTest extends TestCase
     {
         $steps = file_get_contents(static::plugin_path() . '/resources/app/features/onboarding/lib/steps.ts');
         preg_match_all("/value: '([a-z-]+)'/", $steps, $matches);
-        $slugs = array_values(array_diff($matches[1], ['other']));
+        $slugs = $matches[1];
 
         $this->assertNotEmpty($slugs);
 
-        $industries = (new PresetRepository())->get_industries();
+        $industries = (new SourcePresetRepository())->get_industries();
 
         foreach ($slugs as $slug) {
             $this->assertArrayHasKey($slug, $industries, "Industry {$slug} has no preset entry");
@@ -219,7 +178,7 @@ class PresetRepositoryTest extends TestCase
 
     public function test_consent_page_tokens_resolve_to_preset_pages(): void
     {
-        $legal = (new PresetRepository())->get_common()['legal'];
+        $legal = (new SourcePresetRepository())->get_common()['legal'];
         $page_keys = array_column($legal['pages'], 'key');
 
         foreach ($legal['consents'] as $consent) {

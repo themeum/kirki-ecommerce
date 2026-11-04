@@ -45,7 +45,15 @@ export const endpoints = {
   VARIANTS_GENERATE_SKUS: '/variants/generate-skus',
 
   ONBOARDING: '/onboarding',
+  ONBOARDING_DEFAULTS: '/onboarding/defaults',
   ONBOARDING_SAMPLE_DATA: '/onboarding/sample-data',
+
+  MIGRATION_SOURCES: '/migration/sources',
+  MIGRATION_SCAN: '/migration/scan',
+  MIGRATION_RUNS: '/migration/runs',
+  MIGRATION_LATEST_RUN: '/migration/runs/latest',
+  MIGRATION_RUN: (id: number) => `/migration/runs/${id}`,
+  MIGRATION_RUN_CHUNK: (id: number) => `/migration/runs/${id}/chunk`,
 
   SETUP_CHECKLIST: '/setup-checklist',
   SETUP_CHECKLIST_COMPLETE_STEP: (step: string) => `/setup-checklist/${step}/complete`,

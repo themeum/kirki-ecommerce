@@ -139,6 +139,8 @@ const styles = defineStyles({
     alignItems: 'center',
     textAlign: 'center',
     paddingTop: theme.spacing[6],
+    borderBottom: 'none',
+    paddingRight: theme.spacing[4],
   },
   icon: {
     ...flexCenter(),

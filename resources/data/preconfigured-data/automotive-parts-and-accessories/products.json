@@ -1,0 +1,422 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "interior",
+      "name": "Interior",
+      "parent": null
+    },
+    {
+      "slug": "steering",
+      "name": "Steering Wheel Covers",
+      "parent": "interior"
+    },
+    {
+      "slug": "floor-mats",
+      "name": "Floor Mats",
+      "parent": "interior"
+    },
+    {
+      "slug": "organizers",
+      "name": "Organizers",
+      "parent": "interior"
+    },
+    {
+      "slug": "electronics",
+      "name": "Electronics",
+      "parent": null
+    },
+    {
+      "slug": "mounts",
+      "name": "Phone Mounts",
+      "parent": "electronics"
+    },
+    {
+      "slug": "car-care",
+      "name": "Car Care",
+      "parent": null
+    },
+    {
+      "slug": "cleaning",
+      "name": "Cleaning",
+      "parent": "car-care"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "car-care",
+      "name": "Car Care"
+    },
+    {
+      "slug": "eco",
+      "name": "Eco"
+    },
+    {
+      "slug": "interior",
+      "name": "Interior"
+    },
+    {
+      "slug": "leather",
+      "name": "Leather"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "organizer",
+      "name": "Organizer"
+    },
+    {
+      "slug": "travel",
+      "name": "Travel"
+    }
+  ],
+  "products": [
+    {
+      "slug": "magnetic-phone-mount",
+      "title": "Magnetic Phone Mount · Simple product",
+      "short_description": "Vent-clip magnetic phone mount.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA compact magnetic mount that clips onto an air vent and holds your phone at any angle.",
+      "ribbon": null,
+      "categories": [
+        "mounts"
+      ],
+      "tags": [
+        "interior",
+        "bestseller"
+      ],
+      "images": [
+        "magnetic-phone-mount-1.jpg",
+        "magnetic-phone-mount-2.jpg",
+        "magnetic-phone-mount-3.jpg",
+        "magnetic-phone-mount-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-AUT-MPM",
+          "options": {},
+          "image": null,
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 70,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "steering-wheel-cover",
+      "title": "Steering Wheel Cover · With variants",
+      "short_description": "Stitched leather steering wheel cover.",
+      "description": "Sample product: 2 attributes (Color, Size), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA steering wheel cover in soft perforated leather, with a non-slip inner ring. Fits most wheels.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "steering"
+      ],
+      "tags": [
+        "interior",
+        "leather",
+        "new-arrival"
+      ],
+      "images": [
+        "steering-wheel-cover-racing-red.jpg",
+        "steering-wheel-cover-royal-blue.jpg",
+        "steering-wheel-cover-sunflower.jpg",
+        "steering-wheel-cover-2.jpg",
+        "steering-wheel-cover-3.jpg",
+        "steering-wheel-cover-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-AUT-SWC-RR-37CM",
+          "options": {
+            "color": "Racing Red",
+            "size": "37 cm"
+          },
+          "image": "steering-wheel-cover-racing-red.jpg",
+          "price": "35.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 300,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-AUT-SWC-RR-39CM",
+          "options": {
+            "color": "Racing Red",
+            "size": "39 cm"
+          },
+          "image": "steering-wheel-cover-racing-red.jpg",
+          "price": "35.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 300,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-AUT-SWC-RB-37CM",
+          "options": {
+            "color": "Royal Blue",
+            "size": "37 cm"
+          },
+          "image": "steering-wheel-cover-royal-blue.jpg",
+          "price": "35.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 300,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-AUT-SWC-RB-39CM",
+          "options": {
+            "color": "Royal Blue",
+            "size": "39 cm"
+          },
+          "image": "steering-wheel-cover-royal-blue.jpg",
+          "price": "35.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 300,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-AUT-SWC-SUNF-37CM",
+          "options": {
+            "color": "Sunflower",
+            "size": "37 cm"
+          },
+          "image": "steering-wheel-cover-sunflower.jpg",
+          "price": "35.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 300,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-AUT-SWC-SUNF-39CM",
+          "options": {
+            "color": "Sunflower",
+            "size": "39 cm"
+          },
+          "image": "steering-wheel-cover-sunflower.jpg",
+          "price": "35.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 300,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "trunk-organizer",
+      "title": "Trunk Organizer · On sale",
+      "short_description": "Collapsible trunk organizer with three sections.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA sturdy collapsible organizer with three sections and side pockets. Folds flat when not in use.",
+      "ribbon": null,
+      "categories": [
+        "organizers"
+      ],
+      "tags": [
+        "organizer",
+        "travel"
+      ],
+      "images": [
+        "trunk-organizer-1.jpg",
+        "trunk-organizer-2.jpg",
+        "trunk-organizer-3.jpg",
+        "trunk-organizer-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-AUT-TO",
+          "options": {},
+          "image": null,
+          "price": "49.00",
+          "sale_price": "36.00",
+          "cost": "20.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1500,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "car-wash-shampoo",
+      "title": "Car Wash Shampoo · Unit pricing",
+      "short_description": "pH-neutral car shampoo, priced per 100 ml.",
+      "description": "Sample product: 1 attribute (Size), and the price is also shown per 100 ml. Edit it or delete it.\n\nA pH-neutral concentrated shampoo that lifts dirt without stripping wax. Mix 30 ml with a bucket of water.",
+      "ribbon": null,
+      "categories": [
+        "cleaning"
+      ],
+      "tags": [
+        "car-care",
+        "eco"
+      ],
+      "images": [
+        "car-wash-shampoo-1.jpg",
+        "car-wash-shampoo-2.jpg",
+        "car-wash-shampoo-3.jpg",
+        "car-wash-shampoo-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-AUT-CWS-500ML",
+          "options": {
+            "size": "500 ml"
+          },
+          "image": null,
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 560,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "ml",
+            "total_amount": 500,
+            "total_unit": "ml"
+          },
+          "is_default": true
+        },
+        {
+          "sku": "SMP-AUT-CWS-1L",
+          "options": {
+            "size": "1 L"
+          },
+          "image": null,
+          "price": "22.00",
+          "sale_price": null,
+          "cost": "9.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1080,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "ml",
+            "total_amount": 1000,
+            "total_unit": "ml"
+          },
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "all-weather-floor-mats",
+      "title": "All-Weather Floor Mats · Stock levels",
+      "short_description": "Set of four rubber floor mats with deep grooves.",
+      "description": "Sample product: Fit Sedan is low in stock, and Fit SUV is out of stock but still sells on backorder. Edit it or delete it.\n\nA set of four heavy rubber mats with deep grooves that hold water, mud and snow. Trim to fit.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "floor-mats"
+      ],
+      "tags": [
+        "interior",
+        "bestseller"
+      ],
+      "images": [
+        "all-weather-floor-mats-1.jpg",
+        "all-weather-floor-mats-2.jpg",
+        "all-weather-floor-mats-3.jpg",
+        "all-weather-floor-mats-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-AUT-AWFM-COMP",
+          "options": {
+            "fit": "Compact"
+          },
+          "image": null,
+          "price": "69.00",
+          "sale_price": null,
+          "cost": "28.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 4000,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-AUT-AWFM-SEDA",
+          "options": {
+            "fit": "Sedan"
+          },
+          "image": null,
+          "price": "79.00",
+          "sale_price": null,
+          "cost": "32.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 4000,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-AUT-AWFM-SUV",
+          "options": {
+            "fit": "SUV"
+          },
+          "image": null,
+          "price": "89.00",
+          "sale_price": null,
+          "cost": "36.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 4000,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

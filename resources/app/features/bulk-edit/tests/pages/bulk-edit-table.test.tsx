@@ -690,6 +690,19 @@ describe('BulkEditPage grid', () => {
     await waitFor(() => expect(getCellInput('available_quantity', 0)?.value).toBe('250'));
   });
 
+  it('toggles Sell when out of stock independently of Track Inventory', async () => {
+    renderBulkEditPage([buildVariant(1, { track_inventory: false, allow_back_order: false })]);
+
+    await waitFor(() => expect(getCell('allow_back_order', 0)).toBeTruthy());
+
+    const checkbox = getCell('allow_back_order', 0)!.querySelector<HTMLElement>('[role="checkbox"]');
+    expect(checkbox?.getAttribute('aria-checked')).toBe('false');
+
+    fireEvent.click(checkbox!);
+
+    await waitFor(() => expect(checkbox?.getAttribute('aria-checked')).toBe('true'));
+  });
+
   it('clicking a cell outside the selection replaces it', async () => {
     renderBulkEditPage([buildVariant(1), buildVariant(2), buildVariant(3)]);
 

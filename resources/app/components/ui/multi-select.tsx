@@ -45,6 +45,30 @@ type MultiSelectOption = {
 // value alone, and a row that measured taller would overlap the next one.
 const VIRTUAL_ROW_HEIGHT = 32;
 
+const findScrollableAncestor = (target: HTMLElement, boundary: HTMLElement) => {
+  let node: HTMLElement | null = target;
+
+  while (node && boundary.contains(node)) {
+    const { overflowY } = window.getComputedStyle(node);
+
+    if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+      return node;
+    }
+
+    node = node.parentElement;
+  }
+
+  return null;
+};
+
+const canScrollInDirection = (node: HTMLElement, deltaY: number) => {
+  if (deltaY < 0) {
+    return node.scrollTop > 0;
+  }
+
+  return node.scrollTop + node.clientHeight < node.scrollHeight;
+};
+
 type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
   options: TOption[];
   value: TOption[];
@@ -247,6 +271,40 @@ const MultiSelect = <TOption extends MultiSelectOption>({
 
     listElement.scrollTop = 0;
   }, [search, virtualized, listElement]);
+
+  useEffect(() => {
+    if (!isPanelOpen) {
+      return;
+    }
+
+    const blockLayoutScroll = (event: WheelEvent | TouchEvent) => {
+      const content = contentRef.current;
+      const target = event.target as Node | null;
+
+      if (!content || !target || !content.contains(target)) {
+        event.preventDefault();
+        return;
+      }
+
+      if (!(event instanceof WheelEvent)) {
+        return;
+      }
+
+      const scrollable = findScrollableAncestor(target as HTMLElement, content);
+
+      if (!scrollable || !canScrollInDirection(scrollable, event.deltaY)) {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener('wheel', blockLayoutScroll, { capture: true, passive: false });
+    document.addEventListener('touchmove', blockLayoutScroll, { capture: true, passive: false });
+
+    return () => {
+      document.removeEventListener('wheel', blockLayoutScroll, { capture: true });
+      document.removeEventListener('touchmove', blockLayoutScroll, { capture: true });
+    };
+  }, [isPanelOpen]);
 
   useEffect(() => {
     if (focusOnMount) {

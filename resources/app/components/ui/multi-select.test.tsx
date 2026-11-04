@@ -739,3 +739,39 @@ describe('MultiSelect chip layers', () => {
     expect(isPanelOpen()).toBe(true);
   });
 });
+
+describe('MultiSelect layout scroll lock', () => {
+  const wheel = (target: Element, deltaY = 10) => {
+    const event = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY });
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  it('blocks wheel scrolling outside the panel while open', () => {
+    render(<Harness />);
+    open();
+
+    expect(wheel(document.body).defaultPrevented).toBe(true);
+  });
+
+  it('does not block wheel scrolling outside the panel while closed', () => {
+    render(<Harness />);
+
+    expect(wheel(document.body).defaultPrevented).toBe(false);
+  });
+
+  it('stops blocking once the panel closes', () => {
+    render(<Harness />);
+    open();
+    fireEvent.keyDown(searchInput(), { key: 'Escape' });
+
+    expect(wheel(document.body).defaultPrevented).toBe(false);
+  });
+
+  it('blocks wheel scrolling over a panel that has nothing to scroll', () => {
+    render(<Harness />);
+    open();
+
+    expect(wheel(optionRow('Hoodie')).defaultPrevented).toBe(true);
+  });
+});

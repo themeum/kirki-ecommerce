@@ -27,7 +27,7 @@ class CreateAttributeValueVariantTable implements Migration
         Schema::create('kirki_ecommerce_attribute_value_variant', function (Structure $table) {
             $table->unsigned_big_integer('variant_id');
             $table->unsigned_big_integer('attribute_value_id');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->primary(['variant_id', 'attribute_value_id']);
 

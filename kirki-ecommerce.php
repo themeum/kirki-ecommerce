@@ -4,8 +4,8 @@
  * Plugin Name:       Kirki eCommerce
  * Description:       Kirki eCommerce is an all-in-one solution that empowers users to build and run professional online stores with an intuitive UX, modern UI, and lightning-fast performance.
  * Version:           1.0.0
- * Author:            Kirki
- * Author URI:        https://kirki.com
+ * Author:            Themeum
+ * Author URI:        https://www.themeum.com
  * Text Domain:       kirki-ecommerce
  * Requires PHP:      7.4
  * Requires at least: 6.8
@@ -74,6 +74,22 @@ define('KIRKI_ECOMMERCE_PREFIX', 'kirki_ecommerce_');
  */
 define('KIRKI_ECOMMERCE_MODE', 'development');
 
+/**
+ * The base URL of the remote payment gateway catalog (public S3 bucket).
+ * A definition in wp-config.php wins, so local work can use the local S3.
+ * @var string
+ */
+defined('KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL')
+    || define('KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL', 'https://kirki-ecommerce.s3.us-east-1.amazonaws.com/gateways');
+
+/**
+ * The base URL of the store presets and the sample products (public S3 bucket).
+ * A definition in wp-config.php wins.
+ * @var string
+ */
+defined('KIRKI_ECOMMERCE_PRESETS_URL')
+    || define('KIRKI_ECOMMERCE_PRESETS_URL', 'https://kirki-ecommerce.s3.us-east-1.amazonaws.com/preconfigured-data');
+
 require_once KIRKI_ECOMMERCE_PLUGIN_PATH . 'vendor/autoload.php';
 
 // Register activation, deactivation, and uninstall hooks
@@ -90,4 +106,23 @@ function kirki_ecommerce_boot_application()
     // Application instance must be created with the base path before its path helpers are available.
     // Only after instantiation can you safely use bootstrap_path() to resolve the bootstrap directory.
     require_once KIRKI_ECOMMERCE_PLUGIN_PATH . 'bootstrap/app.php';
+}
+
+add_filter('plugin_row_meta', 'kirki_ecommerce_plugin_row_meta', 10, 2);
+
+/**
+ * Add the plugin row meta
+ *
+ * @param array $links The plugin row meta links
+ * @param string $file The plugin file
+ *
+ * @return array The plugin row meta links
+ */
+function kirki_ecommerce_plugin_row_meta($links, $file)
+{
+    if (strpos($file, KIRKI_ECOMMERCE_SLUG) !== false) {
+        $links[] = '<a href="https://kirki.com/wp-content/uploads/2026/11/kirki-ecommerce-user-guide.pdf" target="_blank" rel="noopener noreferrer">Documentation</a>';
+    }
+
+    return $links;
 }

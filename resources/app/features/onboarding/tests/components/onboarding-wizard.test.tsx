@@ -1,9 +1,15 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type React from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import OnboardingWizard from '@/features/onboarding/components/onboarding-wizard';
 import { DRAFT_STORAGE_KEY } from '@/features/onboarding/lib/onboarding-draft';
+
+type SampleDataState = {
+  phase: 'idle' | 'downloading' | 'done';
+  progress: number;
+};
 
 const { createStore, sampleData } = vi.hoisted(() => ({
   createStore: {
@@ -15,30 +21,63 @@ const { createStore, sampleData } = vi.hoisted(() => ({
     mutate: vi.fn(),
   },
   sampleData: {
-    phase: 'idle' as const,
     start: vi.fn(),
+    setState: (_state: SampleDataState): void => undefined,
     onLoaded: (): void => undefined,
   },
 }));
 
-vi.mock('@/features/onboarding/services/onboarding', () => ({
-  useCreateStoreMutation: () => createStore,
+const { defaults } = vi.hoisted(() => ({
+  defaults: { data: undefined as { source: string; values: Record<string, string> } | undefined },
 }));
 
-vi.mock('@/features/home', () => ({
-  useSampleDataImport: ({ onLoaded }: { onLoaded: () => void }) => {
-    sampleData.onLoaded = onLoaded;
-
-    return { phase: sampleData.phase, start: sampleData.start };
+const { migration } = vi.hoisted(() => ({
+  migration: {
+    sources: [] as { id: string; label: string; version: { supported: boolean } }[],
+    state: {
+      status: 'running',
+      percent: 40,
+      detail: 'Products 1-30 of 100',
+      errorMessage: undefined as string | undefined,
+      retry: vi.fn(),
+    },
   },
 }));
 
+vi.mock('@/features/migration', () => ({
+  useMigrationSourcesQuery: () => ({ data: migration.sources }),
+  useAutoMigration: () => migration.state,
+}));
+
+vi.mock('@/features/onboarding/services/onboarding', () => ({
+  useCreateStoreMutation: () => createStore,
+  useOnboardingDefaultsQuery: () => ({ data: defaults.data, isPending: false }),
+}));
+
+vi.mock('@/features/home', async () => {
+  const { useState } = await vi.importActual<typeof React>('react');
+
+  return {
+    useSampleDataImport: ({ onLoaded }: { onLoaded: () => void }) => {
+      const [state, setState] = useState<SampleDataState>({ phase: 'idle', progress: 0 });
+      sampleData.onLoaded = onLoaded;
+      sampleData.setState = setState;
+
+      return {
+        ...state,
+        start: sampleData.start,
+        isImporting: state.phase === 'downloading',
+      };
+    },
+  };
+});
+
 vi.mock('@/features/settings', () => ({
-  useAllCurrenciesQuery: () => ({ data: [] }),
+  useAllCurrenciesQuery: () => ({ data: [{ code: 'EUR', name: 'Euro', symbol: '€' }] }),
 }));
 
 vi.mock('@/services/country', () => ({
-  useCountriesQuery: () => ({ data: [] }),
+  useCountriesQuery: () => ({ data: [{ code: 'DE', name: 'Germany', currency: 'EUR' }] }),
 }));
 
 const essentialsValues = { store_name: 'Acme', country: 'BD', currency: 'USD' };
@@ -53,7 +92,10 @@ const waitForSetupReady = () =>
     { timeout: 3000 },
   );
 
-const getProgress = () => Number(screen.getByRole('progressbar').getAttribute('aria-valuenow'));
+const getProgress = () =>
+  Number(document.querySelector('div[role="progressbar"]')?.getAttribute('aria-valuenow'));
+
+const getSampleDataBar = () => document.querySelector('[role="progressbar"][aria-valuetext]');
 
 const renderWizard = () =>
   render(
@@ -73,6 +115,29 @@ describe('onboarding wizard', () => {
     sessionStorage.clear();
     createStore.isSuccess = false;
     createStore.mutate.mockReset();
+    migration.sources = [];
+    migration.state.status = 'running';
+    migration.state.errorMessage = undefined;
+    migration.state.retry.mockReset();
+    defaults.data = undefined;
+  });
+
+  it('prefills the first step from WooCommerce', async () => {
+    defaults.data = { source: 'woocommerce', values: { store_name: 'Woo Shop' } };
+
+    renderWizard();
+
+    expect(await screen.findByDisplayValue('Woo Shop')).toBeInTheDocument();
+  });
+
+  it('keeps the value from a saved draft over the WooCommerce one', async () => {
+    defaults.data = { source: 'woocommerce', values: { store_name: 'Woo Shop' } };
+    startFromDraft(0, { store_name: 'My own name' });
+
+    renderWizard();
+
+    expect(await screen.findByDisplayValue('My own name')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('Woo Shop')).not.toBeInTheDocument();
   });
 
   it('clears a step error as soon as the field is corrected', async () => {
@@ -118,7 +183,7 @@ describe('onboarding wizard', () => {
     startFromDraft(2, essentialsValues);
     renderWizard();
 
-    expect(getProgress()).toBeCloseTo(66.67, 1);
+    expect(getProgress()).toBe(50);
   });
 
   it('switches the Essentials action to Continue when tax is collected', async () => {
@@ -149,7 +214,7 @@ describe('onboarding wizard', () => {
     expect(await screen.findByText('Tax Info')).toBeInTheDocument();
     expect(screen.getByText('Step 4')).toBeInTheDocument();
     expect(screen.getByText('Store Tax')).toBeInTheDocument();
-    expect(getProgress()).toBe(75);
+    expect(getProgress()).toBe(60);
     expect(screen.getByRole('radio', { name: 'Excluding Tax' })).toBeChecked();
     expect(screen.getByRole('button', { name: 'Create Store' })).toBeInTheDocument();
     expect(createStore.mutate).not.toHaveBeenCalled();
@@ -162,7 +227,16 @@ describe('onboarding wizard', () => {
     expect(screen.getByText('Setup the essentials')).toBeInTheDocument();
   });
 
-  it('hides the step number and disables the sample data link while setup runs', async () => {
+  it('names the setup row in progress in the top bar', async () => {
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+
+    expect(await screen.findByText('Setting up · Location')).toBeInTheDocument();
+  });
+
+  it('hides the step number and every action while setup runs', async () => {
     startFromDraft(2, essentialsValues);
     renderWizard();
 
@@ -170,10 +244,15 @@ describe('onboarding wizard', () => {
 
     expect(await screen.findByText('Your store is almost ready')).toBeInTheDocument();
     expect(screen.getByText('Setup Complete')).toBeInTheDocument();
-    expect(getProgress()).toBe(100);
+    expect(getProgress()).toBeGreaterThanOrEqual(75);
+    expect(getProgress()).toBeLessThan(100);
     expect(screen.queryByText(/^Step \d/)).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Click here to load sample data!' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Add your first product' })).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: 'Add your first product' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Click here to load sample data!' }),
+    ).not.toBeInTheDocument();
     expect(createStore.mutate).toHaveBeenCalledTimes(1);
   });
 
@@ -207,6 +286,60 @@ describe('onboarding wizard', () => {
     expect(await screen.findByText('Dashboard')).toBeInTheDocument();
   });
 
+  it('shows a progress bar and disables the actions while the sample data loads', async () => {
+    createStore.isSuccess = true;
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+    act(() => sampleData.setState({ phase: 'downloading', progress: 46.4 }));
+
+    const sampleBar = getSampleDataBar();
+    expect(sampleBar).toHaveAttribute('aria-valuenow', '46');
+    expect(sampleBar).toHaveAttribute('aria-valuetext', 'Downloading sample data...');
+    expect(screen.getByText('Downloading sample data...')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Click here to load sample data!' }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add your first product' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Go to Dashboard' })).toBeDisabled();
+
+    act(() => sampleData.setState({ phase: 'downloading', progress: 97 }));
+    expect(getSampleDataBar()).toHaveAttribute('aria-valuenow', '97');
+    expect(screen.getByText('Downloading sample data...')).toBeInTheDocument();
+    expect(screen.queryByText(/^Creating/)).not.toBeInTheDocument();
+  });
+
+  it('enables the actions when the sample data is loaded', async () => {
+    createStore.isSuccess = true;
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+    act(() => sampleData.setState({ phase: 'done', progress: 100 }));
+
+    expect(getSampleDataBar()).toHaveAttribute('aria-valuenow', '100');
+    expect(screen.getByRole('button', { name: 'Add your first product' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Go to Dashboard' })).toBeEnabled();
+  });
+
+  it('enables the actions again when the sample data fails', async () => {
+    createStore.isSuccess = true;
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+    await waitForSetupReady();
+    act(() => sampleData.setState({ phase: 'downloading', progress: 30 }));
+    act(() => sampleData.setState({ phase: 'idle', progress: 0 }));
+
+    expect(screen.getByRole('button', { name: 'Click here to load sample data!' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Add your first product' })).toBeEnabled();
+    expect(screen.queryByText('Downloading sample data...')).not.toBeInTheDocument();
+  });
+
   it('opens the products list when the sample data is loaded', async () => {
     startFromDraft(2, essentialsValues);
     renderWizard();
@@ -230,11 +363,87 @@ describe('onboarding wizard', () => {
   });
 
   it('lists tax in the configurations when tax is collected', async () => {
-    startFromDraft(3, { ...essentialsValues, is_tax_collected: true, is_tax_inclusive_price: true });
+    startFromDraft(3, {
+      ...essentialsValues,
+      is_tax_collected: true,
+      is_tax_inclusive_price: true,
+    });
     renderWizard();
 
     fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
 
     expect(await screen.findByText('Essentials, Shipping, Tax, Legal pages')).toBeInTheDocument();
+  });
+  const finishSetup = () => {
+    createStore.isSuccess = true;
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+  };
+
+  it('has no migrate row when no source plugin is detected', async () => {
+    finishSetup();
+    await waitForSetupReady();
+
+    expect(screen.queryByText('WooCommerce Migration')).not.toBeInTheDocument();
+  });
+
+  it('has no migrate row when the source version is not supported', async () => {
+    migration.sources = [
+      { id: 'woocommerce', label: 'WooCommerce', version: { supported: false } },
+    ];
+    finishSetup();
+    await waitForSetupReady();
+
+    expect(screen.queryByText('WooCommerce Migration')).not.toBeInTheDocument();
+  });
+
+  it('shows the migrate row and the migration text while the migration runs, with no actions', async () => {
+    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
+    finishSetup();
+
+    expect(await screen.findByText('WooCommerce Migration')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Migrating · Products 1-30 of 100', {}, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Setup Complete')).toBeInTheDocument();
+    expect(getProgress()).toBeCloseTo(86.5, 1);
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('shows only Go to Dashboard after the migration is done', async () => {
+    migration.state.status = 'done';
+    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
+    finishSetup();
+
+    const dashboard = await screen.findByRole(
+      'button',
+      { name: 'Go to Dashboard' },
+      { timeout: 3000 },
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Add your first product' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Click here to load sample data!' }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(dashboard);
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument();
+  });
+
+  it('shows the error, Retry and Go to Dashboard when the migration fails', async () => {
+    migration.state.status = 'failed';
+    migration.state.errorMessage = 'Boom';
+    migration.sources = [{ id: 'woocommerce', label: 'WooCommerce', version: { supported: true } }];
+    finishSetup();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Retry' }, { timeout: 3000 }));
+
+    expect(screen.getByText('Boom')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Go to Dashboard' })).toBeInTheDocument();
+    expect(migration.state.retry).toHaveBeenCalledTimes(1);
   });
 });

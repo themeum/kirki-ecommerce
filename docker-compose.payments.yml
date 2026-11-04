@@ -1,0 +1,36 @@
+# Local S3 (RustFS) for testing the payment gateway catalog.
+# Start it with `npm run s3:up`, stop it with `npm run s3:down`.
+# The bucket allows public reads, like the real bucket.
+name: kirki-payments-s3
+
+services:
+  s3:
+    image: rustfs/rustfs:latest
+    ports:
+      - '${S3_PORT:-9000}:9000'
+      - '${S3_CONSOLE_PORT:-9001}:9001'
+    environment:
+      RUSTFS_ACCESS_KEY: minioadmin
+      RUSTFS_SECRET_KEY: minioadmin
+    volumes:
+      - s3_data:/data
+
+  # Creates the bucket and opens it for anonymous reads, then exits.
+  s3-setup:
+    image: amazon/aws-cli:latest
+    depends_on:
+      - s3
+    environment:
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_DEFAULT_REGION: us-east-1
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        until aws --endpoint-url http://s3:9000 s3api create-bucket --bucket kirki-payments 2>/dev/null || aws --endpoint-url http://s3:9000 s3api head-bucket --bucket kirki-payments 2>/dev/null; do sleep 1; done
+        aws --endpoint-url http://s3:9000 s3api put-bucket-policy --bucket kirki-payments --policy '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":"*","Action":["s3:GetObject"],"Resource":["arn:aws:s3:::kirki-payments/*"]}]}'
+        echo "Bucket kirki-payments is ready."
+
+volumes:
+  s3_data:

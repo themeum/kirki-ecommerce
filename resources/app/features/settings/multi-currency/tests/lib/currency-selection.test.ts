@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   filterUnaddedCurrencies,
   resolveSearchInputValue,
+  selectBaseCurrency,
   toggleCurrencySelection,
 } from '@/features/settings/multi-currency/lib/currency-selection';
 import type { CurrencyDraft, CurrencyOption } from '@/features/settings/multi-currency/schemas/catalog/currency';
@@ -44,6 +45,32 @@ describe('toggleCurrencySelection', () => {
       { ...usd, is_base: false, is_active: true },
       { ...eur, is_base: false, is_active: true },
     ]);
+  });
+});
+
+describe('selectBaseCurrency', () => {
+  it('selects a currency as the active base with rate 1', () => {
+    const result = selectBaseCurrency([], usd);
+
+    expect(result).toEqual([{ ...usd, is_base: true, is_active: true, exchange_rate: 1 }]);
+  });
+
+  it('replaces a previous pick instead of adding to it', () => {
+    const selected: CurrencyDraft[] = [
+      { ...usd, is_base: true, is_active: true, exchange_rate: 1 },
+    ];
+
+    const result = selectBaseCurrency(selected, eur);
+
+    expect(result).toEqual([{ ...eur, is_base: true, is_active: true, exchange_rate: 1 }]);
+  });
+
+  it('clears the selection when the picked currency is selected again', () => {
+    const selected: CurrencyDraft[] = [
+      { ...usd, is_base: true, is_active: true, exchange_rate: 1 },
+    ];
+
+    expect(selectBaseCurrency(selected, usd)).toEqual([]);
   });
 });
 

@@ -103,6 +103,52 @@ class CountryData
     }
 
     /**
+     * Get the ids of all states of a country.
+     *
+     * @since 1.0.0
+     *
+     * @param string $code Country code, in any casing.
+     * @return string[] Empty when the country has no states.
+     */
+    public static function state_ids(string $code)
+    {
+        return array_map(static function ($state) {
+            return (string) $state['id'];
+        }, array_values(static::states_for($code)));
+    }
+
+    /**
+     * Get a country's name by its code.
+     *
+     * @since 1.0.0
+     *
+     * @param string $code Country code, in any casing.
+     * @return string|null Null when the country code is unknown.
+     */
+    public static function get_country_name(string $code)
+    {
+        return static::find_index_entry($code)['name'] ?? null;
+    }
+
+    /**
+     * Get a state's name by its identifier within a country.
+     *
+     * @since 1.0.0
+     *
+     * @param string     $country_code Country code, in any casing.
+     * @param string|int $state_id     State identifier.
+     * @return string|null Null when the state is unknown for that country.
+     */
+    public static function get_state_name(string $country_code, $state_id)
+    {
+        if (empty($state_id)) {
+            return null;
+        }
+
+        return array_column(static::states_for($country_code), 'name', 'id')[$state_id] ?? null;
+    }
+
+    /**
      * Get the full country list with each country's states nested inside it.
      *
      * @since 1.0.0

@@ -191,10 +191,15 @@ export const AvailableCurrencyList = () => {
   const isDisplaySyncButton =
     isAutomaticUpdateEnabled && hasMultipleCurrencies && !formState.isDirty;
 
+  if (currencyList.length === 0) {
+    return null;
+  }
+
   return (
     <StackedItems
       data-search-id="currency.available-currencies"
       data-search-keywords="multi currency, usd, eur, gbp, exchange"
+      cssOverride={{ marginBottom: theme.spacing[4] }}
     >
       <StackedItem id="header" cssOverride={mergeCss(styles.staticRow, styles.headerRow)}>
         <StackedItemContent>

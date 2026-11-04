@@ -18,7 +18,6 @@ import {
 } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import type { ShippingBox } from '@/features/settings/shipping/schemas/catalog/shipping';
 import {
@@ -202,7 +201,6 @@ const ShippingBoxPopup = ({
               </Card>
             </div>
           </DialogBody>
-          <Separator cssOverride={styles.footerSeparator} />
           <DialogFooter>
             <Button variant="outline" onClick={handleOnclosePopup} disabled={isSubmitting}>
               {__('Cancel', 'kirki-ecommerce')}

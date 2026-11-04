@@ -53,6 +53,7 @@ Route::get('/payment/webhook/{provider_id}', [WebhookController::class, 'handle_
 
 Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], function () {
     // Onboarding
+    Route::get('/onboarding/defaults', [OnboardingController::class, 'defaults']);
     Route::post('/onboarding', [OnboardingController::class, 'store']);
     Route::post('/onboarding/sample-data', [OnboardingController::class, 'import_sample_data']);
 
@@ -250,6 +251,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::get('/online-payments/{id}', [OnlinePaymentController::class, 'show']);
     Route::put('/online-payments/{id}', [OnlinePaymentController::class, 'update']);
     Route::patch('/online-payments/{id}', [OnlinePaymentController::class, 'set_enabled']);
+    Route::delete('/online-payments/{id}', [OnlinePaymentController::class, 'uninstall']);
 
     // Offline Payments
     Route::get('/offline-payments', [OfflinePaymentController::class, 'get']);

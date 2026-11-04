@@ -175,6 +175,7 @@ type MediaGalleryProps = {
   onUpdate?: (items: MediaItem[]) => void;
   error?: string | boolean;
   helpText?: string;
+  accept?: AcceptedMediaTypes[];
 };
 
 const MediaGallery = ({
@@ -183,10 +184,11 @@ const MediaGallery = ({
   onUpdate = noop,
   error,
   helpText,
+  accept = ['image'],
 }: MediaGalleryProps) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
-  const { open: openMediaLibrary } = useMediaLibrary({ multiple: true });
+  const { open: openMediaLibrary } = useMediaLibrary({ multiple: true, types: accept });
 
   const sensors = useSensors(
     useSensor(PointerSensor),

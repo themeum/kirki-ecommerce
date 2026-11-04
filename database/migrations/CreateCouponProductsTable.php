@@ -28,7 +28,7 @@ class CreateCouponProductsTable implements Migration
             $table->unsigned_big_integer('coupon_id');
             $table->unsigned_big_integer('product_id');
             $table->boolean('is_reward_item')->default(0)->comment('For buy-x-get-y coupons');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->primary(['coupon_id', 'product_id']);
 

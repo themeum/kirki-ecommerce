@@ -29,7 +29,7 @@ class CreateProductSchemaTable implements Migration
             $table->string('name', 500);
             $table->boolean('is_default')->default(false);
             $table->text('schema')->nullable();
-            $table->timestamps();
+            $table->datetimes();
         });
     }
 

@@ -1,0 +1,429 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "jewelry",
+      "name": "Jewelry",
+      "parent": null
+    },
+    {
+      "slug": "earrings",
+      "name": "Earrings",
+      "parent": "jewelry"
+    },
+    {
+      "slug": "necklaces",
+      "name": "Necklaces",
+      "parent": "jewelry"
+    },
+    {
+      "slug": "rings",
+      "name": "Rings",
+      "parent": "jewelry"
+    },
+    {
+      "slug": "bracelets",
+      "name": "Bracelets",
+      "parent": "jewelry"
+    },
+    {
+      "slug": "watches",
+      "name": "Watches",
+      "parent": null
+    },
+    {
+      "slug": "wristwatches",
+      "name": "Wristwatches",
+      "parent": "watches"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "gold",
+      "name": "Gold"
+    },
+    {
+      "slug": "leather",
+      "name": "Leather"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "pearl",
+      "name": "Pearl"
+    }
+  ],
+  "products": [
+    {
+      "slug": "pearl-stud-earrings",
+      "title": "Pearl Stud Earrings · Simple product",
+      "short_description": "Freshwater pearl studs on gold vermeil posts.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nRound freshwater pearls, about 7 mm, on 18k gold vermeil posts. Each pearl has its own soft glow.",
+      "ribbon": null,
+      "categories": [
+        "earrings"
+      ],
+      "tags": [
+        "pearl",
+        "gift-idea",
+        "bestseller"
+      ],
+      "images": [
+        "pearl-stud-earrings-1.jpg",
+        "pearl-stud-earrings-2.jpg",
+        "pearl-stud-earrings-3.jpg",
+        "pearl-stud-earrings-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-JWL-PSE",
+          "options": {},
+          "image": null,
+          "price": "68.00",
+          "sale_price": null,
+          "cost": "27.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 10,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "pendant-necklace",
+      "title": "Pendant Necklace · With variants",
+      "short_description": "Fine gold chain with a small gemstone pendant.",
+      "description": "Sample product: 2 attributes (Stone, Length), 6 variants. Each stone has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA fine gold cable chain with a small faceted gemstone in a bezel setting. Hypoallergenic and water resistant.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "necklaces"
+      ],
+      "tags": [
+        "gift-idea",
+        "new-arrival"
+      ],
+      "images": [
+        "pendant-necklace-emerald.jpg",
+        "pendant-necklace-ruby.jpg",
+        "pendant-necklace-sapphire.jpg",
+        "pendant-necklace-2.jpg",
+        "pendant-necklace-3.jpg",
+        "pendant-necklace-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-JWL-PN-EMER-40CM",
+          "options": {
+            "stone": "Emerald",
+            "length": "40 cm"
+          },
+          "image": "pendant-necklace-emerald.jpg",
+          "price": "85.00",
+          "sale_price": null,
+          "cost": "34.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 10,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-JWL-PN-EMER-45CM",
+          "options": {
+            "stone": "Emerald",
+            "length": "45 cm"
+          },
+          "image": "pendant-necklace-emerald.jpg",
+          "price": "85.00",
+          "sale_price": null,
+          "cost": "34.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 10,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-JWL-PN-RUBY-40CM",
+          "options": {
+            "stone": "Ruby",
+            "length": "40 cm"
+          },
+          "image": "pendant-necklace-ruby.jpg",
+          "price": "85.00",
+          "sale_price": null,
+          "cost": "34.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 10,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-JWL-PN-RUBY-45CM",
+          "options": {
+            "stone": "Ruby",
+            "length": "45 cm"
+          },
+          "image": "pendant-necklace-ruby.jpg",
+          "price": "85.00",
+          "sale_price": null,
+          "cost": "34.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 10,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-JWL-PN-SAPP-40CM",
+          "options": {
+            "stone": "Sapphire",
+            "length": "40 cm"
+          },
+          "image": "pendant-necklace-sapphire.jpg",
+          "price": "85.00",
+          "sale_price": null,
+          "cost": "34.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 10,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-JWL-PN-SAPP-45CM",
+          "options": {
+            "stone": "Sapphire",
+            "length": "45 cm"
+          },
+          "image": "pendant-necklace-sapphire.jpg",
+          "price": "85.00",
+          "sale_price": null,
+          "cost": "34.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 10,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "minimal-wristwatch",
+      "title": "Minimal Wristwatch · On sale",
+      "short_description": "Slim watch with a clean dial and a leather strap.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA slim 38 mm watch with a clean dial, sapphire crystal and a soft Italian leather strap. Water resistant to 50 m.",
+      "ribbon": null,
+      "categories": [
+        "wristwatches"
+      ],
+      "tags": [
+        "leather",
+        "gift-idea"
+      ],
+      "images": [
+        "minimal-wristwatch-1.jpg",
+        "minimal-wristwatch-2.jpg",
+        "minimal-wristwatch-3.jpg",
+        "minimal-wristwatch-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-JWL-MW",
+          "options": {},
+          "image": null,
+          "price": "220.00",
+          "sale_price": "165.00",
+          "cost": "88.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 60,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "stacking-ring",
+      "title": "Stacking Ring · Order limit",
+      "short_description": "Thin gold vermeil stacking ring. Up to 3 per order.",
+      "description": "Sample product: 1 attribute (Size), and customers can buy at most 3 per order. Edit it or delete it.\n\nA thin, comfortable band in 18k gold vermeil, made to be worn alone or stacked.",
+      "ribbon": null,
+      "categories": [
+        "rings"
+      ],
+      "tags": [
+        "gold",
+        "gift-idea"
+      ],
+      "images": [
+        "stacking-ring-1.jpg",
+        "stacking-ring-2.jpg",
+        "stacking-ring-3.jpg",
+        "stacking-ring-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-JWL-SR-5",
+          "options": {
+            "size": "5"
+          },
+          "image": null,
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 3,
+          "weight_g": 5,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-JWL-SR-6",
+          "options": {
+            "size": "6"
+          },
+          "image": null,
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 3,
+          "weight_g": 5,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-JWL-SR-7",
+          "options": {
+            "size": "7"
+          },
+          "image": null,
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 3,
+          "weight_g": 5,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-JWL-SR-8",
+          "options": {
+            "size": "8"
+          },
+          "image": null,
+          "price": "48.00",
+          "sale_price": null,
+          "cost": "19.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 3,
+          "weight_g": 5,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "chain-bracelet",
+      "title": "Chain Bracelet · Stock levels",
+      "short_description": "Chunky curb chain bracelet in gold vermeil.",
+      "description": "Sample product: Length 18 cm is low in stock, and Length 20 cm is out of stock but still sells on backorder. Edit it or delete it.\n\nA curb chain bracelet in 18k gold vermeil with a lobster clasp.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "bracelets"
+      ],
+      "tags": [
+        "gold",
+        "bestseller"
+      ],
+      "images": [
+        "chain-bracelet-1.jpg",
+        "chain-bracelet-2.jpg",
+        "chain-bracelet-3.jpg",
+        "chain-bracelet-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-JWL-CB-16CM",
+          "options": {
+            "length": "16 cm"
+          },
+          "image": null,
+          "price": "72.00",
+          "sale_price": null,
+          "cost": "29.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 15,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-JWL-CB-18CM",
+          "options": {
+            "length": "18 cm"
+          },
+          "image": null,
+          "price": "72.00",
+          "sale_price": null,
+          "cost": "29.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 15,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-JWL-CB-20CM",
+          "options": {
+            "length": "20 cm"
+          },
+          "image": null,
+          "price": "72.00",
+          "sale_price": null,
+          "cost": "29.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 15,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

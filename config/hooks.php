@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Hooks\Actions\MergeGuestOrder;
 use Kirki\Ecommerce\App\Hooks\Actions\RenderLoginConsents;
 use Kirki\Ecommerce\App\Hooks\Actions\RenderRegisterConsents;
 use Kirki\Ecommerce\App\Hooks\Actions\RepairCurrencySyncSchedule;
+use Kirki\Ecommerce\App\Hooks\Filters\AddProductRobots;
 use Kirki\Ecommerce\App\Hooks\Filters\PageIdentifier;
 use Kirki\Ecommerce\App\Hooks\Filters\ReplaceSiteTitle;
 use Kirki\Ecommerce\App\Hooks\Filters\PageInlineScript;
@@ -51,6 +52,7 @@ return [
     ],
     'filters' => [
         ReplaceSiteTitle::class,
+        AddProductRobots::class,
         PageIdentifier::class,
         PageInlineScript::class,
         MailFromEmail::class,
