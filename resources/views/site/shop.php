@@ -52,7 +52,7 @@ $sidebar_data = [
 
         <div class="kecom-products-page-header">
             <h1 class="kecom-products-page-title">
-                <?php echo esc_html__('Shop', 'kirki-ecommerce'); ?>
+                <?php the_title() ?>
             </h1>
 
             <?php
