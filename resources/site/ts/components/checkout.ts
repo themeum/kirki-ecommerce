@@ -193,6 +193,8 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
     shippingMethodError: null as string | null,
 
+    paymentMethodError: null as string | null,
+
     orderNotes: '',
 
     consents: {} as Record<string, boolean>,
@@ -568,6 +570,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     setPaymentMethod(method: string) {
       this.selectedPaymentMethod = method;
+      this.paymentMethodError = null;
       emit(EVENTS.PAYMENT_METHOD_CHANGED, { method });
     },
 
@@ -604,6 +607,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
         if (!this.selectedShippingMethod) {
           this.shippingMethodError = __('Please select a shipping method.', 'kirki-ecommerce');
+          scrollToFirstError();
+          return;
+        }
+
+        if (!this.selectedPaymentMethod) {
+          this.paymentMethodError = __('Please select a payment method.', 'kirki-ecommerce');
           scrollToFirstError();
           return;
         }
