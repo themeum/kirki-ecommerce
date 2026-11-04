@@ -41,7 +41,6 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
         // }
 
         echo wp_kses_post(get_the_excerpt());
-        // esc_html_e('Reliable gear for every journey. Sort to find your ideal match.', 'kirki-ecommerce');
         ?>
     </div>
 

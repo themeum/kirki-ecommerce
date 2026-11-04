@@ -236,6 +236,7 @@ class Utils
                         'post_status'  => 'publish',
                         'post_type'    => 'page',
                         'post_content' => '',
+                        'post_excerpt' => $settings_key === 'advance.pages.' . PageKeys::SHOP ? __('Reliable gear for every journey. Sort to find your ideal match.', 'kirki-ecommerce') : '',
                     ];
 
                     $page_id = wp_insert_post($new_page);
