@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { isEmptyValue, mediaId, prepareFormSchema, requiredWhen } from '@/libs/zod';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const StoreAddressFormShape = z.object({
@@ -31,7 +32,8 @@ const GeneralSettingsFormShape = z.object({
   selling_countries: requiredWhen(
     z.array(z.string()).default([]),
     (values) =>
-      (values.selling_location_type || 'all-countries') !== 'all-countries' &&
+      isDefined(values.selling_location_type) &&
+      values.selling_location_type !== 'all-countries' &&
       isEmptyValue(values.selling_countries),
     __('Select at least one country.', 'kirki-ecommerce'),
   ),
