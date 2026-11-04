@@ -1,9 +1,13 @@
+import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
 import QueryErrorState from '@/components/ui/query-error-state';
 import { RouteConfig } from '@/config/route-config';
 import ProductForm from '@/features/products/components/product-form/product-form';
-import { mapProductToFormValues, type ProductFormPayload } from '@/features/products/schemas/forms/product-form';
+import {
+  mapProductToFormValues,
+  type ProductFormPayload,
+} from '@/features/products/schemas/forms/product-form';
 import {
   useBulkTrashProductsMutation,
   useDeleteProductMutation,
@@ -13,7 +17,6 @@ import {
 } from '@/features/products/services/product';
 import ProductFormSkeleton from '@/features/products/skeletons/product-form-skeleton';
 import { isDefined } from '@/utils/object';
-import { __ } from '@/wpi18n';
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -30,11 +33,18 @@ const EditProduct = () => {
   const trashProductMutation = useBulkTrashProductsMutation();
   const deleteProductMutation = useDeleteProductMutation();
 
+  const initialValues = useMemo(() => {
+    if (!isDefined(product)) {
+      return undefined;
+    }
+    return mapProductToFormValues(product);
+  }, [product]);
+
   if (isLoading) {
     return <ProductFormSkeleton />;
   }
 
-  if (isError || !product) {
+  if (isError || !isDefined(product)) {
     return <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />;
   }
 
@@ -68,7 +78,7 @@ const EditProduct = () => {
       key={product.id}
       mode="edit"
       product={product}
-      initialValues={mapProductToFormValues(product)}
+      initialValues={initialValues}
       onSubmit={handleSubmit}
       isSubmitting={updateProductMutation.isPending}
       onDuplicate={handleDuplicate}
