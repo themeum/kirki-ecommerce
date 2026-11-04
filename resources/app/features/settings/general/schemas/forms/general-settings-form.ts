@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { mediaId, prepareFormSchema } from '@/libs/zod';
+import { isEmptyValue, mediaId, prepareFormSchema, requiredWhen } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
 const StoreAddressFormShape = z.object({
@@ -28,7 +28,13 @@ const GeneralSettingsFormShape = z.object({
   store_tax_id: z.string().nullish().default(''),
   store_address: StoreAddressFormShape.nullish(),
   selling_location_type: z.string().nullish().default('all-countries'),
-  selling_countries: z.array(z.string()).default([]),
+  selling_countries: requiredWhen(
+    z.array(z.string()).default([]),
+    (values) =>
+      (values.selling_location_type || 'all-countries') !== 'all-countries' &&
+      isEmptyValue(values.selling_countries),
+    __('Select at least one country.', 'kirki-ecommerce'),
+  ),
   order_number: z
     .object({
       prefix: affix(),
