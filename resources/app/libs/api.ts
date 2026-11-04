@@ -6,6 +6,7 @@ import axios, {
 } from 'axios';
 
 import { APP_API_PREFIX } from '@/conf';
+import { noop } from '@/utils/function';
 import { isMediaObject } from '@/utils/media';
 import { getObjectKeys, isDefined, isObject } from '@/utils/object';
 import { __ } from '@/wpi18n';
@@ -28,7 +29,6 @@ const apiClient = axios.create({
 function warnOnUnshapedPayload(data: unknown, path: string[] = []): void {
   if (data === null || data === undefined || typeof data !== 'object') {
     if (typeof data === 'string' && data === '') {
-       
       console.warn(
         `[api] outgoing payload at "${path.length ? path.join('.') : '(root)'}" is an empty string — the form schema's transform should emit null explicitly instead.`,
       );
@@ -37,7 +37,6 @@ function warnOnUnshapedPayload(data: unknown, path: string[] = []): void {
   }
 
   if (data instanceof Date) {
-     
     console.warn(
       `[api] outgoing payload at "${path.length ? path.join('.') : '(root)'}" is a raw Date — the form schema's transform should convert it with dateString().`,
       data,
@@ -55,7 +54,6 @@ function warnOnUnshapedPayload(data: unknown, path: string[] = []): void {
   }
 
   if (isMediaObject(data)) {
-     
     console.warn(
       `[api] outgoing payload at "${path.length ? path.join('.') : '(root)'}" is a raw media object — the form schema's transform should collapse it with mediaId().`,
       data,
@@ -129,27 +127,35 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error: unknown) => {
-    if (
-      isDefined(error) &&
-      typeof error === 'object' &&
-      error !== null &&
-      'response' in error
-    ) {
+    if (isDefined(error) && typeof error === 'object' && error !== null && 'response' in error) {
       const errorResponse = (
         error as AxiosError<{
+          code?: string;
+          data?: Record<string, unknown>;
           success: boolean;
           message: string;
           errors: Record<string, string>;
         }>
       ).response as AxiosResponse<{
+        code?: string;
+        data?: Record<string, unknown>;
         success: boolean;
         message: string;
         errors: Record<string, string>;
       }>;
 
+      if (
+        isDefined(errorResponse.data.data) &&
+        errorResponse.data.data.status === 403 &&
+        isDefined(errorResponse.data.code) &&
+        errorResponse.data.code === 'rest_cookie_invalid_nonce'
+      ) {
+        window.location.reload();
+        return new Promise(noop);
+      }
+
       const errorMessage =
-        errorResponse?.data?.message ||
-        __('Something went wrong.', 'kirki-ecommerce');
+        errorResponse?.data?.message || __('Something went wrong.', 'kirki-ecommerce');
 
       const errors = errorResponse?.data?.errors ?? {};
       const modifiedError = {
