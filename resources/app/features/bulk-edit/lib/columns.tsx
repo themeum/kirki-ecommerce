@@ -110,6 +110,13 @@ const bulkEditColumns: ColumnDef<ProductVariant>[] = [
     cell: BulkEditCell,
   },
   {
+    id: 'allow_back_order',
+    header: __('Sell when out of stock', 'kirki-ecommerce'),
+    size: 150,
+    meta: { cellKind: 'checkbox', alignment: 'center' },
+    cell: BulkEditCell,
+  },
+  {
     id: 'available_quantity',
     // Deliberately not `gatedBy: 'track_inventory'`: the cell is editable in
     // both states, showing a quantity when the row tracks inventory and an
@@ -198,6 +205,7 @@ const bulkEditColumnGroups: BulkEditColumnGroup[] = [
     label: __('Inventory', 'kirki-ecommerce'),
     columnIds: [
       'track_inventory',
+      'allow_back_order',
       'available_quantity',
       'committed_quantity',
       'low_stock_threshold',
