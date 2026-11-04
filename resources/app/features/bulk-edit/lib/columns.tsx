@@ -112,7 +112,7 @@ const bulkEditColumns: ColumnDef<ProductVariant>[] = [
   {
     id: 'allow_back_order',
     header: __('Sell when out of stock', 'kirki-ecommerce'),
-    size: 170,
+    size: 150,
     meta: { cellKind: 'checkbox', alignment: 'center' },
     cell: BulkEditCell,
   },
