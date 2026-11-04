@@ -144,7 +144,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     columnPinning = EMPTY_COLUMN_PINNING,
     columnVisibility,
     enableColumnVisibility = true,
-    noCardShadow = false,
+    noCardShadow = true,
   } = props;
 
   const [storedColumnVisibility, toggleColumnVisibility] = useTableColumnVisibility(tableId);

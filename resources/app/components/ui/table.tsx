@@ -187,6 +187,9 @@ const styles = defineStyles({
     '& tbody tr': {
       borderBottom: `1px solid ${theme.colors.border.tertiary}`,
     },
+    '& tbody tr:last-child': {
+      borderBottom: 'none',
+    },
     '& tbody tr:hover, & tbody tr[data-active="true"]': {
       backgroundColor: theme.colors.background.surfaceAlt,
       '& [data-action-group="true"]': {
