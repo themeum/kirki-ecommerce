@@ -12,7 +12,6 @@ STAGE_DIR="$BUILD_DIR/$PLUGIN_SLUG"
 REQUIRED_PATHS=(
   "kirki-ecommerce.php"
   "readme.txt"
-  "composer.json"
   "app"
   "bootstrap"
   "vendor"
@@ -142,6 +141,9 @@ for entry in "$STAGE_DIR"/vendor/*; do
     *) rm -rf "$entry" ;;
   esac
 done
+# Only the Composer CLI reads installed.json. At runtime, InstalledVersions
+# reads installed.php.
+rm -f "$STAGE_DIR/vendor/composer/installed.json"
 
 # The scaffolding commands (make:*, queue:table) are the only users of the stubs, and they are not
 # useful on a production site. Their registrations are dropped from the staged

@@ -107,3 +107,22 @@ function kirki_ecommerce_boot_application()
     // Only after instantiation can you safely use bootstrap_path() to resolve the bootstrap directory.
     require_once KIRKI_ECOMMERCE_PLUGIN_PATH . 'bootstrap/app.php';
 }
+
+add_filter('plugin_row_meta', 'kirki_ecommerce_plugin_row_meta', 10, 2);
+
+/**
+ * Add the plugin row meta
+ *
+ * @param array $links The plugin row meta links
+ * @param string $file The plugin file
+ *
+ * @return array The plugin row meta links
+ */
+function kirki_ecommerce_plugin_row_meta($links, $file)
+{
+    if (strpos($file, KIRKI_ECOMMERCE_SLUG) !== false) {
+        $links[] = '<a href="https://kirki.com/wp-content/uploads/2026/11/kirki-ecommerce-user-guide.pdf" target="_blank" rel="noopener noreferrer">Documentation</a>';
+    }
+
+    return $links;
+}
