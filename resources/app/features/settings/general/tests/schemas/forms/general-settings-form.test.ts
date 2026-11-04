@@ -140,6 +140,33 @@ describe('GeneralSettingsFormSchema', () => {
       expect(result.invoice_number.reset_sequence_every_year).toBe(false);
     });
 
+    it.each(['selected-countries', 'excluded-countries'])(
+      'rejects an empty selling_countries list for %s',
+      (selling_location_type) => {
+        const result = GeneralSettingsFormSchema.safeParse({
+          ...base,
+          selling_location_type,
+          selling_countries: [],
+        });
+        expect(result.success).toBe(false);
+        expect(result.error?.issues[0].path).toEqual(['selling_countries']);
+      },
+    );
+
+    it('accepts selected-countries with at least one country', () => {
+      const result = GeneralSettingsFormSchema.parse({
+        ...base,
+        selling_location_type: 'selected-countries',
+        selling_countries: ['usa'],
+      });
+      expect(result.selling_countries).toEqual(['usa']);
+    });
+
+    it('accepts an empty selling_countries list for all-countries', () => {
+      const result = GeneralSettingsFormSchema.parse({ ...base, selling_countries: [] });
+      expect(result.selling_countries).toEqual([]);
+    });
+
     it('rejects a non-digit invoice_number sequence', () => {
       expect(() =>
         GeneralSettingsFormSchema.parse({
