@@ -6,20 +6,17 @@ import { getVariantLabel } from '@/features/products/components/shared/select-pr
 import type { ProductListItemWithVariants } from '@/features/products/schemas/catalog/product';
 import { __ } from '@/wpi18n';
 
-const buildVariantSelections = (
-  product: ProductListItemWithVariants,
-): ProductVariantSelection[] =>
+const buildVariantSelections = (product: ProductListItemWithVariants): ProductVariantSelection[] =>
   product.variants.reduce<ProductVariantSelection[]>((variants, variant) => {
     if (!variant.id) {
       return variants;
     }
 
-    const label = getVariantLabel(product.attributes, variant);
+    const label = getVariantLabel(variant);
 
     variants.push({
       variantId: variant.id,
-      variantLabel:
-        label || variant.sku || __('Default', 'kirki-ecommerce'),
+      variantLabel: label || product.title,
       thumbnail: variant.media?.url ?? product.image ?? null,
       inStock: variant.in_stock,
       availableQuantity: variant.available_quantity,
