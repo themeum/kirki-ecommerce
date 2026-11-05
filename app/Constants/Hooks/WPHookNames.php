@@ -20,6 +20,7 @@ class WPHookNames extends \Kirki\Ecommerce\Framework\Wordpress\Constants\HookNam
     public const AUTHENTICATE = 'authenticate';
     public const REGISTRATION_ERRORS = 'registration_errors';
     public const ADMIN_BAR_MENU = 'admin_bar_menu';
+    public const USE_BLOCK_EDITOR_FOR_POST = 'use_block_editor_for_post';    
     public const PROFILE_UPDATE = 'profile_update';
     public const USER_REGISTER = 'user_register';
     public const DELETED_POST = 'deleted_post';
