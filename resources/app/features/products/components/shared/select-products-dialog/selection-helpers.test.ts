@@ -3,10 +3,16 @@ import { describe, expect, it } from 'vitest';
 import {
   applyProductToggle,
   applyVariantToggle,
+  getRangeRows,
+  getRowKey,
   getSelectedCount,
   getSelectionCounts,
+  type PickerRow,
 } from '@/features/products/components/shared/select-products-dialog/selection-helpers';
-import type { ProductSelection } from '@/features/products/components/shared/select-products-dialog/types';
+import type {
+  ProductPickerItem,
+  ProductSelection,
+} from '@/features/products/components/shared/select-products-dialog/types';
 
 const buildProduct = (id: number, variantIds: number[]) =>
   ({
@@ -33,14 +39,32 @@ describe('applyProductToggle', () => {
 
 describe('applyVariantToggle', () => {
   it('selects only the given variants', () => {
-    const next = applyVariantToggle(new Map(), productOne, [productOne.variants[1]], true, noLocked);
+    const next = applyVariantToggle(
+      new Map(),
+      productOne,
+      [productOne.variants[1]],
+      true,
+      noLocked,
+    );
 
     expect(variantIdsOf(next, 1)).toEqual([11]);
   });
 
   it('removes the product when its last variant is deselected', () => {
-    const selected = applyVariantToggle(new Map(), productOne, [productOne.variants[0]], true, noLocked);
-    const next = applyVariantToggle(selected, productOne, [productOne.variants[0]], false, noLocked);
+    const selected = applyVariantToggle(
+      new Map(),
+      productOne,
+      [productOne.variants[0]],
+      true,
+      noLocked,
+    );
+    const next = applyVariantToggle(
+      selected,
+      productOne,
+      [productOne.variants[0]],
+      false,
+      noLocked,
+    );
 
     expect(next.has(1)).toBe(false);
   });
@@ -54,7 +78,13 @@ describe('applyVariantToggle', () => {
 
   it('keeps a product that only has locked variants when deselecting', () => {
     const initial = new Map([[2, productTwo]]);
-    const next = applyVariantToggle(initial, productTwo, productTwo.variants, false, new Set([20, 21]));
+    const next = applyVariantToggle(
+      initial,
+      productTwo,
+      productTwo.variants,
+      false,
+      new Set([20, 21]),
+    );
 
     expect(variantIdsOf(next, 2)).toEqual([20, 21]);
   });
@@ -67,7 +97,13 @@ describe('applyVariantToggle', () => {
   });
 
   it('does not add a locked variant that is missing from the selection', () => {
-    const next = applyVariantToggle(new Map(), productOne, [productOne.variants[0]], true, new Set([10]));
+    const next = applyVariantToggle(
+      new Map(),
+      productOne,
+      [productOne.variants[0]],
+      true,
+      new Set([10]),
+    );
 
     expect(next.has(1)).toBe(false);
   });
@@ -132,5 +168,51 @@ describe('getSelectedCount', () => {
 
   it('counts only variants that are not locked in order mode', () => {
     expect(getSelectedCount('order', new Set(), new Set([10, 11, 20]), new Set([10, 20]))).toBe(1);
+  });
+});
+
+describe('getRangeRows', () => {
+  const items = [productOne, productTwo].map((selection) => ({
+    product: { id: selection.productId },
+    selection,
+  })) as unknown as ProductPickerItem[];
+  const expanded = new Set([1, 2]);
+  const describeRows = (rows: PickerRow[]) =>
+    rows.map((row) => getRowKey(row.pickerItem.product.id, row.variant));
+
+  it('returns only the target when there is no anchor', () => {
+    const rows = getRangeRows({
+      items,
+      expandedProductIds: expanded,
+      isOrderMode: true,
+      anchorKey: null,
+      target: { pickerItem: items[1] },
+    });
+
+    expect(describeRows(rows)).toEqual(['product-2']);
+  });
+
+  it('spans variant rows and skips expanded product rows that are not the target', () => {
+    const rows = getRangeRows({
+      items,
+      expandedProductIds: expanded,
+      isOrderMode: true,
+      anchorKey: 'variant-11',
+      target: { pickerItem: items[1], variant: items[1].selection.variants[0] },
+    });
+
+    expect(describeRows(rows)).toEqual(['variant-11', 'variant-12', 'variant-20']);
+  });
+
+  it('spans product rows in product mode', () => {
+    const rows = getRangeRows({
+      items,
+      expandedProductIds: expanded,
+      isOrderMode: false,
+      anchorKey: 'product-1',
+      target: { pickerItem: items[1] },
+    });
+
+    expect(describeRows(rows)).toEqual(['product-1', 'product-2']);
   });
 });

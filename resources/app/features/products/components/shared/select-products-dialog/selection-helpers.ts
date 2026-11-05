@@ -1,4 +1,5 @@
 import type {
+  ProductPickerItem,
   ProductSelection,
   ProductVariantSelection,
   SelectProductsMode,
@@ -122,4 +123,65 @@ const getSelectedCount = (
   return count;
 };
 
-export { applyProductToggle, applyVariantToggle, getSelectedCount, getSelectionCounts };
+const getRowKey = (productId: number, variant?: ProductVariantSelection) =>
+  variant ? `variant-${variant.variantId}` : `product-${productId}`;
+
+type PickerRow = {
+  pickerItem: ProductPickerItem;
+  variant?: ProductVariantSelection;
+};
+
+type RangeRowsInput = {
+  items: ProductPickerItem[];
+  expandedProductIds: Set<number>;
+  isOrderMode: boolean;
+  anchorKey: string | null;
+  target: PickerRow;
+};
+
+const getRangeRows = ({
+  items,
+  expandedProductIds,
+  isOrderMode,
+  anchorKey,
+  target,
+}: RangeRowsInput): PickerRow[] => {
+  const visibleRows = items.flatMap((pickerItem): PickerRow[] => {
+    const variantRows =
+      isOrderMode && expandedProductIds.has(pickerItem.product.id)
+        ? pickerItem.selection.variants.map((variant) => ({ pickerItem, variant }))
+        : [];
+
+    return [{ pickerItem }, ...variantRows];
+  });
+  const findRowIndex = (key: string | null) =>
+    visibleRows.findIndex((row) => getRowKey(row.pickerItem.product.id, row.variant) === key);
+
+  const anchorIndex = findRowIndex(anchorKey);
+  const targetIndex = findRowIndex(getRowKey(target.pickerItem.product.id, target.variant));
+  const rangeRows =
+    anchorIndex === -1 || targetIndex === -1
+      ? [target]
+      : visibleRows.slice(
+          Math.min(anchorIndex, targetIndex),
+          Math.max(anchorIndex, targetIndex) + 1,
+        );
+
+  return rangeRows.filter((row) => {
+    const isExpandedProductRow =
+      !row.variant && isOrderMode && expandedProductIds.has(row.pickerItem.product.id);
+    const isTargetRow = row.pickerItem === target.pickerItem && row.variant === target.variant;
+
+    return !isExpandedProductRow || isTargetRow;
+  });
+};
+
+export {
+  applyProductToggle,
+  applyVariantToggle,
+  getRangeRows,
+  getRowKey,
+  getSelectedCount,
+  getSelectionCounts,
+  type PickerRow,
+};

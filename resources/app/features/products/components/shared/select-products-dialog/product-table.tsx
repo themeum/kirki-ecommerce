@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
@@ -12,44 +10,16 @@ import {
 } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import ProductPickerRow from '@/features/products/components/shared/select-products-dialog/product-picker-row';
-import type {
-  ProductSelection,
-  ProductVariantSelection,
-  SelectProductsMode,
-} from '@/features/products/components/shared/select-products-dialog/types';
-import type { ProductListItemWithVariants } from '@/features/products/schemas/catalog/product';
+import {
+  useSelectProductsActions,
+  useSelectProductsState,
+} from '@/features/products/components/shared/select-products-dialog/select-products-context';
 import ProductPickerSkeleton from '@/features/products/skeletons/product-picker-skeleton';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-type ProductPickerItem = {
-  product: ProductListItemWithVariants;
-  selection: ProductSelection;
-};
-
-type ProductTableProps = {
-  isLoading: boolean;
-  pickerItems: ProductPickerItem[];
-  mode: SelectProductsMode;
-  allOnPageSelected: boolean;
-  partialOnPageSelected: boolean;
-  pageSelectableCount: number;
-  onToggleAllOnPage: (checked: boolean) => void;
-  expandedProductIds: Set<number>;
-  onToggleExpand: (productId: number) => void;
-  selectedProductIds: Set<number>;
-  selectedVariantIds: Set<number>;
-  lockedVariantIds: Set<number>;
-  onToggleProduct: (product: ProductSelection, checked: boolean) => void;
-  onToggleVariants: (
-    product: ProductSelection,
-    variants: ProductVariantSelection[],
-    checked: boolean,
-  ) => void;
-};
-
-const ProductTable = (props: ProductTableProps) => {
+const ProductTable = () => {
   const {
     isLoading,
     pickerItems,
@@ -57,76 +27,10 @@ const ProductTable = (props: ProductTableProps) => {
     allOnPageSelected,
     partialOnPageSelected,
     pageSelectableCount,
-    onToggleAllOnPage,
-    expandedProductIds,
-    onToggleExpand,
-    selectedProductIds,
-    selectedVariantIds,
-    lockedVariantIds,
-    onToggleProduct,
-    onToggleVariants,
-  } = props;
+  } = useSelectProductsState();
+  const { toggleAllOnPage } = useSelectProductsActions();
 
   const isOrderMode = mode === 'order';
-  const anchorRowKey = useRef<string | null>(null);
-
-  const getRowKey = (productId: number, variant?: ProductVariantSelection) =>
-    variant ? `variant-${variant.variantId}` : `product-${productId}`;
-
-  const handleSetAnchor = (item: ProductPickerItem, variant?: ProductVariantSelection) => {
-    anchorRowKey.current = getRowKey(item.product.id, variant);
-  };
-
-  const handleToggleRange = (
-    item: ProductPickerItem,
-    checked: boolean,
-    variant?: ProductVariantSelection,
-  ) => {
-    const visibleRows = pickerItems.flatMap((pickerItem) => {
-      const productRow = { pickerItem, variant: undefined as ProductVariantSelection | undefined };
-      const variantRows =
-        isOrderMode && expandedProductIds.has(pickerItem.product.id)
-          ? pickerItem.selection.variants.map((rowVariant) => ({
-              pickerItem,
-              variant: rowVariant,
-            }))
-          : [];
-
-      return [productRow, ...variantRows];
-    });
-    const findRowIndex = (key: string | null) =>
-      visibleRows.findIndex((row) => getRowKey(row.pickerItem.product.id, row.variant) === key);
-
-    const anchorIndex = findRowIndex(anchorRowKey.current);
-    const targetIndex = findRowIndex(getRowKey(item.product.id, variant));
-    const rangeRows =
-      anchorIndex === -1 || targetIndex === -1
-        ? [{ pickerItem: item, variant }]
-        : visibleRows.slice(
-            Math.min(anchorIndex, targetIndex),
-            Math.max(anchorIndex, targetIndex) + 1,
-          );
-
-    const isTargetRow = (row: (typeof rangeRows)[number]) =>
-      row.pickerItem === item && row.variant === variant;
-
-    rangeRows.forEach((row) => {
-      const isExpandedProductRow =
-        !row.variant && isOrderMode && expandedProductIds.has(row.pickerItem.product.id);
-
-      if (isExpandedProductRow && !isTargetRow(row)) {
-        return;
-      }
-
-      if (row.variant) {
-        onToggleVariants(row.pickerItem.selection, [row.variant], checked);
-      } else if (isOrderMode) {
-        onToggleVariants(row.pickerItem.selection, row.pickerItem.selection.variants, checked);
-      } else {
-        onToggleProduct(row.pickerItem.selection, checked);
-      }
-    });
-  };
 
   return (
     <Card
@@ -141,7 +45,7 @@ const ProductTable = (props: ProductTableProps) => {
                   checked={allOnPageSelected}
                   isPartialChecked={partialOnPageSelected}
                   disabled={pageSelectableCount === 0}
-                  onCheckedChange={(checked) => onToggleAllOnPage(checked === true)}
+                  onCheckedChange={(checked) => toggleAllOnPage(checked === true)}
                 />
               </TableHead>
               <TableHead>
@@ -165,25 +69,7 @@ const ProductTable = (props: ProductTableProps) => {
                 </TableCell>
               </TableRow>
             ) : (
-              pickerItems.map((item) => (
-                <ProductPickerRow
-                  key={item.product.id}
-                  product={item.product}
-                  selection={item.selection}
-                  expanded={expandedProductIds.has(item.product.id)}
-                  onToggleExpand={() => onToggleExpand(item.product.id)}
-                  mode={mode}
-                  isProductSelected={selectedProductIds.has(item.product.id)}
-                  selectedVariantIds={selectedVariantIds}
-                  lockedVariantIds={lockedVariantIds}
-                  onToggleProduct={(checked) => onToggleProduct(item.selection, checked)}
-                  onToggleVariants={(variants, checked) =>
-                    onToggleVariants(item.selection, variants, checked)
-                  }
-                  onToggleRange={(checked, variant) => handleToggleRange(item, checked, variant)}
-                  onSetAnchor={(variant) => handleSetAnchor(item, variant)}
-                />
-              ))
+              pickerItems.map((item) => <ProductPickerRow key={item.product.id} item={item} />)
             )}
           </TableBody>
         </Table>

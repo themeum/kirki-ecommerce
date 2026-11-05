@@ -3,10 +3,7 @@ import { useState } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import ProductTable from '@/features/products/components/shared/select-products-dialog/product-table';
-import {
-  applyProductToggle,
-  applyVariantToggle,
-} from '@/features/products/components/shared/select-products-dialog/selection-helpers';
+import { SelectProductsProvider } from '@/features/products/components/shared/select-products-dialog/select-products-context';
 import type {
   ProductSelection,
   SelectProductsMode,
@@ -58,37 +55,20 @@ type HarnessProps = {
 };
 
 const Harness = ({ mode, lockedVariantIds = noLocked }: HarnessProps) => {
-  const [selection, setSelection] = useState(() => buildLockedSelection(lockedVariantIds));
-
-  const selectedVariantIds = new Set(
-    Array.from(selection.values()).flatMap((product) =>
-      product.variants.map((variant) => variant.variantId),
-    ),
+  const [selectedProducts] = useState(() =>
+    Array.from(buildLockedSelection(lockedVariantIds).values()),
   );
 
   return (
-    <ProductTable
-      isLoading={false}
-      pickerItems={items}
+    <SelectProductsProvider
       mode={mode}
-      allOnPageSelected={false}
-      partialOnPageSelected={false}
-      pageSelectableCount={items.length}
-      onToggleAllOnPage={() => undefined}
-      expandedProductIds={new Set(items.map((item) => item.product.id))}
-      onToggleExpand={() => undefined}
-      selectedProductIds={new Set(selection.keys())}
-      selectedVariantIds={selectedVariantIds}
-      lockedVariantIds={lockedVariantIds}
-      onToggleProduct={(product, checked) =>
-        setSelection((previous) => applyProductToggle(previous, product, checked))
-      }
-      onToggleVariants={(product, variants, checked) =>
-        setSelection((previous) =>
-          applyVariantToggle(previous, product, variants, checked, lockedVariantIds),
-        )
-      }
-    />
+      selectedProducts={selectedProducts}
+      pickerItems={items}
+      isLoading={false}
+      expandAll
+    >
+      <ProductTable />
+    </SelectProductsProvider>
   );
 };
 
