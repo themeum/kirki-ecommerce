@@ -102,7 +102,7 @@ const ApiConfig = ({ currencySettings, onOpenChange }: ApiConfigProps) => {
   };
 
   return (
-    <div>
+    <>
       <OptionAccordion
         header={
           <Flex gap={2} align="center">
@@ -125,6 +125,7 @@ const ApiConfig = ({ currencySettings, onOpenChange }: ApiConfigProps) => {
         open={!isCollapsed}
         onOpenChange={(open) => setIsCollapsed(!open)}
         cssOverride={{
+          marginBottom: theme.spacing[4],
           backgroundColor: theme.colors.background.surface,
           '& [data-option-accordion-card="true"]': {
             backgroundColor: theme.colors.background.surfaceAlt,
@@ -213,7 +214,7 @@ const ApiConfig = ({ currencySettings, onOpenChange }: ApiConfigProps) => {
           providerName={providerName}
         />
       )}
-    </div>
+    </>
   );
 };
 

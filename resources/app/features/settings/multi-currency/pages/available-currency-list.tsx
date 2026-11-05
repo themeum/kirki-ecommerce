@@ -199,7 +199,7 @@ export const AvailableCurrencyList = () => {
     <StackedItems
       data-search-id="currency.available-currencies"
       data-search-keywords="multi currency, usd, eur, gbp, exchange"
-      cssOverride={{ marginBottom: theme.spacing[4] }}
+      cssOverride={{ marginBottom: hasMultipleCurrencies ? theme.spacing[2] : theme.spacing[4] }}
     >
       <StackedItem id="header" cssOverride={mergeCss(styles.staticRow, styles.headerRow)}>
         <StackedItemContent>

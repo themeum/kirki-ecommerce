@@ -33,6 +33,14 @@ const Harness = ({ initial = null }: { initial?: BrandRef }) => {
   );
 };
 
+const renderExpanded = () => {
+  const result = render(<Harness />);
+
+  fireEvent.click(screen.getByRole('button', { name: 'Brand' }));
+
+  return result;
+};
+
 const searchInput = () => screen.getByRole('combobox');
 
 /**
@@ -56,7 +64,7 @@ afterEach(() => {
 
 describe('Brand field', () => {
   it('shows the placeholder and no chip when no brand is chosen', () => {
-    render(<Harness />);
+    renderExpanded();
 
     expect(searchInput()).toHaveAttribute('placeholder', 'Add brand');
     expect(removeButtons()).toHaveLength(0);
@@ -79,7 +87,7 @@ describe('Brand field', () => {
   });
 
   it('shows a logo on the row of a brand that has one', () => {
-    const { container } = render(<Harness />);
+    const { container } = renderExpanded();
 
     fireEvent.click(box(container));
 
@@ -87,7 +95,7 @@ describe('Brand field', () => {
   });
 
   it('falls back to the placeholder image on a row with no logo', () => {
-    const { container } = render(<Harness />);
+    const { container } = renderExpanded();
 
     fireEvent.click(box(container));
 
@@ -96,7 +104,7 @@ describe('Brand field', () => {
   });
 
   it('offers no checkbox on its rows, holding one brand', () => {
-    const { container } = render(<Harness />);
+    const { container } = renderExpanded();
 
     fireEvent.click(box(container));
 
@@ -104,7 +112,7 @@ describe('Brand field', () => {
   });
 
   it('writes the chosen brand to the form and closes the panel', () => {
-    const { container } = render(<Harness />);
+    const { container } = renderExpanded();
 
     fireEvent.click(box(container));
     fireEvent.click(optionRow('Aurora'));
@@ -136,7 +144,7 @@ describe('Brand field', () => {
   it('creates the brand directly from the typed name and holds it as the chip', async () => {
     mutateAsync.mockResolvedValue({ data: { id: 3, name: 'Cormorant', logo: null } });
 
-    const { container } = render(<Harness />);
+    const { container } = renderExpanded();
 
     fireEvent.click(box(container));
     fireEvent.change(searchInput(), { target: { value: 'Cormorant' } });
@@ -157,7 +165,7 @@ describe('Brand field', () => {
   it('creates the brand on Enter as well', async () => {
     mutateAsync.mockResolvedValue({ data: { id: 3, name: 'Cormorant', logo: null } });
 
-    const { container } = render(<Harness />);
+    const { container } = renderExpanded();
 
     fireEvent.click(box(container));
     fireEvent.change(searchInput(), { target: { value: 'Cormorant' } });

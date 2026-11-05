@@ -194,9 +194,9 @@ const RightPanel = ({ mode, product }: RightPanelProps) => {
       <Card cssOverride={cardStyles.formCard}>
         <CardContent cssOverride={styles.fields}>
           <Categories />
-          <Brand />
           <Tags />
           <Flex direction="column" gap={3}>
+            <Brand />
             <Collections />
             <Ribbon />
           </Flex>

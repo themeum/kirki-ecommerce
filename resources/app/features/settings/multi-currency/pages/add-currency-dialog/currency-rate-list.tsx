@@ -5,7 +5,7 @@ import NumberField from '@/components/form/number-field';
 import Flex from '@/components/ui/flex';
 import InfoTooltip from '@/components/ui/info-tooltip';
 import Text from '@/components/ui/text';
-import { useAddCurrencyDialogContext } from '@/features/settings/multi-currency/contexts/add-currency-dialog-context';
+import useAddCurrencyDialog from '@/features/settings/multi-currency/hooks/use-add-currency-dialog';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
@@ -16,7 +16,7 @@ type CurrencyRateInputProps = {
 };
 
 const CurrencyRateInput = ({ index, code }: CurrencyRateInputProps) => {
-  const { form } = useAddCurrencyDialogContext();
+  const { form } = useAddCurrencyDialog();
   const { errors } = useFormState({
     control: form.control,
     name: `selectedCurrencies.${index}.exchange_rate`,
@@ -40,7 +40,7 @@ const CurrencyRateInput = ({ index, code }: CurrencyRateInputProps) => {
 CurrencyRateInput.displayName = 'CurrencyRateInput';
 
 const CurrencyRateList = () => {
-  const { formSelected, baseCurrencyCode } = useAddCurrencyDialogContext();
+  const { formSelected, baseCurrencyCode } = useAddCurrencyDialog();
 
   return (
     <Flex direction="column" gap={4}>

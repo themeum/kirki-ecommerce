@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { useAddCurrencyDialog } from '@/features/settings/multi-currency/hooks/use-add-currency-dialog';
+import { AddCurrencyDialogProvider } from '@/features/settings/multi-currency/contexts/add-currency-dialog-context';
+import useAddCurrencyDialog from '@/features/settings/multi-currency/hooks/use-add-currency-dialog';
 import type {
   Currency,
   CurrencyOption,
@@ -28,7 +29,11 @@ const Wrapper = ({ children }: { children: ReactNode }) => {
     defaultValues: { currencies: [] },
   });
 
-  return <FormProvider {...form}>{children}</FormProvider>;
+  return (
+    <FormProvider {...form}>
+      <AddCurrencyDialogProvider onSave={vi.fn()}>{children}</AddCurrencyDialogProvider>
+    </FormProvider>
+  );
 };
 
 beforeEach(() => {

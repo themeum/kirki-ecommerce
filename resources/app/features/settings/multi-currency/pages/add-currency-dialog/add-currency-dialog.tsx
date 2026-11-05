@@ -15,10 +15,8 @@ import {
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
-import {
-  AddCurrencyDialogProvider,
-  useAddCurrencyDialogContext,
-} from '@/features/settings/multi-currency/contexts/add-currency-dialog-context';
+import { AddCurrencyDialogProvider } from '@/features/settings/multi-currency/contexts/add-currency-dialog-context';
+import useAddCurrencyDialog from '@/features/settings/multi-currency/hooks/use-add-currency-dialog';
 import CurrencyOptionList from '@/features/settings/multi-currency/pages/add-currency-dialog/currency-option-list';
 import CurrencyRateList from '@/features/settings/multi-currency/pages/add-currency-dialog/currency-rate-list';
 import CurrencySearchField from '@/features/settings/multi-currency/pages/add-currency-dialog/currency-search-field';
@@ -28,9 +26,12 @@ import { __ } from '@/wpi18n';
 type AddCurrencyDialogPanelProps = {
   onOpenChange?: (open: boolean) => void;
   isSelectingBaseCurrency?: boolean;
+  onSave: () => void;
 };
 
-const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) => {
+const AddCurrencyDialogPanel = ({
+  onOpenChange,
+}: Pick<AddCurrencyDialogPanelProps, 'onOpenChange'>) => {
   const {
     form,
     openPopup,
@@ -38,12 +39,11 @@ const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) =
     formSelected,
     handleClosePopup,
     handleSubmit,
-    handleCloseAutoFocus,
     step,
     handleNext,
     handleBack,
     isSelectingBaseCurrency,
-  } = useAddCurrencyDialogContext();
+  } = useAddCurrencyDialog();
 
   useEffect(() => {
     onOpenChange?.(openPopup);
@@ -64,7 +64,7 @@ const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) =
           }
         }}
       >
-        <DialogContent onCloseAutoFocus={handleCloseAutoFocus}>
+        <DialogContent>
           <DialogHeader cssOverride={{ flexDirection: 'row', gap: theme.spacing[1] }}>
             {isRatesStep && (
               <Button
@@ -89,48 +89,45 @@ const AddCurrencyDialogPanel = ({ onOpenChange }: AddCurrencyDialogPanelProps) =
             <DialogCloseButton cssOverride={{ top: theme.spacing[2] }} />
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)}>
-              <DialogBody>
-                {isRatesStep ? (
-                  <CurrencyRateList />
-                ) : (
-                  <Flex direction="column" gap={4}>
-                    <CurrencySearchField />
-                    <CurrencyOptionList />
-                  </Flex>
-                )}
-              </DialogBody>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">
-                    {__('Cancel', 'kirki-ecommerce')}
-                  </Button>
-                </DialogClose>
-                {isRatesStep || isSelectingBaseCurrency ? (
-                  <Button
-                    key="save"
-                    type="submit"
-                    variant="primary"
-                    disabled={
-                      isSelectingBaseCurrency && (!formSelected || formSelected.length === 0)
-                    }
-                  >
-                    {__('Save', 'kirki-ecommerce')}
-                  </Button>
-                ) : (
-                  <Button
-                    key="next"
-                    type="button"
-                    variant="primary"
-                    disabled={!formSelected || formSelected.length === 0}
-                    onClick={handleNext}
-                  >
-                    <ArrowRightIcon size={16} />
-                    {__('Next', 'kirki-ecommerce')}
-                  </Button>
-                )}
-              </DialogFooter>
-            </form>
+            <DialogBody>
+              {isRatesStep ? (
+                <CurrencyRateList />
+              ) : (
+                <Flex direction="column" gap={4}>
+                  <CurrencySearchField />
+                  <CurrencyOptionList />
+                </Flex>
+              )}
+            </DialogBody>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
+              </DialogClose>
+              {isRatesStep || isSelectingBaseCurrency ? (
+                <Button
+                  key="save"
+                  type="submit"
+                  variant="primary"
+                  onClick={() => form.handleSubmit(handleSubmit)()}
+                  disabled={isSelectingBaseCurrency && (!formSelected || formSelected.length === 0)}
+                >
+                  {__('Save', 'kirki-ecommerce')}
+                </Button>
+              ) : (
+                <Button
+                  key="next"
+                  type="button"
+                  variant="primary"
+                  disabled={!formSelected || formSelected.length === 0}
+                  onClick={handleNext}
+                >
+                  <ArrowRightIcon size={16} />
+                  {__('Next', 'kirki-ecommerce')}
+                </Button>
+              )}
+            </DialogFooter>
           </Form>
         </DialogContent>
       </Dialog>
@@ -143,9 +140,10 @@ AddCurrencyDialogPanel.displayName = 'AddCurrencyDialogPanel';
 const AddCurrencyPopup = ({
   onOpenChange,
   isSelectingBaseCurrency,
+  onSave,
 }: AddCurrencyDialogPanelProps) => {
   return (
-    <AddCurrencyDialogProvider isSelectingBaseCurrency={isSelectingBaseCurrency}>
+    <AddCurrencyDialogProvider isSelectingBaseCurrency={isSelectingBaseCurrency} onSave={onSave}>
       <AddCurrencyDialogPanel onOpenChange={onOpenChange} />
     </AddCurrencyDialogProvider>
   );

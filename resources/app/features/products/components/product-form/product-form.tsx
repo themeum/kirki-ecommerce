@@ -35,8 +35,10 @@ import {
 } from '@/features/products/schemas/forms/product-form';
 import { useConfirmDelete } from '@/hooks';
 import { ShowMoreIcon } from '@/icons/common';
+import { isEmptyValue } from '@/libs/zod';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const RIGHT_SIDE_PANEL_WIDTH = '320px';
@@ -89,7 +91,7 @@ const ProductForm = ({
   });
 
   const [openShortDescription, setOpenShortDescription] = useState(
-    !!form.getValues('short_description'),
+    mode === 'edit' && isDefined(product) && !isEmptyValue(product.short_description),
   );
 
   useEffect(() => {
