@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import { Field, FieldLabel } from '@/components/ui/field';
+import CollapsibleField from '@/components/ui/collapsible-field';
+import { Field } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import MultiSelect, { type MultiSelectOption } from '@/components/ui/multi-select';
 import { useBrandsQuery, useCreateBrandMutation } from '@/features/brands';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type ProductBrand = NonNullable<ProductFormInput['brand']>;
@@ -93,21 +95,31 @@ const Brand = () => {
   };
 
   return (
-    <Field>
-      <FieldLabel>{__('Brand', 'kirki-ecommerce')}</FieldLabel>
-      <MultiSelect
-        single
-        options={options}
-        value={selected}
-        onChange={handleChange}
-        renderOption={renderBrand}
-        renderChip={renderBrand}
-        onCreate={handleCreate}
-        placeholder={__('Add brand', 'kirki-ecommerce')}
-        emptyText={__('No brands found.', 'kirki-ecommerce')}
-        emptyStateText={__('Type a brand name to add it.', 'kirki-ecommerce')}
-      />
-    </Field>
+    <CollapsibleField
+      addLabel={__('Brand', 'kirki-ecommerce')}
+      label={__('Brand', 'kirki-ecommerce')}
+      hasValue={isDefined(productBrand)}
+      removeLabel={__('Remove Brand', 'kirki-ecommerce')}
+      labelFor="brand"
+      onRemove={() => {
+        setValue('brand', undefined, { shouldDirty: true, shouldValidate: true });
+      }}
+    >
+      <Field>
+        <MultiSelect
+          single
+          options={options}
+          value={selected}
+          onChange={handleChange}
+          renderOption={renderBrand}
+          renderChip={renderBrand}
+          onCreate={handleCreate}
+          placeholder={__('Add brand', 'kirki-ecommerce')}
+          emptyText={__('No brands found.', 'kirki-ecommerce')}
+          emptyStateText={__('Type a brand name to add it.', 'kirki-ecommerce')}
+        />
+      </Field>
+    </CollapsibleField>
   );
 };
 

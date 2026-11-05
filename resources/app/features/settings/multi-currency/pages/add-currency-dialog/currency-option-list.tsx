@@ -2,12 +2,12 @@ import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import Text from '@/components/ui/text';
-import { useAddCurrencyDialogContext } from '@/features/settings/multi-currency/contexts/add-currency-dialog-context';
+import useAddCurrencyDialog from '@/features/settings/multi-currency/hooks/use-add-currency-dialog';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 
 const CurrencyOptionList = () => {
-  const { filteredCurrency, formSelected, handleSelectCurrencies } = useAddCurrencyDialogContext();
+  const { filteredCurrency, formSelected, handleSelectCurrencies } = useAddCurrencyDialog();
 
   return (
     <Flex direction="column" gap={3} cssOverride={{ height: '200px', overflowX: 'auto' }}>

@@ -49,7 +49,7 @@ const CollapsibleField = ({
 }: CollapsibleFieldProps) => {
   const [isOpen, setIsOpen] = useState(hasValue);
 
-  if (!isOpen) {
+  if (!isOpen && !hasValue) {
     return (
       <Button variant="link" cssOverride={styles.addButton} onClick={() => setIsOpen(true)}>
         {addLabel}
