@@ -6,7 +6,7 @@ The plugin code must stay compatible with PHP 7.4.
 - [x] 1.1 Create `payments/kirki-bkash/kirki-bkash.php` (`Order: 110`, text domain `kirki-ecommerce-bkash`, `Requires Plugins: kirki-ecommerce`) and `composer.json` with the `Kirki\Ecommerce\Payments\` PSR-4 autoload, modelled on `kirki-paystack`
 - [x] 1.2 Add `src/BkashConstant.php` with the v2 sandbox and live base URLs, endpoint paths, the 30-second timeout, status values, and the already-complete codes `2062`, `2068`, `2117`
 - [x] 1.3 Add `src/Bkash.php` with the provider id, admin fields (`app_key`, `app_secret`, `username`, `password`, `sandbox`), `validate_settings`, and `sanitize_settings`
-- [ ] 1.4 Add `assets/logo.svg` from the official icon-only SVG that the user supplies, sized 20×20. If the file is not available yet, leave this task open and tell the user. Do not draw or copy a substitute
+- [x] 1.4 Add `assets/logo.svg` from the official icon-only SVG that the user supplies, sized 20×20. If the file is not available yet, leave this task open and tell the user. Do not draw or copy a substitute (the user supplied the file)
 - [x] 1.5 Add a test that the provider reports id `bkash`, is online, and treats a missing `sandbox` value as sandbox
 - [x] 1.6 Verify: run `bash kirki-ecommerce-test unit --filter=BkashTest`, then `npm run typecheck && npm test` from `resources/app/`
 
