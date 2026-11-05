@@ -1,0 +1,30 @@
+info:
+  name: bKash
+  type: http
+  seq: 11
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/bkash"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "app_key": "<app_key>",
+          "app_secret": "<app_secret>",
+          "username": "<username>",
+          "password": "<password>",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
