@@ -98,17 +98,28 @@ export type ShippingRegion = z.infer<typeof ShippingRegionSchema>;
 
 export const ShippingCarrierSchema = z
   .object({
-    is_enabled: z.boolean().nullish(),
+    id: z.string(),
+    preset: z.string().nullish(),
     name: z.string().nullish(),
-    type: z.string().nullish(),
-    rate: z.union([z.number(), z.string()]).nullish(),
-    is_taxable: z.boolean().nullish(),
-    description: z.string().nullish(),
-    shipping_rules: z.array(ShippingRuleSchema).nullish(),
+    tracking_url: z.string().nullish(),
+    logo: z.union([z.number(), z.string()]).nullish(),
+    logo_url: z.string().nullish(),
+    is_enabled: z.boolean().nullish(),
   })
   .passthrough();
 
 export type ShippingCarrier = z.infer<typeof ShippingCarrierSchema>;
+
+export const ShippingCarrierPresetSchema = z
+  .object({
+    key: z.string(),
+    name: z.string(),
+    tracking_url: z.string(),
+    logo_url: z.string().nullish(),
+  })
+  .passthrough();
+
+export type ShippingCarrierPreset = z.infer<typeof ShippingCarrierPresetSchema>;
 
 export const ShippingZoneSchema = z
   .object({

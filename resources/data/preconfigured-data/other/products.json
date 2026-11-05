@@ -1,0 +1,406 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "kitchen",
+      "name": "Kitchen",
+      "parent": null
+    },
+    {
+      "slug": "drinkware",
+      "name": "Drinkware",
+      "parent": "kitchen"
+    },
+    {
+      "slug": "bags",
+      "name": "Bags",
+      "parent": null
+    },
+    {
+      "slug": "totes",
+      "name": "Totes",
+      "parent": "bags"
+    },
+    {
+      "slug": "home",
+      "name": "Home",
+      "parent": null
+    },
+    {
+      "slug": "candles",
+      "name": "Candles",
+      "parent": "home"
+    },
+    {
+      "slug": "stationery",
+      "name": "Stationery",
+      "parent": null
+    },
+    {
+      "slug": "notebooks",
+      "name": "Notebooks",
+      "parent": "stationery"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "ceramic",
+      "name": "Ceramic"
+    },
+    {
+      "slug": "everyday",
+      "name": "Everyday"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "home",
+      "name": "Home"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "writing",
+      "name": "Writing"
+    }
+  ],
+  "products": [
+    {
+      "slug": "ceramic-mug",
+      "title": "Ceramic Mug · Simple product",
+      "short_description": "Stoneware mug with a speckled glaze.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA 350 ml stoneware mug with a comfortable handle and a speckled glaze. Dishwasher and microwave safe.",
+      "ribbon": null,
+      "categories": [
+        "drinkware"
+      ],
+      "tags": [
+        "ceramic",
+        "everyday",
+        "bestseller"
+      ],
+      "images": [
+        "ceramic-mug-1.jpg",
+        "ceramic-mug-2.jpg",
+        "ceramic-mug-3.jpg",
+        "ceramic-mug-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-OTH-CM",
+          "options": {},
+          "image": null,
+          "price": "22.00",
+          "sale_price": null,
+          "cost": "9.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 380,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "cotton-tote",
+      "title": "Cotton Tote · With variants",
+      "short_description": "Sturdy organic cotton tote with long handles.",
+      "description": "Sample product: 2 attributes (Color, Size), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA sturdy tote in heavy organic cotton with long handles and an inside pocket.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "totes"
+      ],
+      "tags": [
+        "everyday",
+        "new-arrival"
+      ],
+      "images": [
+        "cotton-tote-cobalt.jpg",
+        "cotton-tote-tomato.jpg",
+        "cotton-tote-sunflower.jpg",
+        "cotton-tote-2.jpg",
+        "cotton-tote-3.jpg",
+        "cotton-tote-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-OTH-CT-COBA-STAN",
+          "options": {
+            "color": "Cobalt",
+            "size": "Standard"
+          },
+          "image": "cotton-tote-cobalt.jpg",
+          "price": "24.00",
+          "sale_price": null,
+          "cost": "10.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-OTH-CT-COBA-LARG",
+          "options": {
+            "color": "Cobalt",
+            "size": "Large"
+          },
+          "image": "cotton-tote-cobalt.jpg",
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-OTH-CT-TOMA-STAN",
+          "options": {
+            "color": "Tomato",
+            "size": "Standard"
+          },
+          "image": "cotton-tote-tomato.jpg",
+          "price": "24.00",
+          "sale_price": null,
+          "cost": "10.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-OTH-CT-TOMA-LARG",
+          "options": {
+            "color": "Tomato",
+            "size": "Large"
+          },
+          "image": "cotton-tote-tomato.jpg",
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-OTH-CT-SUNF-STAN",
+          "options": {
+            "color": "Sunflower",
+            "size": "Standard"
+          },
+          "image": "cotton-tote-sunflower.jpg",
+          "price": "24.00",
+          "sale_price": null,
+          "cost": "10.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-OTH-CT-SUNF-LARG",
+          "options": {
+            "color": "Sunflower",
+            "size": "Large"
+          },
+          "image": "cotton-tote-sunflower.jpg",
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "scented-candle",
+      "title": "Scented Candle · On sale",
+      "short_description": "Soy candle in a ribbed glass tumbler.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA soy wax candle in a ribbed amber glass tumbler, scented with fig and cedar. About 40 hours of burn time.",
+      "ribbon": null,
+      "categories": [
+        "candles"
+      ],
+      "tags": [
+        "home",
+        "gift-idea"
+      ],
+      "images": [
+        "scented-candle-1.jpg",
+        "scented-candle-2.jpg",
+        "scented-candle-3.jpg",
+        "scented-candle-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-OTH-SC",
+          "options": {},
+          "image": null,
+          "price": "32.00",
+          "sale_price": "24.00",
+          "cost": "13.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 400,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "dot-grid-notebook",
+      "title": "Dot Grid Notebook · Order limit",
+      "short_description": "Softcover A5 notebook. Up to 5 per order.",
+      "description": "Sample product: 1 attribute (Color), and customers can buy at most 5 per order. Edit it or delete it.\n\nA lay-flat softcover A5 notebook with 160 pages of dot-grid paper.",
+      "ribbon": null,
+      "categories": [
+        "notebooks"
+      ],
+      "tags": [
+        "writing",
+        "everyday"
+      ],
+      "images": [
+        "dot-grid-notebook-1.jpg",
+        "dot-grid-notebook-2.jpg",
+        "dot-grid-notebook-3.jpg",
+        "dot-grid-notebook-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-OTH-DGN-SAND",
+          "options": {
+            "color": "Sand"
+          },
+          "image": null,
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 5,
+          "weight_g": 250,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-OTH-DGN-CHAR",
+          "options": {
+            "color": "Charcoal"
+          },
+          "image": null,
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 5,
+          "weight_g": 250,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "steel-water-bottle",
+      "title": "Steel Water Bottle · Stock levels",
+      "short_description": "Insulated steel bottle, 750 ml.",
+      "description": "Sample product: Color Black is low in stock, and Color Sage is out of stock but still sells on backorder. Edit it or delete it.\n\nA 750 ml insulated stainless steel bottle that keeps drinks cold all day.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "drinkware"
+      ],
+      "tags": [
+        "everyday",
+        "bestseller"
+      ],
+      "images": [
+        "steel-water-bottle-1.jpg",
+        "steel-water-bottle-2.jpg",
+        "steel-water-bottle-3.jpg",
+        "steel-water-bottle-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-OTH-SWB-WHIT",
+          "options": {
+            "color": "White"
+          },
+          "image": null,
+          "price": "30.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 380,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-OTH-SWB-BLAC",
+          "options": {
+            "color": "Black"
+          },
+          "image": null,
+          "price": "30.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 380,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-OTH-SWB-SAGE",
+          "options": {
+            "color": "Sage"
+          },
+          "image": null,
+          "price": "30.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 380,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

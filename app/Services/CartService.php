@@ -14,6 +14,7 @@ use Kirki\Ecommerce\App\Models\CartCoupon;
 use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\Framework\Contracts\SomoyInterface;
 use Kirki\Ecommerce\Framework\Exceptions\AuthorizationException;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Sanitizer;
@@ -312,14 +313,14 @@ class CartService
      * @param int $item_id  Cart item ID.
      * @param int $quantity New quantity.
      * @return bool
-     * @throws Exception When the item does not exist.
+     * @throws NotFoundException When the item does not exist.
      * @throws AuthorizationException When the item belongs to another cart.
      */
     public function update_item_quantity($cart_id, $item_id, $quantity)
     {
         $item = $this->find_item($item_id);
 
-        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         throw_if($item->cart_id !== $cart_id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 
@@ -382,18 +383,18 @@ class CartService
      *
      * @param RemoveCartItemDTO $dto Identity and item to remove.
      * @return bool|int Result of deleting the cart, or the number of items destroyed.
-     * @throws Exception When the cart or the item does not exist.
+     * @throws NotFoundException When the cart or the item does not exist.
      * @throws AuthorizationException When the item belongs to another cart.
      */
     public function remove_item(RemoveCartItemDTO $dto)
     {
         $cart = $this->get_cart($dto->user_id, $dto->token);
 
-        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'));
+        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $item = $this->find_item($dto->item_id);
 
-        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         throw_if($item->cart_id !== $cart->id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 

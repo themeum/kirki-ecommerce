@@ -24,6 +24,7 @@ type MoneyFieldProps<
   cssOverride?: CSSObject;
   autoFocus?: boolean;
   ariaLabel?: string;
+  onChange?: (value?: string | null) => void;
 };
 
 const MoneyField = <
@@ -41,6 +42,7 @@ const MoneyField = <
   cssOverride,
   autoFocus = false,
   ariaLabel,
+  onChange,
 }: MoneyFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const baseCurrencySymbol = useBaseCurrencySymbol();
@@ -86,7 +88,9 @@ const MoneyField = <
                 placeholder={placeholder}
                 disabled={disabled}
                 onChange={(event) => {
-                  field.onChange(event.target.value === '' ? null : event.target.value);
+                  const value = event.target.value === '' ? null : event.target.value;
+                  field.onChange(value);
+                  onChange?.(value);
                 }}
                 onBlur={field.onBlur}
                 name={field.name}

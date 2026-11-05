@@ -24,18 +24,19 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @param string $country     Country code of the address the tax is calculated from.
-     * @param string $destination Which of the context's addresses that is: an OrderTaxDestination value.
+     * @param string    $country                Country code of the address the tax is calculated from.
+     * @param string    $destination            Which of the context's addresses that is: an OrderTaxDestination value.
+     * @param bool|null $is_tax_inclusive_price Whether prices include tax; null follows the store's setting.
      * @return AbstractTaxStrategy|null
      */
-    public static function get_tax_strategy($country, string $destination = OrderTaxDestination::SHIPPING)
+    public static function get_tax_strategy($country, string $destination = OrderTaxDestination::SHIPPING, ?bool $is_tax_inclusive_price = null)
     {
         if (empty($country)) {
             return null;
         }
 
         try {
-            return TaxStrategyFactory::make($country, $destination);
+            return TaxStrategyFactory::make($country, $destination, $is_tax_inclusive_price);
         } catch (Throwable $e) {
             return null;
         }

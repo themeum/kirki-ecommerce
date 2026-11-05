@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { Check, ChevronRight, Circle } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 import type { ComponentRef} from 'react';
 import { type ComponentPropsWithoutRef, forwardRef, type HTMLAttributes } from 'react';
 
@@ -144,16 +144,16 @@ const DropdownMenuCheckboxItem = forwardRef<
   return (
     <DropdownMenuPrimitive.CheckboxItem
       ref={ref}
-      css={scopedMerge(styles.item, styles.checkboxOrRadioItem, cssOverride)}
+      css={scopedMerge(styles.item, cssOverride)}
       checked={checked}
       {...rest}
     >
+      {children}
       <span css={scoped(styles.itemIndicator)}>
         <DropdownMenuPrimitive.ItemIndicator>
           <Check size={16} aria-hidden="true" />
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
-      {children}
     </DropdownMenuPrimitive.CheckboxItem>
   );
 });
@@ -176,20 +176,15 @@ const DropdownMenuRadioItem = forwardRef<
   return (
     <DropdownMenuPrimitive.RadioItem
       ref={ref}
-      css={scopedMerge(styles.item, styles.checkboxOrRadioItem, cssOverride)}
+      css={scopedMerge(styles.item, cssOverride)}
       {...rest}
     >
+      {children}
       <span css={scoped(styles.itemIndicator)}>
         <DropdownMenuPrimitive.ItemIndicator>
-          <Circle
-            size={8}
-            fill="currentColor"
-            strokeWidth={0}
-            aria-hidden="true"
-          />
+          <Check size={16} aria-hidden="true" />
         </DropdownMenuPrimitive.ItemIndicator>
       </span>
-      {children}
     </DropdownMenuPrimitive.RadioItem>
   );
 });
@@ -270,18 +265,17 @@ export {
 const styles = defineStyles({
   content: {
     minWidth: '128px',
+    maxWidth: 'max-content',
     padding: `${theme.spacing[1]} 0`,
     border: `1px solid ${theme.colors.border.default}`,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.xl,
     backgroundColor: theme.colors.background.fill,
     boxShadow: theme.shadow.md,
     maxHeight: '424px',
     overflowX: 'hidden',
     overflowY: 'auto',
     color: theme.colors.text.primary,
-    ...getOverlayMotionStyles(
-      'var(--radix-dropdown-menu-content-transform-origin)',
-    ),
+    ...getOverlayMotionStyles('var(--radix-dropdown-menu-content-transform-origin)'),
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
@@ -323,12 +317,9 @@ const styles = defineStyles({
   itemInset: {
     paddingLeft: theme.spacing[8],
   },
-  checkboxOrRadioItem: {
-    paddingLeft: `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`,
-  },
   itemIndicator: {
-    position: 'absolute',
-    left: theme.spacing[2],
+    marginLeft: 'auto',
+    flexShrink: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

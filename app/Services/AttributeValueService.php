@@ -16,6 +16,7 @@ use Kirki\Ecommerce\App\DTO\AttributeValue\UpdateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
@@ -99,6 +100,9 @@ class AttributeValueService
     /**
      * Insert one or more attribute value rows in a single query.
      *
+     * A bulk insert skips the model timestamps, so created_at and updated_at are set here in UTC
+     * unless a row already carries them.
+     *
      * @since 1.0.0
      *
      * @param array $values A row of column values, or a list of such rows.
@@ -106,7 +110,18 @@ class AttributeValueService
      */
     public function insert(array $values)
     {
-        return AttributeValue::insert($values);
+        if (empty($values)) {
+            return true;
+        }
+
+        $now = Date::now('UTC')->to_date_time_string();
+        $rows = is_array(reset($values)) ? $values : [$values];
+
+        foreach ($rows as $key => $row) {
+            $rows[$key] = array_merge(['created_at' => $now, 'updated_at' => $now], $row);
+        }
+
+        return AttributeValue::insert($rows);
     }
 
     /**

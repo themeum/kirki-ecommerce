@@ -22,6 +22,7 @@ type OptionAccordionProps = {
   titleAdornment?: ReactNode;
   subHeader?: string;
   meta?: ReactNode;
+  tooltip?: ReactNode;
   leftIcon?: ReactNode;
   children?: ReactNode;
   rightActions?: ReactNode;
@@ -40,6 +41,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     titleAdornment = null,
     subHeader,
     meta,
+    tooltip,
     leftIcon,
     children,
     rightActions = null,
@@ -58,7 +60,11 @@ const OptionAccordion = (props: OptionAccordionProps) => {
   return (
     <div
       css={scoped(
-        mergeCss(styles.wrapper, variant === 'shipping' && styles.shippingWrapper, cssOverride),
+        mergeCss(
+          styles.wrapper,
+          (variant === 'shipping' || variant === 'email') && styles.shippingWrapper,
+          cssOverride,
+        ),
       )}
     >
       <Accordion
@@ -74,22 +80,29 @@ const OptionAccordion = (props: OptionAccordionProps) => {
       >
         <AccordionItem value={isControlled || isOpen ? 'option-item' : undefined}>
           <AccordionTrigger
-            cssOverride={mergeCss(styles.trigger, variant === 'shipping' && styles.shippingTrigger)}
-            gap={4}
+            cssOverride={mergeCss(
+              styles.trigger,
+              (variant === 'shipping' || variant === 'email') && styles.shippingTrigger,
+              variant === 'email' && styles.emailTrigger,
+            )}
+            gap={2}
             disabled={disabled || !expandable}
             hideChevron={!expandable}
           >
             <Flex gap={4} align="center">
               {leftIcon}
               <Flex direction="column" gap={1}>
-                <Flex gap={1} align="center" cssOverride={{ minHeight: 24 }}>
-                  <Text weight="semibold" variant="small" color="primary">
-                    {header}
-                  </Text>
-                  {titleAdornment}
-                  {!enabled && (
-                    <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
-                  )}
+                <Flex gap={2} align="center">
+                  <Flex gap={1} align="center" cssOverride={{ minHeight: 24 }}>
+                    <Text weight="semibold" variant="small" color="primary">
+                      {header}
+                    </Text>
+                    {titleAdornment}
+                    {!enabled && (
+                      <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
+                    )}
+                  </Flex>
+                  {tooltip}
                 </Flex>
                 {subHeader && (
                   <Text variant="small" color="secondary">
@@ -106,16 +119,14 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                 cssOverride={mergeCss(
                   cardStyles.darkCard,
                   styles.contentCard,
-                  variant === 'shipping' && styles.shippingCard,
-                  variant === 'email' && styles.emailCard,
+                  (variant === 'shipping' || variant === 'email') && styles.shippingCard,
                 )}
                 data-option-accordion-card="true"
               >
                 <CardContent
                   cssOverride={mergeCss(
                     cardStyles.innerCardContent,
-                    variant === 'shipping' && styles.shippingContent,
-                    variant === 'email' && styles.emailContent,
+                    (variant === 'shipping' || variant === 'email') && styles.shippingContent,
                   )}
                 >
                   {children}
@@ -162,13 +173,6 @@ const styles = defineStyles({
     border: 'none',
     borderRadius: theme.radius.none,
   },
-  emailCard: {
-    border: 'none',
-    backgroundColor: theme.colors.background.surfaceAlt,
-  },
-  emailContent: {
-    padding: theme.spacing[2],
-  },
   shippingTrigger: {
     '&:has(button[data-state="open"])': {
       borderBottom: `1px solid ${theme.colors.border.secondary}`,
@@ -180,5 +184,8 @@ const styles = defineStyles({
       {
         visibility: 'visible',
       },
+  },
+  emailTrigger: {
+    backgroundColor: theme.colors.background.solidSurfaceAlt,
   },
 });

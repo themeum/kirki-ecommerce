@@ -37,13 +37,19 @@ const OrderFormShape = prepareFormSchema(
   z.object({
     items: z.array(
       z.object({
-        variant_id: z.number(),
+        id: z.number().nullish(),
+        variant_id: z.number().nullish(),
         quantity: z.number(),
       }),
     ),
+    order_id: z.number().nullish(),
     currency_code: stringOrNull(),
     coupon_codes: z.array(CouponListItemSchema).default([]),
-    customer_id: required(z.number(), __('Customer is required', 'kirki-ecommerce')),
+    customer_id: requiredWhen(
+      z.number().nullish(),
+      (values) => isEmptyValue(values.order_id) && isEmptyValue(values.customer_id),
+      __('Customer is required', 'kirki-ecommerce'),
+    ),
     customer_first_name: required(z.string(), __('First name is required', 'kirki-ecommerce')),
     customer_last_name: required(z.string(), __('Last name is required', 'kirki-ecommerce')),
     customer_email: stringOrNull(),
@@ -169,13 +175,11 @@ const OrderFormSchema = OrderFormShape.transform((values) => ({
   customer_last_name: values.customer_last_name,
   customer_email: values.customer_email ?? null,
   customer_phone: values.customer_phone ?? null,
-  consents: values.consents ?? null,
   items: values.items,
 
   currency_code: values.currency_code ?? null,
   coupon_codes: toCouponCodes(values.coupon_codes),
 
-  payment_provider: values.payment_provider ?? null,
   shipping_method: values.shipping_method,
   shipping_first_name: values.shipping_first_name,
   shipping_last_name: values.shipping_last_name,
@@ -200,6 +204,7 @@ const OrderFormSchema = OrderFormShape.transform((values) => ({
 const OrderCalculationRequestSchema = z
   .object(nullishShape(OrderFormShape))
   .transform((values) => ({
+    order_id: values.order_id ?? null,
     customer_id: values.customer_id ?? null,
     items: values.items ?? [],
 
@@ -245,5 +250,27 @@ type OrderFormInput = z.input<typeof OrderFormSchema>;
 type OrderFormPayload = z.output<typeof OrderFormSchema>;
 type OrderCalculationRequestPayload = z.output<typeof OrderCalculationRequestSchema>;
 
-export { OrderCalculationRequestSchema, OrderFormSchema };
-export type { OrderCalculationRequestPayload, OrderFormInput, OrderFormPayload };
+const OrderPartialFormSchema = z
+  .object({
+    order_notes: z.string().nullish(),
+    flags: z.array(z.string()).nullish(),
+  }).partial()
+  .transform((values) => ({
+    order_notes: values.order_notes,
+    flags: values.flags,
+  }));
+
+type OrderPartialField = keyof z.input<typeof OrderPartialFormSchema>;
+
+type OrderPartialFormInput = z.input<typeof OrderPartialFormSchema>;
+type OrderPartialPayload = z.output<typeof OrderPartialFormSchema>;
+
+export { OrderCalculationRequestSchema, OrderFormSchema, OrderPartialFormSchema };
+export type {
+  OrderCalculationRequestPayload,
+  OrderFormInput,
+  OrderFormPayload,
+  OrderPartialField,
+  OrderPartialFormInput,
+  OrderPartialPayload,
+};

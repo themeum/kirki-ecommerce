@@ -194,11 +194,16 @@ export default PageTable;
 
 const styles = defineStyles({
   tableCss: {
+    '& thead': {
+      border: 'none',
+      borderBottom: `1px solid ${theme.colors.border.tertiary}`,
+    },
     '& [data-table-card="true"]': {
       boxShadow: 'none',
     },
     '& thead th': { height: '40px' },
     '& tbody td': { height: '56px' },
+    '& tbody tr:last-child': { borderBottom: 'none' },
     '& [data-hover-show]': { display: 'none' },
     '& tbody tr:hover [data-hover-show], & td:focus-within [data-hover-show]': { display: 'flex' },
     '& tbody tr:hover [data-hover-hide], & td:focus-within [data-hover-hide]': { display: 'none' },

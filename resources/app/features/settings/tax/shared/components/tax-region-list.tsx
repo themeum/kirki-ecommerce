@@ -179,7 +179,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
           <div
             css={scoped({
-              marginTop: taxRegions.length === 0 ? theme.spacing[0] : theme.spacing[5],
+              marginTop: taxRegions.length === 0 ? theme.spacing[0] : theme.spacing[4],
             })}
           >
             {taxRegions.length > 0 && (
@@ -190,12 +190,17 @@ const TaxRegions = (props: TaxRegionsProps) => {
                     <Card cssOverride={styles.regionCard} key={index}>
                       <CardContent cssOverride={styles.regionCardContent}>
                         <Flex gap={2} align="center">
-                          <span>{region.flag}</span>
-                          <Text weight="medium" color={!item?.is_enabled ? 'disabled' : 'primary'}>
+                          <span css={scoped(styles.regionFlag)}>{region.flag}</span>
+                          <Text
+                            weight="medium"
+                            color={!item?.is_enabled ? 'disabled' : 'primary'}
+                            onClick={() => handleEditRegion(item)}
+                            cssOverride={styles.regionTitle}
+                          >
                             {region.name}
                           </Text>
                           {resolveRegionBadges(item).map((badge) => (
-                            <Badge key={badge.label} variant="secondary">
+                            <Badge key={badge.label} variant="default">
                               {badge.label}
                             </Badge>
                           ))}
@@ -215,7 +220,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
                               <Edit3 />
                             </Button>
                             <DropdownButton
-                              buttonProps={{ direction: 'horizontal' }}
+                              buttonProps={{ direction: 'vertical' }}
                               dropdownStyle={{ width: 140 }}
                               options={[
                                 {
@@ -275,5 +280,15 @@ const styles = defineStyles({
   },
   regionCardContent: {
     padding: 0,
+  },
+  regionTitle: {
+    '&:hover': {
+      color: theme.colors.text.special2,
+      cursor: 'pointer',
+    },
+  },
+  regionFlag: {
+    fontSize: 20,
+    lineHeight: 1,
   },
 });

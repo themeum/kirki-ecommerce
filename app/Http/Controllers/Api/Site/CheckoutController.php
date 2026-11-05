@@ -6,12 +6,10 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Concerns\HasCartToken;
-use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 
-use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
@@ -24,6 +22,7 @@ use function Kirki\Ecommerce\Framework\user;
 class CheckoutController
 {
     use HasCartToken;
+
     /**
      * Place an order for the current shopper from the validated checkout request.
      *

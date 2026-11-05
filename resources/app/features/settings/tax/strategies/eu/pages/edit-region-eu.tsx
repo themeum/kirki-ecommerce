@@ -36,7 +36,8 @@ import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const EditRegionEU = () => {
-  const { loaded, regions, setRegions, isSaving, saveRegions } = useTaxRegionSettings();
+  const { loaded, regions, setRegions, isSaving, saveRegions, taxSettings } =
+    useTaxRegionSettings();
 
   const form = useForm<TaxRegionEuFormInput>({
     resolver: zodResolver(TaxRegionEuFormSchema),
@@ -138,7 +139,7 @@ const EditRegionEU = () => {
                   <Text weight="semibold">
                     {__('How would you like to collect VAT?', 'kirki-ecommerce')}
                   </Text>
-                  <VatProcessField />
+                  <VatProcessField taxSettings={taxSettings} />
                 </CardContent>
               </Card>
 

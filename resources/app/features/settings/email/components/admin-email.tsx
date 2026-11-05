@@ -1,3 +1,4 @@
+import { Edit3, InfoIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/stacked-items';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
+import Tooltip from '@/components/ui/tooltip';
 import {
   type EmailListItem,
   getNotificationTemplateLabel,
@@ -23,7 +25,7 @@ import {
   resolveNotificationTemplate,
 } from '@/features/settings/email/lib/utils';
 import type { EmailSettingsFormInput } from '@/features/settings/email/schemas/forms/email-settings-form';
-import { CartIcon, EditPenIcon, InventoryBoxIcon, SettingsIcon } from '@/icons/common';
+import { CartIcon, InventoryBoxIcon, SettingsIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -44,13 +46,13 @@ const EmailRow = (props: EmailRowProps) => {
   const { item, label, onToggle, onEdit } = props;
 
   return (
-    <StackedItem id={item.key}>
+    <StackedItem id={item.key} cssOverride={styles.notificationRow}>
       <StackedItemContent>
         <StackedItemTitle>
           <Text variant="small" weight="medium">
             {label}
           </Text>
-          {item.is_enabled === false && (
+          {!item.is_enabled && (
             <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
           )}
         </StackedItemTitle>
@@ -65,7 +67,7 @@ const EmailRow = (props: EmailRowProps) => {
             cssOverride={styles.actionButton}
             onClick={() => onEdit(item)}
           >
-            <EditPenIcon />
+            <Edit3 />
           </Button>
         </ActionGroup>
       </StackedItemActions>
@@ -112,56 +114,65 @@ const AdminEmail = (props: AdminEmailProps) => {
                 {__('Order and account alerts sent to store administrators.', 'kirki-ecommerce')}
               </Text>
             </Flex>
-
-            <OptionAccordion
-              header={__('Order', 'kirki-ecommerce')}
-              subHeader={__(
-                "Get notified about updates on your customer's orders.",
-                'kirki-ecommerce',
-              )}
-              leftIcon={<CartIcon />}
-              open
-              variant="email"
-            >
-              {orderEmails.length > 0 && (
-                <StackedItems variant="card">
-                  {orderEmails.map((item) => (
-                    <EmailRow
-                      key={item.key}
-                      item={item}
-                      label={getNotificationTemplateLabel(
-                        resolveNotificationTemplate(item, 'admin_order'),
-                      )}
-                      onToggle={handleToggleOrder}
-                      onEdit={handleEditOrder}
-                    />
-                  ))}
-                </StackedItems>
-              )}
-            </OptionAccordion>
-            <OptionAccordion
-              header={__('Inventory', 'kirki-ecommerce')}
-              subHeader={__('Get notified about your inventory status', 'kirki-ecommerce')}
-              leftIcon={<InventoryBoxIcon />}
-              open
-              variant="email"
-            >
-              {inventoryEmails.length > 0 && (
-                <StackedItems variant="card">
-                  {inventoryEmails.map((item) => (
-                    <EmailRow
-                      key={item.key}
-                      item={item}
-                      label={getNotificationTemplateLabel(
-                        resolveNotificationTemplate(item, 'admin_inventory'),
-                      )}
-                      onToggle={handleToggleOrder}
-                      onEdit={handleEditOrder}
-                    />
-                  ))}
-                </StackedItems>
-              )}
-            </OptionAccordion>
+            <Flex direction="column" gap={2}>
+              <OptionAccordion
+                header={__('Order', 'kirki-ecommerce')}
+                tooltip={
+                  <Tooltip
+                    tip={__(
+                      "Get notified about updates on your customer's orders.",
+                      'kirki-ecommerce',
+                    )}
+                  >
+                    <InfoIcon size={14} />
+                  </Tooltip>
+                }
+                leftIcon={<CartIcon />}
+                variant="email"
+              >
+                {orderEmails.length > 0 && (
+                  <StackedItems cssOverride={styles.notificationStack}>
+                    {orderEmails.map((item) => (
+                      <EmailRow
+                        key={item.key}
+                        item={item}
+                        label={getNotificationTemplateLabel(
+                          resolveNotificationTemplate(item, 'admin_order'),
+                        )}
+                        onToggle={handleToggleOrder}
+                        onEdit={handleEditOrder}
+                      />
+                    ))}
+                  </StackedItems>
+                )}
+              </OptionAccordion>
+              <OptionAccordion
+                header={__('Inventory', 'kirki-ecommerce')}
+                tooltip={
+                  <Tooltip tip={__('Get notified about your inventory status', 'kirki-ecommerce')}>
+                    <InfoIcon size={14} />
+                  </Tooltip>
+                }
+                leftIcon={<InventoryBoxIcon />}
+                variant="email"
+              >
+                {inventoryEmails.length > 0 && (
+                  <StackedItems cssOverride={styles.notificationStack}>
+                    {inventoryEmails.map((item) => (
+                      <EmailRow
+                        key={item.key}
+                        item={item}
+                        label={getNotificationTemplateLabel(
+                          resolveNotificationTemplate(item, 'admin_inventory'),
+                        )}
+                        onToggle={handleToggleOrder}
+                        onEdit={handleEditOrder}
+                      />
+                    ))}
+                  </StackedItems>
+                )}
+              </OptionAccordion>
+            </Flex>
           </Flex>
         </CardContent>
       </Card>
@@ -179,5 +190,16 @@ const styles = defineStyles({
   },
   actionButton: {
     padding: theme.spacing[1],
+  },
+  notificationStack: {
+    border: 'none',
+    borderRadius: theme.radius.none,
+  },
+  notificationRow: {
+    paddingInline: `12px`,
+    '& button[role="switch"]': {
+      width: '36px',
+      height: '20px',
+    },
   },
 });

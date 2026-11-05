@@ -110,7 +110,7 @@ const TagsField = <
               maxVisibleRows={2}
               placeholder={placeholder}
               selectedPlaceholder={__('Add more', 'kirki-ecommerce')}
-              emptyStateText={__('Add your first tag', 'kirki-ecommerce')}
+              emptyStateText={__('Type a tag name to add it.', 'kirki-ecommerce')}
               disabled={disabled}
               error={Boolean(fieldState.error)}
             />

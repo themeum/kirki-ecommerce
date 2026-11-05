@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,6 +37,8 @@ import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const MultiCurrencySettings = () => {
+  const [isAddCurrencyOpen, setIsAddCurrencyOpen] = useState(false);
+  const [isApiConfigOpen, setIsApiConfigOpen] = useState(false);
   const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');
   const { data: rawCurrencies = [] } = useAvailableCurrenciesQuery({ limit: -1 });
   const { mutateAsync: saveSettings, isPending: isSaving } =
@@ -120,6 +122,7 @@ const MultiCurrencySettings = () => {
     isSaving,
     onSave: form.handleSubmit(handleSaveData),
     onDiscard: handleDiscardData,
+    hideFloatingBar: isAddCurrencyOpen || isApiConfigOpen,
   });
 
   return !isLoading ? (
@@ -133,26 +136,34 @@ const MultiCurrencySettings = () => {
             data-search-keywords="multi currency, exchange rate, conversion"
             cssOverride={cardStyles.innerCard}
           >
-            <CardContent cssOverride={{ paddingBottom: theme.spacing[4] }}>
+            <CardContent>
               <Flex direction="column" gap={3}>
                 <Flex
                   justify="space-between"
                   cssOverride={{ marginTop: theme.spacing[3], marginBottom: theme.spacing[3] }}
                 >
                   <Flex direction="column">
-                    <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
-                    <Text variant="small" color="secondary">
+                    <Text weight="semibold" variant="heading6">
+                      {__('Currency Management', 'kirki-ecommerce')}
+                    </Text>
+                    <Text variant="small" color="subdued">
                       {__(
                         'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
                         'kirki-ecommerce',
                       )}
                     </Text>
                   </Flex>
-                  <AddCurrencyPopup />
+                  <AddCurrencyPopup
+                    onOpenChange={setIsAddCurrencyOpen}
+                    isSelectingBaseCurrency={isDefined(currencies) && currencies.length === 0}
+                  />
                 </Flex>
                 <AvailableCurrencyList />
                 {isDefined(currencies) && currencies.length > 1 && (
-                  <ApiConfig currencySettings={currencySettingsData} />
+                  <ApiConfig
+                    currencySettings={currencySettingsData}
+                    onOpenChange={setIsApiConfigOpen}
+                  />
                 )}
               </Flex>
             </CardContent>
@@ -164,12 +175,11 @@ const MultiCurrencySettings = () => {
           >
             <CardContent>
               <Flex direction="column">
-                <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
-                <Text color="secondary">
-                  {__(
-                    'Symbol placement, decimals and separators used wherever prices are shown.',
-                    'kirki-ecommerce',
-                  )}
+                <Text weight="semibold" variant="heading6">
+                  {__('Currency Preferences', 'kirki-ecommerce')}
+                </Text>
+                <Text color="subdued" variant="small">
+                  {__('Set your preferences for how currency is displayed.', 'kirki-ecommerce')}
                 </Text>
               </Flex>
               <CurrencyFormatSettings />

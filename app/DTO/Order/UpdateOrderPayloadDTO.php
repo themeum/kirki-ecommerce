@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\DTO\Order;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\DTO\Calculation\OrderCalculationInputDTO;
 use Kirki\Ecommerce\Framework\DTO;
 
 /**
@@ -117,4 +118,16 @@ class UpdateOrderPayloadDTO extends DTO
 
     /** @var int|null */
     public $is_manual;
+
+    /**
+     * Get the part of this payload that the calculation context builder reads.
+     *
+     * @since 1.0.0
+     *
+     * @return OrderCalculationInputDTO
+     */
+    public function to_calculation_input()
+    {
+        return OrderCalculationInputDTO::from_payload($this->to_array());
+    }
 }

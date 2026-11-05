@@ -12,6 +12,7 @@ http:
     type: json
     data: |-
       {
+        "product_id": 3,
         "variant_id": 98095
       }
   auth: inherit
@@ -33,6 +34,7 @@ examples:
         type: json
         data: |-
           {
+            "product_id": 3,
             "variant_id": 5
           }
     response:
@@ -67,8 +69,8 @@ examples:
             },
             "message": "Item added to wishlist successfully."
           }
-  - name: 404 Response
-    description: Failure - Variant not found or product is not published
+  - name: 404 Response (product)
+    description: Failure - Product not found or not published
     request:
       url: "{{baseUrl}}/wishlist"
       method: POST
@@ -76,6 +78,30 @@ examples:
         type: json
         data: |-
           {
+            "product_id": 999999
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Product not found."
+          }
+  - name: 404 Response (variant)
+    description: Failure - The variant does not exist or does not belong to the product
+    request:
+      url: "{{baseUrl}}/wishlist"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "product_id": 3,
             "variant_id": 999999
           }
     response:
@@ -99,7 +125,7 @@ examples:
         type: json
         data: |-
           {
-            "variant_id": 5
+            "product_id": 3
           }
     response:
       status: 401
@@ -121,8 +147,10 @@ examples:
 docs: |-
   ## Add Item to Wishlist
 
-  Adds a product variant to the authenticated user's wishlist.
+  Adds a product to the authenticated user's wishlist. A user has one entry per product.
 
-  - Requires `variant_id` in request body.
-  - Verifies that the variant exists and its parent product is published.
-  - If the item is already on the user's wishlist, the existing entry is returned.
+  - Requires `product_id` in the request body. The product must exist and be published.
+  - `variant_id` is optional. Send it when the user chose a variant. It must belong to `product_id`.
+  - Without `variant_id`, the entry has no variant, and the wishlist shows the product's default variant.
+  - If the product is already on the wishlist, the existing entry is returned. A `variant_id` in the request replaces the entry's variant. No `variant_id` leaves the entry unchanged.
+  - The response is the product card. `variant_id` is the variant the card shows, which may be the default variant.

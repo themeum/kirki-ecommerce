@@ -94,12 +94,12 @@ const SchemaProfileComponent = () => {
             'Structured data properties attached to products for richer search listings.',
             'kirki-ecommerce',
           )}
-          buttonText={__('Schema', 'kirki-ecommerce')}
+          buttonText={__('Add', 'kirki-ecommerce')}
           onAdd={() => setShowPopup(true)}
         />
         <div
           css={scoped({
-            marginTop: schemaProfileList.length === 0 ? theme.spacing[0] : theme.spacing[5],
+            marginTop: schemaProfileList.length === 0 ? theme.spacing[0] : theme.spacing[4],
           })}
         >
           {isLoading ? (

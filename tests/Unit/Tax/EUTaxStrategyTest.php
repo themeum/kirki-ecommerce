@@ -236,21 +236,30 @@ class EUTaxStrategyTest extends TestCase
     }
 
     /**
-     * A zero shipping fee produces no shipping tax line - there is nothing
-     * to allocate or tax.
+     * A zero shipping fee keeps each item's rate so the order can store it.
      *
      * @return void
      */
-    public function test_zero_shipping_fee_produces_no_line(): void
+    public function test_zero_shipping_fee_preserves_each_items_rate(): void
     {
-        $strategy = $this->make_strategy($this->eu_region(), false);
+        $region = $this->eu_region();
+        $region['rules'] = [$this->set_product_tax_rate_rule('digital', 7)];
+        $strategy = $this->make_strategy($region, false);
 
         $context = $this->tax_context('AT');
         $context->shipping_fee = 0;
+        $context->items[0]->tax_profile_id = null;
+        $context->items[] = TaxableItemDTO::from_array(['item_id' => 2, 'taxable_amount' => 5000, 'tax_profile_id' => 'digital']);
 
-        $result = $strategy->calculate($context);
+        foreach ([10000, 0] as $taxable_amount) {
+            $context->items[0]->taxable_amount = $taxable_amount;
+            $context->items[1]->taxable_amount = $taxable_amount;
+            $result = $strategy->calculate($context);
 
-        $this->assertSame([], $result->shipping);
+            $this->assertSame([20.0, 7.0], array_map(fn($line) => $line->rate, $result->shipping));
+            $this->assertSame([0, 0], array_map(fn($line) => $line->base_amount, $result->shipping));
+            $this->assertSame([1, 2], array_map(fn($line) => $line->item_id, $result->shipping));
+        }
     }
 
     /**

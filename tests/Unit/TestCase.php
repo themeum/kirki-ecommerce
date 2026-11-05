@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Unit;
 
+use Kirki\Ecommerce\App\DTO\Calculation\TaxRateDTO;
 use Kirki\Ecommerce\Framework\Application;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Services\CurrencyService;
@@ -70,6 +71,22 @@ abstract class TestCase extends BaseTestCase
         $property = $reflection->getProperty('instance');
         $property->setAccessible(true);
         $property->setValue(null, $container);
+    }
+
+    /**
+     * Make a stored tax rate.
+     *
+     * @param string $name Name of the tax.
+     * @param float  $rate Rate in percent.
+     * @return TaxRateDTO
+     */
+    protected function make_tax_rate(string $name, float $rate): TaxRateDTO
+    {
+        $tax_rate = new TaxRateDTO();
+        $tax_rate->name = $name;
+        $tax_rate->rate = $rate;
+
+        return $tax_rate;
     }
 
     protected function reset_european_country_checker_cache(): void

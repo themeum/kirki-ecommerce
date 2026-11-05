@@ -1,0 +1,397 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "games",
+      "name": "Games",
+      "parent": null
+    },
+    {
+      "slug": "board-games",
+      "name": "Board Games",
+      "parent": "games"
+    },
+    {
+      "slug": "card-games",
+      "name": "Card Games",
+      "parent": "games"
+    },
+    {
+      "slug": "puzzles",
+      "name": "Puzzles",
+      "parent": null
+    },
+    {
+      "slug": "building",
+      "name": "Building Toys",
+      "parent": null
+    },
+    {
+      "slug": "blocks",
+      "name": "Blocks",
+      "parent": "building"
+    },
+    {
+      "slug": "trains",
+      "name": "Trains",
+      "parent": "building"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "card-game",
+      "name": "Card Game"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "puzzle",
+      "name": "Puzzle"
+    },
+    {
+      "slug": "wooden",
+      "name": "Wooden"
+    }
+  ],
+  "products": [
+    {
+      "slug": "wooden-chess-set",
+      "title": "Wooden Chess Set · Simple product",
+      "short_description": "Folding wooden chess board with weighted pieces.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA folding chess board in walnut and maple, with weighted wooden pieces stored inside.",
+      "ribbon": null,
+      "categories": [
+        "board-games"
+      ],
+      "tags": [
+        "wooden",
+        "gift-idea",
+        "bestseller"
+      ],
+      "images": [
+        "wooden-chess-set-1.jpg",
+        "wooden-chess-set-2.jpg",
+        "wooden-chess-set-3.jpg",
+        "wooden-chess-set-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-TOY-WCS",
+          "options": {},
+          "image": null,
+          "price": "65.00",
+          "sale_price": null,
+          "cost": "26.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1600,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "wooden-building-blocks",
+      "title": "Wooden Building Blocks · With variants",
+      "short_description": "Smooth beech blocks in classic shapes.",
+      "description": "Sample product: 2 attributes (Color, Pieces), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nSolid beech blocks in classic shapes, sanded smooth and finished with water-based paint. In a cotton bag.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "blocks"
+      ],
+      "tags": [
+        "wooden",
+        "new-arrival"
+      ],
+      "images": [
+        "wooden-building-blocks-rainbow.jpg",
+        "wooden-building-blocks-pastel.jpg",
+        "wooden-building-blocks-jewel.jpg",
+        "wooden-building-blocks-2.jpg",
+        "wooden-building-blocks-3.jpg",
+        "wooden-building-blocks-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-TOY-WBB-RAIN-30PIECES",
+          "options": {
+            "color": "Rainbow",
+            "pieces": "30 pieces"
+          },
+          "image": "wooden-building-blocks-rainbow.jpg",
+          "price": "38.00",
+          "sale_price": null,
+          "cost": "15.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1200,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-TOY-WBB-RAIN-60PIECES",
+          "options": {
+            "color": "Rainbow",
+            "pieces": "60 pieces"
+          },
+          "image": "wooden-building-blocks-rainbow.jpg",
+          "price": "62.00",
+          "sale_price": null,
+          "cost": "25.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2300,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-TOY-WBB-PAST-30PIECES",
+          "options": {
+            "color": "Pastel",
+            "pieces": "30 pieces"
+          },
+          "image": "wooden-building-blocks-pastel.jpg",
+          "price": "38.00",
+          "sale_price": null,
+          "cost": "15.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1200,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-TOY-WBB-PAST-60PIECES",
+          "options": {
+            "color": "Pastel",
+            "pieces": "60 pieces"
+          },
+          "image": "wooden-building-blocks-pastel.jpg",
+          "price": "62.00",
+          "sale_price": null,
+          "cost": "25.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2300,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-TOY-WBB-JEWE-30PIECES",
+          "options": {
+            "color": "Jewel",
+            "pieces": "30 pieces"
+          },
+          "image": "wooden-building-blocks-jewel.jpg",
+          "price": "38.00",
+          "sale_price": null,
+          "cost": "15.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1200,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-TOY-WBB-JEWE-60PIECES",
+          "options": {
+            "color": "Jewel",
+            "pieces": "60 pieces"
+          },
+          "image": "wooden-building-blocks-jewel.jpg",
+          "price": "62.00",
+          "sale_price": null,
+          "cost": "25.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2300,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "jigsaw-puzzle",
+      "title": "Jigsaw Puzzle · On sale",
+      "short_description": "1000-piece puzzle of a coastal landscape.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA 1000-piece puzzle with a painted coastal landscape. Thick, snug-fitting pieces made from recycled board.",
+      "ribbon": null,
+      "categories": [
+        "puzzles"
+      ],
+      "tags": [
+        "puzzle",
+        "gift-idea"
+      ],
+      "images": [
+        "jigsaw-puzzle-1.jpg",
+        "jigsaw-puzzle-2.jpg",
+        "jigsaw-puzzle-3.jpg",
+        "jigsaw-puzzle-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-TOY-JP",
+          "options": {},
+          "image": null,
+          "price": "28.00",
+          "sale_price": "21.00",
+          "cost": "11.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 900,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "playing-cards",
+      "title": "Playing Cards · Order limit",
+      "short_description": "Linen-finish playing cards. Up to 4 per order.",
+      "description": "Sample product: 1 attribute (Back), and customers can buy at most 4 per order. Edit it or delete it.\n\nA standard 54-card deck printed on linen-finish card stock, in a rigid tuck box.",
+      "ribbon": null,
+      "categories": [
+        "card-games"
+      ],
+      "tags": [
+        "card-game",
+        "gift-idea"
+      ],
+      "images": [
+        "playing-cards-1.jpg",
+        "playing-cards-2.jpg",
+        "playing-cards-3.jpg",
+        "playing-cards-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-TOY-PC-NAVY",
+          "options": {
+            "back": "Navy"
+          },
+          "image": null,
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 4,
+          "weight_g": 110,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-TOY-PC-BURG",
+          "options": {
+            "back": "Burgundy"
+          },
+          "image": null,
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 4,
+          "weight_g": 110,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "wooden-train-set",
+      "title": "Wooden Train Set · Stock levels",
+      "short_description": "Beech track with a three-car train.",
+      "description": "Sample product: Set 40 pieces is low in stock, and Set 80 pieces is out of stock but still sells on backorder. Edit it or delete it.\n\nA beech wood train set with curved and straight track and a three-car magnetic train.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "trains"
+      ],
+      "tags": [
+        "wooden",
+        "bestseller"
+      ],
+      "images": [
+        "wooden-train-set-1.jpg",
+        "wooden-train-set-2.jpg",
+        "wooden-train-set-3.jpg",
+        "wooden-train-set-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-TOY-WTS-20PIECES",
+          "options": {
+            "set": "20 pieces"
+          },
+          "image": null,
+          "price": "45.00",
+          "sale_price": null,
+          "cost": "18.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1500,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-TOY-WTS-40PIECES",
+          "options": {
+            "set": "40 pieces"
+          },
+          "image": null,
+          "price": "69.00",
+          "sale_price": null,
+          "cost": "28.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2600,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-TOY-WTS-80PIECES",
+          "options": {
+            "set": "80 pieces"
+          },
+          "image": null,
+          "price": "99.00",
+          "sale_price": null,
+          "cost": "40.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 4500,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

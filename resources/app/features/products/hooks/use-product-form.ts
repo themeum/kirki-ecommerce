@@ -1,10 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { useGenerateSkuMutation } from '@/features/inventory';
-import { resolveSaveFailure, resolveSaveSuccess, type SaveResult } from '@/features/products/lib/save-result';
+import {
+  resolveSaveFailure,
+  resolveSaveSuccess,
+  type SaveResult,
+} from '@/features/products/lib/save-result';
 import { shouldShowSimpleVariantSections } from '@/features/products/lib/variant-sections';
 import {
   getDefaultVariantValues,
@@ -15,6 +20,7 @@ import {
 import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import type { ErrorResponse } from '@/libs/api';
 import { getDefaults } from '@/libs/zod';
+import { isDefined } from '@/utils/object';
 
 type UseProductFormOptions = {
   initialValues?: ProductFormInput | null;
@@ -43,12 +49,19 @@ export const useProductForm = ({
 }: UseProductFormOptions): UseProductFormResult => {
   const form = useForm<ProductFormInput, unknown, ProductFormPayload>({
     resolver: zodResolver(ProductFormSchema),
-    defaultValues:
-      initialValues ?? {
-        ...getDefaults(ProductFormSchema),
-        variants: [getDefaultVariantValues()],
-      },
+    defaultValues: {
+      ...getDefaults(ProductFormSchema),
+      variants: [getDefaultVariantValues()],
+    },
   });
+
+  useEffect(() => {
+    if (!isDefined(initialValues)) {
+      return;
+    }
+
+    form.reset(initialValues);
+  }, [initialValues, form]);
 
   const hasVariants = useWatch({ control: form.control, name: 'has_variants' });
   const attributeValues = useWatch({
@@ -56,10 +69,7 @@ export const useProductForm = ({
     name: 'variants.0.attribute_values',
   });
 
-  const showSimpleVariantSections = shouldShowSimpleVariantSections(
-    hasVariants,
-    attributeValues,
-  );
+  const showSimpleVariantSections = shouldShowSimpleVariantSections(hasVariants, attributeValues);
 
   const generateSkuMutation = useGenerateSkuMutation();
 

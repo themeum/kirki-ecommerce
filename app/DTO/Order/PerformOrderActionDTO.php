@@ -26,6 +26,9 @@ class PerformOrderActionDTO extends DTO
     public $amount;
 
     /** @var string|null */
+    public $carrier_id;
+
+    /** @var string|null */
     public $carrier;
 
     /** @var string|null */

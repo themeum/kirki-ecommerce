@@ -81,6 +81,9 @@ const emptyRegions: Region[] = [];
 
 const ROW_HEIGHT = 36;
 
+const normalizeRegions = (regions: Region[] = []): Region[] =>
+  regions.map((region) => ({ ...region, states: region.states.map(String) }));
+
 type CountryRowProps = {
   country: Country;
   checked: boolean | 'indeterminate';
@@ -239,6 +242,7 @@ export const RegionsDialog = ({
 }: RegionsDialogProps) => {
   const [searchValue, setSearchValue] = useState('');
   const [expandedCountries, setExpandedCountries] = useState<string[]>([]);
+  const [scrollTargetCode, setScrollTargetCode] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const deferredSearchValue = useDeferredValue(searchValue);
@@ -316,8 +320,8 @@ export const RegionsDialog = ({
   }, [formRegions]);
 
   const selectedStatesByCountry = useMemo(() => {
-    const map = new Map<string, Set<string | number>>();
-    formRegions.forEach((region) => map.set(region.country, new Set(region.states)));
+    const map = new Map<string, Set<string>>();
+    formRegions.forEach((region) => map.set(region.country, new Set(region.states.map(String))));
     return map;
   }, [formRegions]);
 
@@ -331,9 +335,42 @@ export const RegionsDialog = ({
     form.reset({
       title: defaultValue.title ?? '',
       countries: defaultValue.countryCodes ?? [],
-      regions: defaultValue.regions ?? [],
+      regions: normalizeRegions(defaultValue.regions),
     });
   }, [form, defaultValue, open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const initiallySelectedCodes = new Set([
+      ...(defaultValue.countryCodes ?? []),
+      ...normalizeRegions(defaultValue.regions).map((region) => region.country),
+    ]);
+
+    setScrollTargetCode(
+      countries.find(
+        (country) =>
+          initiallySelectedCodes.has(country.code) || getDisabledStateIds(country.code).size > 0,
+      )?.code ?? null,
+    );
+
+    if (countryOnly) {
+      return;
+    }
+
+    setExpandedCountries(
+      countries
+        .filter(
+          (country) =>
+            (country.states?.length ?? 0) > 0 &&
+            !isCountryFullyDisabled(country) &&
+            (initiallySelectedCodes.has(country.code) || getDisabledStateIds(country.code).size > 0),
+        )
+        .map((country) => country.code),
+    );
+  }, [open, countryOnly, countries, defaultValue, getDisabledStateIds, isCountryFullyDisabled]);
 
   useEffect(() => {
     if (errors?.title) {
@@ -373,7 +410,7 @@ export const RegionsDialog = ({
 
       const selectedRegion = {
         country: country.code,
-        states: countryOnly ? [] : allStates.map((state) => state.id),
+        states: countryOnly ? [] : allStates.map((state) => String(state.id)),
         hasDeselectedState: false,
         flag: country?.flag,
       };
@@ -429,6 +466,7 @@ export const RegionsDialog = ({
       const allStates = getSelectableStates(country);
       const countryCode = country.code;
       const countryIndex = regions.findIndex((item) => item.country === countryCode);
+      const stateKey = String(stateId);
 
       if (countryIndex === -1) {
         const nextCountryCodes = countryCodes.includes(countryCode)
@@ -442,7 +480,7 @@ export const RegionsDialog = ({
             ...regions,
             {
               country: countryCode,
-              states: [stateId],
+              states: [stateKey],
               hasDeselectedState: allStates.length !== 1,
               flag: country?.flag,
             },
@@ -453,11 +491,12 @@ export const RegionsDialog = ({
       }
 
       const countryItem = regions[countryIndex];
-      const stateExists = countryItem.states.includes(stateId);
+      const currentStates = countryItem.states.map(String);
+      const stateExists = currentStates.includes(stateKey);
 
       const updatedStates = stateExists
-        ? countryItem.states.filter((id) => id !== stateId)
-        : [...countryItem.states, stateId];
+        ? currentStates.filter((id) => id !== stateKey)
+        : [...currentStates, stateKey];
 
       if (updatedStates.length === 0) {
         const nextCountryCodes = countryCodes.filter((country) => country !== countryCode);
@@ -487,7 +526,7 @@ export const RegionsDialog = ({
     form.reset({
       title: defaultValue.title ?? '',
       countries: defaultValue.countryCodes ?? [],
-      regions: defaultValue.regions ?? [],
+      regions: normalizeRegions(defaultValue.regions),
     });
     onOpenChange(false);
   };
@@ -509,14 +548,7 @@ export const RegionsDialog = ({
         return;
       }
 
-      const countryDisabled = isCountryFullyDisabled(country);
-      const hasDisabledStates = !countryDisabled && getDisabledStateIds(country.code).size > 0;
-      const isExpanded =
-        expandedCountries.includes(country.code) ||
-        selectedCountryCodes.has(country.code) ||
-        hasDisabledStates;
-
-      if (!isExpanded) {
+      if (!expandedCountries.includes(country.code)) {
         return;
       }
 
@@ -526,14 +558,7 @@ export const RegionsDialog = ({
     });
 
     return items;
-  }, [
-    countryOnly,
-    expandedCountries,
-    filteredCountries,
-    getDisabledStateIds,
-    isCountryFullyDisabled,
-    selectedCountryCodes,
-  ]);
+  }, [countryOnly, expandedCountries, filteredCountries]);
 
   const virtualizer = useVirtualizer({
     count: rows.length,
@@ -551,6 +576,22 @@ export const RegionsDialog = ({
     initialRect: { width: 480, height: 432 },
   });
 
+  useEffect(() => {
+    if (scrollTargetCode === null) {
+      return;
+    }
+
+    const targetIndex = rows.findIndex(
+      (row) => row.type === 'country' && row.country.code === scrollTargetCode,
+    );
+
+    setScrollTargetCode(null);
+
+    if (targetIndex !== -1) {
+      virtualizer.scrollToIndex(targetIndex, { align: 'start' });
+    }
+  }, [rows, scrollTargetCode, virtualizer]);
+
   const searchError = form.formState.errors.regions?.message || (errors?.regions as string) || '';
 
   const renderRow = (row: RegionRow) => {
@@ -563,7 +604,7 @@ export const RegionsDialog = ({
           country={country}
           state={state}
           used={used}
-          checked={used || Boolean(selectedStatesByCountry.get(country.code)?.has(state.id))}
+          checked={used || Boolean(selectedStatesByCountry.get(country.code)?.has(String(state.id)))}
           onToggle={handleSelectStates}
         />
       );
@@ -573,7 +614,6 @@ export const RegionsDialog = ({
     const regionInfo = regionByCountry.get(country.code);
     const countryDisabled = isCountryFullyDisabled(country);
     const hasStates = !countryOnly && (country.states?.length ?? 0) > 0;
-    const hasDisabledStates = !countryDisabled && getDisabledStateIds(country.code).size > 0;
     const checked = countryDisabled
       ? regionInfo?.hasDeselectedState
         ? 'indeterminate'
@@ -588,12 +628,7 @@ export const RegionsDialog = ({
         checked={checked}
         disabled={countryDisabled}
         expandable={hasStates && !countryDisabled}
-        expanded={
-          hasStates &&
-          (expandedCountries.includes(country.code) ||
-            selectedCountryCodes.has(country.code) ||
-            hasDisabledStates)
-        }
+        expanded={hasStates && expandedCountries.includes(country.code)}
         selectedStateCount={hasStates ? (regionInfo?.states?.length ?? 0) : 0}
         onToggle={handleSelectCountries}
         onRowClick={handleCountryRowClick}

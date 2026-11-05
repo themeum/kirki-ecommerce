@@ -19,10 +19,10 @@ class DiscountCalculationResultDTO extends DTO
     /** @var \Kirki\Ecommerce\App\Models\Coupon[] Coupons that failed validation this pass and were excluded */
     public $invalid_coupons = [];
 
-    /** @var array<int, int> Discount amount per variant_id, summed across every applied coupon */
+    /** @var array<int|string, int> Discount amount per line key, summed across every applied coupon */
     public $item_discounts = [];
 
-    /** @var array<int, int> The part of item_discounts that came from product-scoped coupons, per variant_id */
+    /** @var array<int|string, int> The part of item_discounts that came from product-scoped coupons, per line key */
     public $product_item_discounts = [];
 
     /** @var int Total shipping discount amount in minor units */

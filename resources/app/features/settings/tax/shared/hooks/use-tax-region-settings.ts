@@ -7,8 +7,10 @@ import {
   TaxSettingsFormSchema,
 } from '@/features/settings/tax/shared/schemas/forms/tax-settings-form';
 import { pickFormValues } from '@/libs/zod';
+import type { TaxSettings } from '@/schemas/catalog/settings';
 import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { isDefined } from '@/utils/object';
 
 type UseTaxRegionSettingsResult = {
   loaded: boolean;
@@ -16,6 +18,7 @@ type UseTaxRegionSettingsResult = {
   setRegions: Dispatch<SetStateAction<TaxRegion[]>>;
   isSaving: boolean;
   saveRegions: (updatedRegions: TaxRegion[], options?: { silent?: boolean }) => Promise<void>;
+  taxSettings?: TaxSettings;
 };
 
 /**
@@ -37,7 +40,7 @@ export const useTaxRegionSettings = (): UseTaxRegionSettingsResult => {
   const loaded = !isLoading && Boolean(taxSettingsData);
 
   useEffect(() => {
-    if (Array.isArray(taxSettingsData?.tax_regions)) {
+    if (isDefined(taxSettingsData) && Array.isArray(taxSettingsData.tax_regions)) {
       setRegions(taxSettingsData.tax_regions);
     }
   }, [taxSettingsData]);
@@ -64,5 +67,5 @@ export const useTaxRegionSettings = (): UseTaxRegionSettingsResult => {
     await saveSettings({ key: 'tax', data: payload });
   };
 
-  return { loaded, regions, setRegions, isSaving, saveRegions };
+  return { loaded, regions, setRegions, isSaving, saveRegions, taxSettings: taxSettingsData };
 };

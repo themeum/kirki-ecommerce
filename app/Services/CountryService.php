@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\DTO\Country\CountryFilterDTO;
 use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Sanitizer;
 
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -19,19 +20,6 @@ use function Kirki\Ecommerce\Framework\throw_if;
  */
 class CountryService
 {
-    /** @var array */
-    protected $data = [];
-
-    /**
-     * Load the nested country data into memory.
-     *
-     * @since 1.0.0
-     */
-    public function __construct()
-    {
-        $this->load_data();
-    }
-
     /**
      * Get all countries, optionally limited to one group.
      *
@@ -42,11 +30,15 @@ class CountryService
      */
     public function all(CountryFilterDTO $filters)
     {
+        $data = Sanitizer::apply_rule($filters->only_selling_countries, Sanitizer::BOOL)
+            ? CountryData::get_selling_countries()
+            : CountryData::nested();
+
         if (empty($filters->group)) {
-            return $this->data;
+            return $data;
         }
 
-        $filtered = collection($this->data)
+        $filtered = collection($data)
             ->filter(fn($country) => $country['group'] === $filters->group)
             ->all();
 
@@ -82,17 +74,5 @@ class CountryService
     public function find_by_code(string $code)
     {
         return CountryData::find_nested($code);
-    }
-
-    /**
-     * Populate the in-memory country list.
-     *
-     * @since 1.0.0
-     *
-     * @return void
-     */
-    protected function load_data()
-    {
-        $this->data = CountryData::nested();
     }
 }

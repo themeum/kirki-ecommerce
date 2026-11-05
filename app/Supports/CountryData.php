@@ -4,6 +4,9 @@ namespace Kirki\Ecommerce\App\Supports;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\SellingLocationType;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+
 use function Kirki\Ecommerce\Framework\resource_path;
 
 /**
@@ -42,6 +45,13 @@ class CountryData
      * @var array|null
      */
     protected static $nested = null;
+
+    /**
+     * The selling locations list.
+     *
+     * @var array|null
+     */
+    protected static $selling_locations = null;
 
     /**
      * Get the country index, keyed by country code.
@@ -93,6 +103,52 @@ class CountryData
     }
 
     /**
+     * Get the ids of all states of a country.
+     *
+     * @since 1.0.0
+     *
+     * @param string $code Country code, in any casing.
+     * @return string[] Empty when the country has no states.
+     */
+    public static function state_ids(string $code)
+    {
+        return array_map(static function ($state) {
+            return (string) $state['id'];
+        }, array_values(static::states_for($code)));
+    }
+
+    /**
+     * Get a country's name by its code.
+     *
+     * @since 1.0.0
+     *
+     * @param string $code Country code, in any casing.
+     * @return string|null Null when the country code is unknown.
+     */
+    public static function get_country_name(string $code)
+    {
+        return static::find_index_entry($code)['name'] ?? null;
+    }
+
+    /**
+     * Get a state's name by its identifier within a country.
+     *
+     * @since 1.0.0
+     *
+     * @param string     $country_code Country code, in any casing.
+     * @param string|int $state_id     State identifier.
+     * @return string|null Null when the state is unknown for that country.
+     */
+    public static function get_state_name(string $country_code, $state_id)
+    {
+        if (empty($state_id)) {
+            return null;
+        }
+
+        return array_column(static::states_for($country_code), 'name', 'id')[$state_id] ?? null;
+    }
+
+    /**
      * Get the full country list with each country's states nested inside it.
      *
      * @since 1.0.0
@@ -106,6 +162,45 @@ class CountryData
         }
 
         return static::$nested;
+    }
+
+    /**
+     * Get the selling locations list with each country's states nested inside it,
+     * @since 1.0.0
+     * 
+     * @return array[] Countries sorted by name.
+     */
+    public static function get_selling_countries()
+    {
+        if (static::$selling_locations !== null) {
+            return static::$selling_locations;
+        }
+
+        static::$selling_locations = [];
+
+        $selling_location_type = Settings::get('general.selling_location_type') ?? SellingLocationType::ALL_COUNTRIES;
+        $selling_countries = Settings::get('general.selling_countries') ?? [];
+
+        if ($selling_location_type === SellingLocationType::ALL_COUNTRIES) {
+            static::$selling_locations = static::nested();
+
+            return static::$selling_locations;
+        }
+
+
+        foreach (static::nested() as $country) {
+            if ($selling_location_type === SellingLocationType::SELECTED_COUNTRIES && !in_array($country['code'], $selling_countries, true)) {
+                continue;
+            }
+
+            if ($selling_location_type === SellingLocationType::EXCLUDED_COUNTRIES && in_array($country['code'], $selling_countries, true)) {
+                continue;
+            }
+
+            static::$selling_locations[] = $country;
+        }
+
+        return static::$selling_locations;
     }
 
     /**
@@ -269,5 +364,6 @@ class CountryData
         static::$index = null;
         static::$states = null;
         static::$nested = null;
+        static::$selling_locations = null;
     }
 }

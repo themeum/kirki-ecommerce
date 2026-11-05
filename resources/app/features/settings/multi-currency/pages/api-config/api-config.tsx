@@ -1,11 +1,12 @@
 import { RefreshCcw, Wrench } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import OptionAccordion from '@/components/option-accordion';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import {
@@ -30,8 +31,17 @@ import { cardStyles } from '@/theme/card-styles';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings | null }) => {
-  const { setValue, control } = useFormContext<MultiCurrencySettingsFormInput>();
+type ApiConfigProps = {
+  currencySettings?: CurrencySettings | null;
+  onOpenChange?: (open: boolean) => void;
+};
+
+const ApiConfig = ({ currencySettings, onOpenChange }: ApiConfigProps) => {
+  const {
+    setValue,
+    control,
+    formState: { errors, isSubmitted },
+  } = useFormContext<MultiCurrencySettingsFormInput>();
   const apiProvider = useWatch({
     control,
     name: 'api_provider',
@@ -47,6 +57,10 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
 
   const [openPopup, setOpenPopup] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  useEffect(() => {
+    onOpenChange?.(openPopup);
+  }, [openPopup, onOpenChange]);
 
   const { data: providersData } = useCurrencyExchangeProvidersQuery();
   const apiProviderList = useMemo(() => {
@@ -71,7 +85,7 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
   const hasAPIConfiguration = Boolean(getProviderConfig(apiConfigs, apiProvider)?.api_key);
 
   const handleProviderChange = (providerId: string | null) => {
-    setValue('api_provider', providerId, { shouldDirty: true });
+    setValue('api_provider', providerId, { shouldDirty: true, shouldValidate: isSubmitted });
   };
 
   const handlePopupSave = (values: ApiConfigurationFormPayload) => {
@@ -129,6 +143,8 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
             <Select value={apiProvider ?? undefined} onValueChange={handleProviderChange}>
               <SelectTrigger
                 id="api-provider-select"
+                error={Boolean(errors.api_provider)}
+                aria-invalid={Boolean(errors.api_provider)}
                 showClear={Boolean(isApiProviderSelected)}
                 onClear={isApiProviderSelected ? () => handleProviderChange(null) : undefined}
               >
@@ -142,6 +158,7 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
                 ))}
               </SelectContent>
             </Select>
+            {errors.api_provider && <FieldError errors={[errors.api_provider]} />}
           </Flex>
           {isApiProviderSelected && (
             <Flex direction="column" gap="4">
@@ -158,6 +175,7 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
                   data-search-keywords="api key, conversion rate, exchange rate provider, automatic rates"
                   data-search-title={__('Exchange Rate API Configuration', 'kirki-ecommerce')}
                   noShadow
+                  cssOverride={cardStyles.innerCard}
                 >
                   <CardContent cssOverride={cardStyles.innerContent}>
                     <Flex justify="space-between" align="center">

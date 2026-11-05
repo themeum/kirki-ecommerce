@@ -33,7 +33,8 @@ export const endpoints = {
   ATTRIBUTE_VALUE: (attributeId: string | number, valueId: string | number) =>
     `/attributes/${attributeId}/values/${valueId}`,
   ATTRIBUTE_VALUES_BULK: (attributeId: string | number) => `/attributes/${attributeId}/values/bulk`,
-  ATTRIBUTE_VALUES_BATCH: (attributeId: string | number) => `/attributes/${attributeId}/values/batch`,
+  ATTRIBUTE_VALUES_BATCH: (attributeId: string | number) =>
+    `/attributes/${attributeId}/values/batch`,
 
   VARIANT: (id: string | number) => `/variants/${id}`,
   VARIANTS: '/variants',
@@ -44,7 +45,15 @@ export const endpoints = {
   VARIANTS_GENERATE_SKUS: '/variants/generate-skus',
 
   ONBOARDING: '/onboarding',
+  ONBOARDING_DEFAULTS: '/onboarding/defaults',
   ONBOARDING_SAMPLE_DATA: '/onboarding/sample-data',
+
+  MIGRATION_SOURCES: '/migration/sources',
+  MIGRATION_SCAN: '/migration/scan',
+  MIGRATION_RUNS: '/migration/runs',
+  MIGRATION_LATEST_RUN: '/migration/runs/latest',
+  MIGRATION_RUN: (id: number) => `/migration/runs/${id}`,
+  MIGRATION_RUN_CHUNK: (id: number) => `/migration/runs/${id}/chunk`,
 
   SETUP_CHECKLIST: '/setup-checklist',
   SETUP_CHECKLIST_COMPLETE_STEP: (step: string) => `/setup-checklist/${step}/complete`,
@@ -103,11 +112,13 @@ export const endpoints = {
   OFFLINE_PAYMENT: (id: string | number) => `/offline-payments/${id}`,
 
   ORDER: (id: string | number) => `/orders/${id}`,
+  ORDER_EDIT: (id: string | number) => `/orders/${id}/edit`,
   ORDER_ACTION: (id: string | number) => `/orders/${id}/action`,
   ORDERS: '/orders',
   SHIPPING_METHODS: '/shipping-methods',
   CALCULATE_ORDER: '/calculate/order',
   ORDER_ACTIVITIES: (orderId: string | number) => `/orders/${orderId}/activities`,
+  ORDER_SHIPPING_CARRIERS: (orderId: string | number) => `/orders/${orderId}/shipping-carriers`,
   ORDER_ACTIVITY: (orderId: string | number, activityId: string | number) =>
     `/orders/${orderId}/activities/${activityId}`,
 } as const;

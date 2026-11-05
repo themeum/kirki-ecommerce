@@ -193,6 +193,8 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
     shippingMethodError: null as string | null,
 
+    paymentMethodError: null as string | null,
+
     orderNotes: '',
 
     consents: {} as Record<string, boolean>,
@@ -532,6 +534,29 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       return `${__('Incl.', 'kirki-ecommerce')} ${taxDisplay} ${taxLabel}`.trim();
     },
 
+    pickupTimeRange(shipping: ShippingMethod): string {
+      if (!shipping.pickup_time_start || !shipping.pickup_time_end) {
+        return '';
+      }
+      const formatter = new Intl.DateTimeFormat(navigator.language, {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      const formatLocalTime = (time: string): string => {
+        const [hours, minutes] = time.split(':').map(Number);
+        return formatter.format(new Date(2000, 0, 1, hours, minutes));
+      };
+      return `${formatLocalTime(shipping.pickup_time_start)} – ${formatLocalTime(shipping.pickup_time_end)}`;
+    },
+
+    taxLineLabel(taxLine: any): string {
+      if (!taxLine) {
+        return '';
+      }
+      const name = taxLine.name || __('Tax', 'kirki-ecommerce');
+      return taxLine.rate ? `${name} ${Number(taxLine.rate)}%` : name;
+    },
+
     formatTaxLine(taxLine: any): string {
       if (!taxLine) {
         return '';
@@ -545,6 +570,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     setPaymentMethod(method: string) {
       this.selectedPaymentMethod = method;
+      this.paymentMethodError = null;
       emit(EVENTS.PAYMENT_METHOD_CHANGED, { method });
     },
 
@@ -581,6 +607,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
         if (!this.selectedShippingMethod) {
           this.shippingMethodError = __('Please select a shipping method.', 'kirki-ecommerce');
+          scrollToFirstError();
+          return;
+        }
+
+        if (!this.selectedPaymentMethod) {
+          this.paymentMethodError = __('Please select a payment method.', 'kirki-ecommerce');
           scrollToFirstError();
           return;
         }
@@ -681,6 +713,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         : null;
 
       let hasFieldErrors = false;
+      let countryError: string | null = null;
 
       for (const [key, messages] of Object.entries(apiError.errors)) {
         const rawMessage = messages[0];
@@ -697,11 +730,22 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           const field = key.replace('shipping_', '');
           this.shippingErrors[field] = rawMessage;
           hasFieldErrors = true;
+          if (field === 'country') {
+            countryError ??= rawMessage;
+          }
         } else if (key.startsWith('billing_')) {
           const field = key.replace('billing_', '');
           this.billingErrors[field] = rawMessage;
           hasFieldErrors = true;
+          if (field === 'country') {
+            countryError ??= rawMessage;
+          }
         }
+      }
+
+      // A saved address shows no country field, so the field error alone would go unseen.
+      if (countryError) {
+        toastManager.error(countryError);
       }
 
       if (!hasFieldErrors) {

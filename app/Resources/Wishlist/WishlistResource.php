@@ -9,7 +9,7 @@ use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
 use Kirki\Ecommerce\App\Supports\Url;
 
 /**
- * API resource for a wishlist entry, presented as a product card for its variant.
+ * API resource for a wishlist entry, presented as a product card.
  *
  * @since 1.0.0
  */
@@ -18,7 +18,7 @@ class WishlistResource extends ShopProductResource
     /**
      * Convert the wishlist resource to an array.
      *
-     * Fills the product card data from the wishlisted variant and its product, then adds variant, URL and pricing fields.
+     * Fills the product card data from the wishlisted product and its display variant, then adds URL and pricing fields.
      *
      * @since 1.0.0
      *
@@ -30,8 +30,10 @@ class WishlistResource extends ShopProductResource
             return [];
         }
 
-        $variant = $this->variant;
-        $product = $variant ? $variant->product : null;
+        $product = $this->resource->product;
+        $variant = $this->resolve_display_variant($product);
+
+        $this->resource->set_relation('variant', $variant);
 
         $this->title = $product ? $product->title : '';
         $this->slug  = $product ? $product->slug : '';
@@ -57,14 +59,65 @@ class WishlistResource extends ShopProductResource
         return array_merge(
             $paren_data,
             [
-                'variant_id' => $this->variant_id,
-                'product_url' => Url::add_query_params(Url::get_product_url($this->slug), [ 'variant_id' => $this->variant_id ]),
-                'product_id' => $product ? $product->id : ($variant ? $variant->product_id : null),
+                'product_url' => $this->resolve_product_url(),
                 'in_sale' => $in_sale,
                 'formatted_regular_price' => $pricing['formatted_regular_price'],
                 'display_price' => $pricing['display_price'],
             ],
         );
+    }
+
+    /**
+     * Resolve the ID of the wishlisted product.
+     *
+     * @since 1.0.0
+     *
+     * @return int Product ID.
+     */
+    protected function resolve_product_id(): int
+    {
+        return (int) $this->product_id;
+    }
+
+    /**
+     * Resolve the variant the card shows.
+     *
+     * Uses the variant the user chose, then the product's default variant, then its first variant.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\Product|null $product The wishlisted product, with its variants loaded.
+     * @return \Kirki\Ecommerce\App\Models\Variant|null Null when the product has no variants.
+     */
+    protected function resolve_display_variant($product)
+    {
+        $variants = $product ? $product->variants : null;
+
+        if (!$variants) {
+            return null;
+        }
+
+        $chosen = $this->variant_id
+            ? $variants->filter(fn($variant) => (int) $variant->id === (int) $this->variant_id)->first()
+            : null;
+
+        return $chosen
+            ?: $variants->filter(fn($variant) => 1 == $variant->is_default)->first()
+            ?: $variants->first();
+    }
+
+    /**
+     * Resolve the product page URL, selecting the variant only when the user chose one.
+     *
+     * @since 1.0.0
+     *
+     * @return string Product URL.
+     */
+    protected function resolve_product_url(): string
+    {
+        $url = Url::get_product_url($this->slug);
+
+        return $this->variant_id ? Url::add_query_params($url, ['variant_id' => $this->variant_id]) : $url;
     }
 
     /**

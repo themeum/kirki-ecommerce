@@ -371,6 +371,25 @@ class CouponApiTest extends RestTestCase
     }
 
     /**
+     * Activating a coupon that is already active, or deactivating one that is already inactive, returns 409.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_activation_action_on_coupon_already_in_that_state_returns_409(): void
+    {
+        $coupon = $this->create_coupon(['is_active' => true]);
+
+        $activate = $this->request('PATCH', 'coupons/' . $coupon['id'] . '/action', ['action' => 'activate']);
+        $this->assertSame('The coupon is already activated', $this->assert_api_error($activate, 409)['message']);
+
+        $this->assert_api_success($this->request('PATCH', 'coupons/' . $coupon['id'] . '/action', ['action' => 'deactivate']));
+
+        $deactivate = $this->request('PATCH', 'coupons/' . $coupon['id'] . '/action', ['action' => 'deactivate']);
+        $this->assertSame('The coupon is already deactivated', $this->assert_api_error($deactivate, 409)['message']);
+    }
+
+    /**
      * Create coupon.
      * @param array $overrides Overrides.
      *

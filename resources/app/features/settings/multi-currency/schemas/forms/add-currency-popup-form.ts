@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-import { CurrencyDraftSchema } from '@/features/settings/multi-currency/schemas/catalog/currency';
+import { CurrencyRateItemSchema } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 import { prepareFormSchema } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
 const AddCurrencyPopupFormShape = z.object({
   selectedCurrencies: z
-    .array(CurrencyDraftSchema)
+    .array(CurrencyRateItemSchema)
     .min(1, __('Select at least one currency', 'kirki-ecommerce')),
 });
 

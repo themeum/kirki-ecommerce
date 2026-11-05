@@ -48,7 +48,7 @@ class CountryDataContractTest extends TestCase
 
     public function test_the_dataset_holds_every_country_and_state(): void
     {
-        $countries = Utils::get_countries();
+        $countries = Utils::get_countries(false);
 
         $this->assertCount(250, $countries);
 
@@ -63,7 +63,7 @@ class CountryDataContractTest extends TestCase
 
     public function test_every_country_preserves_the_key_order(): void
     {
-        $countries = Utils::get_countries();
+        $countries = Utils::get_countries(false);
 
         $this->assertNotEmpty($countries);
 
@@ -78,14 +78,14 @@ class CountryDataContractTest extends TestCase
 
     public function test_the_list_is_sequentially_indexed(): void
     {
-        $countries = Utils::get_countries();
+        $countries = Utils::get_countries(false);
 
         $this->assertSame(range(0, count($countries) - 1), array_keys($countries));
     }
 
     public function test_states_carry_only_an_id_and_a_name(): void
     {
-        foreach (Utils::get_countries() as $country) {
+        foreach (Utils::get_countries(false) as $country) {
             foreach ($country['states'] as $state) {
                 $this->assertSame(['id', 'name'], array_keys($state));
             }
@@ -99,7 +99,7 @@ class CountryDataContractTest extends TestCase
      */
     public function test_has_states_does_not_leak_into_the_public_output(): void
     {
-        foreach (Utils::get_countries() as $country) {
+        foreach (Utils::get_countries(false) as $country) {
             $this->assertArrayNotHasKey('has_states', $country);
         }
 
@@ -114,7 +114,7 @@ class CountryDataContractTest extends TestCase
      */
     public function test_countries_are_ordered_by_their_displayed_name(): void
     {
-        $names = array_column(Utils::get_countries(), 'name');
+        $names = array_column(Utils::get_countries(false), 'name');
 
         $this->assertLessThan(
             array_search('Algeria', $names, true),

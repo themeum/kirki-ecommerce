@@ -14,11 +14,7 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Models\Variant;
-use Kirki\Ecommerce\App\Models\Wishlist;
 use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
 use Kirki\Ecommerce\App\Services\WishlistService;
 use Kirki\Ecommerce\App\Supports\Template;
@@ -116,49 +112,22 @@ class WishlistController
     }
 
     /**
-     * Tell whether a variant exists and belongs to a published product.
+     * Add a product to the logged-in user's wishlist.
      *
-     * @since 1.0.0
-     *
-     * @param int $variant_id
-     * @return bool
-     */
-    protected function is_valid_variant(int $variant_id): bool
-    {
-        if (!$variant_id) {
-            return false;
-        }
-
-        $variant = Variant::find($variant_id);
-        if ($variant) {
-            $product = Product::where(['id' => $variant->product_id, 'status' => ProductStatus::PUBLISHED])->first();
-            if ($product) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Add a variant to the logged-in user's wishlist.
+     * The body holds `product_id` and, optionally, the `variant_id` the user chose. A product already on the wishlist keeps its single entry. The service answers 404 when the product is missing or unpublished, or the variant does not belong to it.
      *
      * @since 1.0.0
      *
      * @param Request $request
-     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The wishlist entry with a 201 status, or a 404 response when the variant is missing or unpublished.
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The wishlist entry with a 201 status.
      */
     public function add_item(Request $request)
     {
-        $user_id = (int) user()->get_id();
+        $user_id    = (int) user()->get_id();
+        $product_id = $request->int('product_id');
         $variant_id = $request->int('variant_id');
 
-        if (!$this->is_valid_variant($variant_id)) {
-            return response()->json([
-                'message' => __('Variant not found.', 'kirki-ecommerce'),
-            ], Response::NOT_FOUND);
-        }
-
-        $wishlist = $this->wishlist_service->add_item($user_id, $variant_id);
+        $wishlist = $this->wishlist_service->add_item($user_id, $product_id, $variant_id ?: null);
 
         return response()->json([
             'data'    => WishlistResource::make($wishlist),
@@ -167,29 +136,21 @@ class WishlistController
     }
 
     /**
-     * Remove a variant from the logged-in user's wishlist.
+     * Remove a product from the logged-in user's wishlist.
      *
-     * The route `id` is the variant ID.
+     * The route `id` is the product ID. The service answers 404 when the product is not on the wishlist.
      *
      * @since 1.0.0
      *
      * @param Request $request
-     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response, or a 404 response when the variant is not on the wishlist.
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response.
      */
     public function remove_item(Request $request)
     {
-        $user_id = (int) user()->get_id();
-        $variant_id = $request->int('id');
+        $user_id    = (int) user()->get_id();
+        $product_id = $request->int('id');
 
-        $wishlist = Wishlist::where(['user_id' => $user_id, 'variant_id' => $variant_id])->first();
-
-        if (!$wishlist) {
-            return response()->json([
-                'message' => __('Wishlist not found.', 'kirki-ecommerce'),
-            ], Response::NOT_FOUND);
-        }
-
-        $this->wishlist_service->remove_item($user_id, $variant_id);
+        $this->wishlist_service->remove_item($user_id, $product_id);
 
         return response()->json([
             'data'    => true,

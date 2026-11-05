@@ -6,6 +6,7 @@ type SettingsSearchTarget = {
   route: string;
   terms: string[];
   prefixes: string[];
+  markText?: boolean;
 };
 
 type SettingsSearchContextValue = {

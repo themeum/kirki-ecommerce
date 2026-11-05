@@ -2,7 +2,15 @@ import { type CSSObject } from '@emotion/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { defaultFilter } from 'cmdk';
 import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react';
-import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react';
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   Command,
@@ -81,6 +89,7 @@ const Combobox = ({
   const listboxId = useId();
   const [search, setSearch] = useState('');
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   // A callback ref, not `useRef`: Radix mounts the popover's content in its
   // own commit without re-rendering this component, so a ref object would
   // still read null when the virtualizer's layout effect resolves the scroll
@@ -188,6 +197,37 @@ const Combobox = ({
     setSearch('');
   };
 
+  const handleTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (open || disabled) {
+      return;
+    }
+
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+
+    if (event.key.length !== 1 || event.key === ' ') {
+      return;
+    }
+
+    event.preventDefault();
+    setTriggerHeight(triggerRef.current?.offsetHeight ?? 0);
+    setOpen(true);
+    setSearch(event.key);
+  };
+
+  const handleOpenAutoFocus = (event: Event) => {
+    event.preventDefault();
+    const input = searchInputRef.current;
+
+    if (!input) {
+      return;
+    }
+
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  };
+
   const triggerLabel = (): ReactNode => {
     if (multiple) {
       if (selectedOptions.length === 0) {
@@ -257,6 +297,7 @@ const Combobox = ({
           aria-expanded={open}
           aria-controls={listboxId}
           disabled={disabled}
+          onKeyDown={handleTriggerKeyDown}
           data-error={error ? 'true' : undefined}
           css={scopedMerge(styles.trigger, error && styles.triggerError, cssOverride)}
         >
@@ -269,9 +310,11 @@ const Combobox = ({
         align="start"
         sideOffset={-triggerHeight}
         cssOverride={styles.content}
+        onOpenAutoFocus={handleOpenAutoFocus}
       >
         <Command shouldFilter={!virtualized}>
           <CommandInput
+            ref={searchInputRef}
             placeholder={searchPlaceholder}
             wrapperCss={styles.searchRow}
             cssOverride={searchInputCss}
@@ -327,6 +370,10 @@ const Combobox = ({
                           onSelect={() => handleSelect(option.value)}
                           cssOverride={styles.virtualItem}
                         >
+                          {hasLeadingIcons && (
+                            <span css={scoped(styles.leadingIcon)}>{option.leftIcon}</span>
+                          )}
+                          <span css={scoped(styles.itemLabel)}>{option.label}</span>
                           <span
                             css={scopedMerge(
                               styles.itemCheck,
@@ -335,10 +382,6 @@ const Combobox = ({
                           >
                             {isSelected && <Check size={14} />}
                           </span>
-                          {hasLeadingIcons && (
-                            <span css={scoped(styles.leadingIcon)}>{option.leftIcon}</span>
-                          )}
-                          <span css={scoped(styles.itemLabel)}>{option.label}</span>
                         </CommandItem>
                       </div>
                     );
@@ -354,14 +397,13 @@ const Combobox = ({
                     <CommandItem
                       key={option.value}
                       value={option.value}
-                      keywords={[option.label, option.description ?? '', ...(option.keywords ?? [])]}
+                      keywords={[
+                        option.label,
+                        option.description ?? '',
+                        ...(option.keywords ?? []),
+                      ]}
                       onSelect={() => handleSelect(option.value)}
                     >
-                      <span
-                        css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}
-                      >
-                        {isSelected && <Check size={14} />}
-                      </span>
                       {hasLeadingIcons && (
                         <span css={scoped(styles.leadingIcon)}>{option.leftIcon}</span>
                       )}
@@ -371,6 +413,11 @@ const Combobox = ({
                           <span css={scoped(styles.itemDescription)}>{option.description}</span>
                         )}
                       </Flex>
+                      <span
+                        css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}
+                      >
+                        {isSelected && <Check size={14} />}
+                      </span>
                     </CommandItem>
                   );
                 })}
@@ -498,6 +545,7 @@ const styles = defineStyles({
   },
   itemCheck: {
     ...flexCenter(),
+    marginLeft: 'auto',
     width: '16px',
     height: '16px',
     flexShrink: 0,

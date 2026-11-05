@@ -299,20 +299,20 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Re-quantifying an existing order under the current (now different)
-     * tax setting updates the recorded is_tax_inclusive flag, since its
-     * prices are genuinely recalculated under that setting.
+     * An edit keeps the tax mode the order was placed with, even when the
+     * store has switched its tax setting since.
      *
      * @return void
      * @since 1.0.0
      */
-    public function test_update_order_refreshes_is_tax_inclusive_when_the_setting_has_changed(): void
+    public function test_update_order_keeps_the_tax_mode_the_order_was_placed_with(): void
     {
         $this->enable_us_inclusive_tax(20);
 
         $order = $this->create_order();
         $this->order_id = $order['id'];
         $existing_item_id = $order['items'][0]['id'];
+        $placed_total = Order::find($this->order_id)->base_total;
 
         $this->assert_api_success($this->request('PUT', 'settings', [
             'key' => OptionKeys::TAX_SETTINGS,
@@ -329,14 +329,14 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+                ['id' => $existing_item_id, 'quantity' => 1],
             ],
         ])));
 
-        $response = $this->request('GET', 'orders/' . $this->order_id);
-        $payload = $this->assert_api_success($response);
+        $payload = $this->assert_api_success($this->request('GET', 'orders/' . $this->order_id));
 
-        $this->assertFalse($payload['data']['is_tax_inclusive']);
+        $this->assertTrue($payload['data']['is_tax_inclusive']);
+        $this->assertSame($placed_total, Order::find($this->order_id)->base_total);
     }
 
     /**
@@ -374,6 +374,30 @@ class OrderApiTest extends RestTestCase
         $this->assertFalse($listed_order['payment_provider_is_offline']);
         $this->assertEquals('method-0001', $listed_order['shipping_method']);
         $this->assertEquals('Standard Delivery', $listed_order['shipping_method_name']);
+    }
+
+    /**
+     * The order list and the order detail both report whether the order can be edited.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_order_list_and_detail_expose_is_editable(): void
+    {
+        $editable_id = (int) $this->create_order()['id'];
+        $paid_id = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::PAID);
+
+        $editable = $this->assert_api_success($this->request('GET', 'orders/' . $editable_id));
+        $paid = $this->assert_api_success($this->request('GET', 'orders/' . $paid_id));
+
+        $this->assertTrue($editable['data']['is_editable']);
+        $this->assertFalse($paid['data']['is_editable']);
+
+        $list = $this->assert_api_success($this->request('GET', 'orders', ['page' => 1, 'limit' => 50]));
+        $is_editable_by_id = array_column($list['data']['results'], 'is_editable', 'id');
+
+        $this->assertTrue($is_editable_by_id[$editable_id]);
+        $this->assertFalse($is_editable_by_id[$paid_id]);
     }
 
     /**
@@ -575,6 +599,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'customer_first_name' => 'Jane',
             'customer_last_name' => 'Roe',
@@ -823,7 +848,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 1],
+                ['id' => $existing_item_id, 'quantity' => 1],
                 ['variant_id' => $added_variant_id, 'quantity' => 1],
             ],
         ])));
@@ -861,7 +886,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+                ['id' => $existing_item_id, 'quantity' => 2],
             ],
         ])));
 
@@ -976,7 +1001,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 3],
+                ['id' => $existing_item_id, 'quantity' => 3],
             ],
         ])));
 
@@ -989,9 +1014,9 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Editing an order keeps an existing item's recorded regular price when
-     * its quantity changes or the variant is repriced, and records the
-     * current regular price for an item added in the edit.
+     * Editing an order keeps an existing item's regular price as it was sold,
+     * even when the variant was repriced, and records the current regular
+     * price for an item added in the edit.
      *
      * @return void
      * @since 1.0.0
@@ -1014,7 +1039,7 @@ class OrderApiTest extends RestTestCase
             'id' => $this->order_id,
             'customer_id' => $customer_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+                ['id' => $existing_item_id, 'quantity' => 2],
                 ['variant_id' => $added_variant_id, 'quantity' => 1],
             ],
         ])));
@@ -1140,6 +1165,210 @@ class OrderApiTest extends RestTestCase
 
         $item = Order::find($this->order_id);
         $this->assertNull($item->get_attributes()['flags']);
+    }
+
+    /**
+     * Spec scenario: Note only.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_updates_note_and_keeps_flags(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Old note']);
+        $this->order_id = $order['id'];
+        Order::find($this->order_id)->update(['flags' => ['gift']]);
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'order_notes' => 'New note',
+        ]));
+
+        $this->assertSame('New note', $payload['data']['order_notes']);
+        $this->assertEquals(['gift'], $payload['data']['flags']);
+        $this->assertSame('New note', Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Flags only.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_updates_flags_and_keeps_note(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Keep me']);
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'flags' => ['gift', 'priority'],
+        ]));
+
+        $this->assertEquals(['gift', 'priority'], $payload['data']['flags']);
+        $this->assertSame('Keep me', $payload['data']['order_notes']);
+    }
+
+    /**
+     * Spec scenario: Note and flags together.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_updates_note_and_flags_together(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'order_notes' => 'Both',
+            'flags' => ['urgent'],
+        ]));
+
+        $this->assertSame('Both', $payload['data']['order_notes']);
+        $this->assertEquals(['urgent'], $payload['data']['flags']);
+    }
+
+    /**
+     * Spec scenario: Clear the note.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_clears_the_note_with_null_or_empty_text(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Will be cleared']);
+        $this->order_id = $order['id'];
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => null]));
+        $this->assertNull($payload['data']['order_notes']);
+        $this->assertNull(Order::find($this->order_id)->order_notes);
+
+        Order::find($this->order_id)->update(['order_notes' => 'Again']);
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => '']));
+        $this->assertNull($payload['data']['order_notes']);
+        $this->assertNull(Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Clear the flags.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_clears_the_flags_with_null_or_empty_list(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        Order::find($this->order_id)->update(['flags' => ['gift']]);
+        $this->assertNotNull(Order::find($this->order_id)->get_attributes()['flags']);
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['flags' => []]));
+        $this->assertNull(Order::find($this->order_id)->get_attributes()['flags']);
+
+        Order::find($this->order_id)->update(['flags' => ['gift']]);
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['flags' => null]));
+        $this->assertNull(Order::find($this->order_id)->get_attributes()['flags']);
+    }
+
+    /**
+     * Spec scenario: Line breaks and plain text.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_keeps_line_breaks_and_strips_tags(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, [
+            'order_notes' => "First <b>line</b>\nSecond line<script>alert(1)</script>",
+        ]));
+
+        $note = Order::find($this->order_id)->order_notes;
+        $this->assertStringContainsString("\n", $note);
+        $this->assertStringNotContainsString('<b>', $note);
+        $this->assertStringNotContainsString('<script>', $note);
+    }
+
+    /**
+     * Spec scenario: Other order data is not touched.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_does_not_change_other_order_data(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $before = Order::find($this->order_id);
+
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => 'Only this']));
+
+        $after = Order::find($this->order_id);
+        $this->assertSame($before->total, $after->total);
+        $this->assertSame($before->order_status, $after->order_status);
+        $this->assertSame($before->shipping_first_name, $after->shipping_first_name);
+        $this->assertCount(count($order['items']), $after->items);
+    }
+
+    /**
+     * Spec scenario: Empty request.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_without_note_or_flags_returns_422(): void
+    {
+        $order = $this->create_order(['order_notes' => 'Unchanged']);
+        $this->order_id = $order['id'];
+
+        $this->assert_validation_error($this->request('PATCH', 'orders/' . $this->order_id, []));
+
+        $this->assertSame('Unchanged', Order::find($this->order_id)->order_notes);
+    }
+
+    /**
+     * Spec scenario: Invalid flags value.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_with_invalid_flags_returns_422(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assert_validation_error($this->request('PATCH', 'orders/' . $this->order_id, ['flags' => 'gift']));
+    }
+
+    /**
+     * Spec scenario: Order not found.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_returns_404_for_a_missing_order(): void
+    {
+        $this->assert_api_error($this->request('PATCH', 'orders/999999', ['order_notes' => 'x']), 404);
+    }
+
+    /**
+     * Spec scenario: Order in any status.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_patch_order_works_on_a_cancelled_order(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        Order::find($this->order_id)->update(['order_status' => OrderStatus::UNPAID_CANCELLED]);
+
+        $payload = $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id, ['order_notes' => 'After cancel']));
+
+        $this->assertSame('After cancel', $payload['data']['order_notes']);
     }
 
     /**
@@ -1901,7 +2130,8 @@ class OrderApiTest extends RestTestCase
             'is_manual' => false,
         ]));
 
-        $this->assert_api_error($response, 500);
+        // The stock check in the context builder refuses the sold-out line before any order is written.
+        $this->assert_api_error($response, 422);
 
         $customer = Customer::where('user_id', $user_id)->first();
 
@@ -2364,6 +2594,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
         ])));
@@ -2396,6 +2627,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [],
         ])));
@@ -2429,6 +2661,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
             'order_notes' => 'Unrelated edit',
@@ -2442,9 +2675,8 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Editing an already-cancelled order (its coupon usage already reversed
-     * by cancellation) must not resurrect that reversed usage as active just
-     * because the coupon-attribution rows get regenerated by the edit.
+     * A cancelled order cannot be edited, so its coupon usage, already
+     * reversed by the cancellation, can never be made active again by an edit.
      *
      * @return void
      */
@@ -2466,12 +2698,12 @@ class OrderApiTest extends RestTestCase
 
         $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
 
-        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+        $this->assert_api_error($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
             'order_notes' => 'Edited after cancellation',
-        ])));
+        ])), 422);
 
         $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
 
@@ -2548,13 +2780,13 @@ class OrderApiTest extends RestTestCase
 
     /**
      * `sync_order_coupons()` fails loudly, instead of silently under-recording,
-     * when a coupon result attributes a discount to a variant that has no
+     * when a coupon result attributes a discount to a line that has no
      * matching order item - the fail-loud backstop this change adds in place
      * of the previous silent `continue`.
      *
      * @return void
      */
-    public function test_sync_order_coupons_throws_when_item_discount_references_unmatched_variant(): void
+    public function test_sync_order_coupons_throws_when_item_discount_references_unmatched_line(): void
     {
         $order = $this->create_order();
         $this->order_id = $order['id'];
@@ -2587,7 +2819,7 @@ class OrderApiTest extends RestTestCase
 
         $this->expectException(Exception::class);
 
-        $sync_order_coupons->invoke($action, $order_model, $calculated_result, 'USD', 1.0);
+        $sync_order_coupons->invoke($action, $order_model, $calculated_result, [0 => OrderItem::find($order['items'][0]['id'])], 'USD', 1.0);
     }
 
     /**

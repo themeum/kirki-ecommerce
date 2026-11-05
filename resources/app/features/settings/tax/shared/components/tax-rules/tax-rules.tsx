@@ -31,7 +31,7 @@ import { RATE_ACTIONS } from '@/features/settings/tax/shared/schemas/forms/tax-r
 import { useTaxProfilesQuery } from '@/features/settings/tax/shared/services/tax';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, scoped } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 const toSentenceCase = (text: string): string =>
@@ -85,7 +85,7 @@ const TaxRules = (props: TaxRulesProps) => {
             buttonText={__('Add', 'kirki-ecommerce')}
             onAdd={() => setAddRuleModal(true)}
           />
-          <div css={scoped(styles.conditionWrapper)}>
+          <div css={scopedMerge(addRuleModal && styles.conditionWrapper)}>
             {(addRuleModal || rules.length > 0) && (
               <Flex direction="column" gap={4}>
                 {addRuleModal && (
@@ -215,7 +215,7 @@ export default MemoizedTaxRules;
 
 const styles = defineStyles({
   ruleItems: {
-    marginTop: theme.spacing[5],
+    marginTop: theme.spacing[2],
   },
   conditionValue: {
     color: theme.colors.text.special3,

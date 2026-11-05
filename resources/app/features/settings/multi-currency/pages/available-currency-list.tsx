@@ -1,5 +1,5 @@
 import { Check, CircleSlashIcon, Info, MoreVertical, RefreshCcw, Trash2 } from 'lucide-react';
-import { useFormContext, useFormState } from 'react-hook-form';
+import { useFormContext, useFormState, useWatch } from 'react-hook-form';
 import { useOutletContext } from 'react-router';
 
 import NumberField from '@/components/form/number-field';
@@ -180,18 +180,32 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
 export const AvailableCurrencyList = () => {
   const { currencyList, syncStatus, handleAction } = useAvailableCurrencyList();
   const { mutate: syncRates, isPending: isSyncing } = useSyncCurrencyRatesMutation();
+  const { formState, control } = useFormContext<MultiCurrencySettingsFormInput>();
   const hasMultipleCurrencies = currencyList.length > 1;
+
+  const isAutomaticUpdateEnabled = useWatch({
+    control,
+    name: 'is_automatic_update_enabled',
+  });
+
+  const isDisplaySyncButton =
+    isAutomaticUpdateEnabled && hasMultipleCurrencies && !formState.isDirty;
+
+  if (currencyList.length === 0) {
+    return null;
+  }
 
   return (
     <StackedItems
       data-search-id="currency.available-currencies"
       data-search-keywords="multi currency, usd, eur, gbp, exchange"
+      cssOverride={{ marginBottom: theme.spacing[4] }}
     >
       <StackedItem id="header" cssOverride={mergeCss(styles.staticRow, styles.headerRow)}>
         <StackedItemContent>
           <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
         </StackedItemContent>
-        {hasMultipleCurrencies && (
+        {isDisplaySyncButton && (
           <StackedItemActions>
             <Button
               variant="ghost"

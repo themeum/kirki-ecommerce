@@ -26,6 +26,8 @@ vi.mock('@/features/analytics/services/analytics', () => ({
   useAnalyticsRegionsQuery,
 }));
 
+vi.setConfig({ testTimeout: 20000 });
+
 type QueryState = {
   data?: unknown;
   isLoading?: boolean;

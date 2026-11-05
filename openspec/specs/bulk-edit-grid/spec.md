@@ -6,7 +6,7 @@ Defines the spreadsheet surface merchants use to edit many product variants at o
 ## Requirements
 ### Requirement: Variant columns presented by the grid
 
-The grid SHALL present exactly the following columns, in order: Variants, Price, Sale Price, Cost of Goods, Profit, Margin, Base price per unit, SKU, Dimension, Weight, Track Inventory, Availability, Committed, Low Stock Threshold, Limit Purchase, Limit, Visibility, Charge Tax, Tax profile, Shipping Profile.
+The grid SHALL present exactly the following columns, in order: Variants, Price, Sale Price, Cost of Goods, Profit, Margin, Base price per unit, SKU, Dimension, Weight, Track Inventory, Sell when out of stock, Availability, Committed, Low Stock Threshold, Limit Purchase, Limit, Visibility, Charge Tax, Tax profile, Shipping Profile.
 
 The Variants column SHALL show the variant's image and its identity as `{Product Title} - {Attribute Value 1} | {Attribute Value 2}` (one segment per attribute the variant carries, joined with ` | `), e.g. "Sample Product Title - Red | XL". A variant with no attributes (a simple product) SHALL show just the product title, with no trailing separator. Profit, Margin, and Committed SHALL be read-only. Profit and Margin SHALL be derived from the row's current price, sale price, and cost of goods rather than stored. Weight SHALL present its amount and unit as one column. Dimension SHALL select a shipping box and SHALL display the chosen box's name and its length, width, and height.
 

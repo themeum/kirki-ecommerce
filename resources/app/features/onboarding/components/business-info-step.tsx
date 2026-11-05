@@ -61,7 +61,7 @@ const BusinessInfoStep = ({ onBack, onContinue }: BusinessInfoStepProps) => {
         </Button>
       }
     >
-      <CountryField name="country" label={__('Country', 'kirki-ecommerce')} />
+      <CountryField name="country" label={__('Country', 'kirki-ecommerce')} only_selling_countries={false} />
 
       {isAddressOpen ? (
         <Flex direction="column" gap={4}>

@@ -1,0 +1,476 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "dogs",
+      "name": "Dogs",
+      "parent": null
+    },
+    {
+      "slug": "collars",
+      "name": "Collars & Leads",
+      "parent": "dogs"
+    },
+    {
+      "slug": "dog-beds",
+      "name": "Beds",
+      "parent": "dogs"
+    },
+    {
+      "slug": "cats",
+      "name": "Cats",
+      "parent": null
+    },
+    {
+      "slug": "cat-beds",
+      "name": "Cat Beds",
+      "parent": "cats"
+    },
+    {
+      "slug": "food-treats",
+      "name": "Food & Treats",
+      "parent": null
+    },
+    {
+      "slug": "treats",
+      "name": "Treats",
+      "parent": "food-treats"
+    },
+    {
+      "slug": "bowls",
+      "name": "Bowls & Feeders",
+      "parent": null
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "ceramic",
+      "name": "Ceramic"
+    },
+    {
+      "slug": "comfort",
+      "name": "Comfort"
+    },
+    {
+      "slug": "fresh",
+      "name": "Fresh"
+    },
+    {
+      "slug": "handmade",
+      "name": "Handmade"
+    },
+    {
+      "slug": "leather",
+      "name": "Leather"
+    },
+    {
+      "slug": "natural",
+      "name": "Natural"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "wool",
+      "name": "Wool"
+    }
+  ],
+  "products": [
+    {
+      "slug": "ceramic-pet-bowl",
+      "title": "Ceramic Pet Bowl · Simple product",
+      "short_description": "Heavy stoneware bowl that won't slide.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA heavy stoneware bowl with a glazed inside and a raw base. Dishwasher safe, and too heavy to push around.",
+      "ribbon": null,
+      "categories": [
+        "bowls"
+      ],
+      "tags": [
+        "ceramic",
+        "bestseller"
+      ],
+      "images": [
+        "ceramic-pet-bowl-1.jpg",
+        "ceramic-pet-bowl-2.jpg",
+        "ceramic-pet-bowl-3.jpg",
+        "ceramic-pet-bowl-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-PET-CPB",
+          "options": {},
+          "image": null,
+          "price": "26.00",
+          "sale_price": null,
+          "cost": "10.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 900,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "leather-dog-collar",
+      "title": "Leather Dog Collar · With variants",
+      "short_description": "Soft leather collar with a brass buckle.",
+      "description": "Sample product: 2 attributes (Color, Size), 9 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA soft vegetable-tanned leather collar with solid brass hardware and a D-ring for a lead.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "collars"
+      ],
+      "tags": [
+        "leather",
+        "new-arrival"
+      ],
+      "images": [
+        "leather-dog-collar-coral.jpg",
+        "leather-dog-collar-sunshine.jpg",
+        "leather-dog-collar-teal.jpg",
+        "leather-dog-collar-2.jpg",
+        "leather-dog-collar-3.jpg",
+        "leather-dog-collar-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-PET-LDC-CORA-S",
+          "options": {
+            "color": "Coral",
+            "size": "S"
+          },
+          "image": "leather-dog-collar-coral.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 80,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-PET-LDC-CORA-M",
+          "options": {
+            "color": "Coral",
+            "size": "M"
+          },
+          "image": "leather-dog-collar-coral.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 80,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-PET-LDC-CORA-L",
+          "options": {
+            "color": "Coral",
+            "size": "L"
+          },
+          "image": "leather-dog-collar-coral.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 80,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-PET-LDC-SUNS-S",
+          "options": {
+            "color": "Sunshine",
+            "size": "S"
+          },
+          "image": "leather-dog-collar-sunshine.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 80,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-PET-LDC-SUNS-M",
+          "options": {
+            "color": "Sunshine",
+            "size": "M"
+          },
+          "image": "leather-dog-collar-sunshine.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 80,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-PET-LDC-SUNS-L",
+          "options": {
+            "color": "Sunshine",
+            "size": "L"
+          },
+          "image": "leather-dog-collar-sunshine.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 80,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-PET-LDC-TEAL-S",
+          "options": {
+            "color": "Teal",
+            "size": "S"
+          },
+          "image": "leather-dog-collar-teal.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 80,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-PET-LDC-TEAL-M",
+          "options": {
+            "color": "Teal",
+            "size": "M"
+          },
+          "image": "leather-dog-collar-teal.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 80,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-PET-LDC-TEAL-L",
+          "options": {
+            "color": "Teal",
+            "size": "L"
+          },
+          "image": "leather-dog-collar-teal.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 80,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "felt-cat-cave",
+      "title": "Felt Cat Cave · On sale",
+      "short_description": "Hand-felted wool cave bed for cats.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA cosy cave bed hand-felted from natural wool. Cats love the snug, quiet space.",
+      "ribbon": null,
+      "categories": [
+        "cat-beds"
+      ],
+      "tags": [
+        "handmade",
+        "wool"
+      ],
+      "images": [
+        "felt-cat-cave-1.jpg",
+        "felt-cat-cave-2.jpg",
+        "felt-cat-cave-3.jpg",
+        "felt-cat-cave-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-PET-FCC",
+          "options": {},
+          "image": null,
+          "price": "58.00",
+          "sale_price": "44.00",
+          "cost": "23.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 700,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "dog-treats",
+      "title": "Dog Treats · Unit pricing",
+      "short_description": "Single-ingredient dog treats, 200 g bag, priced per 100 g.",
+      "description": "Sample product: 1 attribute (Flavor), and the price is also shown per 100 g. Edit it or delete it.\n\nAir-dried treats made from a single protein, with nothing added. Good for training.",
+      "ribbon": null,
+      "categories": [
+        "treats"
+      ],
+      "tags": [
+        "natural",
+        "fresh"
+      ],
+      "images": [
+        "dog-treats-1.jpg",
+        "dog-treats-2.jpg",
+        "dog-treats-3.jpg",
+        "dog-treats-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-PET-DT-CHIC",
+          "options": {
+            "flavor": "Chicken"
+          },
+          "image": null,
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 200,
+            "total_unit": "g"
+          },
+          "is_default": true
+        },
+        {
+          "sku": "SMP-PET-DT-SALM",
+          "options": {
+            "flavor": "Salmon"
+          },
+          "image": null,
+          "price": "12.00",
+          "sale_price": null,
+          "cost": "5.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 220,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 200,
+            "total_unit": "g"
+          },
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "orthopedic-dog-bed",
+      "title": "Orthopedic Dog Bed · Stock levels",
+      "short_description": "Memory-foam dog bed with a washable cover.",
+      "description": "Sample product: Size M is low in stock, and Size L is out of stock but still sells on backorder. Edit it or delete it.\n\nA supportive memory-foam bed with raised sides and a removable, washable cover.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "dog-beds"
+      ],
+      "tags": [
+        "comfort",
+        "bestseller"
+      ],
+      "images": [
+        "orthopedic-dog-bed-1.jpg",
+        "orthopedic-dog-bed-2.jpg",
+        "orthopedic-dog-bed-3.jpg",
+        "orthopedic-dog-bed-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-PET-ODB-S",
+          "options": {
+            "size": "S"
+          },
+          "image": null,
+          "price": "89.00",
+          "sale_price": null,
+          "cost": "36.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 2500,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-PET-ODB-M",
+          "options": {
+            "size": "M"
+          },
+          "image": null,
+          "price": "109.00",
+          "sale_price": null,
+          "cost": "44.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 3500,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-PET-ODB-L",
+          "options": {
+            "size": "L"
+          },
+          "image": null,
+          "price": "129.00",
+          "sale_price": null,
+          "cost": "52.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 4800,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

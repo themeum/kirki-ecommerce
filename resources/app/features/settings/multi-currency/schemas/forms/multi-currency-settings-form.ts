@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { CurrencyDraftSchema } from '@/features/settings/multi-currency/schemas/catalog/currency';
-import { prepareFormSchema } from '@/libs/zod';
+import { prepareFormSchema, requiredWhen } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
 export const ApiConfigSchema = z.object({
@@ -9,7 +9,7 @@ export const ApiConfigSchema = z.object({
   update_frequency: z.string().nullish().default('every_1_hour'),
 });
 
-const CurrencyRateItemSchema = CurrencyDraftSchema.extend({
+export const CurrencyRateItemSchema =CurrencyDraftSchema.extend({
   exchange_rate: z
     .union([z.number(), z.string()])
     .nullish()
@@ -23,7 +23,14 @@ export type CurrencyRateItem = z.infer<typeof CurrencyRateItemSchema>;
 
 const MultiCurrencySettingsFormShape = z.object({
   is_automatic_update_enabled: z.boolean().nullish().default(false),
-  api_provider: z.string().nullish().default(''),
+  api_provider: requiredWhen(
+    z.string().nullish().default(''),
+    (values) =>
+      Boolean(values.is_automatic_update_enabled) &&
+      ((values.currencies ?? []) as unknown[]).length > 1 &&
+      !values.api_provider,
+    __('Please select an API provider', 'kirki-ecommerce'),
+  ),
   api_configs: z.record(z.string(), ApiConfigSchema).nullish().default({}),
   currency_format: z.string().nullish().default('short'),
   currency_position: z.string().nullish().default('before'),

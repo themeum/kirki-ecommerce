@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
@@ -49,7 +50,7 @@ class DeleteRefundAction
         $order = $this->order_service->find_order_or_fail($order_id);
         $refund = $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $id)->values()->first();
 
-        throw_if(!$refund, __('Refund not found.', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(!$refund, __('Refund not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         // @todo should we allow delete refund? what if its completed?
 

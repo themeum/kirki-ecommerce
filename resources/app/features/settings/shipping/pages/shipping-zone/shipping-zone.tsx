@@ -13,6 +13,7 @@ import { Form } from '@/components/ui/form';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
+import ShippingCarrierCard from '@/features/settings/shipping/pages/shipping-carrier/shipping-carrier';
 import { ShippingMethod } from '@/features/settings/shipping/pages/shipping-method/shipping-method';
 import {
   type ShippingZoneFormInput,
@@ -166,6 +167,12 @@ const ShippingZonePage = () => {
               <ShippingMethod
                 shippingSettingsData={shippingSettingsData}
                 shippingMethodList={shippingMethodList[activeZone.id] || []}
+                shippingZonesObj={shippingZonesObj}
+                setShippingZonesObj={setShippingZonesObj}
+                zoneId={zoneId}
+              />
+              <ShippingCarrierCard
+                shippingSettingsData={shippingSettingsData}
                 shippingZonesObj={shippingZonesObj}
                 setShippingZonesObj={setShippingZonesObj}
                 zoneId={zoneId}

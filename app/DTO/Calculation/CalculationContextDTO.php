@@ -47,7 +47,7 @@ class CalculationContextDTO extends DTO
     /** @var string[] */
     public $coupon_codes = [];
 
-    /** @var int */
+    /** @var string */
     public $shipping_method_id;
 
     /** @var int Base shipping cost in minor units */
@@ -55,6 +55,9 @@ class CalculationContextDTO extends DTO
 
     /** @var bool */
     public $should_calculate_tax = true;
+
+    /** @var StoredOrderTermsDTO|null Terms an edited order keeps; null when everything is priced from the current settings */
+    public $stored;
 
     /**
      * Sum the base unit price times quantity of every item.
@@ -120,7 +123,7 @@ class CalculationContextDTO extends DTO
 
         $dto->items = $cart->items->map(function ($item) {
             $item_dto = new CalculationItemDTO();
-            $item_dto->id = $item->id;
+            $item_dto->line_key = $item->id;
             $item_dto->variant_id = $item->variant_id;
             $item_dto->product_id = $item->product_id;
             $item_dto->quantity = $item->quantity;
@@ -129,6 +132,7 @@ class CalculationContextDTO extends DTO
 
             $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
             $item_dto->weight = $variant->weight;
+            $item_dto->weight_unit = $variant->weight_unit;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->tax_profile_id = $variant->tax_profile_id ?: $item->product->tax_profile_id;
             $item_dto->product_categories = $item->product->load('categories')->categories->pluck('id')->to_array();

@@ -349,11 +349,17 @@ class Utils
      * Get the country list with each country's states nested inside it.
      *
      * @since 1.0.0
+     * 
+     * @param bool $only_selling_countries Whether to return the selling locations list
      *
      * @return array[] The country list.
      */
-    public static function get_countries()
+    public static function get_countries($only_selling_countries = true)
     {
+        if ($only_selling_countries) {
+            return CountryData::get_selling_countries();
+        }
+
         return CountryData::nested();
     }
 

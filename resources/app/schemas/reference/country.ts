@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import type { ListQueryParams } from '@/types/list-state';
+
 export const StateSchema = z.object({
   id: z.union([z.string(), z.number()]),
   name: z.string(),
@@ -41,3 +43,8 @@ export const CountrySchema = z.object({
 });
 
 export type Country = z.infer<typeof CountrySchema>;
+
+export type CountryListFilter = {
+  group?: 'general' | 'eu';
+  only_selling_countries?: boolean;
+} & ListQueryParams;

@@ -69,7 +69,12 @@ const MultiSelectField = <
         const rawValue = Array.isArray(field.value) ? field.value : [];
         const selected = (
           valueAs === 'strings'
-            ? rawValue.map((item: string) => ({ value: item, title: item }))
+            ? rawValue.map((item: string) => ({
+              value: item,
+              title:
+                (multiSelectProps.options ?? []).find((option) => String(option.value) === item)
+                  ?.title ?? item,
+            }))
             : rawValue
         ) as TOption[];
 

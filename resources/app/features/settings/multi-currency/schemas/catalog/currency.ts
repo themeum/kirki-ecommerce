@@ -32,6 +32,7 @@ export const CurrencyOptionSchema = z.object({
   name: z.string(),
   code: z.string(),
   symbol: z.string().nullish(),
+  flag: z.string().nullish(),
 });
 
 export type CurrencyOption = z.infer<typeof CurrencyOptionSchema>;
@@ -51,6 +52,7 @@ export const CurrencyDraftSchema = z
     name: z.string(),
     code: z.string(),
     symbol: z.string().nullish(),
+    flag: z.string().nullish(),
     exchange_rate: z.union([z.number(), z.string()]).nullish(),
     is_base: z.boolean(),
     is_active: z.boolean(),

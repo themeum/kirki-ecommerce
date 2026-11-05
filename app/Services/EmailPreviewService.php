@@ -27,6 +27,7 @@ use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderNoteMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderOnHoldMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderProcessingMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderShippedMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderTrackingAddedMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerPaymentFailedMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerResetPasswordMail;
 use Kirki\Ecommerce\App\Mails\Mailer;
@@ -83,6 +84,7 @@ class EmailPreviewService
                 CustomerOrderNotification::ORDER_COMPLETED => CustomerOrderCompletedMail::class,
                 CustomerOrderNotification::ORDER_NOTE => CustomerOrderNoteMail::class,
                 CustomerOrderNotification::ORDER_SHIPPED => CustomerOrderShippedMail::class,
+                CustomerOrderNotification::TRACKING_ADDED => CustomerOrderTrackingAddedMail::class,
             ],
             'user' => [
                 CustomerUserNotification::RESET_PASSWORD => CustomerResetPasswordMail::class,

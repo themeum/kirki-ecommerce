@@ -1,0 +1,68 @@
+info:
+  name: Get Order Shipping Carriers
+  type: http
+  seq: 16
+  tags:
+    - orders
+
+http:
+  method: GET
+  url: "{{baseUrl}}/orders/29/shipping-carriers"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Enabled carriers of the shipping zone that covers the order's shipping country and state. The list is empty when no enabled zone covers the destination.
+    request:
+      url: "{{baseUrl}}/orders/29/shipping-carriers"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "id": "ups",
+                "name": "UPS",
+                "tracking_url": "https://www.ups.com/track?loc=en_US&tracknum={tracking_number}",
+                "logo_url": "https://example.com/wp-content/plugins/kirki-ecommerce/assets/images/carriers/ups.svg"
+              },
+              {
+                "id": "4c0b6f4e-8c0b-4c8e-9a52-5a9f4f6f2d11",
+                "name": "Local Courier",
+                "tracking_url": "https://track.example.com/?n={tracking_number}",
+                "logo_url": null
+              }
+            ],
+            "message": "Shipping carriers retrieved successfully."
+          }
+  - name: 404 Response
+    description: The order does not exist
+    request:
+      url: "{{baseUrl}}/orders/999999/shipping-carriers"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Order not found."
+          }

@@ -111,30 +111,35 @@ that completed onboarding before the snapshot existed has no preconfigured steps
 ## 6. Loading sample data
 
 Step 1 shows **Load sample data** next to **Add products** while the store has no
-products. A click runs two phases. The button shows each phase inside itself:
-its text changes to the phase message, and a bar runs along its bottom edge.
+products. A click sends `POST /onboarding/sample-data` at once. This is the
+endpoint that the onboarding wizard uses. It downloads the sample products of the
+store's industry, with their categories, tags and images, and creates them with the
+inactive `WELCOME50` starter coupon (see
+[`docs/onboarding.md`](onboarding.md#5-loading-sample-data)).
 
-1. **"Downloading product sample..."** This phase is simulated. The bar fills to
-   70% in about 2.5 seconds. No request is sent. The remote download is not built
-   yet.
-2. **"Creating products..."** The app calls `POST /onboarding/sample-data`. This
-   is the endpoint that the onboarding wizard uses. It loads the demo products
-   that come with the plugin and the inactive `WELCOME50` starter coupon (see
-   [`docs/onboarding.md`](onboarding.md#5-loading-sample-data)). The bar moves slowly toward 95% while the request
-   runs.
+While the request runs, the button text is "Downloading sample data...", and a bar
+runs along the bottom edge of the button. The bar covers the whole import. It is
+time-based, because the server reports no progress:
+
+- The bar moves from 0% to 95% in 10 seconds, fast at the start and slower near 95%.
+- After 10 seconds, the bar moves slowly toward 99%. It does not reach 100% before
+  the request succeeds.
+- When the request succeeds, the bar goes to 100%, also before 10 seconds.
 
 While the import runs, **Add products** is disabled and **Load sample data**
 ignores clicks. If the import succeeds:
 
-- the checklist reloads, and step 1 shows the green check;
+- the checklist reloads in the background, and step 1 shows the green check when
+  the reload ends;
 - the **Load sample data** button goes away, because the store now has products;
-- after about 1 second, step 1 closes and the next incomplete step opens.
+- after about 1 second, step 1 closes and the next incomplete step opens. If the
+  reload takes longer than this pause, step 1 stays open with its green check.
 
 No success toast shows. If the import fails, an error toast shows, the button
 reads **Load sample data** again and both buttons work again.
 
 The flow is in `resources/app/features/home/hooks/use-sample-data-import.ts`. The
-phase durations are constants at the top of that file.
+progress durations and the default pause are constants at the top of that file.
 
 ## 7. Store overview
 
@@ -345,10 +350,12 @@ until every step completes again.
 - **The "Cash on delivery" button only opens Payment settings.** It does not enable
   Cash on Delivery.
 - **No CSV import.** Step 1 has only **Add products** and **Load sample data**.
-- **The sample download is simulated.** The "Downloading product sample..." phase
-  is a timer. The products come from the plugin, not from a remote server.
-- **Sample data needs an empty store.** The import does nothing when a product
-  exists, so the button does not show then.
+- **The sample data progress is time-based.** The import is one request, and the
+  bar follows a fixed 10 second curve, not the real work. The text "Downloading
+  sample data..." also covers the time in which the server creates the records.
+- **The button needs an empty store.** The button shows only while the store has no
+  products. The import itself skips only the sample products that exist (matched
+  by SKU), so a load that was cut off can be run again.
 - **Template gallery is a placeholder.** There is no template catalog or API.
 - **Overview is all time only.** There is no date range, comparison or chart.
 - **Net sales subtracts the full refund.** Refunds do not record how much of them

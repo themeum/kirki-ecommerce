@@ -116,6 +116,30 @@ class AddressApiTest extends RestTestCase
         $this->assertEmpty($payload['data']['phone']);
     }
 
+    public function test_create_address_rejects_invalid_email(): void
+    {
+        $this->login_as_new_customer();
+
+        $response = $this->request('POST', 'account/addresses', $this->address_payload(['email' => 'not-an-email']));
+
+        $this->assert_validation_error($response);
+    }
+
+    public function test_update_address_rejects_invalid_email(): void
+    {
+        $this->login_as_new_customer();
+        $create = $this->assert_api_success(
+            $this->request('POST', 'account/addresses', $this->address_payload()),
+            201
+        );
+
+        $response = $this->request('PUT', 'account/addresses/' . $create['data']['id'], $this->address_payload([
+            'email' => 'not-an-email',
+        ]));
+
+        $this->assert_validation_error($response);
+    }
+
     public function test_list_addresses_returns_only_own_addresses(): void
     {
         $this->login_as_new_customer();

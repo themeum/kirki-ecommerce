@@ -128,10 +128,13 @@ export const useSearchHighlight = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (
-      target?.route !== pathname ||
-      (target.terms.length === 0 && target.prefixes.length === 0)
-    ) {
+    if (target?.route !== pathname) {
+      return;
+    }
+
+    const shouldMarkText = target.markText !== false;
+
+    if (shouldMarkText && target.terms.length === 0 && target.prefixes.length === 0) {
       return;
     }
 
@@ -157,6 +160,10 @@ export const useSearchHighlight = () => {
       highlighted = element;
       releaseFocus = focusCard(element);
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      if (!shouldMarkText) {
+        return;
+      }
 
       const terms = new Set(target.terms);
 

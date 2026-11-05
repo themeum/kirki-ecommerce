@@ -70,6 +70,10 @@
             "value": "{customer_note}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -126,6 +130,10 @@
             "value": "{customer_note}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -176,6 +184,10 @@
           {
             "label": "Customer Note",
             "value": "{customer_note}"
+          },
+          {
+            "label": "Site Title",
+            "value": "{site_title}"
           },
           {
             "label": "Store Name",
@@ -238,6 +250,10 @@
             "value": "{customer_note}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -298,6 +314,10 @@
             "value": "{customer_note}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -356,6 +376,10 @@
           {
             "label": "Customer Note",
             "value": "{customer_note}"
+          },
+          {
+            "label": "Site Title",
+            "value": "{site_title}"
           },
           {
             "label": "Store Name",
@@ -422,6 +446,10 @@
             "value": "{customer_note}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -482,6 +510,78 @@
             "value": "{customer_note}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "tracking_added": {
+        "is_enabled": true,
+        "subject": "Tracking details for your order",
+        "heading": "Tracking details",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span></div><div><span style=\"font-size: 13px;\">Tracking details were added to your order {order_number}.</span></div><div><span style=\"font-size: 13px;\">Carrier: {shipping_carrier}</span></div><div><span style=\"font-size: 13px;\">Tracking number: {shipping_tracking_number}</span></div><div><span style=\"font-size: 13px;\">Track your package: {shipping_tracking_url}</span></div><div>{order_view_button}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Carrier",
+            "value": "{shipping_carrier}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -532,6 +632,10 @@
             "value": "{reset_link_button}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -576,6 +680,10 @@
             "value": "{set_password_link}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -618,6 +726,10 @@
           {
             "label": "Verification Link Button",
             "value": "{verification_link_button}"
+          },
+          {
+            "label": "Site Title",
+            "value": "{site_title}"
           },
           {
             "label": "Store Name",
@@ -680,6 +792,10 @@
             "value": "{customer_note}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -736,6 +852,10 @@
             "value": "{customer_note}"
           },
           {
+            "label": "Site Title",
+            "value": "{site_title}"
+          },
+          {
             "label": "Store Name",
             "value": "{store_name}"
           },
@@ -790,6 +910,10 @@
           {
             "label": "Customer Note",
             "value": "{customer_note}"
+          },
+          {
+            "label": "Site Title",
+            "value": "{site_title}"
           },
           {
             "label": "Store Name",
@@ -922,6 +1046,10 @@
           {
             "label": "Reset Link Button",
             "value": "{reset_link_button}"
+          },
+          {
+            "label": "Site Title",
+            "value": "{site_title}"
           },
           {
             "label": "Store Name",

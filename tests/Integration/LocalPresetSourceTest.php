@@ -6,22 +6,21 @@ use Kirki\Ecommerce\App\Setup\Presets\Local\TaxRegionBuilder;
 use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
 use Kirki\Ecommerce\App\Setup\Presets\PresetRepository;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
+use Kirki\Ecommerce\Tests\Support\ServesPresetData;
 
 /**
- * Covers how the local preset source places tax profile rules, against a fixture data file.
+ * Covers how the local preset source places tax profile rules, against fixture preset data.
  */
 class LocalPresetSourceTest extends RestTestCase
 {
-    /** @var string */
-    protected $fixture_file;
+    use ServesPresetData;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->fixture_file = tempnam(sys_get_temp_dir(), 'kirki-presets-');
-        file_put_contents($this->fixture_file, wp_json_encode([
-            'version' => 1,
+        $this->serve_preset_data(['presets.json' => [
+            'version' => 2,
             'countries' => [
                 'CA' => ['tax' => [
                     'mode' => 'states',
@@ -44,14 +43,7 @@ class LocalPresetSourceTest extends RestTestCase
                     ],
                 ]],
             ],
-        ]));
-    }
-
-    protected function tearDown(): void
-    {
-        @unlink($this->fixture_file);
-
-        parent::tearDown();
+        ]]);
     }
 
     public function test_country_wide_rate_is_placed_on_every_state_and_a_state_rate_replaces_it(): void
@@ -113,7 +105,7 @@ class LocalPresetSourceTest extends RestTestCase
      */
     protected function build(array $context, array $profile_keys)
     {
-        $builder = new TaxRegionBuilder(new PresetRepository($this->fixture_file));
+        $builder = new TaxRegionBuilder(new PresetRepository());
 
         return $builder->build(PresetContext::from_array(array_merge([
             'industry' => 'food-beverage-and-gourmet',

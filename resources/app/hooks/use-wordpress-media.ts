@@ -2,6 +2,8 @@ const WP_MEDIA_FRAME_ATTRIBUTE = 'data-wp-media-frame';
 
 const WP_MEDIA_FRAME_SELECTOR = `[${WP_MEDIA_FRAME_ATTRIBUTE}]`;
 
+const WP_MEDIA_MODAL_SELECTOR = '.media-modal';
+
 const GUARDED_EVENTS = [
   'pointerdown',
   'mousedown',
@@ -19,7 +21,7 @@ const openedFrames = new Set<HTMLElement>();
 
 const isWpMediaNode = (node: EventTarget | null) => {
   return (
-    node instanceof Element && node.closest(WP_MEDIA_FRAME_SELECTOR) !== null
+    node instanceof Element && node.closest(`${WP_MEDIA_FRAME_SELECTOR}, ${WP_MEDIA_MODAL_SELECTOR}`) !== null
   );
 };
 

@@ -3,6 +3,7 @@ import type { ConfirmActionParams } from '@/floating-components/unsaved-tracker'
 type SettingsPageActionsInput = {
   isDirty: boolean;
   isSaving?: boolean;
+  hideFloatingBar?: boolean;
   onSave: () => void;
   onDiscard: () => void;
 };

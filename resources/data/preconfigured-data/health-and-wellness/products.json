@@ -1,0 +1,421 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "aromatherapy",
+      "name": "Aromatherapy",
+      "parent": null
+    },
+    {
+      "slug": "diffusers",
+      "name": "Diffusers",
+      "parent": "aromatherapy"
+    },
+    {
+      "slug": "sleep",
+      "name": "Sleep",
+      "parent": null
+    },
+    {
+      "slug": "sleep-masks",
+      "name": "Sleep Masks",
+      "parent": "sleep"
+    },
+    {
+      "slug": "blankets",
+      "name": "Weighted Blankets",
+      "parent": "sleep"
+    },
+    {
+      "slug": "recovery",
+      "name": "Recovery",
+      "parent": null
+    },
+    {
+      "slug": "bath",
+      "name": "Bath",
+      "parent": null
+    }
+  ],
+  "tags": [
+    {
+      "slug": "aromatherapy",
+      "name": "Aromatherapy"
+    },
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "fresh",
+      "name": "Fresh"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "home-gym",
+      "name": "Home Gym"
+    },
+    {
+      "slug": "natural",
+      "name": "Natural"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "recovery",
+      "name": "Recovery"
+    },
+    {
+      "slug": "sleep",
+      "name": "Sleep"
+    }
+  ],
+  "products": [
+    {
+      "slug": "ceramic-diffuser",
+      "title": "Ceramic Diffuser · Simple product",
+      "short_description": "Quiet ultrasonic diffuser with a ceramic cover.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA quiet ultrasonic diffuser with a matte ceramic cover and a soft light. Runs for up to 8 hours.",
+      "ribbon": null,
+      "categories": [
+        "diffusers"
+      ],
+      "tags": [
+        "aromatherapy",
+        "bestseller"
+      ],
+      "images": [
+        "ceramic-diffuser-1.jpg",
+        "ceramic-diffuser-2.jpg",
+        "ceramic-diffuser-3.jpg",
+        "ceramic-diffuser-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HLT-CD",
+          "options": {},
+          "image": null,
+          "price": "59.00",
+          "sale_price": null,
+          "cost": "24.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 500,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "silk-sleep-mask",
+      "title": "Silk Sleep Mask · With variants",
+      "short_description": "Mulberry silk eye mask.",
+      "description": "Sample product: 2 attributes (Color, Strap), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA sleep mask in 22-momme mulberry silk on both sides, with a soft filling that blocks light.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "sleep-masks"
+      ],
+      "tags": [
+        "sleep",
+        "gift-idea",
+        "new-arrival"
+      ],
+      "images": [
+        "silk-sleep-mask-coral.jpg",
+        "silk-sleep-mask-lilac.jpg",
+        "silk-sleep-mask-teal.jpg",
+        "silk-sleep-mask-2.jpg",
+        "silk-sleep-mask-3.jpg",
+        "silk-sleep-mask-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HLT-SSM-CORA-ELAS",
+          "options": {
+            "color": "Coral",
+            "strap": "Elastic"
+          },
+          "image": "silk-sleep-mask-coral.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-HLT-SSM-CORA-ADJU",
+          "options": {
+            "color": "Coral",
+            "strap": "Adjustable"
+          },
+          "image": "silk-sleep-mask-coral.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HLT-SSM-LILA-ELAS",
+          "options": {
+            "color": "Lilac",
+            "strap": "Elastic"
+          },
+          "image": "silk-sleep-mask-lilac.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HLT-SSM-LILA-ADJU",
+          "options": {
+            "color": "Lilac",
+            "strap": "Adjustable"
+          },
+          "image": "silk-sleep-mask-lilac.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HLT-SSM-TEAL-ELAS",
+          "options": {
+            "color": "Teal",
+            "strap": "Elastic"
+          },
+          "image": "silk-sleep-mask-teal.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HLT-SSM-TEAL-ADJU",
+          "options": {
+            "color": "Teal",
+            "strap": "Adjustable"
+          },
+          "image": "silk-sleep-mask-teal.jpg",
+          "price": "32.00",
+          "sale_price": null,
+          "cost": "13.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "foam-roller",
+      "title": "Foam Roller · On sale",
+      "short_description": "Medium-density foam roller for recovery.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA medium-density foam roller, 33 cm long, firm enough for recovery and gentle enough for daily use.",
+      "ribbon": null,
+      "categories": [
+        "recovery"
+      ],
+      "tags": [
+        "recovery",
+        "home-gym"
+      ],
+      "images": [
+        "foam-roller-1.jpg",
+        "foam-roller-2.jpg",
+        "foam-roller-3.jpg",
+        "foam-roller-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HLT-FR",
+          "options": {},
+          "image": null,
+          "price": "35.00",
+          "sale_price": "26.00",
+          "cost": "14.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 400,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "bath-salts",
+      "title": "Bath Salts · Unit pricing",
+      "short_description": "Mineral bath salts with essential oils, priced per 100 g.",
+      "description": "Sample product: 1 attribute (Scent), and the price is also shown per 100 g. Edit it or delete it.\n\nCoarse mineral bath salts blended with essential oils. 500 g in a glass jar.",
+      "ribbon": null,
+      "categories": [
+        "bath"
+      ],
+      "tags": [
+        "natural",
+        "fresh"
+      ],
+      "images": [
+        "bath-salts-1.jpg",
+        "bath-salts-2.jpg",
+        "bath-salts-3.jpg",
+        "bath-salts-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HLT-BS-EUCA",
+          "options": {
+            "scent": "Eucalyptus"
+          },
+          "image": null,
+          "price": "18.00",
+          "sale_price": null,
+          "cost": "7.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 750,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 500,
+            "total_unit": "g"
+          },
+          "is_default": true
+        },
+        {
+          "sku": "SMP-HLT-BS-LAVE",
+          "options": {
+            "scent": "Lavender"
+          },
+          "image": null,
+          "price": "18.00",
+          "sale_price": null,
+          "cost": "7.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 750,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 500,
+            "total_unit": "g"
+          },
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "weighted-blanket",
+      "title": "Weighted Blanket · Stock levels",
+      "short_description": "Quilted weighted blanket with a cotton cover.",
+      "description": "Sample product: Weight 7 kg is low in stock, and Weight 9 kg is out of stock but still sells on backorder. Edit it or delete it.\n\nAn evenly quilted weighted blanket filled with glass beads, in a breathable cotton cover.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "blankets"
+      ],
+      "tags": [
+        "sleep",
+        "bestseller"
+      ],
+      "images": [
+        "weighted-blanket-1.jpg",
+        "weighted-blanket-2.jpg",
+        "weighted-blanket-3.jpg",
+        "weighted-blanket-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HLT-WB-5KG",
+          "options": {
+            "weight": "5 kg"
+          },
+          "image": null,
+          "price": "129.00",
+          "sale_price": null,
+          "cost": "52.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 5500,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-HLT-WB-7KG",
+          "options": {
+            "weight": "7 kg"
+          },
+          "image": null,
+          "price": "149.00",
+          "sale_price": null,
+          "cost": "60.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 7500,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HLT-WB-9KG",
+          "options": {
+            "weight": "9 kg"
+          },
+          "image": null,
+          "price": "169.00",
+          "sale_price": null,
+          "cost": "68.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 9500,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

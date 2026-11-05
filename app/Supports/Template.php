@@ -93,7 +93,7 @@ class Template
                 <?php wp_body_open(); ?>
                 <div class="wp-site-blocks">
                 <?php
-                echo static::$block_header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks() output for the site's block template; escaping would corrupt the markup.
+                echo wp_kses(static::$block_header, static::get_block_markup_allowed_html());
             } else {
                 get_header();
             }
@@ -113,7 +113,7 @@ class Template
         public static function get_footer()
         {
             if (static::is_block_theme()) {
-                echo static::$block_footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks() output for the site's block template; escaping would corrupt the markup.
+                echo wp_kses(static::$block_footer, static::get_block_markup_allowed_html());
 
                 // End of wp-site-blocks div.
                 echo '</div>';
@@ -125,6 +125,77 @@ class Template
             } else {
                 get_footer();
             }
+        }
+
+        /**
+         * Get the tags and attributes that rendered block template markup may contain.
+         *
+         * Starts from the `post` list and adds what block theme headers and footers
+         * use beyond it: forms, inline SVG, responsive image attributes, and the ARIA
+         * and `data-*` attributes of the navigation and interactivity blocks.
+         *
+         * @since 1.0.0
+         *
+         * @return array<string, array<string, bool>>
+         */
+        protected static function get_block_markup_allowed_html(): array
+        {
+            $allowed = wp_kses_allowed_html('post');
+
+            $svg_attributes = ['fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true, 'transform' => true, 'opacity' => true];
+
+            $extra_tags = [
+                'form' => ['action' => true, 'method' => true, 'role' => true, 'novalidate' => true],
+                'input' => ['type' => true, 'name' => true, 'value' => true, 'placeholder' => true, 'required' => true, 'checked' => true, 'disabled' => true, 'readonly' => true, 'autocomplete' => true, 'min' => true, 'max' => true],
+                'select' => ['name' => true, 'required' => true, 'disabled' => true],
+                'option' => ['value' => true, 'selected' => true, 'disabled' => true],
+                'picture' => [],
+                'source' => ['srcset' => true, 'sizes' => true, 'type' => true, 'media' => true, 'src' => true],
+                'svg' => ['xmlns' => true, 'viewbox' => true, 'width' => true, 'height' => true, 'focusable' => true, 'preserveaspectratio' => true] + $svg_attributes,
+                'g' => $svg_attributes,
+                'path' => ['d' => true, 'fill-rule' => true, 'clip-rule' => true] + $svg_attributes,
+                'circle' => ['cx' => true, 'cy' => true, 'r' => true] + $svg_attributes,
+                'ellipse' => ['cx' => true, 'cy' => true, 'rx' => true, 'ry' => true] + $svg_attributes,
+                'rect' => ['x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true] + $svg_attributes,
+                'line' => ['x1' => true, 'y1' => true, 'x2' => true, 'y2' => true] + $svg_attributes,
+                'polyline' => ['points' => true] + $svg_attributes,
+                'polygon' => ['points' => true] + $svg_attributes,
+            ];
+
+            $global_attributes = [
+                'class' => true,
+                'id' => true,
+                'style' => true,
+                'title' => true,
+                'role' => true,
+                'hidden' => true,
+                'tabindex' => true,
+                'lang' => true,
+                'dir' => true,
+                'aria-label' => true,
+                'aria-labelledby' => true,
+                'aria-describedby' => true,
+                'aria-hidden' => true,
+                'aria-expanded' => true,
+                'aria-haspopup' => true,
+                'aria-controls' => true,
+                'aria-current' => true,
+                'aria-live' => true,
+                'aria-modal' => true,
+                'data-*' => true,
+            ];
+
+            foreach ($extra_tags as $tag => $attributes) {
+                $allowed[$tag] = array_merge($allowed[$tag] ?? [], $attributes);
+            }
+
+            $allowed['img'] = array_merge($allowed['img'], ['srcset' => true, 'sizes' => true, 'decoding' => true, 'fetchpriority' => true]);
+
+            foreach ($allowed as $tag => $attributes) {
+                $allowed[$tag] = array_merge(is_array($attributes) ? $attributes : [], $global_attributes);
+            }
+
+            return $allowed;
         }
 
         /**

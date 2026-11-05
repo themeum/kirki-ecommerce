@@ -1,0 +1,423 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "decor",
+      "name": "Decor",
+      "parent": null
+    },
+    {
+      "slug": "vases",
+      "name": "Vases",
+      "parent": "decor"
+    },
+    {
+      "slug": "candles",
+      "name": "Candles",
+      "parent": "decor"
+    },
+    {
+      "slug": "textiles",
+      "name": "Textiles",
+      "parent": null
+    },
+    {
+      "slug": "cushions",
+      "name": "Cushions",
+      "parent": "textiles"
+    },
+    {
+      "slug": "furniture",
+      "name": "Furniture",
+      "parent": null
+    },
+    {
+      "slug": "side-tables",
+      "name": "Side Tables",
+      "parent": "furniture"
+    },
+    {
+      "slug": "chairs",
+      "name": "Chairs",
+      "parent": "furniture"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "ceramic",
+      "name": "Ceramic"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "handmade",
+      "name": "Handmade"
+    },
+    {
+      "slug": "linen",
+      "name": "Linen"
+    },
+    {
+      "slug": "minimal",
+      "name": "Minimal"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "oak",
+      "name": "Oak"
+    }
+  ],
+  "products": [
+    {
+      "slug": "stoneware-vase",
+      "title": "Stoneware Vase · Simple product",
+      "short_description": "Hand-thrown vase in matte stone glaze.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA hand-thrown stoneware vase with a rounded body and a narrow neck, finished in a matte stone-white glaze. Each one varies slightly.",
+      "ribbon": null,
+      "categories": [
+        "vases"
+      ],
+      "tags": [
+        "ceramic",
+        "handmade",
+        "bestseller"
+      ],
+      "images": [
+        "stoneware-vase-1.jpg",
+        "stoneware-vase-2.jpg",
+        "stoneware-vase-3.jpg",
+        "stoneware-vase-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HOM-SV",
+          "options": {},
+          "image": null,
+          "price": "42.00",
+          "sale_price": null,
+          "cost": "17.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 1100,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "linen-cushion-cover",
+      "title": "Linen Cushion Cover · With variants",
+      "short_description": "Washed linen cushion cover with a hidden zip.",
+      "description": "Sample product: 2 attributes (Color, Size), 6 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA cushion cover in stonewashed European linen, with a hidden zip and a soft, lived-in texture. Insert not included.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "cushions"
+      ],
+      "tags": [
+        "linen",
+        "new-arrival"
+      ],
+      "images": [
+        "linen-cushion-cover-marigold.jpg",
+        "linen-cushion-cover-teal.jpg",
+        "linen-cushion-cover-coral.jpg",
+        "linen-cushion-cover-2.jpg",
+        "linen-cushion-cover-3.jpg",
+        "linen-cushion-cover-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HOM-LCC-MARI-4545CM",
+          "options": {
+            "color": "Marigold",
+            "size": "45 × 45 cm"
+          },
+          "image": "linen-cushion-cover-marigold.jpg",
+          "price": "34.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-HOM-LCC-MARI-5050CM",
+          "options": {
+            "color": "Marigold",
+            "size": "50 × 50 cm"
+          },
+          "image": "linen-cushion-cover-marigold.jpg",
+          "price": "38.00",
+          "sale_price": null,
+          "cost": "15.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HOM-LCC-TEAL-4545CM",
+          "options": {
+            "color": "Teal",
+            "size": "45 × 45 cm"
+          },
+          "image": "linen-cushion-cover-teal.jpg",
+          "price": "34.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HOM-LCC-TEAL-5050CM",
+          "options": {
+            "color": "Teal",
+            "size": "50 × 50 cm"
+          },
+          "image": "linen-cushion-cover-teal.jpg",
+          "price": "38.00",
+          "sale_price": null,
+          "cost": "15.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HOM-LCC-CORA-4545CM",
+          "options": {
+            "color": "Coral",
+            "size": "45 × 45 cm"
+          },
+          "image": "linen-cushion-cover-coral.jpg",
+          "price": "34.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HOM-LCC-CORA-5050CM",
+          "options": {
+            "color": "Coral",
+            "size": "50 × 50 cm"
+          },
+          "image": "linen-cushion-cover-coral.jpg",
+          "price": "38.00",
+          "sale_price": null,
+          "cost": "15.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 250,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "oak-side-table",
+      "title": "Oak Side Table · On sale",
+      "short_description": "Round side table in solid white oak.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA round side table in solid white oak, with a thick top and three tapered legs. Oiled by hand.",
+      "ribbon": null,
+      "categories": [
+        "side-tables"
+      ],
+      "tags": [
+        "oak",
+        "minimal"
+      ],
+      "images": [
+        "oak-side-table-1.jpg",
+        "oak-side-table-2.jpg",
+        "oak-side-table-3.jpg",
+        "oak-side-table-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HOM-OST",
+          "options": {},
+          "image": null,
+          "price": "240.00",
+          "sale_price": "180.00",
+          "cost": "96.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 6000,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "soy-candle",
+      "title": "Soy Candle · Unit pricing",
+      "short_description": "220 g soy wax candle in a stoneware vessel, priced per 100 g.",
+      "description": "Sample product: 1 attribute (Scent), and the price is also shown per 100 g. Edit it or delete it.\n\nHand-poured soy wax in a reusable stoneware vessel, with a cotton wick. About 45 hours of burn time.",
+      "ribbon": null,
+      "categories": [
+        "candles"
+      ],
+      "tags": [
+        "handmade",
+        "gift-idea"
+      ],
+      "images": [
+        "soy-candle-1.jpg",
+        "soy-candle-2.jpg",
+        "soy-candle-3.jpg",
+        "soy-candle-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HOM-SC-CEDA",
+          "options": {
+            "scent": "Cedar"
+          },
+          "image": null,
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 450,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 220,
+            "total_unit": "g"
+          },
+          "is_default": true
+        },
+        {
+          "sku": "SMP-HOM-SC-FIG",
+          "options": {
+            "scent": "Fig"
+          },
+          "image": null,
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 450,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "g",
+            "total_amount": 220,
+            "total_unit": "g"
+          },
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "dining-chair",
+      "title": "Dining Chair · Stock levels",
+      "short_description": "Solid wood dining chair with a curved backrest.",
+      "description": "Sample product: Finish Black Oak is low in stock, and Finish Walnut is out of stock but still sells on backorder. Edit it or delete it.\n\nA sturdy dining chair in solid wood, with a gently curved backrest and a woven paper-cord seat.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "chairs"
+      ],
+      "tags": [
+        "oak",
+        "minimal",
+        "bestseller"
+      ],
+      "images": [
+        "dining-chair-1.jpg",
+        "dining-chair-2.jpg",
+        "dining-chair-3.jpg",
+        "dining-chair-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-HOM-DC-NO",
+          "options": {
+            "finish": "Natural Oak"
+          },
+          "image": null,
+          "price": "180.00",
+          "sale_price": null,
+          "cost": "72.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 5500,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-HOM-DC-BO",
+          "options": {
+            "finish": "Black Oak"
+          },
+          "image": null,
+          "price": "180.00",
+          "sale_price": null,
+          "cost": "72.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 5500,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-HOM-DC-WALN",
+          "options": {
+            "finish": "Walnut"
+          },
+          "image": null,
+          "price": "210.00",
+          "sale_price": null,
+          "cost": "84.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 5500,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

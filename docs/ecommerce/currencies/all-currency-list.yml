@@ -36,17 +36,20 @@ examples:
               {
                 "name": "US Dollar",
                 "code": "USD",
-                "symbol": "$"
+                "symbol": "$",
+                "flag": "🇺🇸"
               },
               {
                 "name": "Euro",
                 "code": "EUR",
-                "symbol": "€"
+                "symbol": "€",
+                "flag": "🇪🇺"
               },
               {
                 "name": "British Pound",
                 "code": "GBP",
-                "symbol": "£"
+                "symbol": "£",
+                "flag": "🇬🇧"
               },
               {
                 "name": "Canadian Dollar",
@@ -834,3 +837,5 @@ examples:
 docs: |-
   ## Available Currency List
   Returns a paginated collection of resources. Supports optional search, filter, sort, and order parameters to refine the results.
+
+  Each item has a `flag`: the emoji flag of the region in the currency locale (for example `en-us` gives 🇺🇸). It is an empty string when the locale has no known region (for example XDR). The examples below show `flag` on the first three items only.

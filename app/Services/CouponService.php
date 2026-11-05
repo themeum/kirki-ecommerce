@@ -16,6 +16,7 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
 use Kirki\Ecommerce\App\DTO\Coupon\UpdateCouponDTO;
+use Kirki\Ecommerce\Framework\Exceptions\HttpException;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
@@ -378,15 +379,15 @@ class CouponService
      * @param int  $id        Coupon ID.
      * @param bool $is_active Desired activation state.
      * @return Coupon The updated coupon with its detail relations.
-     * @throws \Exception When the coupon is already in the requested state.
+     * @throws HttpException When the coupon is already in the requested state.
      */
     public function change_activation_state(int $id, bool $is_active)
     {
         $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
-        throw_if($is_active && $coupon->is_active, __('The coupon is already activated', 'kirki-ecommerce'));
+        throw_if($is_active && $coupon->is_active, __('The coupon is already activated', 'kirki-ecommerce'), HttpException::class, Response::CONFLICT);
 
-        throw_if(!$is_active && !$coupon->is_active, __('The coupon is already deactivated', 'kirki-ecommerce'));
+        throw_if(!$is_active && !$coupon->is_active, __('The coupon is already deactivated', 'kirki-ecommerce'), HttpException::class, Response::CONFLICT);
 
         $coupon->is_active = $is_active ? 1 : 0;
         $coupon->save();

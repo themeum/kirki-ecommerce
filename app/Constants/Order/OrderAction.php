@@ -23,8 +23,8 @@ final class OrderAction
     const RESUME_FULFILLMENT = 'resume-fulfillment';
     const ADD_TRACKING = 'add-tracking';
     const MARK_AS_PAID = 'mark-as-paid';
-    const SEND_PAYMENT_LINK = 'send-payment-link';
-    const SEND_INVOICE = 'send-invoice';
+    // const SEND_PAYMENT_LINK = 'send-payment-link';
+    // const SEND_INVOICE = 'send-invoice';
     const INITIATE_REFUND = 'initiate-refund';
     const APPROVE_REFUND = 'approve-refund';
     const DECLINE_REFUND = 'decline-refund';

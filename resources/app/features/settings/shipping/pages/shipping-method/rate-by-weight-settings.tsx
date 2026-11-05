@@ -24,7 +24,7 @@ const RateByWeightSettings = () => {
         placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
         rows={4}
       />
-      <Card cssOverride={mergeCss(cardStyles.formCard, styles.rangesCard)}>
+      <Card cssOverride={mergeCss(cardStyles.formCard, styles.rangesCard)} noShadow>
         <CardContent>
           <WeightRangeField name="ranges" />
         </CardContent>
@@ -57,7 +57,7 @@ export default RateByWeightSettings;
 
 const styles = defineStyles({
   rangesCard: {
-    border: `1px solid ${theme.colors.border.default}`,
-    borderRadius: theme.radius.md,
+    border: `1px solid ${theme.colors.border.secondary}`,
+    borderRadius: theme.radius.lg,
   },
 });

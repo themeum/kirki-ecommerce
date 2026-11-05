@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderTaxDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderTax;
 use Exception;
 
@@ -39,30 +40,25 @@ trait PersistsOrderTaxes
      *
      * @since 1.0.0
      *
-     * @param Order                $order             Order whose tax lines are rebuilt.
-     * @param CalculationResultDTO $calculated_result Latest calculation for the order.
-     * @param string               $currency_code     Order's transaction currency code.
-     * @param float                $exchange_rate     Rate from the base currency to the transaction currency.
+     * @param Order                        $order                   Order whose tax lines are rebuilt.
+     * @param CalculationResultDTO         $calculated_result       Latest calculation for the order.
+     * @param array<int|string, OrderItem> $order_items_by_line_key Saved order items, keyed by the line key they were calculated under.
+     * @param string                       $currency_code           Order's transaction currency code.
+     * @param float                        $exchange_rate           Rate from the base currency to the transaction currency.
      * @return OrderTax[] The newly created order taxes.
      * @throws Exception When the created lines do not add up to the calculated tax total.
      */
-    protected function sync_order_taxes(Order $order, CalculationResultDTO $calculated_result, string $currency_code, float $exchange_rate)
+    protected function sync_order_taxes(Order $order, CalculationResultDTO $calculated_result, array $order_items_by_line_key, string $currency_code, float $exchange_rate)
     {
         $this->order_service->delete_order_taxes($order->id);
 
-        $order_items_by_variant_id = [];
-
-        foreach ($order->items as $item) {
-            $order_items_by_variant_id[$item->variant_id] = $item;
-        }
-
         $order_taxes = [];
 
-        foreach ($order->items as $item) {
-            $tax_lines = $calculated_result->items[$item->variant_id]->tax_lines ?? [];
+        foreach ($order_items_by_line_key as $line_key => $order_item) {
+            $tax_lines = $calculated_result->items[$line_key]->tax_lines ?? [];
 
             foreach ($tax_lines as $tax_line) {
-                $order_taxes[] = $this->create_order_tax($order, $item->id, OrderTaxType::PRODUCT, $tax_line, $currency_code, $exchange_rate);
+                $order_taxes[] = $this->create_order_tax($order, $order_item->id, OrderTaxType::PRODUCT, $tax_line, $currency_code, $exchange_rate);
             }
         }
 
@@ -71,7 +67,7 @@ trait PersistsOrderTaxes
             // split the shipping tax proportionally across items (e.g. EU);
             // that maps to the order item whose share this line is. A line
             // with no item_id applies to the order's shipping as a whole.
-            $order_item = $tax_line->item_id !== null ? ($order_items_by_variant_id[$tax_line->item_id] ?? null) : null;
+            $order_item = $tax_line->item_id !== null ? ($order_items_by_line_key[$tax_line->item_id] ?? null) : null;
 
             $order_taxes[] = $this->create_order_tax($order, $order_item ? $order_item->id : null, OrderTaxType::SHIPPING, $tax_line, $currency_code, $exchange_rate);
         }

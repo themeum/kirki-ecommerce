@@ -33,7 +33,7 @@ class CreateCollectionTranslationsTable implements Migration
             $table->string('seo_title', 255)->nullable();
             $table->text('seo_description')->nullable();
             $table->text('seo_keywords')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->unique(['collection_id', 'language_code'], 'uq_kecom_collection_translations_collection_id_language_code');
 

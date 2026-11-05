@@ -43,6 +43,28 @@ describe('useAddCurrencyDialog', () => {
     expect(result.current.filteredCurrency).toEqual([]);
   });
 
+  it('moves to the rates step only once a currency is selected, and back again', () => {
+    const { result } = renderHook(() => useAddCurrencyDialog(), { wrapper: Wrapper });
+
+    act(() => {
+      result.current.handleNext();
+    });
+    expect(result.current.step).toBe('select');
+
+    act(() => {
+      result.current.handleSelectCurrencies({ name: 'Euro', code: 'EUR' });
+    });
+    act(() => {
+      result.current.handleNext();
+    });
+    expect(result.current.step).toBe('rates');
+
+    act(() => {
+      result.current.handleBack();
+    });
+    expect(result.current.step).toBe('select');
+  });
+
   it('offers every unadded currency until a search narrows the list', () => {
     queryData.availableCurrencies = [{ id: 1, name: 'US Dollar', code: 'USD' }];
     queryData.allCurrencies = [

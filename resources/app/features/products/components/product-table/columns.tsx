@@ -1,7 +1,10 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
+import { Copy, Eye, RotateCcw, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
+import { actionsColumnMeta } from '@/components/data-table/column-styles';
+import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
@@ -12,6 +15,11 @@ import {
   getAvailabilityDescription,
 } from '@/features/products/lib/availability';
 import type { ProductListItem, ProductStatus } from '@/features/products/schemas/catalog/product';
+import {
+  useBulkRestoreProductsMutation,
+  useBulkTrashProductsMutation,
+  useDuplicateProductMutation,
+} from '@/features/products/services/product';
 import { InfoIcon } from '@/icons/common';
 import { DATE_FORMATS } from '@/libs/date';
 import { theme } from '@/theme';
@@ -53,6 +61,68 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
 };
 
 ProductTitleCell.displayName = 'ProductTitleCell';
+
+const ProductActionsCell = ({ item }: { item: ProductListItem }) => {
+  const navigate = useNavigate();
+  const duplicateMutation = useDuplicateProductMutation();
+  const trashMutation = useBulkTrashProductsMutation();
+  const restoreMutation = useBulkRestoreProductsMutation();
+  const previewUrl = item.preview_url;
+
+  const handleDuplicate = async () => {
+    const response = await duplicateMutation.mutateAsync(item.id);
+
+    if (isDefined(response.data.id)) {
+      void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: response.data.id }));
+    }
+  };
+
+  return (
+    <div role="presentation" onClick={(event) => event.stopPropagation()}>
+      <DataTableRowActions
+        edit={{
+          onClick: () => {
+            void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: item.id }));
+          },
+        }}
+        actions={[
+          ...(isDefined(previewUrl)
+            ? [
+                {
+                  label: __('Preview', 'kirki-ecommerce'),
+                  icon: <Eye size={16} />,
+                  onClick: () => {
+                    window.open(previewUrl, '_blank');
+                  },
+                },
+              ]
+            : []),
+          {
+            label: __('Duplicate', 'kirki-ecommerce'),
+            icon: <Copy size={16} />,
+            onClick: () => {
+              void handleDuplicate();
+            },
+          },
+          item.status === 'trashed'
+            ? {
+                label: __('Restore', 'kirki-ecommerce'),
+                icon: <RotateCcw size={16} />,
+                onClick: () => restoreMutation.mutate({ action: 'restore', ids: [item.id] }),
+              }
+            : {
+                label: __('Move to trash', 'kirki-ecommerce'),
+                icon: <Trash2 size={16} />,
+                destructive: true,
+                onClick: () => trashMutation.mutate({ ids: [item.id] }),
+              },
+        ]}
+      />
+    </div>
+  );
+};
+
+ProductActionsCell.displayName = 'ProductActionsCell';
 
 const STATUS_MAP = {
   draft: __('Draft', 'kirki-ecommerce'),
@@ -146,6 +216,13 @@ const productColumns: ColumnDef<ProductListItem>[] = [
       isDefined(row.original.created_at)
         ? format(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE)
         : '',
+  },
+  {
+    id: 'actions',
+    header: '',
+    enableSorting: false,
+    meta: actionsColumnMeta,
+    cell: ({ row }) => <ProductActionsCell item={row.original} />,
   },
 ];
 

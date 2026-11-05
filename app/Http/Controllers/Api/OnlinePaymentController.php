@@ -72,6 +72,23 @@ class OnlinePaymentController
     }
 
     /**
+     * Deactivate and delete the online payment gateway identified by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success message.
+     */
+    public function uninstall(Request $request)
+    {
+        $this->service->uninstall($request->string('id'));
+
+        return response()->json([
+            'message' => __('Payment gateway removed', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
      * List the installed online payment gateways.
      *
      * @since 1.0.0

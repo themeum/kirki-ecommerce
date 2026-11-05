@@ -41,7 +41,7 @@
   ],
   "require": {
     "ahamed/framework-mcp": "dev-main",
-    "brick/money": "0.7",
+    "brick/money": "^0.7",
     "themeum/framework": "^3.0.0"
   },
   "config": {

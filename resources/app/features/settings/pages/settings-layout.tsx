@@ -79,7 +79,7 @@ const SettingsLayoutShell = () => {
           </div>
         </div>
       </PageContent>
-      <FloatingBar visible={isDirty} shakeSignal={shakeSignal}>
+      <FloatingBar visible={isDirty && !actions?.hideFloatingBar} shakeSignal={shakeSignal}>
         <Button variant="tertiary" onClick={handleDiscard} disabled={isSaving}>
           {__('Discard', 'kirki-ecommerce')}
         </Button>
@@ -128,5 +128,9 @@ const styles = defineStyles({
     minWidth: CONTENT_PANE_WIDTH,
     maxWidth: CONTENT_PANE_WIDTH,
     marginTop: theme.spacing[8],
+    '& > div': {
+      width: '100%',
+      margin: 0,
+    },
   },
 });

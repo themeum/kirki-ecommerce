@@ -15,4 +15,7 @@ class CountryFilterDTO extends DTO
 {
     /** @var string|null */
     public $group;
+
+    /** @var bool|null */
+    public $only_selling_countries;
 }

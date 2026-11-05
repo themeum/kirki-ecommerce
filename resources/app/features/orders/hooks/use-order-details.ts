@@ -11,17 +11,31 @@ import {
   type OrderActionPayload,
   PAYMENT_ACTION_GROUP,
 } from '@/features/orders/lib/order-actions';
-import { toOrderFormAddresses } from '@/features/orders/lib/order-address';
 import {
   getFulfillmentBadgeInfo,
   getPaymentBadgeInfo,
 } from '@/features/orders/lib/order-badge';
-import type { OrderFormInput, OrderFormPayload } from '@/features/orders/schemas/forms/order-form';
-import { OrderFormSchema } from '@/features/orders/schemas/forms/order-form';
-import { useOrderActionMutation, useOrderQuery, useUpdateOrderMutation } from '@/features/orders/services/order';
+import type { AddTrackingFormPayload } from '@/features/orders/schemas/forms/add-tracking-form';
+import type {
+  OrderPartialField,
+  OrderPartialFormInput,
+  OrderPartialPayload,
+} from '@/features/orders/schemas/forms/order-form';
+import { OrderPartialFormSchema } from '@/features/orders/schemas/forms/order-form';
+import {
+  useOrderActionMutation,
+  useOrderQuery,
+  usePartialUpdateOrderMutation,
+} from '@/features/orders/services/order';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
+import { isDefined } from '@/utils/object';
+
+type OrderActionCallbacks = Pick<
+  NonNullable<Parameters<ReturnType<typeof useOrderActionMutation>['mutate']>[1]>,
+  'onSuccess' | 'onError'
+>;
 
 type UseOrderDetailsResult = {
   order: ReturnType<typeof useOrderQuery>['data'];
@@ -29,7 +43,7 @@ type UseOrderDetailsResult = {
   isError: boolean;
   isFetching: boolean;
   refetch: () => void;
-  form: UseFormReturn<OrderFormInput, unknown, OrderFormPayload>;
+  form: UseFormReturn<OrderPartialFormInput, unknown, OrderPartialPayload>;
   paymentBadge: ReturnType<typeof getPaymentBadgeInfo> | undefined;
   fulfillmentBadge: ReturnType<typeof getFulfillmentBadgeInfo> | undefined;
   orderActions: OrderAction[];
@@ -41,13 +55,9 @@ type UseOrderDetailsResult = {
   isMarkAsPaidDialogOpen: boolean;
   setIsMarkAsPaidDialogOpen: (open: boolean) => void;
   handleAction: (action: OrderAction) => void;
-  handleAddTracking: (values: {
-    carrier: string;
-    tracking_number: string;
-    tracking_url: string;
-  }) => void;
+  handleAddTracking: (values: AddTrackingFormPayload) => void;
   handleMarkAsPaid: (paymentProvider: string) => void;
-  handleSaveOrder: () => Promise<boolean>;
+  handleSaveOrder: (field: OrderPartialField) => Promise<boolean>;
 };
 
 export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult => {
@@ -62,34 +72,26 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
     refetch,
   } = useOrderQuery(id!, Boolean(id));
   const actionMutation = useOrderActionMutation();
-  const updateMutation = useUpdateOrderMutation();
+  const updateMutation = usePartialUpdateOrderMutation();
 
-  const form = useForm<OrderFormInput, unknown, OrderFormPayload>({
-    resolver: zodResolver(OrderFormSchema),
-    defaultValues: { ...getDefaults(OrderFormSchema), items: [] },
+  const form = useForm<OrderPartialFormInput, unknown, OrderPartialPayload>({
+    resolver: zodResolver(OrderPartialFormSchema),
+    defaultValues: getDefaults(OrderPartialFormSchema),
   });
 
   useEffect(() => {
-    if (!order) {
+    if (!isDefined(order)) {
       return;
     }
 
-    form.reset(
-      pickFormValues(OrderFormSchema, order, {
-        items: order.items.map((item) => ({
-          variant_id: item.variant_id,
-          quantity: item.quantity,
-        })),
-        ...toOrderFormAddresses(order),
-      }),
-    );
+    form.reset(pickFormValues(OrderPartialFormSchema, order));
   }, [order, form]);
 
-  const performAction = (payload: OrderActionPayload) => {
-    if (!order) {
+  const performAction = (payload: OrderActionPayload, callbacks?: OrderActionCallbacks) => {
+    if (!isDefined(order)) {
       return;
     }
-    actionMutation.mutate({ id: order.id, ...payload });
+    actionMutation.mutate({ id: order.id, ...payload }, callbacks);
   };
 
   const handleAction = (action: OrderAction) => {
@@ -103,15 +105,16 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
       return;
     }
 
+    if (action === ORDER_ACTIONS.MARK_AS_SHIPPED) {
+      performAction({ action }, { onSuccess: () => setIsTrackingDialogOpen(true) });
+      return;
+    }
+
     performAction({ action });
   };
 
-  const handleAddTracking = (values: {
-    carrier: string;
-    tracking_number: string;
-    tracking_url: string;
-  }) => {
-    if (!order) {
+  const handleAddTracking = (values: AddTrackingFormPayload) => {
+    if (!isDefined(order)) {
       return;
     }
     actionMutation.mutate(
@@ -121,7 +124,7 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
   };
 
   const handleMarkAsPaid = (paymentProvider: string) => {
-    if (!order) {
+    if (!isDefined(order)) {
       return;
     }
     actionMutation.mutate(
@@ -130,15 +133,18 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
     );
   };
 
-  const handleSaveOrder = async () => {
+  const handleSaveOrder = async (field: OrderPartialField) => {
     let isSaved = false;
 
     await form.handleSubmit(async (payload) => {
-      if (!order) {
+      if (!isDefined(order)) {
         return;
       }
       try {
-        await updateMutation.mutateAsync({ id: order.id, data: payload });
+        await updateMutation.mutateAsync({
+          id: order.id,
+          data: { [field]: payload[field] },
+        });
         isSaved = true;
       } catch (error) {
         applyServerErrors(form, error as ErrorResponse);

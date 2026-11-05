@@ -2,20 +2,34 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useImportSampleDataMutation } from '@/features/home/services/sample-data';
 
-type SampleDataImportPhase = 'idle' | 'downloading' | 'creating' | 'done';
+type SampleDataImportPhase = 'idle' | 'downloading' | 'done';
 
 type UseSampleDataImportOptions = {
   onLoaded: () => void;
+  loadedPauseMs?: number;
 };
 
 const TICK_MS = 100;
-const DOWNLOAD_DURATION_MS = 2500;
-const DOWNLOAD_PROGRESS = 70;
-const CREATING_PROGRESS_LIMIT = 95;
-const CREATING_PROGRESS_RATE = 0.05;
-const LOADED_PAUSE_MS = 1000;
+const EASE_DURATION_MS = 10000;
+const EASED_PROGRESS = 95;
+const PROGRESS_LIMIT = 99;
+const CREEP_RATE = 0.02;
+const DEFAULT_LOADED_PAUSE_MS = 1000;
 
-export const useSampleDataImport = ({ onLoaded }: UseSampleDataImportOptions) => {
+const toEasedProgress = (elapsed: number) => {
+  const remaining = 1 - elapsed / EASE_DURATION_MS;
+
+  return EASED_PROGRESS * (1 - remaining ** 3);
+};
+
+const toCreepingProgress = (value: number) => {
+  return value + (PROGRESS_LIMIT - value) * CREEP_RATE;
+};
+
+export const useSampleDataImport = ({
+  onLoaded,
+  loadedPauseMs = DEFAULT_LOADED_PAUSE_MS,
+}: UseSampleDataImportOptions) => {
   const { mutateAsync: importSampleData } = useImportSampleDataMutation();
   const [phase, setPhase] = useState<SampleDataImportPhase>('idle');
   const [progress, setProgress] = useState(0);
@@ -35,32 +49,23 @@ export const useSampleDataImport = ({ onLoaded }: UseSampleDataImportOptions) =>
       return;
     }
 
-    const timeout = setTimeout(() => onLoadedRef.current(), LOADED_PAUSE_MS);
+    const timeout = setTimeout(() => onLoadedRef.current(), loadedPauseMs);
 
     return () => clearTimeout(timeout);
-  }, [phase]);
+  }, [phase, loadedPauseMs]);
 
-  const runDownload = () => {
-    return new Promise<void>((resolve) => {
-      let elapsed = 0;
+  const runProgress = () => {
+    let elapsed = 0;
 
-      intervalRef.current = setInterval(() => {
-        elapsed += TICK_MS;
-        setProgress(
-          Math.min(DOWNLOAD_PROGRESS, (elapsed / DOWNLOAD_DURATION_MS) * DOWNLOAD_PROGRESS),
-        );
-
-        if (elapsed >= DOWNLOAD_DURATION_MS) {
-          clearInterval(intervalRef.current);
-          resolve();
-        }
-      }, TICK_MS);
-    });
-  };
-
-  const runCreatingProgress = () => {
     intervalRef.current = setInterval(() => {
-      setProgress((value) => value + (CREATING_PROGRESS_LIMIT - value) * CREATING_PROGRESS_RATE);
+      elapsed += TICK_MS;
+
+      if (elapsed <= EASE_DURATION_MS) {
+        setProgress(toEasedProgress(elapsed));
+        return;
+      }
+
+      setProgress(toCreepingProgress);
     }, TICK_MS);
   };
 
@@ -71,10 +76,8 @@ export const useSampleDataImport = ({ onLoaded }: UseSampleDataImportOptions) =>
 
     setProgress(0);
     setPhase('downloading');
-    await runDownload();
+    runProgress();
 
-    setPhase('creating');
-    runCreatingProgress();
     const isImported = await importSampleData().then(
       () => true,
       () => false,
@@ -95,6 +98,6 @@ export const useSampleDataImport = ({ onLoaded }: UseSampleDataImportOptions) =>
     phase,
     progress,
     start,
-    isImporting: phase === 'downloading' || phase === 'creating',
+    isImporting: phase === 'downloading',
   };
 };

@@ -10,7 +10,6 @@ use Kirki\Ecommerce\Framework\Http\RedirectResponse;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use Kirki\Ecommerce\Framework\Http\Response;
-use Kirki\Ecommerce\Framework\Sanitizer;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\throw_if;
 
@@ -24,9 +23,8 @@ class WebhookController
     /**
      * Handle a webhook request sent by a payment provider.
      *
-     * Delegates to the provider's webhook(). A WebhookResult is emitted as the
-     * raw response body; otherwise a JSON success or failure envelope is
-     * returned.
+     * Delegates to the provider's webhook() and returns a JSON success or
+     * failure envelope.
      *
      * @since 1.0.0
      *
@@ -39,22 +37,9 @@ class WebhookController
     {
         $provider = Payment::get_provider($provider_id);
 
-        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $result = $provider->webhook();
-
-        if ($result instanceof WebhookResult) {
-            add_filter('rest_pre_serve_request', function () use ($result) {
-                $content_type = Sanitizer::apply_rule($result->content_type(), Sanitizer::MIME_TYPE) ?: 'text/plain'; 
- 
-                header('Content-Type: ' . $content_type . '; charset=UTF-8');
-                echo $result->raw_body(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- The payment provider needs this acknowledgement body unchanged, so it cannot be escaped. The Content-Type header is sanitized above.
-
-                return true;
-            });
-
-            $result = $result->success();
-        }
 
         return response()->json([
             'success' => $result,
@@ -78,7 +63,7 @@ class WebhookController
     {
         $provider = Payment::get_provider($provider_id);
 
-        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class);
+        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $result = $provider->handle_return($request);
         if ($result instanceof RedirectResponse) {

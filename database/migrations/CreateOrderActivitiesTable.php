@@ -32,7 +32,7 @@ class CreateOrderActivitiesTable implements Migration
             $table->text('description')->nullable();
             $table->text('metadata')->nullable();
             $table->unsigned_big_integer('created_by')->nullable()->comment('WordPress user ID who recorded the activity');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->index('activity_type', 'idx_kecom_order_activities_activity_type');
             $table->index('created_at', 'idx_kecom_order_activities_created_at');

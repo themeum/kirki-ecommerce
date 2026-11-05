@@ -2,7 +2,10 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Actions\Product\CreateProductAction;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
+use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\AttributeValue;
@@ -12,17 +15,22 @@ use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
+use Kirki\Ecommerce\App\Models\Tag;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Models\TaxProfile;
 use Kirki\Ecommerce\App\Services\LegalConsentService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Services\StorePresetService;
 use Kirki\Ecommerce\App\Setup\Presets\Local\LocalPresetSource;
 use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
+use Kirki\Ecommerce\App\Setup\MediaImporter;
 use Kirki\Ecommerce\App\Setup\Presets\PresetRepository;
 use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
+use Kirki\Ecommerce\Tests\Support\ServesPresetData;
+use WP_Error;
 
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
@@ -32,6 +40,8 @@ use function Kirki\Ecommerce\Framework\collection;
  */
 class StorePresetsTest extends RestTestCase
 {
+    use ServesPresetData;
+
     /**
      * Start every test from a store with no preset targets.
      *
@@ -44,14 +54,17 @@ class StorePresetsTest extends RestTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->serve_preset_data();
         $this->reset_seeder_queue();
 
         foreach (get_posts(['post_type' => 'page', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids']) as $page_id) {
             wp_delete_post($page_id, true);
         }
 
+        Variant::query()->delete();
         Product::query()->delete();
         Category::query()->delete();
+        Tag::query()->delete();
         AttributeValue::query()->delete();
         Attribute::query()->delete();
         ProductSchema::query()->delete();
@@ -108,19 +121,23 @@ class StorePresetsTest extends RestTestCase
         $this->assertSame(['color', 'material', 'size'], $slugs);
 
         $size = Attribute::query()->where('slug', 'size')->first();
-        $this->assertSame(['XS', 'S', 'M', 'L', 'XL', 'XXL'], AttributeValue::query()->where('attribute_id', $size->id)->order_by('id')->get()->pluck('value')->all());
+        $this->assertSame(
+            ['XS', 'S', 'M', 'L', 'XL', 'XXL', '32', '34', '36', '38', '40', '41', '42', '43', '44'],
+            AttributeValue::query()->where('attribute_id', $size->id)->order_by('id')->get()->pluck('value')->all()
+        );
 
         $color = Attribute::query()->where('slug', 'color')->first();
         $this->assertSame('color', $color->type);
         $red = AttributeValue::query()->where('attribute_id', $color->id)->where('value', 'Red')->first();
         $this->assertSame('#FF0000', $red->color);
+        $this->assertFalse(AttributeValue::query()->where('attribute_id', $color->id)->where('value', 'Marigold')->exists());
     }
 
-    public function test_other_industry_gets_color_only(): void
+    public function test_other_industry_gets_color_and_its_own_attributes(): void
     {
         $this->setup_store(['industry' => 'other']);
 
-        $this->assertSame(['color'], Attribute::query()->get()->pluck('slug')->all());
+        $this->assertSame(['color', 'size'], Attribute::query()->order_by('id')->get()->pluck('slug')->all());
     }
 
     public function test_existing_attribute_is_left_unchanged(): void
@@ -202,73 +219,105 @@ class StorePresetsTest extends RestTestCase
         $this->assertCount(1, $this->zones());
     }
 
-    public function test_fashion_store_gets_its_category_tree(): void
+    public function test_store_setup_creates_no_categories_or_tags(): void
     {
         $this->setup_store(['industry' => 'fashion-and-apparel']);
-
-        $women = Category::query()->where('name', 'Women')->first();
-        $this->assertNotNull($women);
-        $this->assertSame(1, $women->level);
-        $this->assertNull($women->parent_id);
-
-        $dresses = Category::query()->where('name', 'Dresses')->first();
-        $this->assertSame($women->id, $dresses->parent_id);
-        $this->assertSame(2, $dresses->level);
-
-        $outerwear_slugs = Category::query()->where('name', 'Outerwear')->get()->pluck('slug')->all();
-        $this->assertCount(2, $outerwear_slugs);
-        $this->assertCount(2, array_unique($outerwear_slugs));
-        $this->assertSame(0, Category::query()->where('level', 3)->count());
-    }
-
-    public function test_other_industry_gets_no_categories(): void
-    {
-        $this->setup_store(['industry' => 'other']);
 
         $this->assertFalse(Category::query()->exists());
+        $this->assertFalse(Tag::query()->exists());
     }
 
-    public function test_existing_category_blocks_the_category_tree(): void
+    public function test_sample_data_loads_the_industry_products_linked_by_slug(): void
     {
-        Category::create(['name' => 'Mine', 'slug' => 'mine', 'level' => 1, 'is_active' => true, 'is_deletable' => true]);
-
         $this->setup_store(['industry' => 'fashion-and-apparel']);
 
-        $this->assertSame(['Mine'], Category::query()->get()->pluck('name')->all());
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame(5, Product::query()->count());
+
+        $tote = Product::query()->where('slug', 'canvas-tote-bag')->first();
+        $this->assertSame('Canvas Tote Bag · Simple product', $tote->title);
+        $this->assertSame(['bags'], $tote->categories()->get()->pluck('slug')->all());
+        $this->assertSame(['bestseller', 'everyday', 'gift-idea'], collection($tote->tags()->get()->pluck('slug')->all())->sort()->values()->all());
+        $this->assertSame('published', $tote->status);
+        $this->assertCount(4, $tote->media()->get()->all());
+
+        $shirt = Product::query()->where('slug', 'linen-shirt')->first();
+        $this->assertSame('New Arrival', $shirt->ribbon);
     }
 
-    public function test_sample_data_creates_no_categories(): void
+    public function test_sample_data_creates_the_category_tree_and_the_tags(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame(8, Category::query()->count());
+        $accessories = Category::query()->where('slug', 'accessories')->first();
+        $this->assertNull($accessories->parent_id);
+        $this->assertSame(1, $accessories->level);
+        $bags = Category::query()->where('slug', 'bags')->first();
+        $this->assertSame('Bags', $bags->name);
+        $this->assertSame($accessories->id, $bags->parent_id);
+        $this->assertSame(2, $bags->level);
+
+        $tags = Tag::query()->get()->pluck('name', 'slug')->all();
+        $this->assertCount(9, $tags);
+        $this->assertSame('Gift Idea', $tags['gift-idea']);
+        $this->assertArrayNotHasKey('sample', $tags);
+    }
+
+    public function test_existing_category_and_tag_are_reused_unchanged(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $mine = Category::create(['name' => 'My bags', 'slug' => 'bags', 'level' => 1, 'is_active' => true, 'is_deletable' => true]);
+        Tag::create(['name' => 'Best', 'slug' => 'bestseller']);
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame(1, Category::query()->where('slug', 'bags')->count());
+        $bags = Category::query()->where('slug', 'bags')->first();
+        $this->assertSame('My bags', $bags->name);
+        $this->assertNull($bags->parent_id);
+        $this->assertSame(1, Tag::query()->where('slug', 'bestseller')->count());
+        $this->assertSame('Best', Tag::query()->where('slug', 'bestseller')->first()->name);
+
+        $tote = Product::query()->where('slug', 'canvas-tote-bag')->first();
+        $this->assertSame([$mine->id], array_map('intval', $tote->categories()->get()->pluck('id')->all()));
+    }
+
+    public function test_other_industry_loads_the_other_set(): void
     {
         $this->setup_store(['industry' => 'other']);
 
         $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
 
-        $this->assertTrue(Product::query()->exists());
-        $this->assertFalse(Category::query()->exists());
-
-        foreach (Product::query()->get() as $product) {
-            $this->assertEmpty($product->categories()->get()->all(), "{$product->title} has a category");
-        }
+        $this->assertSame(5, Product::query()->count());
+        $mug = Product::query()->where('slug', 'ceramic-mug')->first();
+        $this->assertSame(['drinkware'], $mug->categories()->get()->pluck('slug')->all());
+        $this->assertTrue(Category::query()->where('slug', 'notebooks')->exists());
     }
 
-    public function test_sample_data_creates_missing_demo_attributes_and_reuses_color(): void
+    public function test_sample_data_creates_a_missing_attribute_from_its_preset(): void
     {
-        $this->setup_store(['industry' => 'other']);
-        $color = Attribute::query()->where('slug', 'color')->first();
-        $color_value_count = AttributeValue::query()->where('attribute_id', $color->id)->count();
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $size = Attribute::query()->where('slug', 'size')->first();
+        AttributeValue::query()->where('attribute_id', $size->id)->delete();
+        Attribute::query()->where('slug', 'size')->delete();
 
         $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
 
-        $this->assertSame(1, Attribute::query()->where('slug', 'color')->count());
-        $this->assertSame($color_value_count, AttributeValue::query()->where('attribute_id', $color->id)->count());
-
-        $material = Attribute::query()->where('slug', 'material')->first();
-        $this->assertNotNull($material);
-        $this->assertSame(['Ceramic', 'Glass'], AttributeValue::query()->where('attribute_id', $material->id)->order_by('id')->get()->pluck('value')->all());
-        $this->assertGreaterThan(0, Product::query()->count());
+        $size = Attribute::query()->where('slug', 'size')->first();
+        $this->assertSame('Size', $size->name);
+        $this->assertSame('list', $size->type);
+        $this->assertSame(
+            ['S', 'M', 'L', 'XL', '32', '34', '36', '38', '40', '41', '42', '43', '44'],
+            AttributeValue::query()->where('attribute_id', $size->id)->order_by('id')->get()->pluck('value')->all()
+        );
+        $this->assertSame(5, Product::query()->count());
     }
 
-    public function test_sample_data_adds_a_missing_color_value(): void
+    public function test_sample_data_adds_missing_colors_from_the_common_and_industry_presets(): void
     {
         $color = Attribute::create(['name' => 'Color', 'slug' => 'color', 'type' => 'color']);
         $color->values()->create(['value' => 'Red', 'color' => '#FF0000']);
@@ -276,9 +325,237 @@ class StorePresetsTest extends RestTestCase
 
         $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
 
-        $values = AttributeValue::query()->where('attribute_id', $color->id)->get()->pluck('value')->all();
-        sort($values);
-        $this->assertSame(['Blue', 'Green', 'Orange', 'Red'], $values);
+        $values = AttributeValue::query()->where('attribute_id', $color->id)->get()->pluck('color', 'value')->all();
+        ksort($values);
+        $this->assertSame(['Black', 'Charcoal', 'Cobalt', 'Red', 'Sage', 'Sand', 'Sunflower', 'Tomato', 'White'], array_keys($values));
+        $this->assertSame('#ffffff', strtolower($values['White']));
+        $this->assertSame('#9caf88', strtolower($values['Sage']));
+        $this->assertSame(1, Attribute::query()->where('slug', 'color')->count());
+    }
+
+    public function test_sample_variant_fields_are_stored(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel', 'country' => 'JP', 'currency' => 'JPY', 'is_tax_collected' => false]);
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $tote = Variant::query()->where('sku', 'SMP-FSH-CTB')->first();
+        $this->assertSame(38, $tote->base_price);
+        $this->assertSame(15, $tote->base_cost_of_goods);
+        $this->assertEquals(450, $tote->weight);
+        $this->assertSame('g', $tote->weight_unit);
+        $this->assertSame(30, $tote->available_quantity);
+        $this->assertSame(5, $tote->low_stock_threshold);
+
+        $scarf = Variant::query()->where('sku', 'SMP-FSH-WS')->first();
+        $this->assertSame(49, $scarf->base_sale_price);
+
+        $belt = Variant::query()->where('sku', 'SMP-FSH-LB-34')->first();
+        $this->assertTrue($belt->has_limit_per_order);
+        $this->assertSame(2, $belt->max_per_order);
+
+        $sneakers = Variant::query()->where('sku', 'SMP-FSH-LSN-44')->first();
+        $this->assertSame(0, $sneakers->available_quantity);
+        $this->assertTrue($sneakers->allow_back_order);
+    }
+
+    public function test_sample_unit_pricing_is_stored(): void
+    {
+        $this->setup_store(['industry' => 'food-beverage-and-gourmet']);
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $honey = Variant::query()->where('sku', 'SMP-FOD-WH-350G')->first();
+        $this->assertSame(100, $honey->base_unit_amount);
+        $this->assertSame('g', $honey->base_unit);
+        $this->assertSame(350, $honey->total_unit_amount);
+        $this->assertSame('g', $honey->total_unit);
+    }
+
+    public function test_prices_are_minor_units_of_the_base_currency(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame(3800, Variant::query()->where('sku', 'SMP-FSH-CTB')->first()->base_price);
+    }
+
+    public function test_second_load_creates_only_the_missing_products(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+        $attachment_count = count(get_posts(['post_type' => 'attachment', 'numberposts' => -1, 'fields' => 'ids']));
+
+        $scarf = Product::query()->where('slug', 'wool-scarf')->first();
+        Variant::query()->where('product_id', $scarf->id)->delete();
+        $scarf->delete();
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame(5, Product::query()->count());
+        $this->assertSame(1, Product::query()->where('slug', 'wool-scarf')->count());
+        $this->assertSame(8, Category::query()->count());
+        $this->assertSame($attachment_count, count(get_posts(['post_type' => 'attachment', 'numberposts' => -1, 'fields' => 'ids'])));
+    }
+
+    public function test_merchant_products_do_not_block_the_sample_data(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        app()->make(CreateProductAction::class)->execute(
+            CreateProductDTO::from_array(['title' => 'Mine', 'slug' => 'mine', 'status' => 'published']),
+            [CreateVariantDTO::from_array(['sku' => 'MINE-1', 'base_price' => 100, 'is_default' => true])]
+        );
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame(6, Product::query()->count());
+    }
+
+    public function test_failed_products_read_creates_nothing(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->serve_preset_data(['fashion-and-apparel/products.json' => new WP_Error('http_request_failed', 'Operation timed out')]);
+        app()->instance(PresetRepository::class, new PresetRepository());
+
+        try {
+            $this->assert_api_error($this->request('POST', 'onboarding/sample-data'), 503);
+        } finally {
+            static::forget_singleton(PresetRepository::class);
+        }
+
+        $this->assertFalse(Product::query()->exists());
+        $this->assertFalse(Category::query()->exists());
+        $this->assertFalse(Tag::query()->exists());
+        $this->assertFalse(Coupon::query()->exists());
+    }
+
+    public function test_failed_presets_read_with_good_products_creates_nothing(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->serve_preset_data(['presets.json' => 500]);
+        app()->instance(PresetRepository::class, new PresetRepository());
+
+        try {
+            $this->assert_api_error($this->request('POST', 'onboarding/sample-data'), 503);
+        } finally {
+            static::forget_singleton(PresetRepository::class);
+        }
+
+        $this->assertFalse(Product::query()->exists());
+        $this->assertFalse(Category::query()->exists());
+        $this->assertFalse(Coupon::query()->exists());
+    }
+
+    public function test_sample_data_after_store_setup_reads_the_presets_from_the_cache(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        static::forget_singleton(PresetRepository::class);
+        $this->preset_requests = [];
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame(5, Product::query()->count());
+        $this->assertContains('fashion-and-apparel/products.json', $this->preset_requests);
+        $this->assertNotContains('presets.json', $this->preset_requests);
+    }
+
+    public function test_failed_images_still_create_the_products(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $imported = get_posts(['post_type' => 'attachment', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => MediaImporter::SOURCE_META_KEY]);
+
+        foreach ($imported as $attachment_id) {
+            wp_delete_attachment($attachment_id, true);
+        }
+
+        add_filter('pre_http_request', function ($reply, $args, $url) {
+            return substr($url, -4) === '.jpg' ? new WP_Error('http_request_failed', 'Operation timed out') : $reply;
+        }, 20, 3);
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame(5, Product::query()->count());
+        $this->assertEmpty(Product::query()->where('slug', 'canvas-tote-bag')->first()->media()->get()->all());
+    }
+
+    public function test_sample_images_are_requested_once_before_any_product(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->delete_sample_attachments();
+        $products_at_request = [];
+
+        add_filter('pre_http_request', function ($reply, $args, $url) use (&$products_at_request) {
+            if (strpos($url, '/images/') !== false) {
+                $products_at_request[] = Product::query()->count();
+            }
+
+            return $reply;
+        }, 1, 3);
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertCount(22, $this->image_requests());
+        $this->assertSame($this->image_requests(), array_values(array_unique($this->image_requests())));
+        $this->assertSame([0], array_values(array_unique($products_at_request)));
+        $this->assertSame(5, Product::query()->count());
+    }
+
+    public function test_a_second_load_reuses_the_imported_images(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->delete_sample_attachments();
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+        Variant::query()->delete();
+        Product::query()->delete();
+        $this->preset_requests = [];
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertSame([], $this->image_requests());
+        $this->assertCount(4, Product::query()->where('slug', 'canvas-tote-bag')->first()->media()->get()->all());
+    }
+
+    public function test_a_skipped_product_gets_no_image_request(): void
+    {
+        $this->setup_store(['industry' => 'fashion-and-apparel']);
+        $this->delete_sample_attachments();
+        app()->make(CreateProductAction::class)->execute(
+            CreateProductDTO::from_array(['title' => 'Mine', 'slug' => 'mine', 'status' => 'published']),
+            [CreateVariantDTO::from_array(['sku' => 'SMP-FSH-CTB', 'base_price' => 100, 'is_default' => true])]
+        );
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertCount(18, $this->image_requests());
+        $this->assertEmpty(array_filter($this->image_requests(), fn($path) => strpos($path, 'canvas-tote-bag') !== false));
+    }
+
+    /**
+     * Delete the sample images that earlier tests imported.
+     *
+     * Store setup commits the test's transaction, so attachments of earlier
+     * tests survive and would be reused instead of requested.
+     *
+     * @return void
+     */
+    protected function delete_sample_attachments(): void
+    {
+        $imported = get_posts(['post_type' => 'attachment', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => MediaImporter::SOURCE_META_KEY]);
+
+        foreach ($imported as $attachment_id) {
+            wp_delete_attachment($attachment_id, true);
+        }
+    }
+
+    /**
+     * Get the image paths requested from the preset location, in order.
+     *
+     * @return string[]
+     */
+    protected function image_requests(): array
+    {
+        return array_values(array_filter($this->preset_requests, fn($path) => strpos($path, '/images/') !== false));
     }
 
     public function test_one_default_shipping_and_tax_profile_each(): void
@@ -468,9 +745,10 @@ class StorePresetsTest extends RestTestCase
         $this->assertSame([], $service->get_final_available_shipping_options($this->shipping_context('US', null)));
     }
 
-    public function test_unreadable_data_file_writes_nothing_and_setup_succeeds(): void
+    public function test_failed_presets_read_writes_nothing_and_setup_succeeds(): void
     {
-        app()->instance(PresetRepository::class, new PresetRepository('/missing/preconfigured-data.json'));
+        $this->serve_preset_data(['presets.json' => new WP_Error('http_request_failed', 'Operation timed out')]);
+        app()->instance(PresetRepository::class, new PresetRepository());
 
         try {
             $this->setup_store(['industry' => 'fashion-and-apparel', 'country' => 'DE', 'currency' => 'EUR']);
@@ -560,6 +838,19 @@ class StorePresetsTest extends RestTestCase
 
         $this->reset_option_manager_cache();
         $this->assertEquals($stored, $this->zones());
+    }
+
+    public function test_preset_zones_start_without_carriers(): void
+    {
+        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'country' => 'DE', 'currency' => 'EUR']);
+
+        $zones = $this->zones();
+
+        $this->assertNotEmpty($zones);
+
+        foreach ($zones as $zone) {
+            $this->assertEmpty($zone['shipping_carriers'] ?? []);
+        }
     }
 
     public function test_existing_zone_blocks_the_preset_zones(): void
@@ -813,6 +1104,7 @@ class StorePresetsTest extends RestTestCase
         return CalculationContextDTO::from_array([
             'items' => collection([(object) [
                 'weight' => 1,
+                'weight_unit' => null,
                 'quantity' => 1,
                 'base_unit_price' => 1000,
                 'shipping_profile_id' => $profile_id,

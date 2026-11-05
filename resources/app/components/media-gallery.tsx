@@ -18,7 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { type CSSObject } from '@emotion/react';
 import { Plus, Trash2, Trash2Icon } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
@@ -175,6 +175,7 @@ type MediaGalleryProps = {
   onUpdate?: (items: MediaItem[]) => void;
   error?: string | boolean;
   helpText?: string;
+  accept?: AcceptedMediaTypes[];
 };
 
 const MediaGallery = ({
@@ -183,10 +184,11 @@ const MediaGallery = ({
   onUpdate = noop,
   error,
   helpText,
+  accept = ['image'],
 }: MediaGalleryProps) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
-  const { open: openMediaLibrary } = useMediaLibrary({ multiple: true });
+  const { open: openMediaLibrary } = useMediaLibrary({ multiple: true, types: accept });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -221,15 +223,16 @@ const MediaGallery = ({
   const remainingCount = mediaItems?.length > 3 ? mediaItems?.length - 3 : 0;
   const fourthItem = mediaItems[3] || { url: '' };
 
-  const updateSelectedImageList = (value: boolean, currentIndex: number) => {
-    if (value) {
-      const updatedList = [...selectedImages, currentIndex];
-      setSelectedImages(updatedList);
-    } else {
-      const filteredList = selectedImages?.filter((_item, index) => index !== currentIndex);
-      setSelectedImages(filteredList);
-    }
-  };
+  const updateSelectedImageList = useCallback(
+    (value: boolean, currentIndex: number) => {
+      if (value) {
+        setSelectedImages((prev) => (prev.includes(currentIndex) ? prev : [...prev, currentIndex]));
+      } else {
+        setSelectedImages((prev) => prev.filter((selectedIndex) => selectedIndex !== currentIndex));
+      }
+    },
+    [setSelectedImages],
+  );
 
   const handleSelectAllImages = () => {
     if (selectedImages?.length < mediaItems?.length) {
@@ -248,11 +251,20 @@ const MediaGallery = ({
     onUpdate(filteredMediaItems);
   };
 
-  const handleDeleteSingleImage = (currentIndex: number) => {
-    setSelectedImages((prev) => prev.filter((_item, index) => index !== currentIndex));
-    const filteredMedia = mediaItems?.filter((_item, index) => index !== currentIndex);
-    onUpdate(filteredMedia);
-  };
+  const handleDeleteSingleImage = useCallback(
+    (currentIndex: number) => {
+      setSelectedImages((prev) =>
+        prev
+          .filter((selectedIndex) => selectedIndex !== currentIndex)
+          .map((selectedIndex) =>
+            selectedIndex > currentIndex ? selectedIndex - 1 : selectedIndex,
+          ),
+      );
+      const filteredMedia = mediaItems?.filter((_item, index) => index !== currentIndex);
+      onUpdate(filteredMedia);
+    },
+    [mediaItems, onUpdate, setSelectedImages],
+  );
 
   return (
     <Flex direction="column" gap={2}>
@@ -443,7 +455,7 @@ const styles = defineStyles({
     border: `2px dashed ${theme.colors.border.gallery}`,
     color: theme.colors.background.fillBrand,
     cursor: 'pointer',
-    background: theme.colors.background.surfaceSecondary,
+    background: theme.colors.background.surfaceAlt,
     ...flexCenter(),
     '&:hover': {
       background: theme.colors.background.surfaceSecondary,

@@ -11,7 +11,7 @@ const { state, withQuery, table } = vi.hoisted(() => {
     state: hoisted,
     withQuery: (hook: string) => async (importOriginal: () => Promise<object>) => ({
       ...(await importOriginal()),
-      [hook]: () => ({ data: hoisted.data, isFetching: false }),
+      [hook]: () => ({ data: hoisted.data, isFetching: false, isFetched: true }),
     }),
     table: () => ({ default: () => 'TABLE_STUB' }),
   };

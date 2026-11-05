@@ -36,6 +36,32 @@ trait ValidatesAddressFields
     }
 
     /**
+     * Build a closure rule that rejects a country the store does not sell to.
+     *
+     * An empty value is left to the field's own required rule.
+     *
+     * @since 1.0.0
+     *
+     * @return \Closure Rule callback; returns true when valid, or an error message string.
+     */
+    protected static function selling_country_rule()
+    {
+        return function ($value) {
+            if ($value === null || $value === '') {
+                return true;
+            }
+
+            $selling_codes = array_column(CountryData::get_selling_countries(), 'code');
+
+            if (in_array($value, $selling_codes, true)) {
+                return true;
+            }
+
+            return __('We do not sell to this country.', 'kirki-ecommerce');
+        };
+    }
+
+    /**
      * Build the "field is required" message naming the country's own term.
      *
      * @since 1.0.0

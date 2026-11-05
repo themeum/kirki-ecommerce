@@ -16,12 +16,14 @@ type CustomerBasicInfoProps = {
   isNew?: boolean;
   hasWordpressUser?: boolean;
   customerId?: number;
+  noShadowCard?: boolean;
 };
 
 const CustomerBasicInfo = ({
   isNew = true,
   hasWordpressUser = false,
   customerId,
+  noShadowCard,
 }: CustomerBasicInfoProps) => {
   const { getValues, setError, clearErrors } = useFormContext<CustomerFormInput>();
   const checkEmail = useCheckCustomerEmail();
@@ -62,7 +64,7 @@ const CustomerBasicInfo = ({
   };
 
   return (
-    <Card>
+    <Card noShadow={noShadowCard}>
       <CardHeader>
         <Flex gap={2} align="center">
           <FileTextIcon />

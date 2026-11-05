@@ -24,8 +24,15 @@ precision.
 Go to the **Currency** settings page. The "Available Currencies" list shows every
 stored currency, base first. Each row shows the currency symbol, code and name.
 
-- **Add Currency** adds one or more currencies, each with a rate. On a store with no
-  currencies, the first one becomes the base.
+- **Add Currency** opens a two-step dialog. Step 1, **Select Additional Currencies**,
+  lets you search and tick the currencies to add, then click **Next**. Step 2,
+  **Set Exchange Rates**, shows one rate input per selected currency ("rates per 1"
+  base currency). Every rate must be greater than 0, or **Save** is refused. **Save**
+  adds the currencies to the list with those rates, and you can still edit a rate in
+  the list before saving the page. The catalog returns a `flag` for each currency,
+  taken from the region in its locale (empty when unknown); the dialog shows it
+  before the code. On a store with no currencies, the first one
+  becomes the base.
 - The base row has a **Base Currency** badge and rate 1.00. It cannot be edited,
   deactivated or deleted.
 - Each other row shows its rate. Hover over or focus the row to show an inline rate

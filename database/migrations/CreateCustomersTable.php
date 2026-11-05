@@ -37,7 +37,7 @@ class CreateCustomersTable implements Migration
             $table->text('tags')->nullable()->comment('Comma separated tags');
             $table->unsigned_big_integer('created_by')->nullable();
             $table->unsigned_big_integer('updated_by')->nullable();
-            $table->timestamps();
+            $table->datetimes();
 
             $table->foreign('created_by', 'fk_kecom_customers_created_by')->on('users')->references('ID')->null_on_delete();
             $table->foreign('updated_by', 'fk_kecom_customers_updated_by')->on('users')->references('ID')->null_on_delete();

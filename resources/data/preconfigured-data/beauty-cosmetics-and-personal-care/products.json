@@ -1,0 +1,420 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "skincare",
+      "name": "Skincare",
+      "parent": null
+    },
+    {
+      "slug": "serums",
+      "name": "Serums",
+      "parent": "skincare"
+    },
+    {
+      "slug": "moisturizers",
+      "name": "Moisturizers",
+      "parent": "skincare"
+    },
+    {
+      "slug": "makeup",
+      "name": "Makeup",
+      "parent": null
+    },
+    {
+      "slug": "lips",
+      "name": "Lips",
+      "parent": "makeup"
+    },
+    {
+      "slug": "bath-body",
+      "name": "Bath & Body",
+      "parent": null
+    },
+    {
+      "slug": "body-care",
+      "name": "Body Care",
+      "parent": "bath-body"
+    },
+    {
+      "slug": "hair",
+      "name": "Hair",
+      "parent": null
+    },
+    {
+      "slug": "hair-care",
+      "name": "Hair Care",
+      "parent": "hair"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "eco",
+      "name": "Eco"
+    },
+    {
+      "slug": "fragrance-free",
+      "name": "Fragrance-Free"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "skincare",
+      "name": "Skincare"
+    },
+    {
+      "slug": "vegan",
+      "name": "Vegan"
+    }
+  ],
+  "products": [
+    {
+      "slug": "facial-serum",
+      "title": "Facial Serum · Simple product",
+      "short_description": "Lightweight daily serum in a 30 ml dropper bottle.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA lightweight water-based serum for daily use, morning and evening. Absorbs quickly and layers well under moisturizer. 30 ml.",
+      "ribbon": null,
+      "categories": [
+        "serums"
+      ],
+      "tags": [
+        "skincare",
+        "vegan",
+        "bestseller"
+      ],
+      "images": [
+        "facial-serum-1.jpg",
+        "facial-serum-2.jpg",
+        "facial-serum-3.jpg",
+        "facial-serum-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BTY-FS",
+          "options": {},
+          "image": null,
+          "price": "36.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "tinted-lip-balm",
+      "title": "Tinted Lip Balm · With variants",
+      "short_description": "Nourishing lip balm with a sheer wash of color.",
+      "description": "Sample product: 2 attributes (Shade, Finish), 6 variants. Each shade has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA nourishing balm with a sheer, buildable tint. Comes in a refillable aluminium case.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "lips"
+      ],
+      "tags": [
+        "vegan",
+        "new-arrival"
+      ],
+      "images": [
+        "tinted-lip-balm-coral.jpg",
+        "tinted-lip-balm-fuchsia.jpg",
+        "tinted-lip-balm-cherry.jpg",
+        "tinted-lip-balm-2.jpg",
+        "tinted-lip-balm-3.jpg",
+        "tinted-lip-balm-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BTY-TLB-CORA-SHEE",
+          "options": {
+            "shade": "Coral",
+            "finish": "Sheer"
+          },
+          "image": "tinted-lip-balm-coral.jpg",
+          "price": "18.00",
+          "sale_price": null,
+          "cost": "7.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-BTY-TLB-CORA-SATI",
+          "options": {
+            "shade": "Coral",
+            "finish": "Satin"
+          },
+          "image": "tinted-lip-balm-coral.jpg",
+          "price": "18.00",
+          "sale_price": null,
+          "cost": "7.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BTY-TLB-FUCH-SHEE",
+          "options": {
+            "shade": "Fuchsia",
+            "finish": "Sheer"
+          },
+          "image": "tinted-lip-balm-fuchsia.jpg",
+          "price": "18.00",
+          "sale_price": null,
+          "cost": "7.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BTY-TLB-FUCH-SATI",
+          "options": {
+            "shade": "Fuchsia",
+            "finish": "Satin"
+          },
+          "image": "tinted-lip-balm-fuchsia.jpg",
+          "price": "18.00",
+          "sale_price": null,
+          "cost": "7.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BTY-TLB-CHER-SHEE",
+          "options": {
+            "shade": "Cherry",
+            "finish": "Sheer"
+          },
+          "image": "tinted-lip-balm-cherry.jpg",
+          "price": "18.00",
+          "sale_price": null,
+          "cost": "7.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BTY-TLB-CHER-SATI",
+          "options": {
+            "shade": "Cherry",
+            "finish": "Satin"
+          },
+          "image": "tinted-lip-balm-cherry.jpg",
+          "price": "18.00",
+          "sale_price": null,
+          "cost": "7.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 30,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "body-oil",
+      "title": "Body Oil · On sale",
+      "short_description": "Dry-touch body oil in a 100 ml glass pump bottle.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nA light, dry-touch body oil that sinks in without leaving skin greasy. Use after a shower on damp skin. 100 ml.",
+      "ribbon": null,
+      "categories": [
+        "body-care"
+      ],
+      "tags": [
+        "vegan",
+        "fragrance-free"
+      ],
+      "images": [
+        "body-oil-1.jpg",
+        "body-oil-2.jpg",
+        "body-oil-3.jpg",
+        "body-oil-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BTY-BO",
+          "options": {},
+          "image": null,
+          "price": "40.00",
+          "sale_price": "30.00",
+          "cost": "16.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 260,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "face-cream",
+      "title": "Face Cream · Unit pricing",
+      "short_description": "Rich daily moisturizer in a glass jar, priced per 100 ml.",
+      "description": "Sample product: 1 attribute (Size), and the price is also shown per 100 ml. Edit it or delete it.\n\nA rich but quick-absorbing moisturizer for daily use. Fragrance free. Comes in a heavy glass jar.",
+      "ribbon": null,
+      "categories": [
+        "moisturizers"
+      ],
+      "tags": [
+        "skincare",
+        "fragrance-free"
+      ],
+      "images": [
+        "face-cream-1.jpg",
+        "face-cream-2.jpg",
+        "face-cream-3.jpg",
+        "face-cream-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BTY-FC-50ML",
+          "options": {
+            "size": "50 ml"
+          },
+          "image": null,
+          "price": "38.00",
+          "sale_price": null,
+          "cost": "15.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 200,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "ml",
+            "total_amount": 50,
+            "total_unit": "ml"
+          },
+          "is_default": true
+        },
+        {
+          "sku": "SMP-BTY-FC-100ML",
+          "options": {
+            "size": "100 ml"
+          },
+          "image": null,
+          "price": "64.00",
+          "sale_price": null,
+          "cost": "26.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 330,
+          "unit_price": {
+            "base_amount": 100,
+            "base_unit": "ml",
+            "total_amount": 100,
+            "total_unit": "ml"
+          },
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "shampoo-bar",
+      "title": "Shampoo Bar · Stock levels",
+      "short_description": "Solid shampoo bar, plastic-free.",
+      "description": "Sample product: Scent Lavender is low in stock, and Scent Unscented is out of stock but still sells on backorder. Edit it or delete it.\n\nA solid shampoo bar that lasts as long as two bottles of liquid shampoo. Wrapped in recycled paper.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "hair-care"
+      ],
+      "tags": [
+        "vegan",
+        "eco",
+        "bestseller"
+      ],
+      "images": [
+        "shampoo-bar-1.jpg",
+        "shampoo-bar-2.jpg",
+        "shampoo-bar-3.jpg",
+        "shampoo-bar-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BTY-SB-ROSE",
+          "options": {
+            "scent": "Rosemary"
+          },
+          "image": null,
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 90,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-BTY-SB-LAVE",
+          "options": {
+            "scent": "Lavender"
+          },
+          "image": null,
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 90,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BTY-SB-UNSC",
+          "options": {
+            "scent": "Unscented"
+          },
+          "image": null,
+          "price": "14.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 90,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

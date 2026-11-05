@@ -22,6 +22,10 @@ class Order extends Model
 {
     use HasDateRangeFilter;
 
+    const EDITABLE_PAYMENT_STATUSES = [PaymentStatus::PENDING, PaymentStatus::UNPAID, PaymentStatus::FAILED];
+
+    const EDITABLE_FULFILLMENT_STATUSES = [FulfillmentStatus::UNFULFILLED, FulfillmentStatus::PROCESSING, FulfillmentStatus::ON_HOLD];
+
     /** @inheritDoc */
     protected $table = 'kirki_ecommerce_orders';
 
@@ -307,5 +311,19 @@ class Order extends Model
         }
 
         return $query;
+    }
+
+    /**
+     * Tell whether an admin may edit this order: it is not paid, not cancelled and not shipped yet.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public function is_editable(): bool
+    {
+        return in_array($this->payment_status, static::EDITABLE_PAYMENT_STATUSES, true)
+            && empty($this->cancelled_at)
+            && in_array($this->fulfillment_status, static::EDITABLE_FULFILLMENT_STATUSES, true);
     }
 }

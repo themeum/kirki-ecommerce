@@ -57,6 +57,59 @@ trait CreatesTestProducts
     }
 
     /**
+     * Create a published product with two variants. The first is the default one.
+     *
+     * @param array $overrides Product attribute overrides.
+     * @return array The product response data.
+     * @since 1.0.0
+     */
+    protected function create_two_variant_product(array $overrides = []): array
+    {
+        $attribute = $this->request('POST', 'attributes', [
+            'name' => 'Size ' . wp_generate_password(6, false),
+            'slug' => 'size-' . strtolower(wp_generate_password(6, false)),
+            'type' => 'list',
+        ]);
+        $attribute_id = $this->assert_api_success($attribute, 201)['data']['id'];
+
+        $value_ids = [];
+
+        foreach (['Small', 'Large'] as $value) {
+            $created = $this->request('POST', 'attributes/' . $attribute_id . '/values', [
+                'attribute_id' => $attribute_id,
+                'value' => $value . ' ' . wp_generate_password(4, false),
+            ]);
+            $value_ids[] = $this->assert_api_success($created, 201)['data']['id'];
+        }
+
+        return $this->create_product(array_merge([
+            'title' => 'Two Variant Product ' . wp_generate_password(4, false),
+            'has_variants' => true,
+            'attributes' => [
+                ['id' => $attribute_id, 'values' => $value_ids],
+            ],
+            'variants' => [
+                [
+                    'base_price' => 10,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 10,
+                    'in_stock' => true,
+                    'is_default' => true,
+                    'attribute_values' => [$value_ids[0]],
+                ],
+                [
+                    'base_price' => 20,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 10,
+                    'in_stock' => true,
+                    'is_default' => false,
+                    'attribute_values' => [$value_ids[1]],
+                ],
+            ],
+        ], $overrides));
+    }
+
+    /**
      * Create a category via the API and return its identifier.
      *
      * @param string|null $name Category name.

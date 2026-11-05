@@ -91,7 +91,7 @@ const TaxProfile = () => {
 
           <div
             css={scoped({
-              marginTop: taxProfileList.length === 0 ? theme.spacing[0] : theme.spacing[5],
+              marginTop: taxProfileList.length === 0 ? theme.spacing[0] : theme.spacing[4],
             })}
           >
             {taxProfileList.length > 0 && (

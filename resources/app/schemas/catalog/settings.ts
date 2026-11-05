@@ -27,7 +27,10 @@ import { McpSettingsSchema } from '@/features/settings/mcp/schemas/catalog/mcp';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schemas/catalog/payment';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
-import { ShippingZoneSchema } from '@/features/settings/shipping/schemas/catalog/shipping';
+import {
+  ShippingCarrierPresetSchema,
+  ShippingZoneSchema,
+} from '@/features/settings/shipping/schemas/catalog/shipping';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { TaxRegionSchema } from '@/features/settings/tax/shared/schemas/catalog/tax';
 import { MediaRefSchema } from '@/schemas/shared/media';
@@ -178,6 +181,7 @@ export type EmailSettings = z.infer<typeof EmailSettingsSchema>;
 export const ShippingSettingsSchema = z
   .object({
     shipping_zones: z.array(ShippingZoneSchema).nullish(),
+    shipping_carrier_presets: z.array(ShippingCarrierPresetSchema).nullish(),
   })
   .passthrough();
 

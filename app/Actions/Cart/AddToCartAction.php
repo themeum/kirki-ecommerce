@@ -60,7 +60,7 @@ class AddToCartAction
      *
      * @param AddToCartDTO $dto Variant, quantity and cart identity (user ID or token).
      * @return \Kirki\Ecommerce\App\Models\Cart|null The refreshed cart.
-     * @throws \Exception When the variant is not found, stock is short, or the per-order limit is exceeded.
+     * @throws ValidationException When the variant is not found, stock is short, or the per-order limit is exceeded.
      */
     public function execute(AddToCartDTO $dto)
     {
@@ -75,10 +75,10 @@ class AddToCartAction
         $existing_item = $cart ? $this->cart_service->find_item_in_cart($cart->id, $dto->variant_id) : null;
         $resulting_quantity = $existing_item ? $existing_item->quantity + $dto->quantity : $dto->quantity;
 
-        throw_if(!$this->inventory_service->has_stock($dto->variant_id, $resulting_quantity), __('Not enough stock for this variant', 'kirki-ecommerce'));
+        throw_if(!$this->inventory_service->has_stock($dto->variant_id, $resulting_quantity), __('Not enough stock for this variant', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         /* translators: %d: maximum allowed quantity per order */
-        throw_if(!$this->inventory_service->is_within_limit($dto->variant_id, $resulting_quantity), sprintf(__('You can not add more than %d units of this item to cart', 'kirki-ecommerce'), $variant->max_per_order));
+        throw_if(!$this->inventory_service->is_within_limit($dto->variant_id, $resulting_quantity), sprintf(__('You can not add more than %d units of this item to cart', 'kirki-ecommerce'), $variant->max_per_order), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $cart = $cart ?: $this->cart_service->get_or_create_cart($dto->user_id, $dto->token);
 

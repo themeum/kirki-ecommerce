@@ -5,13 +5,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT_DIR"
 
-# --org builds the wordpress.org package: no payment gateway add-ons, and a
-# payments.json that lists only the built-in PayPal provider.
-ORG_BUILD=false
-if [ "${1:-}" = "--org" ]; then
-  ORG_BUILD=true
-fi
-
 PLUGIN_SLUG="kirki-ecommerce"
 BUILD_DIR="$ROOT_DIR/build"
 STAGE_DIR="$BUILD_DIR/$PLUGIN_SLUG"
@@ -19,7 +12,6 @@ STAGE_DIR="$BUILD_DIR/$PLUGIN_SLUG"
 REQUIRED_PATHS=(
   "kirki-ecommerce.php"
   "readme.txt"
-  "composer.json"
   "app"
   "bootstrap"
   "vendor"
@@ -30,12 +22,10 @@ REQUIRED_PATHS=(
 OPTIONAL_PATHS=(
   "config"
   "database/migrations"
-  "payments"
   "routes"
   "languages"
   "resources/data"
   "resources/images"
-  "resources/assets"
 )
 
 copy_path() {
@@ -103,16 +93,8 @@ echo "==> Restoring scoped framework layout"
 php "$ROOT_DIR/bin/scope-framework.php" --restore
 composer dump-autoload --no-dev --optimize
 
-if [ "$ORG_BUILD" = false ]; then
-  echo "==> Installing payment gateway dependencies"
-  for gateway_manifest in "$ROOT_DIR"/payments/*/composer.json; do
-    [ -e "$gateway_manifest" ] || continue
-    gateway_dir="$(dirname "$gateway_manifest")"
-    echo "--> $(basename "$gateway_dir")"
-    run_composer "$gateway_dir" --no-dev --optimize-autoloader
-  done
-fi
-
+# Payment gateways are not bundled. They are separate plugins that the store
+# installs from the remote catalog (see docs/payment-gateways.md).
 echo "==> Assembling plugin files"
 for path in "${REQUIRED_PATHS[@]}"; do
   if [ ! -e "$ROOT_DIR/$path" ]; then
@@ -123,32 +105,15 @@ for path in "${REQUIRED_PATHS[@]}"; do
 done
 
 for path in "${OPTIONAL_PATHS[@]}"; do
-  if [ "$ORG_BUILD" = true ] && [ "$path" = "payments" ]; then
-    continue
-  fi
   if [ -e "$ROOT_DIR/$path" ]; then
     copy_path "$path"
   fi
 done
 
-if [ "$ORG_BUILD" = true ]; then
-  echo "==> Writing wordpress.org payments manifest"
-  mkdir -p "$STAGE_DIR/payments"
-  cat > "$STAGE_DIR/payments/payments.json" <<'JSON'
-[
-  {
-    "id": "paypal",
-    "name": "Paypal",
-    "is_available": true
-  }
-]
-JSON
-
-  # POT generation is off for now. Drop any template left by a manual
-  # `npm run make:pot` so the zip never ships an outdated one.
-  echo "==> Removing translation template"
-  rm -f "$STAGE_DIR/languages/$PLUGIN_SLUG.pot"
-fi
+# POT generation is off for now. Drop any template left by a manual
+# `npm run make:pot` so the zip never ships an outdated one.
+echo "==> Removing translation template"
+rm -f "$STAGE_DIR/languages/$PLUGIN_SLUG.pot"
 
 echo "==> Removing hidden files (not allowed by wordpress.org)"
 find "$STAGE_DIR" -name ".*" -type f -delete
@@ -158,10 +123,48 @@ echo "==> Removing OS, editor and development files"
 find "$STAGE_DIR" -depth \( -name "__MACOSX" -o -iname "Thumbs.db" -o -iname "desktop.ini" \
   -o -name "*.swp" -o -name "*~" -o -name "*.bak" -o -name "*.orig" -o -name "*.log" \
   -o -iname "README.md" -o -iname "CHANGELOG.md" \) -exec rm -rf {} +
-rm -f "$STAGE_DIR/payments/package.json" "$STAGE_DIR"/payments/*/composer.lock
+# Vite HMR helper: development only.
+rm -rf "$STAGE_DIR/resources/assets"
+# Preset data and sample product images: the plugin reads them from S3, and
+# `npm run publish:presets` uploads them from here.
+rm -rf "$STAGE_DIR/resources/data/preconfigured-data"
 # Defines ABSPATH for the test suite only; it is in autoload-dev, which the
 # --no-dev install leaves out of the autoloader.
 rm -f "$STAGE_DIR/bootstrap/abspath.php"
+
+echo "==> Pruning vendor"
+# Allowlist: only the runtime packages and the autoloader ship. Anything else
+# the install left behind (bin/, scoper-autoload.php, ...) is development only.
+for entry in "$STAGE_DIR"/vendor/*; do
+  case "$(basename "$entry")" in
+    autoload.php|composer|brick|libraries) ;;
+    *) rm -rf "$entry" ;;
+  esac
+done
+# Only the Composer CLI reads installed.json. At runtime, InstalledVersions
+# reads installed.php.
+rm -f "$STAGE_DIR/vendor/composer/installed.json"
+
+# The scaffolding commands (make:*, queue:table) are the only users of the stubs, and they are not
+# useful on a production site. Their registrations are dropped from the staged
+# framework copy, otherwise WP-CLI would throw on the missing classes.
+FRAMEWORK_SRC="$STAGE_DIR/vendor/libraries/framework/src"
+rm -rf "$FRAMEWORK_SRC/Console/stubs" "$FRAMEWORK_SRC"/Console/Commands/{Make*Command,QueueTableCommand}.php
+sed -i.bak -E \
+  -e "/^use .*Console\\\\Commands\\\\(Make[A-Za-z]+|QueueTable)Command;/d" \
+  -e "s/'[a-z]+:[a-z]+' => (Make[A-Za-z]+|QueueTable)Command::class, ?//g" \
+  -e "s/, '[a-z]+:[a-z]+' => (Make[A-Za-z]+|QueueTable)Command::class\\]/]/" \
+  "$FRAMEWORK_SRC/Application.php"
+rm -f "$FRAMEWORK_SRC/Application.php.bak"
+if grep -rqE "Make[A-Za-z]*Command|QueueTableCommand" "$FRAMEWORK_SRC"; then
+  echo "Error: staged framework still references a removed make command, aborting." >&2
+  exit 1
+fi
+php -l "$FRAMEWORK_SRC/Application.php" > /dev/null
+
+echo "==> Removing development files from vendor packages"
+find "$STAGE_DIR/vendor" -path "*/vendor/*" \( -type d \( -name bin -o -name tests -o -name docs \) \
+  -o -type f \( -iname "*.md" -o -iname "phpunit.xml*" -o -name "*.dist" \) \) -prune -exec rm -rf {} +
 
 # listeners.cache.php / policies.cache.php are regenerated on every request
 # by CoreServiceProvider::boot() - keep the package to schema-only config.

@@ -42,13 +42,9 @@ use Kirki\Ecommerce\App\Http\Controllers\Site\OrderActivityController as SiteOrd
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\WishlistController;
 use Kirki\Ecommerce\App\Payment\WebhookController;
-use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Middlewares\AdminMiddleware;
 use Kirki\Ecommerce\Framework\Middlewares\AuthMiddleware;
-use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-
-use function Kirki\Ecommerce\Framework\response;
 
 Route::set_namespace('kirki/ecommerce/v1');
 
@@ -57,6 +53,7 @@ Route::get('/payment/webhook/{provider_id}', [WebhookController::class, 'handle_
 
 Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], function () {
     // Onboarding
+    Route::get('/onboarding/defaults', [OnboardingController::class, 'defaults']);
     Route::post('/onboarding', [OnboardingController::class, 'store']);
     Route::post('/onboarding/sample-data', [OnboardingController::class, 'import_sample_data']);
 
@@ -223,6 +220,8 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     // Orders
     Route::get('/orders', [OrderController::class, 'get']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::get('/orders/{id}/edit', [OrderController::class, 'edit']);
+    Route::get('/orders/{id}/shipping-carriers', [OrderController::class, 'shipping_carriers']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::post('/orders/{order_id}/refunds', [OrderController::class, 'create_refund']);
     Route::put('/orders/{order_id}/refunds/{id}', [OrderController::class, 'update_refund']);
@@ -231,6 +230,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::post('/orders/{order_id}/activities', [OrderActivityController::class, 'store']);
     Route::delete('/orders/{order_id}/activities/{id}', [OrderActivityController::class, 'delete']);
     Route::patch('/orders/{id}/action', [OrderController::class, 'action'])->where('id', '[\d]+');
+    Route::patch('/orders/{id}', [OrderController::class, 'partial'])->where('id', '[\d]+');
     Route::put('/orders/{id}', [OrderController::class, 'update']);
     Route::delete('/orders/{id}', [OrderController::class, 'delete']);
     Route::post('/orders/bulk', [OrderController::class, 'bulk_actions']);
@@ -251,6 +251,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::get('/online-payments/{id}', [OnlinePaymentController::class, 'show']);
     Route::put('/online-payments/{id}', [OnlinePaymentController::class, 'update']);
     Route::patch('/online-payments/{id}', [OnlinePaymentController::class, 'set_enabled']);
+    Route::delete('/online-payments/{id}', [OnlinePaymentController::class, 'uninstall']);
 
     // Offline Payments
     Route::get('/offline-payments', [OfflinePaymentController::class, 'get']);

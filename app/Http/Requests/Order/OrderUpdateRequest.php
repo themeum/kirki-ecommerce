@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce\App\Http\Requests\Order;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
-use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -19,9 +18,9 @@ class OrderUpdateRequest extends Request
     use ValidatesAddressFields;
 
     /**
-     * Default the customer ID and currency code before validation.
+     * Default the customer ID before validation.
      *
-     * A missing customer ID becomes 0 and a missing currency falls back to the display currency.
+     * A missing customer ID becomes 0. A missing currency is left empty, so the order keeps its own currency.
      *
      * @since 1.0.0
      *
@@ -33,7 +32,6 @@ class OrderUpdateRequest extends Request
 
         $this->merge([
             'customer_id' => $customer_id ?? 0,
-            'currency_code' => $this->input('currency_code') ?? Money::resolve_display_currency(),
         ]);
     }
 
@@ -52,7 +50,7 @@ class OrderUpdateRequest extends Request
             'customer_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
             'items.*.id' => 'nullable|integer',
-            'items.*.variant_id' => 'required|integer',
+            'items.*.variant_id' => 'nullable|integer',
             'items.*.quantity' => 'required|integer|min:1',
 
             'currency_code' => 'nullable|string',
@@ -68,7 +66,7 @@ class OrderUpdateRequest extends Request
             'shipping_city' => 'required|string',
             'shipping_state' => static::address_field_rule($shipping_country, 'state'),
             'shipping_postal_code' => static::address_field_rule($shipping_country, 'postal_code'),
-            'shipping_country' => 'required|string',
+            'shipping_country' => ['required', 'string', static::selling_country_rule()],
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
             'shipping_company' => 'nullable|string',
@@ -80,7 +78,7 @@ class OrderUpdateRequest extends Request
             'billing_city' => 'required|string',
             'billing_state' => static::address_field_rule($billing_country, 'state'),
             'billing_postal_code' => static::address_field_rule($billing_country, 'postal_code'),
-            'billing_country' => 'required|string',
+            'billing_country' => ['required', 'string', static::selling_country_rule()],
             'billing_phone' => 'nullable|string',
             'billing_email' => 'nullable|email',
             'billing_company' => 'nullable|string',

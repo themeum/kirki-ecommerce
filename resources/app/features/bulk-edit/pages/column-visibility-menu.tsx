@@ -1,10 +1,11 @@
 import { Table2 } from 'lucide-react';
 
 import Button from '@/components/ui/button';
+import Checkbox from '@/components/ui/checkbox';
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -19,8 +20,8 @@ type ColumnVisibilityMenuProps = {
 };
 
 /**
- * Every checkbox item prevents its own `onSelect` default — Radix's
- * `DropdownMenuCheckboxItem` closes the menu on select otherwise, which
+ * Every item prevents its own `onSelect` default — Radix's
+ * `DropdownMenuItem` closes the menu on select otherwise, which
  * made toggling several columns in one session unreliable (see
  * bulk-edit-grid-refinements/design.md, decision 5). The menu should close
  * only on an explicit outside click or Escape, both of which Radix already
@@ -37,22 +38,28 @@ const ColumnVisibilityMenu = ({ groups, visibleColumnIds, onToggle }: ColumnVisi
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent style={{ minWidth: '288px' }}>
-      <DropdownMenuCheckboxItem checked disabled onSelect={preventAutoClose}>
-        {__('Variants', 'kirki-ecommerce')}
-      </DropdownMenuCheckboxItem>
+      <DropdownMenuItem disabled onSelect={preventAutoClose}>
+        <Checkbox checked disabled tabIndex={-1} label={__('Variants', 'kirki-ecommerce')} />
+      </DropdownMenuItem>
       {groups.map((group) => (
         <div key={group.label}>
           <DropdownMenuSeparator />
           <DropdownMenuLabel>{group.label}</DropdownMenuLabel>
           {group.columns.map((column) => (
-            <DropdownMenuCheckboxItem
+            <DropdownMenuItem
               key={column.id}
-              checked={visibleColumnIds.includes(column.id)}
-              onSelect={preventAutoClose}
-              onCheckedChange={() => onToggle(column.id)}
+              onSelect={(event) => {
+                preventAutoClose(event);
+                onToggle(column.id);
+              }}
             >
-              {column.label}
-            </DropdownMenuCheckboxItem>
+              <Checkbox
+                checked={visibleColumnIds.includes(column.id)}
+                tabIndex={-1}
+                label={column.label}
+                onCheckedChange={() => onToggle(column.id)}
+              />
+            </DropdownMenuItem>
           ))}
         </div>
       ))}

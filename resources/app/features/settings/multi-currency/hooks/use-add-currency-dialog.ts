@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Dispatch, SetStateAction } from 'react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 
@@ -8,6 +8,7 @@ import { getSearchedValue } from '@/features/settings/lib/utils';
 import {
   filterUnaddedCurrencies,
   resolveSearchInputValue,
+  selectBaseCurrency,
   toggleCurrencySelection,
 } from '@/features/settings/multi-currency/lib/currency-selection';
 import type {
@@ -25,8 +26,14 @@ import {
   useAvailableCurrenciesQuery,
 } from '@/features/settings/multi-currency/services/currency';
 
+export type AddCurrencyStep = 'select' | 'rates';
+
 export type UseAddCurrencyDialogProps = {
   form: UseFormReturn<AddCurrencyPopupFormInput, unknown, AddCurrencyPopupFormPayload>;
+  step: AddCurrencyStep;
+  baseCurrencyCode: string;
+  handleNext: () => void;
+  handleBack: () => void;
   openPopup: boolean;
   setOpenPopup: Dispatch<SetStateAction<boolean>>;
   searchValue: string;
@@ -38,11 +45,19 @@ export type UseAddCurrencyDialogProps = {
   handleClosePopup: () => void;
   handleSubmit: (values: AddCurrencyPopupFormPayload) => void;
   handleCloseAutoFocus: (event: Event) => void;
+  isSelectingBaseCurrency?: boolean;
 };
 
-export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
+type UseAddCurrencyDialogOptions = {
+  isSelectingBaseCurrency?: boolean;
+};
+
+export const useAddCurrencyDialog = ({
+  isSelectingBaseCurrency = false,
+}: UseAddCurrencyDialogOptions = {}): UseAddCurrencyDialogProps => {
   const [openPopup, setOpenPopup] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const [step, setStep] = useState<AddCurrencyStep>('select');
   const pendingFocusId = useRef<string | null>(null);
 
   const { data: availableCurrencies } = useAvailableCurrenciesQuery({ limit: -1 });
@@ -64,13 +79,18 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
     name: 'selectedCurrencies',
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!openPopup) {
       return;
     }
     form.reset({ selectedCurrencies: [] });
     setSearchValue('');
+    setStep('select');
   }, [openPopup, form]);
+
+  const baseCurrencyCode = useMemo(() => {
+    return formCurrencies?.find((currency) => currency.is_base)?.code ?? '';
+  }, [formCurrencies]);
 
   const allCurrency = useMemo(() => {
     return filterUnaddedCurrencies(allCurrenciesData ?? [], [
@@ -83,34 +103,38 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
     return getSearchedValue(searchValue, allCurrency);
   }, [searchValue, allCurrency]);
 
-  const handleSelectCurrencies = (currency: CurrencyOption) => {
-    const next = toggleCurrencySelection(form.getValues('selectedCurrencies'), currency);
-    form.setValue('selectedCurrencies', next, { shouldDirty: true });
-  };
+  const handleSelectCurrencies = useCallback(
+    (currency: CurrencyOption) => {
+      const select = isSelectingBaseCurrency ? selectBaseCurrency : toggleCurrencySelection;
+      form.setValue('selectedCurrencies', select(formSelected, currency), { shouldDirty: true });
+    },
+    [form, formSelected, isSelectingBaseCurrency],
+  );
 
   const handleSearchCurrency = (event: unknown) => {
     setSearchValue(resolveSearchInputValue(event));
   };
 
+  const handleNext = () => {
+    if (!formSelected?.length) {
+      return;
+    }
+    setStep('rates');
+  };
+
+  const handleBack = () => {
+    setStep('select');
+  };
+
   const handleClosePopup = () => {
-    setSearchValue('');
-    form.reset({ selectedCurrencies: [] });
     setOpenPopup(false);
   };
 
   const handleSubmit = (values: AddCurrencyPopupFormPayload) => {
     const firstNewIndex = formCurrencies?.length ?? 0;
 
-    append(
-      values.selectedCurrencies.map((currency) => ({
-        ...currency,
-        exchange_rate: 1,
-      })),
-      { shouldFocus: false },
-    );
+    append(values.selectedCurrencies, { shouldFocus: false });
     pendingFocusId.current = `currencies.${firstNewIndex}.exchange_rate`;
-    setSearchValue('');
-    form.reset({ selectedCurrencies: [] });
     setOpenPopup(false);
   };
 
@@ -129,6 +153,10 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
 
   return {
     form,
+    step,
+    baseCurrencyCode,
+    handleNext,
+    handleBack,
     openPopup,
     setOpenPopup,
     searchValue,
@@ -140,5 +168,6 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
     handleClosePopup,
     handleSubmit,
     handleCloseAutoFocus,
+    isSelectingBaseCurrency,
   };
 };

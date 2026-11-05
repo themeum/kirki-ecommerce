@@ -1,0 +1,462 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "slug": "clothing",
+      "name": "Clothing",
+      "parent": null
+    },
+    {
+      "slug": "baby-clothing",
+      "name": "Baby Clothing",
+      "parent": "clothing"
+    },
+    {
+      "slug": "nursery",
+      "name": "Nursery",
+      "parent": null
+    },
+    {
+      "slug": "bedding",
+      "name": "Bedding",
+      "parent": "nursery"
+    },
+    {
+      "slug": "feeding",
+      "name": "Feeding",
+      "parent": null
+    },
+    {
+      "slug": "tableware",
+      "name": "Tableware",
+      "parent": "feeding"
+    },
+    {
+      "slug": "bibs",
+      "name": "Bibs",
+      "parent": "feeding"
+    },
+    {
+      "slug": "toys",
+      "name": "Toys",
+      "parent": null
+    },
+    {
+      "slug": "soft-toys",
+      "name": "Soft Toys",
+      "parent": "toys"
+    }
+  ],
+  "tags": [
+    {
+      "slug": "bestseller",
+      "name": "Bestseller"
+    },
+    {
+      "slug": "eco",
+      "name": "Eco"
+    },
+    {
+      "slug": "feeding",
+      "name": "Feeding"
+    },
+    {
+      "slug": "gift-idea",
+      "name": "Gift Idea"
+    },
+    {
+      "slug": "handmade",
+      "name": "Handmade"
+    },
+    {
+      "slug": "new-arrival",
+      "name": "New Arrival"
+    },
+    {
+      "slug": "organic",
+      "name": "Organic"
+    }
+  ],
+  "products": [
+    {
+      "slug": "silicone-bib",
+      "title": "Silicone Bib · Simple product",
+      "short_description": "Soft silicone bib with a food-catching pocket.",
+      "description": "Sample product: one variant with a regular price. Edit it or delete it.\n\nA soft, flexible silicone bib with a deep pocket that catches spills. Wipes clean or goes in the dishwasher.",
+      "ribbon": null,
+      "categories": [
+        "bibs"
+      ],
+      "tags": [
+        "feeding",
+        "bestseller"
+      ],
+      "images": [
+        "silicone-bib-1.jpg",
+        "silicone-bib-2.jpg",
+        "silicone-bib-3.jpg",
+        "silicone-bib-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BBY-SB",
+          "options": {},
+          "image": null,
+          "price": "16.00",
+          "sale_price": null,
+          "cost": "6.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 90,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "organic-cotton-romper",
+      "title": "Organic Cotton Romper · With variants",
+      "short_description": "Soft romper in organic cotton with snap buttons.",
+      "description": "Sample product: 2 attributes (Color, Size), 9 variants. Each color has its own image; the other photos are shared by all variants. Edit it or delete it.\n\nA soft romper in GOTS-certified organic cotton, with snap buttons down the front for easy changes.",
+      "ribbon": {
+        "text": "New Arrival",
+        "color": "#1F2937"
+      },
+      "categories": [
+        "baby-clothing"
+      ],
+      "tags": [
+        "organic",
+        "new-arrival"
+      ],
+      "images": [
+        "organic-cotton-romper-butter.jpg",
+        "organic-cotton-romper-peach.jpg",
+        "organic-cotton-romper-sky.jpg",
+        "organic-cotton-romper-2.jpg",
+        "organic-cotton-romper-3.jpg",
+        "organic-cotton-romper-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BBY-OCR-BUTT-03M",
+          "options": {
+            "color": "Butter",
+            "size": "0–3 m"
+          },
+          "image": "organic-cotton-romper-butter.jpg",
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-BBY-OCR-BUTT-36M",
+          "options": {
+            "color": "Butter",
+            "size": "3–6 m"
+          },
+          "image": "organic-cotton-romper-butter.jpg",
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BBY-OCR-BUTT-612M",
+          "options": {
+            "color": "Butter",
+            "size": "6–12 m"
+          },
+          "image": "organic-cotton-romper-butter.jpg",
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BBY-OCR-PEAC-03M",
+          "options": {
+            "color": "Peach",
+            "size": "0–3 m"
+          },
+          "image": "organic-cotton-romper-peach.jpg",
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BBY-OCR-PEAC-36M",
+          "options": {
+            "color": "Peach",
+            "size": "3–6 m"
+          },
+          "image": "organic-cotton-romper-peach.jpg",
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BBY-OCR-PEAC-612M",
+          "options": {
+            "color": "Peach",
+            "size": "6–12 m"
+          },
+          "image": "organic-cotton-romper-peach.jpg",
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 18,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BBY-OCR-SKY-03M",
+          "options": {
+            "color": "Sky",
+            "size": "0–3 m"
+          },
+          "image": "organic-cotton-romper-sky.jpg",
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 10,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BBY-OCR-SKY-36M",
+          "options": {
+            "color": "Sky",
+            "size": "3–6 m"
+          },
+          "image": "organic-cotton-romper-sky.jpg",
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 8,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BBY-OCR-SKY-612M",
+          "options": {
+            "color": "Sky",
+            "size": "6–12 m"
+          },
+          "image": "organic-cotton-romper-sky.jpg",
+          "price": "28.00",
+          "sale_price": null,
+          "cost": "11.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 120,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "muslin-swaddle-set",
+      "title": "Muslin Swaddle Set · On sale",
+      "short_description": "Three large muslin swaddles in organic cotton.",
+      "description": "Sample product: a sale price below the regular price. Edit it or delete it.\n\nThree breathable muslin swaddles in organic cotton, 120 × 120 cm. They get softer with every wash.",
+      "ribbon": null,
+      "categories": [
+        "bedding"
+      ],
+      "tags": [
+        "organic",
+        "gift-idea"
+      ],
+      "images": [
+        "muslin-swaddle-set-1.jpg",
+        "muslin-swaddle-set-2.jpg",
+        "muslin-swaddle-set-3.jpg",
+        "muslin-swaddle-set-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BBY-MSS",
+          "options": {},
+          "image": null,
+          "price": "42.00",
+          "sale_price": "32.00",
+          "cost": "17.00",
+          "stock": 30,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 400,
+          "is_default": true
+        }
+      ]
+    },
+    {
+      "slug": "bamboo-tableware-set",
+      "title": "Bamboo Tableware Set · Order limit",
+      "short_description": "Plate, bowl, cup and spoon for little hands. Up to 3 per order.",
+      "description": "Sample product: 1 attribute (Color), and customers can buy at most 3 per order. Edit it or delete it.\n\nA four-piece tableware set made from bamboo fiber: a divided plate, a bowl, a cup and a spoon.",
+      "ribbon": null,
+      "categories": [
+        "tableware"
+      ],
+      "tags": [
+        "feeding",
+        "eco"
+      ],
+      "images": [
+        "bamboo-tableware-set-1.jpg",
+        "bamboo-tableware-set-2.jpg",
+        "bamboo-tableware-set-3.jpg",
+        "bamboo-tableware-set-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BBY-BTS-SAGE",
+          "options": {
+            "color": "Sage"
+          },
+          "image": null,
+          "price": "34.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 3,
+          "weight_g": 450,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-BBY-BTS-SAND",
+          "options": {
+            "color": "Sand"
+          },
+          "image": null,
+          "price": "34.00",
+          "sale_price": null,
+          "cost": "14.00",
+          "stock": 20,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": 3,
+          "weight_g": 450,
+          "is_default": false
+        }
+      ]
+    },
+    {
+      "slug": "knitted-bunny",
+      "title": "Knitted Bunny · Stock levels",
+      "short_description": "Hand-knitted soft bunny in organic cotton.",
+      "description": "Sample product: Color Grey is low in stock, and Color Blush is out of stock but still sells on backorder. Edit it or delete it.\n\nA hand-knitted bunny in soft organic cotton yarn, with long floppy ears. Embroidered eyes, no small parts.",
+      "ribbon": {
+        "text": "Hot",
+        "color": "#C2410C"
+      },
+      "categories": [
+        "soft-toys"
+      ],
+      "tags": [
+        "handmade",
+        "gift-idea",
+        "bestseller"
+      ],
+      "images": [
+        "knitted-bunny-1.jpg",
+        "knitted-bunny-2.jpg",
+        "knitted-bunny-3.jpg",
+        "knitted-bunny-4.jpg"
+      ],
+      "variants": [
+        {
+          "sku": "SMP-BBY-KB-CREA",
+          "options": {
+            "color": "Cream"
+          },
+          "image": null,
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 12,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 150,
+          "is_default": true
+        },
+        {
+          "sku": "SMP-BBY-KB-GREY",
+          "options": {
+            "color": "Gray / Grey"
+          },
+          "image": null,
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 3,
+          "low_stock_threshold": 5,
+          "allow_back_order": false,
+          "max_per_order": null,
+          "weight_g": 150,
+          "is_default": false
+        },
+        {
+          "sku": "SMP-BBY-KB-BLUS",
+          "options": {
+            "color": "Blush"
+          },
+          "image": null,
+          "price": "29.00",
+          "sale_price": null,
+          "cost": "12.00",
+          "stock": 0,
+          "low_stock_threshold": 5,
+          "allow_back_order": true,
+          "max_per_order": null,
+          "weight_g": 150,
+          "is_default": false
+        }
+      ]
+    }
+  ]
+}

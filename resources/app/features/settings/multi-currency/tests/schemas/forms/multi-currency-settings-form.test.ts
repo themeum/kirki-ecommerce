@@ -53,6 +53,7 @@ describe('MultiCurrencySettingsFormSchema', () => {
     const withoutProvider = MultiCurrencySettingsFormSchema.parse({
       ...base,
       is_automatic_update_enabled: true,
+      api_provider: 'exchangerate-api',
     });
     const withoutKey = MultiCurrencySettingsFormSchema.parse({
       ...base,

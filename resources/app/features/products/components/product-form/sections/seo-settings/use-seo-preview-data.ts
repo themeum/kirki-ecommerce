@@ -25,7 +25,6 @@ type SeoPreviewData = {
 const formatAmount = (
   amount: number | string | null | undefined,
   symbol: string,
-  code: string,
 ): string | null => {
   if (!isDefined(amount) || amount === '') {
     return null;
@@ -37,7 +36,28 @@ const formatAmount = (
     return null;
   }
 
-  return `${symbol}${numericAmount.toFixed(2)} ${code}`.trim();
+  return `${symbol}${numericAmount.toFixed(2)}`.trim();
+};
+
+const parseAmount = (amount: number | string | null | undefined): number | null => {
+  if (!isDefined(amount) || amount === '') {
+    return null;
+  }
+
+  const numericAmount = typeof amount === 'string' ? Number.parseFloat(amount) : amount;
+
+  return Number.isNaN(numericAmount) ? null : numericAmount;
+};
+
+const formatAmountRange = (amounts: number[], symbol: string, code: string): string | null => {
+  if (amounts.length === 0) {
+    return null;
+  }
+
+  const lowest = formatAmount(Math.min(...amounts), symbol);
+  const highest = formatAmount(Math.max(...amounts), symbol);
+
+  return lowest === highest ? `${lowest} ${code}` : `${lowest} - ${highest} ${code}`;
 };
 
 const resolveMediaUrl = (media: MediaRef[] | undefined): string | null => {
@@ -64,8 +84,8 @@ const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
   const shortDescription = useWatch({ control, name: 'short_description' });
   const slug = useWatch({ control, name: 'slug' });
   const media = useWatch({ control, name: 'media' });
-  const price = useWatch({ control, name: 'variants.0.base_price' });
-  const salePriceValue = useWatch({ control, name: 'variants.0.base_sale_price' });
+  const variants = useWatch({ control, name: 'variants' });
+  const hasVariants = useWatch({ control, name: 'has_variants' });
 
   const storeLogo = generalSettings?.store_logo;
   const storeLogoUrl = storeLogo && typeof storeLogo === 'object' ? (storeLogo.url ?? null) : null;
@@ -85,26 +105,37 @@ const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
   const previewImageUrl = resolveMediaUrl(media);
   const currencySymbol = baseCurrency?.symbol ?? '';
   const currencyCode = baseCurrency?.code ?? '';
-  const regularPrice = formatAmount(price, currencySymbol, currencyCode);
-  const salePrice = formatAmount(salePriceValue, currencySymbol, currencyCode);
+  const pricedVariants = (hasVariants ? variants : variants?.slice(0, 1)) ?? [];
 
-  const regularAmount = isDefined(price) ? Number.parseFloat(String(price)) : null;
-  const saleAmount =
-    salePriceValue !== null && salePriceValue !== undefined
-      ? Number.parseFloat(String(salePriceValue))
-      : null;
+  const regularAmounts: number[] = [];
+  const effectiveAmounts: number[] = [];
+  const discountedRegularAmounts: number[] = [];
 
-  const hasSale =
-    salePrice !== null &&
-    regularPrice !== null &&
-    saleAmount !== null &&
-    regularAmount !== null &&
-    !Number.isNaN(saleAmount) &&
-    !Number.isNaN(regularAmount) &&
-    saleAmount < regularAmount;
+  pricedVariants.forEach((variant) => {
+    const regularAmount = parseAmount(variant?.base_price);
+    const saleAmount = parseAmount(variant?.base_sale_price);
 
-  const displayPrice = hasSale ? salePrice : regularPrice;
-  const strikethroughPrice = hasSale ? regularPrice : null;
+    if (regularAmount === null) {
+      return;
+    }
+
+    regularAmounts.push(regularAmount);
+
+    if (saleAmount !== null && saleAmount < regularAmount) {
+      effectiveAmounts.push(saleAmount);
+      discountedRegularAmounts.push(regularAmount);
+      return;
+    }
+
+    effectiveAmounts.push(regularAmount);
+  });
+
+  const displayPrice = formatAmountRange(effectiveAmounts, currencySymbol, currencyCode);
+  const strikethroughPrice = formatAmountRange(
+    discountedRegularAmounts,
+    currencySymbol,
+    currencyCode,
+  );
 
   return {
     storeName,

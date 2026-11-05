@@ -27,12 +27,13 @@ class TaxStrategyFactory
      *
      * @since 1.0.0
      *
-     * @param string $country     Country code of the address the tax is calculated from.
-     * @param string $destination Which of the context's addresses that is: an OrderTaxDestination value.
+     * @param string    $country                Country code of the address the tax is calculated from.
+     * @param string    $destination            Which of the context's addresses that is: an OrderTaxDestination value.
+     * @param bool|null $is_tax_inclusive_price Whether prices include tax; null follows the store's setting.
      * @return \Kirki\Ecommerce\App\Tax\Strategies\AbstractTaxStrategy
      * @throws \Exception When the country is empty, or no tax region or strategy exists for it.
      */
-    public static function make(string $country, string $destination = OrderTaxDestination::SHIPPING)
+    public static function make(string $country, string $destination = OrderTaxDestination::SHIPPING, ?bool $is_tax_inclusive_price = null)
     {
         throw_if(empty($country), __('Country is required', 'kirki-ecommerce'));
 
@@ -49,7 +50,7 @@ class TaxStrategyFactory
         // $is_shipping_tax_enabled = $tax_settings->get('is_shipping_tax_enabled') ?? true;
         $is_shipping_tax_enabled = true; // @TODO: we might need a global toggle for shipping tax later
 
-        return new $strategy($region, $tax_settings->get('is_tax_inclusive_price') ?? false, $is_shipping_tax_enabled, $destination);
+        return new $strategy($region, $is_tax_inclusive_price ?? $tax_settings->get('is_tax_inclusive_price') ?? false, $is_shipping_tax_enabled, $destination);
     }
 
     /**

@@ -8,6 +8,7 @@ const orderKeys = {
   list: (params?: ListParams<OrderListFilter>) => [...orderKeys.lists(), params] as const,
   details: () => [...orderKeys.all, 'detail'] as const,
   detail: (id: string | number) => [...orderKeys.details(), String(id)] as const,
+  editInfo: (id: string | number) => [...orderKeys.all, String(id), 'edit'] as const,
   calculation: (payload?: OrderCalculationRequestPayload) =>
     [...orderKeys.all, 'calculation', payload] as const,
   activities: (orderId: string | number) =>
@@ -15,6 +16,8 @@ const orderKeys = {
   activity: (orderId: string | number, activityId: string | number) =>
     [...orderKeys.activities(orderId), String(orderId), String(activityId)] as const,
   shippingMethods: () => [...orderKeys.all, 'shipping-methods'] as const,
+  shippingCarriers: (orderId: string | number) =>
+    [...orderKeys.detail(orderId), 'shipping-carriers'] as const,
 };
 
 export { orderKeys };

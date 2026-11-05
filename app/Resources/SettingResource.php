@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Mcp\McpAbilities;
 use Kirki\Ecommerce\App\Models\Page;
+use Kirki\Ecommerce\App\Supports\ShippingCarrierPresets;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
@@ -125,6 +126,7 @@ class SettingResource extends Resource
      * Get the shipping settings.
      *
      * Converts stored minor-unit amounts of shipping methods and ranges to decimal amounts, each with a money object.
+     * Every carrier gets its logo URL, and the preset carrier catalog is added for the zone Add menu.
      *
      * @since 1.0.0
      *
@@ -133,6 +135,8 @@ class SettingResource extends Resource
      */
     protected function get_shipping_settings($data)
     {
+        $data['shipping_carrier_presets'] = ShippingCarrierPresets::get_catalog_list();
+
         // Every amount below is converted back from the minor units it was
         // stored in. The set of fields and the emptiness guard must stay in
         // lockstep with SettingsUpdateRequest::prepare_for_validation(), which
@@ -140,6 +144,8 @@ class SettingResource extends Resource
         // converted on write but not on read is multiplied by the currency's
         // subunit factor again on every save until it overflows.
         foreach ($data['shipping_zones'] ?? [] as $key => $zone) {
+            $data['shipping_zones'][$key] = ShippingCarrierPresets::with_logo_urls($zone);
+
             foreach ($zone['shipping_methods'] ?? [] as $method_key => $method) {
                 foreach (['base_amount', 'base_free_shipping_min_amount'] as $field) {
                     if (empty($method[$field])) {

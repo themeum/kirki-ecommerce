@@ -174,7 +174,7 @@ const AttributeList = () => {
   const [editing, setEditing] = useState<Editing>(null);
   const [pendingRemoval, setPendingRemoval] = useState<MatrixMutation | null>(null);
   const [draggingId, setDraggingId] = useState<UniqueIdentifier | null>(null);
-  const { removeAttribute, reorderAttributes, describeDiscarded } = useVariantMatrix();
+  const { removeAttribute, reorderAttributes } = useVariantMatrix();
 
   useEffect(() => {
     setOrderedAttributes(formAttributes);
@@ -309,13 +309,12 @@ const AttributeList = () => {
           title={__('Remove variation?', 'kirki-ecommerce')}
           subtitle={sprintf(
             _n(
-              '%1$d saved variation will be deleted when you save this product: %2$s',
-              '%1$d saved variations will be deleted when you save this product: %2$s',
+              '%1$d saved variation will be deleted when you save this product.',
+              '%1$d saved variations will be deleted when you save this product.',
               pendingCount,
               'kirki-ecommerce',
             ),
             pendingCount,
-            describeDiscarded(savedVariants(pendingRemoval.discarded)),
           )}
           onConfirm={handleConfirmRemoval}
           onCancel={() => setPendingRemoval(null)}

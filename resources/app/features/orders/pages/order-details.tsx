@@ -15,15 +15,16 @@ import { Form } from '@/components/ui/form';
 import { Page, PAGE_HEADING_HEIGHT, PageContent, PageHeading } from '@/components/ui/page';
 import QueryErrorState from '@/components/ui/query-error-state';
 import Text from '@/components/ui/text';
-import CustomerCard from '@/features/orders/components/order-create/customer-card';
-import NotesCard from '@/features/orders/components/order-create/notes-card';
-import PaymentSummaryCard from '@/features/orders/components/order-create/payment-summary-card';
+import { RouteConfig } from '@/config/route-config';
 import AddTrackingDialog from '@/features/orders/components/order-details/add-tracking-dialog';
 import FlagCard from '@/features/orders/components/order-details/flag-card';
 import ItemsTable from '@/features/orders/components/order-details/items-table';
 import MarkAsPaidDialog from '@/features/orders/components/order-details/mark-as-paid-dialog';
 import TakeActionCard from '@/features/orders/components/order-details/take-action-card';
 import Timeline from '@/features/orders/components/order-details/timeline';
+import CustomerCard from '@/features/orders/components/order-form/customer-card';
+import NotesCard from '@/features/orders/components/order-form/notes-card';
+import PaymentSummaryCard from '@/features/orders/components/order-form/payment-summary-card';
 import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import { getActionLabel } from '@/features/orders/lib/order-actions';
 import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
@@ -31,6 +32,7 @@ import { ShowMoreIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderDetails = () => {
@@ -84,13 +86,23 @@ const OrderDetails = () => {
       <Form {...form}>
         <PageHeading
           sticky
-          text={`${__('Order', 'kirki-ecommerce')} ${order.order_number}`}
+          text={sprintf(
+            /* translators: %s: order number */
+            __('Order %s', 'kirki-ecommerce'),
+            order.order_number ?? '',
+          )}
           actions={
             <>
-              {/* @todo: Edit is not workable now, implement it later */}
-              {/* <Button variant="ghost">
-                {__('Edit', 'kirki-ecommerce')}
-              </Button> */}
+              {order.is_editable && (
+                <Button
+                  variant="tertiary"
+                  onClick={() =>
+                    void navigate(RouteConfig.Orders.get('OrderEdit').buildLink({ id: order.id }))
+                  }
+                >
+                  {__('Edit', 'kirki-ecommerce')}
+                </Button>
+              )}
               {orderActions.length > 0 && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -119,6 +131,9 @@ const OrderDetails = () => {
           <Flex gap={1}>
             <Badge variant={paymentBadge.variant}>{paymentBadge.text}</Badge>
             <Badge variant={fulfillmentBadge.variant}>{fulfillmentBadge.text}</Badge>
+            {isDefined(order.archived_at) && Boolean(order.archived_at) && (
+              <Badge variant="destructive">{__('Archived', 'kirki-ecommerce')}</Badge>
+            )}
           </Flex>
         </PageHeading>
         <PageContent>
@@ -127,13 +142,22 @@ const OrderDetails = () => {
               <Card cssOverride={{ gap: theme.spacing[2] }}>
                 <CardHeader>
                   <CardTitle>
-                    <Text variant="heading6" weight="semibold">
-                      {sprintf(
-                        /* translators: %s: number of items */
-                        __('Items (%s)', 'kirki-ecommerce'),
-                        order.items_count,
-                      )}
-                    </Text>
+                    <Flex justify="space-between" align="center">
+                      <Text variant="heading6" weight="semibold">
+                        {sprintf(
+                          /* translators: %s: number of items */
+                          __('Items (%s)', 'kirki-ecommerce'),
+                          order.items_count,
+                        )}
+                      </Text>
+                      <Button variant="link" onClick={() => setIsTrackingDialogOpen(true)}>
+                        <Text variant="small" weight="medium" color="emphasis">
+                          {isDefined(order.shipping_tracking.tracking_number)
+                            ? __('Edit tracking No.', 'kirki-ecommerce')
+                            : __('Add tracking No.', 'kirki-ecommerce')}
+                        </Text>
+                      </Button>
+                    </Flex>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -190,16 +214,15 @@ const OrderDetails = () => {
                 isPerforming={isActionPending}
               />
 
-              <CustomerCard
-                onSave={handleSaveOrder}
+              <CustomerCard isGuest={order.is_guest} mode="view" order={order} />
+
+              <FlagCard onSave={() => void handleSaveOrder('flags')} />
+
+              <NotesCard
+                mode="edit"
+                onSave={() => handleSaveOrder('order_notes')}
                 isSaving={isSaving}
-                isGuest={order.is_guest}
-                mode="view"
               />
-
-              <FlagCard onSave={handleSaveOrder} />
-
-              <NotesCard mode="edit" onSave={handleSaveOrder} isSaving={isSaving} />
             </Flex>
           </Flex>
         </PageContent>
@@ -208,6 +231,7 @@ const OrderDetails = () => {
           <AddTrackingDialog
             open
             onOpenChange={setIsTrackingDialogOpen}
+            orderId={order.id}
             tracking={order.shipping_tracking}
             isSaving={isActionPending}
             onSubmit={handleAddTracking}

@@ -265,6 +265,24 @@ class CurrencyApiTest extends RestTestCase
         $this->assertArrayHasKey('code', $payload['data'][0]);
         $this->assertArrayHasKey('name', $payload['data'][0]);
         $this->assertArrayHasKey('symbol', $payload['data'][0]);
+        $this->assertArrayHasKey('flag', $payload['data'][0]);
+    }
+
+    /**
+     * List available currencies derives each flag from the currency locale.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_available_currencies_includes_flag_from_locale(): void
+    {
+        $response = $this->request('GET', 'currencies/list');
+        $payload = $this->assert_api_success($response);
+        $flags = array_column($payload['data'], 'flag', 'code');
+
+        $this->assertSame('🇺🇸', $flags['USD']);
+        $this->assertSame('🇪🇺', $flags['EUR']);
+        $this->assertSame('', $flags['XDR']);
     }
 
     /**

@@ -31,6 +31,20 @@ export const toggleCurrencySelection = (
 };
 
 /**
+ * Selects a single base currency (rate 1), replacing any previous pick;
+ * selecting the already-picked currency clears the selection.
+ */
+export const selectBaseCurrency = (
+  current: CurrencyDraft[],
+  currency: CurrencyOption,
+): CurrencyDraft[] => {
+  const exists = current.some((item) => item.name === currency.name);
+  return exists
+    ? []
+    : [{ ...currency, is_base: true, is_active: true, exchange_rate: 1 }];
+};
+
+/**
  * The search input can be handed either a change event or a raw string
  * (see call sites in `add-currency-dialog.tsx`) — normalizes both to a
  * plain string.

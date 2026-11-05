@@ -52,7 +52,7 @@ class InventoryService
     /**
      * Check whether enough stock exists for a quantity of a variant.
      *
-     * Always true for untracked in-stock variants and variants that allow back orders.
+     * Untracked variants follow their in_stock flag. Tracked variants ignore it and are always true when they allow back orders.
      *
      * @since 1.0.0
      *
@@ -68,15 +68,7 @@ class InventoryService
             return false;
         }
 
-        if (!$variant->track_inventory && $variant->in_stock) {
-            return true;
-        }
-
-        if ($variant->allow_back_order) {
-            return true;
-        }
-
-        return $variant->available_quantity >= $quantity;
+        return $variant->has_stock($quantity);
     }
 
     /**
@@ -124,9 +116,7 @@ class InventoryService
 
         $allowed = $quantity;
 
-        $is_stock_unlimited = (!$variant->track_inventory && $variant->in_stock) || $variant->allow_back_order;
-
-        if (!$is_stock_unlimited) {
+        if (!$variant->has_unlimited_stock()) {
             $allowed = min($allowed, max(0, $variant->available_quantity));
         }
 
@@ -288,6 +278,8 @@ class InventoryService
     /**
      * Release the reserved stock of every item in an order.
      *
+     * Items whose variant was deleted are skipped, since there is no stock left to give back.
+     *
      * @since 1.0.0
      *
      * @param Order $order Order whose items are released.
@@ -296,12 +288,18 @@ class InventoryService
     public function release_all_reserved_stock(Order $order)
     {
         $order->items->each(function ($item) {
+            if (empty($item->variant_id)) {
+                return;
+            }
+
             $this->release_reserved_stock($item->variant_id, $item->quantity);
         });
     }
 
     /**
      * Confirm the reserved stock of every item in an order.
+     *
+     * Items whose variant was deleted are skipped, since there is no stock left to confirm.
      *
      * @since 1.0.0
      *
@@ -311,6 +309,10 @@ class InventoryService
     public function confirm_all_reserved_stock(Order $order)
     {
         $order->items->each(function ($item) {
+            if (empty($item->variant_id)) {
+                return;
+            }
+
             $this->confirm_reserved_stock($item->variant_id, $item->quantity);
         });
     }

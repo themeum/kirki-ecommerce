@@ -27,7 +27,7 @@ class CreateCategoryProductTable implements Migration
         Schema::create('kirki_ecommerce_category_product', function (Structure $table) {
             $table->unsigned_big_integer('category_id');
             $table->unsigned_big_integer('product_id');
-            $table->timestamps();
+            $table->datetimes();
 
             $table->primary(['category_id', 'product_id']);
 

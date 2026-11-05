@@ -108,7 +108,11 @@ const VariationList = () => {
             'kirki-ecommerce',
           )}
         </CardDescription>
-        <div css={scoped({ marginTop: attributeListArr.length === 0 ? theme.spacing[0] : theme.spacing[5] })}>
+        <div
+          css={scoped({
+            marginTop: attributeListArr.length === 0 ? theme.spacing[0] : theme.spacing[4],
+          })}
+        >
           {isLoading ? (
             <StackedListSkeleton />
           ) : (

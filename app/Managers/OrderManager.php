@@ -21,6 +21,7 @@ use Kirki\Ecommerce\App\Events\Order\OrderOnHoldEvent;
 use Kirki\Ecommerce\App\Events\Order\OrderPaymentFailedEvent;
 use Kirki\Ecommerce\App\Events\Order\OrderProcessingEvent;
 use Kirki\Ecommerce\App\Events\Order\OrderShippedEvent;
+use Kirki\Ecommerce\App\Events\Order\OrderTrackingAddedEvent;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Jobs\SendOrderMailJob;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerNewOrderMail;
@@ -151,7 +152,11 @@ class OrderManager
         if ($is_cancelled) {
             $order->order_coupons->reject(fn($order_coupon) => !empty($order_coupon->usage_reversed_at))->each(function ($order_coupon) {
                 $order_coupon->update(['usage_reversed_at' => Date::now()]);
-                $this->coupon_service->release_usage($order_coupon->coupon_id);
+
+                // A deleted coupon has no usage count left to give back.
+                if (!empty($order_coupon->coupon_id)) {
+                    $this->coupon_service->release_usage($order_coupon->coupon_id);
+                }
             });
 
             $this->inventory_service->release_all_reserved_stock($order);
@@ -159,7 +164,7 @@ class OrderManager
                 'cancellation_reason' => $reason,
                 'cancelled_at' => Date::now(),
             ]);
-            
+
             $status_before = $order->order_status;
             $order = $this->order_service->find_order_or_fail($id);
             OrderActivity::log($order, OrderActivityType::CANCELLED);
@@ -308,7 +313,17 @@ class OrderManager
         ]);
 
         if ($is_updated) {
-            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::TRACKING_ADDED);
+            $order = $this->order_service->find_order_or_fail($id);
+
+            if (
+                $order->fulfillment_status === FulfillmentStatus::UNFULFILLED
+                || $order->fulfillment_status === FulfillmentStatus::PROCESSING
+            ) {
+                $this->mark_as_shipped($id);
+            }
+
+            OrderActivity::log($order, OrderActivityType::TRACKING_ADDED);
+            OrderTrackingAddedEvent::dispatch($order);
         }
 
         return $is_updated;

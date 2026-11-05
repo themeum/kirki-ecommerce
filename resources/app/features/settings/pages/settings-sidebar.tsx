@@ -112,41 +112,43 @@ const SettingsSidebar = () => {
 
   return (
     <div css={scoped(styles.panel)}>
-      <Flex direction="column" gap={3}>
+      <Flex direction="column" gap={2}>
         <Searchbox
           value={searchQuery}
           onChange={handleSearchChange}
           cssOverride={styles.searchbox}
           clearable
         />
-        {isSearching ? (
-          <SearchResults results={results} isLoading={isLoading} />
-        ) : (
-          settingsSections.map((section) => (
-            <Flex key={section.title} direction="column" gap={2}>
-              <Text
-                variant="tiny"
-                color="secondary"
-                weight="medium"
-                cssOverride={{ marginLeft: theme.spacing[1] }}
-              >
-                {section.title}
-              </Text>
-              <Flex direction="column" gap={1}>
-                {section.items.map((item) => (
-                  <SettingsNavItemRow
-                    key={item.header}
-                    link={item.link}
-                    header={item.header}
-                    icon={item.icon}
-                    disabled={item.disabled}
-                    isActive={isSettingsRouteActive(location.pathname, item.link)}
-                  />
-                ))}
+        <Flex direction="column" gap={4}>
+          {isSearching ? (
+            <SearchResults results={results} isLoading={isLoading} />
+          ) : (
+            settingsSections.map((section) => (
+              <Flex key={section.title} direction="column" gap={2}>
+                <Text
+                  variant="small"
+                  color="muted"
+                  weight="medium"
+                  cssOverride={{ marginLeft: theme.spacing[2] }}
+                >
+                  {section.title}
+                </Text>
+                <Flex direction="column" cssOverride={{ gap: '1px' }}>
+                  {section.items.map((item) => (
+                    <SettingsNavItemRow
+                      key={item.header}
+                      link={item.link}
+                      header={item.header}
+                      icon={item.icon}
+                      disabled={item.disabled}
+                      isActive={isSettingsRouteActive(location.pathname, item.link)}
+                    />
+                  ))}
+                </Flex>
               </Flex>
-            </Flex>
-          ))
-        )}
+            ))
+          )}
+        </Flex>
       </Flex>
     </div>
   );
@@ -172,7 +174,7 @@ const styles = defineStyles({
   panel: {
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[2]}`,
-    border: `1px solid ${theme.colors.border.tertiary}`,
+    // border: `1px solid ${theme.colors.border.tertiary}`,
     borderRadius: theme.radius.xxl,
     backgroundColor: theme.colors.background.fill,
     boxShadow: '0px -1px 1px 0.5px rgba(0, 0, 0, 0.1) inset',

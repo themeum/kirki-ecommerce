@@ -13,6 +13,7 @@ type CountrySelectorProps = LabelFieldProps & {
   onChange: (value: string | string[]) => void;
   multiple?: boolean;
   disabled?: boolean;
+  only_selling_countries?: boolean;
 };
 
 const CountrySelector = ({
@@ -23,8 +24,12 @@ const CountrySelector = ({
   error,
   multiple = false,
   disabled,
+  only_selling_countries,
 }: CountrySelectorProps) => {
-  const { data: countries = [] } = useCountriesQuery({ limit: -1 });
+  const { data: countries = [] } = useCountriesQuery({
+    limit: -1,
+    only_selling_countries,
+  });
 
   const options = useMemo(() => {
     return countries.map((country) => ({

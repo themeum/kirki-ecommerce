@@ -106,6 +106,15 @@ if (!function_exists('esc_url')) {
     }
 }
 
+if (!function_exists('sanitize_url')) {
+    function sanitize_url($url, $protocols = null)
+    {
+        $url = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\[\]\x80-\xff]|i', '', (string) $url);
+
+        return preg_match('#^https?://#i', $url) ? $url : '';
+    }
+}
+
 if (!function_exists('get_permalink')) {
     function get_permalink($post = 0, $leavename = false)
     {
@@ -132,5 +141,12 @@ if (!function_exists('remove_accents')) {
         $transliterated = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', (string) $string);
 
         return $transliterated === false ? (string) $string : $transliterated;
+    }
+}
+
+if (!function_exists('wp_strip_all_tags')) {
+    function wp_strip_all_tags($text, $remove_breaks = false)
+    {
+        return trim(strip_tags((string) $text));
     }
 }

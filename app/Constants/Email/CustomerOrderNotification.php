@@ -23,6 +23,7 @@ class CustomerOrderNotification
     const ORDER_COMPLETED = 'order_completed';
     const ORDER_NOTE = 'order_note';
     const ORDER_SHIPPED = 'order_shipped';
+    const TRACKING_ADDED = 'tracking_added';
 
     /**
      * Get the email settings type these notifications belong to.

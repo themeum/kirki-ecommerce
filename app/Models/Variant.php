@@ -90,6 +90,25 @@ class Variant extends Model
     ];
 
     /**
+     * Save the variant, raising an enabled per-order limit that has no usable maximum to 1.
+     *
+     * A limit of null or 0 would block every add to cart, so a variant with the limit on is stored with at least 1.
+     * A variant with the limit off keeps whatever maximum it has.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True when the model is saved successfully.
+     */
+    public function save()
+    {
+        if ($this->has_limit_per_order && (int) $this->max_per_order < 1) {
+            $this->max_per_order = 1;
+        }
+
+        return parent::save();
+    }
+
+    /**
      * Define the product this variant belongs to.
      *
      * @since 1.0.0
@@ -148,5 +167,37 @@ class Variant extends Model
     public function is_available(): bool
     {
         return $this->is_visible && $this->product && $this->product->status === ProductStatus::PUBLISHED;
+    }
+
+    /**
+     * Tell whether stock never runs out for this variant.
+     *
+     * A tracked variant ignores the in_stock flag and is unlimited only when it allows back orders.
+     * An untracked variant is unlimited exactly when its in_stock flag is set.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public function has_unlimited_stock(): bool
+    {
+        return $this->track_inventory ? (bool) $this->allow_back_order : (bool) $this->in_stock;
+    }
+
+    /**
+     * Tell whether enough stock exists for a quantity of this variant.
+     *
+     * @since 1.0.0
+     *
+     * @param int $quantity Quantity wanted.
+     * @return bool
+     */
+    public function has_stock(int $quantity = 1): bool
+    {
+        if (!$this->track_inventory) {
+            return (bool) $this->in_stock;
+        }
+
+        return $this->has_unlimited_stock() || $this->available_quantity >= $quantity;
     }
 }
