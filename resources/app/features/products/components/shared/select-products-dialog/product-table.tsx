@@ -24,6 +24,9 @@ const ProductTable = () => {
     isLoading,
     pickerItems,
     mode,
+    selection,
+    expandedProductIds,
+    lockedVariantIds,
     allOnPageSelected,
     partialOnPageSelected,
     pageSelectableCount,
@@ -69,7 +72,16 @@ const ProductTable = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              pickerItems.map((item) => <ProductPickerRow key={item.product.id} item={item} />)
+              pickerItems.map((item) => (
+                <ProductPickerRow
+                  key={item.product.id}
+                  item={item}
+                  mode={mode}
+                  lockedVariantIds={lockedVariantIds}
+                  selectedEntry={selection.get(item.product.id)}
+                  expanded={expandedProductIds.has(item.product.id)}
+                />
+              ))
             )}
           </TableBody>
         </Table>

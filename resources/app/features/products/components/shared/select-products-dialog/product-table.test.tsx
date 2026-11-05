@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import ProductTable from '@/features/products/components/shared/select-products-dialog/product-table';
 import { SelectProductsProvider } from '@/features/products/components/shared/select-products-dialog/select-products-context';
@@ -9,6 +9,15 @@ import type {
   SelectProductsMode,
 } from '@/features/products/components/shared/select-products-dialog/types';
 import type { ProductListItemWithVariants } from '@/features/products/schemas/catalog/product';
+
+const priceTextRenders = vi.hoisted(() => ({ count: 0 }));
+
+vi.mock('@/components/ui/price-text', () => ({
+  default: () => {
+    priceTextRenders.count += 1;
+    return null;
+  },
+}));
 
 const buildItem = (id: number) => {
   const selection = {
@@ -139,5 +148,19 @@ describe('select products dialog table locked variants', () => {
   it('does not lock anything in product mode', () => {
     render(<Harness mode="product" />);
     expect(checkboxes().every((checkbox) => !isDisabled(checkbox))).toBe(true);
+  });
+});
+
+describe('select products dialog table re-renders', () => {
+  afterEach(cleanup);
+
+  it('re-renders only the toggled row', () => {
+    render(<Harness mode="product" />);
+    priceTextRenders.count = 0;
+
+    fireEvent.click(checkboxes()[0]);
+
+    expect(checkedStates()).toEqual([true, false, false]);
+    expect(priceTextRenders.count).toBe(1);
   });
 });

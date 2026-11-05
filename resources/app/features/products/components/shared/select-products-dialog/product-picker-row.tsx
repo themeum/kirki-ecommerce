@@ -8,31 +8,41 @@ import Image from '@/components/ui/image';
 import PriceText from '@/components/ui/price-text';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
-import {
-  useSelectProductsActions,
-  useSelectProductsState,
-} from '@/features/products/components/shared/select-products-dialog/select-products-context';
+import { useSelectProductsActions } from '@/features/products/components/shared/select-products-dialog/select-products-context';
 import type {
   ProductPickerItem,
+  ProductSelection,
   ProductVariantSelection,
+  SelectProductsMode,
 } from '@/features/products/components/shared/select-products-dialog/types';
 import { ChevronDownIcon } from '@/icons/common';
 import { __, sprintf } from '@/wpi18n';
 
 type ProductPickerRowProps = {
   item: ProductPickerItem;
+  mode: SelectProductsMode;
+  lockedVariantIds: Set<number>;
+  selectedEntry: ProductSelection | undefined;
+  expanded: boolean;
 };
 
-const ProductPickerRowComponent = ({ item }: ProductPickerRowProps) => {
+const ProductPickerRowComponent = ({
+  item,
+  mode,
+  lockedVariantIds,
+  selectedEntry,
+  expanded,
+}: ProductPickerRowProps) => {
   const { product, selection } = item;
   const { variants } = selection;
-  const { mode, expandedProductIds, selectedProductIds, selectedVariantIds, lockedVariantIds } =
-    useSelectProductsState();
   const { toggleExpand, toggleProduct, toggleVariants, toggleRange, setAnchor } =
     useSelectProductsActions();
 
-  const expanded = expandedProductIds.has(product.id);
-  const isProductSelected = selectedProductIds.has(product.id);
+  const isProductSelected = Boolean(selectedEntry);
+  const selectedVariantIds = useMemo(
+    () => new Set(selectedEntry?.variants.map((variant) => variant.variantId) ?? []),
+    [selectedEntry],
+  );
   const isOrderMode = mode === 'order';
 
   const onToggleExpand = useCallback(() => toggleExpand(product.id), [toggleExpand, product.id]);

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import {
@@ -38,7 +38,7 @@ import type {
   SelectProductsMode,
 } from '@/features/products/components/shared/select-products-dialog/types';
 import { useProductsWithVariantsQuery } from '@/features/products/services/product';
-import { BoxIcon, ListFilter } from '@/icons/common';
+import { BoxIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { ELLIPSIS, getPageItems } from '@/utils/pagination';
 import { __, _n, sprintf } from '@/wpi18n';
@@ -117,8 +117,6 @@ const SelectProductsDialogBody = ({
     brand_id: filters.brand_id,
   });
 
-  const loading = isFetching || isLoading;
-
   const products = useMemo(() => data?.results ?? [], [data?.results]);
 
   const pickerItems = useMemo(
@@ -134,12 +132,17 @@ const SelectProductsDialogBody = ({
   const totalResults = data?.total ?? 0;
   const pageItems = useMemo(() => getPageItems(page, totalPages), [page, totalPages]);
 
+  const handleApplyFilters = useCallback((next: ProductFilterValue) => {
+    setFilters(next);
+    setPage(1);
+  }, []);
+
   return (
     <SelectProductsProvider
       mode={mode}
       selectedProducts={selectedProducts}
       pickerItems={pickerItems}
-      isLoading={loading}
+      isLoading={isLoading}
       expandAll={expandAll}
     >
       <DialogHeader>
@@ -158,20 +161,10 @@ const SelectProductsDialogBody = ({
                 setSearch(String(value));
                 setPage(1);
               }}
+              delay={500}
             />
           </div>
-          <ProductFilterPopup
-            value={filters}
-            onApply={(next) => {
-              setFilters(next);
-              setPage(1);
-            }}
-          >
-            <Button variant="outline">
-              <ListFilter />
-              {__('Filter', 'kirki-ecommerce')}
-            </Button>
-          </ProductFilterPopup>
+          <ProductFilterPopup value={filters} onApply={handleApplyFilters} />
         </Flex>
 
         <ProductTable />
@@ -185,7 +178,7 @@ const SelectProductsDialogBody = ({
         }}
       >
         {totalResults > 0 && (
-          <Pagination disabled={loading}>
+          <Pagination disabled={isFetching}>
             <Flex align="center" gap={2}>
               <PaginationPageSelect currentPage={page} totalPages={totalPages} onChange={setPage} />
               <PaginationContent>

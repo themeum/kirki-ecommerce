@@ -3,7 +3,6 @@ import {
   type ReactNode,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -29,8 +28,7 @@ type SelectProductsState = {
   isLoading: boolean;
   pickerItems: ProductPickerItem[];
   expandedProductIds: Set<number>;
-  selectedProductIds: Set<number>;
-  selectedVariantIds: Set<number>;
+  selection: Map<number, ProductSelection>;
   lockedVariantIds: Set<number>;
   allOnPageSelected: boolean;
   partialOnPageSelected: boolean;
@@ -77,6 +75,7 @@ const SelectProductsProvider = ({
   expandAll = false,
 }: SelectProductsProviderProps) => {
   const [expandedProductIds, setExpandedProductIds] = useState<Set<number>>(new Set());
+  const [expandedPickerItems, setExpandedPickerItems] = useState<ProductPickerItem[] | null>(null);
   const [selection, setSelection] = useState<Map<number, ProductSelection>>(
     () => new Map(selectedProducts.map((product) => [product.productId, product])),
   );
@@ -95,12 +94,10 @@ const SelectProductsProvider = ({
   const latest = useRef({ mode, pickerItems, expandedProductIds, selection });
   latest.current = { mode, pickerItems, expandedProductIds, selection };
 
-  useEffect(() => {
-    if (!expandAll || pickerItems.length === 0) {
-      return;
-    }
+  if (expandAll && pickerItems.length > 0 && pickerItems !== expandedPickerItems) {
+    setExpandedPickerItems(pickerItems);
     setExpandedProductIds(new Set(pickerItems.map((item) => item.product.id)));
-  }, [expandAll, pickerItems]);
+  }
 
   const selectedProductIds = useMemo(() => new Set(selection.keys()), [selection]);
   const selectedVariantIds = useMemo(
@@ -127,8 +124,7 @@ const SelectProductsProvider = ({
       isLoading,
       pickerItems,
       expandedProductIds,
-      selectedProductIds,
-      selectedVariantIds,
+      selection,
       lockedVariantIds,
       allOnPageSelected: selectableOnPage > 0 && selectedOnPage === selectableOnPage,
       partialOnPageSelected: selectedOnPage > 0 && selectedOnPage < selectableOnPage,
@@ -145,6 +141,7 @@ const SelectProductsProvider = ({
     isLoading,
     pickerItems,
     expandedProductIds,
+    selection,
     selectedProductIds,
     selectedVariantIds,
     lockedVariantIds,
