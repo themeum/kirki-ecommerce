@@ -297,6 +297,7 @@ describe('SettingsSchemaMap', () => {
         'tax',
         'advance',
         'legal',
+        'mcp',
       ].sort(),
     );
   });

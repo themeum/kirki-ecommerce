@@ -17,6 +17,7 @@ import type {
   EmailSettingsFormPayload,
   GeneralSettingsFormPayload,
   LegalSettingsFormPayload,
+  McpSettingsFormPayload,
   MultiCurrencySettingsFormPayload,
   ProductsSettingsFormPayload,
   ShippingSettingsFormPayload,
@@ -36,7 +37,7 @@ import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 /**
- * Only the 9 sections converted to a canonical form schema are writable.
+ * Only the 10 sections converted to a canonical form schema are writable.
  * `payment` is readable (see `schemas/catalog/settings.ts`) but has no form
  * schema — payment settings are written through `services/payment.ts`'s
  * dedicated gateway/method endpoints instead of the generic settings PUT.
@@ -51,6 +52,7 @@ type SettingsPayloadMap = {
   currency: MultiCurrencySettingsFormPayload;
   advance: AdvanceSettingsFormPayload;
   legal: LegalSettingsFormPayload;
+  mcp: McpSettingsFormPayload;
 };
 
 /**

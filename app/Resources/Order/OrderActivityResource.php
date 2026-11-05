@@ -20,7 +20,7 @@ class OrderActivityResource extends Resource
      *
      * @since 1.0.0
      *
-     * @return array<string, mixed> The activity data, with a rendered description, author name and relative time.
+     * @return array<string, mixed> The activity data, with a rendered description, author name, AI-assistant mark and relative time.
      */
     public function to_array()
     {
@@ -32,6 +32,7 @@ class OrderActivityResource extends Resource
             'created_by' => $this->created_by,
             'author_name' => $this->resolve_author_name(),
             'notify_customer' => (bool) ($this->metadata['notify_customer'] ?? false),
+            'via_ai_assistant' => OrderActivity::is_from_assistant($this->resource),
             'created_at' => $this->created_at ? $this->human_readable_time_diff($this->created_at) : '',
         ];
     }

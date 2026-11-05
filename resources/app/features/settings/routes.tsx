@@ -13,6 +13,8 @@ import EssentialsSettingsSkeleton from '@/features/settings/essentials/skeletons
 import VariationDetailSkeleton from '@/features/settings/essentials/skeletons/variation-detail-skeleton';
 import GeneralSettingsSkeleton from '@/features/settings/general/skeletons/general-settings-skeleton';
 import LegalSettingsSkeleton from '@/features/settings/legal/skeletons/legal-settings-skeleton';
+import McpAbilitiesSkeleton from '@/features/settings/mcp/skeletons/mcp-abilities-skeleton';
+import McpSettingsSkeleton from '@/features/settings/mcp/skeletons/mcp-settings-skeleton';
 import MultiCurrencySettingsSkeleton from '@/features/settings/multi-currency/skeletons/multi-currency-settings-skeleton';
 import PaymentSettingsSkeleton from '@/features/settings/payment/skeletons/payment-settings-skeleton';
 import ProductsSettingsSkeleton from '@/features/settings/products/skeletons/products-settings-skeleton';
@@ -54,6 +56,8 @@ const ListVariation = lazy(
 );
 const AdvancedSettings = lazy(() => import('@/features/settings/advanced/pages/advanced-settings'));
 const LegalSettings = lazy(() => import('@/features/settings/legal/pages/legal-settings'));
+const McpSettings = lazy(() => import('@/features/settings/mcp/pages/mcp-settings'));
+const McpAbilities = lazy(() => import('@/features/settings/mcp/pages/mcp-abilities'));
 
 const withSuspense = <Props extends object>(
   Component: ComponentType<Props>,
@@ -136,6 +140,14 @@ const settingsRoutes: RouteObject[] = [
       {
         path: SettingsRoutes.get('LegalSettings').template,
         element: withSuspense(LegalSettings, <LegalSettingsSkeleton />),
+      },
+      {
+        path: SettingsRoutes.get('McpSettings').template,
+        element: withSuspense(McpSettings, <McpSettingsSkeleton />),
+      },
+      {
+        path: SettingsRoutes.get('McpSettings').get('McpAbilities').template,
+        element: withSuspense(McpAbilities, <McpAbilitiesSkeleton />),
       },
     ],
   },

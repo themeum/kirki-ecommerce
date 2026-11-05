@@ -1,5 +1,6 @@
 import {
   Banknote,
+  Bot,
   CircleDollarSign,
   Home,
   Mail,
@@ -182,6 +183,12 @@ export const advancedSettings: SettingsNavItem[] = [
     icon: <Scale {...navIconProps} />,
     header: __('Legal', 'kirki-ecommerce'),
     subHeader: __('Store policies and compliance', 'kirki-ecommerce'),
+  },
+  {
+    link: RouteConfig.Settings.get('McpSettings').buildLink(),
+    icon: <Bot {...navIconProps} />,
+    header: __('MCP', 'kirki-ecommerce'),
+    subHeader: __('Connect AI apps to your store', 'kirki-ecommerce'),
   },
 ];
 

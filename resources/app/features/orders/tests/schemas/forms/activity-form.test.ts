@@ -45,4 +45,9 @@ describe('ActivitySchema', () => {
   it('accepts an activity without the notify-customer flag', () => {
     expect(ActivitySchema.parse(comment).notify_customer).toBeUndefined();
   });
+
+  it('reads the AI-assistant mark of an activity', () => {
+    expect(ActivitySchema.parse({ ...comment, via_ai_assistant: true }).via_ai_assistant).toBe(true);
+    expect(ActivitySchema.parse(comment).via_ai_assistant).toBeUndefined();
+  });
 });
