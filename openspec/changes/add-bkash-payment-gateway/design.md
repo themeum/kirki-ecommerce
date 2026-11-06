@@ -243,7 +243,6 @@ cannot change an order.
 
 IPN needs bKash support to register each store, and the default SNS retry window is about 1 to 2
 minutes. The job repairs each failure where money may have moved, and it needs no merchant setup.
-The full comparison is in `reports/bKash IPN integration options.md`.
 
 `pay()` dispatches `BkashPaymentCheckJob` with scalar values: the order ID, the payment ID, and the
 check number. Each run dispatches the next check with `delay()`, at the intervals in the spec. The

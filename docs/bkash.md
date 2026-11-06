@@ -60,9 +60,10 @@ Use these values only with **Sandbox Mode** on. Never use them on a live store.
 
 All test wallets use PIN `12121` and OTP `123456`.
 
-These are public values from a third-party source, listed for API `v1.2.0-beta`, and this plugin
-calls API v2. bKash did not confirm these values, and they are not tested with this plugin. If
-token requests fail, ask bKash for sandbox credentials that are valid for API v2.
+These are public values from a third-party source, listed for API `v1.2.0-beta`. They worked
+with this plugin, which calls API v2, in a manual sandbox test. bKash did not confirm these
+values, so they can stop working. If token requests fail, ask bKash for sandbox credentials
+that are valid for API v2.
 
 ---
 
