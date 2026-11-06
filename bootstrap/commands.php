@@ -2,11 +2,11 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Console\Commands\ResetOnboardingCommand;
+use Kirki\Ecommerce\App\Console\Commands\ClearOptionsCommand;
 
 /**
  * The plugin CLI commands, keyed by the name they run under: `wp kirki <name>`.
  */
 return [
-    'onboarding:reset' => ResetOnboardingCommand::class,
+    'options:clear' => ClearOptionsCommand::class,
 ];
