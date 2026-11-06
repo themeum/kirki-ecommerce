@@ -29,7 +29,6 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingBoxController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingMethodController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\EmailTemplateController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\SettingsController;
-use Kirki\Ecommerce\App\Http\Controllers\Api\ProductSchemaController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
@@ -200,14 +199,6 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::post('/settings/email/{type}/{group}/{key}/restore', [EmailTemplateController::class, 'restore']);
     Route::get('/settings/{key}', [SettingsController::class, 'get']);
     Route::put('/settings', [SettingsController::class, 'update']);
-
-    // Product Schemas
-    Route::get('/product-schemas', [ProductSchemaController::class, 'get']);
-    Route::get('/product-schemas/{id}', [ProductSchemaController::class, 'show']);
-    Route::post('/product-schemas', [ProductSchemaController::class, 'create']);
-    Route::put('/product-schemas/{id}', [ProductSchemaController::class, 'update']);
-    Route::delete('/product-schemas/{id}', [ProductSchemaController::class, 'delete']);
-    Route::post('/product-schemas/bulk', [ProductSchemaController::class, 'bulk_actions']);
 
     // Shipping Profiles
     Route::get('/shipping-profiles', [ShippingProfileController::class, 'get']);

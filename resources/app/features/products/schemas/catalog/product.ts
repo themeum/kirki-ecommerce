@@ -105,7 +105,6 @@ export const ProductSchema = z.object({
   og_title: z.string().nullable(),
   og_description: z.string().nullable(),
   og_image: MediaRefSchema.nullable(),
-  schema_id: z.number().nullable(),
   has_variants: z.boolean(),
   categories: z.array(ProductCategoryRefSchema),
   tags: z.array(ProductTagRefSchema),

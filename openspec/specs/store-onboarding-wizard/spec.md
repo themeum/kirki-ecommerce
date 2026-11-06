@@ -4,7 +4,6 @@
 The merchant-facing onboarding wizard. Over three short steps it collects store name,
 industry, location, currency and tax stance. It then shows what was set up and offers
 to load sample data.
-
 ## Requirements
 ### Requirement: Wizard layout
 
@@ -242,7 +241,9 @@ the wizard SHALL reopen on the Essentials step.
 ### Requirement: Store creation and completion screen
 
 Clicking "Create Store" SHALL move to the completion screen and start store setup.
-Store setup SHALL be submitted once per click, as one request.
+Store setup SHALL be submitted once per click, as one request. Store setup applies
+the presets in the same request, so the wizard SHALL NOT send a separate presets
+request.
 
 The completion screen SHALL be titled "Your store is almost ready" in every state. The
 subtitle SHALL be "Here's what we set up for you". It SHALL list these rows, in this
@@ -251,7 +252,9 @@ order:
 - Location, with the country name only;
 - Currency, as code and symbol, e.g. "USD ($)";
 - Store pages: Shop, Cart, Checkout, Account;
-- Tax, as "Added at checkout" or "Included in price" — only when "Yes" was chosen.
+- Tax, as "Added at checkout" or "Included in price" — only when "Yes" was chosen;
+- Configurations, as "Essentials, Shipping, Tax, Legal pages" — "Tax" only when
+  "Yes" was chosen.
 
 Each row SHALL show one of three states: waiting, in progress, or completed. The rows
 SHALL complete one at a time, in order:
@@ -285,12 +288,17 @@ NOT submit setup more than once.
 #### Scenario: Successful setup without tax
 
 - **WHEN** the merchant clicks Create Store with "No, not yet" selected and setup succeeds
-- **THEN** the Location, Currency, and Store pages rows show as completed and no Tax row is shown
+- **THEN** the Location, Currency, Store pages and Configurations rows show as completed, no Tax row is shown, and the Configurations row reads "Essentials, Shipping, Legal pages"
 
 #### Scenario: Successful setup with tax
 
 - **WHEN** the merchant clicks Create Store on the Store Tax step with "Including tax" selected and setup succeeds
-- **THEN** a Tax row reading "Included in price" is shown alongside the other rows
+- **THEN** a Tax row reading "Included in price" is shown alongside the other rows, and the Configurations row reads "Essentials, Shipping, Tax, Legal pages"
+
+#### Scenario: Configurations row while setup runs
+
+- **WHEN** store setup is still running after the rows before it have completed
+- **THEN** the Configurations row stays in progress until setup succeeds, and only one setup request is sent
 
 #### Scenario: Setup fails
 
@@ -433,6 +441,7 @@ answered "Yes".
 
 - **WHEN** the merchant entered a Tax ID on Store Tax, goes Back, selects "No, not yet", and clicks "Create Store"
 - **THEN** store setup is started with tax not collected and no Tax ID
+
 ### Requirement: Completion screen migration row
 The completion screen SHALL list the setup rows Location, Currency, Store pages, Tax (when tax is Yes) and Configurations, and, when WooCommerce is supported, the Migrate row. Each row SHALL show a circular ring, then a check. Action buttons SHALL show only after all work ends, as set by the `onboarding-migration-step` rules.
 
@@ -450,3 +459,4 @@ The preset shipping zones written at onboarding SHALL save every state of a regi
 #### Scenario: Country-only preset region
 - **WHEN** a preset zone region has only a country that has states
 - **THEN** the saved region lists all state ids of that country
+

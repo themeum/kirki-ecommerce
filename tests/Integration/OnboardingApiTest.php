@@ -11,7 +11,6 @@ use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
 use Kirki\Ecommerce\App\Models\TaxProfile;
 use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
@@ -395,7 +394,6 @@ class OnboardingApiTest extends RestTestCase
 
         $this->assertFalse(Category::query()->exists());
         $this->assertTrue(Attribute::query()->where('slug', 'size')->exists());
-        $this->assertSame(1, ProductSchema::query()->count());
         $this->assertFalse(Coupon::query()->exists());
         $this->assertTrue(ShippingProfile::query()->where('name', 'Oversized')->exists());
         $this->assertTrue(TaxProfile::query()->where('name', "Children's Clothing")->exists());
@@ -530,7 +528,6 @@ class OnboardingApiTest extends RestTestCase
         Category::query()->delete();
         AttributeValue::query()->delete();
         Attribute::query()->delete();
-        ProductSchema::query()->delete();
         Coupon::query()->delete();
         ShippingProfile::query()->delete();
         TaxProfile::query()->delete();

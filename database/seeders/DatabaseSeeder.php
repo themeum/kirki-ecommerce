@@ -34,7 +34,6 @@ class DatabaseSeeder extends Seeder
             AttributeSeeder::class,
             BrandSeeder::class,
             ProductSeeder::class,
-            ProductSchemaSeeder::class,
             CustomerSeeder::class,
             CouponSeeder::class,
             CartSeeder::class,

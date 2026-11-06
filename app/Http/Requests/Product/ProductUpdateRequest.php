@@ -94,7 +94,6 @@ class ProductUpdateRequest extends Request
             'og_title' => 'string|nullable|max:500',
             'og_description' => 'string|nullable',
             'og_image' => ['integer', 'nullable', AttachmentRule::of(ProductMediaTypes::ALLOWED)],
-            'schema_id' => 'integer|nullable',
             'has_variants' => 'boolean|nullable',
 
             //media
@@ -198,7 +197,6 @@ class ProductUpdateRequest extends Request
             'og_title' => Sanitizer::TEXT,
             'og_description' => Sanitizer::TEXT,
             'og_image' => Sanitizer::INT,
-            'schema_id' => Sanitizer::INT,
             'has_variants' => Sanitizer::BOOL,
 
             // relations

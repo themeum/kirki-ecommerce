@@ -81,7 +81,6 @@ class ProductResource extends Resource
             'og_title' => $this->og_title,
             'og_description' => $this->og_description,
             'og_image' => MediaAttachment::make($this->og_image),
-            'schema_id' => $this->schema_id,
             'has_variants' => $this->has_variants,
             'availability_status' => $availability_status,
             'availability_label' => !is_null($availability_status) ? AvailabilityStatus::get_formatted($availability_status) : null,

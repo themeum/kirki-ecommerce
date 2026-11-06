@@ -45,6 +45,7 @@ use Kirki\Ecommerce\Database\Migrations\CreateTaxProfilesTable;
 use Kirki\Ecommerce\Database\Migrations\CreateWishlistTable;
 use Kirki\Ecommerce\Database\Migrations\CreateJobsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateFailedJobsTable;
+use Kirki\Ecommerce\Database\Migrations\DropProductSchemasTable;
 
 return [
     CreateLanguagesTable::class,
@@ -90,4 +91,7 @@ return [
     CreateWishlistTable::class,
     CreateJobsTable::class,
     CreateFailedJobsTable::class,
+
+    // Since v1.0.1
+    DropProductSchemasTable::class,
 ];
