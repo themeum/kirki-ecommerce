@@ -49,6 +49,12 @@ class BkashConstant
 
     const MAX_REASON_LENGTH = 255;
 
+    /**
+     * The PHP default for the code argument of an exception. The plugin does not read this
+     * code.
+     */
+    const DEFAULT_EXCEPTION_CODE = 0;
+
     const SETTLE_PAID = 'paid';
     const SETTLE_ALREADY_PAID = 'already_paid';
     const SETTLE_HELD = 'held';

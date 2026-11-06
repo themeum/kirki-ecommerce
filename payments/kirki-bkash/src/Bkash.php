@@ -87,7 +87,7 @@ class Bkash extends PaymentProvider
             OrderManager::set_payment_metadata($order->id, wp_json_encode(['paymentId' => $response['paymentId']]));
         } catch (Exception $e) {
             /* translators: %s: error message. */
-            throw_anyway(sprintf(__('bKash Payment Error: %s', 'kirki-ecommerce-bkash'), $e->getMessage()), Exception::class, 0, $e);
+            throw_anyway(sprintf(__('bKash Payment Error: %s', 'kirki-ecommerce-bkash'), $e->getMessage()), Exception::class, BkashConstant::DEFAULT_EXCEPTION_CODE, $e);
         }
 
         $this->schedule_payment_check($order->id, (string) $response['paymentId'], 0);
@@ -190,7 +190,7 @@ class Bkash extends PaymentProvider
             }
         } catch (BkashRejectedException $e) {
             /* translators: %s: error message. */
-            throw_anyway(sprintf(__('bKash Refund Error: %s', 'kirki-ecommerce-bkash'), $e->getMessage()), Exception::class, 0, $e);
+            throw_anyway(sprintf(__('bKash Refund Error: %s', 'kirki-ecommerce-bkash'), $e->getMessage()), Exception::class, BkashConstant::DEFAULT_EXCEPTION_CODE, $e);
         } catch (BkashUnknownResultException $e) {
             Log::warning(sprintf('bKash refund for payment %s has no clear result. Checking Refund Status.', $payment_id));
         }
@@ -631,7 +631,7 @@ class Bkash extends PaymentProvider
         try {
             $status = $this->get_client()->refund_status($payment_id, $trx_id);
         } catch (Exception $e) {
-            throw_anyway(__('bKash did not confirm the refund. Check the bKash panel before you try again.', 'kirki-ecommerce-bkash'), Exception::class, 0, $e);
+            throw_anyway(__('bKash did not confirm the refund. Check the bKash panel before you try again.', 'kirki-ecommerce-bkash'), Exception::class, BkashConstant::DEFAULT_EXCEPTION_CODE, $e);
         }
 
         $completed = 0;
