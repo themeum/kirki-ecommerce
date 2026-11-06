@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Unit\Payment;
 
 use Exception;
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
@@ -10,15 +11,19 @@ use Kirki\Ecommerce\App\Managers\OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\Framework\Container;
+use Kirki\Ecommerce\Framework\Exceptions\QueueException;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Queue\Payload;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Payments\Bkash;
 use Kirki\Ecommerce\Payments\BkashClient;
+use Kirki\Ecommerce\Payments\BkashConstant;
+use Kirki\Ecommerce\Payments\BkashPaymentCheckJob;
 use Kirki\Ecommerce\Payments\BkashRejectedException;
 use Kirki\Ecommerce\Payments\BkashUnknownResultException;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
-foreach (['BkashConstant', 'BkashRejectedException', 'BkashUnknownResultException', 'BkashClient', 'BkashTransactionBuilder', 'Bkash'] as $bkash_class) {
+foreach (['BkashConstant', 'BkashRejectedException', 'BkashUnknownResultException', 'BkashClient', 'BkashTransactionBuilder', 'BkashPaymentCheckJob', 'Bkash'] as $bkash_class) {
     require_once dirname(__DIR__, 3) . '/payments/kirki-bkash/src/' . $bkash_class . '.php';
 }
 
@@ -57,6 +62,18 @@ class BkashTest extends TestCase
 
     /** @var Order */
     public $order;
+
+    /** @var int[] */
+    public $locked_orders = [];
+
+    /** @var array<int, array{0: int, 1: string, 2: int, 3: int}> */
+    public $scheduled_checks = [];
+
+    /** @var bool */
+    public $dispatch_fails = false;
+
+    /** @var callable|null Runs after the lock, to act as another request that finished first. */
+    public $after_lock = null;
 
     /** @var array<int, object> */
     public $recorded_refunds = [];
@@ -791,10 +808,272 @@ class BkashTest extends TestCase
             return $arguments[0] === static::UUID ? $this->order : null;
         }
 
+        if ($method === 'mark_payment_as_paid') {
+            $this->order->payment_status = PaymentStatus::PAID;
+        }
+
         return true;
     }
 
+    // Settlement under a lock.
+
+    public function test_settlement_locks_the_order_before_the_paid_write(): void
+    {
+        $this->respond('/query/payment', 200, $this->completed_payment());
+
+        $this->make_provider()->handle_return($this->return_request('success'));
+
+        $this->assertSame([7], $this->locked_orders);
+        $this->assertSame([[7]], $this->order_call_arguments('mark_payment_as_paid'));
+        $this->assertSame(['begin', 'commit'], $this->db_calls);
+    }
+
+    public function test_repeated_settlement_applies_the_payment_once(): void
+    {
+        $this->respond('/query/payment', 200, $this->completed_payment());
+        // The other request finishes while this one waits for the lock.
+        $this->after_lock = function () {
+            $this->order->payment_status = PaymentStatus::PAID;
+        };
+
+        $url = $this->make_provider()->handle_return($this->return_request('success'));
+
+        $this->assertSame(static::SUCCESS_URL, $url->get_url());
+        $this->assertSame([], $this->order_call_arguments('mark_payment_as_paid'));
+        $this->assertSame([], $this->order_call_arguments('set_transaction_id'));
+    }
+
+    public function test_rejection_after_a_settled_payment_keeps_the_order_paid(): void
+    {
+        $this->respond('/query/payment', 200, $this->query_payment());
+        $this->respond('/payment/execute', 200, ['externalCode' => '2023', 'errorMessageEn' => 'Insufficient Balance']);
+        $this->after_lock = function () {
+            $this->order->payment_status = PaymentStatus::PAID;
+        };
+
+        $url = $this->make_provider()->handle_return($this->return_request('success'));
+
+        $this->assertSame(static::SUCCESS_URL, $url->get_url());
+        $this->assertSame([], $this->order_call_arguments('mark_payment_as_failed'));
+    }
+
+    public function test_completed_payment_for_a_cancelled_order_is_not_marked_paid(): void
+    {
+        $this->order->order_status = OrderStatus::UNPAID_CANCELLED;
+        $this->respond('/query/payment', 200, $this->completed_payment());
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 0);
+
+        $this->assertSame([], $this->order_call_arguments('mark_payment_as_paid'));
+        $this->assert_logged('critical', 'TR001');
+        $this->assertSame([], $this->scheduled_checks);
+    }
+
+    public function test_completed_payment_with_a_different_payment_id_holds_the_order(): void
+    {
+        $this->order->payment_metadata = ['gateway' => ['paymentId' => 'TR002']];
+        $this->respond('/query/payment', 200, $this->completed_payment());
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 0);
+
+        $this->assertSame([], $this->order_call_arguments('mark_payment_as_paid'));
+        $this->assertSame([[7]], $this->order_call_arguments('mark_as_on_hold'));
+        $this->assertSame([], $this->order_call_arguments('set_payment_metadata'));
+        $this->assert_logged('critical', 'TR001');
+    }
+
+    public function test_order_already_on_hold_gets_no_second_hold(): void
+    {
+        $this->order->order_status = OrderStatus::ON_HOLD_UNPAID;
+        $this->respond('/query/payment', 200, array_merge($this->completed_payment(), ['amount' => '1.00']));
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 0);
+
+        $this->assertSame([], $this->order_call_arguments('mark_as_on_hold'));
+        $this->assert_logged('critical', 'does not match');
+    }
+
+    public function test_metadata_keeps_the_payment_id_when_the_response_has_none(): void
+    {
+        $payment = $this->completed_payment();
+        unset($payment['paymentId']);
+        $this->respond('/query/payment', 200, $payment);
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 0);
+
+        $stored = json_decode($this->order_call_arguments('set_payment_metadata')[0][1], true);
+        $this->assertSame('TR001', $stored['paymentId']);
+        $this->assertSame([[7, 'TRX123']], $this->order_call_arguments('set_transaction_id'));
+    }
+
+    // Scheduled check.
+
+    public function test_pay_schedules_the_first_check_once(): void
+    {
+        $this->respond('/create', 200, ['paymentId' => 'TR009', 'bkashURL' => 'https://pay.test/TR009']);
+
+        $this->make_provider()->pay($this->order);
+
+        $this->assertSame([[7, 'TR009', 0, 300]], $this->scheduled_checks);
+    }
+
+    public function test_queue_error_does_not_stop_the_payment(): void
+    {
+        $this->dispatch_fails = true;
+        $this->respond('/create', 200, ['paymentId' => 'TR009', 'bkashURL' => 'https://pay.test/TR009']);
+
+        $action = $this->make_provider()->pay($this->order);
+
+        $this->assertSame('https://pay.test/TR009', $action->value);
+        $this->assert_logged('error', 'queue table is missing');
+    }
+
+    public function test_check_for_a_paid_order_calls_no_bkash_api(): void
+    {
+        $this->prepare_paid_order();
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 0);
+
+        $this->assertSame([], $this->http_calls);
+        $this->assertSame([], $this->scheduled_checks);
+    }
+
+    public function test_check_settles_a_completed_payment_and_stops(): void
+    {
+        $this->respond('/query/payment', 200, $this->completed_payment());
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 1);
+
+        $this->assertSame([[7]], $this->order_call_arguments('mark_payment_as_paid'));
+        $this->assertSame([], $this->scheduled_checks);
+    }
+
+    public function test_check_with_an_unfinished_payment_changes_nothing_and_schedules_the_next(): void
+    {
+        $this->respond('/query/payment', 200, $this->query_payment());
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 0);
+
+        $this->assertSame([], $this->order_calls);
+        $this->assertSame(0, $this->call_count('/payment/execute'));
+        $this->assertSame([[7, 'TR001', 1, 600]], $this->scheduled_checks);
+    }
+
+    /**
+     * @dataProvider unclear_query_cases
+     */
+    public function test_check_with_no_clear_result_schedules_the_next(int $status, $body): void
+    {
+        $this->respond('/query/payment', $status, $body);
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 1);
+
+        $this->assertSame([], $this->order_calls);
+        $this->assertSame([[7, 'TR001', 2, 2700]], $this->scheduled_checks);
+    }
+
+    public function unclear_query_cases(): array
+    {
+        return [
+            'server error' => [500, null],
+            'rejected' => [200, ['externalCode' => '2056', 'errorMessageEn' => 'Invalid']],
+        ];
+    }
+
+    public function test_settlement_error_schedules_the_next_check(): void
+    {
+        $this->fail_on = 'mark_payment_as_paid';
+        $this->respond('/query/payment', 200, $this->completed_payment());
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 2);
+
+        $this->assertContains('rollback', $this->db_calls);
+        $this->assert_logged('critical', 'TR001');
+        $this->assertSame([[7, 'TR001', 3, 18000]], $this->scheduled_checks);
+    }
+
+    public function test_last_check_logs_and_schedules_nothing(): void
+    {
+        $this->respond('/query/payment', 200, $this->query_payment());
+
+        $this->make_provider()->run_payment_check(7, 'TR001', 4);
+
+        $this->assertSame([], $this->scheduled_checks);
+        $this->assert_logged('warning', 'TR001');
+        $this->assertSame([], $this->order_calls);
+    }
+
+    public function test_check_for_a_missing_order_stops(): void
+    {
+        $this->make_provider()->run_payment_check(99, 'TR001', 0);
+
+        $this->assertSame([], $this->http_calls);
+        $this->assertSame([], $this->scheduled_checks);
+    }
+
+    public function test_schedule_totals_five_minutes_to_twenty_four_hours(): void
+    {
+        $total = 0;
+        $points = [];
+
+        foreach (BkashConstant::PAYMENT_CHECK_DELAYS_SECONDS as $delay) {
+            $total += $delay;
+            $points[] = $total;
+        }
+
+        $this->assertSame([300, 900, 3600, 21600, 86400], $points);
+    }
+
+    public function test_job_survives_the_queue_round_trip(): void
+    {
+        $envelope = Payload::decode(Payload::encode(new BkashPaymentCheckJob(7, 'TR001', 2)));
+
+        $job = Payload::restore($envelope);
+
+        $this->assertSame(7, $job->order_id);
+        $this->assertSame('TR001', $job->payment_id);
+        $this->assertSame(2, $job->check);
+        $this->assertSame(BkashPaymentCheckJob::QUEUE, $job->get_queue());
+    }
+
+    /**
+     * An inactive plugin means no job class. Worker::process() catches this error and fails the job.
+     */
+    public function test_queued_check_with_no_plugin_class_is_an_invalid_payload(): void
+    {
+        $envelope = Payload::decode(Payload::encode(new BkashPaymentCheckJob(7, 'TR001', 2)));
+        $envelope['job'] = 'Kirki\\Ecommerce\\Payments\\RemovedBkashPaymentCheckJob';
+
+        $this->expectException(QueueException::class);
+
+        Payload::restore($envelope);
+    }
+
+    // Currency.
+
+    public function test_bkash_accepts_only_bdt(): void
+    {
+        $provider = $this->make_provider();
+
+        $this->assertSame(['BDT'], $provider->supported_currencies());
+        $this->assertTrue($provider->supports_currency('bdt'));
+        $this->assertFalse($provider->supports_currency('USD'));
+    }
+
     // Helpers.
+
+    protected function assert_logged(string $level, string $text): void
+    {
+        foreach ($this->logs as $log) {
+            if ($log[0] === $level && strpos($log[1], $text) !== false) {
+                $this->addToAssertionCount(1);
+
+                return;
+            }
+        }
+
+        $this->fail(sprintf('No %s log entry with "%s".', $level, $text));
+    }
 
     protected function bind_fakes(): void
     {
@@ -1003,20 +1282,58 @@ class BkashTest extends TestCase
 
     protected function make_provider(?array $settings = null): Bkash
     {
-        $provider = new class extends Bkash {
-            public function __construct()
+        $provider = new class($this) extends Bkash {
+            protected $test;
+
+            public function __construct($test)
             {
+                $this->test = $test;
             }
 
             public function webhook_url()
             {
                 return 'https://shop.test/wp-json/kirki/payment/webhook/bkash';
             }
+
+            protected function dispatch_payment_check(int $order_id, string $payment_id, int $check, int $delay): void
+            {
+                if ($this->test->dispatch_fails) {
+                    throw new Exception('queue table is missing');
+                }
+
+                $this->test->scheduled_checks[] = [$order_id, $payment_id, $check, $delay];
+            }
         };
 
         $base = \Kirki\Ecommerce\App\Payment\PaymentProvider::class;
+        $order_service = new class($this) {
+            protected $test;
 
-        foreach (['settings' => $settings ?? $this->settings(), 'is_enabled' => true] as $name => $value) {
+            public function __construct($test)
+            {
+                $this->test = $test;
+            }
+
+            public function lock_order(int $id)
+            {
+                $this->test->locked_orders[] = $id;
+
+                if ($this->test->after_lock) {
+                    ($this->test->after_lock)();
+                }
+            }
+
+            public function find_order_or_fail(int $id)
+            {
+                if ($id !== (int) $this->test->order->id) {
+                    throw new Exception('Order not found.');
+                }
+
+                return $this->test->order;
+            }
+        };
+
+        foreach (['settings' => $settings ?? $this->settings(), 'is_enabled' => true, 'order_service' => $order_service] as $name => $value) {
             $property = new \ReflectionProperty($base, $name);
             $property->setAccessible(true);
             $property->setValue($provider, $value);

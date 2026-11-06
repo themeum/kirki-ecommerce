@@ -1,5 +1,7 @@
+import { InfoCircledIcon } from '@radix-ui/react-icons';
+
 import Badge from '@/components/ui/badge';
-import InfoTooltip from '@/components/ui/info-tooltip';
+import Tooltip from '@/components/ui/tooltip';
 import type { PaymentMethod } from '@/features/settings/payment/schemas/catalog/payment';
 import { __ } from '@/wpi18n';
 
@@ -12,16 +14,16 @@ const CurrencySupportBadge = ({ support }: CurrencySupportBadgeProps) => {
     return null;
   }
 
-  const isUnsupported = support.status === 'unsupported';
-
   return (
-    <Badge variant={isUnsupported ? 'destructive' : 'warning'}>
-      <InfoTooltip
-        infoText={support.message}
-        variant={isUnsupported ? 'critical' : 'warning'}
-      >
-        {isUnsupported ? __('Unsupported', 'kirki-ecommerce') : __('Limited', 'kirki-ecommerce')}
-      </InfoTooltip>
+    <Badge variant={support.status === 'unsupported' ? 'destructive' : 'warning'}>
+      {support.status === 'unsupported'
+        ? __('Unsupported', 'kirki-ecommerce')
+        : __('Limited', 'kirki-ecommerce')}
+      {support.message && (
+        <Tooltip tip={support.message} position="top">
+          <InfoCircledIcon role="img" aria-label={support.message} />
+        </Tooltip>
+      )}
     </Badge>
   );
 };

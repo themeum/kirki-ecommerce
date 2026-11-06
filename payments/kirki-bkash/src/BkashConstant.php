@@ -48,4 +48,15 @@ class BkashConstant
     ];
 
     const MAX_REASON_LENGTH = 255;
+
+    const SETTLE_PAID = 'paid';
+    const SETTLE_ALREADY_PAID = 'already_paid';
+    const SETTLE_HELD = 'held';
+    const SETTLE_CANCELLED = 'cancelled';
+
+    /**
+     * The delay before each scheduled check: 5 minutes, 15 minutes, 1 hour, 6 hours, and
+     * 24 hours after the payment starts.
+     */
+    const PAYMENT_CHECK_DELAYS_SECONDS = [300, 600, 2700, 18000, 64800];
 }

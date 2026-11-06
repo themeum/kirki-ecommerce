@@ -50,9 +50,30 @@ class PayPal extends PaymentProvider
      * @link https://developer.paypal.com/reference/currency-codes/
      */
     const SUPPORTED_CURRENCIES = [
-        'AUD', 'BRL', 'CAD', 'CNY', 'CZK', 'DKK', 'EUR', 'HKD',
-        'HUF', 'ILS', 'JPY', 'MYR', 'MXN', 'TWD', 'NZD', 'NOK',
-        'PHP', 'PLN', 'GBP', 'SGD', 'SEK', 'CHF', 'THB', 'USD',
+        'USD',
+        'AUD',
+        'BRL',
+        'CAD',
+        'CNY',
+        'CZK',
+        'DKK',
+        'EUR',
+        'HUF',
+        'ILS',
+        'JPY',
+        'MYR',
+        'MXN',
+        'TWD',
+        'NZD',
+        'NOK',
+        'PHP',
+        'PLN',
+        'GBP',
+        'SGD',
+        'SEK',
+        'CHF',
+        'THB',
+        'HKD',
     ];
 
     /**

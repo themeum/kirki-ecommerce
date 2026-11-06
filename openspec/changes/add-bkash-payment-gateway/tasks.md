@@ -53,4 +53,39 @@ The plugin code must stay compatible with PHP 7.4.
 - [ ] 7.1 Run in the bKash sandbox: success, cancel, failure, wrong PIN, repeated return, partial refund, and full refund. Confirm the `authorization` format, the Query field names, and the Refund Status `trxId` meaning. Record any difference as a "Correction during implementation" note in `design.md`
 - [ ] 7.2 Ask bKash to confirm the live base URL, and update `BkashConstant` if it differs
 - [ ] 7.3 Confirm that the merchant's credentials are valid for API v2
-- [ ] 7.4 Verify: after any code change from 7.1 to 7.3, run `bash kirki-ecommerce-test unit --filter=BkashTest`, then `npm run typecheck && npm test` from `resources/app/`
+- [ ] 7.4 Verify: after any code change from 7.1 to 7.7, run `bash kirki-ecommerce-test unit --filter=BkashTest`, then `npm run typecheck && npm test` from `resources/app/`
+- [ ] 7.5 Ask bKash: is the customer balance debited or held before Execute, and for how long? Record the answer in `design.md`, and correct `docs/bkash.md` if needed
+- [ ] 7.6 Ask bKash: what Query rate is allowed, is a scheduled Query for unresolved payments acceptable, and what does Query return after 24 hours? Change the schedule if the answer requires it
+- [ ] 7.7 In the bKash sandbox, abandon a payment after approval, and confirm that the checks log it, leave the order unpaid, and call no Execute
+
+Run group 7 last, after groups 8 to 11.
+
+## 8. Settle under a lock
+
+Start this group after `gateway-currency-restrictions` is merged and this branch has it.
+
+- [x] 8.1 Add tests: a paid order stays paid after a rejected Execute, a repeated settle records one activity, a cancelled order is not marked paid and logs at critical level, a different stored payment ID holds the order, and a repeated hold adds no second activity
+- [x] 8.2 Implement design Decision 12 in `payments/kirki-bkash/src/Bkash.php`, and keep the customer return behaviour. Add a race case to `tests/Integration/ConcurrencySafetyTest.php` (The new test uses the real database with sequential calls and a stale order object. It does not run two processes at the same time, so it does not prove the row lock itself)
+- [x] 8.3 Test that metadata always includes the payment ID, and that a settled order can use the refund path
+- [x] 8.4 Verify: run `bash kirki-ecommerce-test unit --filter=BkashTest` and `bash kirki-ecommerce-test integration --filter=ConcurrencySafetyTest`, then `npm run typecheck && npm test` from `resources/app/`
+
+## 9. Scheduled job
+
+- [x] 9.1 Add tests: `pay()` dispatches one job with the first delay, a paid order causes no Query, `Completed` settles, a not-`Completed` status schedules the next check and marks nothing, Query Unknown and Rejected schedule the next check, a settle error schedules the next check, the last check logs and schedules nothing, and no path calls Execute
+- [x] 9.2 Add `payments/kirki-bkash/src/BkashPaymentCheckJob.php` and the intervals in `BkashConstant`. Follow `app/Jobs/PublishScheduledProductJob.php`
+- [x] 9.3 Dispatch the job in `pay()`, after `set_payment_metadata`. A dispatch error must not stop the payment
+- [x] 9.4 Test a queued check when the plugin is inactive, and record the result as a "Correction during implementation" note in `design.md` (Result: the job class is missing, `Payload::restore` raises `QueueException`, and `Worker::process` fails the job with no fatal error. The test covers `Payload::restore`, and the `Worker` step was read in the code. Later checks for that payment do not run)
+- [x] 9.5 Verify: run `bash kirki-ecommerce-test unit --filter=BkashTest`, then `npm run typecheck && npm test` from `resources/app/`
+
+## 10. BDT declaration
+
+- [x] 10.1 Override `supported_currencies()` in `Bkash` with `BkashConstant::CURRENCY`, keep the `pay()` check, and test that a USD order gets 422 and creates no order
+- [x] 10.2 Verify: run `bash kirki-ecommerce-test unit --filter=BkashTest`, then `npm run typecheck && npm test` from `resources/app/`
+
+## 11. Docs and standards
+
+- [x] 11.1 Correct `docs/bkash.md:83-84` and `:134` with design Decision 14
+- [x] 11.2 Update `docs/bkash.md`: remove "No background retry", describe the check schedule and what the admin sees, state what stays unrepaired for a closed browser, and state that checkout hides bKash for another currency
+- [x] 11.3 Run phpcs on the changed PHP files with a temporary config copy, because `phpcs-wporg.xml.dist` excludes `payments/*`. Fix all findings (Result: no findings)
+- [x] 11.4 Run `openspec validate add-bkash-payment-gateway --strict`
+- [x] 11.5 Verify: run the full `bash kirki-ecommerce-test unit` and `bash kirki-ecommerce-test integration`, then `npm run typecheck && npm test` from `resources/app/` (Result: unit 734 pass, integration 1493 of 1494 pass, app 2201 pass. The failure is `EscapedOutputTest::test_icon_render_keeps_the_bundled_svg`, which also fails on clean `dev`)

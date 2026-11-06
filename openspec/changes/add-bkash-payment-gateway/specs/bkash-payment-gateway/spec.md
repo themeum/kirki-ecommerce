@@ -53,13 +53,21 @@ payment id on the order, and SHALL send the customer to the URL that bKash retur
 
 ### Requirement: Only BDT orders can use bKash
 
-The system SHALL reject a bKash payment for an order whose currency is not BDT,
-before it calls bKash.
+The bKash provider SHALL declare `BDT` as its only supported currency, so that the
+store creates no order for bKash in another currency. The system SHALL also reject a
+bKash payment for an existing order whose currency is not BDT, before it calls bKash.
 
 #### Scenario: Order in another currency
 
-- **WHEN** a customer selects bKash for an order in USD and starts payment
+- **WHEN** a customer places an order in USD with bKash
 - **THEN** the customer sees an error that says bKash accepts only BDT
+- **AND** no order is created
+- **AND** no call goes to bKash
+
+#### Scenario: Existing order in another currency
+
+- **WHEN** payment starts for an existing bKash order in USD
+- **THEN** the payment does not start
 - **AND** no call goes to bKash
 - **AND** the order payment status does not change
 
@@ -182,6 +190,87 @@ merchant, and SHALL NOT send the customer to a page that asks them to pay again.
 - **AND** the payment id is logged at critical level
 - **AND** the customer is redirected to the checkout success page, which shows the
   order and does not offer another payment
+- **AND** the scheduled check can later mark the order paid
+
+### Requirement: A scheduled check resolves unsettled bKash payments
+
+When a bKash payment starts, the system SHALL schedule checks for that payment id at 5
+minutes, 15 minutes, 1 hour, 6 hours, and 24 hours. Each check SHALL stop with no bKash
+call when the order is already paid. Otherwise it SHALL call Query Payment, and SHALL mark
+the order paid only when bKash reports `Completed` with a matching amount and currency.
+A check SHALL NOT call Execute, and SHALL NOT mark an order failed from a not-`Completed`
+status. After the last check, an unresolved order SHALL stay unpaid, and the system SHALL
+write a log entry with the payment id.
+
+#### Scenario: Order update failed after payment
+
+- **WHEN** Execute reported `Completed`, the order update failed, and a check runs
+- **THEN** Query reports `Completed` for the exact order total
+- **AND** the order is marked as paid and records the bKash transaction id
+
+#### Scenario: Normal payment
+
+- **WHEN** the customer return marks the order paid, and a later check runs
+- **THEN** no call goes to bKash
+
+#### Scenario: Customer closes the browser after approval
+
+- **WHEN** Execute never ran, and a check finds a status that is not `Completed`
+- **THEN** Execute is not called
+- **AND** the order stays unpaid
+- **AND** the next check stays scheduled
+
+#### Scenario: Query has no clear result
+
+- **WHEN** a check gets no clear result from Query
+- **THEN** the order does not change
+- **AND** the next check stays scheduled
+
+#### Scenario: Last check finds no completed payment
+
+- **WHEN** the 24-hour check finds a status that is not `Completed`
+- **THEN** the order stays unpaid
+- **AND** the payment id is logged
+- **AND** no further check is scheduled
+
+### Requirement: A bKash payment settles once under a lock
+
+The system SHALL change the payment state of an order only under a row lock, after it reads
+the order again. It SHALL NOT hold the lock during a bKash call. A paid order SHALL NOT become
+failed, and a payment SHALL NOT repeat its paid time or payment activity. A completed payment
+for a cancelled order SHALL NOT mark that order paid, and SHALL write a critical log entry.
+A completed payment with a payment id that differs from the stored payment id SHALL put the
+order on hold where its status allows it, and SHALL write a critical log entry.
+
+#### Scenario: Customer return and a scheduled check overlap
+
+- **WHEN** the customer return and a scheduled check both find `Completed` for one order
+- **THEN** the order is marked as paid once
+- **AND** its payment activity is recorded once
+
+#### Scenario: Rejection after a settled payment
+
+- **WHEN** a rejected Execute is processed after another request marked the order paid
+- **THEN** the order stays paid
+
+#### Scenario: Completed payment for a cancelled order
+
+- **WHEN** a scheduled check finds `Completed` for an order that a merchant cancelled
+- **THEN** the order is not marked as paid
+- **AND** the payment id is logged at critical level
+
+#### Scenario: Completed payment with a different payment id
+
+- **WHEN** a scheduled check finds `Completed` for a payment id that the order no longer stores
+- **THEN** the order is not marked as paid
+- **AND** the order is put on hold where its status allows it
+- **AND** the payment id is logged at critical level
+
+#### Scenario: Settled order can be refunded
+
+- **WHEN** a scheduled check marks an order paid
+- **THEN** the order stores the payment id and the bKash transaction id
+- **AND** a later refund goes to bKash
 
 ### Requirement: bKash token renewal stays within the rate limit
 

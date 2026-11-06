@@ -39,7 +39,8 @@ Facts that shape the design:
 
 **Non-Goals:**
 
-- Core changes. Nothing outside the new plugin changes at runtime.
+- Core changes in this change. `gateway-currency-restrictions` holds the core work, and it
+  merges first.
 - A shared gateway test harness. `BkashTest` stays self-contained.
 - Provider fee tracking. Only Query returns `serviceFee`, and an extra call on each
   payment is not justified now.
@@ -214,10 +215,20 @@ cannot change an order.
 - **Plain permalinks** → On such a site, `rest_url()` gives `?rest_route=...`, and bKash
   appending `?paymentID=` can break the return URL. `docs/bkash.md` states that pretty
   permalinks are required. `pay()` does not check this.
-- **Case C** → The order stays unpaid while the money may have moved. The logs and docs
-  state this. A retry job is a possible later change.
-- **Customer closes the browser after approval** → Execute never runs, so the payment does
-  not complete. This is safe, and the order stays unpaid.
+- **Case C** → The order stays unpaid while the money may have moved, until a scheduled check
+  gets a clear result. See Decision 11. The logs and docs state this.
+- **Customer closes the browser after approval** → Execute never runs, and the order stays
+  unpaid. The API docs imply no debit before Execute, but the bKash checkout terms say that the
+  amount is "deducted from your balance and held" for a period. bKash has not settled this, so
+  the customer effect is not confirmed. A go-live task asks bKash. The job does not call Execute,
+  so this store does not charge a customer who left.
+- **WP-Cron does not run** → A check runs late on a low-traffic site. The order stays unpaid until
+  then, and no money is at risk from the delay.
+- **Query load** → An abandoned payment costs up to 5 Query calls. bKash publishes no limit, and
+  one merchant reports that bKash objected to a Query on each payment. A normal payment costs no
+  extra Query, because each check stops at a paid order. A go-live task asks bKash.
+- **Plugin is inactive when a check runs** → The behaviour of a queued job with no class is not
+  known. A task tests this.
 - **Refund succeeds at bKash, but a later local step fails** → `CreateRefundAction` rolls
   back and the local record is lost. This is existing behaviour for all gateways. The
   change does not address it.
@@ -225,6 +236,82 @@ cannot change an order.
   state no Query limit. This is acceptable.
 - **Logo** → The user supplies the file. If the file is missing, `icon_url()` returns an
   empty string, so the gateway still works, with no icon.
+
+## Decisions added after the IPN research
+
+### 11. Query-only scheduled job, not IPN
+
+IPN needs bKash support to register each store, and the default SNS retry window is about 1 to 2
+minutes. The job repairs each failure where money may have moved, and it needs no merchant setup.
+The full comparison is in `reports/bKash IPN integration options.md`.
+
+`pay()` dispatches `BkashPaymentCheckJob` with scalar values: the order ID, the payment ID, and the
+check number. Each run dispatches the next check with `delay()`, at the intervals in the spec. The
+job does not use `$backoff`, because the intervals are not equal.
+
+```
+order is paid                 -> stop, no Query
+Query
+  Unknown or Rejected         -> schedule the next check
+  Completed                   -> settle
+  anything else               -> schedule the next check
+last check, not Completed     -> log entry, stop
+settle throws                 -> schedule the next check
+```
+
+The job schedules in `pay()`, not in the Case C path, so that it also covers a PHP stop between
+Execute and the order update.
+
+A rejected Query does not end the checks, because the job has no evidence that the payment is final.
+
+*Alternative:* call Execute from the job. Rejected: it can charge a customer who left. bKash also
+states that a payment ID cannot be reused after an Execute attempt. This can change after bKash
+answers the go-live questions.
+
+### 12. Settle under a lock
+
+The settle path splits into `apply_settlement`, which throws, and thin wrappers. The return flow
+catches the error and returns a URL, as it does now. The job catches it and schedules the next check.
+
+```
+Query or Execute (no lock)
+begin -> lock_order -> find_order_or_fail -> check state -> apply -> commit
+```
+
+| State after the lock | Action |
+|---|---|
+| Paid | Commit with no change |
+| Cancelled | Critical log entry, no paid helper. The helper returns true with no transition. |
+| Payment ID differs from the stored one | Hold the order, critical log entry |
+| Amount or currency differs | Hold the order, as in Decision 4. Skip if already on hold with this `trxId`. |
+| Otherwise | Mark paid |
+
+`fail_order` uses the same lock, and it does nothing to a paid order. This follows
+`PerformOrderAction.php:69-73`.
+
+The settle path receives Execute or Query data only. Metadata always includes the stored payment
+ID, because `set_payment_metadata` replaces the whole `gateway` key, and refund needs the ID.
+
+### 13. BDT through the core rule
+
+`Bkash` overrides `supported_currencies()` with `BkashConstant::CURRENCY`. The check in `pay()` stays
+for orders that already exist. This extends Decision 10.
+
+### 14. Correct the manual step
+
+`docs/bkash.md:83-84` tells the admin to enter a transaction ID. The product cannot do this. The
+dialog lists only offline methods and has no such field, and a provider change replaces the stored
+payment ID. A later store refund then skips the gateway, so the store records a refund and no money
+moves. The new text says: use an offline method to mark the order paid, refund in the bKash panel,
+and do not use a store refund for that order.
+
+## Corrections after the first review
+
+- **Decision 7:** it assumed that a second payment comes from a new payment attempt. In fact, each
+  page view of an unpaid order called `pay()`. `gateway-currency-restrictions` fixes this, so `pay()`
+  now runs once for each order. Decision 7 stays as the protection.
+- **Case C on the success page:** the page view called `pay()`, and this replaced the stored payment
+  ID. The same fix removes this.
 
 ## Corrections during implementation
 
@@ -246,3 +333,16 @@ cannot change an order.
 - **phpcs:** `phpcs-wporg.xml.dist` excludes `payments/*`, so a normal run checks nothing here.
   The check used a temporary copy of the config without that exclude. To pass it, the plugin
   uses `throw_anyway()` as `app/` does, and `defined('ABSPATH') || exit;` in the plugin file.
+- **Decision 11:** the check logic is in `Bkash::run_payment_check`, and the job class only calls it, so
+  that unit tests can run it with no queue. The job keeps the default of one try, because each check
+  schedules the next one itself. A queue error when scheduling writes a log entry and does not stop
+  the payment.
+- **Decision 11:** the plugin being inactive fails that check, and no later check runs for the payment.
+  `docs/bkash.md` states this.
+- **Decision 12:** the settled states are paid, refunding, and refunded, so a refunded order is not
+  paid again. An order that is already on hold skips the hold, for both the amount mismatch and the
+  different payment ID. A completed payment with a different payment ID does not overwrite the stored
+  metadata.
+- **Decision 12:** `fail_order` sends the customer to the success page when another request settled the
+  order first.
+

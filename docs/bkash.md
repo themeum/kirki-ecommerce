@@ -24,7 +24,7 @@ full amount in a server-to-server response.
 3. Open bKash in **Settings → Payments**, enter the credentials, and keep **Sandbox
    Mode** on.
 4. Set the store permalinks to any value except **Plain**.
-5. Make a test order in BDT. Pay with a bKash sandbox wallet.
+5. Make a test order in BDT. Pay with a [sandbox wallet](#sandbox-test-credentials).
 6. Turn **Sandbox Mode** off when the test passes, and use live credentials.
 
 There is no webhook to configure.
@@ -41,12 +41,37 @@ There is no webhook to configure.
 | Password | Used to get tokens. The store keeps all of its characters. |
 | Sandbox Mode | On: `tokenized.sandbox.bka.sh`. Off: `tokenized.pay.bka.sh`. If it has no saved value, the store uses the sandbox. |
 
+### Sandbox test credentials
+
+Use these values only with **Sandbox Mode** on. Never use them on a live store.
+
+| Setting | Value |
+|---|---|
+| App Key | `4f6o0cjiki2rfm34kfdadl1eqq` |
+| App Secret | `2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b` |
+| Username | `sandboxTokenizedUser02` |
+| Password | `sandboxTokenizedUser02@12345` |
+
+| Test wallet | Result |
+|---|---|
+| `01770618575`, `01929918378`, `01770618576`, `01877722345`, `01619777282`, `01619777283` | Success |
+| `01823074817` | Insufficient balance |
+| `01823074818` | Debit block |
+
+All test wallets use PIN `12121` and OTP `123456`.
+
+These are public values from a third-party source, listed for API `v1.2.0-beta`, and this plugin
+calls API v2. bKash did not confirm these values, and they are not tested with this plugin. If
+token requests fail, ask bKash for sandbox credentials that are valid for API v2.
+
 ---
 
 ## 3. Requirements and limits
 
-- **BDT only.** bKash accepts only BDT. For an order in another currency, the customer
-  sees an error after pressing Pay, and can select another method.
+- **BDT only.** bKash accepts only BDT. Checkout does not show bKash for another currency.
+  In **Settings → Payments**, bKash shows **Unsupported** when BDT is not an active store
+  currency, and **Limited** when other active currencies cannot use it. See
+  [Payment Methods](payments.md#6-currency-support).
 - **Pretty permalinks.** On **Plain** permalinks the return URL contains a query string,
   and bKash appends `?paymentID=...` to it. This can break the return.
 - **A payment ID lives 24 hours** and allows one Execute attempt.
@@ -77,11 +102,40 @@ There is no webhook to configure.
 | Execute has no clear result, and Query reports `Completed` | Paid | Success |
 | Execute has no clear result, and Query does not report `Completed` | **Unpaid, and a critical log entry** | Success |
 
-**The last row needs action from the admin.** The money may have moved, but the store
+**The last row can need action from the admin.** The money may have moved, but the store
 cannot confirm it. The customer goes to the success page, because the failed page offers
-another payment and can cause a double charge. Search the log for the payment ID, and
-check it in the bKash panel. If bKash completed the payment, mark the order paid and enter
-the transaction ID manually.
+another payment and can cause a double charge. The scheduled check tries again (see below).
+
+If the order stays unpaid, search the log for the payment ID, and check it in the bKash
+panel. If bKash completed the payment, do these steps:
+
+1. Mark the order paid with an offline method. The store has no field for a bKash
+   transaction ID.
+2. Keep a record of the transaction ID outside the store.
+3. Refund this order in the bKash panel. **Do not use a store refund for this order.** A
+   store refund records the refund, and no money moves.
+
+**Scheduled checks.** When a payment starts, the store schedules a check at 5 minutes, 15
+minutes, 1 hour, 6 hours, and 24 hours. Each check asks bKash for the payment with Query.
+
+| Check result | Order | Next check |
+|---|---|---|
+| The order is already paid | No change, and no call to bKash | None |
+| bKash reports `Completed`, and the amount and currency match | Paid | None |
+| bKash reports `Completed`, and the amount or currency differs | On hold, and a critical log entry | None |
+| bKash reports `Completed`, and the order is cancelled | No change, and a critical log entry. Refund it in the bKash panel. | None |
+| bKash reports `Completed` for a payment ID that the order no longer stores | On hold, and a critical log entry | None |
+| Any other status, or no clear result | No change | Yes |
+| The 24-hour check still has no `Completed` | Unpaid, and a log entry | None |
+
+A check never calls Execute, and never marks an order failed. So if the customer approves
+the payment and closes the browser before they return, the store does not complete the
+payment, and the order stays unpaid. bKash has not confirmed whether the customer's balance
+is held in this case, so ask bKash if a customer reports it.
+
+The checks use the store queue, which runs on WP-Cron. On a site with little traffic, a check
+can run late. If the plugin is inactive when a check runs, that check fails and no later check
+runs for that payment.
 
 If the customer starts payment twice for one order, only the latest payment can complete.
 If the customer approves an older one, the store does not execute it, and bKash does not
@@ -127,11 +181,11 @@ If an object cache flush removes the token, the next call uses one Grant.
 | Symptom | Check |
 |---|---|
 | "bKash credentials are missing" | All four credentials are saved. |
-| "bKash accepts only BDT" | The order currency is BDT. |
+| "bKash is not available in ..." | The order currency is not BDT. Switch the store to BDT. |
 | "bKash did not give a clear result" at checkout | The credentials and Sandbox Mode match. Credentials must be valid for API v2. |
 | Customer returns to a broken page | The permalinks are not **Plain**. |
 | Payment errors for about one hour | The token rate limit was reached. Do not change the settings repeatedly. |
-| Paid at bKash, unpaid in the store | See the last row of the table in section 4. |
+| Paid at bKash, unpaid in the store | Wait for the scheduled checks. Then see the steps in section 4. |
 
 ---
 
@@ -143,14 +197,13 @@ v1.0.5.
 - **API version.** This plugin uses only v2. The official plugin defaults to v1.2.0-beta.
 - **Products.** This plugin supports only Tokenized Checkout without agreement. There is
   no regular Checkout, saved wallet agreement, or authorize and capture.
-- **No webhook or IPN.** A POST to the webhook URL does nothing, so the gap in the last
-  row of the table in section 4 stays open.
-- **No background retry.** No job checks unresolved payments later.
+- **No webhook or IPN.** A POST to the webhook URL does nothing. The scheduled checks repair
+  an unclear result, and neither option repairs a closed browser.
+- **Scheduled checks.** A job checks unresolved payments for 24 hours (section 4). The official
+  plugin has no scheduled recovery.
 - **No signature check.** The bKash docs give no algorithm for the `signature` value, so
   the store ignores it, and relies on server-to-server confirmation.
 - **No provider fee.** The store does not record the bKash service fee on the order.
 - **No merchant tools.** There are no transaction search, balance, or transfer screens.
-- **No checkout filter by currency.** bKash shows at checkout for a non-BDT order, and
-  the error comes after the customer presses Pay.
 - **Unconfirmed live host.** The bKash docs publish only the sandbox host. Confirm the
   live host with bKash before you go live.

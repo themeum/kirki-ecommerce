@@ -16,7 +16,14 @@ a customer.
 - Confirm a payment on the customer return: Query, then Execute, then Query again
   when the Execute result is unknown. An order becomes paid only when bKash reports
   `Completed` and the amount and currency match the order.
-- Reject an order that is not in BDT when the customer starts payment.
+- Declare BDT as the only bKash currency, through the core rule in the
+  `gateway-currency-restrictions` change. Checkout then hides bKash for another
+  currency, and the store creates no order. The check in `pay()` stays as a last guard.
+- Add a Query-only scheduled job. `pay()` schedules it, and it marks an order paid when
+  bKash reports `Completed` after the customer return did not settle the order. The job
+  never calls Execute.
+- Lock the order while a payment settles, because the customer return and the job can
+  run at the same time.
 - Send admin refunds to bKash, and check Refund Status when the refund call has no
   clear result.
 - Add unit tests with fake HTTP, `docs/bkash.md`, and API collection entries.
@@ -24,8 +31,8 @@ a customer.
   idempotency key, so bKash uses a different protection against double payment.
 
 Out of scope: agreement-based (saved wallet) payments, Instant Payment Notification
-(IPN), a background retry job, callback `signature` checks, provider fee tracking,
-and hiding bKash at checkout for non-BDT orders.
+(IPN), a late Execute for a customer who did not return, callback `signature` checks,
+and provider fee tracking.
 
 ## Capabilities
 
@@ -45,9 +52,12 @@ and hiding bKash at checkout for non-BDT orders.
 
 - **New code:** `payments/kirki-bkash/` (plugin file, `composer.json`,
   `assets/logo.svg`, `src/`).
-- **Core code:** no change. The gateway uses the existing `PaymentProvider` contract,
-  `kirki_ecommerce_payment_providers` filter, and
-  `GET /payment/webhook/{provider_id}` return route.
+- **Core code:** no change in this change. The gateway uses the existing
+  `PaymentProvider` contract, `kirki_ecommerce_payment_providers` filter,
+  `GET /payment/webhook/{provider_id}` return route, and framework queue.
+- **Depends on:** `gateway-currency-restrictions`, which must merge first. It adds the
+  currency method, and it stops `pay()` from running on page views. Without that fix, each
+  page view of an unpaid order would create a new payment and schedule a new job.
 - **Tests:** new `tests/Unit/Payment/BkashTest.php`. This is the first test file for
   a gateway under `payments/`.
 - **Docs:** new `docs/bkash.md`, and new `docs/ecommerce/online-payments/` collection
@@ -55,4 +65,4 @@ and hiding bKash at checkout for non-BDT orders.
 - **External systems:** bKash API v2. The bKash docs publish only the sandbox host.
   The live host comes from a third-party listing, and a go-live task must confirm it.
 - **Dependencies:** no new Composer or npm package.
-- **Input needed:** the user supplies the official icon-only bKash SVG.
+- **Input needed:** the user supplied the bKash SVG.

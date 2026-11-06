@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
 use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
@@ -28,8 +29,8 @@ defined('ABSPATH') || exit;
  * bKash payment gateway, using Tokenized Checkout without agreement.
  *
  * The webhook() method of the base class stays in place, so a POST to the webhook URL
- * cannot change an order. Only the customer return can do that, and only after bKash
- * confirms the payment in a server-to-server response.
+ * cannot change an order. Only the customer return and the scheduled check can do that,
+ * and only after bKash confirms the payment in a server-to-server response.
  */
 class Bkash extends PaymentProvider
 {
@@ -48,6 +49,14 @@ class Bkash extends PaymentProvider
         $this->has_fields = true;
 
         parent::__construct();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supported_currencies()
+    {
+        return [BkashConstant::CURRENCY];
     }
 
     /**
@@ -80,6 +89,8 @@ class Bkash extends PaymentProvider
             /* translators: %s: error message. */
             throw_anyway(sprintf(__('bKash Payment Error: %s', 'kirki-ecommerce-bkash'), $e->getMessage()), Exception::class, 0, $e);
         }
+
+        $this->schedule_payment_check($order->id, (string) $response['paymentId'], 0);
 
         return PaymentActionDTO::from_array([
             'type' => PaymentActionType::REDIRECT,
@@ -118,6 +129,31 @@ class Bkash extends PaymentProvider
         }
 
         return redirect($this->confirm_payment($order, $payment_id, (string) $request->text('status'), $payment));
+    }
+
+    /**
+     * Run one scheduled check, and schedule the next one if the payment is still unresolved.
+     *
+     * @param int    $order_id
+     * @param string $payment_id
+     * @param int    $check      The number of this check, from zero.
+     * @return void
+     */
+    public function run_payment_check(int $order_id, string $payment_id, int $check): void
+    {
+        if (!$this->check_payment($order_id, $payment_id)) {
+            return;
+        }
+
+        $next_check = $check + 1;
+
+        if ($next_check >= count(BkashConstant::PAYMENT_CHECK_DELAYS_SECONDS)) {
+            Log::warning(sprintf('bKash payment %s of order %d did not complete. The scheduled checks have ended.', $payment_id, $order_id));
+
+            return;
+        }
+
+        $this->schedule_payment_check($order_id, $payment_id, $next_check);
     }
 
     /**
@@ -345,7 +381,7 @@ class Bkash extends PaymentProvider
     }
 
     /**
-     * Record a completed payment on the order, and mark it paid when it matches the order.
+     * Settle a completed payment for the customer return, and get the URL to send them to.
      *
      * @param Order                $order
      * @param string               $payment_id
@@ -354,30 +390,81 @@ class Bkash extends PaymentProvider
      */
     protected function settle_order(Order $order, string $payment_id, array $payment): string
     {
-        $matches = $this->matches_order($order, $payment);
-
-        DB::begin_transaction();
-
         try {
-            OrderManager::set_payment_metadata($order->id, wp_json_encode($this->stored_payment_data($payment_id, $payment)));
-
-            if ($matches) {
-                OrderManager::set_transaction_id($order->id, (string) ($payment['trxId'] ?? ''));
-                OrderManager::mark_payment_as_paid($order->id);
-            } else {
-                OrderManager::mark_as_on_hold($order->id);
-            }
-
-            DB::commit();
+            $outcome = $this->apply_settlement($order->id, $payment_id, $payment);
         } catch (Throwable $e) {
-            DB::rollback();
-
             Log::critical(sprintf('bKash payment %s completed, but order %d did not update: %s', $payment_id, $order->id, $e->getMessage()));
 
             return Url::get_checkout_success_url($order->uuid);
         }
 
-        if (!$matches) {
+        return in_array($outcome, [BkashConstant::SETTLE_PAID, BkashConstant::SETTLE_ALREADY_PAID], true)
+            ? Url::get_checkout_success_url($order->uuid)
+            : Url::get_checkout_failed_url($order->uuid);
+    }
+
+    /**
+     * Apply a completed payment to the order under a row lock.
+     *
+     * The customer return and the scheduled check can run at the same time, so the state
+     * is read again after the lock. The caller makes every bKash call before this method.
+     *
+     * @param int                  $order_id
+     * @param string               $payment_id
+     * @param array<string, mixed> $payment    The bKash response that reports Completed.
+     * @return string One of the BkashConstant::SETTLE_* values.
+     * @throws Throwable If the order update fails. The change is rolled back.
+     */
+    protected function apply_settlement(int $order_id, string $payment_id, array $payment): string
+    {
+        DB::begin_transaction();
+
+        try {
+            $this->order_service->lock_order($order_id);
+            $order = $this->order_service->find_order_or_fail($order_id);
+            $outcome = $this->apply_settlement_to_locked_order($order, $payment_id, $payment);
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollback();
+
+            throw $e;
+        }
+
+        return $outcome;
+    }
+
+    /**
+     * Decide and apply the settlement for an order that this request has locked.
+     *
+     * @param Order                $order
+     * @param string               $payment_id
+     * @param array<string, mixed> $payment    The bKash response that reports Completed.
+     * @return string One of the BkashConstant::SETTLE_* values.
+     */
+    protected function apply_settlement_to_locked_order(Order $order, string $payment_id, array $payment): string
+    {
+        if ($this->is_settled($order)) {
+            return BkashConstant::SETTLE_ALREADY_PAID;
+        }
+
+        if (in_array($order->order_status, [OrderStatus::UNPAID_CANCELLED, OrderStatus::FAILED_CANCELLED], true)) {
+            Log::critical(sprintf('bKash payment %s completed, but order %d is cancelled. Refund it in the bKash panel.', $payment_id, $order->id));
+
+            return BkashConstant::SETTLE_CANCELLED;
+        }
+
+        if ($payment_id !== $this->stored_payment_id($order)) {
+            $this->hold_order($order);
+            Log::critical(sprintf('bKash payment %s completed, but order %d stores the payment %s. Check both in the bKash panel.', $payment_id, $order->id, $this->stored_payment_id($order)));
+
+            return BkashConstant::SETTLE_HELD;
+        }
+
+        OrderManager::set_payment_metadata($order->id, wp_json_encode($this->stored_payment_data($payment_id, $payment)));
+
+        if (!$this->matches_order($order, $payment)) {
+            $this->hold_order($order);
             Log::critical(sprintf(
                 'bKash payment %s does not match order %d: expected %s %s, received %s %s.',
                 $payment_id,
@@ -388,10 +475,112 @@ class Bkash extends PaymentProvider
                 (string) ($payment['currency'] ?? 'no currency')
             ));
 
-            return Url::get_checkout_failed_url($order->uuid);
+            return BkashConstant::SETTLE_HELD;
         }
 
-        return Url::get_checkout_success_url($order->uuid);
+        OrderManager::set_transaction_id($order->id, (string) ($payment['trxId'] ?? ''));
+        OrderManager::mark_payment_as_paid($order->id);
+
+        return BkashConstant::SETTLE_PAID;
+    }
+
+    /**
+     * Put an order on hold, unless it is on hold already. A repeat would log a second activity.
+     *
+     * @param Order $order
+     * @return void
+     */
+    protected function hold_order(Order $order): void
+    {
+        if (!in_array($order->order_status, [OrderStatus::ON_HOLD_UNPAID, OrderStatus::FAILED_ON_HOLD], true)) {
+            OrderManager::mark_as_on_hold($order->id);
+        }
+    }
+
+    /**
+     * Determine whether an order has a confirmed payment, including a refund of it.
+     *
+     * @param Order $order
+     * @return bool
+     */
+    protected function is_settled(Order $order): bool
+    {
+        return in_array($order->payment_status, [PaymentStatus::PAID, PaymentStatus::REFUNDING, PaymentStatus::REFUNDED], true);
+    }
+
+    /**
+     * Check one payment with Query, and settle it if bKash reports Completed.
+     *
+     * @param int    $order_id
+     * @param string $payment_id
+     * @return bool True if the payment is still unresolved.
+     */
+    protected function check_payment(int $order_id, string $payment_id): bool
+    {
+        try {
+            $order = $this->order_service->find_order_or_fail($order_id);
+        } catch (Exception $e) {
+            Log::warning(sprintf('bKash scheduled check found no order %d for payment %s.', $order_id, $payment_id));
+
+            return false;
+        }
+
+        if ($this->is_settled($order)) {
+            return false;
+        }
+
+        try {
+            $payment = $this->get_client()->query_payment($payment_id);
+        } catch (Exception $e) {
+            Log::warning(sprintf('bKash scheduled check for payment %s has no result: %s', $payment_id, $e->getMessage()));
+
+            return true;
+        }
+
+        if (!$this->is_completed($payment)) {
+            return true;
+        }
+
+        try {
+            $this->apply_settlement($order_id, $payment_id, $payment);
+        } catch (Throwable $e) {
+            Log::critical(sprintf('bKash payment %s completed, but order %d did not update: %s', $payment_id, $order_id, $e->getMessage()));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Schedule a check. A queue error must not stop the payment, so it only writes a log entry.
+     *
+     * @param int    $order_id
+     * @param string $payment_id
+     * @param int    $check      The number of the check, from zero.
+     * @return void
+     */
+    protected function schedule_payment_check(int $order_id, string $payment_id, int $check): void
+    {
+        try {
+            $this->dispatch_payment_check($order_id, $payment_id, $check, BkashConstant::PAYMENT_CHECK_DELAYS_SECONDS[$check]);
+        } catch (Throwable $e) {
+            Log::error(sprintf('bKash could not schedule a check for payment %s: %s', $payment_id, $e->getMessage()));
+        }
+    }
+
+    /**
+     * Put a check on the queue.
+     *
+     * @param int    $order_id
+     * @param string $payment_id
+     * @param int    $check      The number of the check, from zero.
+     * @param int    $delay      Seconds to wait.
+     * @return void
+     */
+    protected function dispatch_payment_check(int $order_id, string $payment_id, int $check, int $delay): void
+    {
+        BkashPaymentCheckJob::dispatch($order_id, $payment_id, $check)->delay($delay);
     }
 
     /**
@@ -406,9 +595,24 @@ class Bkash extends PaymentProvider
     {
         Log::warning(sprintf('bKash rejected Execute for payment %s: %s %s', $payment_id, $rejection->external_code(), $rejection->getMessage()));
 
-        OrderManager::mark_payment_as_failed($order->id);
+        DB::begin_transaction();
 
-        return Url::get_checkout_failed_url($order->uuid);
+        try {
+            $this->order_service->lock_order($order->id);
+            $is_settled = $this->is_settled($this->order_service->find_order_or_fail($order->id));
+
+            if (!$is_settled) {
+                OrderManager::mark_payment_as_failed($order->id);
+            }
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollback();
+
+            throw $e;
+        }
+
+        return $is_settled ? Url::get_checkout_success_url($order->uuid) : Url::get_checkout_failed_url($order->uuid);
     }
 
     /**
