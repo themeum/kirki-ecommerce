@@ -100,7 +100,7 @@ const OnlinePaymentEditPopup = ({ editedItem, isOpen, onClose }: OnlinePaymentEd
       <DialogContent>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>{__('Edit Payment Gateways', 'kirki-ecommerce')}</DialogTitle>
+          <DialogTitle>{__('Edit Payment Gateway', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleUpdateData)}>
@@ -109,6 +109,7 @@ const OnlinePaymentEditPopup = ({ editedItem, isOpen, onClose }: OnlinePaymentEd
                 <DynamicOnlinePaymentFields fields={editedItem?.fields} />
                 {isDefined(editedItem) && (
                   <Alert
+                    hasHighlight
                     text={
                       <Flex direction="column" gap={1}>
                         <Text variant="tiny" weight="semibold">
