@@ -169,32 +169,6 @@
         ]
       }
     ],
-    "schema_profiles": [
-      {
-        "name": "Default Product Schema",
-        "is_default": true,
-        "schema": {
-          "Product": [
-            "name",
-            "description",
-            "image"
-          ],
-          "Offer": [
-            "price",
-            "priceCurrency",
-            "availability"
-          ],
-          "AggregateRating": [
-            "ratingValue",
-            "reviewCount"
-          ],
-          "Brand": [
-            "name",
-            "logo"
-          ]
-        }
-      }
-    ],
     "shipping_profiles": [
       {
         "key": "general",

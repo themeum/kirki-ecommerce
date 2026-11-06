@@ -299,8 +299,9 @@ automatically. This includes the product name, price, image and stock.
    social networks.
 5. Click **Save**.
 
-To control which extra product information goes to search engines, use
-**schema profiles**. See [Essentials](#essentials).
+You do not set up the extra information for search engines. Every product page
+sends its name, description, images, SKU, barcode, category, brand, price and
+stock. A detail that the product does not have is not sent.
 
 ### Bulk edit
 
@@ -1055,13 +1056,6 @@ or *Size*.
 5. Open the attribute and add its values. For a color, pick the color.
 
 Now you can choose this attribute in the **Variations** card of any product.
-
-**Schemas** – the extra information that search engines read from your product
-pages.
-
-1. Under **Schemas**, click **Add**.
-2. Type a **Schema preset name** and choose the properties to include.
-3. Click **Save schema**.
 
 ### Advanced
 

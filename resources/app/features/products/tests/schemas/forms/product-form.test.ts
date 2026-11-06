@@ -49,7 +49,6 @@ const baseProductInput = {
   og_title: '',
   og_description: '',
   og_image: null,
-  schema_id: null,
 };
 
 describe('ProductFormVariantSchema', () => {
@@ -203,6 +202,7 @@ describe('ProductFormSchema', () => {
     expect(result.categories).toEqual([]);
     expect(result.variants).toHaveLength(1);
     expect(result).not.toHaveProperty('llm_instructions');
+    expect(result).not.toHaveProperty('schema_id');
   });
 
   it('always sends og_image as null even when the field holds a value', () => {
@@ -361,7 +361,6 @@ describe('mapProductToFormValues', () => {
     seo_title: null,
     seo_description: null,
     seo_keywords: null,
-    schema_id: null,
     og_title: null,
     og_description: null,
     og_image: null,

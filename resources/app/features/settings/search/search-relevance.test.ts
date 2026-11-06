@@ -25,7 +25,6 @@ const relevant: [query: string, expected: string[]][] = [
   ['reviews', ['products.reviews']],
   ['payment gateways', ['payments.methods']],
   ['variation', ['essentials.variation-library']],
-  ['structured data', ['essentials.schema-profile']],
   ['email template', ['email.default-template']],
   ['product weight unit', ['products.standards']],
   ['star ratings', ['products.reviews']],
@@ -71,7 +70,6 @@ const keyworded: [query: string, expected: string[]][] = [
   ['parcel', ['shipping.boxes']],
   ['gst', ['tax.regions', 'tax.profile', 'tax.collection', 'nav.tax']],
   ['bank transfer', ['payments.methods']],
-  ['seo', ['essentials.schema-profile']],
   ['cash on delivery', ['payments.methods']],
   ['turn off tax', ['general.calculate-tax']],
 ];

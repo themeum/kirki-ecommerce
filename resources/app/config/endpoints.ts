@@ -72,9 +72,6 @@ export const endpoints = {
   CURRENCY_EXCHANGE_PROVIDERS: '/currency-exchange/providers',
   CURRENCY_EXCHANGE_SYNC: '/currency-exchange/sync',
 
-  PRODUCT_SCHEMAS: '/product-schemas',
-  PRODUCT_SCHEMA: (id: string | number) => `/product-schemas/${id}`,
-
   COUPONS: '/coupons',
   COUPON: (id: string | number) => `/coupons/${id}`,
   COUPON_ACTION: (id: string | number) => `/coupons/${id}/action`,

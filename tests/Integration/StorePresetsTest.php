@@ -13,7 +13,6 @@ use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
 use Kirki\Ecommerce\App\Models\Tag;
 use Kirki\Ecommerce\App\Models\Variant;
@@ -67,7 +66,6 @@ class StorePresetsTest extends RestTestCase
         Tag::query()->delete();
         AttributeValue::query()->delete();
         Attribute::query()->delete();
-        ProductSchema::query()->delete();
         Coupon::query()->delete();
         ShippingProfile::query()->delete();
         TaxProfile::query()->delete();
@@ -151,28 +149,30 @@ class StorePresetsTest extends RestTestCase
         $this->assertSame(['One size'], AttributeValue::query()->where('attribute_id', $size->id)->order_by('id')->get()->pluck('value')->all());
     }
 
-    public function test_one_default_schema_profile_with_every_picker_field(): void
+    public function test_schema_profiles_in_the_preset_data_are_ignored(): void
     {
-        $this->setup_store();
+        app()->instance(LocalPresetSource::class, new class extends LocalPresetSource {
+            public function __construct()
+            {
+            }
 
-        $profiles = ProductSchema::query()->get();
-        $this->assertCount(1, $profiles);
-        $this->assertTrue((bool) $profiles->first()->is_default);
-        $this->assertEquals([
-            'Product' => ['name', 'description', 'image'],
-            'Offer' => ['price', 'priceCurrency', 'availability'],
-            'AggregateRating' => ['ratingValue', 'reviewCount'],
-            'Brand' => ['name', 'logo'],
-        ], $profiles->first()->schema);
-    }
+            public function fetch(PresetContext $context)
+            {
+                return [
+                    'attributes' => [['name' => 'Color', 'slug' => 'color', 'type' => 'color', 'values' => [['value' => 'Red', 'color' => '#FF0000']]]],
+                    'schema_profiles' => [['name' => 'Default Product Schema', 'is_default' => true, 'schema' => ['Product' => ['name']]]],
+                ];
+            }
+        });
 
-    public function test_existing_schema_profile_blocks_the_preset(): void
-    {
-        ProductSchema::query()->insert([['name' => 'Mine', 'is_default' => true, 'schema' => wp_json_encode(['Product' => ['name']])]]);
+        try {
+            $this->setup_store(['industry' => 'other']);
+        } finally {
+            static::forget_singleton(LocalPresetSource::class);
+        }
 
-        $this->setup_store();
-
-        $this->assertSame(['Mine'], ProductSchema::query()->get()->pluck('name')->all());
+        $this->assertSame(['color'], Attribute::query()->get()->pluck('slug')->all());
+        $this->assertNotEmpty(Option::get(OptionKeys::PRESETS_APPLIED_AT));
     }
 
     public function test_sample_data_creates_the_welcome_coupon_inactive(): void
@@ -214,7 +214,6 @@ class StorePresetsTest extends RestTestCase
 
         $this->assertSame($category_count, Category::query()->count());
         $this->assertSame(3, Attribute::query()->count());
-        $this->assertSame(1, ProductSchema::query()->count());
         $this->assertSame(1, ShippingProfile::query()->where('name', 'General')->count());
         $this->assertCount(1, $this->zones());
     }

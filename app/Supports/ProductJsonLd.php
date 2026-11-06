@@ -11,9 +11,9 @@ use function Kirki\Ecommerce\Framework\view_data;
 /**
  * Builds the schema.org Product structured data of a product page.
  *
- * Candidate values are built from the resolved SEO data, then the schema profile
- * decides which groups and fields are printed. The plugin stores no reviews, so
- * ratings and reviews are never printed.
+ * Every product prints the same field set, filled from the resolved SEO data and
+ * the product data; a field with no data is left out. The plugin stores no
+ * reviews, so ratings and reviews are never printed.
  *
  * @since 1.0.0
  */
@@ -37,7 +37,7 @@ class ProductJsonLd
     public static function current(array $seo)
     {
         $product = view_data();
-        $data = static::build($seo, $product, ProductSchemaProfile::for_product($product));
+        $data = static::build($seo, $product);
 
         return apply_filters(DevHookNames::PRODUCT_JSON_LD, $data, $seo, $product);
     }
@@ -47,46 +47,29 @@ class ProductJsonLd
      *
      * @since 1.0.0
      *
-     * @param array<string, mixed>    $seo     The resolved SEO data.
-     * @param array<string, mixed>    $product The product resource array.
-     * @param array<string, string[]> $profile The schema profile.
+     * @param array<string, mixed> $seo     The resolved SEO data.
+     * @param array<string, mixed> $product The product resource array.
      * @return array<string, mixed>
      */
-    public static function build(array $seo, array $product, array $profile)
+    public static function build(array $seo, array $product)
     {
         $items = $seo['offers']['items'] ?? [];
-        $fields = $profile['Product'] ?? [];
 
         $data = [
             '@context' => 'https://schema.org',
             '@type' => 'Product',
-            'name' => static::when(in_array('name', $fields, true), $seo['title'] ?? ''),
-            'description' => static::when(in_array('description', $fields, true), $seo['description'] ?? ''),
-            'image' => static::when(in_array('image', $fields, true), static::unwrap($seo['images'] ?? [])),
-            'sku' => static::when(in_array('sku', $fields, true), static::pick_variant_value($items, 'sku')),
-            // The profile builder lists no GTIN field, so listing the SKU also lists the barcode.
-            'gtin' => static::when(in_array('sku', $fields, true) || in_array('gtin', $fields, true), static::pick_gtin($items)),
-            'category' => static::when(in_array('category', $fields, true), static::category_path($product)),
-            'brand' => static::build_brand($product, $profile['Brand'] ?? null),
-            'offers' => static::build_offers($seo, $profile['Offer'] ?? null),
+            'name' => $seo['title'] ?? '',
+            'description' => $seo['description'] ?? '',
+            'image' => static::unwrap($seo['images'] ?? []),
+            'sku' => static::pick_variant_value($items, 'sku'),
+            'gtin' => static::pick_gtin($items),
+            'category' => static::category_path($product),
+            'brand' => static::build_brand($product),
+            'offers' => static::build_offers($seo),
             'url' => $seo['url'] ?? '',
         ];
 
         return array_filter($data, [static::class, 'is_filled']);
-    }
-
-    /**
-     * Keep a value only when the condition holds.
-     *
-     * @since 1.0.0
-     *
-     * @param bool  $condition Whether the field is listed.
-     * @param mixed $value     The value.
-     * @return mixed The value, or an empty string.
-     */
-    protected static function when(bool $condition, $value)
-    {
-        return $condition ? $value : '';
     }
 
     /**
@@ -199,70 +182,63 @@ class ProductJsonLd
     }
 
     /**
-     * Build the brand node from the listed fields.
+     * Build the brand node from the brand name and logo.
      *
      * @since 1.0.0
      *
      * @param array<string, mixed> $product The product resource array.
-     * @param string[]|null        $fields  Listed Brand fields, or null when the group is not listed.
      * @return array<string, string>|string
      */
-    protected static function build_brand(array $product, $fields)
+    protected static function build_brand(array $product)
     {
-        if ($fields === null || empty($product['brand']['name'])) {
+        if (empty($product['brand']['name'])) {
             return '';
         }
 
         $brand = [
-            'name' => static::when(in_array('name', $fields, true), (string) $product['brand']['name']),
-            'logo' => static::when(in_array('logo', $fields, true), (string) ($product['brand']['logo']['url'] ?? '')),
+            'name' => (string) $product['brand']['name'],
+            'logo' => (string) ($product['brand']['logo']['url'] ?? ''),
         ];
 
-        $brand = array_filter($brand, [static::class, 'is_filled']);
-
-        return $brand !== [] ? ['@type' => 'Brand'] + $brand : '';
+        return ['@type' => 'Brand'] + array_filter($brand, [static::class, 'is_filled']);
     }
 
     /**
-     * Build the Offer, or AggregateOffer for several variants, from the listed fields.
+     * Build the Offer, or AggregateOffer for several variants.
      *
      * @since 1.0.0
      *
-     * @param array<string, mixed> $seo    The resolved SEO data.
-     * @param string[]|null        $fields Listed Offer fields, or null when the group is not listed.
+     * @param array<string, mixed> $seo The resolved SEO data.
      * @return array<string, mixed>|string
      */
-    protected static function build_offers(array $seo, $fields)
+    protected static function build_offers(array $seo)
     {
         $items = $seo['offers']['items'] ?? [];
 
-        if ($fields === null || $items === []) {
+        if ($items === []) {
             return '';
         }
 
         $prices = array_column($items, 'base_price');
         $availability = static::aggregate_availability($items);
-        $listed = function (string $field) use ($fields) {
-            return in_array($field, $fields, true);
-        };
 
         $offer = ['@type' => count($items) > 1 ? 'AggregateOffer' : 'Offer'];
 
         if (count($items) > 1) {
             $offer['offerCount'] = count($items);
-            $offer['lowPrice'] = static::when($listed('price'), static::extreme($prices, 'min'));
-            $offer['highPrice'] = static::when($listed('price'), static::extreme($prices, 'max'));
+            $offer['lowPrice'] = static::extreme($prices, 'min');
+            $offer['highPrice'] = static::extreme($prices, 'max');
         } else {
-            $offer['price'] = static::when($listed('price'), $prices[0]);
+            $offer['price'] = $prices[0];
         }
 
-        $offer['priceCurrency'] = static::when($listed('priceCurrency'), (string) ($seo['offers']['currency'] ?? ''));
-        $offer['availability'] = static::when($listed('availability'), ProductSeo::SCHEMA_URL . $availability);
-        $offer['itemCondition'] = static::when($listed('itemCondition'), ProductSeo::SCHEMA_URL . 'NewCondition');
+        $offer['priceCurrency'] = (string) ($seo['offers']['currency'] ?? '');
+        $offer['availability'] = ProductSeo::SCHEMA_URL . $availability;
+        $offer['itemCondition'] = ProductSeo::SCHEMA_URL . 'NewCondition';
         $offer['url'] = $seo['url'] ?? '';
 
-        if ($listed('seller.name') || $listed('seller')) {
-            $offer['seller'] = ['@type' => 'Organization', 'name' => $seo['site_name'] ?? ''];
+        if (!empty($seo['site_name'])) {
+            $offer['seller'] = ['@type' => 'Organization', 'name' => (string) $seo['site_name']];
         }
 
         return array_filter($offer, [static::class, 'is_filled']);

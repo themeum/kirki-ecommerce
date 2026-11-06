@@ -128,7 +128,7 @@ working in a development install.
 - **WHEN** a merchant completes the onboarding wizard on a site that runs
   the packaged plugin
 - **THEN** store setup succeeds and seeds the category tree, attribute
-  presets, product schema profiles and settings defaults
+  presets and settings defaults
 
 #### Scenario: Sample data import works from the package
 
@@ -278,3 +278,4 @@ sample data import SHALL read only the remote location.
 
 - **WHEN** the package is built
 - **THEN** the resulting plugin directory still contains the other files in `resources/data/`, for example `countries.php` and `currencies.json`
+
