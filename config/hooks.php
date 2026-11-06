@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Hooks\Actions\AddWpHeadMeta;
 use Kirki\Ecommerce\App\Hooks\Actions\CustomizeAdminBar;
 use Kirki\Ecommerce\App\Hooks\Actions\EnqueueSiteScripts;
 use Kirki\Ecommerce\App\Hooks\Actions\MergeGuestOrder;
+use Kirki\Ecommerce\App\Hooks\Actions\RegisterNavMenuMetaBox;
 use Kirki\Ecommerce\App\Hooks\Actions\RenderLoginConsents;
 use Kirki\Ecommerce\App\Hooks\Actions\RenderRegisterConsents;
 use Kirki\Ecommerce\App\Hooks\Actions\RepairCurrencySyncSchedule;
@@ -13,6 +14,7 @@ use Kirki\Ecommerce\App\Hooks\Filters\AddProductRobots;
 use Kirki\Ecommerce\App\Hooks\Filters\PageIdentifier;
 use Kirki\Ecommerce\App\Hooks\Filters\ReplaceSiteTitle;
 use Kirki\Ecommerce\App\Hooks\Filters\PageInlineScript;
+use Kirki\Ecommerce\App\Hooks\Filters\RenderNavMenuShortcodeItems;
 use Kirki\Ecommerce\App\Hooks\Filters\ValidateLoginConsents;
 use Kirki\Ecommerce\App\Hooks\Filters\ValidateRegisterConsents;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\AttachCustomerToNewWordPressUser;
@@ -50,6 +52,7 @@ return [
         SendCustomerNewAccountEmail::class,
         RepairCurrencySyncSchedule::class,
         RemoveDeletedSitePageSetting::class,
+        RegisterNavMenuMetaBox::class,
     ],
     'filters' => [
         ReplaceSiteTitle::class,
@@ -63,5 +66,6 @@ return [
         SendCustomerPasswordResetEmail::class,
         SuppressCoreNewUserEmail::class,
         EnableShopPageExcerpt::class,
+        RenderNavMenuShortcodeItems::class,
     ],
 ];
