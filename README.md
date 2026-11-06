@@ -129,6 +129,12 @@ Code that store setup or sample data runs in production lives in `app/Setup/`, n
 `database/seeders/`. After you pull a change that moves classes between these folders,
 run `composer dump-autoload`.
 
+### Onboarding
+
+| Command | Description |
+| ------- | ----------- |
+| `wpcli kirki onboarding:reset` | Remove the onboarding completion option, so the setup wizard shows again |
+
 ### Code generators
 
 Scaffold files from [`framework/Console/stubs/`](framework/Console/stubs/). Namespace prefix: `Kirki\Ecommerce\`.
