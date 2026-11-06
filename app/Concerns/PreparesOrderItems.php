@@ -45,7 +45,7 @@ trait PreparesOrderItems
         $item_dto->variant_name = $variant->attribute_values ? $variant->attribute_values->pluck('value')->join(', ') : '';
         $item_dto->sku = $variant->sku;
         $item_dto->barcode = $variant->barcode;
-        $item_dto->product_image = $variant->media ?? ($first_media ? $first_media->id : null);
+        $item_dto->product_image = $variant->media ?? ($first_media ? $first_media->ID : null);
         $item_dto->is_physical_product = $variant->is_physical_product ?? true;
         $item_dto->weight = $variant->weight;
         $item_dto->weight_unit = $variant->weight_unit;
