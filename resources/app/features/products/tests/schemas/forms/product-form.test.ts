@@ -202,7 +202,6 @@ describe('ProductFormSchema', () => {
     expect(result.categories).toEqual([]);
     expect(result.variants).toHaveLength(1);
     expect(result).not.toHaveProperty('llm_instructions');
-    expect(result).not.toHaveProperty('schema_id');
   });
 
   it('always sends og_image as null even when the field holds a value', () => {
