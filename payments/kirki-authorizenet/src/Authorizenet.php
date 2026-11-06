@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Supports\Facades\Cache;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 
@@ -141,6 +142,41 @@ class Authorizenet extends PaymentProvider
         </script>
         <?php
         return ob_get_clean();
+    }
+
+    /**
+     * Get the currencies enabled on the merchant account.
+     *
+     * A failed lookup returns an empty list, which means no restriction, so that
+     * an Authorize.Net outage does not remove the gateway from checkout. The check
+     * in pay() stays as the last guard.
+     *
+     * @return string[]
+     */
+    public function supported_currencies()
+    {
+        $login_id = $this->settings['login_id'] ?? '';
+
+        if (empty($login_id) || empty($this->settings['transaction_key']) || empty($this->settings['signature_key'])) {
+            return [];
+        }
+
+        $key = 'authorizenet_currencies_' . md5($login_id . '|' . (empty($this->settings['sandbox']) ? 'live' : 'sandbox'));
+        $cached = Cache::get($key);
+
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        try {
+            $currencies = (array) $this->get_client()->supported_currencies();
+        } catch (Exception $e) {
+            $currencies = [];
+        }
+
+        Cache::put($key, $currencies, empty($currencies) ? AuthorizenetConstant::CURRENCY_FAILURE_CACHE_SECONDS : AuthorizenetConstant::CURRENCY_CACHE_SECONDS);
+
+        return $currencies;
     }
 
     /**

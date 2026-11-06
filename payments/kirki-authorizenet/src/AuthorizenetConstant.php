@@ -6,6 +6,16 @@ use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 class AuthorizenetConstant
 {
+    /**
+     * How long to keep the merchant currency list, in seconds.
+     */
+    const CURRENCY_CACHE_SECONDS = 43200;
+
+    /**
+     * How long to wait before another currency lookup after a failure, in seconds.
+     */
+    const CURRENCY_FAILURE_CACHE_SECONDS = 300;
+
     use HasConstants;
 
     const FORM_URL_SANDBOX = 'https://test.authorize.net/payment/payment';

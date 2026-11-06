@@ -19,7 +19,9 @@ use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource as SiteOrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
@@ -212,7 +214,9 @@ class SiteController
         $customer = customer();
         $customer_id      = $customer ? $customer->get_customer_id() : null;
         $addresses        = $customer_id ? $address_service->all_for_customer($customer_id) : [];
-        $payment_gateways = Payment::get_available_providers();
+        $display_currency = Money::resolve_display_currency();
+        $payment_gateways = Payment::get_checkout_providers($display_currency);
+        $payment_notice   = Payment::get_currency_unavailable_notice($display_currency, app(CurrencyService::class)->get_active_currency_codes());
         $cart = SiteCartResource::make($cart);
 
         if (!empty($cart['invalid_item'])) {
@@ -224,6 +228,7 @@ class SiteController
             'customer'         => $customer,
             'addresses'        => $addresses,
             'payment_gateways' => $payment_gateways,
+            'payment_notice'   => $payment_notice,
             'countries'        => Utils::get_countries(),
             'cart'             => $cart,
             'consents'         => app(LegalConsentService::class)->get_renderable(ConsentLocations::CHECKOUT),

@@ -13,7 +13,8 @@ checkout. Section 3 explains how that order is kept.
 - [3. Changing the order](#3-changing-the-order)
 - [4. The order API](#4-the-order-api)
 - [5. Methods added by other plugins](#5-methods-added-by-other-plugins)
-- [6. Where this differs from WooCommerce](#6-where-this-differs-from-woocommerce)
+- [6. Currency support](#6-currency-support)
+- [7. Where this differs from WooCommerce](#7-where-this-differs-from-woocommerce)
 
 ---
 
@@ -137,7 +138,68 @@ A save in the meantime drops the ID, and the method then goes last.
 
 ---
 
-## 6. Where this differs from WooCommerce
+## 6. Currency support
+
+Some gateways can accept only some currencies. The store uses this in three places.
+
+**Checkout.** A shopper does not see a gateway that cannot accept the paying currency.
+If no method is left, the payment section shows a message, and the shopper cannot place
+the order:
+
+| Situation | Message |
+|---|---|
+| Another active currency has a method | No payment method is available for USD. Switch to BDT to complete your order. |
+| No other active currency has a method | No payment method is available for USD. |
+| The store has no enabled method | No payment methods found! |
+
+The message names at most three currencies, with the base currency first. It has no
+switch button. **If you use a restricted gateway, add the currency switcher shortcode to
+your header or checkout page.** Without it, the shopper cannot follow the message.
+
+**The order API.** `POST /checkout` returns HTTP 422 and creates no order when the
+selected method cannot accept the order currency. This also applies to a manual order
+that names the method. A manual order with no method is still accepted.
+
+**Settings → Payments.** A row can show a badge. Move the pointer over its info icon
+to read the reason. A badge does not stop you from enabling the method.
+
+| Badge | Meaning |
+|---|---|
+| **Unsupported** | No active store currency can use this method, so no shopper can see it. |
+| **Limited** | Only some active store currencies can use this method. |
+
+### What each gateway declares
+
+| Gateway | Accepted currencies |
+|---|---|
+| bKash | BDT |
+| PayFast | ZAR |
+| PayMongo | PHP |
+| PayPal | The 24 codes in the PayPal currency reference |
+| Authorize.net | The currencies on your merchant account |
+| Other gateways | No declaration |
+
+The PayPal list is an upper limit. Your PayPal account can accept fewer currencies.
+
+The Authorize.net list is kept for 12 hours, so an account change can take that long to
+show. If the lookup fails, the store allows the gateway and tries again after 5 minutes.
+
+**Limit.** Other gateways have limits that depend on the merchant account, so the store
+does not know them. They always show at checkout. If such a gateway rejects the currency,
+the order already exists, and it stays unpaid.
+
+### For gateway developers
+
+Override `supported_currencies()` in your `PaymentProvider` and return ISO codes. An empty
+list, which is the default, means no restriction.
+
+The site order resource no longer includes `payment_next_step`, and rendering an order
+no longer starts a payment. Only the `POST /checkout` response includes the value. So
+`pay()` runs once when the order is placed.
+
+---
+
+## 7. Where this differs from WooCommerce
 
 The page looks like WooCommerce's payment settings, but it does not match it
 one-to-one:

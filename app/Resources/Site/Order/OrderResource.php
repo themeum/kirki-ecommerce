@@ -145,7 +145,6 @@ class OrderResource extends Resource
             'shipping_country' => app(CountryService::class)->find($this->shipping_country),
             'billing_country' => app(CountryService::class)->find($this->billing_country),
             'formatted_status' => FulfillmentStatus::get_formatted($this->fulfillment_status),
-            'payment_next_step' => $this->resolve_payment_next_step(),
             'item_product_data' => $items->map(function ($item) {
                 return $item->product_data;
             })->to_array(),
@@ -473,15 +472,14 @@ class OrderResource extends Resource
     /**
      * Resolve the payment action the shopper still has to take, if any.
      *
-     * Payment::pay() opens a live session with the gateway, so it must only run
-     * for an order that is still awaiting payment - this resource also renders
-     * historical orders in the account area.
+     * Payment::pay() opens a live session with the gateway, so only the checkout
+     * response calls this method. Rendering an order must never start a payment.
      *
      * @since 1.0.0
      *
      * @return \Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO|null Null when the order is already settled or the gateway returns no action.
      */
-    protected function resolve_payment_next_step()
+    public function resolve_payment_next_step()
     {
         $settled_statuses = [PaymentStatus::PAID, PaymentStatus::REFUNDING, PaymentStatus::REFUNDED];
 

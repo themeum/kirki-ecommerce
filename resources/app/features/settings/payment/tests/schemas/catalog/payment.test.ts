@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest';
 
-import { OfflinePaymentSchema, OnlinePaymentListSchema, OnlinePaymentSchema } from '@/features/settings/payment/schemas/catalog/payment';
+import { OfflinePaymentSchema, OnlinePaymentListSchema, OnlinePaymentSchema, PaymentMethodSchema } from '@/features/settings/payment/schemas/catalog/payment';
 
 describe('OnlinePaymentSchema', () => {
   it('accepts the documented list item (online-payments/list-6.yml)', () => {
@@ -133,5 +133,27 @@ describe('OfflinePaymentSchema', () => {
   it('accepts the optional fields being absent beyond id', () => {
     const result = OfflinePaymentSchema.safeParse({ id: 'fdsf' });
     expect(result.success).toBe(true);
+  });
+});
+
+describe('PaymentMethodSchema currency_support', () => {
+  it('accepts a known status and a message', () => {
+    const result = PaymentMethodSchema.safeParse({
+      id: 'bkash',
+      currency_support: { status: 'unsupported', message: 'bKash accepts only BDT.' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts a response with no field', () => {
+    expect(PaymentMethodSchema.safeParse({ id: 'bkash' }).success).toBe(true);
+  });
+
+  it('rejects an unknown status', () => {
+    const result = PaymentMethodSchema.safeParse({
+      id: 'bkash',
+      currency_support: { status: 'other', message: null },
+    });
+    expect(result.success).toBe(false);
   });
 });

@@ -383,6 +383,124 @@ class PaymentProvider
     }
 
     /**
+     * Get the ISO codes of the currencies this provider can accept.
+     *
+     * An empty list means no restriction. A list can be an upper limit: a listed
+     * currency can still fail for one merchant account, but an unlisted currency
+     * never works.
+     *
+     * @since 1.0.0
+     *
+     * @return string[]
+     */
+    public function supported_currencies()
+    {
+        return [];
+    }
+
+    /**
+     * Check whether this provider can accept a currency.
+     *
+     * @since 1.0.0
+     *
+     * @param string $code ISO currency code, in any letter case.
+     * @return bool
+     */
+    public function supports_currency(string $code)
+    {
+        $supported = array_map('strtoupper', $this->supported_currencies());
+
+        return empty($supported) || in_array(strtoupper($code), $supported, true);
+    }
+
+    /**
+     * Get the message for an order in a currency this provider cannot accept.
+     *
+     * @since 1.0.0
+     *
+     * @param string $code ISO currency code.
+     * @return string
+     */
+    public function currency_unavailable_message(string $code)
+    {
+        return sprintf(
+            /* translators: 1: payment method name, 2: currency code, 3: list of accepted currency codes. */
+            __('%1$s is not available in %2$s. Accepts: %3$s.', 'kirki-ecommerce'),
+            $this->title(),
+            strtoupper($code),
+            $this->format_currency_list($this->supported_currencies())
+        );
+    }
+
+    /**
+     * Compare this provider's currencies with the store's active currencies.
+     *
+     * @since 1.0.0
+     *
+     * @param string[] $active_codes Active store currency codes.
+     * @return array{status: string, message: string|null} Status is supported, limited or unsupported.
+     */
+    public function currency_support(array $active_codes)
+    {
+        $blocked = array_values(array_filter($active_codes, fn($code) => !$this->supports_currency($code)));
+        $supported = $this->supported_currencies();
+
+        if (empty($blocked)) {
+            return ['status' => 'supported', 'message' => null];
+        }
+
+        if (count($blocked) < count($active_codes)) {
+            return [
+                'status' => 'limited',
+                'message' => sprintf(
+                    /* translators: 1: list of currency codes, 2: payment method name, 3: list of accepted currency codes. */
+                    __('Customers paying in %1$s cannot see %2$s. It accepts only %3$s.', 'kirki-ecommerce'),
+                    $this->format_currency_list($blocked),
+                    $this->title(),
+                    $this->format_currency_list($supported)
+                ),
+            ];
+        }
+
+        $accepted = $this->format_currency_list($supported);
+        $add_currency = count($supported) === 1
+            /* translators: %s: currency code. */
+            ? sprintf(__('Add %s in the currency settings.', 'kirki-ecommerce'), $accepted)
+            : __('Add one of these in the currency settings.', 'kirki-ecommerce');
+
+        return [
+            'status' => 'unsupported',
+            'message' => sprintf(
+                /* translators: 1: payment method name, 2: list of accepted currency codes, 3: instruction to add a currency. */
+                __('%1$s accepts only %2$s. None of your active currencies can use it. %3$s', 'kirki-ecommerce'),
+                $this->title(),
+                $accepted,
+                $add_currency
+            ),
+        ];
+    }
+
+    /**
+     * Format currency codes for a message, with at most five codes.
+     *
+     * @since 1.0.0
+     *
+     * @param string[] $codes Currency codes.
+     * @return string
+     */
+    protected function format_currency_list(array $codes)
+    {
+        $list = implode(', ', array_slice($codes, 0, 5));
+
+        if (count($codes) <= 5) {
+            return $list;
+        }
+
+        /* translators: %s: list of currency codes. */
+        return sprintf(__('%s, and more', 'kirki-ecommerce'), $list);
+    }
+
+    /**
      * Get the fields shown on the provider's admin settings screen.
      *
      * @since 1.0.0

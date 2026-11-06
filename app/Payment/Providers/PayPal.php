@@ -45,6 +45,27 @@ class PayPal extends PaymentProvider
     const LIVE_URL = 'https://api-m.paypal.com';
 
     /**
+     * Currencies PayPal can accept, as an upper limit. Some merchant accounts accept fewer.
+     *
+     * @link https://developer.paypal.com/reference/currency-codes/
+     */
+    const SUPPORTED_CURRENCIES = [
+        'AUD', 'BRL', 'CAD', 'CNY', 'CZK', 'DKK', 'EUR', 'HKD',
+        'HUF', 'ILS', 'JPY', 'MYR', 'MXN', 'TWD', 'NZD', 'NOK',
+        'PHP', 'PLN', 'GBP', 'SGD', 'SEK', 'CHF', 'THB', 'USD',
+    ];
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
+    public function supported_currencies()
+    {
+        return static::SUPPORTED_CURRENCIES;
+    }
+
+    /**
      * Set up PayPal's identity and admin fields.
      *
      * @since 1.0.0

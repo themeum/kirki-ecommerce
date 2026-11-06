@@ -40,7 +40,8 @@ examples:
                 "icon_media": null,
                 "is_enabled": true,
                 "is_offline": true,
-                "description": "Pay the courier on delivery."
+                "description": "Pay the courier on delivery.",
+                "currency_support": { "status": "supported", "message": null }
               },
               {
                 "id": "paypal",
@@ -49,7 +50,8 @@ examples:
                 "icon_media": null,
                 "is_enabled": false,
                 "is_offline": false,
-                "description": "PayPal payment gateway"
+                "description": "PayPal payment gateway",
+                "currency_support": { "status": "supported", "message": null }
               }
             ],
             "message": "Payment methods retrieved successfully.",
