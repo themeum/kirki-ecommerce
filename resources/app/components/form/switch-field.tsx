@@ -37,7 +37,15 @@ const SwitchField = <
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
-          <Field orientation="horizontal">
+          <Field
+            orientation="horizontal"
+            cssOverride={label ? { width: '100%', justifyContent: 'space-between' } : undefined}
+          >
+            {label && (
+              <FieldLabel htmlFor={fieldId} infoText={infoText}>
+                {label}
+              </FieldLabel>
+            )}
             <Switch
               id={fieldId}
               checked={Boolean(field.value)}
@@ -45,11 +53,6 @@ const SwitchField = <
               disabled={disabled}
               aria-invalid={fieldState.invalid}
             />
-            {label && (
-              <FieldLabel htmlFor={fieldId} infoText={infoText}>
-                {label}
-              </FieldLabel>
-            )}
           </Field>
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
