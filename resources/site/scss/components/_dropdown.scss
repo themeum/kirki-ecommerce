@@ -122,7 +122,8 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
+    display: flex !important; // Theme submenu rules (e.g. Hello Elementor Pro) hide nested lists.
+    position: relative !important;
     flex-direction: column;
     gap: 0;
   }
