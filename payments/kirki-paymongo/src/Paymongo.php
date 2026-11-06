@@ -74,6 +74,14 @@ class Paymongo extends PaymentProvider
     }
 
     /**
+     * @inheritDoc
+     */
+    public function supported_currencies()
+    {
+        return [PaymongoConstant::CURRENCY];
+    }
+
+    /**
      * Pay for an order.
      *
      * @param Order $order

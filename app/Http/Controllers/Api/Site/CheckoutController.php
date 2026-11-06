@@ -47,8 +47,12 @@ class CheckoutController
 
         $order = $action->execute($dto);
 
+        $order_resource = new OrderResource($order);
+        $data = $order_resource->to_array();
+        $data['payment_next_step'] = $order_resource->resolve_payment_next_step();
+
         return response()->json([
-            'data' => OrderResource::make($order),
+            'data' => $data,
             'message' => __('Order created successfully.', 'kirki-ecommerce'),
         ], 201);
     }

@@ -150,3 +150,21 @@ if (!function_exists('wp_strip_all_tags')) {
         return trim(strip_tags((string) $text));
     }
 }
+
+if (!defined('DAY_IN_SECONDS')) {
+    define('DAY_IN_SECONDS', 86400);
+}
+
+if (!function_exists('home_url')) {
+    function home_url($path = '', $scheme = null)
+    {
+        return 'https://shop.test' . $path;
+    }
+}
+
+if (!function_exists('add_query_arg')) {
+    function add_query_arg($args, $url = '')
+    {
+        return $url . (strpos($url, '?') === false ? '?' : '&') . http_build_query($args);
+    }
+}

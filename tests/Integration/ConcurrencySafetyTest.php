@@ -7,13 +7,16 @@ use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderAction;
+use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
+use Kirki\Ecommerce\App\Facades\Order as OrderFacade;
 use Kirki\Ecommerce\App\Jobs\SendInventoryMailJob;
 use Kirki\Ecommerce\App\Managers\OrderManager;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\OrderActivity;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Models\Variant;
@@ -24,6 +27,8 @@ use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\OrderNumberGenerator;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\Payments\Bkash;
+use Kirki\Ecommerce\Payments\BkashRejectedException;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Framework\Wordpress\Models\Option as OptionModel;
 use Kirki\Ecommerce\Framework\Supports\Facades\Queue;
@@ -465,6 +470,80 @@ class ConcurrencySafetyTest extends RestTestCase
 
         $error = $this->assert_api_error($response, 422);
         $this->assertSame('Refund amount exceeds refundable amount.', $error['message']);
+    }
+
+    /**
+     * A bKash customer return and a scheduled check settle one payment once.
+     *
+     * The second request holds an order that it read before the first one committed, as
+     * it would while it waited for the row lock.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_two_bkash_settlements_of_one_payment_apply_once(): void
+    {
+        $id = $this->create_order()['id'];
+        OrderFacade::set_payment_metadata($id, wp_json_encode(['paymentId' => 'TR001']));
+        $stale = Order::find($id);
+        $payment = [
+            'trxId' => 'TRX123',
+            'transactionStatus' => 'Completed',
+            'amount' => number_format($stale->invoiced_total / 100, 2, '.', ''),
+            'currency' => $stale->currency_code,
+        ];
+        $provider = $this->bkash_provider();
+
+        $this->assertSame('paid', $provider->settle($id, $payment));
+        $paid_at = Order::find($id)->paid_at;
+        $this->assertSame('already_paid', $provider->settle($id, $payment));
+
+        $this->assertSame(PaymentStatus::PAID, Order::find($id)->payment_status);
+        $this->assertEquals($paid_at, Order::find($id)->paid_at);
+        $this->assertSame('TRX123', Order::find($id)->payment_transaction_id);
+        $this->assertSame('TR001', Order::find($id)->payment_metadata['gateway']['paymentId']);
+        $this->assertSame(1, $this->payment_completed_count($id));
+
+        $provider->reject($stale);
+
+        $this->assertSame(PaymentStatus::PAID, Order::find($id)->payment_status);
+    }
+
+    /**
+     * Make a bKash provider that exposes its settlement and rejection paths.
+     *
+     * @return Bkash
+     * @since 1.0.0
+     */
+    protected function bkash_provider()
+    {
+        foreach (['BkashConstant', 'BkashRejectedException', 'BkashUnknownResultException', 'BkashClient', 'BkashTransactionBuilder', 'BkashPaymentCheckJob', 'Bkash'] as $class) {
+            require_once dirname(__DIR__, 2) . '/payments/kirki-bkash/src/' . $class . '.php';
+        }
+
+        return new class extends Bkash {
+            public function settle(int $order_id, array $payment): string
+            {
+                return $this->apply_settlement($order_id, 'TR001', $payment);
+            }
+
+            public function reject(Order $order): string
+            {
+                return $this->fail_order($order, 'TR001', new BkashRejectedException('Insufficient Balance', '2023'));
+            }
+        };
+    }
+
+    /**
+     * Count the payment completed activities of an order.
+     *
+     * @param int $order_id Order ID.
+     * @return int
+     * @since 1.0.0
+     */
+    protected function payment_completed_count(int $order_id): int
+    {
+        return OrderActivity::where('order_id', $order_id)->where('activity_type', OrderActivityType::PAYMENT_COMPLETED)->count();
     }
 
     /**

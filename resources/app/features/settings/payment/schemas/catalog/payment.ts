@@ -93,6 +93,12 @@ export type OfflinePayment = z.infer<typeof OfflinePaymentSchema>;
  */
 export const PaymentMethodSchema = OfflinePaymentSchema.extend({
   description: z.string().nullish(),
+  currency_support: z
+    .object({
+      status: z.enum(['supported', 'limited', 'unsupported']),
+      message: z.string().nullish(),
+    })
+    .nullish(),
 });
 
 export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
