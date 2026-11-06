@@ -20,6 +20,7 @@ use function Kirki\Ecommerce\Framework\view_data;
 $data = (object) view_data();
 $countries = $data->countries ?? [];
 $payment_gateways = $data->payment_gateways ?? [];
+$payment_notice = $data->payment_notice ?? null;
 
 $cart = $data->cart ?? null;
 $shipping_address = $cart["shipping_address"] ?? [];
@@ -39,7 +40,7 @@ $show_customer_note = (bool) settings('checkout.checkout_configuration.show_cust
                 <?php include_view('site.checkout.parts.shipping-form', compact('countries', 'shipping_address')); ?>
                 <?php include_view('site.checkout.parts.billing-form', compact('countries', 'billing_address')); ?>
                 <?php include_view('site.checkout.parts.shipping-methods'); ?>
-                <?php include_view('site.checkout.parts.payment-methods', compact('payment_gateways')); ?>
+                <?php include_view('site.checkout.parts.payment-methods', compact('payment_gateways', 'payment_notice')); ?>
 
                 <?php if ($show_customer_note) : ?>
                     <div class="kecom-order-note-section">

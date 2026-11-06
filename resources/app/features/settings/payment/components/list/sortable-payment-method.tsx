@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/stacked-items';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
+import CurrencySupportBadge from '@/features/settings/payment/components/list/currency-support-badge';
 import type { PaymentMethod } from '@/features/settings/payment/schemas/catalog/payment';
 import { EditPenIcon, TrashIcon } from '@/icons/common';
 import { theme } from '@/theme';
@@ -108,6 +109,7 @@ const SortablePaymentMethod = (props: SortablePaymentMethodProps) => {
           <Text weight="medium" color="primary">
             {name}
           </Text>
+          <CurrencySupportBadge support={method.currency_support} />
         </StackedItemTitle>
       </StackedItemContent>
 

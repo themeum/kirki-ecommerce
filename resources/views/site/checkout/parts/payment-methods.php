@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
 defined('ABSPATH') || exit;
 
 $payment_gateways = $data['payment_gateways'] ?? [];
+$payment_notice = $data['payment_notice'] ?? null;
 ?>
 
 <!-- Payment Methods -->
@@ -19,7 +20,11 @@ $payment_gateways = $data['payment_gateways'] ?? [];
     <div class="kecom-payment-methods">
         <?php if (empty($payment_gateways)) : ?>
             <div class="kecom-text-base kecom-text-subdued">
-                <?php esc_html_e('No payment methods found!', 'kirki-ecommerce'); ?>
+                <?php if ($payment_notice) : ?>
+                    <?php echo esc_html($payment_notice); ?>
+                <?php else : ?>
+                    <?php esc_html_e('No payment methods found!', 'kirki-ecommerce'); ?>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
         <?php foreach ($payment_gateways as $payment_gateway) : ?>

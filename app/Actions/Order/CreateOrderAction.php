@@ -48,6 +48,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
 use function Kirki\Ecommerce\App\base_currency;
+use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
@@ -304,7 +305,7 @@ class CreateOrderAction
      *
      * @param CreateOrderPayloadDTO $dto Order payload.
      * @return void
-     * @throws ValidationException When the provider is unknown, or disabled for a shopper's order.
+     * @throws ValidationException When the provider is unknown, disabled for a shopper's order, or cannot accept the order currency.
      */
     protected function validate_payment_provider(CreateOrderPayloadDTO $dto): void
     {
@@ -316,6 +317,10 @@ class CreateOrderAction
 
         throw_if(!$provider, __('Invalid payment method.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
         throw_if(!$dto->is_manual && !$provider->enabled(), __('This payment method is not available.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+
+        if (!$provider->supports_currency((string) $dto->currency_code)) {
+            throw_anyway($provider->currency_unavailable_message((string) $dto->currency_code), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+        }
     }
 
     /**
