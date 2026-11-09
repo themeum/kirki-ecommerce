@@ -78,7 +78,7 @@ const OnlinePaymentPopup = ({ openPopup, setOpenPopup }: OnlinePaymentPopupProps
         }
       }}
     >
-      <DialogContent>
+      <DialogContent cssOverride={{ height: '656px' }}>
         <DialogCloseButton />
         <DialogHeader>
           <DialogTitle>{__('Available Payment Gateways', 'kirki-ecommerce')}</DialogTitle>
@@ -95,7 +95,11 @@ const OnlinePaymentPopup = ({ openPopup, setOpenPopup }: OnlinePaymentPopupProps
           )}
           <Flex direction="column" gap={4}>
             {availableOnlinePaymentList.map((item, index) => (
-              <Card data-search-skip="true" key={index} cssOverride={mergeCss(cardStyles.innerCard, styles.itemCard)}>
+              <Card
+                data-search-skip="true"
+                key={index}
+                cssOverride={mergeCss(cardStyles.innerCard, styles.itemCard)}
+              >
                 <CardContent cssOverride={cardStyles.innerContent}>
                   <Flex align="center">
                     <Flex gap={2} align="center">

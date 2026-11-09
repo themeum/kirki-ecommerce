@@ -82,7 +82,7 @@ The build stops, writes nothing, and tells you to use `--full` when:
   incremental builds), or
 - a kept `download_url` does not match the current `BASE_URL`.
 
-`npm run build:payments -- --full` builds every gateway and ignores the live
+`npm run build:payments:full` builds every gateway and ignores the live
 catalog. Use it for the first release after this feature, after you change
 `BASE_URL`, or for a new bucket.
 
@@ -243,7 +243,7 @@ CDNs do this), because the hash would not match.
 
 **First release with incremental builds:** the live catalog has no `slug` and
 no `source_sha256` yet, so the build asks for `--full`. Run
-`npm run build:payments -- --full` once and upload every folder, then the
+`npm run build:payments:full` once and upload every folder, then the
 catalog.
 
 **Rollback:** upload an earlier `payments` file. Its zips are still in the

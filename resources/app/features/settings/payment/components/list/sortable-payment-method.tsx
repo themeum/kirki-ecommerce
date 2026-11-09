@@ -113,13 +113,7 @@ const SortablePaymentMethod = (props: SortablePaymentMethodProps) => {
             {name}
           </Text>
           <CurrencySupportBadge support={method.currency_support} />
-          {hasUpdate && (
-            <Badge asChild variant="info" size="sm">
-              <button type="button" css={scoped(styles.updateBadge)} onClick={onUpdate}>
-                {__('Update available', 'kirki-ecommerce')}
-              </button>
-            </Badge>
-          )}
+          {hasUpdate && <Badge variant="info">{__('Update available', 'kirki-ecommerce')}</Badge>}
         </StackedItemTitle>
       </StackedItemContent>
 
