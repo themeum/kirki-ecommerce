@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Supports;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
+use Kirki\Ecommerce\Framework\Supports\Str;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
@@ -206,6 +207,10 @@ class ProductJsonLd
     /**
      * Build the Offer, or AggregateOffer for several variants.
      *
+     * A single variant on sale also gets its base price as a strikethrough price.
+     * An AggregateOffer prints the price range only, because search engines do not
+     * support a strikethrough price on it.
+     *
      * @since 1.0.0
      *
      * @param array<string, mixed> $seo The resolved SEO data.
@@ -220,20 +225,23 @@ class ProductJsonLd
         }
 
         $prices = array_column($items, 'base_price');
-        $availability = static::aggregate_availability($items);
+        $currency = (string) ($seo['offers']['currency'] ?? '');
+        $is_aggregate_offer = count($items) > 1;
 
-        $offer = ['@type' => count($items) > 1 ? 'AggregateOffer' : 'Offer'];
+        $offer = ['@type' => $is_aggregate_offer ? 'AggregateOffer' : 'Offer'];
 
-        if (count($items) > 1) {
+        if ($is_aggregate_offer) {
             $offer['offerCount'] = count($items);
             $offer['lowPrice'] = static::extreme($prices, 'min');
             $offer['highPrice'] = static::extreme($prices, 'max');
+            $offer['priceCurrency'] = $currency;
         } else {
-            $offer['price'] = $prices[0];
+            $offer['price'] = static::extreme($prices, 'min');
+            $offer['priceCurrency'] = $currency;
+            $offer['priceSpecification'] = static::build_strikethrough_price($items[0], $currency);
         }
 
-        $offer['priceCurrency'] = (string) ($seo['offers']['currency'] ?? '');
-        $offer['availability'] = ProductSeo::SCHEMA_URL . $availability;
+        $offer['availability'] = ProductSeo::SCHEMA_URL . static::aggregate_availability($items);
         $offer['itemCondition'] = ProductSeo::SCHEMA_URL . 'NewCondition';
         $offer['url'] = $seo['url'] ?? '';
 
@@ -245,13 +253,13 @@ class ProductJsonLd
     }
 
     /**
-     * Get the lowest or highest of decimal price strings, keeping the string as given.
+     * Get the lowest or highest of decimal price strings as an int or a float, as the string shows.
      *
      * @since 1.0.0
      *
      * @param string[] $prices Decimal price strings.
      * @param string   $mode   `min` or `max`.
-     * @return string
+     * @return int|float
      */
     protected static function extreme(array $prices, string $mode)
     {
@@ -259,7 +267,30 @@ class ProductJsonLd
             return (float) $first <=> (float) $second;
         });
 
-        return $mode === 'min' ? $prices[0] : $prices[count($prices) - 1];
+        return Str::to_number($mode === 'min' ? $prices[0] : $prices[count($prices) - 1]);
+    }
+
+    /**
+     * Build the strikethrough price node from the base price of a variant on sale.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $item     Variant offer.
+     * @param string               $currency Store base currency code.
+     * @return array<string, mixed>|string The node, or an empty string when the variant is not on sale.
+     */
+    protected static function build_strikethrough_price(array $item, string $currency)
+    {
+        if (empty($item['base_strikethrough_price'])) {
+            return '';
+        }
+
+        return [
+            '@type' => 'UnitPriceSpecification',
+            'priceType' => ProductSeo::SCHEMA_URL . 'StrikethroughPrice',
+            'price' => Str::to_number($item['base_strikethrough_price']),
+            'priceCurrency' => $currency,
+        ];
     }
 
     /**

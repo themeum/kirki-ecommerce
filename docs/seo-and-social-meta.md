@@ -84,6 +84,7 @@ changes the field set; site code changes it with `kirki_ecommerce_product_json_l
 | `category` | The deepest assigned category path, for example `Lighting > Lamps` |
 | `brand.name`, `brand.logo` | The product's brand; no `brand` when the product has none |
 | `offers.price` (or `lowPrice` / `highPrice` / `offerCount`) | The visible variant prices in the base currency, sale price when set |
+| `offers.priceSpecification` | One visible variant only: its base price as a `StrikethroughPrice`, when its sale price is lower than its base price |
 | `offers.priceCurrency` | The store base currency |
 | `offers.availability` | See **Availability** below |
 | `offers.itemCondition` | Always `https://schema.org/NewCondition` |
@@ -92,6 +93,26 @@ changes the field set; site code changes it with `kirki_ecommerce_product_json_l
 **Offers.** One visible variant gives an `Offer`. Several give an
 `AggregateOffer` with `lowPrice`, `highPrice` and `offerCount`. A product with
 no visible variant prints no offer.
+
+**Strikethrough price.** When the one visible variant is on sale, the `Offer`
+also prints its base price as a `UnitPriceSpecification` with `priceType`
+`https://schema.org/StrikethroughPrice`, so Google Search can show the old price
+struck through. An `AggregateOffer` prints the price range only, because Google
+does not support a strikethrough price on it.
+
+```json
+"offers": {
+  "@type": "Offer",
+  "price": 15.5,
+  "priceCurrency": "USD",
+  "priceSpecification": {
+    "@type": "UnitPriceSpecification",
+    "priceType": "https://schema.org/StrikethroughPrice",
+    "price": 20,
+    "priceCurrency": "USD"
+  }
+}
+```
 
 **Availability.** A variant that is in stock or low on stock is `InStock`. A
 variant out of stock that allows back orders is `BackOrder`. Anything else,
@@ -144,4 +165,5 @@ add_filter('kirki_ecommerce_product_json_ld', function ($data) {
 - **Social title does not use the SEO title.** Yoast falls back to the SEO title; here it falls back to the product title.
 - **Fixed field list.** Every product prints the fields in section 4. There is no per-product or store setting to add, remove or customise JSON-LD properties; use `kirki_ecommerce_product_json_ld` for that. `itemCondition` is always `NewCondition`, because a product has no condition field.
 - **No social image upload.** The Social Share tab has no image field. The first product image is used.
+- **No strikethrough price for several variants.** A product with several variants prints an `AggregateOffer` with the price range, and Google does not support a strikethrough price on it. There is no `ProductGroup` / `hasVariant` data per variant, so these products are also not eligible for Google merchant listings.
 - **One schema type.** Only `Product` is printed. There is no Organization, WebSite or Article data.

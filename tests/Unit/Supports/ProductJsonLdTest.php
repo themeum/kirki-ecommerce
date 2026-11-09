@@ -31,6 +31,7 @@ class ProductJsonLdTest extends TestCase
     {
         return array_merge([
             'base_price' => '19.99',
+            'base_strikethrough_price' => '',
             'availability' => 'InStock',
             'sku' => 'LMP-1',
             'barcode' => '',
@@ -73,7 +74,7 @@ class ProductJsonLdTest extends TestCase
         $data = ProductJsonLd::build($this->seo([$this->item()]), $this->product());
 
         $this->assertSame('Offer', $data['offers']['@type']);
-        $this->assertSame('19.99', $data['offers']['price']);
+        $this->assertSame(19.99, $data['offers']['price']);
         $this->assertSame('USD', $data['offers']['priceCurrency']);
         $this->assertSame('https://schema.org/InStock', $data['offers']['availability']);
         $this->assertSame('https://schema.org/NewCondition', $data['offers']['itemCondition']);
@@ -121,10 +122,41 @@ class ProductJsonLdTest extends TestCase
         );
 
         $this->assertSame('AggregateOffer', $data['offers']['@type']);
-        $this->assertSame('9.50', $data['offers']['lowPrice']);
-        $this->assertSame('30.00', $data['offers']['highPrice']);
+        $this->assertSame(9.5, $data['offers']['lowPrice']);
+        $this->assertSame(30.0, $data['offers']['highPrice']);
         $this->assertSame(3, $data['offers']['offerCount']);
         $this->assertSame('https://schema.org/InStock', $data['offers']['availability']);
+    }
+
+    public function test_variant_on_sale_prints_a_strikethrough_price()
+    {
+        $data = ProductJsonLd::build($this->seo([$this->item(['base_price' => '15.50', 'base_strikethrough_price' => '20.00'])]), $this->product());
+
+        $this->assertSame(15.5, $data['offers']['price']);
+        $this->assertSame([
+            '@type' => 'UnitPriceSpecification',
+            'priceType' => 'https://schema.org/StrikethroughPrice',
+            'price' => 20.0,
+            'priceCurrency' => 'USD',
+        ], $data['offers']['priceSpecification']);
+    }
+
+    public function test_variant_not_on_sale_prints_no_strikethrough_price()
+    {
+        $data = ProductJsonLd::build($this->seo([$this->item()]), $this->product());
+
+        $this->assertArrayNotHasKey('priceSpecification', $data['offers']);
+    }
+
+    public function test_aggregate_offer_prints_no_strikethrough_price()
+    {
+        $data = ProductJsonLd::build(
+            $this->seo([$this->item(['base_price' => '25.00', 'base_strikethrough_price' => '40.00']), $this->item(['base_price' => '15.50', 'base_strikethrough_price' => '20.00', 'is_default' => false])]),
+            $this->product()
+        );
+
+        $this->assertSame('AggregateOffer', $data['offers']['@type']);
+        $this->assertArrayNotHasKey('priceSpecification', $data['offers']);
     }
 
     public function test_aggregate_availability_prefers_back_order_over_out_of_stock()
