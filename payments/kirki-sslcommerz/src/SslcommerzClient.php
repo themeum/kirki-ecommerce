@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\Payments;
 
+use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 use function Kirki\Ecommerce\Framework\throw_anyway;
@@ -151,7 +153,7 @@ class SslcommerzClient
             $parts[] = $name . '=' . $value;
         }
 
-        return hash_equals(md5(implode('&', $parts)), $signature);
+        return hash_equals(md5(Arr::join($parts, '&')), $signature);
     }
 
     /**
@@ -188,7 +190,7 @@ class SslcommerzClient
     {
         $body = $response->json();
 
-        if ($response->status() !== 200 || !is_array($body)) {
+        if ($response->status() !== Response::OK || !is_array($body)) {
             throw $this->unknown_result();
         }
 
