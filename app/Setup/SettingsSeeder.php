@@ -80,9 +80,11 @@ class SettingsSeeder extends Seeder
     }
 
     /**
-     * The offline payment methods a new store opens with.
+     * The offline payment methods a new store opens with: Cash on delivery only.
      *
-     * Both start disabled: enabling a payment method is the merchant's call, and the
+     * The other manual presets are added from the Add a payment method dialog.
+     *
+     * It starts disabled: enabling a payment method is the merchant's call, and the
      * Home setup checklist's payments step completes only once they make it.
      *
      * PaymentProvider::from_offline() maps name to title and instructions to
@@ -98,21 +100,9 @@ class SettingsSeeder extends Seeder
         return [
             [
                 'id' => 'cod',
-                'name' => __('Cash on Delivery', 'kirki-ecommerce'),
+                'name' => __('Cash on delivery', 'kirki-ecommerce'),
                 'instructions' => __(
-                    'Pay with cash when your order is delivered. Please keep the exact amount ready, as our couriers may not carry change.',
-                    'kirki-ecommerce'
-                ),
-                'icon' => null,
-                'is_enabled' => false,
-                'is_offline' => true,
-                'config' => [],
-            ],
-            [
-                'id' => 'bank_transfer',
-                'name' => __('Direct bank transfer', 'kirki-ecommerce'),
-                'instructions' => __(
-                    'Make your payment directly into our bank account. Please use your order number as the payment reference. Your order will ship once the funds have cleared.',
+                    'Pay with cash when your order is delivered.',
                     'kirki-ecommerce'
                 ),
                 'icon' => null,

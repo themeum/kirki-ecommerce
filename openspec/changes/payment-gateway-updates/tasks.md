@@ -1,7 +1,7 @@
 ## 1. Build tools: catalog fields, versioned zips, incremental build
 
 - [x] 1.1 In `bin/lib/payment-catalog.js`, add `slug`, `requires_kirki`, `requires_wp`, `requires_php` and `source_sha256` to the catalog entry, and make `download_url` end with `/<slug>/<slug>-<version>.zip`
-- [x] 1.2 Add pure helpers to `bin/lib/payment-catalog.js`: read the plugin headers (`Requires Kirki`, `Requires at least`, `Requires PHP`), select the gateways to build from the live catalog, merge the built and kept entries, find removed gateways, and validate kept entries (no `slug`, no `source_sha256`, or `download_url` not under `BASE_URL` gives a "use --full" error)
+- [x] 1.2 Add pure helpers to `bin/lib/payment-catalog.js`: read the plugin headers (`Requires Kirki eCommerce`, `Requires at least`, `Requires PHP`), select the gateways to build from the live catalog, merge the built and kept entries, find removed gateways, and validate kept entries (no `slug`, no `source_sha256`, or `download_url` not under `BASE_URL` gives a "use --full" error)
 - [x] 1.3 Add the `source_sha256` helper: a hash of the sorted relative paths and contents, without `vendor`, `node_modules`, `.git` and `.DS_Store`
 - [x] 1.4 Extend `bin/test/payment-catalog.test.js` for 1.1 to 1.3: new fields, versioned URL, selection (new, version changed, same), merge keeps the live `sha256`, removed gateway, "use --full" errors, warning when the source changed but the version did not
 - [x] 1.5 Change `bin/build-payment-zips.js`: add the `--full` flag, fetch `{ICON_BASE_URL}/payments` without it, build only the selected gateways, write `<slug>-<version>.zip`, put `slug`, `requires_*`, `source_sha256` and `changelog` (from `CHANGELOG.md`, empty when there is none) in `meta.json`, write the merged catalog, and print the written, kept and removed gateways and "upload gateways/payments last"
@@ -52,7 +52,7 @@
 
 ## 6. Docs and release
 
-- [x] 6.1 Update `docs/payment-gateways.md`: the update flow (Plugins page, dialog, auto-update), the new headers (`Requires Kirki`, `Requires at least`, `Requires PHP`), `CHANGELOG.md`, versioned zip names, the incremental build and `--full`, the manual upload order, the first `--full` release, and the "Where this differs from wp.org updates" section (12-hour check, no Update URI header yet, no rollback UI, old zips not deleted)
+- [x] 6.1 Update `docs/payment-gateways.md`: the update flow (Plugins page, dialog, auto-update), the new headers (`Requires Kirki eCommerce`, `Requires at least`, `Requires PHP`), `CHANGELOG.md`, versioned zip names, the incremental build and `--full`, the manual upload order, the first `--full` release, and the "Where this differs from wp.org updates" section (12-hour check, no Update URI header yet, no rollback UI, old zips not deleted)
 - [x] 6.2 Add a `CHANGELOG.md` with a `1.0.1` entry to `kirki-authorizenet`, `kirki-payfast` and `kirki-paymongo`
 - [x] 6.3 Verify: `npm run typecheck && npm test` in `resources/app/`, and `npm run build:payments -- --full` succeeds with the local S3
   - Note: a `--full` build does not read S3, so it ran with the `.env` values (the production bucket URLs). It built 16 gateways with versioned zip names, and `kirki-payfast/meta.json` has the changelog.

@@ -17,6 +17,7 @@ import {
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import CurrencySupportBadge from '@/features/settings/payment/components/list/currency-support-badge';
+import { getManualPresetIcon } from '@/features/settings/payment/presets/manual-payment-presets';
 import type { PaymentMethod } from '@/features/settings/payment/schemas/catalog/payment';
 import { EditPenIcon, TrashIcon } from '@/icons/common';
 import { theme } from '@/theme';
@@ -58,6 +59,12 @@ const renderMethodIcon = (method: PaymentMethod) => {
     );
   }
 
+  const PresetIcon = method.is_offline ? getManualPresetIcon(method.id) : null;
+
+  if (PresetIcon) {
+    return <PresetIcon size={20} color={theme.colors.icon.secondary} />;
+  }
+
   return method.is_offline ? (
     <LandmarkIcon size={20} color={theme.colors.icon.secondary} />
   ) : (
@@ -66,7 +73,7 @@ const renderMethodIcon = (method: PaymentMethod) => {
 };
 
 const SortablePaymentMethod = (props: SortablePaymentMethodProps) => {
-  const { method, onEdit, onDelete, onToggle, hasUpdate = false, onUpdate } = props;
+  const { method, onEdit, onDelete, onToggle, hasUpdate = false } = props;
   const {
     attributes,
     listeners,

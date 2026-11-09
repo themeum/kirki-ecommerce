@@ -86,10 +86,10 @@ describe('OnlinePaymentSchema', () => {
       is_installed: true,
       installed_version: '1.0.0',
       update_available: false,
-      update_blocked_reason: 'Requires Kirki 1.1.0',
+      update_blocked_reason: 'Requires Kirki eCommerce 1.1.0',
     });
     assert(result.success);
-    expect(result.data.update_blocked_reason).toBe('Requires Kirki 1.1.0');
+    expect(result.data.update_blocked_reason).toBe('Requires Kirki eCommerce 1.1.0');
   });
 
   it('accepts a catalog item that is not installed', () => {

@@ -175,7 +175,7 @@ class OnboardingApiTest extends RestTestCase
     }
 
     /**
-     * Setup offers Cash on Delivery and Direct bank transfer, both disabled.
+     * Setup offers only Cash on delivery, disabled, with the preset text.
      *
      * @return void
      * @since 1.0.0
@@ -186,11 +186,15 @@ class OnboardingApiTest extends RestTestCase
 
         $offline_payments = Option::get(OptionKeys::PAYMENT_SETTINGS)['offline_payments'];
 
-        $this->assertSame(['cod', 'bank_transfer'], array_column($offline_payments, 'id'));
+        $this->assertSame(['cod'], array_column($offline_payments, 'id'));
+        $this->assertSame(['Cash on delivery'], array_column($offline_payments, 'name'));
+        $this->assertSame(
+            ['Pay with cash when your order is delivered.'],
+            array_column($offline_payments, 'instructions')
+        );
 
         foreach ($offline_payments as $offline_payment) {
             $this->assertFalse($offline_payment['is_enabled']);
-            $this->assertNotEmpty($offline_payment['instructions']);
         }
     }
 

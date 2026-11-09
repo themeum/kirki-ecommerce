@@ -25,12 +25,6 @@ import { createPortal } from 'react-dom';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import { StackedItems } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
@@ -53,6 +47,7 @@ import {
   useSetEnabledOnlinePaymentMutation,
   useUninstallOnlinePaymentMutation,
 } from '@/features/settings/payment/services/payment';
+import { getGatewayIdsWithUpdate } from '@/features/settings/payment/utils/payment-method-rows';
 import { useConfirmDelete } from '@/hooks';
 import { getPortalContainer } from '@/libs/portal-container';
 import { cardStyles } from '@/theme/card-styles';
@@ -78,11 +73,7 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
   const { mutate: reorderPaymentMethods } = useReorderPaymentMethodsMutation();
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
   const { data: installableOnlinePayments = [] } = useInstallableOnlinePaymentsQuery();
-  const updatableOnlineIds = new Set<PaymentMethod['id'] | undefined>(
-    installableOnlinePayments
-      .filter((payment) => payment.update_available === true)
-      .map((payment) => payment.id),
-  );
+  const updatableOnlineIds = getGatewayIdsWithUpdate(installableOnlinePayments);
 
   const [orderedMethods, setOrderedMethods] = useState<PaymentMethod[]>(paymentMethods);
   const listRef = useRef<HTMLDivElement>(null);
@@ -215,27 +206,10 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
                 </Text>
               </Flex>
               <ActionGroup>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" size="sm">
-                      <PlusIcon />
-                      {__('Add', 'kirki-ecommerce')}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" cssOverride={{ width: 'max-content' }}>
-                    <DropdownMenuItem onSelect={() => setIsOnlineInstallDialogOpen(true)}>
-                      {__('Payment Gateways', 'kirki-ecommerce')}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => {
-                        setEditingOfflineMethod(null);
-                        setIsOfflineDialogOpen(true);
-                      }}
-                    >
-                      {__('Manual Payment', 'kirki-ecommerce')}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button variant="secondary" size="sm" onClick={() => setIsOnlineInstallDialogOpen(true)}>
+                  <PlusIcon />
+                  {__('Add', 'kirki-ecommerce')}
+                </Button>
               </ActionGroup>
             </Flex>
 

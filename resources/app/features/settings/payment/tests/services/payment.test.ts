@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { endpoints } from '@/config/endpoints';
 import type { PaymentMethod } from '@/features/settings/payment/schemas/catalog/payment';
 import {
+  createOfflinePayment,
   getOnlinePayments,
   getPaymentMethods,
   reorderPaymentMethods,
@@ -124,6 +125,48 @@ describe('setEnabledOfflinePayment', () => {
 
     expect(received).toEqual({ is_enabled: false });
     expect(result.data).toBe(true);
+  });
+});
+
+describe('createOfflinePayment', () => {
+  const offlineUrl = `${window.kirki_ecommerce.rest_url_base}${endpoints.OFFLINE_PAYMENTS}`;
+
+  it('posts the preset id with the method fields', async () => {
+    let received: unknown = null;
+
+    server.use(
+      http.post(offlineUrl, async ({ request }) => {
+        received = await request.json();
+
+        return HttpResponse.json(
+          {
+            success: true,
+            message: 'Payment method created',
+            data: { id: 'cheque', name: 'Cheque payments', is_enabled: true, is_offline: true },
+          },
+          { status: 201 },
+        );
+      }),
+    );
+
+    const result = await createOfflinePayment({
+      id: 'cheque',
+      name: 'Cheque payments',
+      icon: null,
+      instructions: 'Send a cheque.',
+      is_offline: true,
+      is_enabled: true,
+    });
+
+    expect(received).toEqual({
+      id: 'cheque',
+      name: 'Cheque payments',
+      icon: null,
+      instructions: 'Send a cheque.',
+      is_offline: true,
+      is_enabled: true,
+    });
+    expect(result.data.id).toBe('cheque');
   });
 });
 

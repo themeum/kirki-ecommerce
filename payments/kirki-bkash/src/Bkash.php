@@ -209,24 +209,28 @@ class Bkash extends PaymentProvider
             [
                 'name' => 'app_key',
                 'label' => __('App Key', 'kirki-ecommerce-bkash'),
+                'placeholder' => __('Enter your bKash app key', 'kirki-ecommerce-bkash'),
                 'type' => 'text',
                 'required' => true,
             ],
             [
                 'name' => 'app_secret',
                 'label' => __('App Secret', 'kirki-ecommerce-bkash'),
+                'placeholder' => __('Enter your bKash app secret', 'kirki-ecommerce-bkash'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'username',
                 'label' => __('Username', 'kirki-ecommerce-bkash'),
+                'placeholder' => __('Enter your bKash merchant username', 'kirki-ecommerce-bkash'),
                 'type' => 'text',
                 'required' => true,
             ],
             [
                 'name' => 'password',
                 'label' => __('Password', 'kirki-ecommerce-bkash'),
+                'placeholder' => __('Enter your bKash merchant password', 'kirki-ecommerce-bkash'),
                 'type' => 'password',
                 'required' => true,
             ],

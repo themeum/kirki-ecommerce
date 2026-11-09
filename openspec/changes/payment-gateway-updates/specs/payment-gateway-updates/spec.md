@@ -52,7 +52,7 @@ first requirement that is not met.
 
 - **WHEN** an update has `requires_kirki` `1.1.0` and kirki-ecommerce is
   `1.0.0`
-- **THEN** the update is blocked with the reason "Requires Kirki 1.1.0"
+- **THEN** the update is blocked with the reason "This update needs Kirki eCommerce 1.1.0 or newer (you have 1.0.0). Update Kirki eCommerce first, then update this gateway."
   and it does not show in the WordPress update list
 
 #### Scenario: All requirements met
@@ -212,7 +212,7 @@ offered, and pressing the badge SHALL open the dialog.
 #### Scenario: Requirement not met
 
 - **WHEN** the update is blocked by `requires_kirki`
-- **THEN** the row shows "Added" and the text "Requires Kirki 1.1.0", and no
+- **THEN** the row shows "Added" and the reason text, and no
   "Update" button
 
 #### Scenario: Badge on the installed list

@@ -193,7 +193,10 @@ class PaymentGatewayCatalogApiTest extends RestTestCase
         $by_id = array_column($data['data'], null, 'id');
 
         $this->assertFalse($by_id['paypal']['update_available']);
-        $this->assertSame('Requires Kirki 99.0.0', $by_id['paypal']['update_blocked_reason']);
+        $this->assertSame(
+            'This update needs Kirki eCommerce 99.0.0 or newer (you have ' . KIRKI_ECOMMERCE_VERSION . '). Update Kirki eCommerce first, then update this gateway.',
+            $by_id['paypal']['update_blocked_reason']
+        );
     }
 
     public function test_update_installs_the_catalog_version_and_keeps_the_settings(): void

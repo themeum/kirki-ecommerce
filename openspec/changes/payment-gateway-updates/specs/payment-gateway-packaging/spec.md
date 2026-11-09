@@ -52,7 +52,7 @@ with a clear message when a gateway has no valid header or no
 
 #### Scenario: Requirement header
 
-- **WHEN** a gateway header has `Requires Kirki: 1.1.0`
+- **WHEN** a gateway header has `Requires Kirki eCommerce: 1.1.0`
 - **THEN** its `meta.json` and catalog entry have `requires_kirki` `1.1.0`
 
 #### Scenario: Changelog
@@ -126,7 +126,9 @@ Without `--full`, the build command SHALL read the live catalog from
 the gateway when the live catalog has no entry with its slug, or when the
 plugin `Version` header differs from the live `version`. For each other
 gateway it SHALL keep the live `sha256` and `source_sha256`, write no
-folder, and take the other catalog fields from the source plugin header.
+folder, and keep the live `id`, `name`, `description`, `requires_kirki`,
+`requires_wp` and `requires_php`, because these describe the live zip. Only the
+sort order SHALL come from the source plugin header.
 The command SHALL fail with a clear message, and SHALL tell the maintainer to
 use `--full`, when the live catalog cannot be loaded, when a kept entry has no
 `slug` or `source_sha256`, or when a kept `download_url` does not start with
@@ -137,6 +139,12 @@ use `--full`, when the live catalog cannot be loaded, when a kept entry has no
 - **WHEN** only `kirki-payfast` has a new `Version` and the build runs
 - **THEN** only `gateways/kirki-payfast/` is written, and the catalog keeps the
   live `sha256` of all other gateways
+
+#### Scenario: Header changed without a new version
+
+- **WHEN** a gateway's `Requires Kirki eCommerce` header changes but its `Version` does not
+- **THEN** the build keeps the live zip and the live `requires_kirki`, and prints
+  the warning that the source changed but the version did not
 
 #### Scenario: Live catalog unreachable
 

@@ -105,7 +105,7 @@ describe('readGatewayHeader', () => {
  * Version:           1.0.1
  * Requires at least: 6.4
  * Requires PHP:      7.4
- * Requires Kirki:    1.1.0
+ * Requires Kirki eCommerce: 1.1.0
  * Order:             3
  */`;
 
@@ -175,6 +175,38 @@ describe('planBuild', () => {
     assert.deepStrictEqual(plan.changedWithoutBump, ['kirki-a']);
     assert.deepStrictEqual(plan.build, []);
     assert.strictEqual(plan.keep[0].source_sha256, 'old-hash');
+  });
+
+  it('keeps the live zip values, not the edited header, when the version did not change', () => {
+    const edited = {
+      ...gateway('kirki-a', '1.0.0', 'new-hash'),
+      id: 'edited-id',
+      name: 'Edited name',
+      description: 'Edited description.',
+      order: 5,
+      requires_kirki: '1.0.1',
+      requires_wp: '6.6',
+      requires_php: '8.1',
+    };
+    const live = {
+      ...liveEntry('kirki-a', '1.0.0', 'old-hash'),
+      name: 'Live name',
+      description: 'Live description.',
+      requires_kirki: '',
+      requires_wp: '6.4',
+      requires_php: '',
+    };
+
+    const [kept] = planBuild([edited], [live], urls).keep;
+
+    assert.strictEqual(kept.id, 'kirki-a');
+    assert.strictEqual(kept.name, 'Live name');
+    assert.strictEqual(kept.description, 'Live description.');
+    assert.strictEqual(kept.requires_kirki, '');
+    assert.strictEqual(kept.requires_wp, '6.4');
+    assert.strictEqual(kept.requires_php, '');
+    assert.strictEqual(kept.order, 5);
+    assert.strictEqual(kept.sha256, 'live-kirki-a');
   });
 
   it('lists live gateways that have no folder as removed', () => {

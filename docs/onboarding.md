@@ -120,8 +120,8 @@ One request, `POST /wp-json/kirki/ecommerce/v1/onboarding`, runs these steps in
 order:
 
 1. **Baseline seed.** Default settings. Each group is skipped when it already
-   holds data. The default payment settings add two offline payment
-   methods, *Cash on Delivery* and *Direct bank transfer*. Both are **disabled**:
+   holds data. The default payment settings add one offline payment
+   method, *Cash on delivery*. It is **disabled**:
    the merchant enables one from the Home page's setup checklist (see
    [`docs/home.md`](home.md)).
 2. **General settings.** Store name, industry and Tax ID. The store address gets

@@ -70,8 +70,11 @@ from `{ICON_BASE_URL}/payments` and builds a gateway only when:
 - the live catalog has no entry for its slug (a new gateway), or
 - its `Version` header is different from the live `version`.
 
-For each other gateway, it keeps the live `sha256` and writes no folder. The
-new catalog lists all gateways. At the end, the build prints the folders that
+For each other gateway, it keeps the live zip and writes no folder. The kept
+entry also keeps the live `id`, `name`, `description` and `requires_*` values,
+because they describe the live zip. A header change, such as a new `Requires
+Kirki eCommerce` value, ships only with a new `Version`. Only `Order` comes from
+the source. The new catalog lists all gateways. At the end, the build prints the folders that
 it wrote, the gateways that it kept, the gateways that it removed (a live entry
 with no folder in `payments/`), and "upload it last" for the catalog.
 
@@ -100,7 +103,7 @@ not shipped. Change its `Version` header and build again.
 | `Version` | `version` | Required. Also part of the zip name, so only letters, digits, `.`, `+` and `-`. |
 | `Description` | `description` | |
 | `Order` | sort order | Optional whole number. WordPress ignores this line. |
-| `Requires Kirki` | `requires_kirki` | Optional. Lowest kirki-ecommerce version the gateway needs. |
+| `Requires Kirki eCommerce` | `requires_kirki` | Optional. Lowest Kirki eCommerce version the gateway needs. |
 | `Requires at least` | `requires_wp` | Optional. Lowest WordPress version. |
 | `Requires PHP` | `requires_php` | Optional. Lowest PHP version. |
 
@@ -196,7 +199,11 @@ its hash, and a rollback is only a catalog upload (section 5).
 ### With the script
 
 `npm run publish:payments` runs the same build (pass `-- --full` for a full
-build), then uploads with the AWS CLI:
+build), then uploads with the AWS CLI. It does not use the output of an earlier
+`npm run build:payments:full`: its own build deletes `gateways/` first. To
+publish a full build, run `npm run publish:payments -- --full`.
+
+The script uploads:
 
 1. The folders that the build wrote: zips, logos and `meta.json` files.
 2. The `payments` catalog, last, with `Content-Type: application/json` and
@@ -235,7 +242,7 @@ CDNs do this), because the hash would not match.
 1. Change the code in `payments/kirki-<name>/`.
 2. Increase its `Version` header, for example `1.0.0` to `1.0.1`.
 3. Add a `## 1.0.1` section to its `CHANGELOG.md`.
-4. If the new code needs a newer core, set `Requires Kirki:` to that version.
+4. If the new code needs a newer core, set `Requires Kirki eCommerce:` to that version.
 5. Run `npm run build:payments` with the production `BASE_URL` and
    `ICON_BASE_URL`. Check that it lists only the gateways you changed and
    prints no "source changed" warning.
@@ -309,8 +316,14 @@ the catalog `version` is greater than the plugin `Version` header.
 The store compares `requires_kirki`, `requires_wp` and `requires_php` with the
 running kirki-ecommerce, WordPress and PHP versions. When one is not met, the
 update is **blocked**: it is not shown on the Plugins page, the endpoint
-refuses it, and the dialog shows the reason (for example "Requires Kirki
-1.1.0").
+refuses it, and the dialog shows the reason (for example "This update needs Kirki eCommerce 1.1.0 or newer (you have
+1.0.0). Update Kirki eCommerce first, then update this gateway.").
+
+| Requirement | What the admin must do |
+|---|---|
+| `requires_kirki` | Update Kirki eCommerce, then update the gateway. |
+| `requires_wp` | Update WordPress, then update the gateway. |
+| `requires_php` | Ask the hosting provider to upgrade PHP, then update the gateway. |
 
 ### On the WordPress update screens
 
@@ -339,9 +352,16 @@ change. Downloads from other servers are not changed.
 
 ### In the Payments settings
 
-- The available-gateways dialog shows an **Update** button next to "Added"
-  for each gateway with an update. The button calls
-  `POST /online-payments/update` with the gateway `id`.
+- In the **Add a payment method** dialog, a gateway with an update shows an
+  **Update Available** badge in place of "Added", and a small **Update**
+  button. The button calls `POST /online-payments/update` with the gateway
+  `id`. While it runs, a spinner replaces the button, and the other **Add** and
+  **Update** buttons are disabled.
+- When a requirement blocks the update, the row shows the **Update Available**
+  badge and an info icon in place of the button. The tooltip of the icon gives
+  the reason and what to do (for example "This update needs Kirki eCommerce
+  1.1.0 or newer (you have 1.0.0). Update Kirki eCommerce first, then update
+  this gateway.").
 - Each installed gateway row in the Payments list shows an **Update
   available** badge. The badge opens the dialog.
 

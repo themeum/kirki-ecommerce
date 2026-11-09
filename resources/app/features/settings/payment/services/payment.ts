@@ -111,7 +111,7 @@ const getOfflinePayments = () => {
     .then((response) => parseData(ResourceCollectionSchema(OfflinePaymentSchema), response));
 };
 
-const createOfflinePayment = (data: OfflinePaymentFormPayload) => {
+const createOfflinePayment = (data: OfflinePaymentFormPayload & { id?: string }) => {
   return apiClient
     .post(endpoints.OFFLINE_PAYMENTS, data)
     .then((response) => parseResponse(OfflinePaymentSchema, response));

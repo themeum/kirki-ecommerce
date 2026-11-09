@@ -108,6 +108,9 @@ class PaymentGatewayUpdates
     /**
      * Get the first requirement of a gateway that the store does not meet.
      *
+     * The reason names the required and the running version, and tells the admin
+     * what to do before the gateway can update.
+     *
      * @since 1.0.1
      *
      * @param array<string, string> $gateway Catalog entry.
@@ -119,26 +122,26 @@ class PaymentGatewayUpdates
             [
                 $gateway['requires_kirki'] ?? '',
                 KIRKI_ECOMMERCE_VERSION,
-                /* translators: %s: minimum Kirki Ecommerce version. */
-                __('Requires Kirki %s', 'kirki-ecommerce'),
+                /* translators: 1: minimum Kirki eCommerce version, 2: installed Kirki eCommerce version. */
+                __('This update needs Kirki eCommerce %1$s or newer (you have %2$s). Update Kirki eCommerce first, then update this gateway.', 'kirki-ecommerce'),
             ],
             [
                 $gateway['requires_wp'] ?? '',
                 get_bloginfo('version'),
-                /* translators: %s: minimum WordPress version. */
-                __('Requires WordPress %s', 'kirki-ecommerce'),
+                /* translators: 1: minimum WordPress version, 2: installed WordPress version. */
+                __('This update needs WordPress %1$s or newer (you have %2$s). Update WordPress first, then update this gateway.', 'kirki-ecommerce'),
             ],
             [
                 $gateway['requires_php'] ?? '',
                 PHP_VERSION,
-                /* translators: %s: minimum PHP version. */
-                __('Requires PHP %s', 'kirki-ecommerce'),
+                /* translators: 1: minimum PHP version, 2: running PHP version. */
+                __('This update needs PHP %1$s or newer (you have %2$s). Ask your hosting provider to upgrade PHP, then update this gateway.', 'kirki-ecommerce'),
             ],
         ];
 
         foreach ($requirements as list($required, $running, $message)) {
             if ($required !== '' && version_compare($running, $required, '<')) {
-                return sprintf($message, $required);
+                return sprintf($message, $required, $running);
             }
         }
 

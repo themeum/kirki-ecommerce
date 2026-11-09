@@ -293,12 +293,14 @@ class Sslcommerz extends PaymentProvider
             [
                 'name' => 'store_id',
                 'label' => __('Store ID', 'kirki-ecommerce-sslcommerz'),
+                'placeholder' => __('Enter your SSLCommerz store ID', 'kirki-ecommerce-sslcommerz'),
                 'type' => 'text',
                 'required' => true,
             ],
             [
                 'name' => 'store_password',
                 'label' => __('Store Password', 'kirki-ecommerce-sslcommerz'),
+                'placeholder' => __('Enter your SSLCommerz API password', 'kirki-ecommerce-sslcommerz'),
                 'type' => 'password',
                 'required' => true,
                 'description' => __('Use the API password, not the merchant panel password. Live refunds need your server public IP registered with SSLCommerz.', 'kirki-ecommerce-sslcommerz'),

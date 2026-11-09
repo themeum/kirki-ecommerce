@@ -75,7 +75,7 @@ these deltas.
 - Build tools: `bin/build-payment-zips.js`, `bin/lib/payment-catalog.js`,
   `bin/publish-payment-gateways.js`, `bin/test/payment-catalog.test.js`.
 - Gateway plugins: three gateways go to `1.0.1` (done before this change).
-  Each gateway can get `Requires Kirki:` and a `CHANGELOG.md`.
+  Each gateway can get `Requires Kirki eCommerce:` and a `CHANGELOG.md`.
 - Docs: `docs/payment-gateways.md`.
 - Release: the first build after this change must use `--full`, because the
   live catalog has no `slug` or `requires_*` fields yet.

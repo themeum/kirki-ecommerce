@@ -86,9 +86,9 @@ class PaymentGatewayUpdatesTest extends WP_UnitTestCase
         $updates = new PaymentGatewayUpdates($this->catalog([]));
 
         $cases = [
-            'requires_kirki' => 'Requires Kirki 99.0.0',
-            'requires_wp' => 'Requires WordPress 99.0.0',
-            'requires_php' => 'Requires PHP 99.0.0',
+            'requires_kirki' => 'This update needs Kirki eCommerce 99.0.0 or newer (you have ' . KIRKI_ECOMMERCE_VERSION . '). Update Kirki eCommerce first, then update this gateway.',
+            'requires_wp' => 'This update needs WordPress 99.0.0 or newer (you have ' . get_bloginfo('version') . '). Update WordPress first, then update this gateway.',
+            'requires_php' => 'This update needs PHP 99.0.0 or newer (you have ' . PHP_VERSION . '). Ask your hosting provider to upgrade PHP, then update this gateway.',
         ];
 
         foreach ($cases as $field => $reason) {

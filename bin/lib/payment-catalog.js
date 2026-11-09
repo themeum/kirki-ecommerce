@@ -69,7 +69,7 @@ const readGatewayHeader = (header, slug) => {
     description: readHeaderField(header, 'Description'),
     version,
     order: readOrder(header, slug),
-    requires_kirki: readHeaderField(header, 'Requires Kirki'),
+    requires_kirki: readHeaderField(header, 'Requires Kirki eCommerce'),
     requires_wp: readHeaderField(header, 'Requires at least'),
     requires_php: readHeaderField(header, 'Requires PHP'),
   };
@@ -158,7 +158,17 @@ const planBuild = (gateways, liveCatalog, { baseUrl }) => {
       plan.changedWithoutBump.push(gateway.slug);
     }
 
-    plan.keep.push({ ...gateway, sha256: live.sha256, source_sha256: live.source_sha256 });
+    plan.keep.push({
+      ...gateway,
+      id: live.id,
+      name: live.name ?? gateway.name,
+      description: live.description ?? gateway.description,
+      requires_kirki: live.requires_kirki ?? '',
+      requires_wp: live.requires_wp ?? '',
+      requires_php: live.requires_php ?? '',
+      sha256: live.sha256,
+      source_sha256: live.source_sha256,
+    });
   });
 
   const slugs = new Set(gateways.map((gateway) => gateway.slug));
