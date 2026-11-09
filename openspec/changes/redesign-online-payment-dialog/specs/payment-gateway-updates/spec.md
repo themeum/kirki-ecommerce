@@ -32,7 +32,7 @@ dialog.
 
 #### Scenario: Requirement not met
 
-- **WHEN** the update is blocked by `requires_kirki`
+- **WHEN** the update is blocked by `requires_kirki_ecommerce`
 - **THEN** the row shows "Update Available" and an info icon whose tooltip shows
   the reason, which names the required version and what to do, and no "Update" button
 

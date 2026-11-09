@@ -19,7 +19,7 @@ gateways again. With 17 gateways now and more later, this does not scale.
 - One global `upgrader_pre_download` filter checks the SHA-256 of each catalog
   gateway package on all paths: the dialog, the Plugins page and auto-update.
   A package that fails the check is not installed.
-- The catalog gets new fields: `slug`, `requires_kirki`, `requires_wp`,
+- The catalog gets new fields: `slug`, `requires_kirki_ecommerce`, `requires_wp`,
   `requires_php`. When the store does not meet a requirement, the store does
   not offer the update and shows the reason.
 - New endpoint `POST /online-payments/update` updates one installed gateway

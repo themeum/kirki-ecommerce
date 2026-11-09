@@ -103,7 +103,7 @@ not shipped. Change its `Version` header and build again.
 | `Version` | `version` | Required. Also part of the zip name, so only letters, digits, `.`, `+` and `-`. |
 | `Description` | `description` | |
 | `Order` | sort order | Optional whole number. WordPress ignores this line. |
-| `Requires Kirki eCommerce` | `requires_kirki` | Optional. Lowest Kirki eCommerce version the gateway needs. |
+| `Requires Kirki eCommerce` | `requires_kirki_ecommerce` | Optional. Lowest Kirki eCommerce version the gateway needs. |
 | `Requires at least` | `requires_wp` | Optional. Lowest WordPress version. |
 | `Requires PHP` | `requires_php` | Optional. Lowest PHP version. |
 
@@ -154,7 +154,7 @@ object with the key `payments` (no file extension) and `Content-Type: applicatio
     "name": "Stripe",
     "description": "Stripe payment gateway for Kirki ecommerce.",
     "version": "1.0.0",
-    "requires_kirki": "",
+    "requires_kirki_ecommerce": "",
     "requires_wp": "",
     "requires_php": "",
     "icon_url": "https://example.com/bucket/kirki-stripe/logo.svg",
@@ -313,7 +313,7 @@ the catalog `version` is greater than the plugin `Version` header.
 
 ### Requirements
 
-The store compares `requires_kirki`, `requires_wp` and `requires_php` with the
+The store compares `requires_kirki_ecommerce`, `requires_wp` and `requires_php` with the
 running kirki-ecommerce, WordPress and PHP versions. When one is not met, the
 update is **blocked**: it is not shown on the Plugins page, the endpoint
 refuses it, and the dialog shows the reason (for example "This update needs Kirki eCommerce 1.1.0 or newer (you have
@@ -321,7 +321,7 @@ refuses it, and the dialog shows the reason (for example "This update needs Kirk
 
 | Requirement | What the admin must do |
 |---|---|
-| `requires_kirki` | Update Kirki eCommerce, then update the gateway. |
+| `requires_kirki_ecommerce` | Update Kirki eCommerce, then update the gateway. |
 | `requires_wp` | Update WordPress, then update the gateway. |
 | `requires_php` | Ask the hosting provider to upgrade PHP, then update the gateway. |
 

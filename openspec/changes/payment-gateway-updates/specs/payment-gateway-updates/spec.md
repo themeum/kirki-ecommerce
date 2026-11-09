@@ -41,7 +41,7 @@ Only plugins that match a catalog `slug` SHALL be affected.
 
 ### Requirement: Updates respect the gateway requirements
 
-The system SHALL compare the catalog `requires_kirki`, `requires_wp` and
+The system SHALL compare the catalog `requires_kirki_ecommerce`, `requires_wp` and
 `requires_php` values with the running kirki-ecommerce, WordPress and PHP
 versions. An empty or missing value SHALL mean no requirement. When a
 requirement is not met, the update SHALL be blocked: the system SHALL NOT add
@@ -50,7 +50,7 @@ first requirement that is not met.
 
 #### Scenario: Core too old
 
-- **WHEN** an update has `requires_kirki` `1.1.0` and kirki-ecommerce is
+- **WHEN** an update has `requires_kirki_ecommerce` `1.1.0` and kirki-ecommerce is
   `1.0.0`
 - **THEN** the update is blocked with the reason "This update needs Kirki eCommerce 1.1.0 or newer (you have 1.0.0). Update Kirki eCommerce first, then update this gateway."
   and it does not show in the WordPress update list
@@ -211,7 +211,7 @@ offered, and pressing the badge SHALL open the dialog.
 
 #### Scenario: Requirement not met
 
-- **WHEN** the update is blocked by `requires_kirki`
+- **WHEN** the update is blocked by `requires_kirki_ecommerce`
 - **THEN** the row shows "Added" and the reason text, and no
   "Update" button
 

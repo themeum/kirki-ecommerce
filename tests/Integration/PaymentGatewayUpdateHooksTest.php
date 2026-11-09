@@ -60,7 +60,7 @@ class PaymentGatewayUpdateHooksTest extends WP_UnitTestCase
             'name' => 'Fake Pay',
             'description' => 'Fake gateway.',
             'version' => '1.0.1',
-            'requires_kirki' => '',
+            'requires_kirki_ecommerce' => '',
             'requires_wp' => '',
             'requires_php' => '',
             'icon_url' => $base_url . '/kirki-fakepay/logo.svg',
@@ -126,7 +126,7 @@ class PaymentGatewayUpdateHooksTest extends WP_UnitTestCase
     public function test_a_blocked_update_is_left_out(): void
     {
         $this->install_fake_plugin('1.0.0');
-        $this->fake_server(['requires_kirki' => '99.0.0']);
+        $this->fake_server(['requires_kirki_ecommerce' => '99.0.0']);
 
         $transient = apply_filters('pre_set_site_transient_update_plugins', $this->empty_transient());
 

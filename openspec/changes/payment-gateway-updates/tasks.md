@@ -1,6 +1,6 @@
 ## 1. Build tools: catalog fields, versioned zips, incremental build
 
-- [x] 1.1 In `bin/lib/payment-catalog.js`, add `slug`, `requires_kirki`, `requires_wp`, `requires_php` and `source_sha256` to the catalog entry, and make `download_url` end with `/<slug>/<slug>-<version>.zip`
+- [x] 1.1 In `bin/lib/payment-catalog.js`, add `slug`, `requires_kirki_ecommerce`, `requires_wp`, `requires_php` and `source_sha256` to the catalog entry, and make `download_url` end with `/<slug>/<slug>-<version>.zip`
 - [x] 1.2 Add pure helpers to `bin/lib/payment-catalog.js`: read the plugin headers (`Requires Kirki eCommerce`, `Requires at least`, `Requires PHP`), select the gateways to build from the live catalog, merge the built and kept entries, find removed gateways, and validate kept entries (no `slug`, no `source_sha256`, or `download_url` not under `BASE_URL` gives a "use --full" error)
 - [x] 1.3 Add the `source_sha256` helper: a hash of the sorted relative paths and contents, without `vendor`, `node_modules`, `.git` and `.DS_Store`
 - [x] 1.4 Extend `bin/test/payment-catalog.test.js` for 1.1 to 1.3: new fields, versioned URL, selection (new, version changed, same), merge keeps the live `sha256`, removed gateway, "use --full" errors, warning when the source changed but the version did not
@@ -11,9 +11,9 @@
 
 ## 2. Backend: catalog and update logic
 
-- [x] 2.1 In `PaymentGatewayCatalog::normalize()`, require a safe `slug` (`^[a-z0-9-]+$`) and read `requires_kirki`, `requires_wp`, `requires_php` (a value that is not a version string becomes empty); update `tests/Unit/Payment/PaymentGatewayCatalogTest.php`
+- [x] 2.1 In `PaymentGatewayCatalog::normalize()`, require a safe `slug` (`^[a-z0-9-]+$`) and read `requires_kirki_ecommerce`, `requires_wp`, `requires_php` (a value that is not a version string becomes empty); update `tests/Unit/Payment/PaymentGatewayCatalogTest.php`
 - [x] 2.2 Add `PaymentGatewayCatalog::find_by_download_url()` and a cached `details(string $slug)` that reads `{base}/<slug>/meta.json` through `Http` and `Cache`, with the trusted URL check
-- [x] 2.3 Add `app/Payment/PaymentGatewayUpdates.php`: match catalog entries to `<slug>/<slug>.php` from `get_plugins()`, compare versions, apply the requirement gate (`KIRKI_ECOMMERCE_VERSION`, WordPress version, `PHP_VERSION`) and return `installed_version`, `update_available` and `update_blocked_reason` for each entry; a catalog failure gives no updates
+- [x] 2.3 Add `app/Payment/PaymentGatewayUpdates.php`: match catalog entries to `<slug>/<slug>.php` from `get_plugins()`, compare versions, apply the requirement gate (`app()->version()`, WordPress version, `PHP_VERSION`) and return `installed_version`, `update_available` and `update_blocked_reason` for each entry; a catalog failure gives no updates
 - [x] 2.4 Move the download and sha256 check from `OnlinePaymentService::download_package()` into `PaymentGatewayUpdates::verified_package(string $url)`; it returns the verified temp file path or a `WP_Error`, and deletes the file on failure
 - [x] 2.5 Add unit tests for `PaymentGatewayUpdates`: newer, same and older versions, plugin not in catalog, each requirement blocked, no requirements, catalog failure
   - Note: these are in `tests/Integration/PaymentGatewayUpdatesTest.php`, not in the unit suite. The unit bootstrap has no `get_bloginfo()` and no `KIRKI_ECOMMERCE_VERSION`, and the integration suite has real WordPress.

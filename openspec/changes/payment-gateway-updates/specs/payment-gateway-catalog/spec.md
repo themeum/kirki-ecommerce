@@ -6,7 +6,7 @@ The system SHALL read the installable gateway list from `{base}/payments`,
 where `{base}` is defined in exactly one place in the code. The response SHALL
 be cached for a short time. All other URLs used by the feature SHALL be
 derived from the catalog response or from `{base}`. Each catalog entry SHALL
-carry `slug`, and MAY carry `requires_kirki`, `requires_wp` and
+carry `slug`, and MAY carry `requires_kirki_ecommerce`, `requires_wp` and
 `requires_php`. An entry whose `slug` is missing or is not a safe plugin
 folder name SHALL be dropped. A `requires_*` value that is not a version
 string SHALL be read as empty.

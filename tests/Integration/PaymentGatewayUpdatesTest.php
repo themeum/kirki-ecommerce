@@ -7,6 +7,8 @@ use Kirki\Ecommerce\App\Payment\PaymentGatewayCatalog;
 use Kirki\Ecommerce\App\Payment\PaymentGatewayUpdates;
 use WP_UnitTestCase;
 
+use function Kirki\Ecommerce\Framework\app;
+
 class PaymentGatewayUpdatesTest extends WP_UnitTestCase
 {
     protected function gateway(array $overrides = []): array
@@ -17,7 +19,7 @@ class PaymentGatewayUpdatesTest extends WP_UnitTestCase
             'name' => 'PayFast',
             'description' => '',
             'version' => '1.0.1',
-            'requires_kirki' => '',
+            'requires_kirki_ecommerce' => '',
             'requires_wp' => '',
             'requires_php' => '',
             'icon_url' => '',
@@ -86,7 +88,7 @@ class PaymentGatewayUpdatesTest extends WP_UnitTestCase
         $updates = new PaymentGatewayUpdates($this->catalog([]));
 
         $cases = [
-            'requires_kirki' => 'This update needs Kirki eCommerce 99.0.0 or newer (you have ' . KIRKI_ECOMMERCE_VERSION . '). Update Kirki eCommerce first, then update this gateway.',
+            'requires_kirki_ecommerce' => 'This update needs Kirki eCommerce 99.0.0 or newer (you have ' . app()->version() . '). Update Kirki eCommerce first, then update this gateway.',
             'requires_wp' => 'This update needs WordPress 99.0.0 or newer (you have ' . get_bloginfo('version') . '). Update WordPress first, then update this gateway.',
             'requires_php' => 'This update needs PHP 99.0.0 or newer (you have ' . PHP_VERSION . '). Ask your hosting provider to upgrade PHP, then update this gateway.',
         ];
@@ -101,7 +103,7 @@ class PaymentGatewayUpdatesTest extends WP_UnitTestCase
 
     public function test_met_requirements_do_not_block_an_update(): void
     {
-        $gateway = $this->gateway(['requires_kirki' => '1.0.0', 'requires_wp' => '5.0', 'requires_php' => '7.0']);
+        $gateway = $this->gateway(['requires_kirki_ecommerce' => '1.0.0', 'requires_wp' => '5.0', 'requires_php' => '7.0']);
 
         $state = (new PaymentGatewayUpdates($this->catalog([])))->state($gateway, $this->installed('1.0.0'));
 
@@ -110,7 +112,7 @@ class PaymentGatewayUpdatesTest extends WP_UnitTestCase
 
     public function test_a_blocked_requirement_is_not_reported_without_a_newer_version(): void
     {
-        $state = (new PaymentGatewayUpdates($this->catalog([])))->state($this->gateway(['requires_kirki' => '99.0.0']), $this->installed('1.0.1'));
+        $state = (new PaymentGatewayUpdates($this->catalog([])))->state($this->gateway(['requires_kirki_ecommerce' => '99.0.0']), $this->installed('1.0.1'));
 
         $this->assertNull($state['update_blocked_reason']);
     }

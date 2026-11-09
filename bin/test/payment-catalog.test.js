@@ -23,7 +23,7 @@ const gateway = (slug, version, sourceHash = `src-${slug}`) => ({
   description: '',
   version,
   order: null,
-  requires_kirki: '',
+  requires_kirki_ecommerce: '',
   requires_wp: '',
   requires_php: '',
   source_sha256: sourceHash,
@@ -48,7 +48,7 @@ describe('buildCatalog', () => {
         description: 'Demo.',
         version: '1.2.3',
         order: 5,
-        requires_kirki: '1.1.0',
+        requires_kirki_ecommerce: '1.1.0',
         requires_wp: '6.4',
         requires_php: '7.4',
         sha256: 'abc',
@@ -63,7 +63,7 @@ describe('buildCatalog', () => {
         name: 'Demo',
         description: 'Demo.',
         version: '1.2.3',
-        requires_kirki: '1.1.0',
+        requires_kirki_ecommerce: '1.1.0',
         requires_wp: '6.4',
         requires_php: '7.4',
         icon_url: 'http://icons.test/bucket/kirki-demo/logo.svg',
@@ -77,7 +77,7 @@ describe('buildCatalog', () => {
   it('gives empty requirements when none are set', () => {
     const [entry] = buildCatalog([{ id: 'a', slug: 'a', name: 'A', version: '1.0.0' }], urls);
 
-    assert.strictEqual(entry.requires_kirki, '');
+    assert.strictEqual(entry.requires_kirki_ecommerce, '');
     assert.strictEqual(entry.requires_wp, '');
     assert.strictEqual(entry.requires_php, '');
   });
@@ -116,7 +116,7 @@ describe('readGatewayHeader', () => {
       description: 'PayFast gateway.',
       version: '1.0.1',
       order: 3,
-      requires_kirki: '1.1.0',
+      requires_kirki_ecommerce: '1.1.0',
       requires_wp: '6.4',
       requires_php: '7.4',
     });
@@ -125,7 +125,7 @@ describe('readGatewayHeader', () => {
   it('gives empty requirements when the headers are missing', () => {
     const result = readGatewayHeader(' * Plugin Name: Kirki A\n * Version: 1.0.0', 'kirki-a');
 
-    assert.strictEqual(result.requires_kirki, '');
+    assert.strictEqual(result.requires_kirki_ecommerce, '');
     assert.strictEqual(result.requires_wp, '');
     assert.strictEqual(result.requires_php, '');
   });
@@ -184,7 +184,7 @@ describe('planBuild', () => {
       name: 'Edited name',
       description: 'Edited description.',
       order: 5,
-      requires_kirki: '1.0.1',
+      requires_kirki_ecommerce: '1.0.1',
       requires_wp: '6.6',
       requires_php: '8.1',
     };
@@ -192,7 +192,7 @@ describe('planBuild', () => {
       ...liveEntry('kirki-a', '1.0.0', 'old-hash'),
       name: 'Live name',
       description: 'Live description.',
-      requires_kirki: '',
+      requires_kirki_ecommerce: '',
       requires_wp: '6.4',
       requires_php: '',
     };
@@ -202,7 +202,7 @@ describe('planBuild', () => {
     assert.strictEqual(kept.id, 'kirki-a');
     assert.strictEqual(kept.name, 'Live name');
     assert.strictEqual(kept.description, 'Live description.');
-    assert.strictEqual(kept.requires_kirki, '');
+    assert.strictEqual(kept.requires_kirki_ecommerce, '');
     assert.strictEqual(kept.requires_wp, '6.4');
     assert.strictEqual(kept.requires_php, '');
     assert.strictEqual(kept.order, 5);

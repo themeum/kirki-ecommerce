@@ -95,10 +95,10 @@ a catalog edit. The `meta.json` and `logo.svg` names do not change.
 
 ### 4. The requirement gate
 
-The catalog gets `requires_kirki`, `requires_wp` and `requires_php`. The build
+The catalog gets `requires_kirki_ecommerce`, `requires_wp` and `requires_php`. The build
 reads them from the plugin headers `Requires Kirki eCommerce`, `Requires at least` and
 `Requires PHP`. `PaymentGatewayUpdates` compares them with
-`KIRKI_ECOMMERCE_VERSION`, `get_bloginfo('version')` and `PHP_VERSION`. The first requirement
+`app()->version()`, `get_bloginfo('version')` and `PHP_VERSION`. The first requirement
 that is not met becomes `update_blocked_reason`, for example "Requires Kirki eCommerce
 1.1.0". A blocked update is not added to the transient and the update
 endpoint refuses it. `requires_wp` and `requires_php` are also put in the

@@ -187,7 +187,7 @@ class PaymentGatewayCatalogApiTest extends RestTestCase
     public function test_listing_reports_a_blocked_update(): void
     {
         $this->install_fake_plugin('1.0.0');
-        $this->fake_update_server('1.0.1', ['requires_kirki' => '99.0.0']);
+        $this->fake_update_server('1.0.1', ['requires_kirki_ecommerce' => '99.0.0']);
 
         $data = $this->assert_api_success($this->request('GET', 'online-payments/installable'));
         $by_id = array_column($data['data'], null, 'id');

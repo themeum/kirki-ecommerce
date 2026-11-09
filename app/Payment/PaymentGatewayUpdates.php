@@ -9,6 +9,8 @@ use Kirki\Ecommerce\Framework\Supports\Facades\File;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use WP_Error;
 
+use function Kirki\Ecommerce\Framework\app;
+
 /**
  * Finds updates for the installed payment gateway plugins from the remote catalog.
  *
@@ -120,8 +122,8 @@ class PaymentGatewayUpdates
     {
         $requirements = [
             [
-                $gateway['requires_kirki'] ?? '',
-                KIRKI_ECOMMERCE_VERSION,
+                $gateway['requires_kirki_ecommerce'] ?? '',
+                app()->version(),
                 /* translators: 1: minimum Kirki eCommerce version, 2: installed Kirki eCommerce version. */
                 __('This update needs Kirki eCommerce %1$s or newer (you have %2$s). Update Kirki eCommerce first, then update this gateway.', 'kirki-ecommerce'),
             ],

@@ -31,7 +31,7 @@ With `--full`, it SHALL build all gateways.
 ### Requirement: Metadata is generated from the plugin
 
 `meta.json` SHALL contain the gateway `id`, `slug`, `name`, `description`,
-`version`, `requires_kirki`, `requires_wp`, `requires_php`, `changelog`, and
+`version`, `requires_kirki_ecommerce`, `requires_wp`, `requires_php`, `changelog`, and
 the SHA-256 checksum of the zip. `name`, `description`, `version` and the
 three requirements SHALL come from the plugin header comment (`Requires
 Kirki`, `Requires at least`, `Requires PHP`). A missing requirement header
@@ -53,7 +53,7 @@ with a clear message when a gateway has no valid header or no
 #### Scenario: Requirement header
 
 - **WHEN** a gateway header has `Requires Kirki eCommerce: 1.1.0`
-- **THEN** its `meta.json` and catalog entry have `requires_kirki` `1.1.0`
+- **THEN** its `meta.json` and catalog entry have `requires_kirki_ecommerce` `1.1.0`
 
 #### Scenario: Changelog
 
@@ -64,7 +64,7 @@ with a clear message when a gateway has no valid header or no
 
 The build command SHALL write `gateways/payments`, a JSON list of every
 gateway in `payments/`, built or kept, with `id`, `slug`, `name`,
-`description`, `version`, `requires_kirki`, `requires_wp`, `requires_php`,
+`description`, `version`, `requires_kirki_ecommerce`, `requires_wp`, `requires_php`,
 `icon_url`, `download_url`, `sha256` and `source_sha256`. `download_url` SHALL
 start with the `BASE_URL` value and `icon_url` with the `ICON_BASE_URL` value.
 The list SHALL be sorted by `order` (lowest first), then by name A to Z, with
@@ -126,7 +126,7 @@ Without `--full`, the build command SHALL read the live catalog from
 the gateway when the live catalog has no entry with its slug, or when the
 plugin `Version` header differs from the live `version`. For each other
 gateway it SHALL keep the live `sha256` and `source_sha256`, write no
-folder, and keep the live `id`, `name`, `description`, `requires_kirki`,
+folder, and keep the live `id`, `name`, `description`, `requires_kirki_ecommerce`,
 `requires_wp` and `requires_php`, because these describe the live zip. Only the
 sort order SHALL come from the source plugin header.
 The command SHALL fail with a clear message, and SHALL tell the maintainer to
@@ -143,7 +143,7 @@ use `--full`, when the live catalog cannot be loaded, when a kept entry has no
 #### Scenario: Header changed without a new version
 
 - **WHEN** a gateway's `Requires Kirki eCommerce` header changes but its `Version` does not
-- **THEN** the build keeps the live zip and the live `requires_kirki`, and prints
+- **THEN** the build keeps the live zip and the live `requires_kirki_ecommerce`, and prints
   the warning that the source changed but the version did not
 
 #### Scenario: Live catalog unreachable

@@ -50,7 +50,7 @@ class PaymentGatewayCatalog
      *
      * @since 1.0.0
      *
-     * @return array<int, array<string, string>> Gateways with id, slug, name, description, version, requires_kirki, requires_wp, requires_php, icon_url, download_url and sha256.
+     * @return array<int, array<string, string>> Gateways with id, slug, name, description, version, requires_kirki_ecommerce, requires_wp, requires_php, icon_url, download_url and sha256.
      * @throws Exception When the server fails and no earlier copy exists.
      */
     public function all()
@@ -215,7 +215,7 @@ class PaymentGatewayCatalog
                 'name' => $name,
                 'description' => is_string($entry['description'] ?? null) ? $entry['description'] : '',
                 'version' => is_string($entry['version'] ?? null) ? $entry['version'] : '',
-                'requires_kirki' => static::version_or_empty($entry['requires_kirki'] ?? null),
+                'requires_kirki_ecommerce' => static::version_or_empty($entry['requires_kirki_ecommerce'] ?? null),
                 'requires_wp' => static::version_or_empty($entry['requires_wp'] ?? null),
                 'requires_php' => static::version_or_empty($entry['requires_php'] ?? null),
                 'icon_url' => is_string($icon_url) && preg_match('#^https?://#i', $icon_url) === 1 ? $icon_url : '',

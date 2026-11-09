@@ -20,7 +20,7 @@ class PaymentGatewayCatalogTest extends TestCase
             'icon_url' => static::BASE_URL . '/files/kirki-stripe/logo.svg',
             'download_url' => static::BASE_URL . '/files/kirki-stripe/kirki-stripe-1.0.0.zip',
             'sha256' => str_repeat('a', 64),
-            'requires_kirki' => '1.1.0',
+            'requires_kirki_ecommerce' => '1.1.0',
             'requires_wp' => '6.4',
             'requires_php' => '7.4',
         ], $overrides);
@@ -39,7 +39,7 @@ class PaymentGatewayCatalogTest extends TestCase
         $gateway = PaymentGatewayCatalog::normalize([$this->entry()], static::BASE_URL)[0];
 
         $this->assertSame('kirki-stripe', $gateway['slug']);
-        $this->assertSame('1.1.0', $gateway['requires_kirki']);
+        $this->assertSame('1.1.0', $gateway['requires_kirki_ecommerce']);
         $this->assertSame('6.4', $gateway['requires_wp']);
         $this->assertSame('7.4', $gateway['requires_php']);
     }
@@ -61,12 +61,12 @@ class PaymentGatewayCatalogTest extends TestCase
 
     public function test_it_blanks_a_requirement_that_is_not_a_version()
     {
-        $entry = $this->entry(['requires_kirki' => '>= 1.1', 'requires_php' => 7.4]);
+        $entry = $this->entry(['requires_kirki_ecommerce' => '>= 1.1', 'requires_php' => 7.4]);
         unset($entry['requires_wp']);
 
         $gateway = PaymentGatewayCatalog::normalize([$entry], static::BASE_URL)[0];
 
-        $this->assertSame('', $gateway['requires_kirki']);
+        $this->assertSame('', $gateway['requires_kirki_ecommerce']);
         $this->assertSame('', $gateway['requires_wp']);
         $this->assertSame('', $gateway['requires_php']);
     }
