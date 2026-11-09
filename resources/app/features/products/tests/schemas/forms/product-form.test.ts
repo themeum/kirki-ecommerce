@@ -49,7 +49,6 @@ const baseProductInput = {
   og_title: '',
   og_description: '',
   og_image: null,
-  schema_id: null,
 };
 
 describe('ProductFormVariantSchema', () => {
@@ -361,7 +360,6 @@ describe('mapProductToFormValues', () => {
     seo_title: null,
     seo_description: null,
     seo_keywords: null,
-    schema_id: null,
     og_title: null,
     og_description: null,
     og_image: null,

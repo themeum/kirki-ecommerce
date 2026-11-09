@@ -26,7 +26,6 @@ class Product extends Model
     protected $casts = [
         'id' => 'integer',
         'brand_id' => 'integer',
-        'schema_id' => 'integer',
         'has_variants' => 'boolean',
         'additional_info' => 'json',
         'seo_keywords' => 'json',
@@ -55,7 +54,6 @@ class Product extends Model
         'og_title',
         'og_description',
         'og_image',
-        'schema_id',
         'has_variants',
         'published_at',
         'scheduled_at',

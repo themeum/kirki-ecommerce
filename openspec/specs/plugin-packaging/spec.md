@@ -4,7 +4,9 @@
 
 Defines the behavior of building a production-only, installable WordPress
 plugin zip from the development repository via a single command.
+
 ## Requirements
+
 ### Requirement: Single command produces an installable plugin zip
 
 The system SHALL provide a single command (`npm run make:package`) that,
@@ -128,7 +130,7 @@ working in a development install.
 - **WHEN** a merchant completes the onboarding wizard on a site that runs
   the packaged plugin
 - **THEN** store setup succeeds and seeds the category tree, attribute
-  presets, product schema profiles and settings defaults
+  presets and settings defaults
 
 #### Scenario: Sample data import works from the package
 

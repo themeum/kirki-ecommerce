@@ -3,9 +3,7 @@
 ## Purpose
 
 Defines the product edit AI & Web Presence card so merchants can configure search engine metadata and social share appearance with live previews that reflect product data and overrides.
-
 ## Requirements
-
 ### Requirement: Card presents two tabbed sections
 The AI & Web Presence card on the product edit form SHALL provide exactly two tabs: Search Engines and Social Share. Each tab MUST render its own fields and previews without navigating away from the product form. The card SHALL NOT offer an AEO tab or a Schema tab.
 
@@ -88,5 +86,6 @@ All AI & Web Presence fields MUST sync to the unified product form via RHF field
 
 #### Scenario: SEO fields persist on save
 - **WHEN** the merchant saves the product after editing AI & Web Presence fields
-- **THEN** seo_title, seo_description, og_title, og_description, schema_id, and og_image null are included in the save payload
-- **AND** the save payload contains no `llm_instructions` field
+- **THEN** seo_title, seo_description, og_title, og_description, and og_image null are included in the save payload
+- **AND** the save payload contains no `llm_instructions` field and no `schema_id` field
+

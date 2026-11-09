@@ -208,7 +208,6 @@ kind, and each kind's inserter reads only its key:
 | Key | Holds |
 |---|---|
 | `attributes` | `name`, `slug`, `type` (`color` or `list`), `values` (`value`, optional hex `color`) |
-| `schema_profiles` | Stored fields of each record |
 | `shipping_profiles`, `tax_profiles` | `key`, `name`, `is_default` |
 | `legal` | `pages` (`key`, `slug`, `title`, `content`) and `consents` (`title`, `locations`, `method`, `message` with `{page:<key>}` tokens) |
 | `shipping_zones` | `title`, `is_enabled`, `regions`, `methods` (stored method fields plus `rules`) |
@@ -230,7 +229,7 @@ still written.
 
 | Section | Holds | Applies to |
 |---|---|---|
-| `common` | Color attribute, default schema profile, *General* shipping profile, *Standard* tax profile, generic shipping methods, zone titles, legal pages and consents | Every store |
+| `common` | Color attribute, *General* shipping profile, *Standard* tax profile, generic shipping methods, zone titles, legal pages and consents | Every store |
 | `industries.<slug>` | Attributes, shipping profiles and their rule templates, tax profiles. No categories and no tags: they are in the industry's products file (section 5). | The chosen industry. *Other* has an entry with attributes only. An industry with no entry gets nothing from this section. |
 | `countries.<ISO2>` | `bloc`, `gdpr`, shipping methods with local-currency amounts, `tax` (mode, rates, rates per tax profile, `source` or `sources`, `verified_at`) | The chosen country |
 | `blocs.<code>` | Member country codes of a trade bloc (`EU`, `GCC`) | Countries whose entry names the bloc |
@@ -243,7 +242,6 @@ dataset. A unit test fails if `blocs.EU` does not match that dataset.
 | Preset | What the store gets | Skipped when |
 |---|---|---|
 | Attributes | *Color* (30 named colours with hex codes) plus the industry's attributes (for example *Size* and *Material* for Fashion & Apparel). The industry's extra colours, such as *Marigold*, are not added here: the sample data adds them when a product needs them. | An attribute with the same slug exists (checked per attribute) |
-| Schema profile | One default profile with every field the schema picker supports | Any schema profile exists |
 | Shipping profiles | *General* (default) plus the industry's profiles, such as *Fragile* or *Perishable* | A profile with the same name exists. *General* is the default only when no default exists. |
 | Tax profiles | *Standard* (default) plus the industry's profiles, such as *Food*. Created even when the merchant does not collect tax. | A profile with the same name exists |
 | Legal pages | Published *Terms & Conditions*, *Privacy Policy* and *Refund & Returns Policy* pages with placeholder text | A page with the slug exists. A **published** WordPress privacy page (Settings → Privacy) is used in place of a new privacy page. |

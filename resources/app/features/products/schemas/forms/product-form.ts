@@ -125,7 +125,6 @@ export const ProductFormSchema = prepareFormSchema(ProductFormComposedShape).tra
     og_title: values.og_title || null,
     og_description: values.og_description || null,
     og_image: null,
-    schema_id: values.schema_id,
     has_variants: values.has_variants,
     attributes: values.attributes.map((item) => ({
       id: item.id,

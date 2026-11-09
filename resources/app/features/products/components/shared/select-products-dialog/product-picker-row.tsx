@@ -1,4 +1,4 @@
-import { type MouseEvent, useCallback, useMemo, useRef } from 'react';
+import { memo, type MouseEvent, useCallback, useMemo, useRef } from 'react';
 
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -8,53 +8,75 @@ import Image from '@/components/ui/image';
 import PriceText from '@/components/ui/price-text';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
+import { useSelectProductsActions } from '@/features/products/components/shared/select-products-dialog/select-products-context';
 import type {
+  ProductPickerItem,
   ProductSelection,
   ProductVariantSelection,
   SelectProductsMode,
 } from '@/features/products/components/shared/select-products-dialog/types';
-import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import { ChevronDownIcon } from '@/icons/common';
 import { __, sprintf } from '@/wpi18n';
 
 type ProductPickerRowProps = {
-  product: ProductListItem;
-  selection: ProductSelection;
-  expanded: boolean;
-  onToggleExpand: () => void;
+  item: ProductPickerItem;
   mode: SelectProductsMode;
-  isProductSelected: boolean;
-  selectedVariantIds: Set<number>;
   lockedVariantIds: Set<number>;
-  onToggleProduct: (checked: boolean) => void;
-  onToggleVariants: (variants: ProductVariantSelection[], checked: boolean) => void;
-  onToggleRange: (checked: boolean, variant?: ProductVariantSelection) => void;
-  onSetAnchor: (variant?: ProductVariantSelection) => void;
+  selectedEntry: ProductSelection | undefined;
+  expanded: boolean;
 };
 
-const ProductPickerRow = ({
-  product,
-  selection,
-  expanded,
-  onToggleExpand,
+const ProductPickerRowComponent = ({
+  item,
   mode,
-  isProductSelected,
-  selectedVariantIds,
   lockedVariantIds,
-  onToggleProduct,
-  onToggleVariants,
-  onToggleRange,
-  onSetAnchor,
+  selectedEntry,
+  expanded,
 }: ProductPickerRowProps) => {
+  const { product, selection } = item;
   const { variants } = selection;
+  const { toggleExpand, toggleProduct, toggleVariants, toggleRange, setAnchor } =
+    useSelectProductsActions();
+
+  const isProductSelected = Boolean(selectedEntry);
+  const selectedVariantIds = useMemo(
+    () => new Set(selectedEntry?.variants.map((variant) => variant.variantId) ?? []),
+    [selectedEntry],
+  );
   const isOrderMode = mode === 'order';
+
+  const onToggleExpand = useCallback(() => toggleExpand(product.id), [toggleExpand, product.id]);
+
+  const onToggleProduct = useCallback(
+    (checked: boolean) => toggleProduct(selection, checked),
+    [toggleProduct, selection],
+  );
+
+  const onToggleVariants = useCallback(
+    (targetVariants: ProductVariantSelection[], checked: boolean) =>
+      toggleVariants(selection, targetVariants, checked),
+    [toggleVariants, selection],
+  );
+
+  const onToggleRange = useCallback(
+    (checked: boolean, variant?: ProductVariantSelection) => toggleRange(item, checked, variant),
+    [toggleRange, item],
+  );
+
+  const onSetAnchor = useCallback(
+    (variant?: ProductVariantSelection) => setAnchor(item, variant),
+    [setAnchor, item],
+  );
+
   const unlockedVariants = useMemo(
     () => variants.filter((variant) => !lockedVariantIds.has(variant.variantId)),
     [variants, lockedVariantIds],
   );
+
   const selectedVariantCount = unlockedVariants.filter((variant) =>
     selectedVariantIds.has(variant.variantId),
   ).length;
+
   const isFullyLocked = variants.length > 0 && unlockedVariants.length === 0;
 
   const isChecked = isOrderMode
@@ -181,7 +203,7 @@ const ProductPickerRow = ({
             {isFullyLocked && (
               <Badge variant="destructive">{__('Item already picked', 'kirki-ecommerce')}</Badge>
             )}
-            {isOrderMode && (
+            {isOrderMode && variants.length > 1 && (
               <Button
                 variant="ghost"
                 size="icon-xs"
@@ -205,6 +227,7 @@ const ProductPickerRow = ({
 
       {expanded &&
         isOrderMode &&
+        variants.length > 1 &&
         variants.map((variant) => {
           const isLocked = lockedVariantIds.has(variant.variantId);
 
@@ -245,6 +268,8 @@ const ProductPickerRow = ({
     </>
   );
 };
+
+const ProductPickerRow = memo(ProductPickerRowComponent);
 
 ProductPickerRow.displayName = 'ProductPickerRow';
 

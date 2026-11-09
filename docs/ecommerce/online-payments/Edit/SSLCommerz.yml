@@ -1,0 +1,28 @@
+info:
+  name: SSLCommerz
+  type: http
+  seq: 12
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/sslcommerz"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "store_id": "your-sandbox-store-id",
+          "store_password": "your-sandbox-store-password",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

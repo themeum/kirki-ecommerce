@@ -188,15 +188,19 @@ class ProductSeo
                 continue;
             }
 
-            $amount = $variant['base_sale_price'] ?? null;
-            $amount = $amount !== null ? $amount : ($variant['base_price'] ?? null);
+            $sale_amount = $variant['base_sale_price'] ?? null;
+            $regular_amount = $variant['base_price'] ?? null;
+            $amount = $sale_amount !== null ? $sale_amount : $regular_amount;
 
             if ($amount === null) {
                 continue;
             }
 
+            $is_on_sale = $sale_amount !== null && $regular_amount !== null && (float) $sale_amount < (float) $regular_amount;
+
             $items[] = [
                 'base_price' => static::format_amount($amount, $currency),
+                'base_strikethrough_price' => $is_on_sale ? static::format_amount($regular_amount, $currency) : '',
                 'availability' => static::resolve_availability($variant),
                 'sku' => (string) ($variant['sku'] ?? ''),
                 'barcode' => (string) ($variant['barcode'] ?? ''),

@@ -1,17 +1,23 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import ProductTable from '@/features/products/components/shared/select-products-dialog/product-table';
-import {
-  applyProductToggle,
-  applyVariantToggle,
-} from '@/features/products/components/shared/select-products-dialog/selection-helpers';
+import { SelectProductsProvider } from '@/features/products/components/shared/select-products-dialog/select-products-context';
 import type {
   ProductSelection,
   SelectProductsMode,
 } from '@/features/products/components/shared/select-products-dialog/types';
 import type { ProductListItemWithVariants } from '@/features/products/schemas/catalog/product';
+
+const priceTextRenders = vi.hoisted(() => ({ count: 0 }));
+
+vi.mock('@/components/ui/price-text', () => ({
+  default: () => {
+    priceTextRenders.count += 1;
+    return null;
+  },
+}));
 
 const buildItem = (id: number) => {
   const selection = {
@@ -58,37 +64,20 @@ type HarnessProps = {
 };
 
 const Harness = ({ mode, lockedVariantIds = noLocked }: HarnessProps) => {
-  const [selection, setSelection] = useState(() => buildLockedSelection(lockedVariantIds));
-
-  const selectedVariantIds = new Set(
-    Array.from(selection.values()).flatMap((product) =>
-      product.variants.map((variant) => variant.variantId),
-    ),
+  const [selectedProducts] = useState(() =>
+    Array.from(buildLockedSelection(lockedVariantIds).values()),
   );
 
   return (
-    <ProductTable
-      isLoading={false}
-      pickerItems={items}
+    <SelectProductsProvider
       mode={mode}
-      allOnPageSelected={false}
-      partialOnPageSelected={false}
-      pageSelectableCount={items.length}
-      onToggleAllOnPage={() => undefined}
-      expandedProductIds={new Set(items.map((item) => item.product.id))}
-      onToggleExpand={() => undefined}
-      selectedProductIds={new Set(selection.keys())}
-      selectedVariantIds={selectedVariantIds}
-      lockedVariantIds={lockedVariantIds}
-      onToggleProduct={(product, checked) =>
-        setSelection((previous) => applyProductToggle(previous, product, checked))
-      }
-      onToggleVariants={(product, variants, checked) =>
-        setSelection((previous) =>
-          applyVariantToggle(previous, product, variants, checked, lockedVariantIds),
-        )
-      }
-    />
+      selectedProducts={selectedProducts}
+      pickerItems={items}
+      isLoading={false}
+      expandAll
+    >
+      <ProductTable />
+    </SelectProductsProvider>
   );
 };
 
@@ -159,5 +148,19 @@ describe('select products dialog table locked variants', () => {
   it('does not lock anything in product mode', () => {
     render(<Harness mode="product" />);
     expect(checkboxes().every((checkbox) => !isDisabled(checkbox))).toBe(true);
+  });
+});
+
+describe('select products dialog table re-renders', () => {
+  afterEach(cleanup);
+
+  it('re-renders only the toggled row', () => {
+    render(<Harness mode="product" />);
+    priceTextRenders.count = 0;
+
+    fireEvent.click(checkboxes()[0]);
+
+    expect(checkedStates()).toEqual([true, false, false]);
+    expect(priceTextRenders.count).toBe(1);
   });
 });

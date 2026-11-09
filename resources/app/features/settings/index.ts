@@ -1,14 +1,13 @@
 export type { AdvanceSettingsFormPayload } from './advanced/schemas/forms/page-settings';
 export type { CheckoutSettingsFormPayload } from './checkout/schemas/forms/checkout-settings-form';
 export type { EmailSettingsFormPayload } from './email/schemas/forms/email-settings-form';
-export { useSchemasQuery } from './essentials/services/schema';
 export type { GeneralSettingsFormPayload } from './general/schemas/forms/general-settings-form';
 export type { LegalSettingsFormPayload } from './legal/schemas/forms/legal-settings-form';
 export type { MultiCurrencySettingsFormPayload } from './multi-currency/schemas/forms/multi-currency-settings-form';
 export { useAllCurrenciesQuery } from './multi-currency/services/currency';
 export { useOfflinePaymentsQuery } from './payment/services/payment';
 export type { ProductsSettingsFormPayload } from './products/schemas/forms/products-settings-form';
-export { currencyKeys, paymentKeys, schemaProfileKeys, shippingKeys, taxKeys } from './services/query-keys';
+export { currencyKeys, paymentKeys, shippingKeys, taxKeys } from './services/query-keys';
 export { default as ShippingBoxField } from './shipping/components/fields/shipping-box-field';
 export { default as ShippingProfileField } from './shipping/components/fields/shipping-profile-field';
 export {
