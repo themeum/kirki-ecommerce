@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Wordpress\User;
 use Kirki\Ecommerce\Database\Seeders\DatabaseSeeder;
 use Kirki\Ecommerce\Framework\Database\Contracts\DatabaseSeederContract;
 use Kirki\Ecommerce\Framework\ServiceProvider;
+use Kirki\Ecommerce\Framework\Supports\Facades\Command;
 use Kirki\Ecommerce\Framework\Wordpress\User as FrameworkUser;
 
 /**
@@ -38,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bind the developer database seeder in development mode.
+     * Bind the developer database seeder in development mode and register the CLI commands.
      *
      * The app mode is set after the providers register, so it is read here.
      *
@@ -50,6 +51,12 @@ class AppServiceProvider extends ServiceProvider
     {
         if ($this->app->is_dev_mode()) {
             $this->app->singleton(DatabaseSeederContract::class, fn() => new DatabaseSeeder());
+        }
+
+        if ($this->app->is_cli_available()) {
+            foreach (require $this->app->bootstrap_path('commands.php') as $name => $class) {
+                Command::register($name, $class);
+            }
         }
     }
 }
