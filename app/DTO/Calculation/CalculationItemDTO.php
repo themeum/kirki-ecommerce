@@ -35,6 +35,8 @@ class CalculationItemDTO extends DTO
     public $shipping_profile_id;
     /** @var int|null */
     public $tax_profile_id;
+    /** @var bool False when the variant is set to not charge tax; the item is then left out of the tax calculation */
+    public $charge_taxes = true;
     /** @var array */
     public $product_categories = [];
     /** @var array */
