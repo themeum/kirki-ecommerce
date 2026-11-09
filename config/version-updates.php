@@ -12,5 +12,7 @@ return [
         // Nothing to do here
         // We need to keep it for running the migrator
     },
-    '1.0.1' => function () {}
+    '1.0.1' => function () {
+        //
+    }
 ];

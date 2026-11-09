@@ -1,0 +1,76 @@
+name: Deploy to WordPress.org
+
+on:
+  push:
+    # Stable release tags only. A pre-release tag (v1.2.0-alpha.1) does not
+    # match, because WordPress.org has no pre-release channel.
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+# A cancelled SVN commit can leave the release half done, so a second tag
+# waits for the running deploy instead of cancelling it.
+concurrency:
+  group: deploy-wporg
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+          tools: composer
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: |
+            resources/app/package-lock.json
+            resources/site/package-lock.json
+
+      # The tag is the version: it is written into the staged package only
+      # (kirki-ecommerce.php header and constant, readme.txt Stable tag).
+      # The source files are not changed and nothing is committed back.
+      - name: Build plugin package
+        run: bash bin/make-package.sh --version "${GITHUB_REF_NAME#v}" --keep-source
+
+      - name: Install Subversion
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
+      # The version comes from the tag (without the leading v), the same
+      # value the build wrote into the package. There is no
+      # .wordpress-org directory, so the SVN assets are left as they are.
+      - name: Deploy to WordPress.org SVN
+        id: deploy
+        uses: 10up/action-wordpress-plugin-deploy@2.3.0
+        with:
+          generate-zip: true
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: kirki-ecommerce
+          BUILD_DIR: build/kirki-ecommerce
+
+      # A release created by hand keeps its title and notes; only the zip is
+      # added (or replaced on a re-run).
+      - name: Attach zip to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ZIP_PATH: ${{ steps.deploy.outputs.zip-path }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1 \
+            || gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --generate-notes
+          gh release upload "$GITHUB_REF_NAME" "$ZIP_PATH" --clobber
