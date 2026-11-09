@@ -7,7 +7,6 @@ use Kirki\Ecommerce\App\Setup\Presets\AttributePresets;
 use Kirki\Ecommerce\App\Setup\Presets\LegalPresets;
 use Kirki\Ecommerce\App\Setup\Presets\Local\LocalPresetSource;
 use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
-use Kirki\Ecommerce\App\Setup\Presets\SchemaProfilePresets;
 use Kirki\Ecommerce\App\Setup\Presets\ShippingProfilePresets;
 use Kirki\Ecommerce\App\Setup\Presets\ShippingZonePresets;
 use Kirki\Ecommerce\App\Setup\Presets\TaxProfilePresets;
@@ -79,7 +78,6 @@ class StorePresetService
     {
         $inserters = [
             AttributePresets::class,
-            SchemaProfilePresets::class,
             ShippingProfilePresets::class,
             TaxProfilePresets::class,
             LegalPresets::class,

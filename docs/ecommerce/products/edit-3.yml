@@ -35,9 +35,7 @@ http:
         ],
         "og_title": "Classic Cotton T-Shirt - Comfortable and Stylish",
         "og_description": "Shop our premium cotton t-shirts. Perfect fit, breathable fabric, and stylish design.",
-        "og_image": 10,
-        "schema_id": null,
-        "has_variants": true,
+        "og_image": 10,        "has_variants": true,
         "media": [
           7
         ],
@@ -391,9 +389,7 @@ examples:
             ],
             "og_title": "Classic Cotton T-Shirt - Comfortable and Stylish",
             "og_description": "Shop our premium cotton t-shirts. Perfect fit, breathable fabric, and stylish design.",
-            "og_image": 10,
-            "schema_id": null,
-            "has_variants": true,
+            "og_image": 10,            "has_variants": true,
             "media": [
               7
             ],
@@ -743,9 +739,7 @@ examples:
               ],
               "og_title": "Classic Cotton T-Shirt - Comfortable and Stylish",
               "og_description": "Shop our premium cotton t-shirts. Perfect fit, breathable fabric, and stylish design.",
-              "og_image": "10",
-              "schema_id": null,
-              "has_variants": true,
+              "og_image": "10",              "has_variants": true,
               "categories": [
                 {
                   "id": 3,
@@ -1313,9 +1307,7 @@ examples:
             ],
             "og_title": "Classic Cotton T-Shirt - Comfortable and Stylish",
             "og_description": "Shop our premium cotton t-shirts. Perfect fit, breathable fabric, and stylish design.",
-            "og_image": 10,
-            "schema_id": null,
-            "has_variants": true,
+            "og_image": 10,            "has_variants": true,
             "media": [
               7
             ],

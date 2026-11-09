@@ -7,7 +7,7 @@ import { __ } from '@/wpi18n';
 const EssentialsSettingsSkeleton = () => (
   <Container size="sm">
     <SettingsPageSkeleton
-      cards={[4, 4]}
+      cards={[4]}
       header={
         <SettingsPageHeader icon={<SnowflakeIcon />} title={__('Essentials', 'kirki-ecommerce')} />
       }

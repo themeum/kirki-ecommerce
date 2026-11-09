@@ -64,7 +64,6 @@ class LocalPresetSource
 
         return [
             'attributes' => array_merge($common['attributes'] ?? [], $industry['attributes'] ?? []),
-            'schema_profiles' => $common['schema_profiles'] ?? [],
             'shipping_profiles' => $shipping_profiles,
             'tax_profiles' => $tax_profiles,
             'legal' => [

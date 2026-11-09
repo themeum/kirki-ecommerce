@@ -3,12 +3,10 @@
 ## Purpose
 
 Defines who may call each group of the store's REST API - store administrators, logged-in customers, or anyone - so store management data and actions are never reachable by customers or anonymous visitors.
-
 ## Requirements
-
 ### Requirement: Store management endpoints require a store administrator
 
-Every store management endpoint - catalog (products, variants, categories, tags, brands, collections, attributes, product schemas), orders and refunds, customers, coupons, currencies, tax, shipping, settings and email templates, pages, payment gateways, onboarding and app configuration - SHALL only be processed for a logged-in user who holds the WordPress `manage_options` capability. Any other caller SHALL be rejected before the request is processed, and the endpoint SHALL NOT read or change any store data for them.
+Every store management endpoint - catalog (products, variants, categories, tags, brands, collections, attributes), orders and refunds, customers, coupons, currencies, tax, shipping, settings and email templates, pages, payment gateways, onboarding and app configuration - SHALL only be processed for a logged-in user who holds the WordPress `manage_options` capability. Any other caller SHALL be rejected before the request is processed, and the endpoint SHALL NOT read or change any store data for them.
 
 #### Scenario: Administrator uses a management endpoint
 
@@ -102,3 +100,4 @@ A user the admin route gate admits SHALL NOT be rejected by an admin-only endpoi
 
 - **WHEN** a user has the `administrator` role but `manage_options` has been removed from them
 - **THEN** they are not treated as a store administrator by those checks
+

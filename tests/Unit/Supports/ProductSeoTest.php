@@ -130,6 +130,18 @@ class ProductSeoTest extends TestCase
         $this->assertSame(['15.50', '30.00'], array_column($data['offers']['items'], 'base_price'));
     }
 
+    public function test_strikethrough_price_is_the_base_price_only_when_the_sale_price_is_lower()
+    {
+        $data = ProductSeo::resolve($this->product(['variants' => [
+            $this->variant(['base_price' => 20, 'base_sale_price' => 15.5]),
+            $this->variant(['base_price' => 20, 'base_sale_price' => null]),
+            $this->variant(['base_price' => 20, 'base_sale_price' => 20]),
+            $this->variant(['base_price' => 20, 'base_sale_price' => 25]),
+        ]]), $this->context());
+
+        $this->assertSame(['20.00', '', '', ''], array_column($data['offers']['items'], 'base_strikethrough_price'));
+    }
+
     public function test_price_uses_the_currency_decimal_places()
     {
         $data = ProductSeo::resolve($this->product(['variants' => [$this->variant(['base_price' => 1500])]]), $this->context(['currency' => 'JPY']));
