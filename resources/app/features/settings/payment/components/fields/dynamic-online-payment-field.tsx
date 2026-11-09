@@ -26,46 +26,52 @@ type DynamicOnlinePaymentFieldsProps = {
 function renderField(field: OnlinePaymentField, index: number) {
   switch (field.type) {
     case 'text':
-      return <TextField
-        key={index}
-        name={field.name}
-        label={field.label}
-        placeholder={field.placeholder}
-        infoText={field.description}
-      />
+      return (
+        <TextField
+          key={index}
+          name={field.name}
+          label={field.label}
+          placeholder={field.placeholder}
+          infoText={field.description}
+        />
+      );
     case 'password':
-      return <PasswordField
-        key={index}
-        name={field.name}
-        label={field.label}
-        placeholder={field.placeholder}
-        infoText={field.description}
-      />;
+      return (
+        <PasswordField
+          key={index}
+          name={field.name}
+          label={field.label}
+          placeholder={field.placeholder}
+          infoText={field.description}
+        />
+      );
     case 'select':
-      return <SelectField
-        key={index}
-        name={field.name}
-        label={field.label}
-        options={field.options ?? []}
-        infoText={field.description}
-      />
+      return (
+        <SelectField
+          key={index}
+          name={field.name}
+          label={field.label}
+          options={field.options ?? []}
+          infoText={field.description}
+        />
+      );
     case 'checkbox':
-      return <SwitchField
-        key={index}
-        name={field.name}
-        label={field.label}
-        infoText={field.description}
-      />
+      return (
+        <SwitchField
+          key={index}
+          name={field.name}
+          label={field.label}
+          infoText={field.description}
+        />
+      );
     default:
       return null;
   }
 }
 
-export const DynamicOnlinePaymentFields = ({
-  fields = [],
-}: DynamicOnlinePaymentFieldsProps) => {
+export const DynamicOnlinePaymentFields = ({ fields = [] }: DynamicOnlinePaymentFieldsProps) => {
   return (
-    <Flex direction="column" gap={2}>
+    <Flex direction="column" gap={4}>
       {fields.map((field, index) => {
         return renderField(field as OnlinePaymentField, index);
       })}

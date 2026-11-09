@@ -26,9 +26,13 @@ use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\OrderNumberGenerator;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Payments\Bkash;
 use Kirki\Ecommerce\Payments\BkashRejectedException;
+use Kirki\Ecommerce\Payments\Sslcommerz;
+use Kirki\Ecommerce\Payments\SslcommerzClient;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Framework\Wordpress\Models\Option as OptionModel;
 use Kirki\Ecommerce\Framework\Supports\Facades\Queue;
@@ -532,6 +536,143 @@ class ConcurrencySafetyTest extends RestTestCase
                 return $this->fail_order($order, 'TR001', new BkashRejectedException('Insufficient Balance', '2023'));
             }
         };
+    }
+
+    /**
+     * An SSLCommerz customer return and an IPN settle one payment once.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_two_sslcommerz_settlements_of_one_payment_apply_once(): void
+    {
+        $id = $this->create_order()['id'];
+        OrderFacade::set_payment_metadata($id, wp_json_encode(['tran_id' => $id . '-9f3ac17e2b00']));
+        $payment = $this->sslcommerz_payment($id, '0');
+        $provider = $this->sslcommerz_provider();
+
+        $this->assertSame('paid', $provider->settle($id, $payment));
+        $paid_at = Order::find($id)->paid_at;
+        $this->assertSame('already_paid', $provider->settle($id, $payment));
+
+        $this->assertSame(PaymentStatus::PAID, Order::find($id)->payment_status);
+        $this->assertEquals($paid_at, Order::find($id)->paid_at);
+        $this->assertSame('BANK-1', Order::find($id)->payment_transaction_id);
+        $this->assertSame($id . '-9f3ac17e2b00', Order::find($id)->payment_metadata['gateway']['tran_id']);
+        $this->assertSame(1, $this->payment_completed_count($id));
+    }
+
+    /**
+     * A risky SSLCommerz payment ends paid and on hold, from a pending and from a failed order.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_risky_sslcommerz_payment_ends_paid_and_on_hold(): void
+    {
+        $pending = $this->create_order()['id'];
+        $failed = $this->create_order()['id'];
+        OrderFacade::mark_payment_as_failed($failed);
+
+        foreach ([$pending, $failed] as $id) {
+            OrderFacade::set_payment_metadata($id, wp_json_encode(['tran_id' => $id . '-9f3ac17e2b00']));
+
+            $this->assertSame('paid', $this->sslcommerz_provider()->settle($id, $this->sslcommerz_payment($id, '1')));
+            $this->assertSame(OrderStatus::ON_HOLD_PAID, Order::find($id)->order_status);
+            $this->assertSame('1', Order::find($id)->payment_metadata['gateway']['risk_level']);
+        }
+    }
+
+    /**
+     * An accepted SSLCommerz refund stays pending with its reference, and a check completes it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_sslcommerz_refund_stays_pending_until_a_check_completes_it(): void
+    {
+        $id = $this->create_order()['id'];
+        $this->make_refundable($id);
+        $order = Order::find($id);
+        $order->payment_transaction_id = 'BANK-1';
+        $amount = $this->refundable_minor($id);
+        $provider = $this->sslcommerz_provider();
+
+        DB::begin_transaction();
+        $refund = $order->refunds()->create(['invoiced_amount' => $amount, 'reason' => 'Test', 'refund_type' => 'full', 'created_at' => Date::now()]);
+        $this->assertTrue($provider->refund($order, $refund));
+        DB::commit();
+
+        $stored = Order::find($id)->refunds->first();
+        $this->assertSame(RefundStatus::PENDING, $stored->status);
+        $this->assertSame('REF-1', $stored->refund_id);
+
+        $provider->run_refund_check($id, (int) $stored->id, 0);
+
+        $stored = Order::find($id)->refunds->first();
+        $this->assertSame(RefundStatus::COMPLETED, $stored->status);
+        $this->assertSame('REF-1', $stored->refund_id);
+    }
+
+    /**
+     * Make an SSLCommerz provider that exposes its settlement path.
+     *
+     * @return Sslcommerz
+     * @since 1.0.0
+     */
+    protected function sslcommerz_provider()
+    {
+        foreach (['SslcommerzConstant', 'SslcommerzRejectedException', 'SslcommerzUnknownResultException', 'SslcommerzClient', 'SslcommerzTransactionBuilder', 'SslcommerzPaymentCheckJob', 'SslcommerzRefundCheckJob', 'Sslcommerz'] as $class) {
+            require_once dirname(__DIR__, 2) . '/payments/kirki-sslcommerz/src/' . $class . '.php';
+        }
+
+        return new class extends Sslcommerz {
+            public function settle(int $order_id, array $payment): string
+            {
+                return $this->apply_settlement($order_id, 'VAL-1', $payment);
+            }
+
+            protected function get_client(): SslcommerzClient
+            {
+                return new class('store', 'password', true) extends SslcommerzClient {
+                    public function refund(array $payload): array
+                    {
+                        return ['status' => 'success', 'refund_ref_id' => 'REF-1'];
+                    }
+
+                    public function query_refund(string $refund_ref_id): array
+                    {
+                        return ['status' => 'refunded'];
+                    }
+                };
+            }
+
+            protected function dispatch_refund_check(int $order_id, int $refund_id, int $check, int $delay): void
+            {
+            }
+        };
+    }
+
+    /**
+     * Make an SSLCommerz validation response that matches an order.
+     *
+     * @param int    $order_id   Order ID.
+     * @param string $risk_level The risk level.
+     * @return array<string, string>
+     * @since 1.0.0
+     */
+    protected function sslcommerz_payment(int $order_id, string $risk_level): array
+    {
+        $order = Order::find($order_id);
+
+        return [
+            'val_id' => 'VAL-1',
+            'bank_tran_id' => 'BANK-1',
+            'currency_amount' => number_format($order->invoiced_total / 100, 2, '.', ''),
+            'currency_type' => $order->currency_code,
+            'risk_level' => $risk_level,
+            'risk_title' => 'Title',
+        ];
     }
 
     /**
