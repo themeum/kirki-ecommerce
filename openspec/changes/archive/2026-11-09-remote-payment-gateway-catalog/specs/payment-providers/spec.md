@@ -13,6 +13,12 @@ catalog entries.
 - **WHEN** a client requests the installable online providers
 - **THEN** every catalog gateway is listed, each reporting `is_installed`
 
+#### Scenario: An unavailable provider in the admin UI
+
+- **WHEN** the available-providers dialog renders the catalog gateways
+- **THEN** no "Coming Soon" indicator is shown, and a gateway that the catalog
+  does not offer is not shown
+
 #### Scenario: An installed provider in the admin UI
 
 - **WHEN** the available-providers dialog renders a provider whose

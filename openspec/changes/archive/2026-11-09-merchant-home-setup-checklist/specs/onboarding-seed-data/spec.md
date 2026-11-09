@@ -21,7 +21,7 @@ been configured.
 - **WHEN** checkout settings have not been configured
 - **THEN** guest checkout is disabled
 
-#### Scenario: Offline payment methods are offered disabled
+#### Scenario: Cash on Delivery is offered
 
 - **WHEN** payment settings have not been configured
 - **THEN** two offline payment methods, "Cash on Delivery" and "Direct bank transfer", are available, each with descriptive instructions and no icon

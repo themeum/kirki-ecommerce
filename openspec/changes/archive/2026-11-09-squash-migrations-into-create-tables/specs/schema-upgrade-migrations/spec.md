@@ -31,7 +31,7 @@ A site running an alpha or beta build SHALL NOT be expected to upgrade to a late
 ### Requirement: Existing installations converge to the current schema on upgrade
 From the first stable `1.0.0` release onward, when a site upgrades to a plugin version whose table definitions differ from what that site's database currently has, the system SHALL run alter migrations that bring every affected table's columns, keys, and foreign keys in line with the current definitions, without requiring manual database intervention by the site owner. From that release onward, a released create migration SHALL NOT be edited, and any schema change SHALL ship as a new alter migration registered after every existing migration.
 
-#### Scenario: Site upgrades across a schema-changing stable release
+#### Scenario: Site upgrades across a schema-changing release
 - **WHEN** a site running a stable plugin version is upgraded to a later stable version that changes a table's columns, keys, or foreign keys
 - **THEN** that table's columns, keys, and foreign keys match the current definitions after the upgrade completes
 - **AND** no manual SQL or database intervention is required by the site owner
@@ -49,6 +49,11 @@ Columns representing a fixed set of allowed values SHALL be stored as string col
 - **THEN** the column is a string column, not a database `enum`
 - **AND** its comment lists the allowed values
 
+#### Scenario: Existing enum column converts without changing its data
+- **WHEN** a pre-release site had a column stored as a database `enum`
+- **THEN** no conversion migration runs, because pre-release builds do not upgrade in place
+- **AND** a fresh install creates that column as a string column with the same default value and nullability
+
 #### Scenario: New allowed value does not require a migration
 - **WHEN** a new value needs to be supported for a column limited to a fixed set of values
 - **THEN** supporting that value requires only an application-level validation change
@@ -61,7 +66,7 @@ Primary keys are exempt: the database engine names the primary index uncondition
 any requested name, so a primary key is already identical everywhere and is referred to
 positionally rather than by name.
 
-#### Scenario: Every key in a freshly migrated database follows the naming scheme
+#### Scenario: Every key in a fully migrated database matches the naming scheme
 - **WHEN** a database is migrated from empty to the current schema
 - **THEN** every index, unique key, and foreign key on every plugin table has the name the scheme produces for its table and columns, or its documented short form
 - **AND** no key carries a name chosen by the database engine or by the schema library's own name generation
@@ -75,6 +80,11 @@ positionally rather than by name.
 - **WHEN** a migration needs to drop an existing index or foreign key
 - **THEN** it identifies that key by a name literally present in the plugin's own source
 - **AND** it does not need to query the database to discover what the key is currently called
+
+#### Scenario: A migration that omits an explicit key name is rejected
+- **WHEN** a migration creates an index, unique key, or foreign key without giving it a name
+- **THEN** the resulting key does not follow the naming scheme
+- **AND** the migration must be corrected to give the key its scheme name before it is released; no automated check enforces this
 
 ## REMOVED Requirements
 

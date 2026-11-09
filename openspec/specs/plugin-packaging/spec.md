@@ -4,9 +4,7 @@
 
 Defines the behavior of building a production-only, installable WordPress
 plugin zip from the development repository via a single command.
-
 ## Requirements
-
 ### Requirement: Single command produces an installable plugin zip
 
 The system SHALL provide a single command (`npm run make:package`) that,
@@ -328,3 +326,23 @@ The package command SHALL install the PHP packages from the committed `composer.
 
 - **WHEN** `composer.json` requires a version that `composer.lock` does not contain
 - **THEN** the build stops at the Composer step with an error, and no zip is created
+
+### Requirement: wordpress.org package ships no translation template
+
+The wordpress.org package command (`npm run make:package`) SHALL NOT generate a
+translation template, and the package SHALL NOT contain
+`languages/kirki-ecommerce.pot`, even when a template from an earlier
+`npm run make:pot` run exists in the repository.
+
+#### Scenario: Build does not generate a template
+
+- **WHEN** `npm run make:package` is run
+- **THEN** the build does not run the template generator
+
+#### Scenario: Local template is not shipped
+
+- **WHEN** `languages/kirki-ecommerce.pot` exists in the repository and
+  `npm run make:package` is run
+- **THEN** the resulting zip contains a `languages/` directory without
+  `kirki-ecommerce.pot`
+

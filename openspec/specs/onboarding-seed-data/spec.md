@@ -83,7 +83,8 @@ been configured.
 #### Scenario: Cash on Delivery is offered
 
 - **WHEN** payment settings have not been configured
-- **THEN** an enabled offline payment method named "Cash on Delivery" is available with descriptive instructions and no icon
+- **THEN** one disabled offline payment method "Cash on delivery" (id `cod`) is available, with the same instructions as its manual preset in the "Add a payment method" dialog, and no icon
+- **AND** no other offline payment method is seeded
 
 #### Scenario: A settings group is already configured
 

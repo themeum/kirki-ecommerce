@@ -21,7 +21,7 @@ been configured.
 - **WHEN** checkout settings have not been configured
 - **THEN** guest checkout is disabled
 
-#### Scenario: Cash on delivery is offered
+#### Scenario: Cash on Delivery is offered
 
 - **WHEN** payment settings have not been configured
 - **THEN** one disabled offline payment method "Cash on delivery" (id `cod`) is available, with the same instructions as its manual preset in the "Add a payment method" dialog, and no icon

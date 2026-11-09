@@ -1,5 +1,10 @@
-## MODIFIED Requirements
+# payment-gateway-packaging Specification
 
+## Purpose
+Defines the manual build command that packages each gateway plugin in
+`payments/` as an installable WordPress zip with a logo and metadata, ready to
+publish to a public S3 bucket, together with the static catalog file.
+## Requirements
 ### Requirement: One installable zip is built per gateway
 
 The build command SHALL create, for every `kirki-*` gateway folder in
@@ -11,7 +16,7 @@ named `<slug>` so that WordPress installs it as a plugin. Without `--full`,
 the command SHALL build only the gateways that the incremental rule selects.
 With `--full`, it SHALL build all gateways.
 
-#### Scenario: Full build
+#### Scenario: Building all gateways
 
 - **WHEN** the maintainer runs the build command with `--full`
 - **THEN** each gateway folder produces `gateways/<slug>/<slug>-<version>.zip`,
@@ -27,6 +32,24 @@ With `--full`, it SHALL build all gateways.
 
 - **WHEN** a new `payments/kirki-<name>/` folder exists and the command runs
 - **THEN** it is built without any edit to a hand-kept list
+
+### Requirement: Dependencies are installed for packaging only
+
+When a gateway has a `composer.json`, the build command SHALL run
+`composer install` without dev dependencies in a staging copy and include the
+resulting `vendor/` in the zip. The gateway source folder SHALL NOT be
+modified, and development files SHALL NOT be included in the zip.
+
+#### Scenario: Gateway with Composer dependencies
+
+- **WHEN** a gateway has a `composer.json`
+- **THEN** its zip contains `vendor/` with production dependencies only and the
+  source folder has no new files
+
+#### Scenario: Gateway without Composer dependencies
+
+- **WHEN** a gateway has no `composer.json`
+- **THEN** no Composer command runs for it
 
 ### Requirement: Metadata is generated from the plugin
 
@@ -117,7 +140,15 @@ values, so the same command targets a local S3 or a real one.
 - **THEN** the objects are uploaded there and a request to
   `{bucket-url}/payments` returns the catalog
 
-## ADDED Requirements
+### Requirement: Local S3 environment for testing
+
+The repository SHALL provide a Docker setup that runs a local S3 (RustFS) with a
+public-read bucket, started and stopped with npm scripts.
+
+#### Scenario: Starting the local S3
+
+- **WHEN** the maintainer runs `npm run s3:up`
+- **THEN** the bucket exists and its objects can be read without credentials
 
 ### Requirement: Build is incremental and driven by the version
 
@@ -182,3 +213,4 @@ catalog file last.
 - **WHEN** the build finishes
 - **THEN** the output lists each written `gateways/<slug>/` folder, then
   `gateways/payments` with the note "upload last"
+
