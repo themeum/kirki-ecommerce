@@ -223,6 +223,22 @@ class MoneyManager
     }
 
     /**
+     * Build a Money object from a minor amount using this manager's base currency.
+     *
+     * Unlike from_minor(), it does not create a new manager, so it does not query the base currency again.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed $amount   Amount in minor units.
+     * @param mixed $currency Currency code or object; defaults to the base currency.
+     * @return Money
+     */
+    protected function money_from_minor($amount, $currency = null)
+    {
+        return $this->of_minor($amount, empty($currency) ? $this->get_base_currency() : $currency, null, RoundingMode::HALF_UP);
+    }
+
+    /**
      * Format a Money object using the store's separator, position and symbol settings.
      *
      * @since 1.0.0
@@ -458,11 +474,11 @@ class MoneyManager
     {
         $currency_code = $currency_code ?? $this->get_base_currency();
 
-        if ($target_currency !== null) {
-            return $this->convert_to_currency($this->from_minor($amount, $currency_code), $target_currency);
+        if ($target_currency !== null && $target_currency !== $currency_code) {
+            return $this->convert_to_currency($this->money_from_minor($amount, $currency_code), $target_currency);
         }
 
-        return $this->from_minor($amount, $currency_code);
+        return $this->money_from_minor($amount, $currency_code);
     }
 
     /**
@@ -507,7 +523,7 @@ class MoneyManager
     public function to_dto($minor_amount, $currency = null)
     {
         $currency = $currency ?? $this->base_currency;
-        $money = $this->from_minor($minor_amount, $currency);
+        $money = $this->money_from_minor($minor_amount, $currency);
 
         return MoneyDTO::from_array([
             'raw' => $money->getAmount()->toFloat(),
@@ -533,7 +549,7 @@ class MoneyManager
         $currency = $currency ?? $this->base_currency;
 
         return ShortMoneyDTO::from_array(array_merge($this->to_dto($minor_amount, $currency)->all(), [
-            'short_display' => $this->format_short($this->from_minor($minor_amount, $currency)),
+            'short_display' => $this->format_short($this->money_from_minor($minor_amount, $currency)),
         ]));
     }
 

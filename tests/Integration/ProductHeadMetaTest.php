@@ -183,7 +183,7 @@ class ProductHeadMetaTest extends RestTestCase
         $this->assertSame('Lamps', $data['category']);
         $this->assertSame('Teak Works', $data['brand']['name']);
         $this->assertSame('Offer', $data['offers']['@type']);
-        $this->assertSame('29.99', $data['offers']['price']);
+        $this->assertSame(29.99, $data['offers']['price']);
         $this->assertSame('https://schema.org/InStock', $data['offers']['availability']);
         $this->assertSame('https://schema.org/NewCondition', $data['offers']['itemCondition']);
         $this->assertArrayNotHasKey('aggregateRating', $data);

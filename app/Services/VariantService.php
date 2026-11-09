@@ -209,35 +209,39 @@ class VariantService
     {
         throw_if(empty($variants), __('No variants selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
-        DB::begin_transaction();
+        $ids = [];
+        $updatable_columns = array_flip(array_merge(['id'], array_diff((new Variant())->get_fillable(), ['product_id', 'created_by', 'is_default', 'committed_quantity'])));
 
-        $updated_variants = [];
-
-        foreach ($variants as $variant) {
+        foreach ($variants as $key => $variant) {
             throw_if(empty($variant['id']), __('Variant id is required.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+            $ids[] = (int) $variant['id'];
 
-            $updated_variant = $this->update_variant($variant['id'], $variant);
+            $variant = array_intersect_key($variant, $updatable_columns);
+            $variant['updated_by'] = user()->get_id();
 
-            if (!$updated_variant) {
-                DB::rollback();
-
-                throw_anyway(
-                    sprintf(
-                        /* translators: %s: variant id */
-                        __('Variant with id %s could not be updated.', 'kirki-ecommerce'),
-                        $variant['id']
-                    ),
-                    NotFoundException::class,
-                    Response::NOT_FOUND
-                );
+            if (!empty($variant['has_limit_per_order']) && array_key_exists('max_per_order', $variant) && (int) $variant['max_per_order'] < 1) {
+                $variant['max_per_order'] = 1;
             }
 
-            $updated_variants[] = $updated_variant;
+            $variants[$key] = $variant;
         }
 
-        DB::commit();
+        $missing_ids = array_diff($ids, array_map('intval', Variant::query()->where_in('id', $ids)->pluck('id')->all()));
 
-        return $updated_variants;
+        throw_if(
+            !empty($missing_ids),
+            sprintf(
+                /* translators: %s: comma separated variant ids */
+                __('Variant with id %s could not be updated.', 'kirki-ecommerce'),
+                implode(', ', $missing_ids)
+            ),
+            NotFoundException::class,
+            Response::NOT_FOUND
+        );
+
+        Variant::query()->upsert($variants);
+
+        return Variant::query()->with(['product.media', 'attribute_values'])->where_in('id', $ids)->get()->all();
     }
 
     /**
