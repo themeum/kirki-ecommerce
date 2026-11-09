@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Setup\Presets;
 
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\Framework\DTO;
 
 defined('ABSPATH') || exit;
@@ -50,7 +51,7 @@ class PresetContext extends DTO
             'country' => strtoupper((string) Settings::get('general.store_address.country', '')),
             'state' => $state === null || $state === '' ? null : (string) $state,
             'currency' => strtoupper((string) ($base_currency->code ?? '')),
-            'is_tax_collected' => (bool) Settings::get('general.is_tax_calculation_enabled', false),
+            'is_tax_collected' => Tax::is_tax_enabled(),
         ]);
     }
 }

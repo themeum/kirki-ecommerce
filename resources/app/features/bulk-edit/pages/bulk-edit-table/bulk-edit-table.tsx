@@ -7,21 +7,23 @@ import {
   type VisibilityState,
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 
 import { getPinnedCss, getPinningStyle } from '@/components/data-table/column-styles';
 import type { DataTableItem } from '@/components/data-table/types';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useAppConfig } from '@/contexts/app-config-context';
 import { BulkEditOptionsProvider } from '@/features/bulk-edit/contexts/bulk-edit-options-context';
 import {
   CellSelectionProvider,
   type FillCommitPayload,
 } from '@/features/bulk-edit/contexts/cell-selection-context';
-import { bulkEditColumns, ROW_HEIGHT, SKU_FIELD } from '@/features/bulk-edit/lib/columns';
+import { getBulkEditColumns, ROW_HEIGHT, SKU_FIELD } from '@/features/bulk-edit/lib/columns';
 import BulkEditRow from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-row';
 import SkuGenerateAction from '@/features/bulk-edit/pages/bulk-edit-table/sku-generate-action';
 import type { ProductVariant } from '@/features/products';
+import { FALLBACK_ENABLE_TAX } from '@/schemas/catalog/app-config';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 
@@ -53,10 +55,16 @@ const BulkEditTable = forwardRef<BulkEditTableHandle, BulkEditTableProps>((props
   } = props;
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const { settings } = useAppConfig();
+
+  const columns = useMemo(
+    () => getBulkEditColumns(settings?.is_tax_enabled ?? FALLBACK_ENABLE_TAX),
+    [settings],
+  );
 
   const table = useReactTable({
     data: variants,
-    columns: bulkEditColumns,
+    columns,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => String(row.id),
     state: { columnVisibility },

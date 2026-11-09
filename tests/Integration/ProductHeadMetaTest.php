@@ -169,12 +169,13 @@ class ProductHeadMetaTest extends RestTestCase
 
     public function test_json_ld_prints_the_fixed_field_set_from_product_data()
     {
-        $this->visit_product([
+        $product = $this->visit_product([
             'brand_id' => $this->create_brand('Teak Works'),
             'categories' => [$this->create_category('Lamps')],
             'variants' => [['base_price' => 29.99, 'sku' => 'LMP-1', 'available_quantity' => 5, 'in_stock' => true, 'is_default' => true, 'attribute_values' => []]],
         ]);
         $data = $this->json_ld($this->head());
+        $url = Url::get_product_url($product['slug']);
 
         $this->assertSame('Product', $data['@type']);
         $this->assertSame('Wooden Lamp', $data['name']);
@@ -182,10 +183,16 @@ class ProductHeadMetaTest extends RestTestCase
         $this->assertSame('LMP-1', $data['sku']);
         $this->assertSame('Lamps', $data['category']);
         $this->assertSame('Teak Works', $data['brand']['name']);
+        $this->assertSame($url, $data['url']);
         $this->assertSame('Offer', $data['offers']['@type']);
-        $this->assertSame('29.99', $data['offers']['price']);
+        $this->assertSame(29.99, $data['offers']['price']);
+        $this->assertSame('USD', $data['offers']['priceCurrency']);
         $this->assertSame('https://schema.org/InStock', $data['offers']['availability']);
         $this->assertSame('https://schema.org/NewCondition', $data['offers']['itemCondition']);
+        $this->assertSame($url, $data['offers']['url']);
+        $this->assertSame(['@type' => 'Organization', 'name' => get_bloginfo('name')], $data['offers']['seller']);
+        $this->assertArrayNotHasKey('priceSpecification', $data['offers']);
+        $this->assertArrayNotHasKey('gtin', $data);
         $this->assertArrayNotHasKey('aggregateRating', $data);
         $this->assertArrayNotHasKey('review', $data);
     }

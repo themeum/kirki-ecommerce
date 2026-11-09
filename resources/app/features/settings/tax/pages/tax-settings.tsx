@@ -14,6 +14,7 @@ import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
+import { useAppConfig } from '@/contexts/app-config-context';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { useSettingsSearchTarget } from '@/features/settings/search/settings-search-context';
@@ -31,6 +32,7 @@ import { TaxIcon } from '@/icons/common';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
+import { FALLBACK_ENABLE_TAX } from '@/schemas/catalog/app-config';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -64,10 +66,10 @@ const TaxCollectionOptions = () => {
 const TaxSettings = () => {
   const navigate = useNavigate();
   const { setTarget } = useSettingsSearchTarget();
+  const { settings, isLoading: isLoadingAppConfig } = useAppConfig();
   const { data: taxSettings, isLoading: isTaxLoading } = useSettingsQuery('tax');
-  const { data: generalSettings, isLoading: isGeneralLoading } = useSettingsQuery('general');
-  const isLoading = isTaxLoading || isGeneralLoading;
-  const isTaxCalculationDisabled = generalSettings?.is_tax_calculation_enabled === false;
+  const isLoading = isTaxLoading || isLoadingAppConfig;
+  const isTaxCalculationDisabled = (settings?.is_tax_enabled ?? FALLBACK_ENABLE_TAX) === false;
   const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'tax'>();
 
   const form = useForm<TaxSettingsFormInput, unknown, TaxSettingsFormPayload>({
