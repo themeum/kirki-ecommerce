@@ -59,6 +59,12 @@ const installOnlinePayment = (data: { id: string | number }) => {
     .then((response) => parseResponse(OnlinePaymentSchema, response));
 };
 
+const updateOnlinePaymentPlugin = (data: { id: string | number }) => {
+  return apiClient
+    .post(endpoints.ONLINE_PAYMENTS_UPDATE_PLUGIN, data)
+    .then((response) => parseResponse(OnlinePaymentSchema, response));
+};
+
 const uninstallOnlinePayment = (id: string | number) => {
   return apiClient.delete(endpoints.ONLINE_PAYMENT(id)).then((response) => parseMessage(response));
 };
@@ -201,6 +207,24 @@ const useInstallOnlinePaymentMutation = () => {
     mutationFn: installOnlinePayment,
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Payment gateway installed', 'kirki-ecommerce'));
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
+      void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
+      void queryClient.invalidateQueries({
+        queryKey: paymentKeys.installableOnline(),
+      });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const useUpdateOnlinePaymentPluginMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateOnlinePaymentPlugin,
+    onSuccess(response) {
+      toastMutationSuccess(response.message || __('Payment gateway updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
       void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
       void queryClient.invalidateQueries({
@@ -375,6 +399,7 @@ export {
   uninstallOnlinePayment,
   updateOfflinePayment,
   updateOnlinePayment,
+  updateOnlinePaymentPlugin,
   useCreateOfflinePaymentMutation,
   useDeleteOfflinePaymentMutation,
   useInstallableOnlinePaymentsQuery,
@@ -389,4 +414,5 @@ export {
   useUninstallOnlinePaymentMutation,
   useUpdateOfflinePaymentMutation,
   useUpdateOnlinePaymentMutation,
+  useUpdateOnlinePaymentPluginMutation,
 };

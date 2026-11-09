@@ -65,6 +65,49 @@ describe('OnlinePaymentSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts a catalog item with an update', () => {
+    const result = OnlinePaymentSchema.safeParse({
+      id: 'payfast',
+      name: 'PayFast',
+      version: '1.0.1',
+      is_installed: true,
+      installed_version: '1.0.0',
+      update_available: true,
+      update_blocked_reason: null,
+    });
+    assert(result.success);
+    expect(result.data.update_available).toBe(true);
+    expect(result.data.installed_version).toBe('1.0.0');
+  });
+
+  it('accepts a catalog item with a blocked update', () => {
+    const result = OnlinePaymentSchema.safeParse({
+      id: 'payfast',
+      is_installed: true,
+      installed_version: '1.0.0',
+      update_available: false,
+      update_blocked_reason: 'Requires Kirki 1.1.0',
+    });
+    assert(result.success);
+    expect(result.data.update_blocked_reason).toBe('Requires Kirki 1.1.0');
+  });
+
+  it('accepts a catalog item that is not installed', () => {
+    const result = OnlinePaymentSchema.safeParse({
+      id: 'payfast',
+      is_installed: false,
+      installed_version: null,
+      update_available: false,
+      update_blocked_reason: null,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a non-boolean update_available', () => {
+    const result = OnlinePaymentSchema.safeParse({ id: 'payfast', update_available: 'yes' });
+    expect(result.success).toBe(false);
+  });
+
   it('accepts an unrecognized extra field', () => {
     const result = OnlinePaymentSchema.safeParse({ id: 'stripe', unexpected: 'value' });
     expect(result.success).toBe(true);

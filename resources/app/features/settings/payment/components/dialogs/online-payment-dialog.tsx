@@ -23,6 +23,7 @@ import type { OnlinePayment } from '@/features/settings/payment/schemas/catalog/
 import {
   useInstallableOnlinePaymentsQuery,
   useInstallOnlinePaymentMutation,
+  useUpdateOnlinePaymentPluginMutation,
 } from '@/features/settings/payment/services/payment';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -48,11 +49,24 @@ const OnlinePaymentPopup = ({ openPopup, setOpenPopup }: OnlinePaymentPopupProps
     variables: installingVariables,
   } = useInstallOnlinePaymentMutation();
 
+  const {
+    mutate: updateOnlinePaymentPlugin,
+    isPending: isUpdating,
+    variables: updatingVariables,
+  } = useUpdateOnlinePaymentPluginMutation();
+
   const handleInstallOnlinePayment = (item: OnlinePayment) => {
     if (item.id === undefined) {
       return;
     }
     installOnlinePayment({ id: item.id });
+  };
+
+  const handleUpdateOnlinePaymentPlugin = (item: OnlinePayment) => {
+    if (item.id === undefined) {
+      return;
+    }
+    updateOnlinePaymentPlugin({ id: item.id });
   };
 
   return (
@@ -101,10 +115,27 @@ const OnlinePaymentPopup = ({ openPopup, setOpenPopup }: OnlinePaymentPopupProps
                     </Flex>
                     <ActionGroup>
                       {item?.is_installed === true ? (
-                        <Badge variant="success">
-                          <Check />
-                          {__('Added', 'kirki-ecommerce')}
-                        </Badge>
+                        <>
+                          {item.update_blocked_reason && (
+                            <Text variant="small" color="subdued">
+                              {item.update_blocked_reason}
+                            </Text>
+                          )}
+                          <Badge variant="success">
+                            <Check />
+                            {__('Added', 'kirki-ecommerce')}
+                          </Badge>
+                          {item.update_available === true && (
+                            <Button
+                              variant="secondary"
+                              loading={isUpdating && updatingVariables.id === item.id}
+                              disabled={isUpdating && updatingVariables.id === item.id}
+                              onClick={() => handleUpdateOnlinePaymentPlugin(item)}
+                            >
+                              {__('Update', 'kirki-ecommerce')}
+                            </Button>
+                          )}
+                        </>
                       ) : (
                         <Button
                           variant="primary"

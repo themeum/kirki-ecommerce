@@ -7,7 +7,8 @@ import { MediaRefSchema } from '@/schemas/shared/media';
  * different subsets of fields: the list (`GET /online-payments`), the detail
  * (`GET /online-payments/:id`, which adds `settings`/`fields`/webhook info),
  * and the installable list (`GET /online-payments/installable`, which adds
- * `is_installed`/`version` and omits `is_enabled`/`is_offline`). `id`
+ * `is_installed`/`version`/`installed_version`/`update_available`/
+ * `update_blocked_reason` and omits `is_enabled`/`is_offline`). `id`
  * stays optional to keep the schema lenient, per the response-schema rule in
  * openspec/project.md.
  */
@@ -40,6 +41,9 @@ export const OnlinePaymentSchema = z
     webhook_events: z.array(z.string()).optional(),
     is_installed: z.boolean().optional(),
     version: z.string().nullish(),
+    installed_version: z.string().nullish(),
+    update_available: z.boolean().optional(),
+    update_blocked_reason: z.string().nullish(),
   })
   .passthrough();
 

@@ -47,6 +47,7 @@ import type {
 import {
   getOnlinePayment,
   useDeleteOfflinePaymentMutation,
+  useInstallableOnlinePaymentsQuery,
   useReorderPaymentMethodsMutation,
   useSetEnabledOfflinePaymentMutation,
   useSetEnabledOnlinePaymentMutation,
@@ -76,6 +77,12 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
   const { mutate: uninstallOnlinePayment } = useUninstallOnlinePaymentMutation();
   const { mutate: reorderPaymentMethods } = useReorderPaymentMethodsMutation();
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
+  const { data: installableOnlinePayments = [] } = useInstallableOnlinePaymentsQuery();
+  const updatableOnlineIds = new Set<PaymentMethod['id'] | undefined>(
+    installableOnlinePayments
+      .filter((payment) => payment.update_available === true)
+      .map((payment) => payment.id),
+  );
 
   const [orderedMethods, setOrderedMethods] = useState<PaymentMethod[]>(paymentMethods);
   const listRef = useRef<HTMLDivElement>(null);
@@ -253,6 +260,8 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
                         onEdit={(editedMethod) => void handleEdit(editedMethod)}
                         onDelete={handleDelete}
                         onToggle={handleToggle}
+                        hasUpdate={!method.is_offline && updatableOnlineIds.has(method.id)}
+                        onUpdate={() => setIsOnlineInstallDialogOpen(true)}
                       />
                     ))}
                   </SortableContext>

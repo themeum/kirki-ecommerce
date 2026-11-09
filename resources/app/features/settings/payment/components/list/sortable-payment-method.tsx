@@ -4,6 +4,7 @@ import { DragHandleDots2Icon } from '@radix-ui/react-icons';
 import { CardSimIcon, LandmarkIcon } from 'lucide-react';
 
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Image from '@/components/ui/image';
 import {
@@ -27,6 +28,8 @@ type SortablePaymentMethodProps = {
   onEdit: (method: PaymentMethod) => void;
   onDelete: (method: PaymentMethod) => void;
   onToggle: (method: PaymentMethod) => void;
+  hasUpdate?: boolean;
+  onUpdate?: () => void;
 };
 
 const UNDELETABLE_METHOD_IDS: PaymentMethod['id'][] = ['paypal'];
@@ -63,7 +66,7 @@ const renderMethodIcon = (method: PaymentMethod) => {
 };
 
 const SortablePaymentMethod = (props: SortablePaymentMethodProps) => {
-  const { method, onEdit, onDelete, onToggle } = props;
+  const { method, onEdit, onDelete, onToggle, hasUpdate = false, onUpdate } = props;
   const {
     attributes,
     listeners,
@@ -110,6 +113,13 @@ const SortablePaymentMethod = (props: SortablePaymentMethodProps) => {
             {name}
           </Text>
           <CurrencySupportBadge support={method.currency_support} />
+          {hasUpdate && (
+            <Badge asChild variant="info" size="sm">
+              <button type="button" css={scoped(styles.updateBadge)} onClick={onUpdate}>
+                {__('Update available', 'kirki-ecommerce')}
+              </button>
+            </Badge>
+          )}
         </StackedItemTitle>
       </StackedItemContent>
 
@@ -161,6 +171,10 @@ SortablePaymentMethod.displayName = 'SortablePaymentMethod';
 export default SortablePaymentMethod;
 
 const styles = defineStyles({
+  updateBadge: {
+    border: 'none',
+    cursor: 'pointer',
+  },
   row: {
     '& [data-slot="payment-method-handle"]': {
       opacity: 0,

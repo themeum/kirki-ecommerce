@@ -18,7 +18,7 @@ class InstallableOnlinePaymentListResource extends Resource
      *
      * @since 1.0.0
      *
-     * @return array<string, mixed> The gateway ID, name, icon, description, version and installed flag.
+     * @return array<string, mixed> The gateway ID, name, icon, description, version, installed flag and update state.
      */
     public function to_array()
     {
@@ -29,6 +29,9 @@ class InstallableOnlinePaymentListResource extends Resource
             'description' => $this->description,
             'version' => $this->version,
             'is_installed' => (bool) $this->is_installed,
+            'installed_version' => $this->installed_version,
+            'update_available' => (bool) $this->update_available,
+            'update_blocked_reason' => $this->update_blocked_reason,
         ];
     }
 }

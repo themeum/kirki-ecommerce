@@ -4,7 +4,7 @@
  * Plugin Name:       Kirki AuthorizeNet
  * Plugin URI:        https://kirki.com/
  * Description:       AuthorizeNet payment gateway for Kirki ecommerce.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Order:             60
  * Author:            Kirki
  * Author URI:        https://kirki.com/

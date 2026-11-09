@@ -238,6 +238,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     // Online Payments
     Route::get('/online-payments/installable', [OnlinePaymentController::class, 'all']);
     Route::post('/online-payments/install', [OnlinePaymentController::class, 'install']);
+    Route::post('/online-payments/update', [OnlinePaymentController::class, 'update_plugin']);
     Route::get('/online-payments', [OnlinePaymentController::class, 'get']);
     Route::get('/online-payments/{id}', [OnlinePaymentController::class, 'show']);
     Route::put('/online-payments/{id}', [OnlinePaymentController::class, 'update']);

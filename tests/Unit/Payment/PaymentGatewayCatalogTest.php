@@ -13,12 +13,16 @@ class PaymentGatewayCatalogTest extends TestCase
     {
         return array_merge([
             'id' => 'stripe',
+            'slug' => 'kirki-stripe',
             'name' => 'Kirki Stripe',
             'description' => 'Stripe gateway.',
             'version' => '1.0.0',
             'icon_url' => static::BASE_URL . '/files/kirki-stripe/logo.svg',
-            'download_url' => static::BASE_URL . '/files/kirki-stripe/kirki-stripe.zip',
+            'download_url' => static::BASE_URL . '/files/kirki-stripe/kirki-stripe-1.0.0.zip',
             'sha256' => str_repeat('a', 64),
+            'requires_kirki' => '1.1.0',
+            'requires_wp' => '6.4',
+            'requires_php' => '7.4',
         ], $overrides);
     }
 
@@ -28,6 +32,43 @@ class PaymentGatewayCatalogTest extends TestCase
 
         $this->assertCount(1, $gateways);
         $this->assertSame('stripe', $gateways[0]['id']);
+    }
+
+    public function test_it_keeps_the_slug_and_the_requirements()
+    {
+        $gateway = PaymentGatewayCatalog::normalize([$this->entry()], static::BASE_URL)[0];
+
+        $this->assertSame('kirki-stripe', $gateway['slug']);
+        $this->assertSame('1.1.0', $gateway['requires_kirki']);
+        $this->assertSame('6.4', $gateway['requires_wp']);
+        $this->assertSame('7.4', $gateway['requires_php']);
+    }
+
+    public function test_it_drops_an_entry_without_a_slug()
+    {
+        $entry = $this->entry();
+        unset($entry['slug']);
+
+        $this->assertSame([], PaymentGatewayCatalog::normalize([$entry], static::BASE_URL));
+    }
+
+    public function test_it_drops_an_entry_with_an_unsafe_slug()
+    {
+        $entry = $this->entry(['slug' => '../kirki-stripe']);
+
+        $this->assertSame([], PaymentGatewayCatalog::normalize([$entry], static::BASE_URL));
+    }
+
+    public function test_it_blanks_a_requirement_that_is_not_a_version()
+    {
+        $entry = $this->entry(['requires_kirki' => '>= 1.1', 'requires_php' => 7.4]);
+        unset($entry['requires_wp']);
+
+        $gateway = PaymentGatewayCatalog::normalize([$entry], static::BASE_URL)[0];
+
+        $this->assertSame('', $gateway['requires_kirki']);
+        $this->assertSame('', $gateway['requires_wp']);
+        $this->assertSame('', $gateway['requires_php']);
     }
 
     public function test_it_drops_a_download_url_on_another_host()
