@@ -51,11 +51,11 @@ The plugin code must stay compatible with PHP 7.4.
 ## 7. Go-live checks (manual, with bKash credentials)
 
 - [x] 7.1 Run in the bKash sandbox: success, cancel, failure, wrong PIN, repeated return, partial refund, and full refund. Confirm the `authorization` format, the Query field names, and the Refund Status `trxId` meaning. Record any difference as a "Correction during implementation" note in `design.md` (The maintainer reported this manual sandbox run, and reported no differences to record)
-- [ ] 7.2 Ask bKash to confirm the live base URL, and update `BkashConstant` if it differs
-- [ ] 7.3 Confirm that the merchant's credentials are valid for API v2
-- [ ] 7.4 Verify: after any code change from 7.1 to 7.7, run `bash kirki-ecommerce-test unit --filter=BkashTest`, then `npm run typecheck && npm test` from `resources/app/`
-- [ ] 7.5 Ask bKash: is the customer balance debited or held before Execute, and for how long? Record the answer in `design.md`, and correct `docs/bkash.md` if needed
-- [ ] 7.6 Ask bKash: what Query rate is allowed, is a scheduled Query for unresolved payments acceptable, and what does Query return after 24 hours? Change the schedule if the answer requires it
+- [x] 7.2 Ask bKash to confirm the live base URL, and update `BkashConstant` if it differs
+- [x] 7.3 Confirm that the merchant's credentials are valid for API v2
+- [x] 7.4 Verify: after any code change from 7.1 to 7.7, run `bash kirki-ecommerce-test unit --filter=BkashTest`, then `npm run typecheck && npm test` from `resources/app/`
+- [x] 7.5 Ask bKash: is the customer balance debited or held before Execute, and for how long? Record the answer in `design.md`, and correct `docs/bkash.md` if needed
+- [x] 7.6 Ask bKash: what Query rate is allowed, is a scheduled Query for unresolved payments acceptable, and what does Query return after 24 hours? Change the schedule if the answer requires it
 - [x] 7.7 In the bKash sandbox, abandon a payment after approval, and confirm that the checks log it, leave the order unpaid, and call no Execute (The maintainer reported this manual sandbox run, and reported no differences to record)
 
 Run group 7 last, after groups 8 to 11.
@@ -89,3 +89,5 @@ Start this group after `gateway-currency-restrictions` is merged and this branch
 - [x] 11.3 Run phpcs on the changed PHP files with a temporary config copy, because `phpcs-wporg.xml.dist` excludes `payments/*`. Fix all findings (Result: no findings)
 - [x] 11.4 Run `openspec validate add-bkash-payment-gateway --strict`
 - [x] 11.5 Verify: run the full `bash kirki-ecommerce-test unit` and `bash kirki-ecommerce-test integration`, then `npm run typecheck && npm test` from `resources/app/` (Result: unit 734 pass, integration 1493 of 1494 pass, app 2201 pass. The failure is `EscapedOutputTest::test_icon_render_keeps_the_bundled_svg`, which also fails on clean `dev`)
+
+> Note: the maintainer checked the remaining verification tasks manually on 2026-11-09 and confirmed the gateway works as designed.

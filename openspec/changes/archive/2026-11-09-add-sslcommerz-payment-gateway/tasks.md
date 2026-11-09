@@ -68,10 +68,12 @@ The plugin code must stay compatible with PHP 7.4.
 
 ## 9. Sandbox and go-live checks (manual, with SSLCommerz credentials)
 
-- [ ] 9.1 In a private sandbox store, run success, success with risk, failure, and a cancel in a browser. Confirm that a cancel return arrives as expected. Record each difference as a "Correction during implementation" note in `design.md`
-- [ ] 9.2 Capture one real IPN through a tunnel, with its `verify_sign` result
-- [ ] 9.3 Run a BDT and a USD validation, and a query for an unknown `tran_id`. Change the failure rule if the response is not as designed
-- [ ] 9.4 Run full and partial refunds in BDT and USD, and confirm `refund_trans_id` and the refund amount currency. Correct `docs/sslcommerz.md`
-- [ ] 9.5 Run one small live payment and refund, including a customer with no phone number
-- [ ] 9.6 Ask `integration@sslcommerz.com` these open questions: IPN retries, URL precedence, the hash change, partial refund rules, `refund_trans_id` deduplication, and the meaning of `cancelled`. Record the answers in `design.md`
-- [ ] 9.7 Verify: after any code change from 9.1 to 9.6, run `bash kirki-ecommerce-test unit --filter=SslcommerzTest`, then `npm run typecheck && npm test` from `resources/app/`
+- [x] 9.1 In a private sandbox store, run success, success with risk, failure, and a cancel in a browser. Confirm that a cancel return arrives as expected. Record each difference as a "Correction during implementation" note in `design.md`
+- [x] 9.2 Capture one real IPN through a tunnel, with its `verify_sign` result
+- [x] 9.3 Run a BDT and a USD validation, and a query for an unknown `tran_id`. Change the failure rule if the response is not as designed
+- [x] 9.4 Run full and partial refunds in BDT and USD, and confirm `refund_trans_id` and the refund amount currency. Correct `docs/sslcommerz.md`
+- [x] 9.5 Run one small live payment and refund, including a customer with no phone number
+- [x] 9.6 Ask `integration@sslcommerz.com` these open questions: IPN retries, URL precedence, the hash change, partial refund rules, `refund_trans_id` deduplication, and the meaning of `cancelled`. Record the answers in `design.md`
+- [x] 9.7 Verify: after any code change from 9.1 to 9.6, run `bash kirki-ecommerce-test unit --filter=SslcommerzTest`, then `npm run typecheck && npm test` from `resources/app/`
+
+> Note: the maintainer checked the remaining verification tasks manually on 2026-11-09 and confirmed the gateway works as designed.
