@@ -609,8 +609,11 @@ class StorePresetsTest extends RestTestCase
         $this->assertSame(['checkout'], $consents['Terms & Conditions']['locations']);
         $this->assertSame('optional_checkbox', $consents['Marketing emails']['method']);
 
+        $this->assertTrue($consents['Terms & Conditions']['is_enabled']);
+        $this->assertFalse($consents['Privacy Policy']['is_enabled']);
+        $this->assertFalse($consents['Marketing emails']['is_enabled']);
+
         foreach ($consents as $consent) {
-            $this->assertTrue($consent['is_enabled']);
             $this->assertNotEmpty($consent['id']);
         }
     }
@@ -680,9 +683,74 @@ class StorePresetsTest extends RestTestCase
 
     public function test_country_without_bloc_gets_only_the_domestic_zone(): void
     {
-        $this->setup_store(['country' => 'BD', 'currency' => 'BDT']);
+        $this->setup_store(['country' => 'AU', 'currency' => 'AUD']);
 
         $this->assertSame(['Domestic'], array_column($this->zones(), 'title'));
+    }
+
+    public function test_bangladesh_store_gets_inside_and_outside_dhaka_zones(): void
+    {
+        $this->setup_store(['country' => 'BD', 'currency' => 'BDT']);
+
+        $zones = $this->zones();
+        $this->assertSame(['Inside Dhaka', 'Outside Dhaka'], array_column($zones, 'title'));
+        $this->assertSame(['BD'], $this->zone_countries($zones[0]));
+        $this->assertSame(['771'], $zones[0]['regions'][0]['states']);
+
+        $outside_states = $zones[1]['regions'][0]['states'];
+        $this->assertSame(['BD'], $this->zone_countries($zones[1]));
+        $this->assertCount(60, $outside_states);
+        $this->assertNotContains('771', $outside_states);
+        $this->assertSame([], array_diff($outside_states, CountryData::state_ids('BD')));
+
+        $inside_methods = array_column($zones[0]['shipping_methods'], null, 'name');
+        $this->assertSame(['Inside Dhaka'], array_keys($inside_methods));
+        $this->assertSame(12000, $inside_methods['Inside Dhaka']['base_amount']);
+
+        foreach ($inside_methods as $method) {
+            $this->assertTrue($method['is_enabled']);
+        }
+
+        $outside_methods = $zones[1]['shipping_methods'];
+        $this->assertSame(['Outside Dhaka'], array_column($outside_methods, 'name'));
+        $this->assertSame(20000, $outside_methods[0]['base_amount']);
+        $this->assertTrue($outside_methods[0]['is_enabled']);
+    }
+
+    public function test_bangladesh_zones_in_another_currency_are_disabled_at_zero(): void
+    {
+        $this->setup_store(['country' => 'BD', 'currency' => 'USD']);
+
+        $zones = $this->zones();
+        $this->assertSame(['Inside Dhaka', 'Outside Dhaka'], array_column($zones, 'title'));
+
+        foreach ($zones as $zone) {
+            foreach ($zone['shipping_methods'] as $method) {
+                $this->assertFalse($method['is_enabled']);
+
+                if ('flat_rate' === $method['type']) {
+                    $this->assertSame(0, $method['base_amount']);
+                }
+            }
+        }
+    }
+
+    public function test_domestic_rules_apply_to_both_bangladesh_zones(): void
+    {
+        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'country' => 'BD', 'currency' => 'BDT']);
+        $fragile_id = (string) ShippingProfile::query()->where('name', 'Fragile')->first()->id;
+        $perishable_id = (string) ShippingProfile::query()->where('name', 'Perishable')->first()->id;
+        $rule_for = fn($profile_id, $action) => [
+            'relation' => 'AND',
+            'conditions' => [['type' => 'shipping_profile', 'operator' => '=', 'value' => $profile_id]],
+            'action' => $action,
+        ];
+
+        foreach ($this->zones() as $zone) {
+            $rules = $zone['shipping_methods'][0]['shipping_rules'];
+            $this->assertContains($rule_for($fragile_id, ['type' => 'multiply_shipping_cost', 'value' => 1.25]), $rules);
+            $this->assertNotContains($rule_for($perishable_id, ['type' => 'disable_shipping_method', 'value' => null]), $rules);
+        }
     }
 
     public function test_matching_currency_enables_country_methods_with_amounts(): void

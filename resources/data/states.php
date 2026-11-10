@@ -1255,255 +1255,247 @@ return [
     'BD' => [
         [
             'id' => 796,
-            'name' => __('Bagerhat District', 'kirki-ecommerce'),
+            'name' => __('Bagerhat', 'kirki-ecommerce'),
         ],
         [
             'id' => 752,
-            'name' => __('Bandarban District', 'kirki-ecommerce'),
+            'name' => __('Bandarban', 'kirki-ecommerce'),
         ],
         [
             'id' => 784,
-            'name' => __('Barguna District', 'kirki-ecommerce'),
+            'name' => __('Barguna', 'kirki-ecommerce'),
         ],
         [
             'id' => 818,
-            'name' => __('Barisal District', 'kirki-ecommerce'),
-        ],
-        [
-            'id' => 807,
-            'name' => __('Barisal Division', 'kirki-ecommerce'),
+            'name' => __('Barisal', 'kirki-ecommerce'),
         ],
         [
             'id' => 756,
-            'name' => __('Bhola District', 'kirki-ecommerce'),
+            'name' => __('Bhola', 'kirki-ecommerce'),
         ],
         [
             'id' => 797,
-            'name' => __('Bogra District', 'kirki-ecommerce'),
+            'name' => __('Bogra', 'kirki-ecommerce'),
         ],
         [
             'id' => 810,
-            'name' => __('Brahmanbaria District', 'kirki-ecommerce'),
+            'name' => __('Brahmanbaria', 'kirki-ecommerce'),
         ],
         [
             'id' => 768,
-            'name' => __('Chandpur District', 'kirki-ecommerce'),
+            'name' => __('Chandpur', 'kirki-ecommerce'),
         ],
         [
             'id' => 761,
-            'name' => __('Chapai Nawabganj District', 'kirki-ecommerce'),
+            'name' => __('Chapai Nawabganj', 'kirki-ecommerce'),
         ],
         [
             'id' => 785,
-            'name' => __('Chittagong District', 'kirki-ecommerce'),
+            'name' => __('Chittagong', 'kirki-ecommerce'),
         ],
         [
             'id' => 788,
-            'name' => __('Chuadanga District', 'kirki-ecommerce'),
+            'name' => __('Chuadanga', 'kirki-ecommerce'),
         ],
         [
             'id' => 763,
-            'name' => __('Comilla District', 'kirki-ecommerce'),
+            'name' => __('Comilla', 'kirki-ecommerce'),
         ],
         [
             'id' => 751,
-            'name' => __('Cox\'s Bazar District', 'kirki-ecommerce'),
+            'name' => __('Cox\'s Bazar', 'kirki-ecommerce'),
         ],
         [
             'id' => 771,
-            'name' => __('Dhaka District', 'kirki-ecommerce'),
+            'name' => __('Dhaka', 'kirki-ecommerce'),
         ],
         [
             'id' => 783,
-            'name' => __('Dinajpur District', 'kirki-ecommerce'),
+            'name' => __('Dinajpur', 'kirki-ecommerce'),
         ],
         [
             'id' => 762,
-            'name' => __('Faridpur District', 'kirki-ecommerce'),
+            'name' => __('Faridpur', 'kirki-ecommerce'),
         ],
         [
             'id' => 816,
-            'name' => __('Feni District', 'kirki-ecommerce'),
+            'name' => __('Feni', 'kirki-ecommerce'),
         ],
         [
             'id' => 795,
-            'name' => __('Gaibandha District', 'kirki-ecommerce'),
+            'name' => __('Gaibandha', 'kirki-ecommerce'),
         ],
         [
             'id' => 798,
-            'name' => __('Gazipur District', 'kirki-ecommerce'),
+            'name' => __('Gazipur', 'kirki-ecommerce'),
         ],
         [
             'id' => 792,
-            'name' => __('Gopalganj District', 'kirki-ecommerce'),
+            'name' => __('Gopalganj', 'kirki-ecommerce'),
         ],
         [
             'id' => 805,
-            'name' => __('Habiganj District', 'kirki-ecommerce'),
+            'name' => __('Habiganj', 'kirki-ecommerce'),
         ],
         [
             'id' => 808,
-            'name' => __('Jamalpur District', 'kirki-ecommerce'),
+            'name' => __('Jamalpur', 'kirki-ecommerce'),
         ],
         [
             'id' => 757,
-            'name' => __('Jessore District', 'kirki-ecommerce'),
+            'name' => __('Jessore', 'kirki-ecommerce'),
         ],
         [
             'id' => 778,
-            'name' => __('Jhalokati District', 'kirki-ecommerce'),
+            'name' => __('Jhalokati', 'kirki-ecommerce'),
         ],
         [
             'id' => 789,
-            'name' => __('Jhenaidah District', 'kirki-ecommerce'),
+            'name' => __('Jhenaidah', 'kirki-ecommerce'),
         ],
         [
             'id' => 806,
-            'name' => __('Joypurhat District', 'kirki-ecommerce'),
+            'name' => __('Joypurhat', 'kirki-ecommerce'),
         ],
         [
             'id' => 786,
-            'name' => __('Khagrachari District', 'kirki-ecommerce'),
+            'name' => __('Khagrachari', 'kirki-ecommerce'),
         ],
         [
             'id' => 811,
-            'name' => __('Khulna District', 'kirki-ecommerce'),
+            'name' => __('Khulna', 'kirki-ecommerce'),
         ],
         [
             'id' => 779,
-            'name' => __('Kishoreganj District', 'kirki-ecommerce'),
+            'name' => __('Kishoreganj', 'kirki-ecommerce'),
         ],
         [
             'id' => 793,
-            'name' => __('Kurigram District', 'kirki-ecommerce'),
+            'name' => __('Kurigram', 'kirki-ecommerce'),
         ],
         [
             'id' => 774,
-            'name' => __('Kushtia District', 'kirki-ecommerce'),
+            'name' => __('Kushtia', 'kirki-ecommerce'),
         ],
         [
             'id' => 819,
-            'name' => __('Lakshmipur District', 'kirki-ecommerce'),
+            'name' => __('Lakshmipur', 'kirki-ecommerce'),
         ],
         [
             'id' => 780,
-            'name' => __('Lalmonirhat District', 'kirki-ecommerce'),
+            'name' => __('Lalmonirhat', 'kirki-ecommerce'),
         ],
         [
             'id' => 817,
-            'name' => __('Madaripur District', 'kirki-ecommerce'),
+            'name' => __('Madaripur', 'kirki-ecommerce'),
         ],
         [
             'id' => 776,
-            'name' => __('Meherpur District', 'kirki-ecommerce'),
+            'name' => __('Meherpur', 'kirki-ecommerce'),
         ],
         [
             'id' => 794,
-            'name' => __('Moulvibazar District', 'kirki-ecommerce'),
+            'name' => __('Moulvibazar', 'kirki-ecommerce'),
         ],
         [
             'id' => 790,
-            'name' => __('Munshiganj District', 'kirki-ecommerce'),
+            'name' => __('Munshiganj', 'kirki-ecommerce'),
         ],
         [
             'id' => 766,
-            'name' => __('Mymensingh District', 'kirki-ecommerce'),
-        ],
-        [
-            'id' => 758,
-            'name' => __('Mymensingh Division', 'kirki-ecommerce'),
+            'name' => __('Mymensingh', 'kirki-ecommerce'),
         ],
         [
             'id' => 814,
-            'name' => __('Naogaon District', 'kirki-ecommerce'),
+            'name' => __('Naogaon', 'kirki-ecommerce'),
         ],
         [
             'id' => 769,
-            'name' => __('Narail District', 'kirki-ecommerce'),
+            'name' => __('Narail', 'kirki-ecommerce'),
         ],
         [
             'id' => 770,
-            'name' => __('Narayanganj District', 'kirki-ecommerce'),
+            'name' => __('Narayanganj', 'kirki-ecommerce'),
         ],
         [
             'id' => 787,
-            'name' => __('Natore District', 'kirki-ecommerce'),
+            'name' => __('Natore', 'kirki-ecommerce'),
         ],
         [
             'id' => 764,
-            'name' => __('Netrokona District', 'kirki-ecommerce'),
+            'name' => __('Netrokona', 'kirki-ecommerce'),
         ],
         [
             'id' => 772,
-            'name' => __('Nilphamari District', 'kirki-ecommerce'),
+            'name' => __('Nilphamari', 'kirki-ecommerce'),
         ],
         [
             'id' => 815,
-            'name' => __('Noakhali District', 'kirki-ecommerce'),
+            'name' => __('Noakhali', 'kirki-ecommerce'),
         ],
         [
             'id' => 754,
-            'name' => __('Pabna District', 'kirki-ecommerce'),
+            'name' => __('Pabna', 'kirki-ecommerce'),
         ],
         [
             'id' => 800,
-            'name' => __('Panchagarh District', 'kirki-ecommerce'),
+            'name' => __('Panchagarh', 'kirki-ecommerce'),
         ],
         [
             'id' => 777,
-            'name' => __('Patuakhali District', 'kirki-ecommerce'),
+            'name' => __('Patuakhali', 'kirki-ecommerce'),
         ],
         [
             'id' => 791,
-            'name' => __('Pirojpur District', 'kirki-ecommerce'),
+            'name' => __('Pirojpur', 'kirki-ecommerce'),
         ],
         [
             'id' => 773,
-            'name' => __('Rajbari District', 'kirki-ecommerce'),
+            'name' => __('Rajbari', 'kirki-ecommerce'),
         ],
         [
             'id' => 813,
-            'name' => __('Rajshahi District', 'kirki-ecommerce'),
+            'name' => __('Rajshahi', 'kirki-ecommerce'),
         ],
         [
             'id' => 809,
-            'name' => __('Rangamati Hill District', 'kirki-ecommerce'),
+            'name' => __('Rangamati Hill', 'kirki-ecommerce'),
         ],
         [
             'id' => 759,
-            'name' => __('Rangpur District', 'kirki-ecommerce'),
+            'name' => __('Rangpur', 'kirki-ecommerce'),
         ],
         [
             'id' => 799,
-            'name' => __('Satkhira District', 'kirki-ecommerce'),
+            'name' => __('Satkhira', 'kirki-ecommerce'),
         ],
         [
             'id' => 801,
-            'name' => __('Shariatpur District', 'kirki-ecommerce'),
+            'name' => __('Shariatpur', 'kirki-ecommerce'),
         ],
         [
             'id' => 755,
-            'name' => __('Sherpur District', 'kirki-ecommerce'),
+            'name' => __('Sherpur', 'kirki-ecommerce'),
         ],
         [
             'id' => 781,
-            'name' => __('Sirajganj District', 'kirki-ecommerce'),
+            'name' => __('Sirajganj', 'kirki-ecommerce'),
         ],
         [
             'id' => 812,
-            'name' => __('Sunamganj District', 'kirki-ecommerce'),
+            'name' => __('Sunamganj', 'kirki-ecommerce'),
         ],
         [
             'id' => 767,
-            'name' => __('Sylhet District', 'kirki-ecommerce'),
+            'name' => __('Sylhet', 'kirki-ecommerce'),
         ],
         [
             'id' => 782,
-            'name' => __('Tangail District', 'kirki-ecommerce'),
+            'name' => __('Tangail', 'kirki-ecommerce'),
         ],
         [
             'id' => 804,
-            'name' => __('Thakurgaon District', 'kirki-ecommerce'),
+            'name' => __('Thakurgaon', 'kirki-ecommerce'),
         ],
     ],
     'BB' => [
