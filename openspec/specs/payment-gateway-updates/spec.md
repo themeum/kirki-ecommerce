@@ -186,20 +186,25 @@ the new version.
 The available-gateways dialog SHALL show an "Update Available" badge, in place
 of the "Added" badge, for each installed gateway with an offered update, and a
 small secondary "Update" button on the right of that row. Pressing it SHALL call
-the update endpoint. During the request a spinner SHALL show in place of that
-button, and the other "Add" and "Update" buttons SHALL be disabled until the
-request ends. After success the row SHALL show only "Added", and the payment
-lists SHALL refresh. On failure the system SHALL show the error message. For a
-blocked update the dialog SHALL show the "Update Available" badge and, in place
-of the button, an info icon whose tooltip shows the reason. Each installed
-gateway row in the Payments list SHALL show an "Update available" badge when a
-newer version exists, offered or blocked, and pressing the badge SHALL open the
-dialog.
+the update endpoint. During the request the "Update" button SHALL show a spinner
+at its center in place of its label and SHALL keep its size and position, and the
+other "Add" and "Update" buttons SHALL be disabled until the request ends. After
+success the row SHALL show only "Added", and the payment lists SHALL refresh. On
+failure the system SHALL show the error message. For a blocked update the dialog
+SHALL show the "Update Available" badge and, in place of the button, an info icon
+whose tooltip shows the reason. Each installed gateway row in the Payments list
+SHALL show an "Update available" badge when a newer version exists, offered or
+blocked, and pressing the badge SHALL open the dialog.
 
 #### Scenario: Update button
 
 - **WHEN** the dialog lists an installed gateway with an offered update
 - **THEN** the row shows the "Update Available" badge and an "Update" button, and no "Added" badge
+
+#### Scenario: Update in progress
+
+- **WHEN** the admin presses "Update"
+- **THEN** the "Update" button shows a spinner at its center and keeps its size and position
 
 #### Scenario: Update succeeds
 
