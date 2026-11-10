@@ -397,6 +397,29 @@ PayPal is a trademark of PayPal, Inc. CurrencyApi and ExchangeRate-API are trade
 
 == Changelog ==
 
+= 1.0.1 - Nov 10, 2026 =
+
+* New: - Customers can now pay with bKash at checkout.
+* New: - Customers can now pay with SSLCommerz at checkout.
+* New: - Installed payment gateways can now be updated when a newer version is available.
+* New: - Checkout hides payment methods that cannot accept the customer's currency.
+* New: - Unpaid bKash orders are checked again later and marked paid when the payment completed.
+* New: - Product search results can now show the old price struck through for products on sale.
+* Update: - The "Add a payment method" dialog is redesigned, with search and ready-made manual methods.
+* Update: - Product schema profiles are removed. Every product now uses the same search engine data. Saved profiles are deleted on update.
+* Update: - Bulk updates of product variants are faster.
+* Update: - The product selection dialog is faster and more responsive.
+* Update: - The shop page now uses the page's own title and excerpt as its heading and description.
+* Update: - Tax fields are hidden in the product form and bulk edit when tax calculation is off.
+* Update: - The Brand field in the product form can now be added and removed.
+* Update: - The add currency dialog in multi-currency settings is improved.
+* Update: - Payment settings show a loading preview while the payment list loads.
+* Fix: - Tax is no longer charged on variants that have "Charge tax" turned off.
+* Fix: - The "Incl. tax" label no longer shows on products that do not charge tax.
+* Fix: - Orders can no longer be placed in a currency the selected gateway cannot accept.
+* Fix: - Order items now save the product image correctly.
+* Fix: - Dialog titles and headings now display correctly.
+
 = 1.0.0 - Nov 04, 2026 =
 
 * Initial release
