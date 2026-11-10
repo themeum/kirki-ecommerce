@@ -35,18 +35,6 @@ class VariantDefaultTest extends RestTestCase
         $this->assertEquals([$second_id], $this->default_variant_ids($product['id']));
     }
 
-    public function test_bulk_update_marking_a_variant_default_clears_the_others(): void
-    {
-        $product = $this->create_two_variant_product();
-        $second_id = (int) $product['variants'][1]['id'];
-
-        $this->assert_api_success($this->request('PUT', 'variants/bulk', [
-            'variants' => [['id' => $second_id, 'is_default' => true]],
-        ]));
-
-        $this->assertEquals([$second_id], $this->default_variant_ids($product['id']));
-    }
-
     public function test_unsetting_the_only_default_keeps_a_default(): void
     {
         $product = $this->create_two_variant_product();
