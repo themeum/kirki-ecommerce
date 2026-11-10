@@ -1,14 +1,14 @@
 ## 1. Step model and draft
 
-- [x] 1.1 In `features/onboarding/lib/steps.ts`: widen `OnboardingStep` to `0 | 1 | 2 | 3 | 4`, add `TAX_STEP = 3`, set `COMPLETION_STEP = 4`, remove `FORM_STEP_COUNT`, split `STEP_FIELDS` (2: `currency`, `is_tax_collected`; 3: `is_tax_inclusive_price`, `store_tax_id`), add `getFormStepCount(isTaxCollected)`, and add the "Store Tax" and "Setup Complete" titles (D1, D4)
+- [x] 1.1 In `features/onboarding/lib/steps.ts`: widen `OnboardingStep` to `0 | 1 | 2 | 3 | 4`, add `TAX_STEP = 3`, set `COMPLETION_STEP = 4`, remove `FORM_STEP_COUNT`, split `STEP_FIELDS` (2: `currency`, `is_tax_enabled`; 3: `is_tax_inclusive_price`, `store_tax_id`), add `getFormStepCount(isTaxCollected)`, and add the "Store Tax" and "Setup Complete" titles (D1, D4)
 - [x] 1.2 In `lib/onboarding-draft.ts`: allow draft step 3 (D8)
-- [x] 1.3 In `onboarding-wizard.tsx`: when the draft step is `TAX_STEP` and `is_tax_collected` is not `true`, start on step 2 (D8)
+- [x] 1.3 In `onboarding-wizard.tsx`: when the draft step is `TAX_STEP` and `is_tax_enabled` is not `true`, start on step 2 (D8)
 - [x] 1.4 Add tests: `getFormStepCount`, the draft accepts step 3, and the tax-step fallback on restore → verify: `npm test` in `resources/app/`
 
 ## 2. Shell header
 
 - [x] 2.1 `OnboardingShell` takes `stepCount` and an optional `afterCard` slot. It shows "Step N" (no total) on form steps and no number on completion. Bar fill = `(step + 1) / stepCount`, or 100% on completion (D4)
-- [x] 2.2 In the wizard, compute `stepCount` from `useWatch('is_tax_collected')` and pass it to the shell
+- [x] 2.2 In the wizard, compute `stepCount` from `useWatch('is_tax_enabled')` and pass it to the shell
 
 ## 3. Essentials and Store Tax steps
 

@@ -70,7 +70,7 @@ const buildSummary = (
     __('Checkout', 'kirki-ecommerce'),
     __('Account', 'kirki-ecommerce'),
   ],
-  tax: payload.is_tax_collected ? { is_tax_inclusive_price: payload.is_tax_inclusive_price } : null,
+  tax: payload.is_tax_enabled ? { is_tax_inclusive_price: payload.is_tax_inclusive_price } : null,
 });
 
 const toSummaryRows = (summary: StoreSetupSummary): SetupSummaryRow[] => {
@@ -112,7 +112,7 @@ const getInitialStep = (draft: ReturnType<typeof readDraft>): OnboardingStep => 
     return 0;
   }
 
-  if (draft.step === TAX_STEP && draft.values.is_tax_collected !== true) {
+  if (draft.step === TAX_STEP && draft.values.is_tax_enabled !== true) {
     return 2;
   }
 
@@ -140,7 +140,7 @@ const OnboardingWizardForm = ({ prefill }: OnboardingWizardFormProps) => {
     mode: 'onChange',
     defaultValues: { ...getDefaults(OnboardingFormSchema), ...prefill, ...initialDraft?.values },
   });
-  const isTaxCollected = useWatch({ control: form.control, name: 'is_tax_collected' }) === true;
+  const isTaxCollected = useWatch({ control: form.control, name: 'is_tax_enabled' }) === true;
 
   useEffect(() => {
     if (step === COMPLETION_STEP) {

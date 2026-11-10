@@ -77,10 +77,10 @@ class OnboardingDefaultsReader
         $calc_taxes = get_option('woocommerce_calc_taxes', null);
 
         if ($calc_taxes !== null) {
-            $values['is_tax_collected'] = $calc_taxes === 'yes';
+            $values['is_tax_enabled'] = $calc_taxes === 'yes';
         }
 
-        if (!empty($values['is_tax_collected'])) {
+        if (!empty($values['is_tax_enabled'])) {
             $values['is_tax_inclusive_price'] = get_option('woocommerce_prices_include_tax') === 'yes';
         }
 

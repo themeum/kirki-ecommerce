@@ -86,7 +86,7 @@ class OnboardingDefaultsTest extends RestTestCase
         $this->assertSame('1 Shop Way', $data['values']['store_address']['address_line_1']);
         $this->assertSame('Woo City', $data['values']['store_address']['city']);
         $this->assertSame('beauty-cosmetics-and-personal-care', $data['values']['industry']);
-        $this->assertTrue($data['values']['is_tax_collected']);
+        $this->assertTrue($data['values']['is_tax_enabled']);
         $this->assertTrue($data['values']['is_tax_inclusive_price']);
     }
 
@@ -145,7 +145,7 @@ class OnboardingDefaultsTest extends RestTestCase
         $this->assertArrayNotHasKey('country', $values);
         $this->assertArrayNotHasKey('store_address', $values);
         $this->assertArrayNotHasKey('industry', $values);
-        $this->assertArrayNotHasKey('is_tax_collected', $values);
+        $this->assertArrayNotHasKey('is_tax_enabled', $values);
     }
 
     /**

@@ -206,7 +206,7 @@ describe('onboarding wizard', () => {
   });
 
   it('opens the Store Tax step after Essentials when tax is collected', async () => {
-    startFromDraft(2, { ...essentialsValues, is_tax_collected: true });
+    startFromDraft(2, { ...essentialsValues, is_tax_enabled: true });
     renderWizard();
 
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
@@ -221,7 +221,7 @@ describe('onboarding wizard', () => {
   });
 
   it('reopens Essentials when a Store Tax draft no longer collects tax', () => {
-    startFromDraft(3, { ...essentialsValues, is_tax_collected: false });
+    startFromDraft(3, { ...essentialsValues, is_tax_enabled: false });
     renderWizard();
 
     expect(screen.getByText('Setup the essentials')).toBeInTheDocument();
@@ -365,7 +365,7 @@ describe('onboarding wizard', () => {
   it('lists tax in the configurations when tax is collected', async () => {
     startFromDraft(3, {
       ...essentialsValues,
-      is_tax_collected: true,
+      is_tax_enabled: true,
       is_tax_inclusive_price: true,
     });
     renderWizard();

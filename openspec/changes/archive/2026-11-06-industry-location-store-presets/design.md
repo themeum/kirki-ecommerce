@@ -21,7 +21,7 @@ current state that shapes the approach:
   them by `shipping_profile_id` / `tax_profile_id`. `ShippingService` uses the
   `is_default` shipping profile for items that have no profile.
 - Rule shape (shipping and tax): `{relation, conditions: [{type, operator,
-  value}], action: {type, value}}`. Condition types: `shipping_profile`,
+value}], action: {type, value}}`. Condition types: `shipping_profile`,
   `tax_profile`, `destination_region`, `cart_weight`, `cart_subtotal`,
   `product_categories`. Actions: `multiply_shipping_cost`,
   `disable_shipping_method`, `set_product_tax_rate`, `set_shipping_tax_rate`,
@@ -74,7 +74,7 @@ This is the only class that knows where the data comes from. A remote source
 later replaces its body.
 
 A `PresetContext` DTO holds `industry`, `country`, `state`, `currency` and
-`is_tax_collected`, built from `StoreSetupDTO`. `apply_presets()` changes its
+`is_tax_enabled`, built from `StoreSetupDTO`. `apply_presets()` changes its
 signature to take the DTO. It is public, but has no callers outside
 `setup()`, and the docs list it as an extension point. The docs get an update.
 
@@ -82,26 +82,26 @@ The appliers are plain classes in `app/Setup/Presets/`, one for each kind, each
 with `apply(PresetContext $context)`. They get the repository by constructor
 injection:
 
-| Order | Applier | Writes | Guard (skip when…) |
-|---|---|---|---|
-| 1 | `AttributePresets` | attributes + values | per slug exists |
-| 2 | `SchemaProfilePresets` | product_schemas | any row exists |
-| 3 | `CouponPresets` | coupons | code exists |
-| 4 | `ShippingProfilePresets` | shipping_profiles | per name exists (reuse its id) |
-| 5 | `TaxProfilePresets` | tax_profiles | per name exists (reuse its id) |
-| 6 | `LegalPresets` | pages + `legal.consents` | page: slug exists; consents: any exists |
-| 7 | `ShippingZonePresets` | `shipping.shipping_zones` | any zone exists |
-| 8 | `TaxRegionPresets` | `tax.tax_regions` | tax off, or any region exists |
+| Order | Applier                  | Writes                    | Guard (skip when…)                      |
+| ----- | ------------------------ | ------------------------- | --------------------------------------- |
+| 1     | `AttributePresets`       | attributes + values       | per slug exists                         |
+| 2     | `SchemaProfilePresets`   | product_schemas           | any row exists                          |
+| 3     | `CouponPresets`          | coupons                   | code exists                             |
+| 4     | `ShippingProfilePresets` | shipping_profiles         | per name exists (reuse its id)          |
+| 5     | `TaxProfilePresets`      | tax_profiles              | per name exists (reuse its id)          |
+| 6     | `LegalPresets`           | pages + `legal.consents`  | page: slug exists; consents: any exists |
+| 7     | `ShippingZonePresets`    | `shipping.shipping_zones` | any zone exists                         |
+| 8     | `TaxRegionPresets`       | `tax.tax_regions`         | tax off, or any region exists           |
 
 Profiles come before zones and regions, because rules need their ids. Steps 4
 and 5 return a map from profile `key` to id. Each lookup is by name, so a retry
 resolves the same ids. The steps from 7 to 8 resolve keys through the same
 lookup, not through state stored in memory.
 
-*Alternative considered:* reuse the framework `Seeder` queue. Rejected: seeders
+_Alternative considered:_ reuse the framework `Seeder` queue. Rejected: seeders
 take no arguments, but every applier needs the context.
 
-*Alternative considered:* one big `StorePresetService`. Rejected: eight kinds
+_Alternative considered:_ one big `StorePresetService`. Rejected: eight kinds
 with different guards make one large class that is hard to test.
 
 Errors: an applier that throws fails setup, the same as the other setup steps.
@@ -116,59 +116,169 @@ fail because of preset data).
 ```jsonc
 {
   "version": 1,
-  "blocs": { "EU": ["AT", "BE", "…27"], "GCC": ["AE", "BH", "KW", "OM", "QA", "SA"] },
+  "blocs": {
+    "EU": ["AT", "BE", "…27"],
+    "GCC": ["AE", "BH", "KW", "OM", "QA", "SA"],
+  },
   "common": {
-    "attributes": [{ "name": "Color", "slug": "color", "type": "color",
-                     "values": [{ "value": "White", "color": "#FFFFFF" }] }],
-    "schema_profiles": [{ "name": "Default Product Schema", "is_default": true,
-                          "schema": { "Product": ["name", "description", "image"], "…": [] } }],
-    "coupons": [{ "code": "WELCOME50", "title": "Welcome 50% off", "discount_amount_percentage": 50, "…": "…" }],
-    "shipping_profiles": [{ "key": "general", "name": "General", "is_default": true }],
-    "tax_profiles": [{ "key": "standard", "name": "Standard", "is_default": true }],
-    "shipping_methods": {            // the generic set, used when a country has no "shipping"
-      "domestic":      [{ "key": "standard", "type": "flat_rate", "name": "Standard Shipping" },
-                        { "key": "express",  "type": "flat_rate", "name": "Express Shipping" },
-                        { "key": "pickup",   "type": "local_pickup", "name": "Local Pickup" }],
-      "regional":      [{ "key": "standard", "type": "flat_rate", "name": "Regional Shipping" }],
-      "rest_of_world": [{ "key": "standard", "type": "flat_rate", "name": "International Shipping" }]
+    "attributes": [
+      {
+        "name": "Color",
+        "slug": "color",
+        "type": "color",
+        "values": [{ "value": "White", "color": "#FFFFFF" }],
+      },
+    ],
+    "schema_profiles": [
+      {
+        "name": "Default Product Schema",
+        "is_default": true,
+        "schema": { "Product": ["name", "description", "image"], "…": [] },
+      },
+    ],
+    "coupons": [
+      {
+        "code": "WELCOME50",
+        "title": "Welcome 50% off",
+        "discount_amount_percentage": 50,
+        "…": "…",
+      },
+    ],
+    "shipping_profiles": [
+      { "key": "general", "name": "General", "is_default": true },
+    ],
+    "tax_profiles": [
+      { "key": "standard", "name": "Standard", "is_default": true },
+    ],
+    "shipping_methods": {
+      // the generic set, used when a country has no "shipping"
+      "domestic": [
+        { "key": "standard", "type": "flat_rate", "name": "Standard Shipping" },
+        { "key": "express", "type": "flat_rate", "name": "Express Shipping" },
+        { "key": "pickup", "type": "local_pickup", "name": "Local Pickup" },
+      ],
+      "regional": [
+        { "key": "standard", "type": "flat_rate", "name": "Regional Shipping" },
+      ],
+      "rest_of_world": [
+        {
+          "key": "standard",
+          "type": "flat_rate",
+          "name": "International Shipping",
+        },
+      ],
     },
     "legal": {
-      "pages": [{ "key": "terms", "slug": "terms-and-conditions", "title": "Terms & Conditions", "content": "…placeholder…" },
-                { "key": "privacy", "slug": "privacy-policy", "…": "…" },
-                { "key": "returns", "slug": "refund-and-returns-policy", "…": "…" }],
-      "consents": [{ "key": "terms", "title": "Terms & Conditions", "locations": ["checkout"],
-                     "method": "mandatory_checkbox", "message": "I agree to the {page:terms}." },
-                   { "key": "privacy", "locations": ["signup", "checkout"],
-                     "method": "display_text_only", "gdpr_method": "mandatory_checkbox", "…": "…" },
-                   { "key": "marketing", "method": "optional_checkbox", "…": "…" }]
-    }
+      "pages": [
+        {
+          "key": "terms",
+          "slug": "terms-and-conditions",
+          "title": "Terms & Conditions",
+          "content": "…placeholder…",
+        },
+        { "key": "privacy", "slug": "privacy-policy", "…": "…" },
+        { "key": "returns", "slug": "refund-and-returns-policy", "…": "…" },
+      ],
+      "consents": [
+        {
+          "key": "terms",
+          "title": "Terms & Conditions",
+          "locations": ["checkout"],
+          "method": "mandatory_checkbox",
+          "message": "I agree to the {page:terms}.",
+        },
+        {
+          "key": "privacy",
+          "locations": ["signup", "checkout"],
+          "method": "display_text_only",
+          "gdpr_method": "mandatory_checkbox",
+          "…": "…",
+        },
+        { "key": "marketing", "method": "optional_checkbox", "…": "…" },
+      ],
+    },
   },
   "industries": {
     "fashion-and-apparel": {
-      "attributes": [{ "name": "Size", "slug": "size", "type": "list", "values": [{ "value": "XS" }] }],
+      "attributes": [
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [{ "value": "XS" }],
+        },
+      ],
       "shipping_profiles": [{ "key": "oversized", "name": "Oversized" }],
-      "shipping_rules": [{ "profile": "oversized", "zones": ["*"], "methods": ["*"],
-                           "action": { "type": "multiply_shipping_cost", "value": 1.5 } }],
-      "tax_profiles": [{ "key": "childrens_clothing", "name": "Children's Clothing" }]
-    }
+      "shipping_rules": [
+        {
+          "profile": "oversized",
+          "zones": ["*"],
+          "methods": ["*"],
+          "action": { "type": "multiply_shipping_cost", "value": 1.5 },
+        },
+      ],
+      "tax_profiles": [
+        { "key": "childrens_clothing", "name": "Children's Clothing" },
+      ],
+    },
   },
   "countries": {
     "GB": {
-      "currency": "GBP", "bloc": null, "gdpr": true,
+      "currency": "GBP",
+      "bloc": null,
+      "gdpr": true,
       "source": "https://www.gov.uk/guidance/rates-of-vat-on-different-goods-and-services",
       "verified_at": "2026-10-05",
-      "shipping": { "domestic": [{ "key": "standard", "type": "flat_rate", "name": "Royal Mail 2nd Class",
-                                   "base_amount": 399, "free_over": 5000 }], "…": [] },
-      "tax": { "mode": "country", "rate": 20, "shipping_rate": 20,
-               "profile_rates": { "food": 0, "books": 0, "childrens_clothing": 0, "medical": { "exempt": true } } }
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Royal Mail 2nd Class",
+            "base_amount": 399,
+            "free_over": 5000,
+          },
+        ],
+        "…": [],
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 20,
+        "shipping_rate": 20,
+        "profile_rates": {
+          "food": 0,
+          "books": 0,
+          "childrens_clothing": 0,
+          "medical": { "exempt": true },
+        },
+      },
     },
-    "US": { "tax": { "mode": "states", "scope": "home",
-                     "states": { "1407": { "name": "Texas", "rate": 6.25 } } } },
-    "CA": { "tax": { "mode": "states", "scope": "all",
-                     "states": { "<id>": { "name": "Ontario", "rate": 13 },
-                                 "<id>": { "name": "British Columbia", "rate": 5, "home_extra": 7 } } } },
-    "DE": { "bloc": "EU", "tax": { "mode": "eu", "rate": 19, "profile_rates": { "food": 7, "books": 7 } } }
-  }
+    "US": {
+      "tax": {
+        "mode": "states",
+        "scope": "home",
+        "states": { "1407": { "name": "Texas", "rate": 6.25 } },
+      },
+    },
+    "CA": {
+      "tax": {
+        "mode": "states",
+        "scope": "all",
+        "states": {
+          "<id>": { "name": "Ontario", "rate": 13 },
+          "<id>": { "name": "British Columbia", "rate": 5, "home_extra": 7 },
+        },
+      },
+    },
+    "DE": {
+      "bloc": "EU",
+      "tax": {
+        "mode": "eu",
+        "rate": 19,
+        "profile_rates": { "food": 7, "books": 7 },
+      },
+    },
+  },
 }
 ```
 
@@ -182,7 +292,7 @@ Notes on the shape:
   `rest_of_world`, or `*`) and method `key` (or `*`). The applier adds each
   matching template to the method's `shipping_rules` as
   `{relation: "and", conditions: [{type: "shipping_profile", operator: "in",
-  value: [<id>]}], action}`. The exact operator and value format must match
+value: [<id>]}], action}`. The exact operator and value format must match
   the format that the admin rule form saves (task 4.1 checks this against
   `shipping-rule-form.ts`).
 - **Tax modes.** `country`: a general region in country-wide mode
@@ -320,7 +430,7 @@ container binds `PresetSource` to the right class, so tests can bind a fake.
 The plugin ships with no URL, so nothing is sent to a server until the
 maintainer sets one.
 
-*Alternative considered:* a bundled fallback when the remote fails. Rejected by
+_Alternative considered:_ a bundled fallback when the remote fails. Rejected by
 the product decision: the presets are skipped silently instead, so there is
 one source of truth.
 
@@ -332,26 +442,88 @@ one source of truth.
 ```jsonc
 {
   "version": 1,
-  "categories": [{ "name": "Men", "description": "…", "children": [{ "name": "Shirts" }] }],
-  "attributes": [{ "name": "Color", "slug": "color", "type": "color", "values": [{ "value": "White", "color": "#FFFFFF" }] }],
-  "schema_profiles": [{ "name": "Default Product Schema", "is_default": true, "schema": { "Product": ["name"] } }],
-  "shipping_profiles": [{ "key": "general", "name": "General", "is_default": true }],
-  "tax_profiles": [{ "key": "standard", "name": "Standard", "is_default": true }],
+  "categories": [
+    { "name": "Men", "description": "…", "children": [{ "name": "Shirts" }] },
+  ],
+  "attributes": [
+    {
+      "name": "Color",
+      "slug": "color",
+      "type": "color",
+      "values": [{ "value": "White", "color": "#FFFFFF" }],
+    },
+  ],
+  "schema_profiles": [
+    {
+      "name": "Default Product Schema",
+      "is_default": true,
+      "schema": { "Product": ["name"] },
+    },
+  ],
+  "shipping_profiles": [
+    { "key": "general", "name": "General", "is_default": true },
+  ],
+  "tax_profiles": [
+    { "key": "standard", "name": "Standard", "is_default": true },
+  ],
   "legal": {
-    "pages": [{ "key": "terms", "slug": "terms-and-conditions", "title": "…", "content": "…" }],
-    "consents": [{ "title": "…", "locations": ["checkout"], "method": "mandatory_checkbox", "message": "I agree to the {page:terms}." }]
+    "pages": [
+      {
+        "key": "terms",
+        "slug": "terms-and-conditions",
+        "title": "…",
+        "content": "…",
+      },
+    ],
+    "consents": [
+      {
+        "title": "…",
+        "locations": ["checkout"],
+        "method": "mandatory_checkbox",
+        "message": "I agree to the {page:terms}.",
+      },
+    ],
   },
-  "shipping_zones": [{
-    "title": "Domestic", "is_enabled": true,
-    "regions": [{ "country": "DE", "states": [] }],
-    "methods": [{ "type": "flat_rate", "name": "Standard Shipping", "base_amount": 495, "is_enabled": true, "is_taxable": true,
-                  "rules": [{ "profile": "fragile", "action": { "type": "multiply_shipping_cost", "value": 1.25 } }] }]
-  }],
+  "shipping_zones": [
+    {
+      "title": "Domestic",
+      "is_enabled": true,
+      "regions": [{ "country": "DE", "states": [] }],
+      "methods": [
+        {
+          "type": "flat_rate",
+          "name": "Standard Shipping",
+          "base_amount": 495,
+          "is_enabled": true,
+          "is_taxable": true,
+          "rules": [
+            {
+              "profile": "fragile",
+              "action": { "type": "multiply_shipping_cost", "value": 1.25 },
+            },
+          ],
+        },
+      ],
+    },
+  ],
   "tax_region": {
     "…": "stored region fields (code, name, flag, type, rates, countries, states)",
-    "rules": [{ "profile": "food", "action": { "type": "set_product_tax_rate", "value": 7 } }],
-    "states": [{ "id": "1407", "name": "Texas", "product_tax_rate": 6.25, "shipping_tax_rate": 6.25, "rules": [] }]
-  }
+    "rules": [
+      {
+        "profile": "food",
+        "action": { "type": "set_product_tax_rate", "value": 7 },
+      },
+    ],
+    "states": [
+      {
+        "id": "1407",
+        "name": "Texas",
+        "product_tax_rate": 6.25,
+        "shipping_tax_rate": 6.25,
+        "rules": [],
+      },
+    ],
+  },
 }
 ```
 
@@ -404,7 +576,7 @@ and `.state`, the base currency, `general.is_tax_calculation_enabled`) through
 so the checklist is right if the presets request never runs. The store-created
 hook keeps its place at the end of `setup()`.
 
-*Trade-off:* if the merchant closes the page between the two requests, the
+_Trade-off:_ if the merchant closes the page between the two requests, the
 presets are never applied. The docs say this. A later admin action to apply
 presets is a non-goal.
 
@@ -475,11 +647,11 @@ coupon has the code `WELCOME50`. The definition lives in
 `OnBoardingCatalog::get_coupons()`, next to the demo products, and a
 `CouponSeeder` in `app/Setup/` inserts it after `ProductSeeder`.
 
-*Alternative considered:* create the coupon on every sample data request when
+_Alternative considered:_ create the coupon on every sample data request when
 the code is free. Rejected by the product decision: sample data stays
 all-or-nothing.
 
-*Alternative considered:* create it active, so the merchant can try it on the
+_Alternative considered:_ create it active, so the merchant can try it on the
 demo products. Rejected: a store that goes live with sample data would give
 50% off every order.
 
@@ -511,10 +683,10 @@ used.
   the wizard's wait for the presets are removed. The Configurations row stays
   and completes with the other rows.
 
-*Alternative considered:* fold the builders into the inserters, as in
+_Alternative considered:_ fold the builders into the inserters, as in
 Decision 1. Rejected: a large rewrite of tested code for no change in behavior.
 
-*Trade-off:* the setup request takes longer, because it now also decodes the
+_Trade-off:_ the setup request takes longer, because it now also decodes the
 data file and writes the presets. The completion screen already shows progress
 for at least 5 seconds.
 
@@ -534,7 +706,7 @@ and a switch to OSS and back kept Austria, not the home country.
   This removes the strategy's dependency on the store address, so a merchant
   who registers VAT in another member country gets the rate they chose.
 
-*Alternative considered:* keep the store address lookup and fix only the
+_Alternative considered:_ keep the store address lookup and fix only the
 preset. Rejected: a country picked in the admin that is not the store country
 would give 0% tax.
 
@@ -630,7 +802,7 @@ change. Data that presets already wrote stays as normal merchant data.
   groceries.
 - **Saved rule format** (from `shipping-rule-form.ts` / `tax-rules-form.ts`):
   `{relation: "AND", conditions: [{type, operator: "=", value: "<id>"}],
-  action: {type, value}}`. The profile id is a string. Conditions compare with
+action: {type, value}}`. The profile id is a string. Conditions compare with
   `==`.
 - **Revision 2: the router does not use container bindings.** The router builds
   controllers, and their constructor dependencies, by reflection, without the

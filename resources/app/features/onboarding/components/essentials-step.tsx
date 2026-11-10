@@ -19,8 +19,8 @@ type EssentialsStepProps = {
 
 const EssentialsStep = ({ onBack, onContinue, onCreateStore }: EssentialsStepProps) => {
   const { getValues, setValue } = useFormContext<OnboardingFormInput>();
-  const isTaxCollected = useWatch<OnboardingFormInput, 'is_tax_collected'>({
-    name: 'is_tax_collected',
+  const isTaxCollected = useWatch<OnboardingFormInput, 'is_tax_enabled'>({
+    name: 'is_tax_enabled',
   });
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
   const { data: currencies = [] } = useAllCurrenciesQuery();
@@ -66,7 +66,7 @@ const EssentialsStep = ({ onBack, onContinue, onCreateStore }: EssentialsStepPro
     >
       <CurrencyField name="currency" />
       <ChoiceButtonsField
-        name="is_tax_collected"
+        name="is_tax_enabled"
         label={__('Collect sales tax?', 'kirki-ecommerce')}
         options={[
           { value: true, label: __('Yes', 'kirki-ecommerce') },

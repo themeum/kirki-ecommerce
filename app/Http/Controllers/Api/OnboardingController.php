@@ -92,9 +92,9 @@ class OnboardingController
 
         $data = StoreSetupDTO::from_request($request);
         $data->industry = !empty($data->industry) ? $data->industry : 'other';
-        $data->is_tax_collected = (bool) $data->is_tax_collected;
-        $data->is_tax_inclusive_price = $data->is_tax_collected && (bool) $data->is_tax_inclusive_price;
-        $data->store_tax_id = $data->is_tax_collected && !empty($data->store_tax_id) ? $data->store_tax_id : null;
+        $data->is_tax_enabled = (bool) $data->is_tax_enabled;
+        $data->is_tax_inclusive_price = $data->is_tax_enabled && (bool) $data->is_tax_inclusive_price;
+        $data->store_tax_id = $data->is_tax_enabled && !empty($data->store_tax_id) ? $data->store_tax_id : null;
 
         $this->store_setup_service->setup($data);
 
@@ -155,7 +155,7 @@ class OnboardingController
                 'symbol' => $currency['symbol'] ?? '',
             ],
             'pages' => array_values(PageKeys::get_list()),
-            'tax' => $data->is_tax_collected ? ['is_tax_inclusive_price' => $data->is_tax_inclusive_price] : null,
+            'tax' => $data->is_tax_enabled ? ['is_tax_inclusive_price' => $data->is_tax_inclusive_price] : null,
         ];
     }
 }

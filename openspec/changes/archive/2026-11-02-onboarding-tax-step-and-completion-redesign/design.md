@@ -24,11 +24,13 @@ row stagger in this change replaces both.
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Add the conditional Store Tax step and keep index-based navigation simple.
 - Make each completion row have its own state, driven by the client.
 - Reuse the home sample-data hook without a deep import.
 
 **Non-Goals:**
+
 - No backend, REST, or payload change. `OnboardingFormSchema` and its transform do
   not change.
 - No change to the home checklist UI or to `useSampleDataImport` behaviour.
@@ -40,7 +42,7 @@ row stagger in this change replaces both.
 
 `OnboardingStep = 0 | 1 | 2 | 3 | 4`, `TAX_STEP = 3`, `COMPLETION_STEP = 4`.
 `STEP_FIELDS` gets `3: ['is_tax_inclusive_price', 'store_tax_id']` and Essentials
-(index 2) keeps only `['currency', 'is_tax_collected']`.
+(index 2) keeps only `['currency', 'is_tax_enabled']`.
 
 Add one pure helper in `lib/steps.ts`: `getFormStepCount(isTaxCollected: boolean)`,
 which returns 4 or 3. No "next step" helper is needed: Essentials shows "Continue"
@@ -49,13 +51,13 @@ Create Store path calls submit instead.
 
 `goToPreviousStep` stays `step - 1`. Back from 3 goes to 2. Back from 2 cannot reach 3.
 
-*Alternative:* a dynamic array of step ids (`['basics', 'business', 'essentials',
+_Alternative:_ a dynamic array of step ids (`['basics', 'business', 'essentials',
 'tax']`) filtered by the tax answer. Rejected: it changes every index-based caller and
 the draft format for one optional step.
 
 ### D2. Essentials decides "Continue" or "Create Store" from the watched value
 
-`EssentialsStep` already watches `is_tax_collected`. It gets two callbacks,
+`EssentialsStep` already watches `is_tax_enabled`. It gets two callbacks,
 `onContinue` and `onCreateStore`, and shows one button with the pages note only on the
 Create Store path. The new `StoreTaxStep` always shows the note and "Create Store".
 
@@ -73,7 +75,7 @@ It renders `RadioGroup` + `RadioGroupItem` in a row, with the same boolean mappi
 `ChoiceButtonsField`. Options: `{ value: true, label: 'Including tax' }`,
 `{ value: false, label: 'Excluding Tax' }`. The schema default stays `false`.
 
-*Alternative:* add a `variant="radio"` prop to `ChoiceButtonsField`. Rejected: it mixes
+_Alternative:_ add a `variant="radio"` prop to `ChoiceButtonsField`. Rejected: it mixes
 two visual components into one file for one call site.
 
 ### D4. Shell gets the count, not the tax answer
@@ -82,7 +84,7 @@ two visual components into one file for one call site.
 steps, and nothing on the left for `COMPLETION_STEP`. The bar is
 `step / stepCount * 100` (steps already done), so step 1 is 0%, and 100 only at
 completion. The wizard computes `stepCount`
-from `useWatch('is_tax_collected')`. The completion title becomes "Setup Complete".
+from `useWatch('is_tax_enabled')`. The completion title becomes "Setup Complete".
 
 ### D5. Row stagger lives in a small hook in the onboarding feature
 
@@ -108,7 +110,7 @@ The wizard derives `isSetupDone = rows.every(r => r === 'completed')` and passes
 stagger gives the minimum visible time now. `lib/with-minimum-duration.ts` and its test
 become unused and are deleted.
 
-*Alternative:* keep `withMinimumDuration` and stagger only the icons. Rejected: two
+_Alternative:_ keep `withMinimumDuration` and stagger only the icons. Rejected: two
 timers for one effect.
 
 ### D6. Sample data: use the home hook through a new public API
@@ -141,12 +143,13 @@ shell does not know about sample data. States:
 
 `useLoadSampleDataMutation` and `loadSampleData` in `services/onboarding.ts` are deleted.
 
-*Alternative:* move the hook into onboarding (it calls `/onboarding/sample-data`).
+_Alternative:_ move the hook into onboarding (it calls `/onboarding/sample-data`).
 Rejected by the user in favour of the smaller change.
 
 ### D7. Completion actions
 
 `SetupCompleteStep` footer:
+
 - error: one "Try again" button (unchanged);
 - else: a two-column row with "Add your first product" (primary, opens
   `RouteConfig.Products.CreateProduct.template` with replace) and "Go to Dashboard"
@@ -160,7 +163,7 @@ The `StepLayout` footer forces `width: 100%` on buttons. The two buttons go in a
 
 `OnboardingDraft.step` becomes `0 | 1 | 2 | 3` (everything except completion).
 `readDraft` accepts 3. The wizard's initial step: if the draft step is `TAX_STEP` and
-`values.is_tax_collected !== true`, start at 2. Old drafts (0–2) keep the same meaning.
+`values.is_tax_enabled !== true`, start at 2. Old drafts (0–2) keep the same meaning.
 
 ## Risks / Trade-offs
 
@@ -171,7 +174,7 @@ The `StepLayout` footer forces `width: 100%` on buttons. The two buttons go in a
   the old spec and close to what designers asked for.
 - [Tax values left from a visit to Store Tax when tax is later "No"] → the existing
   schema transform already sends `is_tax_inclusive_price: false` and
-  `store_tax_id: null` when `is_tax_collected` is false. No change is needed.
+  `store_tax_id: null` when `is_tax_enabled` is false. No change is needed.
 - [Cross-feature hook import] → done through `@/features/home`, so the ESLint boundary
   rule stays green.
 

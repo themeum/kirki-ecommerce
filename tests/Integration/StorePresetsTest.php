@@ -152,9 +152,7 @@ class StorePresetsTest extends RestTestCase
     public function test_schema_profiles_in_the_preset_data_are_ignored(): void
     {
         app()->instance(LocalPresetSource::class, new class extends LocalPresetSource {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
 
             public function fetch(PresetContext $context)
             {
@@ -334,7 +332,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_sample_variant_fields_are_stored(): void
     {
-        $this->setup_store(['industry' => 'fashion-and-apparel', 'country' => 'JP', 'currency' => 'JPY', 'is_tax_collected' => false]);
+        $this->setup_store(['industry' => 'fashion-and-apparel', 'country' => 'JP', 'currency' => 'JPY', 'is_tax_enabled' => false]);
 
         $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
 
@@ -581,7 +579,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_tax_profiles_are_created_when_tax_is_off(): void
     {
-        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'is_tax_collected' => false]);
+        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'is_tax_enabled' => false]);
 
         $this->assertSame(1, TaxProfile::query()->where('name', 'Food')->count());
     }
@@ -710,7 +708,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_country_without_method_data_gets_generic_methods_disabled(): void
     {
-        $this->setup_store(['country' => 'MY', 'currency' => 'MYR', 'is_tax_collected' => false]);
+        $this->setup_store(['country' => 'MY', 'currency' => 'MYR', 'is_tax_enabled' => false]);
 
         $methods = $this->zones()[0]['shipping_methods'];
         $this->assertSame(['Standard Shipping', 'Express Shipping', 'Local Pickup'], array_column($methods, 'name'));
@@ -765,9 +763,7 @@ class StorePresetsTest extends RestTestCase
     public function test_malformed_preset_records_are_skipped(): void
     {
         app()->instance(LocalPresetSource::class, new class extends LocalPresetSource {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
 
             public function fetch(PresetContext $context)
             {
@@ -864,7 +860,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_preset_shipping_is_marked_preconfigured(): void
     {
-        $this->setup_store(['country' => 'GB', 'currency' => 'GBP', 'is_tax_collected' => false]);
+        $this->setup_store(['country' => 'GB', 'currency' => 'GBP', 'is_tax_enabled' => false]);
 
         $this->assertContains('shipping', Option::get(OptionKeys::SETUP_CHECKLIST)['preconfigured']);
     }
@@ -953,7 +949,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_no_region_when_not_collecting_tax(): void
     {
-        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'is_tax_collected' => false]);
+        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'is_tax_enabled' => false]);
 
         $this->assertSame([], $this->tax_regions());
         $this->assertSame(1, TaxProfile::query()->where('name', 'Food')->count());
@@ -1054,7 +1050,7 @@ class StorePresetsTest extends RestTestCase
             'country' => 'GB',
             'store_address' => ['city' => 'London'],
             'currency' => 'GBP',
-            'is_tax_collected' => true,
+            'is_tax_enabled' => true,
             'is_tax_inclusive_price' => true,
             'store_tax_id' => null,
         ], $overrides)));

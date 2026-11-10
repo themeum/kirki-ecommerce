@@ -17,7 +17,7 @@ const OnboardingFormShape = z.object({
   country: required(z.string().default(''), __('Country is required', 'kirki-ecommerce')),
   store_address: OnboardingAddressFormShape.nullish(),
   currency: required(z.string().default(''), __('Currency is required', 'kirki-ecommerce')),
-  is_tax_collected: z.boolean().default(false),
+  is_tax_enabled: z.boolean().default(false),
   is_tax_inclusive_price: z.boolean().default(false),
   store_tax_id: z.string().nullish().default(''),
 });
@@ -36,13 +36,14 @@ const OnboardingFormSchema = prepareFormSchema(OnboardingFormShape).transform((v
     postal_code: toNullableText(values.store_address?.postal_code),
   },
   currency: values.currency,
-  is_tax_collected: values.is_tax_collected,
-  is_tax_inclusive_price: values.is_tax_collected && values.is_tax_inclusive_price,
-  store_tax_id: values.is_tax_collected ? toNullableText(values.store_tax_id) : null,
+  is_tax_enabled: values.is_tax_enabled,
+  is_tax_inclusive_price: values.is_tax_enabled && values.is_tax_inclusive_price,
+  store_tax_id: values.is_tax_enabled ? toNullableText(values.store_tax_id) : null,
 }));
 
 type OnboardingFormInput = z.input<typeof OnboardingFormSchema>;
 
 type OnboardingFormPayload = z.output<typeof OnboardingFormSchema>;
 
-export { type OnboardingFormInput, type OnboardingFormPayload, OnboardingFormSchema };
+export { OnboardingFormSchema };
+export type { OnboardingFormInput, OnboardingFormPayload };
