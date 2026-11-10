@@ -107,7 +107,7 @@ Product categories (a separate link table) are used by coupons: a coupon can be 
 | `base_cost_of_goods` | What the shop owner paid for the item. | No. Only found inside the JSON snapshot. |
 | `base_unit`, `base_unit_amount`, `total_unit`, `total_unit_amount` | "Price per 100 g" style display. | No |
 | `weight`, `weight_unit` | Weight of one unit, in `g`, `kg`, `lb` or `oz`. | Yes, for weight-based shipping and the cart weight rule condition. The weight is converted to the store weight unit (the product settings) before it is added up. Copied to the order item. |
-| `charge_taxes` | A "charge tax on this item" switch. | **No**. The calculation does not read this column today. |
+| `charge_taxes` | A "charge tax on this item" switch. | **Yes**. When it is off, the line gets no item tax. It only matters when tax calculation is on. A line already on an order keeps its stored tax. Shipping tax does not use it. |
 | `tax_profile_id` | Link to a tax profile (a named group for tax rules). | Partly. See section 9, gap G6. |
 | `shipping_profile_id`, `shipping_box_id` | Link to a shipping profile and box. | Profile is passed to shipping. |
 | `track_inventory` | Count stock for this variant. | Yes (stock) |
@@ -164,7 +164,7 @@ The same calculation runs when an order is **created**, when it is **edited**, a
 | 5 | **Order coupons** | Coupons with target `order` apply next, one after the other, on **what is left** after step 4. The discount is shared between lines by their remaining value. The store splits cents fairly so the shares add up exactly. When an order is edited, a coupon that is already on the order is priced before a new coupon, in steps 4, 5 and 6, so a new coupon cannot shrink a discount that was promised. |
 | 6 | **Free shipping** | A free-shipping coupon removes the whole shipping fee. |
 | 7 | **Cap** | A line can never go below zero. If the discounts on a line add up to more than the line price, the last coupons are cut back. |
-| 8 | **Taxable amount** | For each line: `line price − discount`. For shipping: `shipping fee − shipping discount`. Shipping is only taxed if the method is taxable and shipping tax is on. |
+| 8 | **Taxable amount** | For each line: `line price − discount`. For shipping: `shipping fee − shipping discount`. Shipping is only taxed if the method is taxable and shipping tax is on. A line whose variant has `charge_taxes` off is not taxed. |
 | 9 | **Tax rate** | The tax region of the **shipping address country** gives the rate. Rate rules can change it. EU: the rate of the destination country. |
 | 10 | **Tax amount** | Per line, rounded half up. **Exclusive:** `taxable × rate ÷ 100`. **Inclusive:** `taxable × rate ÷ (100 + rate)` (this is the tax already inside the price). Shipping tax is always added on top, even in inclusive mode. |
 | 11 | **Line total** | **Exclusive:** `taxable + tax`. **Inclusive:** `taxable` (tax is already inside). |
@@ -619,7 +619,7 @@ Cancelling does **not** change any money on the order. It:
 | G6 | **Fixed.** ~~Tax profile is not passed on create or edit.~~ The preview, order creation (manual and checkout) and the edit now build their calculation input in one place, `OrderCalculationContextService`, which passes the variant's tax profile (or the product's when the variant has none). |
 | G7 | **Fixed.** ~~A coupon that expired after the order was placed was removed by an edit.~~ A coupon on the order is locked and keeps its stored terms, even when it expired, changed or was deleted. |
 | G8 | **Refunds are not connected to lines or tax.** One amount, order currency only. Editing an order after a refund does not look at the refund. |
-| G9 | **`charge_taxes` on the variant is not used** by the calculation. A "no tax" item is still taxed. |
+| G9 | **Fixed.** ~~`charge_taxes` on the variant is not used by the calculation.~~ A variant with `charge_taxes` off gets no item tax in the cart and on new order lines, when tax calculation is on. A line already on an order keeps its stored tax. Shipping tax does not depend on it. With an EU tax region, shipping tax is shared only across the taxed items. When no item is taxed, shipping uses the plain rate of the member country. |
 | G10 | **Original shipping fee is not saved.** Only the total after discount and tax is. The free-shipping discount is mixed into `discount_total`. |
 | G11 | **Rounding:** `invoiced_` amounts are converted one by one. A sum of parts can differ from the total by a cent or two. |
 | G12 | **Note and flag changes have no history.** `PATCH /orders/{id}` writes no activity entry, so the timeline does not show who changed a note or a flag, or when. |

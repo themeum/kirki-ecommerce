@@ -87,6 +87,7 @@ class OrderCalculationContextServiceTest extends TestCase
             'weight_unit' => 'kg',
             'shipping_profile_id' => 9,
             'tax_profile_id' => null,
+            'charge_taxes' => true,
             'has_limit_per_order' => false,
             'max_per_order' => null,
         ], $attributes));
@@ -292,7 +293,27 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->assertSame(3, $items->first()->quantity);
     }
 
+    public function test_a_new_line_copies_charge_taxes_from_the_variant(): void
+    {
+        $this->add_variant(1, ['charge_taxes' => false]);
+        $this->add_variant(2, ['charge_taxes' => true]);
+
+        $items = $this->service->build_items($this->lines([['variant_id' => 1, 'quantity' => 1], ['variant_id' => 2, 'quantity' => 1]]), null)->all();
+
+        $this->assertFalse($items[0]->charge_taxes);
+        $this->assertTrue($items[1]->charge_taxes);
+    }
+
     // Lines already on the order
+
+    public function test_an_existing_line_keeps_charging_tax_whatever_the_variant_says_now(): void
+    {
+        $this->add_variant(1, ['charge_taxes' => false]);
+
+        $item = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => 1]]))->first();
+
+        $this->assertTrue($item->charge_taxes);
+    }
 
     public function test_an_existing_line_is_priced_from_the_values_stored_on_it(): void
     {

@@ -13,6 +13,7 @@ import Grid from '@/components/ui/grid';
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
+import { useAppConfig } from '@/contexts/app-config-context';
 import BaseUnitPopover from '@/features/products/components/variant-sections/price/base-unit-popover';
 import {
   calculateDiscountPercentage,
@@ -26,6 +27,7 @@ import {
 import type { UnitPriceValue } from '@/features/products/types';
 import { TaxProfilePopup, useTaxProfilesQuery } from '@/features/settings';
 import { useBaseCurrencySymbol } from '@/hooks';
+import { FALLBACK_ENABLE_TAX } from '@/schemas/catalog/app-config';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -73,6 +75,7 @@ const PriceRowShell = ({ label, onRemove, badge, children }: PriceRowShellProps)
 PriceRowShell.displayName = 'PriceRowShell';
 
 const Price = () => {
+  const { settings } = useAppConfig();
   const { setValue } = useFormContext();
   const field = useVariantField();
   const [openTaxProfilePopup, setOpenTaxProfilePopup] = useState(false);
@@ -173,6 +176,8 @@ const Price = () => {
     onClose: () => void;
     onSave: (value: unknown) => void;
   }) => ReactElement;
+
+  const isTaxEnabled = settings?.is_tax_enabled ?? FALLBACK_ENABLE_TAX;
 
   return (
     <Card cssOverride={cardStyles.formCard}>
@@ -290,26 +295,30 @@ const Price = () => {
           </Flex>
         )}
 
-        <Separator negativeMargin={16} />
+        {isTaxEnabled && (
+          <>
+            <Separator negativeMargin={16} />
 
-        <Flex align="center" justify="space-between" gap={2}>
-          <CheckboxField
-            name={field('charge_taxes')}
-            label={__('Charge tax on this product', 'kirki-ecommerce')}
-            infoText={__('Apply tax to this product using a tax profile.', 'kirki-ecommerce')}
-          />
-          {chargeTaxes && (
-            <CreatableSelectField
-              name={field('tax_profile_id')}
-              options={taxProfileList}
-              placeholder={__('Add Tax Profile', 'kirki-ecommerce')}
-              addNewLabel={__('Add Tax Profile', 'kirki-ecommerce')}
-              onCreateNew={() => setOpenTaxProfilePopup(true)}
-              valueAsNumber
-              cssOverride={styles.taxProfileField}
-            />
-          )}
-        </Flex>
+            <Flex align="center" justify="space-between" gap={2}>
+              <CheckboxField
+                name={field('charge_taxes')}
+                label={__('Charge tax on this product', 'kirki-ecommerce')}
+                infoText={__('Apply tax to this product using a tax profile.', 'kirki-ecommerce')}
+              />
+              {chargeTaxes && (
+                <CreatableSelectField
+                  name={field('tax_profile_id')}
+                  options={taxProfileList}
+                  placeholder={__('Add Tax Profile', 'kirki-ecommerce')}
+                  addNewLabel={__('Add Tax Profile', 'kirki-ecommerce')}
+                  onCreateNew={() => setOpenTaxProfilePopup(true)}
+                  valueAsNumber
+                  cssOverride={styles.taxProfileField}
+                />
+              )}
+            </Flex>
+          </>
+        )}
       </CardContent>
       <TaxProfilePopupView
         isOpen={openTaxProfilePopup}

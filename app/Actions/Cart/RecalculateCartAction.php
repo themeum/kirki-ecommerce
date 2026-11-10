@@ -296,6 +296,10 @@ class RecalculateCartAction
         $items = [];
 
         foreach ($context->items as $item) {
+            if (!$item->charge_taxes) {
+                continue;
+            }
+
             $items[] = TaxableItemDTO::from_array([
                 'item_id' => $item->line_key,
                 'taxable_amount' => $this->calculate_item_taxable_amount($item, $discount_result)->getMinorAmount()->toInt(),

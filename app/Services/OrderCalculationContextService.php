@@ -248,6 +248,7 @@ class OrderCalculationContextService
         $item_dto->weight_unit = $variant->weight_unit;
         $item_dto->shipping_profile_id = $variant->shipping_profile_id;
         $item_dto->tax_profile_id = $variant->tax_profile_id ?: $product->tax_profile_id;
+        $item_dto->charge_taxes = $variant->charge_taxes;
         $item_dto->product_categories = $product->categories->pluck('id')->all();
 
         return $item_dto;

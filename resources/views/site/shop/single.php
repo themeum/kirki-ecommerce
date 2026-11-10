@@ -111,8 +111,8 @@ foreach ($media as $media_item) {
                         </div>
                         <div class="kecom-product-unit-price" x-show="Boolean(selectedVariant?.display_unit_price)" x-text="selectedVariant?.display_unit_price" x-cloak></div>
                         <?php if (Tax::should_calculate_tax() && Tax::is_tax_inclusive()) : ?>
-                            <div class="kecom-product-tax-info">
-                                <?php esc_html_e('Incl. VAT', 'kirki-ecommerce'); ?>
+                            <div class="kecom-product-tax-info" x-show="selectedVariant?.charge_taxes" x-cloak>
+                                <?php esc_html_e('Incl. Tax', 'kirki-ecommerce'); ?>
                             </div>
                         <?php endif; ?>
                     </div>
