@@ -15,7 +15,6 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
-use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 
 $product = $data['product'] ?? null;
@@ -33,6 +32,7 @@ $category_name           = $product['category_name'];
 $display_price           = $product['display_price'];
 $formatted_regular_price = $product['formatted_regular_price'];
 $in_sale                 = $product['in_sale'];
+$show_incl_tax           = $product['show_incl_tax'];
 $out_of_stock            = $product['out_of_stock'];
 $has_variants            = $product['has_variants'];
 $product_id              = $product['product_id'];
@@ -77,7 +77,7 @@ $display_context         = $data['context'] ?? null;
             <?php endif; ?>
         </div>
 
-        <?php if (Tax::should_show_incl_tax_on_shop_page()) : ?>
+        <?php if ($show_incl_tax) : ?>
             <div class="kecom-product-card-tax-info">
                 <?php esc_html_e('Incl. Tax', 'kirki-ecommerce'); ?>
             </div>

@@ -56,7 +56,7 @@ class CreateVariantDTO extends DTO
     public $weight_unit;
 
     /** @var bool|null */
-    public $charge_taxes = false;
+    public $charge_taxes = true;
 
     /** @var bool|null */
     public $allow_back_order = false;

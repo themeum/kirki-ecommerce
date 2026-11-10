@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Constants\Product\RibbonColor;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Resource;
@@ -74,6 +75,7 @@ class ShopProductResource extends Resource
             'display_price'           => $pricing['display_price'],
             'formatted_regular_price' => $pricing['formatted_regular_price'],
             'in_sale'                 => $pricing['in_sale'],
+            'show_incl_tax'           => $this->resolve_show_incl_tax($variant, $variants),
             'out_of_stock'            => $out_of_stock,
             'has_variants'            => $has_variants,
             'variant_id'              => $variant_id,
@@ -108,6 +110,32 @@ class ShopProductResource extends Resource
             return null;
         }
         return $variants->filter(fn($variant) => 1 == $variant->is_default)->first();
+    }
+
+    /**
+     * Resolve whether the card shows the "Incl. Tax" label.
+     *
+     * The label needs the store to show tax-inclusive prices and at least one
+     * variant that charges tax. A product whose variants all opt out of tax
+     * has no tax inside its price.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\Variant $variant  The representative variant.
+     * @param Collection|null                        $variants Variants of the product, null when the card shows a single variant.
+     * @return bool True when the label shows.
+     */
+    protected function resolve_show_incl_tax($variant, $variants): bool
+    {
+        if (! Tax::should_show_incl_tax_on_shop_page()) {
+            return false;
+        }
+
+        if (! $variants) {
+            return (bool) $variant->charge_taxes;
+        }
+
+        return $variants->contains(fn($item) => (bool) $item->charge_taxes);
     }
 
     /**
