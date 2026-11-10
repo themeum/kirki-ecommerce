@@ -153,6 +153,15 @@ Examples: `Cache` (not transients), `Http` (not `wp_remote_*`), `File` (not
 `unlink`/`hash_file`), `Extension` (not `Plugin_Upgrader`), `Superglobals` and
 `Request` (not `$_GET`/`$_POST`).
 
+Do not read a `KIRKI_ECOMMERCE_*` constant directly when `app()` gives the
+same value. Examples: `app()->version()` (not `KIRKI_ECOMMERCE_VERSION`),
+`app()->prefix()` (not `KIRKI_ECOMMERCE_PREFIX`), `app()->is_dev_mode()` (not
+`KIRKI_ECOMMERCE_MODE`), and `app()->base_path()` (not
+`KIRKI_ECOMMERCE_PLUGIN_PATH`). Use a constant only when `app()` has no
+accessor that gives the same value (for example
+`KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL`), or in code that runs before `app()`
+exists (`kirki-ecommerce.php`, `bootstrap/app.php`).
+
 If the framework feature is buggy or incomplete, do not work around it with a
 native call. Stop and tell me what is wrong, so I can improve the framework
 first.
