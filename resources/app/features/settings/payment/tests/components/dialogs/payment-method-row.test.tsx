@@ -58,3 +58,45 @@ describe('PaymentMethodRow with a blocked update', () => {
     expect(screen.getByRole('tooltip').textContent).toContain('Requires Kirki eCommerce 1.1.0');
   });
 });
+
+const renderBusyRow = (status: 'not-added' | 'update-available') =>
+  render(
+    <div id="wpbody-content">
+      <div className="kirki-ecommerce-root">
+        <PaymentMethodRow
+          name="Amazon Pay"
+          icon={null}
+          status={status}
+          isBusy
+          isDisabled
+          onAdd={vi.fn()}
+          onUpdate={vi.fn()}
+        />
+      </div>
+    </div>,
+  );
+
+describe('PaymentMethodRow while busy', () => {
+  afterEach(cleanup);
+
+  it('shows the spinner inside the Add button, not in place of it', () => {
+    renderBusyRow('not-added');
+
+    const button = document.querySelector('[data-slot="payment-method-add"]');
+
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button).toHaveAttribute('data-loading', 'true');
+    expect(button?.textContent).toContain('Add');
+    expect(screen.queryByRole('status', { name: 'Loading' })).toBeNull();
+  });
+
+  it('shows the spinner inside the Update button, not in place of it', () => {
+    renderBusyRow('update-available');
+
+    const button = document.querySelector('button[data-loading="true"]');
+
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button?.textContent).toContain('Update');
+    expect(screen.queryByRole('status', { name: 'Loading' })).toBeNull();
+  });
+});

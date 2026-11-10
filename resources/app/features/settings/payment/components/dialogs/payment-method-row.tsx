@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
-import Spinner from '@/components/ui/spinner';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
 import type { PaymentMethodRowStatus } from '@/features/settings/payment/utils/payment-method-rows';
@@ -27,16 +26,13 @@ const PaymentMethodRow = (props: PaymentMethodRowProps) => {
   const hasUpdate = status === 'update-available' || status === 'update-blocked';
 
   const renderAction = () => {
-    if (isBusy) {
-      return <Spinner cssOverride={styles.spinner} />;
-    }
-
     if (status === 'not-added') {
       return (
         <Button
           variant="ghost"
           size="sm"
           disabled={isDisabled}
+          loading={isBusy}
           onClick={onAdd}
           data-slot="payment-method-add"
           cssOverride={styles.addButton}
@@ -48,7 +44,13 @@ const PaymentMethodRow = (props: PaymentMethodRowProps) => {
 
     if (status === 'update-available') {
       return (
-        <Button variant="secondary" size="sm" disabled={isDisabled} onClick={onUpdate}>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={isDisabled}
+          loading={isBusy}
+          onClick={onUpdate}
+        >
           {__('Update', 'kirki-ecommerce')}
         </Button>
       );
@@ -99,6 +101,9 @@ const styles = defineStyles({
     '& [data-slot="payment-method-add"]': {
       opacity: 0,
     },
+    '& [data-slot="payment-method-add"][data-loading="true"]': {
+      opacity: 1,
+    },
     '&:hover, &:focus-within': {
       backgroundColor: theme.colors.background.surfaceAlt,
       '& [data-slot="payment-method-add"]': {
@@ -144,14 +149,5 @@ const styles = defineStyles({
   blockedInfo: {
     color: theme.colors.icon.primary,
     cursor: 'help',
-  },
-  spinner: {
-    width: '16px',
-    height: '16px',
-    color: theme.colors.icon.secondary,
-    '& svg': {
-      width: '16px',
-      height: '16px',
-    },
   },
 });
