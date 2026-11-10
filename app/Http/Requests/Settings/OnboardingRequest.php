@@ -56,7 +56,7 @@ class OnboardingRequest extends Request
                     return true;
                 },
             ],
-            'is_tax_collected' => 'required|boolean',
+            'is_tax_enabled' => 'required|boolean',
             'is_tax_inclusive_price' => 'nullable|boolean',
             'store_tax_id' => 'nullable|string',
         ];
@@ -80,7 +80,7 @@ class OnboardingRequest extends Request
             'store_address.state' => Sanitizer::TEXT,
             'store_address.postal_code' => Sanitizer::TEXT,
             'currency' => Sanitizer::TEXT,
-            'is_tax_collected' => Sanitizer::BOOL,
+            'is_tax_enabled' => Sanitizer::BOOL,
             'is_tax_inclusive_price' => Sanitizer::BOOL,
             'store_tax_id' => Sanitizer::TEXT,
         ];

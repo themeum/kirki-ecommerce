@@ -43,7 +43,7 @@ class TaxRegionPresets
     {
         $region = $presets['tax_region'] ?? null;
 
-        if (!$context->is_tax_collected || !is_array($region) || empty($region['code'])) {
+        if (!$context->is_tax_enabled || !is_array($region) || empty($region['code'])) {
             return;
         }
 

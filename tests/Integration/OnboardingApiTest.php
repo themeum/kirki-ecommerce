@@ -225,7 +225,7 @@ class OnboardingApiTest extends RestTestCase
     public function test_tax_included_in_price_is_saved(): void
     {
         $this->assert_api_success($this->request('POST', 'onboarding', $this->payload([
-            'is_tax_collected' => true,
+            'is_tax_enabled' => true,
             'is_tax_inclusive_price' => true,
             'store_tax_id' => 'VAT-123',
         ])));
@@ -246,7 +246,7 @@ class OnboardingApiTest extends RestTestCase
     public function test_tax_values_are_ignored_when_tax_is_off(): void
     {
         $this->assert_api_success($this->request('POST', 'onboarding', $this->payload([
-            'is_tax_collected' => false,
+            'is_tax_enabled' => false,
             'is_tax_inclusive_price' => true,
             'store_tax_id' => 'VAT-123',
         ])));
@@ -436,9 +436,7 @@ class OnboardingApiTest extends RestTestCase
     {
         $this->clear_preset_targets();
         app()->instance(ShippingZonePresets::class, new class extends ShippingZonePresets {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
 
             public function apply(array $presets, PresetContext $context)
             {
@@ -498,7 +496,7 @@ class OnboardingApiTest extends RestTestCase
                 'city' => 'Dhaka',
             ],
             'currency' => 'BDT',
-            'is_tax_collected' => false,
+            'is_tax_enabled' => false,
             'is_tax_inclusive_price' => false,
             'store_tax_id' => null,
         ], $overrides);
@@ -517,7 +515,7 @@ class OnboardingApiTest extends RestTestCase
             'country' => 'GB',
             'store_address' => ['city' => 'London'],
             'currency' => 'GBP',
-            'is_tax_collected' => true,
+            'is_tax_enabled' => true,
         ]);
     }
 

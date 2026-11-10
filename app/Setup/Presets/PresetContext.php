@@ -29,7 +29,7 @@ class PresetContext extends DTO
     public $currency;
 
     /** @var bool */
-    public $is_tax_collected = false;
+    public $is_tax_enabled = false;
 
     /**
      * Build the context from the saved store settings.
@@ -51,7 +51,7 @@ class PresetContext extends DTO
             'country' => strtoupper((string) Settings::get('general.store_address.country', '')),
             'state' => $state === null || $state === '' ? null : (string) $state,
             'currency' => strtoupper((string) ($base_currency->code ?? '')),
-            'is_tax_collected' => Tax::is_tax_enabled(),
+            'is_tax_enabled' => Tax::is_tax_enabled(),
         ]);
     }
 }

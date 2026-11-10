@@ -10,7 +10,7 @@ const COMPLETION_STEP = 4 as const;
 const STEP_FIELDS: Record<Exclude<OnboardingStep, 4>, (keyof OnboardingFormInput)[]> = {
   0: ['store_name', 'industry'],
   1: ['country', 'store_address'],
-  2: ['currency', 'is_tax_collected'],
+  2: ['currency', 'is_tax_enabled'],
   3: ['is_tax_inclusive_price', 'store_tax_id'],
 };
 
@@ -64,7 +64,8 @@ export {
   getFormStepCount,
   getIndustryOptions,
   getStepTitle,
-  type OnboardingStep,
   STEP_FIELDS,
   TAX_STEP,
 };
+
+export type { OnboardingStep };

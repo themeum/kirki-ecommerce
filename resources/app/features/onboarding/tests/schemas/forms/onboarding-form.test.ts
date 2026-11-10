@@ -26,7 +26,7 @@ describe('OnboardingFormSchema', () => {
         postal_code: null,
       },
       currency: 'BDT',
-      is_tax_collected: false,
+      is_tax_enabled: false,
       is_tax_inclusive_price: false,
       store_tax_id: null,
     });
@@ -44,7 +44,7 @@ describe('OnboardingFormSchema', () => {
         state: 'BD-13',
         postal_code: '1207',
       },
-      is_tax_collected: true,
+      is_tax_enabled: true,
       is_tax_inclusive_price: true,
       store_tax_id: ' VAT-123 ',
     });
@@ -61,7 +61,7 @@ describe('OnboardingFormSchema', () => {
         postal_code: '1207',
       },
       currency: 'BDT',
-      is_tax_collected: true,
+      is_tax_enabled: true,
       is_tax_inclusive_price: true,
       store_tax_id: 'VAT-123',
     });
@@ -70,7 +70,7 @@ describe('OnboardingFormSchema', () => {
   it('clears the tax pricing and tax ID when tax is not collected', () => {
     const result = OnboardingFormSchema.parse({
       ...base,
-      is_tax_collected: false,
+      is_tax_enabled: false,
       is_tax_inclusive_price: true,
       store_tax_id: 'VAT-123',
     });

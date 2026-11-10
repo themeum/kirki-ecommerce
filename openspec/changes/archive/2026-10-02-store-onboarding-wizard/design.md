@@ -34,6 +34,7 @@ shapes the approach.
 ## Goals / Non-Goals
 
 **Goals:**
+
 - The gate decision is server-authoritative but costs no extra request. It is read
   from the boot config.
 - Store setup is one request that can be retried safely.
@@ -41,6 +42,7 @@ shapes the approach.
   sample data import.
 
 **Non-Goals:**
+
 - Printing the Tax ID on invoices.
 - Real industry/location presets.
 - Remote sample data import.
@@ -64,12 +66,14 @@ flag.
 
 `handle_activation($network_wide)` sets a 30-second transient
 `kirki_ecommerce_activation_redirect`. It does not set it when:
+
 - `$network_wide` is true;
 - the request comes from `WP_CLI`;
 - onboarding is already complete.
 
 A new action class, `app/Wordpress/Hooks/Actions/RedirectToOnboarding.php`, is
 registered in `config/hooks.php` on `admin_init`. It:
+
 1. reads and **always deletes** the transient (one-shot);
 2. bails out on AJAX requests, on `activate-multi` (bulk activation), when the user
    lacks `manage_options`, or when onboarding is complete;
@@ -83,6 +87,7 @@ activation runs inside `plugins.php`, before output, and in the bulk path.
 ### D3. Route gating in the SPA, not PHP
 
 The boot config gains `is_onboarded: bool`. `routes.tsx` changes as follows:
+
 - `/onboarding/*` becomes a top-level sibling route, outside
   `UnsavedChangesController`, rendered by `OnboardingLayout`.
 - The existing children are wrapped by an `OnboardingGate` layout element. It renders
@@ -105,6 +110,7 @@ them to the router, so they hit the gate too.
 `OnboardingLayout` renders a `position: fixed; inset: 0` container. Its `z-index` sits
 above `#wpadminbar` (99999) and `#adminmenuwrap`, with the page background colour.
 Inside, a centred column about 640px wide holds:
+
 - the logo, as `<img>` of `assets/images/kirki-ecommerce.svg` (URL from
   `KIRKI_ECOMMERCE_ASSETS_URL`, exposed as `assets_url` in the boot config if not
   already there), `height: 20px`;
@@ -121,7 +127,7 @@ Leaving admin chrome in the DOM and covering it avoids touching WordPress markup
 
 - Fields: `store_name`, `industry` (defaults to `'other'`), `country`,
   `store_address` (line 1, line 2, city, state, postal code — all optional),
-  `currency`, `is_tax_collected` (defaults to `false`), `is_tax_inclusive_price`
+  `currency`, `is_tax_enabled` (defaults to `false`), `is_tax_inclusive_price`
   (defaults to `false`), `store_tax_id`.
 - The transform trims strings, nulls empty address fields, and zeroes
   `is_tax_inclusive_price` and `store_tax_id` when tax is not collected.
@@ -135,6 +141,7 @@ Leaving admin chrome in the DOM and covering it avoids touching WordPress markup
 
 The wizard keeps `{ step, values }` under the sessionStorage key
 `kirki-ecommerce:onboarding-draft`.
+
 - It is written on `watch` (debounced) and on step change, and read once for
   `defaultValues`.
 - Every access is wrapped in try/catch, so storage that throws or is disabled
@@ -170,16 +177,18 @@ A per-currency flag table would add maintenance for no visible gain.
 ### D9. Server: `StoreSetupService` behind a reworked `OnboardingController`
 
 `OnboardingRequest` validates:
+
 - `store_name`: required string;
 - `industry`: nullable;
 - `country`: required, and must exist in the countries data (closure or custom rule;
   the framework has no `in:` usage to lean on);
 - `currency`: required, and must exist in `CurrencyService::list()`;
 - `store_address.*`: nullable;
-- `is_tax_collected` and `is_tax_inclusive_price`: booleans;
+- `is_tax_enabled` and `is_tax_inclusive_price`: booleans;
 - `store_tax_id`: nullable text.
 
 `store()` does the following:
+
 1. If `Onboarding::is_completed()`, respond 409 (spec: setup after completion is
    rejected).
 2. Call `StoreSetupService::setup(StoreSetupDTO)`, which runs, in order:
@@ -264,7 +273,6 @@ is accepted for demo data; see Risks.
   databases can be reset, or `ONBOARDING_COMPLETED_AT` can be set by hand to skip
   the wizard.
 - Rollback means reverting the change. No schema migrations are introduced.
-
 
 ## Corrections during implementation
 
