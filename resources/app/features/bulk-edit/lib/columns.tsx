@@ -223,5 +223,35 @@ const bulkEditColumnGroups: BulkEditColumnGroup[] = [
   },
 ];
 
-export { bulkEditColumnGroups, bulkEditColumns, ROW_HEIGHT, SKU_FIELD };
+const TAX_COLUMN_IDS = ['charge_taxes', 'tax_profile_id'];
+
+const getBulkEditColumns = (isTaxEnabled: boolean): ColumnDef<ProductVariant>[] => {
+  if (isTaxEnabled) {
+    return bulkEditColumns;
+  }
+
+  return bulkEditColumns.filter((column) => !TAX_COLUMN_IDS.includes(column.id ?? ''));
+};
+
+const getBulkEditColumnGroups = (isTaxEnabled: boolean): BulkEditColumnGroup[] => {
+  if (isTaxEnabled) {
+    return bulkEditColumnGroups;
+  }
+
+  return bulkEditColumnGroups
+    .map((group) => ({
+      ...group,
+      columnIds: group.columnIds.filter((id) => !TAX_COLUMN_IDS.includes(id)),
+    }))
+    .filter((group) => group.columnIds.length > 0);
+};
+
+export {
+  bulkEditColumnGroups,
+  bulkEditColumns,
+  getBulkEditColumnGroups,
+  getBulkEditColumns,
+  ROW_HEIGHT,
+  SKU_FIELD,
+};
 export type { BulkEditCellKind, BulkEditColumnGroup, BulkEditGate };

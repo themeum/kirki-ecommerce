@@ -13,9 +13,14 @@ import Flex from '@/components/ui/flex';
 import FullPageContainer from '@/components/ui/full-page-container';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
+import { useAppConfig } from '@/contexts/app-config-context';
 import type { FillCommitPayload } from '@/features/bulk-edit/contexts/cell-selection-context';
 import { useColumnVisibility } from '@/features/bulk-edit/hooks/use-column-visibility';
-import { bulkEditColumnGroups, bulkEditColumns, SKU_FIELD } from '@/features/bulk-edit/lib/columns';
+import {
+  bulkEditColumns,
+  getBulkEditColumnGroups,
+  SKU_FIELD,
+} from '@/features/bulk-edit/lib/columns';
 import { editableKindOf } from '@/features/bulk-edit/lib/editable-kind';
 import { buildBulkEditPayload } from '@/features/bulk-edit/lib/payload';
 import BulkEditTable, {
@@ -31,6 +36,7 @@ import {
 import BulkEditTableSkeleton from '@/features/bulk-edit/skeletons/bulk-edit-table-skeleton';
 import type { BulkEditFormValues } from '@/features/bulk-edit/types';
 import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
+import { FALLBACK_ENABLE_TAX } from '@/schemas/catalog/app-config';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
@@ -52,11 +58,6 @@ const columnPickerOptions = bulkEditColumns
   .map((column) => ({ value: column.id!, title: String(column.header) }));
 
 const columnLabelById = new Map(columnPickerOptions.map((option) => [option.value, option.title]));
-
-const columnVisibilityGroups = bulkEditColumnGroups.map((group) => ({
-  ...group,
-  columns: group.columnIds.map((id) => ({ id, label: columnLabelById.get(id) ?? id })),
-}));
 
 const UNIT_PRICE_FIELDS = [
   'total_unit_amount',
@@ -84,8 +85,18 @@ const BulkEditPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const ids = useMemo(() => parseIds(searchParams.get('ids')), [searchParams]);
+  const { settings, isLoading: isLoadingAppConfig } = useAppConfig();
 
   const { data: bulkData, isLoading } = useBulkVariantsQuery(ids);
+
+  const columnVisibilityGroups = useMemo(
+    () =>
+      getBulkEditColumnGroups(settings?.is_tax_enabled ?? FALLBACK_ENABLE_TAX).map((group) => ({
+        ...group,
+        columns: group.columnIds.map((id) => ({ id, label: columnLabelById.get(id) ?? id })),
+      })),
+    [settings],
+  );
   const { mutate: updateBulkVariants, isPending } = useUpdateBulkVariantsMutation();
   const { mutate: generateVariantSkus, isPending: isGeneratingSkus } =
     useGenerateVariantSkusMutation();
@@ -361,7 +372,7 @@ const BulkEditPage = () => {
                 {__('Go back', 'kirki-ecommerce')}
               </Button>
             </Flex>
-          ) : loaded && !isLoading ? (
+          ) : loaded && !isLoading && !isLoadingAppConfig ? (
             <Card
               cssOverride={mergeCss(styles.tableCard, {
                 borderRadius: 0,
