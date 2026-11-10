@@ -24,10 +24,12 @@ class DropProductSchemasTable implements Migration
      */
     public function up()
     {
-        Schema::table('kirki_ecommerce_products', function (Structure $table) {
-            $table->drop_foreign('fk_kecom_products_schema_id');
-            $table->drop_column('schema_id');
-        });
+        if (Schema::has_column('kirki_ecommerce_products', 'schema_id')) {
+            Schema::table('kirki_ecommerce_products', function (Structure $table) {
+                $table->drop_foreign('fk_kecom_products_schema_id');
+                $table->drop_column('schema_id');
+            });
+        }
 
         Schema::drop_if_exists('kirki_ecommerce_product_schemas');
     }

@@ -255,7 +255,8 @@
             "checkout"
           ],
           "method": "mandatory_checkbox",
-          "message": "I have read and agree to the {page:terms} and the {page:returns}."
+          "message": "I have read and agree to the {page:terms} and the {page:returns}.",
+          "is_enabled": true
         },
         {
           "key": "privacy",
@@ -266,6 +267,7 @@
           ],
           "method": "display_text_only",
           "message": "Your personal data is used to process your order and support your experience, as described in our {page:privacy}.",
+          "is_enabled": false,
           "gdpr": {
             "method": "mandatory_checkbox",
             "message": "I have read the {page:privacy} and agree to the processing of my personal data."
@@ -279,7 +281,8 @@
             "checkout"
           ],
           "method": "optional_checkbox",
-          "message": "Send me news, offers and updates by email. I can unsubscribe at any time."
+          "message": "Send me news, offers and updates by email. I can unsubscribe at any time.",
+          "is_enabled": false
         }
       ]
     }
@@ -2595,31 +2598,38 @@
     "BD": {
       "gdpr": false,
       "shipping": {
-        "domestic": [
+        "domestic_zones": [
           {
-            "key": "standard",
-            "type": "flat_rate",
-            "name": "Standard Delivery",
-            "description": "Delivered in 2-5 business days.",
-            "base_amount": 12000,
-            "is_taxable": false
+            "title": "Inside Dhaka",
+            "states": {
+              "771": "Dhaka"
+            },
+            "methods": [
+              {
+                "key": "inside_dhaka",
+                "type": "flat_rate",
+                "name": "Inside Dhaka",
+                "description": "Delivered in 2-5 business days.",
+                "base_amount": 12000,
+                "is_taxable": false
+              }
+            ]
           },
           {
-            "key": "express",
-            "type": "flat_rate",
-            "name": "Express Delivery",
-            "description": "Delivered in 1-2 business days.",
-            "base_amount": 20000,
-            "is_taxable": false
-          },
-          {
-            "key": "pickup",
-            "type": "local_pickup",
-            "name": "Local Pickup",
-            "description": "Collect your order from our store.",
-            "has_fee": false,
-            "base_amount": null,
-            "has_pick_time": false
+            "title": "Outside Dhaka",
+            "exclude_states": {
+              "771": "Dhaka"
+            },
+            "methods": [
+              {
+                "key": "outside_dhaka",
+                "type": "flat_rate",
+                "name": "Outside Dhaka",
+                "description": "Delivered in 3-7 business days.",
+                "base_amount": 20000,
+                "is_taxable": false
+              }
+            ]
           }
         ]
       },

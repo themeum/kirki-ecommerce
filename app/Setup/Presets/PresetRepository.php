@@ -32,6 +32,11 @@ class PresetRepository
      */
     const CACHE_KEY = 'store_presets_';
 
+    /**
+     * Prefix of the cache key that keeps a local products file, one key per base URL and set.
+     */
+    const PRODUCTS_CACHE_KEY = 'store_sample_products_';
+
     /** @var string */
     protected $base_url;
 
@@ -137,6 +142,9 @@ class PresetRepository
      * loaded nor cached, the presets file is requested together with the
      * products file.
      *
+     * A products file that `wp kirki presets:cache` kept for the set is used
+     * without a request. The plugin never keeps a downloaded products file.
+     *
      * @since 1.0.0
      *
      * @param string $industry Industry slug.
@@ -145,6 +153,12 @@ class PresetRepository
     public function get_products(string $industry)
     {
         $set = in_array($industry, ['', static::OTHER_PRODUCTS], true) ? static::OTHER_PRODUCTS : sanitize_title($industry);
+        $cached = $this->cached_products($set);
+
+        if ($cached !== null) {
+            return array_merge($cached, ['set' => $set]);
+        }
+
         $path = $set . '/products.json';
 
         if ($this->data === null && ($this->data = $this->cached_presets()) === null) {
@@ -207,6 +221,22 @@ class PresetRepository
     }
 
     /**
+     * Get the cache key that keeps a local products file of a set for a base URL.
+     *
+     * Only `wp kirki presets:cache` writes this key.
+     *
+     * @since 1.0.0
+     *
+     * @param string $base_url Base URL of the preset data.
+     * @param string $set      The product set, such as "fashion-and-apparel" or "other".
+     * @return string
+     */
+    public static function products_cache_key(string $base_url, string $set)
+    {
+        return static::PRODUCTS_CACHE_KEY . md5(rtrim($base_url, '/') . '|' . $set);
+    }
+
+    /**
      * Read the presets once; a failed read yields no presets.
      *
      * A read from an earlier request in the last hour is reused.
@@ -255,6 +285,21 @@ class PresetRepository
         $data = Cache::get(static::cache_key($this->base_url));
 
         return is_array($data) ? $data : null;
+    }
+
+    /**
+     * Get the products file of a set that was kept for this base URL.
+     *
+     * @since 1.0.0
+     *
+     * @param string $set The product set.
+     * @return array<string, mixed>|null Null when nothing usable is kept.
+     */
+    protected function cached_products(string $set)
+    {
+        $data = Cache::get(static::products_cache_key($this->base_url, $set));
+
+        return is_array($data) && is_array($data['products'] ?? null) ? $data : null;
     }
 
     /**
