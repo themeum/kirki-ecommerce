@@ -6,7 +6,7 @@
 
 - [x] 1.1 Create `resources/data/presets.json` with the shape in design.md §2 and a small fixture set: full `common`, `blocs.EU` + `blocs.GCC`, industries `fashion-and-apparel` and `food-beverage-and-gourmet`, countries `GB`, `DE`, `FR`, `US` (Texas only), `CA` (all provinces), `BD` — each country with `source` and `verified_at`
 - [x] 1.2 Create `app/Setup/Presets/PresetRepository` (`get_common`, `get_industry`, `get_country`, `get_bloc`); a missing or invalid file returns empty arrays and logs once
-- [x] 1.3 Create `app/Setup/Presets/PresetContext` DTO (`industry`, `country`, `state`, `currency`, `is_tax_collected`) with a `from_setup(StoreSetupDTO)` factory
+- [x] 1.3 Create `app/Setup/Presets/PresetContext` DTO (`industry`, `country`, `state`, `currency`, `is_tax_enabled`) with a `from_setup(StoreSetupDTO)` factory
 - [x] 1.4 Change `StoreSetupService::apply_presets()` to take `PresetContext`, and call it from `setup()` with the context built from the DTO
 - [x] 1.5 Unit test: repository returns sections; missing file and invalid JSON give empty arrays; every country entry with `tax` has `source` and `verified_at`; every `profile_rates` key and `shipping_rules.profile` refers to a profile key that exists
 - [x] 1.6 Verify: `composer test:docker:unit`, then `npm run typecheck && npm test` from `resources/app/`

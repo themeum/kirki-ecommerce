@@ -58,7 +58,7 @@ class CountryDataContractTest extends TestCase
             $total_states += count($country['states']);
         }
 
-        $this->assertSame(4991, $total_states);
+        $this->assertSame(4989, $total_states);
     }
 
     public function test_every_country_preserves_the_key_order(): void

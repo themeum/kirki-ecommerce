@@ -111,7 +111,7 @@ class LegalPresets
      *
      * @since 1.0.0
      *
-     * @param array<string, mixed>  $consent Preset consent with title, locations, method and message.
+     * @param array<string, mixed>  $consent Preset consent with title, locations, method, message and enabled state.
      * @param array<string, string> $slugs   Legal page slugs keyed by preset page key.
      * @return array<string, mixed>|null Consent settings entry, or null when the consent is not valid.
      */
@@ -133,7 +133,7 @@ class LegalPresets
             'locations' => $locations,
             'message' => $this->replace_page_tokens(sanitize_text_field($consent['message'] ?? ''), $slugs),
             'method' => $method,
-            'is_enabled' => true,
+            'is_enabled' => (bool) ($consent['is_enabled'] ?? false),
         ];
     }
 

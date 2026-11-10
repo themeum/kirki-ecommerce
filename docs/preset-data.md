@@ -34,6 +34,24 @@ npm run publish:presets  # check, then upload to the kirki-ecommerce bucket on A
 what you uploaded, for example `.../preconfigured-data/presets.json`. The bucket must
 allow anonymous `s3:GetObject` on `preconfigured-data/*`.
 
+To test local changes on a development site without a publish, put the local
+files into the plugin cache:
+
+```bash
+wp kirki presets:cache                # presets.json and every products.json, kept for 1 hour
+wp kirki presets:cache --ttl=86400    # kept for 1 day
+wp kirki presets:cache --forget       # remove them; the next read uses the preset URL
+
+# In the Docker setup:
+docker compose --profile tools run --rm wpcli kirki presets:cache --ttl=86400
+```
+
+Store setup and **Load sample data** then use the local files and do not request
+them. Images are not cached: they still download from the preset URL, once per
+site. Run the command again after you change a file, because the cache keeps the
+copy it read. The command needs this source folder, so it works only in a
+repository checkout, not with the plugin zip.
+
 ---
 
 ## 2. Layout
@@ -86,6 +104,33 @@ general ones of that trade:
   values.
 - `other` has an entry with `attributes` only.
 - A `color` type value needs a hex `color`. A `list` type value has none.
+
+A country entry can split its *Domestic* zone by state with `shipping.domestic_zones`.
+Each entry becomes one zone, in the order given:
+
+```json
+"BD": {
+  "shipping": {
+    "domestic_zones": [
+      { "title": "Inside Dhaka", "states": { "771": "Dhaka" },
+        "methods": [ { "key": "standard", "type": "flat_rate", "name": "Standard Delivery",
+                       "base_amount": 12000, "is_taxable": false } ] },
+      { "title": "Outside Dhaka", "exclude_states": { "771": "Dhaka" },
+        "methods": [ { "key": "standard", "type": "flat_rate", "name": "Standard Delivery",
+                       "base_amount": 20000, "is_taxable": false } ] }
+    ]
+  }
+}
+```
+
+- `states` selects only these states. `exclude_states` selects every state of the
+  country except these. Both are keyed by the state id from `resources/data/states.php`.
+  The value is the state name, for readers only.
+- `methods` has the same fields as a country's `domestic` method list, and
+  follows the same currency rule.
+- Industry rule templates match every one of these zones as `domestic`.
+- A country with `domestic_zones` needs no `domestic` list. The plugin does not
+  read it for that country.
 
 ---
 
@@ -200,9 +245,10 @@ deleted from the bucket.
 A site keeps a `presets.json` that it read for 1 hour (see
 [`docs/onboarding.md`](onboarding.md#41-where-the-data-comes-from)). A site that
 read the file in the hour before a publish gets the new file only after that hour
-ends. To test a publish on such a site at once, delete its cached copy, for
-example with `wp eval 'Kirki\Ecommerce\Framework\Supports\Facades\Cache::forget(Kirki\Ecommerce\App\Setup\Presets\PresetRepository::cache_key(KIRKI_ECOMMERCE_PRESETS_URL));'`.
-Products files and images are not cached by the plugin.
+ends. To test a publish on such a site at once, delete its cached copy with
+`wp kirki presets:cache --forget`.
+The plugin does not cache the products files and images that it downloads.
+Only `wp kirki presets:cache` puts products files into the cache (section 1).
 
 | Variable | Default | Meaning |
 |---|---|---|
@@ -259,3 +305,6 @@ versions ignore.
   currency.
 - **No per-store updates.** A published change reaches only stores that load
   sample data, or run store setup, after it.
+- **No offline images.** `wp kirki presets:cache` lets a development site use the
+  local presets and products files, but the images are not in the repository.
+  They still download from the preset URL.

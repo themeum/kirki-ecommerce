@@ -42,11 +42,11 @@ describe('onboarding draft', () => {
   it('keeps a draft on the Store Tax step', () => {
     vi.stubGlobal('sessionStorage', createMemoryStorage());
 
-    writeDraft({ step: 3, values: { is_tax_collected: true, store_tax_id: 'VAT-1' } });
+    writeDraft({ step: 3, values: { is_tax_enabled: true, store_tax_id: 'VAT-1' } });
 
     expect(readDraft()).toEqual({
       step: 3,
-      values: { is_tax_collected: true, store_tax_id: 'VAT-1' },
+      values: { is_tax_enabled: true, store_tax_id: 'VAT-1' },
     });
   });
 

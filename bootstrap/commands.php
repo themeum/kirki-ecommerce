@@ -2,6 +2,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Console\Commands\CachePresetsCommand;
 use Kirki\Ecommerce\App\Console\Commands\ClearOptionsCommand;
 
 /**
@@ -9,4 +10,5 @@ use Kirki\Ecommerce\App\Console\Commands\ClearOptionsCommand;
  */
 return [
     'options:clear' => ClearOptionsCommand::class,
+    'presets:cache' => CachePresetsCommand::class,
 ];

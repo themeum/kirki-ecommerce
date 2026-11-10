@@ -82,7 +82,7 @@ class LocalPresetSource
      *
      * @param array<string, mixed> $consent Consent definition.
      * @param bool                 $is_gdpr Whether the store's country has a GDPR-style privacy law.
-     * @return array<string, mixed> Consent with title, locations, method and message.
+     * @return array<string, mixed> Consent with title, locations, method, message and enabled state.
      */
     protected function resolve_consent(array $consent, bool $is_gdpr)
     {
@@ -95,6 +95,7 @@ class LocalPresetSource
             'locations' => $consent['locations'],
             'method' => $consent['method'],
             'message' => $consent['message'],
+            'is_enabled' => $consent['is_enabled'],
         ];
     }
 }

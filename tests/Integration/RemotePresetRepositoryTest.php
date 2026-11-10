@@ -191,6 +191,29 @@ class RemotePresetRepositoryTest extends RestTestCase
         $this->assertNull((new PresetRepository())->get_products('fashion-and-apparel'));
     }
 
+    public function test_kept_products_file_is_used_without_a_request(): void
+    {
+        $this->serve_preset_data();
+        $key = PresetRepository::products_cache_key(constant('KIRKI_ECOMMERCE_PRESETS_URL'), 'fashion-and-apparel');
+        Cache::put($key, ['version' => 1, 'products' => [['slug' => 'local-tee']]], 60);
+
+        $catalog = (new PresetRepository())->get_products('fashion-and-apparel');
+        Cache::forget($key);
+
+        $this->assertSame([['slug' => 'local-tee']], $catalog['products']);
+        $this->assertSame('fashion-and-apparel', $catalog['set']);
+        $this->assertSame([], $this->preset_requests);
+    }
+
+    public function test_downloaded_products_file_is_not_kept(): void
+    {
+        $this->serve_preset_data();
+
+        $this->assertSame('fashion-and-apparel', (new PresetRepository())->get_products('fashion-and-apparel')['set']);
+        $this->assertNull(Cache::get(PresetRepository::products_cache_key(constant('KIRKI_ECOMMERCE_PRESETS_URL'), 'fashion-and-apparel')));
+        $this->assertSame(['fashion-and-apparel/products.json', 'presets.json'], $this->preset_requests);
+    }
+
     public function test_image_url_is_below_the_base_url(): void
     {
         $repository = new PresetRepository('https://presets.test/data/');

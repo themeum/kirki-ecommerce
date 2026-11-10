@@ -22,15 +22,15 @@ address; guessing industry from product categories.
    in JS, and the probe logic stays in one place.
 2. **Option map (read):**
 
-   | Wizard field | WooCommerce option | Note |
-   |---|---|---|
-   | store_name | `blogname` | WordPress site title, shared with Woo |
-   | industry | `woocommerce_onboarding_profile['industry']` | first entry; mapped to Kirki list; no match = empty |
-   | country | `woocommerce_default_country` (before `:`) | else browser detection |
-   | address lines, city, postal code | `woocommerce_store_address`, `_2`, `_city`, `_postcode` | only with a country; state skipped |
-   | currency | `woocommerce_currency` | else current behavior |
-   | is_tax_collected | `woocommerce_calc_taxes` = yes | |
-   | is_tax_inclusive_price | `woocommerce_prices_include_tax` = yes | |
+   | Wizard field                     | WooCommerce option                                      | Note                                                |
+   | -------------------------------- | ------------------------------------------------------- | --------------------------------------------------- |
+   | store_name                       | `blogname`                                              | WordPress site title, shared with Woo               |
+   | industry                         | `woocommerce_onboarding_profile['industry']`            | first entry; mapped to Kirki list; no match = empty |
+   | country                          | `woocommerce_default_country` (before `:`)              | else browser detection                              |
+   | address lines, city, postal code | `woocommerce_store_address`, `_2`, `_city`, `_postcode` | only with a country; state skipped                  |
+   | currency                         | `woocommerce_currency`                                  | else current behavior                               |
+   | is_tax_enabled                   | `woocommerce_calc_taxes` = yes                          |                                                     |
+   | is_tax_inclusive_price           | `woocommerce_prices_include_tax` = yes                  |                                                     |
 
 3. **Merge order in the wizard.** `getDefaults(schema)` < prefill < session draft. The
    form waits for the defaults query (one short loading state) before it mounts, so
@@ -39,7 +39,7 @@ address; guessing industry from product categories.
 4. **Auto-run.** `useAutoMigration` calls `runner.start(allGroupIds)` after the setup
    rows end and exposes progress only. If a latest unfinished run exists (reload), it
    resumes through `runner.restore`.
-4a. **Single entry point (revision 5).** Onboarding is the only place that runs a migration.
+   4a. **Single entry point (revision 5).** Onboarding is the only place that runs a migration.
    Remove the `Migration` route in `route-config.ts`, `features/migration/routes.tsx`, the
    page, the dashboard button (and its sources query in `home.tsx`), `MigrationFlow`, the
    scan, summary, revert and layout step components, and the revert parts of
@@ -55,7 +55,7 @@ address; guessing industry from product categories.
    screen make N + 1 equal parts. An input step fills `(step - 1) / (N + 1)`. On the
    completion screen the wizard computes one bar percent: `N / (N + 1)` plus the last
    part times the work done. With WooCommerce the work done is `0.1 * setupRows done +
-   0.9 * migration percent`; without it, `setupRows done`. The shell `progressOverride`
+0.9 * migration percent`; without it, `setupRows done`. The shell `progressOverride`
    now applies on the whole completion screen, not only while migration runs. The left
    text is `Setting up · <row label>` for the row in progress, then
    `sprintf('Migrating · %s', message)`; the right title is "Setup Complete". A failure
@@ -78,17 +78,17 @@ so a full run in a test still leaves the ledger readable. A failed run keeps its
 
 ## Settings mapping for review (write)
 
-| WooCommerce option | Kirki setting | Result |
-|---|---|---|
-| `woocommerce_weight_unit` (kg, g, lbs, oz) | `product.weight_unit` | map if value is supported, else note |
-| `woocommerce_dimension_unit` (m, cm, mm, in, yd) | `product.dimension_unit` | map if supported, else note |
-| `woocommerce_enable_guest_checkout` | `checkout.is_allowed_guest_checkout` | yes/no |
-| `woocommerce_enable_coupons` | `checkout.has_apply_coupon_code` | yes/no |
-| `woocommerce_enable_reviews` | `product.is_enabled_reviews` | yes/no |
-| `woocommerce_enable_review_rating` | `product.is_enabled_star_ratings` | yes/no |
-| `woocommerce_enable_signup_and_login_from_checkout` | none | note: Kirki has no setting |
-| `woocommerce_notify_low_stock_amount` | `product.low_stock_threshold` | copied when WooCommerce value is above 0 |
-| `woocommerce_notify_no_stock_amount`, `woocommerce_manage_stock` | none | not migrated |
+| WooCommerce option                                               | Kirki setting                        | Result                                   |
+| ---------------------------------------------------------------- | ------------------------------------ | ---------------------------------------- |
+| `woocommerce_weight_unit` (kg, g, lbs, oz)                       | `product.weight_unit`                | map if value is supported, else note     |
+| `woocommerce_dimension_unit` (m, cm, mm, in, yd)                 | `product.dimension_unit`             | map if supported, else note              |
+| `woocommerce_enable_guest_checkout`                              | `checkout.is_allowed_guest_checkout` | yes/no                                   |
+| `woocommerce_enable_coupons`                                     | `checkout.has_apply_coupon_code`     | yes/no                                   |
+| `woocommerce_enable_reviews`                                     | `product.is_enabled_reviews`         | yes/no                                   |
+| `woocommerce_enable_review_rating`                               | `product.is_enabled_star_ratings`    | yes/no                                   |
+| `woocommerce_enable_signup_and_login_from_checkout`              | none                                 | note: Kirki has no setting               |
+| `woocommerce_notify_low_stock_amount`                            | `product.low_stock_threshold`        | copied when WooCommerce value is above 0 |
+| `woocommerce_notify_no_stock_amount`, `woocommerce_manage_stock` | none                                 | not migrated                             |
 
 **Correction during implementation:** Kirki does have a store-level `low_stock_threshold`
 (product settings). It is mapped as shown above, so the earlier open point is closed.
@@ -125,19 +125,19 @@ state of its country as the whole country, so a destination without a state stil
 
 **Extra settings (read from WooCommerce, written to Kirki).** Same replace rule as above.
 
-| WooCommerce option | Kirki setting | Result |
-|---|---|---|
-| `woocommerce_email_from_address` | `general.store_email` | copied when it is a valid email |
-| `woocommerce_allowed_countries` + `woocommerce_specific_allowed_countries` / `woocommerce_all_except_countries` | `general.selling_location_type` + `selling_countries` | all, specific, all except; unknown codes dropped with a note |
-| `woocommerce_checkout_phone_field`, `woocommerce_checkout_company_field` | `checkout.checkout_configuration.phone_number_validation`, `company_name_validation` | required or optional; `hidden` has no Kirki value: kept, with a note |
-| `woocommerce_tax_display_shop` | `tax.is_enabled_display_inclusive_taxed_price` | `incl` = true |
-| `woocommerce_currency_pos` | `currency.currency_position` | left, left_space = before; right, right_space = after |
-| `woocommerce_price_thousand_sep`, `woocommerce_price_decimal_sep` | `currency.thousand_separator`, `decimal_separator` | `.`, `,`, space; other values: kept, with a note |
-| enabled flag of customer on-hold, processing, completed, note, reset-password, new-account emails | `email.customer_emails.*.is_enabled` | yes/no |
-| enabled flag of new-order, cancelled, failed emails | `email.admin_emails.order_notifications.{new_order,cancelled_order,payment_failed}.is_enabled` | yes/no |
-| `woocommerce_notify_low_stock`, `woocommerce_notify_no_stock` | `email.admin_emails.inventory_notifications.{low_stock,out_of_stock}.is_enabled` | yes/no |
-| `woocommerce_email_footer_text` | `email.default_template.footer` | copied |
-| `woocommerce_email_base_color`, `_background_color`, `_body_background_color`, `_text_color` | button background, outer area, email body, body text colors | hex colors only |
+| WooCommerce option                                                                                              | Kirki setting                                                                                  | Result                                                               |
+| --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `woocommerce_email_from_address`                                                                                | `general.store_email`                                                                          | copied when it is a valid email                                      |
+| `woocommerce_allowed_countries` + `woocommerce_specific_allowed_countries` / `woocommerce_all_except_countries` | `general.selling_location_type` + `selling_countries`                                          | all, specific, all except; unknown codes dropped with a note         |
+| `woocommerce_checkout_phone_field`, `woocommerce_checkout_company_field`                                        | `checkout.checkout_configuration.phone_number_validation`, `company_name_validation`           | required or optional; `hidden` has no Kirki value: kept, with a note |
+| `woocommerce_tax_display_shop`                                                                                  | `tax.is_enabled_display_inclusive_taxed_price`                                                 | `incl` = true                                                        |
+| `woocommerce_currency_pos`                                                                                      | `currency.currency_position`                                                                   | left, left_space = before; right, right_space = after                |
+| `woocommerce_price_thousand_sep`, `woocommerce_price_decimal_sep`                                               | `currency.thousand_separator`, `decimal_separator`                                             | `.`, `,`, space; other values: kept, with a note                     |
+| enabled flag of customer on-hold, processing, completed, note, reset-password, new-account emails               | `email.customer_emails.*.is_enabled`                                                           | yes/no                                                               |
+| enabled flag of new-order, cancelled, failed emails                                                             | `email.admin_emails.order_notifications.{new_order,cancelled_order,payment_failed}.is_enabled` | yes/no                                                               |
+| `woocommerce_notify_low_stock`, `woocommerce_notify_no_stock`                                                   | `email.admin_emails.inventory_notifications.{low_stock,out_of_stock}.is_enabled`               | yes/no                                                               |
+| `woocommerce_email_footer_text`                                                                                 | `email.default_template.footer`                                                                | copied                                                               |
+| `woocommerce_email_base_color`, `_background_color`, `_body_background_color`, `_text_color`                    | button background, outer area, email body, body text colors                                    | hex colors only                                                      |
 
 **Order numbers.** `OrdersGroup::persist` builds `order_number` with `OrderNumberGenerator::generate_order_number()`,
 the generator that checkout uses. The result is `prefix + WooCommerce order id padded to 6 + suffix`, with the prefix
