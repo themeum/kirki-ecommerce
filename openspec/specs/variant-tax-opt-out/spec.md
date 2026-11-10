@@ -94,3 +94,22 @@ When an order is edited, a line that was already on the order SHALL keep the tax
 
 - **WHEN** an order is edited and a new line is added for a variant with `charge_taxes` off
 - **THEN** the new line has no tax, and the existing lines keep their stored tax
+
+### Requirement: The storefront shows "Incl. Tax" only where tax is inside the price
+
+The product card and the product details page SHALL use the same label text, "Incl. Tax". The label SHALL show only when tax calculation is on, a tax region exists and the store prices items inclusive of tax. The product card SHALL also need the tax-inclusive display setting, and SHALL show the label only when at least one variant of the product has `charge_taxes` on. The details page SHALL show the label only for the selected variant, and SHALL update it when the selected variant changes.
+
+#### Scenario: Card for a product where one variant charges tax
+
+- **WHEN** the store shows tax-inclusive prices and a product has one variant with `charge_taxes` on and one with it off
+- **THEN** the product card shows "Incl. Tax"
+
+#### Scenario: Card for a product where no variant charges tax
+
+- **WHEN** the store shows tax-inclusive prices and every variant of a product has `charge_taxes` off
+- **THEN** the product card does not show "Incl. Tax"
+
+#### Scenario: Selecting a variant on the details page
+
+- **WHEN** the store prices items inclusive of tax and the user selects a variant with `charge_taxes` off
+- **THEN** the details page hides "Incl. Tax", and shows it again when the user selects a variant with `charge_taxes` on
