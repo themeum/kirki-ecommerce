@@ -2609,7 +2609,7 @@
                 "key": "inside_dhaka",
                 "type": "flat_rate",
                 "name": "Inside Dhaka",
-                "description": "Delivered in 2-5 business days.",
+                "description": "Delivered in 2-3 business days.",
                 "base_amount": 12000,
                 "is_taxable": false
               }
@@ -2625,7 +2625,7 @@
                 "key": "outside_dhaka",
                 "type": "flat_rate",
                 "name": "Outside Dhaka",
-                "description": "Delivered in 3-7 business days.",
+                "description": "Delivered in 4-5 business days.",
                 "base_amount": 20000,
                 "is_taxable": false
               }
