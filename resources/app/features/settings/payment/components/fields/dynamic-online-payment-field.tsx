@@ -53,6 +53,7 @@ function renderField(field: OnlinePaymentField, index: number) {
           label={field.label}
           options={field.options ?? []}
           infoText={field.description}
+          placeholder={field.placeholder}
         />
       );
     case 'checkbox':

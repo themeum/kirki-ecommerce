@@ -8,7 +8,7 @@ import { PaymentIcon } from '@/icons/common';
 import { __ } from '@/wpi18n';
 
 const PaymentSettings = () => {
-  const { data: paymentMethods = [], isFetching: isLoading } = usePaymentMethodsQuery();
+  const { data: paymentMethods = [], isLoading } = usePaymentMethodsQuery();
 
   if (isLoading) {
     return <PaymentSettingsSkeleton />;

@@ -2,6 +2,9 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
+use Kirki\Ecommerce\App\Payment\PaymentManager;
+use Kirki\Ecommerce\Tests\Support\RestrictedPaymentProvider;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class OnlinePaymentSettingsApiTest extends RestTestCase
@@ -75,6 +78,33 @@ class OnlinePaymentSettingsApiTest extends RestTestCase
     }
 
     /**
+     * The detail endpoint returns each admin field as the gateway defines it, placeholder included.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_detail_returns_field_placeholders(): void
+    {
+        $provider = new RestrictedPaymentProvider('placeholdered', ['USD']);
+        $provider->set_admin_fields([
+            ['name' => 'app_key', 'label' => 'App Key', 'type' => 'text', 'placeholder' => 'Enter your app key'],
+            ['name' => 'sandbox', 'label' => 'Sandbox Mode', 'type' => 'checkbox'],
+        ]);
+
+        add_filter(DevHookNames::PAYMENT_PROVIDERS, function ($providers) use ($provider) {
+            $providers[] = $provider;
+
+            return $providers;
+        });
+        $this->start_new_request();
+
+        $fields = $this->assert_api_success($this->request('GET', 'online-payments/placeholdered'))['data']['fields'];
+
+        $this->assertSame('Enter your app key', $fields[0]['placeholder']);
+        $this->assertArrayNotHasKey('placeholder', $fields[1]);
+    }
+
+    /**
      * Read the saved PayPal settings back through the API.
      *
      * @return array<string, mixed>
@@ -85,5 +115,17 @@ class OnlinePaymentSettingsApiTest extends RestTestCase
         $payload = $this->assert_api_success($this->request('GET', 'online-payments/paypal'));
 
         return json_decode(wp_json_encode($payload['data']['settings']), true);
+    }
+
+    /**
+     * Rebuild the provider registry, as the next real request would.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    protected function start_new_request(): void
+    {
+        static::forget_singleton(PaymentManager::class);
+        $this->reset_facade_cache();
     }
 }

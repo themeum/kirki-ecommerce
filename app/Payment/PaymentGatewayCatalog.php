@@ -28,6 +28,8 @@ class PaymentGatewayCatalog
 
     public const STALE_CACHE_TTL = 7 * DAY_IN_SECONDS;
 
+    public const DETAILS_CACHE_KEY_PREFIX = 'payment_gateway_details_';
+
     /**
      * Get the base URL of the remote gateway server, without a trailing slash.
      *
@@ -48,7 +50,7 @@ class PaymentGatewayCatalog
      *
      * @since 1.0.0
      *
-     * @return array<int, array<string, string>> Gateways with id, name, description, version, icon_url, download_url and sha256.
+     * @return array<int, array<string, string>> Gateways with id, slug, name, description, version, requires_kirki_ecommerce, requires_wp, requires_php, icon_url, download_url and sha256.
      * @throws Exception When the server fails and no earlier copy exists.
      */
     public function all()
@@ -76,6 +78,61 @@ class PaymentGatewayCatalog
         }
 
         return null;
+    }
+
+    /**
+     * Find one gateway by its download URL.
+     *
+     * @since 1.0.1
+     *
+     * @param string $download_url Package URL.
+     * @return array<string, string>|null Null when no catalog gateway has that URL.
+     * @throws Exception When the catalog cannot be loaded.
+     */
+    public function find_by_download_url(string $download_url)
+    {
+        foreach ($this->all() as $gateway) {
+            if ($gateway['download_url'] === $download_url) {
+                return $gateway;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the details file of one gateway, which holds its changelog.
+     *
+     * Reads `{base}/<slug>/meta.json` and caches it as long as the catalog.
+     * A failed request gives an empty array, so callers can show the other
+     * catalog values.
+     *
+     * @since 1.0.1
+     *
+     * @param string $slug Gateway plugin slug from the catalog.
+     * @return array<string, mixed>
+     */
+    public function details(string $slug)
+    {
+        $url = $this->base_url() . '/' . $slug . '/meta.json';
+
+        if (preg_match('/^[a-z0-9-]+$/', $slug) !== 1 || !static::is_trusted_url($url, $this->base_url())) {
+            return [];
+        }
+
+        try {
+            return Cache::remember(static::DETAILS_CACHE_KEY_PREFIX . $slug, static::FRESH_CACHE_TTL, function () use ($url) {
+                $response = Http::timeout(10)->get($url);
+
+                throw_if(!$response->successful(), __('Could not load the payment gateway details.', 'kirki-ecommerce'));
+
+                $decoded = $response->json();
+
+                return is_array($decoded) ? $decoded : [];
+            });
+        } catch (Exception $exception) {
+            return [];
+        }
     }
 
     /**
@@ -109,8 +166,9 @@ class PaymentGatewayCatalog
     /**
      * Keep only the well-formed gateways of a decoded server response.
      *
-     * An entry with a missing field, an unsafe ID, a malformed checksum or a
-     * download URL outside the base URL is dropped. An icon URL that is not
+     * An entry with a missing field, an unsafe ID or slug, a malformed checksum
+     * or a download URL outside the base URL is dropped. A requirement that is
+     * not a version string becomes an empty string. An icon URL that is not
      * http(s) is replaced with an empty string. The browser loads icons, so
      * they may use a different host than the base URL.
      *
@@ -134,11 +192,13 @@ class PaymentGatewayCatalog
             }
 
             $id = $entry['id'] ?? null;
+            $slug = $entry['slug'] ?? null;
             $name = $entry['name'] ?? null;
             $download_url = $entry['download_url'] ?? null;
             $sha256 = $entry['sha256'] ?? null;
 
             $is_valid = is_string($id) && preg_match('/^[a-z0-9_-]+$/', $id) === 1
+                && is_string($slug) && preg_match('/^[a-z0-9-]+$/', $slug) === 1
                 && is_string($name) && $name !== ''
                 && is_string($download_url) && static::is_trusted_url($download_url, $base_url)
                 && is_string($sha256) && preg_match('/^[a-f0-9]{64}$/', $sha256) === 1;
@@ -151,9 +211,13 @@ class PaymentGatewayCatalog
 
             $gateways[] = [
                 'id' => $id,
+                'slug' => $slug,
                 'name' => $name,
                 'description' => is_string($entry['description'] ?? null) ? $entry['description'] : '',
                 'version' => is_string($entry['version'] ?? null) ? $entry['version'] : '',
+                'requires_kirki_ecommerce' => static::version_or_empty($entry['requires_kirki_ecommerce'] ?? null),
+                'requires_wp' => static::version_or_empty($entry['requires_wp'] ?? null),
+                'requires_php' => static::version_or_empty($entry['requires_php'] ?? null),
                 'icon_url' => is_string($icon_url) && preg_match('#^https?://#i', $icon_url) === 1 ? $icon_url : '',
                 'download_url' => $download_url,
                 'sha256' => $sha256,
@@ -161,6 +225,19 @@ class PaymentGatewayCatalog
         }
 
         return $gateways;
+    }
+
+    /**
+     * Keep a value only when it is a version string such as "1.1" or "7.4.0".
+     *
+     * @since 1.0.1
+     *
+     * @param mixed $value Value from the catalog.
+     * @return string The version, or an empty string.
+     */
+    protected static function version_or_empty($value)
+    {
+        return is_string($value) && preg_match('/^\d+(\.\d+)*$/', $value) === 1 ? $value : '';
     }
 
     /**

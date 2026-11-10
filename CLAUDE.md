@@ -113,6 +113,24 @@ Write response text in ASD-STE100 (Simplified Technical English).
 
 ---
 
+## 1c. Product Name
+
+This plugin is **Kirki eCommerce**. "Kirki" is a different product. Never call
+this plugin "Kirki".
+
+- **User-facing text:** write "Kirki eCommerce" in UI strings, error messages,
+  plugin headers, docs, readme, and changelogs. Example: "Requires Kirki
+  eCommerce 1.0.1", not "Requires Kirki 1.0.1".
+- **Identifiers:** keep the existing technical names (`kirki-ecommerce` slug and
+  text domain, `KIRKI_ECOMMERCE_*` constants, `Kirki\Ecommerce` namespace).
+  Do not change them only to match this rule.
+- **Gateway names:** a gateway plugin's own name (for example "Kirki Stripe")
+  is not the product name. Do not change it.
+- **Existing text:** when you find "Kirki" used for this plugin in code you
+  touch, tell me. Do not rename it outside the task.
+
+---
+
 ## 2. PHP Coding Standards
 
 Full standards live in `.claude/rules/php-standards.md`, which loads when

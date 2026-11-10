@@ -105,6 +105,7 @@ export const endpoints = {
   ONLINE_PAYMENT: (id: string | number) => `/online-payments/${id}`,
   ONLINE_PAYMENTS_INSTALLABLE: '/online-payments/installable',
   ONLINE_PAYMENTS_INSTALL: '/online-payments/install',
+  ONLINE_PAYMENTS_UPDATE_PLUGIN: '/online-payments/update',
   OFFLINE_PAYMENTS: '/offline-payments',
   OFFLINE_PAYMENT: (id: string | number) => `/offline-payments/${id}`,
 

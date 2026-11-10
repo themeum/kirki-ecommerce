@@ -12,6 +12,7 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       kirki-ecommerce-bkash
  * Requires Plugins:  kirki-ecommerce
+ * Requires Kirki eCommerce: 1.0.1
  */
 
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;

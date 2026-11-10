@@ -284,16 +284,18 @@ const styles = defineStyles({
   closeButton: {
     position: 'absolute',
     top: theme.spacing[3],
-    right: theme.spacing[3],
+    right: theme.spacing[2],
   },
   header: {
     display: 'flex',
     flexDirection: 'column',
+    justifyContent: 'center',
     flexShrink: 0,
     rowGap: theme.spacing[2],
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
     paddingRight: theme.spacing[12],
     borderBottom: `1px solid ${theme.colors.border.secondary}`,
+    minHeight: 56,
   },
   footer: {
     display: 'flex',
@@ -306,7 +308,7 @@ const styles = defineStyles({
   },
   title: {
     margin: 0,
-    ...theme.typography.large('semibold'),
+    ...theme.typography.heading6('semibold'),
     color: theme.colors.text.primary,
   },
   description: {

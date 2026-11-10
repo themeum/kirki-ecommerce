@@ -12,10 +12,10 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Wordpress\Extension;
 use Kirki\Ecommerce\App\Payment\PaymentGatewayCatalog;
+use Kirki\Ecommerce\App\Payment\PaymentGatewayUpdates;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\Facades\File;
-use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Exception;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_anyway;
@@ -34,6 +34,9 @@ class OnlinePaymentService
     /** @var PaymentGatewayCatalog */
     protected $catalog;
 
+    /** @var PaymentGatewayUpdates */
+    protected $updates;
+
     /**
      * Create the service and load the payment settings.
      *
@@ -45,10 +48,13 @@ class OnlinePaymentService
     {
         $this->settings = Settings::get(OptionKeys::PAYMENT_SETTINGS);
         $this->catalog = $catalog ?: new PaymentGatewayCatalog();
+        $this->updates = new PaymentGatewayUpdates($this->catalog);
     }
 
     /**
-     * Get the gateways the remote catalog offers, each flagged with its installed state.
+     * Get the gateways the remote catalog offers, each flagged with its installed and update state.
+     *
+     * The update fields are set only for installed gateways.
      *
      * @since 1.0.0
      *
@@ -57,8 +63,17 @@ class OnlinePaymentService
      */
     public function all_installable_providers()
     {
-        return collection($this->catalog->all())->map(function ($gateway) {
-            $gateway['is_installed'] = (bool) Payment::get_provider($gateway['id']);
+        $gateways = $this->catalog->all();
+        $plugins = $this->installed_plugins();
+
+        return collection($gateways)->map(function ($gateway) use ($plugins) {
+            $is_installed = (bool) Payment::get_provider($gateway['id']);
+            $state = $this->updates->state($gateway, $plugins);
+
+            $gateway['is_installed'] = $is_installed;
+            $gateway['installed_version'] = $is_installed ? $state['installed_version'] : null;
+            $gateway['update_available'] = $is_installed && $state['update_available'];
+            $gateway['update_blocked_reason'] = $is_installed ? $state['update_blocked_reason'] : null;
 
             return $gateway;
         })->values();
@@ -94,13 +109,7 @@ class OnlinePaymentService
             Response::BAD_REQUEST
         );
 
-        $package_file = $this->download_package($gateway);
-
-        try {
-            $this->install_package($gateway['download_url'], $package_file);
-        } finally {
-            File::delete($package_file);
-        }
+        $this->install_package($gateway['download_url']);
 
         $this->catalog->flush();
         Payment::init_registry();
@@ -110,6 +119,63 @@ class OnlinePaymentService
         throw_if(!$provider, __('The payment method was installed but did not register.', 'kirki-ecommerce'), Exception::class, Response::INTERNAL_SERVER_ERROR);
 
         return $provider;
+    }
+
+    /**
+     * Update the plugin of an installed online payment gateway to the catalog version.
+     *
+     * The download URL always comes from the catalog, never from the caller.
+     * The catalog cache is dropped first, so the update uses the newest entry.
+     * The gateway stays active and keeps its saved settings.
+     *
+     * @since 1.0.1
+     *
+     * @param string $id Payment provider ID.
+     * @return PaymentProvider
+     * @throws NotFoundException When the gateway is not installed or the catalog does not offer it.
+     * @throws HttpException When the gateway is up to date.
+     * @throws Exception When the update is blocked, untrusted, corrupt or fails to install.
+     */
+    public function update_plugin(string $id)
+    {
+        $this->find_or_fail($id);
+        $this->catalog->flush();
+
+        $gateway = $this->catalog->find($id);
+
+        throw_if(!$gateway, __('Payment method not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        $state = $this->updates->state($gateway, $this->installed_plugins());
+
+        throw_if($state['update_blocked_reason'] !== null, (string) $state['update_blocked_reason'], Exception::class, Response::BAD_REQUEST);
+        throw_if(!$state['update_available'], __('This payment method is already up to date.', 'kirki-ecommerce'), HttpException::class, Response::CONFLICT);
+        throw_if(
+            !PaymentGatewayCatalog::is_trusted_url($gateway['download_url'], $this->catalog->base_url()),
+            __('The payment method package is not from a trusted source.', 'kirki-ecommerce'),
+            Exception::class,
+            Response::BAD_REQUEST
+        );
+
+        $this->install_package($gateway['download_url']);
+
+        $this->catalog->flush();
+        Payment::init_registry();
+
+        return $this->find_or_fail($id);
+    }
+
+    /**
+     * Get the installed plugins, keyed by plugin basename.
+     *
+     * @since 1.0.1
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected function installed_plugins()
+    {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+        return get_plugins();
     }
 
     /**
@@ -183,61 +249,32 @@ class OnlinePaymentService
     }
 
     /**
-     * Download a gateway zip to a temporary file and check its checksum.
+     * Download, verify, install and activate a catalog gateway package.
      *
-     * @since 1.0.0
-     *
-     * @param array<string, string> $gateway Catalog entry.
-     * @return string Path of the verified temporary file.
-     * @throws Exception When the download fails or the checksum does not match.
-     */
-    protected function download_package(array $gateway)
-    {
-        require_once ABSPATH . 'wp-admin/includes/file.php';
-
-        $package_file = wp_tempnam($gateway['download_url']);
-        $response = Http::with_options(['timeout' => 300, 'stream' => true, 'filename' => $package_file])
-            ->get($gateway['download_url']);
-
-        if (!$response->successful()) {
-            File::delete($package_file);
-            throw_anyway(__('Could not download the payment method package.', 'kirki-ecommerce'), Exception::class, Response::SERVICE_UNAVAILABLE);
-        }
-
-        if (!hash_equals($gateway['sha256'], File::hash($package_file, 'sha256'))) {
-            File::delete($package_file);
-            throw_anyway(__('The payment method package failed the integrity check.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
-        }
-
-        return $package_file;
-    }
-
-    /**
-     * Install and activate a verified zip through the extension API.
-     *
-     * The upgrader would download the package URL again. The pre-download
-     * filter hands it the verified local file instead, so the file that was
-     * hashed is the file that is installed.
+     * The verified local file is given to the extension API, so the file that
+     * was hashed is the file that is installed. A local path is not under the
+     * catalog base URL, so the global package check does not download it again.
      *
      * @since 1.0.0
      *
      * @param string $download_url Catalog download URL.
-     * @param string $package_file Path of the verified zip.
      * @return void
-     * @throws Exception When the install or activation fails.
+     * @throws Exception When the download fails, the checksum does not match, or the install or activation fails.
      */
-    protected function install_package(string $download_url, string $package_file)
+    protected function install_package(string $download_url)
     {
-        $use_verified_file = function ($reply, $package) use ($download_url, $package_file) {
-            return $package === $download_url ? $package_file : $reply;
-        };
+        $package_file = $this->updates->verified_package($download_url);
 
-        add_filter('upgrader_pre_download', $use_verified_file, 10, 2);
+        if (is_wp_error($package_file)) {
+            $code = $package_file->get_error_code() === 'kirki_payment_package_integrity' ? Response::BAD_REQUEST : Response::SERVICE_UNAVAILABLE;
+
+            throw_anyway($package_file->get_error_message(), Exception::class, $code);
+        }
 
         try {
-            Extension::install($download_url);
+            Extension::install($package_file, true, true);
         } finally {
-            remove_filter('upgrader_pre_download', $use_verified_file, 10);
+            File::delete($package_file);
         }
     }
 

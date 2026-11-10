@@ -6,6 +6,7 @@
     "make:package": "bash bin/make-package.sh",
     "make:pot": "bash bin/make-pot.sh",
     "build:payments": "node bin/build-payment-zips.js",
+    "build:payments:full": "node bin/build-payment-zips.js --full",
     "publish:payments": "node bin/publish-payment-gateways.js",
     "test:payments": "node --test bin/test/*.test.js",
     "check:presets": "node bin/check-presets.js",

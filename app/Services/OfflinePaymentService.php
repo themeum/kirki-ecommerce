@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\OfflinePayment\CreateOfflinePaymentDTO;
 use Kirki\Ecommerce\App\DTO\OfflinePayment\UpdateOfflinePaymentDTO;
+use Kirki\Ecommerce\Framework\Exceptions\HttpException;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
@@ -102,12 +103,16 @@ class OfflinePaymentService
      *
      * @param CreateOfflinePaymentDTO $data Offline payment method data.
      * @return PaymentProvider
+     * @throws HttpException When a method with the same ID exists.
      */
     public function create(CreateOfflinePaymentDTO $data)
     {
         $offline_payments = $this->offline_payments();
 
         $data->id = empty($data->id) ? Str::uuid() : $data->id;
+
+        $ids = array_column($offline_payments, 'id');
+        throw_if(in_array($data->id, $ids, true), __('A payment method with this ID already exists.', 'kirki-ecommerce'), HttpException::class, Response::CONFLICT);
 
         $offline_payments[] = $data->to_array();
 

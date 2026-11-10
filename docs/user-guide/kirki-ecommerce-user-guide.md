@@ -122,8 +122,7 @@ store for you. It takes about two minutes.
 - Creates the **Shop**, **Cart**, **Checkout** and **Account** pages.
 - Adds ready-made settings for your industry and country: product attributes
   (for example, sizes and colors), shipping zones, tax regions and legal texts.
-- Adds two offline payment methods, **Cash on Delivery** and **Direct bank
-  transfer**. They are turned off. You turn one on in [section 12](#12-payments).
+- Adds one offline payment method, **Cash on delivery**. It is turned off. You turn one on in [section 12](#12-payments).
 
 > **Important:** The ready-made tax rates and shipping prices are only a
 > starting point. They are not tax advice. Check them before you start selling.
@@ -599,24 +598,31 @@ Customers see the enabled methods at checkout, in the same order as this list.
 | **Manual (offline)** | Cash on Delivery, Bank Transfer | The customer pays outside the store. You confirm the payment with **Mark as paid** on the order. |
 | **Online gateway** | PayPal, Stripe, Mollie | The customer pays online. The order is marked paid automatically. |
 
-### Turn on Cash on Delivery or Bank Transfer
+### Turn on Cash on delivery
 
 1. Go to **eCommerce → Settings → Payments**.
-2. Move your pointer over **Cash on Delivery** (or **Direct bank transfer**).
-3. Click **Edit** to change the name, icon or **Payment Instructions**. For bank
-   transfer, type your bank account details in the instructions. Click **Save**.
+2. Move your pointer over **Cash on delivery**.
+3. Click **Edit** to change the name, icon or **Payment Instructions**. Click
+   **Save**.
 4. Turn on the switch on the row.
+
+To offer bank transfer or cheque, add the method first (see the next section).
+For bank transfer, type your bank account details in its instructions.
 
 The switch saves at once. There is no separate **Save** button on this page.
 
-### Add your own manual payment method
+### Add a manual payment method
+
+The store has three manual methods: **Direct bank transfer**, **Cheque
+payments** and **Cash on delivery**. You can add each one time.
 
 1. Go to **eCommerce → Settings → Payments**.
-2. Click **Add**, then choose **Manual Payment**.
-3. Type the **Method Name** (for example, *Pay at pickup*).
-4. Add an **Icon** (recommended size: 48 × 48 pixels).
-5. Type the **Payment Instructions** that the customer sees.
-6. Click **Save**, then turn on the switch on the new row.
+2. Click **Add**. The **Add a payment method** dialog opens.
+3. Move your pointer over the method and click **Add**. The method is added and
+   turned on, with ready-made instructions.
+4. To change the name, the **Icon** (recommended size: 48 × 48 pixels) or the
+   **Payment Instructions**, move your pointer over its row and click **Edit**.
+   Click **Save**.
 
 ### Set up PayPal
 
@@ -642,9 +648,9 @@ Razorpay, Klarna, Paddle, PayStack, PayU, PayFast, PayMongo, Authorize.Net,
 Eway, QuickPay, Redsys and 2Checkout.
 
 1. Go to **eCommerce → Settings → Payments**.
-2. Click **Add**, then choose **Payment Gateways**.
-3. Find your gateway in **Available Payment Gateways** and click **Add**. The
-   plugin downloads, installs and activates it for you.
+2. Click **Add**. The **Add a payment method** dialog opens.
+3. Type the gateway name in the search field, move your pointer over the gateway
+   and click **Add**. The plugin downloads, installs and activates it for you.
 4. Move your pointer over the new gateway row and click **Edit**.
 5. Type the keys from your gateway account. If the dialog shows a **Webhook
    URL**, copy it into your gateway account, so that payments update your

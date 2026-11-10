@@ -248,28 +248,32 @@ Any payment processing fee charged by the provider SHALL be recorded as
 ### Requirement: Unavailable providers are listed as coming soon
 
 The system SHALL report, for each installable online provider, whether it is
-available to install (`is_available`) and whether it is already registered
-(`is_installed`). A provider that is not yet available SHALL still be listed,
-and the admin UI SHALL present it as forthcoming rather than offering to add
-it.
+already registered (`is_installed`). The list SHALL contain the gateways the
+remote catalog offers. The system SHALL NOT list a gateway that the catalog
+does not offer, and the admin UI SHALL NOT show a "Coming Soon" indicator for
+catalog entries.
 
 #### Scenario: Listing installable providers
 
 - **WHEN** a client requests the installable online providers
-- **THEN** every known provider is listed, each reporting `is_available` and
-  `is_installed`
+- **THEN** every catalog gateway is listed, each reporting `is_installed`
 
 #### Scenario: An unavailable provider in the admin UI
 
-- **WHEN** the available-providers dialog renders a provider whose
-  `is_available` is `false` and which is not installed
-- **THEN** a "Coming Soon" indicator is shown in place of the add control
+- **WHEN** the available-providers dialog renders the catalog gateways
+- **THEN** no "Coming Soon" indicator is shown, and a gateway that the catalog
+  does not offer is not shown
 
 #### Scenario: An installed provider in the admin UI
 
 - **WHEN** the available-providers dialog renders a provider whose
   `is_installed` is `true`
 - **THEN** an "Added" indicator is shown in place of the add control
+
+#### Scenario: A gateway not in the catalog
+
+- **WHEN** a gateway plugin has not been built or uploaded
+- **THEN** it is not listed
 
 ### Requirement: Checkout accepts only registered, enabled payment providers
 
@@ -359,3 +363,27 @@ to be present.
   of the provider's fields
 - **THEN** the save succeeds and only the supplied fields are sanitized and
   stored
+
+### Requirement: Offline create accepts a client id
+
+`POST /offline-payments` SHALL accept an optional string `id`. When `id` is
+present, the created method SHALL use it. When `id` is absent or empty, the
+system SHALL generate a UUID. When an offline method with the same `id` already
+exists, the request SHALL fail with HTTP 409 and SHALL NOT change the stored
+methods.
+
+#### Scenario: Create with an id
+
+- **WHEN** a client posts `{ "id": "cheque", "name": "Cheque payments" }` and no method `cheque` exists
+- **THEN** the response has status 201 and the created method has the id `cheque`
+
+#### Scenario: Create without an id
+
+- **WHEN** a client posts a method with no `id`
+- **THEN** the created method has a generated UUID id
+
+#### Scenario: Duplicate id
+
+- **WHEN** a client posts `{ "id": "cod", ... }` and a method `cod` exists
+- **THEN** the response has status 409 and the stored methods do not change
+

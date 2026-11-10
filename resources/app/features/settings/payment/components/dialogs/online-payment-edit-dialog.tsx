@@ -100,7 +100,7 @@ const OnlinePaymentEditPopup = ({ editedItem, isOpen, onClose }: OnlinePaymentEd
       <DialogContent>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>{__('Edit Payment Gateway', 'kirki-ecommerce')}</DialogTitle>
+          <DialogTitle>{__('Edit Payment Method', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleUpdateData)}>

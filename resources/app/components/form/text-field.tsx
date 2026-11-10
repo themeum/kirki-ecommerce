@@ -48,10 +48,7 @@ const TextField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field
-          data-invalid={fieldState.invalid || undefined}
-          cssOverride={cssOverride}
-        >
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && (
             <FieldLabel htmlFor={fieldId} infoText={infoText}>
               {label}

@@ -22,6 +22,7 @@ class OfflinePaymentCreateRequest extends Request
     public function rules()
     {
         return [
+            'id' => 'nullable|string',
             'name' => 'required|string',
             'icon' => 'nullable|integer',
             'is_enabled' => 'nullable|boolean',
@@ -39,6 +40,7 @@ class OfflinePaymentCreateRequest extends Request
     public function filters()
     {
         return [
+            'id' => Sanitizer::KEY,
             'name' => Sanitizer::TEXT,
             'icon' => Sanitizer::INT,
             'is_enabled' => Sanitizer::BOOL,

@@ -4,7 +4,7 @@
  * Plugin Name:       Kirki PayFast
  * Plugin URI:        https://kirki.com/
  * Description:       PayFast payment gateway for Kirki ecommerce.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Order:             100
  * Author:            Kirki
  * Author URI:        https://kirki.com/

@@ -26,4 +26,7 @@ class WPHookNames extends \Kirki\Ecommerce\Framework\Wordpress\Constants\HookNam
     public const DELETED_POST = 'deleted_post';
     public const SEND_RETRIEVE_PASSWORD_EMAIL = 'send_retrieve_password_email';
     public const WP_SEND_NEW_USER_NOTIFICATION_TO_USER = 'wp_send_new_user_notification_to_user';
+    public const PRE_SET_SITE_TRANSIENT_UPDATE_PLUGINS = 'pre_set_site_transient_update_plugins';
+    public const PLUGINS_API = 'plugins_api';
+    public const UPGRADER_PRE_DOWNLOAD = 'upgrader_pre_download';
 }

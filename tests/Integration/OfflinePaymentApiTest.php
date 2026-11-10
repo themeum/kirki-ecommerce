@@ -141,6 +141,52 @@ class OfflinePaymentApiTest extends RestTestCase
     }
 
     /**
+     * A create with an id keeps that id.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_with_id_keeps_the_id(): void
+    {
+        $id = $this->create_offline_payment(['id' => 'cheque', 'name' => 'Cheque payments']);
+
+        $this->assertSame('cheque', $id);
+        $shown = $this->assert_api_success($this->request('GET', 'offline-payments/cheque'))['data'];
+        $this->assertSame('Cheque payments', $shown['name']);
+    }
+
+    /**
+     * A create without an id gets a generated UUID.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_without_id_generates_uuid(): void
+    {
+        $id = $this->create_offline_payment();
+
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $id);
+    }
+
+    /**
+     * A create with an id that exists returns 409 and keeps the stored list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_with_duplicate_id_returns_409(): void
+    {
+        $this->create_offline_payment(['id' => 'cod', 'name' => 'Cash on delivery']);
+
+        $response = $this->request('POST', 'offline-payments', ['id' => 'cod', 'name' => 'Another cash method']);
+        $this->assert_api_error($response, 409);
+
+        $listed = $this->assert_api_success($this->request('GET', 'offline-payments'))['data'];
+        $this->assertCount(1, $listed);
+        $this->assertSame('Cash on delivery', $listed[0]['name']);
+    }
+
+    /**
      * Updating an existing method still replaces it.
      *
      * @return void

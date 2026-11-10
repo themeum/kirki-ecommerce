@@ -4,6 +4,7 @@ import { DragHandleDots2Icon } from '@radix-ui/react-icons';
 import { CardSimIcon, LandmarkIcon } from 'lucide-react';
 
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Image from '@/components/ui/image';
 import {
@@ -16,6 +17,7 @@ import {
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import CurrencySupportBadge from '@/features/settings/payment/components/list/currency-support-badge';
+import { getManualPresetIcon } from '@/features/settings/payment/presets/manual-payment-presets';
 import type { PaymentMethod } from '@/features/settings/payment/schemas/catalog/payment';
 import { EditPenIcon, TrashIcon } from '@/icons/common';
 import { theme } from '@/theme';
@@ -27,6 +29,8 @@ type SortablePaymentMethodProps = {
   onEdit: (method: PaymentMethod) => void;
   onDelete: (method: PaymentMethod) => void;
   onToggle: (method: PaymentMethod) => void;
+  hasUpdate?: boolean;
+  onUpdate?: () => void;
 };
 
 const UNDELETABLE_METHOD_IDS: PaymentMethod['id'][] = ['paypal'];
@@ -55,6 +59,12 @@ const renderMethodIcon = (method: PaymentMethod) => {
     );
   }
 
+  const PresetIcon = method.is_offline ? getManualPresetIcon(method.id) : null;
+
+  if (PresetIcon) {
+    return <PresetIcon size={20} color={theme.colors.icon.secondary} />;
+  }
+
   return method.is_offline ? (
     <LandmarkIcon size={20} color={theme.colors.icon.secondary} />
   ) : (
@@ -63,7 +73,7 @@ const renderMethodIcon = (method: PaymentMethod) => {
 };
 
 const SortablePaymentMethod = (props: SortablePaymentMethodProps) => {
-  const { method, onEdit, onDelete, onToggle } = props;
+  const { method, onEdit, onDelete, onToggle, hasUpdate = false } = props;
   const {
     attributes,
     listeners,
@@ -110,6 +120,7 @@ const SortablePaymentMethod = (props: SortablePaymentMethodProps) => {
             {name}
           </Text>
           <CurrencySupportBadge support={method.currency_support} />
+          {hasUpdate && <Badge variant="info">{__('Update available', 'kirki-ecommerce')}</Badge>}
         </StackedItemTitle>
       </StackedItemContent>
 
@@ -161,6 +172,10 @@ SortablePaymentMethod.displayName = 'SortablePaymentMethod';
 export default SortablePaymentMethod;
 
 const styles = defineStyles({
+  updateBadge: {
+    border: 'none',
+    cursor: 'pointer',
+  },
   row: {
     '& [data-slot="payment-method-handle"]': {
       opacity: 0,
