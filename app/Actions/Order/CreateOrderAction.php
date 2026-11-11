@@ -156,6 +156,8 @@ class CreateOrderAction
      */
     public function execute(CreateOrderPayloadDTO $dto)
     {
+        $this->validate_active_currency($dto);
+
         $this->validate_payment_provider($dto);
 
         $this->resolve_billing_and_shipping_addresses($dto);
@@ -292,6 +294,23 @@ class CreateOrderAction
         if (empty($dto->billing_id) && $dto->is_billing_same_as_shipping) {
             $dto->billing_id = $dto->shipping_id;
         }
+    }
+
+    /**
+     * Check the payload's currency is active.
+     *
+     * Only a shopper's order is checked. A manual (admin-created) order may use a currency
+     * that has since been deactivated.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return void
+     * @throws ValidationException When a shopper's order uses a currency that is not active.
+     */
+    protected function validate_active_currency(CreateOrderPayloadDTO $dto): void
+    {
+        throw_if(!$dto->is_manual && !Currency::is_active($dto->currency_code), __('This currency is not available.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
 
     /**

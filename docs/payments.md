@@ -202,6 +202,10 @@ your header or checkout page.** Without it, the shopper cannot follow the messag
 selected method cannot accept the order currency. This also applies to a manual order
 that names the method. A manual order with no method is still accepted.
 
+`POST /checkout` also returns HTTP 422 ("This currency is not available.") when the
+shopper's order uses a currency that is not active. A manual order may still use an
+inactive currency.
+
 **Settings → Payments.** A row can show a badge. Move the pointer over its info icon
 to read the reason. A badge does not stop you from enabling the method.
 
