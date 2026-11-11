@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Migration\Sources\WooCommerce\Readers;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Migration\Sources\WooCommerce\WooCommerceDatabase;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 /**
@@ -144,7 +145,7 @@ class ProductReader
 
         foreach ($found as $row) {
             $row = (array) $row;
-            $meta[(int) $row['post_id']][$row['meta_key']] = $row['meta_key'] === '_product_attributes' ? maybe_unserialize($row['meta_value']) : $row['meta_value'];
+            $meta[(int) $row['post_id']][$row['meta_key']] = $row['meta_key'] === '_product_attributes' ? Sanitizer::apply_rule($row['meta_value'], Sanitizer::UNSERIALIZED) : $row['meta_value'];
         }
 
         return $meta;
