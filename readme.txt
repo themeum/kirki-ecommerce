@@ -404,7 +404,6 @@ PayPal is a trademark of PayPal, Inc. CurrencyApi and ExchangeRate-API are trade
 * New: Added the option to update installed payment gateways when a newer version is available.
 * New: Hid payment methods at checkout that cannot accept the customer’s currency.
 * New: Added automatic rechecking of unpaid bKash orders to mark completed payments as paid.
-* New: Added a strikethrough old price for sale products in search results. 
 * Update: Redesigned the “Add a payment method” dialog with search and ready-made manual methods.
 * Update: Removed product schema profiles. All products now use the same search engine data, and saved profiles are deleted on update.
 * Update: Improved the speed of bulk updates for product variants.
