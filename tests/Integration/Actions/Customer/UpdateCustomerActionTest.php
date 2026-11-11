@@ -11,6 +11,8 @@ use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Models\Customer;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -119,6 +121,37 @@ class UpdateCustomerActionTest extends RestTestCase
         $this->assertFalse($second_row->is_default_billing);
         $this->assertTrue($first_row->is_default_billing);
         $this->assertFalse($first_row->is_default_shipping);
+    }
+
+    /**
+     * A submitted address ID that belongs to another customer is rejected, and
+     * that address stays with its original owner.
+     *
+     * @return void
+     */
+    public function test_submitted_address_owned_by_another_customer_is_rejected(): void
+    {
+        $customer = $this->create_customer_with_addresses([
+            $this->make_create_address_dto(['address_line1' => 'Own St']),
+        ]);
+        $other_customer = $this->create_customer_with_addresses([
+            $this->make_create_address_dto(['address_line1' => 'Other St']),
+        ]);
+        $other_address = $other_customer->addresses->first();
+
+        try {
+            $this->execute(
+                $this->make_customer_update_dto($customer),
+                [$this->make_update_address_dto(['id' => $other_address->id, 'address_line1' => 'Hijacked St'])]
+            );
+            $this->fail('Expected a NotFoundException.');
+        } catch (NotFoundException $e) {
+            $this->assertSame(Response::NOT_FOUND, $e->getCode());
+        }
+
+        $this->assertSame($other_customer->id, Address::find($other_address->id)->customer_id);
+        $this->assertSame('Other St', Address::find($other_address->id)->address_line1);
+        $this->assertCount(1, Customer::find($customer->id)->addresses);
     }
 
     protected function execute(UpdateCustomerDTO $customer_payload, array $address_payloads): Customer
