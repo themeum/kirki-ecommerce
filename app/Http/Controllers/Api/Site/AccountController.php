@@ -19,7 +19,7 @@ use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Account\PasswordChangeRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\ProfileUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\WishlistFilterRequest;
-use Kirki\Ecommerce\App\Resources\Customer\CustomerResource;
+use Kirki\Ecommerce\App\Resources\Site\Customer\CustomerResource;
 use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
 use Kirki\Ecommerce\App\Services\UserService;
 use Kirki\Ecommerce\App\Services\OrderService;

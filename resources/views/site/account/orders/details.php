@@ -16,7 +16,6 @@ use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
-use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\Framework\Polyfill\array_find;
 
@@ -43,7 +42,6 @@ $is_tax_inclusive = $order['is_inclusive_tax'] ?? false;
 $order_activities = $data['activities'] ?? [];
 
 $items = isset($order['items']) ? $order['items'] : [];
-$items_product_data = $order['item_product_data'] ?? [];
 $order_placed = isset($order['created_at']) ? $order['created_at'] : '';
 $shipping_address = $order['shipping_address'] ?? [];
 $shipping_country = $order['shipping_country'] ?? [];
@@ -217,13 +215,10 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                 <!-- Order Items List -->
                 <div class="kecom-product-list-wrapper" x-ref="list_wrapper" :class="expanded ? 'scrollable': ''" @scroll="isAtBottom = $el.scrollHeight - $el.scrollTop <= $el.clientHeight + 1">
                     <div class="kecom-product-list">
-                        <?php foreach ($items as $key => $item) :
+                        <?php foreach ($items as $item) :
                             $inv_price_obj = $item['invoiced_subtotal_money_object'] ?? null;
                             $inv_strikethrough_price_obj = $item['invoiced_strikethrough_price_money_object'] ?? null;
-                            $item_product = $items_product_data[$key]['product'] ?? [];
-                            $product_image = $item_product['media'][0] ?? [];
-                            $product_first_image = MediaAttachment::make($product_image['ID'] ?? 0);
-                            $image = $item['image'] ? $item['image'] : $product_first_image;
+                            $image = $item['image'];
                             $applied_coupons = $item['applied_product_coupons'] ?? [];
                         ?>
                             <div class="kecom-product-item">
@@ -237,7 +232,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                 </div>
 
                                 <div class="kecom-product-info">
-                                    <a href="<?php echo esc_url(Url::get_product_url($item_product['slug'] ?? '')); ?>" class="kecom-product-name"><?php echo esc_html($item['product_name'] ?? ''); ?></a>
+                                    <a href="<?php echo esc_url(Url::get_product_url($item['product_slug'] ?? '')); ?>" class="kecom-product-name"><?php echo esc_html($item['product_name'] ?? ''); ?></a>
                                     <div class="kecom-product-variant">
                                         <?php echo esc_html($item['variant_name'] ?? '') ?>
                                     </div>
