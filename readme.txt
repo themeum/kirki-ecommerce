@@ -416,7 +416,7 @@ PayPal is a trademark of PayPal, Inc. CurrencyApi and ExchangeRate-API are trade
 * Update: Added a loading preview in payment settings while the payment list loads.
 * Fix: Stopped tax from being charged on variants with “Charge tax” turned off.
 * Fix: Removed the “Incl. tax” label from products that do not charge tax.
-* Fix: Fixed product images not saving correctly on order items.
+* Fix: Fixed product images not showing correctly on analytics page.
 * Fix: Fixed dialog titles and headings not displaying correctly.
 
 = 1.0.0 - Nov 04, 2026 =

@@ -5,8 +5,8 @@ on:
     # Stable release tags only. A pre-release tag (v1.2.0-alpha.1) does not
     # match, because WordPress.org has no pre-release channel.
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+'
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 # A cancelled SVN commit can leave the release half done, so a second tag
 # waits for the running deploy instead of cancelling it.
@@ -28,27 +28,29 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: "7.4"
           coverage: none
           tools: composer
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: |
             resources/app/package-lock.json
             resources/site/package-lock.json
+
+      # zip and rsync are already on GitHub's runner; a local `act` image may
+      # not have them.
+      - name: Install Subversion, zip and rsync
+        run: sudo apt-get update && sudo apt-get install -y subversion zip rsync
 
       # The tag is the version: it is written into the staged package only
       # (kirki-ecommerce.php header and constant, readme.txt Stable tag).
       # The source files are not changed and nothing is committed back.
       - name: Build plugin package
         run: bash bin/make-package.sh --version "${GITHUB_REF_NAME#v}" --keep-source
-
-      - name: Install Subversion
-        run: sudo apt-get update && sudo apt-get install -y subversion
 
       # The version comes from the tag (without the leading v), the same
       # value the build wrote into the package. There is no
@@ -58,6 +60,8 @@ jobs:
         uses: 10up/action-wordpress-plugin-deploy@2.3.0
         with:
           generate-zip: true
+          # A local `act` run sets ACT=true, so it stages but never commits.
+          dry-run: ${{ env.ACT == 'true' }}
         env:
           SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
@@ -67,6 +71,8 @@ jobs:
       # A release created by hand keeps its title and notes; only the zip is
       # added (or replaced on a re-run).
       - name: Attach zip to GitHub Release
+        # Skipped in a local `act` run: the tag does not exist on GitHub.
+        if: ${{ !env.ACT }}
         env:
           GH_TOKEN: ${{ github.token }}
           ZIP_PATH: ${{ steps.deploy.outputs.zip-path }}
