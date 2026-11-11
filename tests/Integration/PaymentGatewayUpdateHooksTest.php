@@ -6,6 +6,8 @@ use Kirki\Ecommerce\App\Payment\PaymentGatewayCatalog;
 use Kirki\Ecommerce\Framework\Supports\Facades\Cache;
 use WP_UnitTestCase;
 
+use function Kirki\Ecommerce\Framework\app;
+
 class PaymentGatewayUpdateHooksTest extends WP_UnitTestCase
 {
     protected const ZIP_BODY = 'not-a-real-zip';
@@ -110,6 +112,36 @@ class PaymentGatewayUpdateHooksTest extends WP_UnitTestCase
         $this->assertSame('1.0.1', $transient->response[static::PLUGIN]->new_version);
         $this->assertSame($this->base_url . '/kirki-fakepay/kirki-fakepay-1.0.1.zip', $transient->response[static::PLUGIN]->package);
         $this->assertArrayNotHasKey(static::PLUGIN, $transient->no_update);
+    }
+
+    public function test_a_catalog_cached_by_an_older_plugin_version_is_not_used(): void
+    {
+        $old_entry = [
+            'id' => 'fakepay',
+            'name' => 'Fake Pay',
+            'description' => '',
+            'version' => '1.0.0',
+            'icon_url' => '',
+            'download_url' => $this->base_url . '/kirki-fakepay/kirki-fakepay-1.0.0.zip',
+            'sha256' => str_repeat('a', 64),
+        ];
+
+        // A store resolved in an earlier test keeps a namespace version that the test rollback undid.
+        app('cache')->forget_resolved();
+        Cache::flexible(PaymentGatewayCatalog::CACHE_KEY, [PaymentGatewayCatalog::FRESH_CACHE_TTL, PaymentGatewayCatalog::STALE_CACHE_TTL], function () use ($old_entry) {
+            return [$old_entry];
+        });
+
+        update_option(app()->prefix() . 'cache_app_version_database', '1.0.0');
+        app('cache')->forget_resolved();
+
+        $this->install_fake_plugin('1.0.0');
+        $this->fake_server();
+
+        $transient = apply_filters('pre_set_site_transient_update_plugins', $this->empty_transient());
+
+        $this->assertArrayHasKey(static::PLUGIN, $transient->response);
+        $this->assertSame('1.0.1', $transient->response[static::PLUGIN]->new_version);
     }
 
     public function test_an_up_to_date_gateway_is_listed_as_no_update(): void

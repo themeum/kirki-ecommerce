@@ -153,6 +153,15 @@ Examples: `Cache` (not transients), `Http` (not `wp_remote_*`), `File` (not
 `unlink`/`hash_file`), `Extension` (not `Plugin_Upgrader`), `Superglobals` and
 `Request` (not `$_GET`/`$_POST`).
 
+Do not read a `KIRKI_ECOMMERCE_*` constant directly when `app()` gives the
+same value. Examples: `app()->version()` (not `KIRKI_ECOMMERCE_VERSION`),
+`app()->prefix()` (not `KIRKI_ECOMMERCE_PREFIX`), `app()->is_dev_mode()` (not
+`KIRKI_ECOMMERCE_MODE`), and `app()->base_path()` (not
+`KIRKI_ECOMMERCE_PLUGIN_PATH`). Use a constant only when `app()` has no
+accessor that gives the same value (for example
+`KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL`), or in code that runs before `app()`
+exists (`kirki-ecommerce.php`, `bootstrap/app.php`).
+
 If the framework feature is buggy or incomplete, do not work around it with a
 native call. Stop and tell me what is wrong, so I can improve the framework
 first.
@@ -163,6 +172,89 @@ first.
 
 Full standards live in `.claude/rules/react-standards.md`, which loads when
 working on `.ts`/`.tsx` files under `resources/app/`.
+
+---
+
+## 4. Backward Compatibility (strict)
+
+Kirki eCommerce is released, and live stores use it. A store must be able to
+install a new version on top of any earlier released version, and nothing
+must break.
+
+### 4.1 Branches
+
+- `origin/main` is the last released version. It is the source of truth for
+  what is "released".
+- `origin/dev` is the base branch for development. Code that is on
+  `origin/dev` but not on `origin/main` is not released yet. You can change it
+  freely.
+
+### 4.2 How to check
+
+Before you change a public surface (see 4.3), do these steps:
+
+1. Run `git fetch origin main dev`.
+2. Find out if the surface exists on `origin/main` (`git show origin/main:<path>`,
+   `git grep <name> origin/main`).
+3. If it exists on `origin/main`, the rules in 4.3–4.6 apply. If it exists only
+   on `origin/dev`, it is unreleased and the rules do not apply.
+
+At the end of each task, write a short "Backward compatibility" note in your
+response. Name each released surface that you changed and tell how the change
+stays compatible. If you changed no released surface, say so.
+
+### 4.3 Public surfaces
+
+These surfaces are public. Third parties, gateway plugins (for example Kirki
+Stripe), themes, and saved store data depend on them:
+
+- **Database and stored data:** table schemas, columns, migrations,
+  `wp_options` and settings keys and their value shapes, post meta, and
+  serialized data.
+- **PHP extension API:** action and filter names and their arguments, public
+  classes, methods, functions, helpers, constants, and namespaces.
+- **REST API:** route paths, request parameters, and response shapes.
+- **Front-end output:** shortcodes, blocks and block attributes, template and
+  view overrides, CSS classes, JS globals, and JS events.
+
+### 4.4 Deprecate, do not remove
+
+Do not remove or rename a released public function, method, class, hook,
+constant, route, shortcode, or block attribute. Deprecate it first:
+
+- Keep the old name working. Make it call the new code.
+- Call `_deprecated_function()`, `_deprecated_hook()`, or
+  `_deprecated_argument()` with the version that deprecates it.
+- Add a `@deprecated <version> Use <replacement>.` docblock tag.
+- Keep the deprecated item until the next major version (2.0.0). Remove it
+  only in a major version.
+
+Only add to signatures and payloads: add new optional parameters at the end
+with defaults, and add new response fields. Do not remove, reorder, or change
+the type of existing ones.
+
+### 4.5 Stop and ask first
+
+Do not write the change. Stop and ask me first when a task needs one of these:
+
+- A breaking change to a released public surface that a deprecation cannot
+  cover. Tell me what breaks for stores on `origin/main`, and give a
+  non-breaking alternative.
+- Any change to the database schema or to stored data: a new, changed, or
+  dropped table or column, a new migration, or a change to how an option,
+  setting, or meta value is stored. We decide each case on its own.
+- A higher minimum requirement: `Requires PHP`, `Requires at least`
+  (WordPress), or the Kirki eCommerce version that a gateway needs.
+- A change to a default value or default behaviour that changes what an
+  existing store gets when it did not change that setting (for example
+  prices, tax, emails, or the checkout flow).
+- The removal of a feature, setting, admin page, or email that stores on
+  `origin/main` use.
+
+### 4.6 Never edit released migrations
+
+Do not edit a migration file that is on `origin/main`. Stores that updated
+already ran it, and they will not run it again.
 
 ## 6. Documentation
 

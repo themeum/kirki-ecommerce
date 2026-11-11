@@ -86,6 +86,20 @@ return [
              * this on costs almost nothing.
              */
             'events' => true,
+
+            /*
+             * When true, the store starts over when the plugin version
+             * changes: the first request on the new version that uses the
+             * store flushes it once.
+             *
+             * On, because this store holds values whose shape the plugin code
+             * makes (for example the normalized payment gateway catalog). An
+             * update that changes that shape must not read an entry written by
+             * the previous release. The cost is a cold cache after each update,
+             * and the login rate limiter counts start again, because the
+             * limiter counts in this store.
+             */
+            'version_scoped' => true,
         ],
 
         /*
