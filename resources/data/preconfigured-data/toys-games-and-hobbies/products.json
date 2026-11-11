@@ -79,10 +79,10 @@
         "bestseller"
       ],
       "images": [
-        "wooden-chess-set-1.jpg",
-        "wooden-chess-set-2.jpg",
-        "wooden-chess-set-3.jpg",
-        "wooden-chess-set-4.jpg"
+        "wooden-chess-set-1.webp",
+        "wooden-chess-set-2.webp",
+        "wooden-chess-set-3.webp",
+        "wooden-chess-set-4.webp"
       ],
       "variants": [
         {
@@ -118,12 +118,12 @@
         "new-arrival"
       ],
       "images": [
-        "wooden-building-blocks-rainbow.jpg",
-        "wooden-building-blocks-pastel.jpg",
-        "wooden-building-blocks-jewel.jpg",
-        "wooden-building-blocks-2.jpg",
-        "wooden-building-blocks-3.jpg",
-        "wooden-building-blocks-4.jpg"
+        "wooden-building-blocks-rainbow.webp",
+        "wooden-building-blocks-pastel.webp",
+        "wooden-building-blocks-jewel.webp",
+        "wooden-building-blocks-2.webp",
+        "wooden-building-blocks-3.webp",
+        "wooden-building-blocks-4.webp"
       ],
       "variants": [
         {
@@ -132,7 +132,7 @@
             "color": "Rainbow",
             "pieces": "30 pieces"
           },
-          "image": "wooden-building-blocks-rainbow.jpg",
+          "image": "wooden-building-blocks-rainbow.webp",
           "price": "38.00",
           "sale_price": null,
           "cost": "15.00",
@@ -149,7 +149,7 @@
             "color": "Rainbow",
             "pieces": "60 pieces"
           },
-          "image": "wooden-building-blocks-rainbow.jpg",
+          "image": "wooden-building-blocks-rainbow.webp",
           "price": "62.00",
           "sale_price": null,
           "cost": "25.00",
@@ -166,7 +166,7 @@
             "color": "Pastel",
             "pieces": "30 pieces"
           },
-          "image": "wooden-building-blocks-pastel.jpg",
+          "image": "wooden-building-blocks-pastel.webp",
           "price": "38.00",
           "sale_price": null,
           "cost": "15.00",
@@ -183,7 +183,7 @@
             "color": "Pastel",
             "pieces": "60 pieces"
           },
-          "image": "wooden-building-blocks-pastel.jpg",
+          "image": "wooden-building-blocks-pastel.webp",
           "price": "62.00",
           "sale_price": null,
           "cost": "25.00",
@@ -200,7 +200,7 @@
             "color": "Jewel",
             "pieces": "30 pieces"
           },
-          "image": "wooden-building-blocks-jewel.jpg",
+          "image": "wooden-building-blocks-jewel.webp",
           "price": "38.00",
           "sale_price": null,
           "cost": "15.00",
@@ -217,7 +217,7 @@
             "color": "Jewel",
             "pieces": "60 pieces"
           },
-          "image": "wooden-building-blocks-jewel.jpg",
+          "image": "wooden-building-blocks-jewel.webp",
           "price": "62.00",
           "sale_price": null,
           "cost": "25.00",
@@ -244,10 +244,10 @@
         "gift-idea"
       ],
       "images": [
-        "jigsaw-puzzle-1.jpg",
-        "jigsaw-puzzle-2.jpg",
-        "jigsaw-puzzle-3.jpg",
-        "jigsaw-puzzle-4.jpg"
+        "jigsaw-puzzle-1.webp",
+        "jigsaw-puzzle-2.webp",
+        "jigsaw-puzzle-3.webp",
+        "jigsaw-puzzle-4.webp"
       ],
       "variants": [
         {
@@ -280,10 +280,10 @@
         "gift-idea"
       ],
       "images": [
-        "playing-cards-1.jpg",
-        "playing-cards-2.jpg",
-        "playing-cards-3.jpg",
-        "playing-cards-4.jpg"
+        "playing-cards-1.webp",
+        "playing-cards-2.webp",
+        "playing-cards-3.webp",
+        "playing-cards-4.webp"
       ],
       "variants": [
         {
@@ -337,10 +337,10 @@
         "bestseller"
       ],
       "images": [
-        "wooden-train-set-1.jpg",
-        "wooden-train-set-2.jpg",
-        "wooden-train-set-3.jpg",
-        "wooden-train-set-4.jpg"
+        "wooden-train-set-1.webp",
+        "wooden-train-set-2.webp",
+        "wooden-train-set-3.webp",
+        "wooden-train-set-4.webp"
       ],
       "variants": [
         {

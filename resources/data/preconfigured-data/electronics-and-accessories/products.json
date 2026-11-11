@@ -82,10 +82,10 @@
         "bestseller"
       ],
       "images": [
-        "wireless-charging-pad-1.jpg",
-        "wireless-charging-pad-2.jpg",
-        "wireless-charging-pad-3.jpg",
-        "wireless-charging-pad-4.jpg"
+        "wireless-charging-pad-1.webp",
+        "wireless-charging-pad-2.webp",
+        "wireless-charging-pad-3.webp",
+        "wireless-charging-pad-4.webp"
       ],
       "variants": [
         {
@@ -122,12 +122,12 @@
         "new-arrival"
       ],
       "images": [
-        "wireless-headphones-lilac.jpg",
-        "wireless-headphones-mint.jpg",
-        "wireless-headphones-coral.jpg",
-        "wireless-headphones-2.jpg",
-        "wireless-headphones-3.jpg",
-        "wireless-headphones-4.jpg"
+        "wireless-headphones-lilac.webp",
+        "wireless-headphones-mint.webp",
+        "wireless-headphones-coral.webp",
+        "wireless-headphones-2.webp",
+        "wireless-headphones-3.webp",
+        "wireless-headphones-4.webp"
       ],
       "variants": [
         {
@@ -136,7 +136,7 @@
             "color": "Lilac",
             "bundle": "Headphones only"
           },
-          "image": "wireless-headphones-lilac.jpg",
+          "image": "wireless-headphones-lilac.webp",
           "price": "149.00",
           "sale_price": null,
           "cost": "60.00",
@@ -153,7 +153,7 @@
             "color": "Lilac",
             "bundle": "With carry case"
           },
-          "image": "wireless-headphones-lilac.jpg",
+          "image": "wireless-headphones-lilac.webp",
           "price": "169.00",
           "sale_price": null,
           "cost": "68.00",
@@ -170,7 +170,7 @@
             "color": "Mint",
             "bundle": "Headphones only"
           },
-          "image": "wireless-headphones-mint.jpg",
+          "image": "wireless-headphones-mint.webp",
           "price": "149.00",
           "sale_price": null,
           "cost": "60.00",
@@ -187,7 +187,7 @@
             "color": "Mint",
             "bundle": "With carry case"
           },
-          "image": "wireless-headphones-mint.jpg",
+          "image": "wireless-headphones-mint.webp",
           "price": "169.00",
           "sale_price": null,
           "cost": "68.00",
@@ -204,7 +204,7 @@
             "color": "Coral",
             "bundle": "Headphones only"
           },
-          "image": "wireless-headphones-coral.jpg",
+          "image": "wireless-headphones-coral.webp",
           "price": "149.00",
           "sale_price": null,
           "cost": "60.00",
@@ -221,7 +221,7 @@
             "color": "Coral",
             "bundle": "With carry case"
           },
-          "image": "wireless-headphones-coral.jpg",
+          "image": "wireless-headphones-coral.webp",
           "price": "169.00",
           "sale_price": null,
           "cost": "68.00",
@@ -249,10 +249,10 @@
         "travel"
       ],
       "images": [
-        "bluetooth-speaker-1.jpg",
-        "bluetooth-speaker-2.jpg",
-        "bluetooth-speaker-3.jpg",
-        "bluetooth-speaker-4.jpg"
+        "bluetooth-speaker-1.webp",
+        "bluetooth-speaker-2.webp",
+        "bluetooth-speaker-3.webp",
+        "bluetooth-speaker-4.webp"
       ],
       "variants": [
         {
@@ -285,10 +285,10 @@
         "travel"
       ],
       "images": [
-        "usb-c-cable-1.jpg",
-        "usb-c-cable-2.jpg",
-        "usb-c-cable-3.jpg",
-        "usb-c-cable-4.jpg"
+        "usb-c-cable-1.webp",
+        "usb-c-cable-2.webp",
+        "usb-c-cable-3.webp",
+        "usb-c-cable-4.webp"
       ],
       "variants": [
         {
@@ -342,10 +342,10 @@
         "bestseller"
       ],
       "images": [
-        "phone-case-1.jpg",
-        "phone-case-2.jpg",
-        "phone-case-3.jpg",
-        "phone-case-4.jpg"
+        "phone-case-1.webp",
+        "phone-case-2.webp",
+        "phone-case-3.webp",
+        "phone-case-4.webp"
       ],
       "variants": [
         {

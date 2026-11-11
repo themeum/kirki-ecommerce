@@ -72,10 +72,10 @@
         "eco"
       ],
       "images": [
-        "cork-yoga-block-1.jpg",
-        "cork-yoga-block-2.jpg",
-        "cork-yoga-block-3.jpg",
-        "cork-yoga-block-4.jpg"
+        "cork-yoga-block-1.webp",
+        "cork-yoga-block-2.webp",
+        "cork-yoga-block-3.webp",
+        "cork-yoga-block-4.webp"
       ],
       "variants": [
         {
@@ -112,12 +112,12 @@
         "new-arrival"
       ],
       "images": [
-        "yoga-mat-lilac.jpg",
-        "yoga-mat-coral.jpg",
-        "yoga-mat-teal.jpg",
-        "yoga-mat-2.jpg",
-        "yoga-mat-3.jpg",
-        "yoga-mat-4.jpg"
+        "yoga-mat-lilac.webp",
+        "yoga-mat-coral.webp",
+        "yoga-mat-teal.webp",
+        "yoga-mat-2.webp",
+        "yoga-mat-3.webp",
+        "yoga-mat-4.webp"
       ],
       "variants": [
         {
@@ -126,7 +126,7 @@
             "color": "Lilac",
             "thickness": "4 mm"
           },
-          "image": "yoga-mat-lilac.jpg",
+          "image": "yoga-mat-lilac.webp",
           "price": "78.00",
           "sale_price": null,
           "cost": "31.00",
@@ -143,7 +143,7 @@
             "color": "Lilac",
             "thickness": "6 mm"
           },
-          "image": "yoga-mat-lilac.jpg",
+          "image": "yoga-mat-lilac.webp",
           "price": "88.00",
           "sale_price": null,
           "cost": "35.00",
@@ -160,7 +160,7 @@
             "color": "Coral",
             "thickness": "4 mm"
           },
-          "image": "yoga-mat-coral.jpg",
+          "image": "yoga-mat-coral.webp",
           "price": "78.00",
           "sale_price": null,
           "cost": "31.00",
@@ -177,7 +177,7 @@
             "color": "Coral",
             "thickness": "6 mm"
           },
-          "image": "yoga-mat-coral.jpg",
+          "image": "yoga-mat-coral.webp",
           "price": "88.00",
           "sale_price": null,
           "cost": "35.00",
@@ -194,7 +194,7 @@
             "color": "Teal",
             "thickness": "4 mm"
           },
-          "image": "yoga-mat-teal.jpg",
+          "image": "yoga-mat-teal.webp",
           "price": "78.00",
           "sale_price": null,
           "cost": "31.00",
@@ -211,7 +211,7 @@
             "color": "Teal",
             "thickness": "6 mm"
           },
-          "image": "yoga-mat-teal.jpg",
+          "image": "yoga-mat-teal.webp",
           "price": "88.00",
           "sale_price": null,
           "cost": "35.00",
@@ -239,10 +239,10 @@
         "travel"
       ],
       "images": [
-        "resistance-band-set-1.jpg",
-        "resistance-band-set-2.jpg",
-        "resistance-band-set-3.jpg",
-        "resistance-band-set-4.jpg"
+        "resistance-band-set-1.webp",
+        "resistance-band-set-2.webp",
+        "resistance-band-set-3.webp",
+        "resistance-band-set-4.webp"
       ],
       "variants": [
         {
@@ -276,10 +276,10 @@
         "bestseller"
       ],
       "images": [
-        "insulated-water-bottle-1.jpg",
-        "insulated-water-bottle-2.jpg",
-        "insulated-water-bottle-3.jpg",
-        "insulated-water-bottle-4.jpg"
+        "insulated-water-bottle-1.webp",
+        "insulated-water-bottle-2.webp",
+        "insulated-water-bottle-3.webp",
+        "insulated-water-bottle-4.webp"
       ],
       "variants": [
         {
@@ -333,10 +333,10 @@
         "home-gym"
       ],
       "images": [
-        "cast-iron-kettlebell-1.jpg",
-        "cast-iron-kettlebell-2.jpg",
-        "cast-iron-kettlebell-3.jpg",
-        "cast-iron-kettlebell-4.jpg"
+        "cast-iron-kettlebell-1.webp",
+        "cast-iron-kettlebell-2.webp",
+        "cast-iron-kettlebell-3.webp",
+        "cast-iron-kettlebell-4.webp"
       ],
       "variants": [
         {

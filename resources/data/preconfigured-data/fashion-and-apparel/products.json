@@ -96,10 +96,10 @@
         "bestseller"
       ],
       "images": [
-        "canvas-tote-bag-1.jpg",
-        "canvas-tote-bag-2.jpg",
-        "canvas-tote-bag-3.jpg",
-        "canvas-tote-bag-4.jpg"
+        "canvas-tote-bag-1.webp",
+        "canvas-tote-bag-2.webp",
+        "canvas-tote-bag-3.webp",
+        "canvas-tote-bag-4.webp"
       ],
       "variants": [
         {
@@ -136,12 +136,12 @@
         "new-arrival"
       ],
       "images": [
-        "linen-shirt-coral.jpg",
-        "linen-shirt-marigold.jpg",
-        "linen-shirt-cobalt.jpg",
-        "linen-shirt-2.jpg",
-        "linen-shirt-3.jpg",
-        "linen-shirt-4.jpg"
+        "linen-shirt-coral.webp",
+        "linen-shirt-marigold.webp",
+        "linen-shirt-cobalt.webp",
+        "linen-shirt-2.webp",
+        "linen-shirt-3.webp",
+        "linen-shirt-4.webp"
       ],
       "variants": [
         {
@@ -150,7 +150,7 @@
             "color": "Coral",
             "size": "S"
           },
-          "image": "linen-shirt-coral.jpg",
+          "image": "linen-shirt-coral.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -167,7 +167,7 @@
             "color": "Coral",
             "size": "M"
           },
-          "image": "linen-shirt-coral.jpg",
+          "image": "linen-shirt-coral.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -184,7 +184,7 @@
             "color": "Coral",
             "size": "L"
           },
-          "image": "linen-shirt-coral.jpg",
+          "image": "linen-shirt-coral.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -201,7 +201,7 @@
             "color": "Coral",
             "size": "XL"
           },
-          "image": "linen-shirt-coral.jpg",
+          "image": "linen-shirt-coral.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -218,7 +218,7 @@
             "color": "Marigold",
             "size": "S"
           },
-          "image": "linen-shirt-marigold.jpg",
+          "image": "linen-shirt-marigold.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -235,7 +235,7 @@
             "color": "Marigold",
             "size": "M"
           },
-          "image": "linen-shirt-marigold.jpg",
+          "image": "linen-shirt-marigold.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -252,7 +252,7 @@
             "color": "Marigold",
             "size": "L"
           },
-          "image": "linen-shirt-marigold.jpg",
+          "image": "linen-shirt-marigold.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -269,7 +269,7 @@
             "color": "Marigold",
             "size": "XL"
           },
-          "image": "linen-shirt-marigold.jpg",
+          "image": "linen-shirt-marigold.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -286,7 +286,7 @@
             "color": "Cobalt",
             "size": "S"
           },
-          "image": "linen-shirt-cobalt.jpg",
+          "image": "linen-shirt-cobalt.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -303,7 +303,7 @@
             "color": "Cobalt",
             "size": "M"
           },
-          "image": "linen-shirt-cobalt.jpg",
+          "image": "linen-shirt-cobalt.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -320,7 +320,7 @@
             "color": "Cobalt",
             "size": "L"
           },
-          "image": "linen-shirt-cobalt.jpg",
+          "image": "linen-shirt-cobalt.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -337,7 +337,7 @@
             "color": "Cobalt",
             "size": "XL"
           },
-          "image": "linen-shirt-cobalt.jpg",
+          "image": "linen-shirt-cobalt.webp",
           "price": "48.00",
           "sale_price": null,
           "cost": "19.00",
@@ -365,10 +365,10 @@
         "gift-idea"
       ],
       "images": [
-        "wool-scarf-1.jpg",
-        "wool-scarf-2.jpg",
-        "wool-scarf-3.jpg",
-        "wool-scarf-4.jpg"
+        "wool-scarf-1.webp",
+        "wool-scarf-2.webp",
+        "wool-scarf-3.webp",
+        "wool-scarf-4.webp"
       ],
       "variants": [
         {
@@ -401,10 +401,10 @@
         "everyday"
       ],
       "images": [
-        "leather-belt-1.jpg",
-        "leather-belt-2.jpg",
-        "leather-belt-3.jpg",
-        "leather-belt-4.jpg"
+        "leather-belt-1.webp",
+        "leather-belt-2.webp",
+        "leather-belt-3.webp",
+        "leather-belt-4.webp"
       ],
       "variants": [
         {
@@ -491,10 +491,10 @@
         "bestseller"
       ],
       "images": [
-        "leather-sneakers-1.jpg",
-        "leather-sneakers-2.jpg",
-        "leather-sneakers-3.jpg",
-        "leather-sneakers-4.jpg"
+        "leather-sneakers-1.webp",
+        "leather-sneakers-2.webp",
+        "leather-sneakers-3.webp",
+        "leather-sneakers-4.webp"
       ],
       "variants": [
         {

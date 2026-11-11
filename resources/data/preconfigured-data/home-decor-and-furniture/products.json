@@ -92,10 +92,10 @@
         "bestseller"
       ],
       "images": [
-        "stoneware-vase-1.jpg",
-        "stoneware-vase-2.jpg",
-        "stoneware-vase-3.jpg",
-        "stoneware-vase-4.jpg"
+        "stoneware-vase-1.webp",
+        "stoneware-vase-2.webp",
+        "stoneware-vase-3.webp",
+        "stoneware-vase-4.webp"
       ],
       "variants": [
         {
@@ -131,12 +131,12 @@
         "new-arrival"
       ],
       "images": [
-        "linen-cushion-cover-marigold.jpg",
-        "linen-cushion-cover-teal.jpg",
-        "linen-cushion-cover-coral.jpg",
-        "linen-cushion-cover-2.jpg",
-        "linen-cushion-cover-3.jpg",
-        "linen-cushion-cover-4.jpg"
+        "linen-cushion-cover-marigold.webp",
+        "linen-cushion-cover-teal.webp",
+        "linen-cushion-cover-coral.webp",
+        "linen-cushion-cover-2.webp",
+        "linen-cushion-cover-3.webp",
+        "linen-cushion-cover-4.webp"
       ],
       "variants": [
         {
@@ -145,7 +145,7 @@
             "color": "Marigold",
             "size": "45 × 45 cm"
           },
-          "image": "linen-cushion-cover-marigold.jpg",
+          "image": "linen-cushion-cover-marigold.webp",
           "price": "34.00",
           "sale_price": null,
           "cost": "14.00",
@@ -162,7 +162,7 @@
             "color": "Marigold",
             "size": "50 × 50 cm"
           },
-          "image": "linen-cushion-cover-marigold.jpg",
+          "image": "linen-cushion-cover-marigold.webp",
           "price": "38.00",
           "sale_price": null,
           "cost": "15.00",
@@ -179,7 +179,7 @@
             "color": "Teal",
             "size": "45 × 45 cm"
           },
-          "image": "linen-cushion-cover-teal.jpg",
+          "image": "linen-cushion-cover-teal.webp",
           "price": "34.00",
           "sale_price": null,
           "cost": "14.00",
@@ -196,7 +196,7 @@
             "color": "Teal",
             "size": "50 × 50 cm"
           },
-          "image": "linen-cushion-cover-teal.jpg",
+          "image": "linen-cushion-cover-teal.webp",
           "price": "38.00",
           "sale_price": null,
           "cost": "15.00",
@@ -213,7 +213,7 @@
             "color": "Coral",
             "size": "45 × 45 cm"
           },
-          "image": "linen-cushion-cover-coral.jpg",
+          "image": "linen-cushion-cover-coral.webp",
           "price": "34.00",
           "sale_price": null,
           "cost": "14.00",
@@ -230,7 +230,7 @@
             "color": "Coral",
             "size": "50 × 50 cm"
           },
-          "image": "linen-cushion-cover-coral.jpg",
+          "image": "linen-cushion-cover-coral.webp",
           "price": "38.00",
           "sale_price": null,
           "cost": "15.00",
@@ -257,10 +257,10 @@
         "minimal"
       ],
       "images": [
-        "oak-side-table-1.jpg",
-        "oak-side-table-2.jpg",
-        "oak-side-table-3.jpg",
-        "oak-side-table-4.jpg"
+        "oak-side-table-1.webp",
+        "oak-side-table-2.webp",
+        "oak-side-table-3.webp",
+        "oak-side-table-4.webp"
       ],
       "variants": [
         {
@@ -293,10 +293,10 @@
         "gift-idea"
       ],
       "images": [
-        "soy-candle-1.jpg",
-        "soy-candle-2.jpg",
-        "soy-candle-3.jpg",
-        "soy-candle-4.jpg"
+        "soy-candle-1.webp",
+        "soy-candle-2.webp",
+        "soy-candle-3.webp",
+        "soy-candle-4.webp"
       ],
       "variants": [
         {
@@ -363,10 +363,10 @@
         "bestseller"
       ],
       "images": [
-        "dining-chair-1.jpg",
-        "dining-chair-2.jpg",
-        "dining-chair-3.jpg",
-        "dining-chair-4.jpg"
+        "dining-chair-1.webp",
+        "dining-chair-2.webp",
+        "dining-chair-3.webp",
+        "dining-chair-4.webp"
       ],
       "variants": [
         {

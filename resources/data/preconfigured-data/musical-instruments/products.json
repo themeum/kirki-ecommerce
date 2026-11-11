@@ -87,10 +87,10 @@
         "beginner"
       ],
       "images": [
-        "kalimba-1.jpg",
-        "kalimba-2.jpg",
-        "kalimba-3.jpg",
-        "kalimba-4.jpg"
+        "kalimba-1.webp",
+        "kalimba-2.webp",
+        "kalimba-3.webp",
+        "kalimba-4.webp"
       ],
       "variants": [
         {
@@ -126,12 +126,12 @@
         "new-arrival"
       ],
       "images": [
-        "leather-guitar-strap-cherry.jpg",
-        "leather-guitar-strap-teal.jpg",
-        "leather-guitar-strap-mustard.jpg",
-        "leather-guitar-strap-2.jpg",
-        "leather-guitar-strap-3.jpg",
-        "leather-guitar-strap-4.jpg"
+        "leather-guitar-strap-cherry.webp",
+        "leather-guitar-strap-teal.webp",
+        "leather-guitar-strap-mustard.webp",
+        "leather-guitar-strap-2.webp",
+        "leather-guitar-strap-3.webp",
+        "leather-guitar-strap-4.webp"
       ],
       "variants": [
         {
@@ -140,7 +140,7 @@
             "color": "Cherry",
             "length": "Standard"
           },
-          "image": "leather-guitar-strap-cherry.jpg",
+          "image": "leather-guitar-strap-cherry.webp",
           "price": "39.00",
           "sale_price": null,
           "cost": "16.00",
@@ -157,7 +157,7 @@
             "color": "Cherry",
             "length": "Long"
           },
-          "image": "leather-guitar-strap-cherry.jpg",
+          "image": "leather-guitar-strap-cherry.webp",
           "price": "39.00",
           "sale_price": null,
           "cost": "16.00",
@@ -174,7 +174,7 @@
             "color": "Teal",
             "length": "Standard"
           },
-          "image": "leather-guitar-strap-teal.jpg",
+          "image": "leather-guitar-strap-teal.webp",
           "price": "39.00",
           "sale_price": null,
           "cost": "16.00",
@@ -191,7 +191,7 @@
             "color": "Teal",
             "length": "Long"
           },
-          "image": "leather-guitar-strap-teal.jpg",
+          "image": "leather-guitar-strap-teal.webp",
           "price": "39.00",
           "sale_price": null,
           "cost": "16.00",
@@ -208,7 +208,7 @@
             "color": "Mustard",
             "length": "Standard"
           },
-          "image": "leather-guitar-strap-mustard.jpg",
+          "image": "leather-guitar-strap-mustard.webp",
           "price": "39.00",
           "sale_price": null,
           "cost": "16.00",
@@ -225,7 +225,7 @@
             "color": "Mustard",
             "length": "Long"
           },
-          "image": "leather-guitar-strap-mustard.jpg",
+          "image": "leather-guitar-strap-mustard.webp",
           "price": "39.00",
           "sale_price": null,
           "cost": "16.00",
@@ -252,10 +252,10 @@
         "gift-idea"
       ],
       "images": [
-        "concert-ukulele-1.jpg",
-        "concert-ukulele-2.jpg",
-        "concert-ukulele-3.jpg",
-        "concert-ukulele-4.jpg"
+        "concert-ukulele-1.webp",
+        "concert-ukulele-2.webp",
+        "concert-ukulele-3.webp",
+        "concert-ukulele-4.webp"
       ],
       "variants": [
         {
@@ -288,10 +288,10 @@
         "beginner"
       ],
       "images": [
-        "acoustic-guitar-strings-1.jpg",
-        "acoustic-guitar-strings-2.jpg",
-        "acoustic-guitar-strings-3.jpg",
-        "acoustic-guitar-strings-4.jpg"
+        "acoustic-guitar-strings-1.webp",
+        "acoustic-guitar-strings-2.webp",
+        "acoustic-guitar-strings-3.webp",
+        "acoustic-guitar-strings-4.webp"
       ],
       "variants": [
         {
@@ -345,10 +345,10 @@
         "bestseller"
       ],
       "images": [
-        "acoustic-guitar-1.jpg",
-        "acoustic-guitar-2.jpg",
-        "acoustic-guitar-3.jpg",
-        "acoustic-guitar-4.jpg"
+        "acoustic-guitar-1.webp",
+        "acoustic-guitar-2.webp",
+        "acoustic-guitar-3.webp",
+        "acoustic-guitar-4.webp"
       ],
       "variants": [
         {
