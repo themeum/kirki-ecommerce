@@ -75,6 +75,21 @@ class Currency
     }
 
     /**
+     * Check that a stored currency exists and is active.
+     *
+     * @since 1.0.0
+     *
+     * @param string $currency_code Currency code.
+     * @return bool
+     */
+    public static function is_active(string $currency_code)
+    {
+        $currency = static::resolve_currency($currency_code);
+
+        return $currency && $currency->is_active;
+    }
+
+    /**
      * Look up the stored currency by its code.
      *
      * @since 1.0.0

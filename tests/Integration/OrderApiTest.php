@@ -706,6 +706,28 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * A shopper checkout in an inactive currency is rejected and creates no order.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_shopper_checkout_rejects_inactive_currency(): void
+    {
+        $currency_code = $this->create_test_currency(['is_active' => false]);
+
+        wp_set_current_user($this->create_shopper_user());
+        $this->add_to_shopper_cart();
+
+        $order_count_before = Order::count();
+
+        $response = $this->request('POST', 'checkout', $this->order_payload(['is_manual' => false, 'currency_code' => $currency_code]));
+
+        $payload = $this->assert_api_error($response, 422);
+        $this->assertSame('This currency is not available.', $payload['message']);
+        $this->assertEquals($order_count_before, Order::count());
+    }
+
+    /**
      * Editing a guest order without submitting `customer_id` must not
      * default it to `0` - `orders.customer_id` has no row with id `0`, so
      * persisting `0` violates its FK constraint. Omitting `customer_id`
