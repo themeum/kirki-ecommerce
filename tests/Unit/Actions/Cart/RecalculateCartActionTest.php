@@ -755,6 +755,278 @@ class RecalculateCartActionTest extends TestCase
         $this->assertSame(33750, $result->base_total);
     }
 
+    // A variant can opt out of item tax
+
+    /**
+     * An item whose variant does not charge tax gets no tax lines and zero tax.
+     *
+     * @return void
+     */
+    public function test_an_item_with_charge_taxes_off_gets_no_tax(): void
+    {
+        $this->bind_default_region(15, 0, false);
+
+        $context = $this->make_context([$this->make_item(1, 10000, 1, ['charge_taxes' => false])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame([], $result->items[1]->tax_lines);
+        $this->assertSame(0, $result->items[1]->base_tax_amount);
+        $this->assertSame(10000, $result->items[1]->base_total);
+        $this->assertSame(0, $result->base_tax_total);
+    }
+
+    /**
+     * An item whose variant charges tax is taxed as before.
+     *
+     * @return void
+     */
+    public function test_an_item_with_charge_taxes_on_is_taxed(): void
+    {
+        $this->bind_default_region(15, 0, false);
+
+        $context = $this->make_context([$this->make_item(1, 10000, 1, ['charge_taxes' => true])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(1500, $result->items[1]->base_tax_amount);
+        $this->assertSame(11500, $result->items[1]->base_total);
+    }
+
+    /**
+     * In a cart with a taxed and an untaxed item, only the first is taxed.
+     *
+     * @return void
+     */
+    public function test_only_the_taxed_item_of_a_mixed_cart_carries_tax(): void
+    {
+        $this->bind_default_region(15, 0, false);
+
+        $context = $this->make_context([
+            $this->make_item(1, 10000),
+            $this->make_item(2, 10000, 1, ['charge_taxes' => false]),
+        ], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(1500, $result->items[1]->base_tax_amount);
+        $this->assertSame(0, $result->items[2]->base_tax_amount);
+        $this->assertSame(1500, $result->base_tax_total);
+        $this->assertSame(21500, $result->base_total);
+    }
+
+    /**
+     * When the store does not calculate tax, no item is taxed, so charge taxes cannot turn tax on.
+     *
+     * @return void
+     */
+    public function test_charge_taxes_does_not_turn_tax_on_when_the_store_does_not_calculate_tax(): void
+    {
+        $this->bind_default_region(15, 0, false);
+
+        $context = $this->make_context([
+            $this->make_item(1, 10000, 1, ['charge_taxes' => true]),
+            $this->make_item(2, 10000, 1, ['charge_taxes' => false]),
+        ], [
+            'shipping_address' => ['country' => 'BD'],
+            'should_calculate_tax' => false,
+        ]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(0, $result->items[1]->base_tax_amount);
+        $this->assertSame(0, $result->items[2]->base_tax_amount);
+        $this->assertSame(0, $result->base_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing an untaxed item keeps its catalog price: no tax is extracted from it.
+     *
+     * @return void
+     */
+    public function test_an_untaxed_item_keeps_its_catalog_price_under_inclusive_pricing(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 11000, 1, ['charge_taxes' => false])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(11000, $item->base_subtotal);
+        $this->assertSame(0, $item->base_tax_amount);
+        $this->assertSame(11000, $item->base_total);
+        $this->assertSame(11000, $item->base_unit_price);
+        $this->assertSame(11000, $item->base_regular_unit_price);
+        $this->assertSame(11000, $item->base_product_total);
+        $this->assertSame(11000, $item->base_catalog_regular_price);
+        $this->assertSame(0, $item->base_regular_tax_amount);
+        $this->assertSame(11000, $result->base_total);
+    }
+
+    /**
+     * A taxed and an untaxed item under tax-inclusive pricing: tax is extracted from the first only.
+     *
+     * @return void
+     */
+    public function test_inclusive_pricing_extracts_tax_from_the_taxed_item_only(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([
+            $this->make_item(1, 12000),
+            $this->make_item(2, 12000, 1, ['charge_taxes' => false]),
+        ], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(10000, $result->items[1]->base_subtotal);
+        $this->assertSame(2000, $result->items[1]->base_tax_amount);
+        $this->assertSame(12000, $result->items[2]->base_subtotal);
+        $this->assertSame(0, $result->items[2]->base_tax_amount);
+        $this->assertSame(24000, $result->base_total);
+        $this->assertSame(2000, $result->base_tax_total);
+    }
+
+    /**
+     * With the Default strategy shipping tax has its own rate, so an untaxed item does not change it.
+     *
+     * @return void
+     */
+    public function test_default_strategy_shipping_tax_does_not_depend_on_charge_taxes(): void
+    {
+        $this->bind_default_region(15, 5, false);
+
+        $context = $this->make_context([$this->make_item(1, 10000, 1, ['charge_taxes' => false])], [
+            'shipping_address' => ['country' => 'BD'],
+            'shipping_method_id' => 7,
+        ]);
+
+        $result = $this->make_action(['shipping_service' => $this->make_taxable_shipping_service(2000)])->execute($context);
+
+        $this->assertSame(0, $result->items[1]->base_tax_amount);
+        $this->assertSame(100, $result->base_shipping_tax);
+        $this->assertSame(100, $result->base_tax_total);
+    }
+
+    /**
+     * With the EU strategy shipping tax is shared across the taxed items only.
+     *
+     * @return void
+     */
+    public function test_eu_shipping_tax_is_shared_across_the_taxed_items_only(): void
+    {
+        $this->bind_eu_oss_region();
+
+        $context = $this->make_context([
+            $this->make_item(1, 10000, 1, ['tax_profile_id' => 'digital']),
+            $this->make_item(2, 10000, 1, ['tax_profile_id' => 'physical', 'charge_taxes' => false]),
+        ], [
+            'shipping_address' => ['country' => 'AT'],
+            'shipping_method_id' => 7,
+        ]);
+
+        $result = $this->make_action(['shipping_service' => $this->make_taxable_shipping_service(10000)])->execute($context);
+
+        $this->assertSame(500, $result->items[1]->base_tax_amount);
+        $this->assertSame(0, $result->items[2]->base_tax_amount);
+        $this->assertCount(1, $result->shipping_tax_lines);
+        $this->assertSame(1, $result->shipping_tax_lines[0]->item_id);
+        $this->assertSame(500, $result->shipping_tax_lines[0]->base_amount);
+        $this->assertSame(500, $result->base_shipping_tax);
+    }
+
+    /**
+     * With the EU strategy and only untaxed items, shipping uses the plain member country rate, as for a shipping-only quote.
+     *
+     * @return void
+     */
+    public function test_eu_shipping_uses_the_plain_rate_when_every_item_is_untaxed(): void
+    {
+        $this->bind_eu_oss_region();
+
+        $context = $this->make_context([
+            $this->make_item(1, 10000, 1, ['tax_profile_id' => 'digital', 'charge_taxes' => false]),
+        ], [
+            'shipping_address' => ['country' => 'AT'],
+            'shipping_method_id' => 7,
+        ]);
+
+        $result = $this->make_action(['shipping_service' => $this->make_taxable_shipping_service(10000)])->execute($context);
+
+        $this->assertSame(0, $result->items[1]->base_tax_amount);
+        $this->assertCount(1, $result->shipping_tax_lines);
+        $this->assertNull($result->shipping_tax_lines[0]->item_id);
+        $this->assertSame(2000, $result->base_shipping_tax);
+    }
+
+    /**
+     * A line already on an order keeps the tax stored for it.
+     *
+     * @return void
+     */
+    public function test_a_stored_taxed_line_keeps_its_stored_tax(): void
+    {
+        $this->bind_default_region(20, 0, false);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD']]);
+        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]]]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(1000, $result->items[1]->base_tax_amount);
+    }
+
+    /**
+     * A line that was untaxed when the order was placed stays untaxed, although the store taxes at a rate now.
+     *
+     * @return void
+     */
+    public function test_a_stored_untaxed_line_stays_untaxed(): void
+    {
+        $this->bind_default_region(20, 0, false);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD']]);
+        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => []]]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(0, $result->items[1]->base_tax_amount);
+        $this->assertSame(10000, $result->items[1]->base_total);
+    }
+
+    /**
+     * A new line with charge taxes off has no tax, and the stored line next to it is unchanged.
+     *
+     * @return void
+     */
+    public function test_a_new_untaxed_line_does_not_change_a_stored_taxed_line(): void
+    {
+        $this->bind_default_region(20, 0, false);
+
+        $context = $this->make_context([
+            $this->make_item(1, 10000),
+            $this->make_item(2, 10000, 1, ['charge_taxes' => false]),
+        ], ['shipping_address' => ['country' => 'BD']]);
+        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]]]);
+
+        $result = $this->make_action()->execute($context);
+
+        $this->assertSame(1000, $result->items[1]->base_tax_amount);
+        $this->assertSame(0, $result->items[2]->base_tax_amount);
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
     /**
      * By default tax is calculated from the shipping address.
      *
@@ -898,6 +1170,24 @@ class RecalculateCartActionTest extends TestCase
                 'states' => [],
             ],
         ], $is_tax_inclusive_price);
+    }
+
+    /**
+     * Bind an EU one-stop-shop region with Austria at 20% and a 5% rule for the "digital" tax profile.
+     *
+     * @return void
+     */
+    protected function bind_eu_oss_region(): void
+    {
+        $this->bind_full_tax_settings([
+            [
+                'code' => 'EU',
+                'is_enabled' => true,
+                'type' => 'oss',
+                'rules' => [$this->set_product_tax_rate_rule('digital', 5)],
+                'countries' => [['code' => 'AT', 'name' => 'Austria', 'rate' => 20]],
+            ],
+        ]);
     }
 
     // An edited order keeps the terms it was placed with
@@ -1118,6 +1408,7 @@ class RecalculateCartActionTest extends TestCase
         $item->base_unit_price = $base_unit_price;
         $item->base_product_total = $overrides['base_product_total'] ?? $base_unit_price;
         $item->tax_profile_id = $overrides['tax_profile_id'] ?? null;
+        $item->charge_taxes = $overrides['charge_taxes'] ?? true;
         $item->product_categories = $overrides['product_categories'] ?? [];
 
         return $item;

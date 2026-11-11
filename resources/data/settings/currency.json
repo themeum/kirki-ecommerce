@@ -1,11 +1,11 @@
 {
-    "currency_format": "short",
-    "currency_position": "before",
-    "thousand_separator": ",",
-    "decimal_separator": ".",
-    "is_automatic_update_enabled": true,
-    "api_provider": null,
-    "last_sync_at": null,
-    "next_sync_at": null,
-    "api_configs": {}
+  "currency_format": "short",
+  "currency_position": "before",
+  "thousand_separator": ",",
+  "decimal_separator": ".",
+  "is_automatic_update_enabled": false,
+  "api_provider": null,
+  "last_sync_at": null,
+  "next_sync_at": null,
+  "api_configs": {}
 }

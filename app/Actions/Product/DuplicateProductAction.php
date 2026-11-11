@@ -73,7 +73,6 @@ class DuplicateProductAction
             'og_title' => $product->og_title,
             'og_description' => $product->og_description,
             'og_image' => $product->og_image,
-            'schema_id' => $product->schema_id,
             'media' => $product->media->pluck('ID')->all(),
             'categories' => $product->categories->pluck('id')->all(),
             'tags' => $product->tags->pluck('id')->all(),

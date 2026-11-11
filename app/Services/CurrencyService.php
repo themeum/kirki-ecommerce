@@ -516,6 +516,29 @@ class CurrencyService
     }
 
     /**
+     * Get the active currency codes, with the base currency first.
+     *
+     * @since 1.0.0
+     *
+     * @return string[]
+     */
+    public function get_active_currency_codes()
+    {
+        $base = [];
+        $others = [];
+
+        foreach ($this->get_active_currencies() as $currency) {
+            if ($currency->is_base) {
+                $base[] = $currency->code;
+            } else {
+                $others[] = $currency->code;
+            }
+        }
+
+        return array_merge($base, $others);
+    }
+
+    /**
      * Get the currency preferences.
      * 
      * @since 1.0.0

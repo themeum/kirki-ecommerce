@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from 'vitest';
 
-import { OfflinePaymentSchema, OnlinePaymentListSchema, OnlinePaymentSchema } from '@/features/settings/payment/schemas/catalog/payment';
+import { OfflinePaymentSchema, OnlinePaymentListSchema, OnlinePaymentSchema, PaymentMethodSchema } from '@/features/settings/payment/schemas/catalog/payment';
 
 describe('OnlinePaymentSchema', () => {
   it('accepts the documented list item (online-payments/list-6.yml)', () => {
@@ -63,6 +63,49 @@ describe('OnlinePaymentSchema', () => {
       is_installed: false,
     });
     expect(result.success).toBe(true);
+  });
+
+  it('accepts a catalog item with an update', () => {
+    const result = OnlinePaymentSchema.safeParse({
+      id: 'payfast',
+      name: 'PayFast',
+      version: '1.0.1',
+      is_installed: true,
+      installed_version: '1.0.0',
+      update_available: true,
+      update_blocked_reason: null,
+    });
+    assert(result.success);
+    expect(result.data.update_available).toBe(true);
+    expect(result.data.installed_version).toBe('1.0.0');
+  });
+
+  it('accepts a catalog item with a blocked update', () => {
+    const result = OnlinePaymentSchema.safeParse({
+      id: 'payfast',
+      is_installed: true,
+      installed_version: '1.0.0',
+      update_available: false,
+      update_blocked_reason: 'Requires Kirki eCommerce 1.1.0',
+    });
+    assert(result.success);
+    expect(result.data.update_blocked_reason).toBe('Requires Kirki eCommerce 1.1.0');
+  });
+
+  it('accepts a catalog item that is not installed', () => {
+    const result = OnlinePaymentSchema.safeParse({
+      id: 'payfast',
+      is_installed: false,
+      installed_version: null,
+      update_available: false,
+      update_blocked_reason: null,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a non-boolean update_available', () => {
+    const result = OnlinePaymentSchema.safeParse({ id: 'payfast', update_available: 'yes' });
+    expect(result.success).toBe(false);
   });
 
   it('accepts an unrecognized extra field', () => {
@@ -133,5 +176,27 @@ describe('OfflinePaymentSchema', () => {
   it('accepts the optional fields being absent beyond id', () => {
     const result = OfflinePaymentSchema.safeParse({ id: 'fdsf' });
     expect(result.success).toBe(true);
+  });
+});
+
+describe('PaymentMethodSchema currency_support', () => {
+  it('accepts a known status and a message', () => {
+    const result = PaymentMethodSchema.safeParse({
+      id: 'bkash',
+      currency_support: { status: 'unsupported', message: 'bKash accepts only BDT.' },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts a response with no field', () => {
+    expect(PaymentMethodSchema.safeParse({ id: 'bkash' }).success).toBe(true);
+  });
+
+  it('rejects an unknown status', () => {
+    const result = PaymentMethodSchema.safeParse({
+      id: 'bkash',
+      currency_support: { status: 'other', message: null },
+    });
+    expect(result.success).toBe(false);
   });
 });

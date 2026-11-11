@@ -110,7 +110,7 @@ class LocalPresetSourceTest extends RestTestCase
         return $builder->build(PresetContext::from_array(array_merge([
             'industry' => 'food-beverage-and-gourmet',
             'currency' => 'USD',
-            'is_tax_collected' => true,
+            'is_tax_enabled' => true,
         ], $context)), $profile_keys);
     }
 }

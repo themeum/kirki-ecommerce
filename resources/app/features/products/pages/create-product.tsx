@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
 import { RouteConfig } from '@/config/route-config';
+import { useAppConfig } from '@/contexts/app-config-context';
 import ProductForm from '@/features/products/components/product-form/product-form';
 import {
   getDefaultVariantValues,
@@ -9,9 +11,7 @@ import {
   type ProductFormPayload,
   ProductFormSchema,
 } from '@/features/products/schemas/forms/product-form';
-import {
-  useCreateProductMutation,
-} from '@/features/products/services/product';
+import { useCreateProductMutation } from '@/features/products/services/product';
 import ProductFormSkeleton from '@/features/products/skeletons/product-form-skeleton';
 import { useShippingBoxesQuery } from '@/features/settings';
 import { getDefaults } from '@/libs/zod';
@@ -20,14 +20,20 @@ import { isDefined } from '@/utils/object';
 
 const CreateProduct = () => {
   const navigate = useNavigate();
-  const { data: productSettings, isLoading: isLoadingSettings } =
-    useSettingsQuery('product');
-  const { data: shippingBoxes, isLoading: isLoadingBoxes } =
-    useShippingBoxesQuery({ limit: -1 });
+  const { settings, isLoading: isLoadingAppConfig } = useAppConfig();
+  const { data: productSettings, isLoading: isLoadingSettings } = useSettingsQuery('product');
+  const { data: shippingBoxes, isLoading: isLoadingBoxes } = useShippingBoxesQuery({ limit: -1 });
   const createProductMutation = useCreateProductMutation();
 
-  const isLoading =
-    isLoadingSettings || isLoadingBoxes;
+  const isLoading = isLoadingSettings || isLoadingBoxes || isLoadingAppConfig;
+
+  const isTaxEnabled = useMemo(() => {
+    if (!isDefined(settings)) {
+      return false;
+    }
+
+    return settings.is_tax_enabled ?? false;
+  }, [settings]);
 
   if (isLoading) {
     return <ProductFormSkeleton />;
@@ -44,6 +50,7 @@ const CreateProduct = () => {
         weight_unit: productSettings?.weight_unit ?? null,
         dimension_unit: productSettings?.dimension_unit ?? null,
         shipping_box_id: defaultBox?.id ?? null,
+        charge_taxes: isTaxEnabled,
       },
     ],
   };

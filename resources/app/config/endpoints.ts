@@ -72,9 +72,6 @@ export const endpoints = {
   CURRENCY_EXCHANGE_PROVIDERS: '/currency-exchange/providers',
   CURRENCY_EXCHANGE_SYNC: '/currency-exchange/sync',
 
-  PRODUCT_SCHEMAS: '/product-schemas',
-  PRODUCT_SCHEMA: (id: string | number) => `/product-schemas/${id}`,
-
   COUPONS: '/coupons',
   COUPON: (id: string | number) => `/coupons/${id}`,
   COUPON_ACTION: (id: string | number) => `/coupons/${id}/action`,
@@ -108,6 +105,7 @@ export const endpoints = {
   ONLINE_PAYMENT: (id: string | number) => `/online-payments/${id}`,
   ONLINE_PAYMENTS_INSTALLABLE: '/online-payments/installable',
   ONLINE_PAYMENTS_INSTALL: '/online-payments/install',
+  ONLINE_PAYMENTS_UPDATE_PLUGIN: '/online-payments/update',
   OFFLINE_PAYMENTS: '/offline-payments',
   OFFLINE_PAYMENT: (id: string | number) => `/offline-payments/${id}`,
 

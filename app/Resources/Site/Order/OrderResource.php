@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
 use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
+use Kirki\Ecommerce\App\Resources\Site\Customer\CustomerResource;
 use Kirki\Ecommerce\App\Services\CountryService;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Resource;
@@ -50,6 +51,7 @@ class OrderResource extends Resource
         $invoiced_shipping_discount = $this->get_shipping_coupon_discount($order_coupons);
         $invoiced_shipping_amount = $this->invoiced_shipping_total - $this->invoiced_shipping_tax_amount;
         $invoiced_shipping_strikethrough = $invoiced_shipping_amount + $invoiced_shipping_discount;
+        $customer = $this->customer_id ? customer(null, $this->customer_id)->get_customer() : null;
 
         return [
             'id' => $this->id,
@@ -117,7 +119,6 @@ class OrderResource extends Resource
             'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
             'shipping_method_type' => $this->shipping_metadata['shipping_method']['type'] ?? null,
             'order_notes' => $this->order_notes,
-            'flags' => $this->flags,
 
             'shipping_tracking' => [
                 'carrier' => $this->shipping_carrier,
@@ -145,11 +146,7 @@ class OrderResource extends Resource
             'shipping_country' => app(CountryService::class)->find($this->shipping_country),
             'billing_country' => app(CountryService::class)->find($this->billing_country),
             'formatted_status' => FulfillmentStatus::get_formatted($this->fulfillment_status),
-            'payment_next_step' => $this->resolve_payment_next_step(),
-            'item_product_data' => $items->map(function ($item) {
-                return $item->product_data;
-            })->to_array(),
-            'customer' => $this->customer_id ? customer(null, $this->customer_id)->get_customer() : [],
+            'customer' => $customer ? CustomerResource::make($customer) : [],
         ];
     }
 
@@ -180,8 +177,9 @@ class OrderResource extends Resource
                 'variant_id' => $item->variant_id,
                 'product_name' => $item->product_name,
                 'variant_name' => $item->variant_name,
+                'product_slug' => $item->product_data['product']['slug'] ?? null,
                 'sku' => $item->sku,
-                'image' => MediaAttachment::make($item->product_image),
+                'image' => MediaAttachment::make($item->product_image ?: ($item->product_data['product']['media'][0]['ID'] ?? 0)),
                 'quantity' => $item->quantity,
                 'invoiced_subtotal_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_catalog_product_coupon_discounted_subtotal, $this->currency_code),
                 'invoiced_strikethrough_price_money_object' => $invoiced_strikethrough === null ? null : Money::prepare_amount_object_from_minor($invoiced_strikethrough, $this->currency_code),
@@ -473,15 +471,14 @@ class OrderResource extends Resource
     /**
      * Resolve the payment action the shopper still has to take, if any.
      *
-     * Payment::pay() opens a live session with the gateway, so it must only run
-     * for an order that is still awaiting payment - this resource also renders
-     * historical orders in the account area.
+     * Payment::pay() opens a live session with the gateway, so only the checkout
+     * response calls this method. Rendering an order must never start a payment.
      *
      * @since 1.0.0
      *
      * @return \Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO|null Null when the order is already settled or the gateway returns no action.
      */
-    protected function resolve_payment_next_step()
+    public function resolve_payment_next_step()
     {
         $settled_statuses = [PaymentStatus::PAID, PaymentStatus::REFUNDING, PaymentStatus::REFUNDED];
 

@@ -51,7 +51,7 @@ class TaxRegionBuilder
     {
         $tax = $this->presets->get_country($context->country)['tax'] ?? [];
 
-        if (!$context->is_tax_collected || empty($tax)) {
+        if (!$context->is_tax_enabled || empty($tax)) {
             return null;
         }
 

@@ -40,10 +40,10 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
         //     esc_html_e('No products found', 'kirki-ecommerce');
         // }
 
-        esc_html_e('Reliable gear for every journey. Sort to find your ideal match.', 'kirki-ecommerce');
+        echo wp_kses_post(get_the_excerpt());
         ?>
     </div>
-    
+
     <div class="kecom-products-page-meta-right">
         <!-- Search toggle -->
         <div class="kecom-products-search" x-data>
@@ -52,14 +52,12 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
                 class="kecom-btn kecom-btn-outline kecom-btn-icon kecom-products-search-btn"
                 :class="{ 'is-visible': searchBtnVisible }"
                 @click="openSearch()"
-                aria-label="<?php esc_attr_e('Open search', 'kirki-ecommerce'); ?>"
-            >
+                aria-label="<?php esc_attr_e('Open search', 'kirki-ecommerce'); ?>">
                 <?php Icon::render('search') ?>
             </button>
             <div
                 class="kecom-products-search-field"
-                :class="{ 'is-open': searchOpen }"
-            >
+                :class="{ 'is-open': searchOpen }">
                 <?php Icon::render('search', ['class' => 'kecom-products-search-field-icon']); ?>
                 <input
                     id="kecom-search-input"
@@ -70,20 +68,18 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
                     x-model="searchQuery"
                     @keydown.enter.prevent="search()"
                     @keydown.escape="closeSearch()"
-                    value="<?php echo esc_attr($search); ?>"
-                >
+                    value="<?php echo esc_attr($search); ?>">
                 <button
                     type="button"
                     class="kecom-products-search-clear"
                     :class="{ 'is-visible': searchQuery }"
                     @click="applySearch('')"
-                    aria-label="<?php esc_attr_e('Clear search', 'kirki-ecommerce'); ?>"
-                >
+                    aria-label="<?php esc_attr_e('Clear search', 'kirki-ecommerce'); ?>">
                     <?php Icon::render('x', ['size' => 14]); ?>
                 </button>
             </div>
         </div>
-    
+
         <div class="kecom-products-page-meta-sortby">
             <label for="sort_by"><?php esc_html_e('Sort by:', 'kirki-ecommerce'); ?></label>
             <select name="sort_by" id="sort_by" x-model="sortBy" @change="applySort($event.target.value)">

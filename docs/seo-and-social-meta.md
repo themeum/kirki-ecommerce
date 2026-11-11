@@ -9,7 +9,7 @@ to the product page (`/shop/<slug>`).
 - [1. Quick start](#1-quick-start)
 - [2. What gets printed](#2-what-gets-printed)
 - [3. Where each value comes from](#3-where-each-value-comes-from)
-- [4. Structured data and schema profiles](#4-structured-data-and-schema-profiles)
+- [4. Structured data](#4-structured-data)
 - [5. Search engines: canonical and robots](#5-search-engines-canonical-and-robots)
 - [6. Hooks](#6-hooks)
 - [7. Where this differs from Yoast, Rank Math and WooCommerce](#7-where-this-differs-from-yoast-rank-math-and-woocommerce)
@@ -68,37 +68,51 @@ display currency. Hidden variants are ignored.
 
 ---
 
-## 4. Structured data and schema profiles
+## 4. Structured data
 
-The JSON-LD is a schema.org `Product`. `@context`, `@type` and `url` are always
-printed. **Which other fields are printed is decided by the product's schema
-profile**, a saved list of fields per group:
+The JSON-LD is a schema.org `Product`. Every product prints the same field set,
+filled from the product data. `@context`, `@type` and `url` are always printed.
+A field with no data is left out, never printed empty. There is no setting that
+changes the field set; site code changes it with `kirki_ecommerce_product_json_ld`
+(section 6).
 
-```json
-{ "Product": ["name", "description", "image", "sku"],
-  "Brand":   ["name", "logo"],
-  "Offer":   ["price", "priceCurrency", "availability"] }
-```
-
-The page picks a profile in this order:
-
-1. The profile assigned to the product (`schema_id`).
-2. The profile marked as default.
-3. A built-in set: Product name, description, image and sku; Brand name; Offer price, priceCurrency and availability.
-
-A stored profile that cannot be read is skipped. A group that the profile does
-not list is not printed (no `Offer` group means no price in rich results). A
-field with no data, and a field name the plugin does not know, is skipped.
-
-| Group | Fields the plugin can fill |
+| Field | Value |
 |---|---|
-| Product | `name`, `description`, `image`, `sku` (also prints `gtin` when the barcode is 8, 12, 13 or 14 digits), `category` (for example `Lighting > Lamps`) |
-| Brand | `name`, `logo` |
-| Offer | `price`, `priceCurrency`, `availability`, `itemCondition`, `seller.name` |
+| `name`, `description`, `image`, `url` | The resolved SEO values in section 3 |
+| `sku` | The default variant, else the first visible variant that has one |
+| `gtin` | The barcode of that variant, only when it is 8, 12, 13 or 14 digits |
+| `category` | The deepest assigned category path, for example `Lighting > Lamps` |
+| `brand.name`, `brand.logo` | The product's brand; no `brand` when the product has none |
+| `offers.price` (or `lowPrice` / `highPrice` / `offerCount`) | The visible variant prices in the base currency, sale price when set |
+| `offers.priceSpecification` | One visible variant only: its base price as a `StrikethroughPrice`, when its sale price is lower than its base price |
+| `offers.priceCurrency` | The store base currency |
+| `offers.availability` | See **Availability** below |
+| `offers.itemCondition` | Always `https://schema.org/NewCondition` |
+| `offers.seller.name` | The WordPress site name; no `seller` when it is empty |
 
 **Offers.** One visible variant gives an `Offer`. Several give an
 `AggregateOffer` with `lowPrice`, `highPrice` and `offerCount`. A product with
 no visible variant prints no offer.
+
+**Strikethrough price.** When the one visible variant is on sale, the `Offer`
+also prints its base price as a `UnitPriceSpecification` with `priceType`
+`https://schema.org/StrikethroughPrice`, so Google Search can show the old price
+struck through. An `AggregateOffer` prints the price range only, because Google
+does not support a strikethrough price on it.
+
+```json
+"offers": {
+  "@type": "Offer",
+  "price": 15.5,
+  "priceCurrency": "USD",
+  "priceSpecification": {
+    "@type": "UnitPriceSpecification",
+    "priceType": "https://schema.org/StrikethroughPrice",
+    "price": 20,
+    "priceCurrency": "USD"
+  }
+}
+```
 
 **Availability.** A variant that is in stock or low on stock is `InStock`. A
 variant out of stock that allows back orders is `BackOrder`. Anything else,
@@ -106,9 +120,9 @@ including a state the plugin does not know, is `OutOfStock`. For several
 variants the offer is `InStock` if any is, else `BackOrder` if any is, else
 `OutOfStock`.
 
-**Not printed.** `AggregateRating` and `Review` can be listed in a profile but
-print nothing, because the plugin stores no reviews. `mpn`, `color`, `material`,
-`size` and `priceValidUntil` are skipped for the same reason: there is no data.
+**Not printed.** `aggregateRating` and `review` are never printed, because the
+plugin stores no reviews. `mpn`, `color`, `material`, `size` and
+`priceValidUntil` are not printed for the same reason: there is no data.
 
 ---
 
@@ -145,10 +159,11 @@ add_filter('kirki_ecommerce_product_json_ld', function ($data) {
 ## 7. Where this differs from Yoast, Rank Math and WooCommerce
 
 - **Product page only.** The shop page, collections, the home page and account pages get no tags from this feature. Collections store SEO fields but have no storefront page yet.
-- **No reviews or ratings.** The store has no reviews, so there is no `aggregateRating` or `review`, even if a profile lists them. WooCommerce and Yoast WooCommerce SEO print them.
+- **No reviews or ratings.** The store has no reviews, so there is no `aggregateRating` or `review`. WooCommerce and Yoast WooCommerce SEO print them.
 - **No sitemap, no hreflang, no breadcrumb data.** Use a sitemap plugin if you need one.
 - **No automatic detection of SEO plugins.** If one is active, switch this output off with `kirki_ecommerce_seo_head_enabled`, or you may get duplicate tags.
 - **Social title does not use the SEO title.** Yoast falls back to the SEO title; here it falls back to the product title.
-- **Fixed field list.** A profile chooses from the fields in section 4. It cannot add custom JSON-LD properties; use `kirki_ecommerce_product_json_ld` for that.
+- **Fixed field list.** Every product prints the fields in section 4. There is no per-product or store setting to add, remove or customise JSON-LD properties; use `kirki_ecommerce_product_json_ld` for that. `itemCondition` is always `NewCondition`, because a product has no condition field.
 - **No social image upload.** The Social Share tab has no image field. The first product image is used.
+- **No strikethrough price for several variants.** A product with several variants prints an `AggregateOffer` with the price range, and Google does not support a strikethrough price on it. There is no `ProductGroup` / `hasVariant` data per variant, so these products are also not eligible for Google merchant listings.
 - **One schema type.** Only `Product` is printed. There is no Organization, WebSite or Article data.

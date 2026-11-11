@@ -173,7 +173,7 @@ class VariantController
      */
     public function bulk_update(BulkUpdateVariantRequest $request)
     {
-        $data = $request->all();
+        $data = $request->sanitized();
 
         $updated_variants = $this->service->bulk_update($data['variants'] ?? []);
 

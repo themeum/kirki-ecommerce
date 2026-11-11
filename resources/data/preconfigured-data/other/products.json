@@ -88,10 +88,10 @@
         "bestseller"
       ],
       "images": [
-        "ceramic-mug-1.jpg",
-        "ceramic-mug-2.jpg",
-        "ceramic-mug-3.jpg",
-        "ceramic-mug-4.jpg"
+        "ceramic-mug-1.webp",
+        "ceramic-mug-2.webp",
+        "ceramic-mug-3.webp",
+        "ceramic-mug-4.webp"
       ],
       "variants": [
         {
@@ -127,12 +127,12 @@
         "new-arrival"
       ],
       "images": [
-        "cotton-tote-cobalt.jpg",
-        "cotton-tote-tomato.jpg",
-        "cotton-tote-sunflower.jpg",
-        "cotton-tote-2.jpg",
-        "cotton-tote-3.jpg",
-        "cotton-tote-4.jpg"
+        "cotton-tote-cobalt.webp",
+        "cotton-tote-tomato.webp",
+        "cotton-tote-sunflower.webp",
+        "cotton-tote-2.webp",
+        "cotton-tote-3.webp",
+        "cotton-tote-4.webp"
       ],
       "variants": [
         {
@@ -141,7 +141,7 @@
             "color": "Cobalt",
             "size": "Standard"
           },
-          "image": "cotton-tote-cobalt.jpg",
+          "image": "cotton-tote-cobalt.webp",
           "price": "24.00",
           "sale_price": null,
           "cost": "10.00",
@@ -158,7 +158,7 @@
             "color": "Cobalt",
             "size": "Large"
           },
-          "image": "cotton-tote-cobalt.jpg",
+          "image": "cotton-tote-cobalt.webp",
           "price": "29.00",
           "sale_price": null,
           "cost": "12.00",
@@ -175,7 +175,7 @@
             "color": "Tomato",
             "size": "Standard"
           },
-          "image": "cotton-tote-tomato.jpg",
+          "image": "cotton-tote-tomato.webp",
           "price": "24.00",
           "sale_price": null,
           "cost": "10.00",
@@ -192,7 +192,7 @@
             "color": "Tomato",
             "size": "Large"
           },
-          "image": "cotton-tote-tomato.jpg",
+          "image": "cotton-tote-tomato.webp",
           "price": "29.00",
           "sale_price": null,
           "cost": "12.00",
@@ -209,7 +209,7 @@
             "color": "Sunflower",
             "size": "Standard"
           },
-          "image": "cotton-tote-sunflower.jpg",
+          "image": "cotton-tote-sunflower.webp",
           "price": "24.00",
           "sale_price": null,
           "cost": "10.00",
@@ -226,7 +226,7 @@
             "color": "Sunflower",
             "size": "Large"
           },
-          "image": "cotton-tote-sunflower.jpg",
+          "image": "cotton-tote-sunflower.webp",
           "price": "29.00",
           "sale_price": null,
           "cost": "12.00",
@@ -253,10 +253,10 @@
         "gift-idea"
       ],
       "images": [
-        "scented-candle-1.jpg",
-        "scented-candle-2.jpg",
-        "scented-candle-3.jpg",
-        "scented-candle-4.jpg"
+        "scented-candle-1.webp",
+        "scented-candle-2.webp",
+        "scented-candle-3.webp",
+        "scented-candle-4.webp"
       ],
       "variants": [
         {
@@ -289,10 +289,10 @@
         "everyday"
       ],
       "images": [
-        "dot-grid-notebook-1.jpg",
-        "dot-grid-notebook-2.jpg",
-        "dot-grid-notebook-3.jpg",
-        "dot-grid-notebook-4.jpg"
+        "dot-grid-notebook-1.webp",
+        "dot-grid-notebook-2.webp",
+        "dot-grid-notebook-3.webp",
+        "dot-grid-notebook-4.webp"
       ],
       "variants": [
         {
@@ -346,10 +346,10 @@
         "bestseller"
       ],
       "images": [
-        "steel-water-bottle-1.jpg",
-        "steel-water-bottle-2.jpg",
-        "steel-water-bottle-3.jpg",
-        "steel-water-bottle-4.jpg"
+        "steel-water-bottle-1.webp",
+        "steel-water-bottle-2.webp",
+        "steel-water-bottle-3.webp",
+        "steel-water-bottle-4.webp"
       ],
       "variants": [
         {

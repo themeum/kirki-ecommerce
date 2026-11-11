@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import { CurrencySettingsSchema } from '@/schemas/catalog/settings';
 
+export const FALLBACK_ENABLE_TAX = true;
+
 /**
  * The lightweight id/code/name/symbol currency reference, not the full
  * `Currency` entity from `schemas/catalog/currency.ts`.
@@ -39,6 +41,7 @@ export const AppConfigSchema = z
       thousand_separator: true,
       decimal_separator: true,
     }).nullish(),
+    is_tax_enabled: z.boolean().nullish().default(FALLBACK_ENABLE_TAX),
   })
   .passthrough();
 

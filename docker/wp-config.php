@@ -33,6 +33,8 @@ define('KECOM_VITE_DEV_SERVER', 'http://localhost:' . (getenv('VITE_PORT') ?: '5
 
 define('FS_METHOD', 'direct');
 
+// define('KIRKI_ECOMMERCE_PAYMENT_CATALOG_URL', 'http://host.docker.internal:9000/kirki-payments');
+
 if (! defined('ABSPATH')) {
     define('ABSPATH', __DIR__ . '/');
 }

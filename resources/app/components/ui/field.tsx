@@ -1,7 +1,13 @@
 import { type CSSObject } from '@emotion/react';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
-import type { ComponentRef} from 'react';
-import { type ComponentPropsWithoutRef, forwardRef, type HTMLAttributes, type ReactNode, useMemo } from 'react';
+import type { ComponentRef } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  forwardRef,
+  type HTMLAttributes,
+  type ReactNode,
+  useMemo,
+} from 'react';
 
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -11,10 +17,7 @@ import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme
 
 type FieldOrientation = 'vertical' | 'horizontal' | 'responsive';
 
-type FieldSetProps = Omit<
-  ComponentPropsWithoutRef<'fieldset'>,
-  'className' | 'css'
-> & {
+type FieldSetProps = Omit<ComponentPropsWithoutRef<'fieldset'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
@@ -33,41 +36,33 @@ const FieldSet = forwardRef<HTMLFieldSetElement, FieldSetProps>((props, ref) => 
 
 FieldSet.displayName = 'FieldSet';
 
-type FieldLegendProps = Omit<
-  ComponentPropsWithoutRef<'legend'>,
-  'className' | 'css'
-> & {
+type FieldLegendProps = Omit<ComponentPropsWithoutRef<'legend'>, 'className' | 'css'> & {
   variant?: 'legend' | 'label';
   cssOverride?: CSSObject;
 };
 
-const FieldLegend = forwardRef<HTMLLegendElement, FieldLegendProps>(
-  (props, ref) => {
-    const { cssOverride, variant = 'legend', ...rest } = props;
+const FieldLegend = forwardRef<HTMLLegendElement, FieldLegendProps>((props, ref) => {
+  const { cssOverride, variant = 'legend', ...rest } = props;
 
-    return (
-      <legend
-        ref={ref}
-        data-slot="field-legend"
-        data-variant={variant}
-        css={scopedMerge(
-          styles.fieldLegend,
-          variant === 'legend' && styles.fieldLegendVariant,
-          variant === 'label' && styles.fieldLegendLabel,
-          cssOverride,
-        )}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <legend
+      ref={ref}
+      data-slot="field-legend"
+      data-variant={variant}
+      css={scopedMerge(
+        styles.fieldLegend,
+        variant === 'legend' && styles.fieldLegendVariant,
+        variant === 'label' && styles.fieldLegendLabel,
+        cssOverride,
+      )}
+      {...rest}
+    />
+  );
+});
 
 FieldLegend.displayName = 'FieldLegend';
 
-type FieldGroupProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  'className' | 'css'
-> & {
+type FieldGroupProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
@@ -100,11 +95,7 @@ const Field = forwardRef<HTMLDivElement, FieldProps>((props, ref) => {
       role="group"
       data-slot="field"
       data-orientation={orientation}
-      css={scopedMerge(
-        styles.field,
-        styles.orientations[orientation],
-        cssOverride,
-      )}
+      css={scopedMerge(styles.field, styles.orientations[orientation], cssOverride)}
       {...rest}
     />
   );
@@ -112,84 +103,71 @@ const Field = forwardRef<HTMLDivElement, FieldProps>((props, ref) => {
 
 Field.displayName = 'Field';
 
-type FieldContentProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  'className' | 'css'
-> & {
+type FieldContentProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const FieldContent = forwardRef<HTMLDivElement, FieldContentProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const FieldContent = forwardRef<HTMLDivElement, FieldContentProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        data-slot="field-content"
-        css={scopedMerge(styles.fieldContent, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <div
+      ref={ref}
+      data-slot="field-content"
+      css={scopedMerge(styles.fieldContent, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 FieldContent.displayName = 'FieldContent';
 
-type FieldLabelProps = Omit<
-  ComponentPropsWithoutRef<typeof Label>,
-  'className'
-> & {
+type FieldLabelProps = Omit<ComponentPropsWithoutRef<typeof Label>, 'className'> & {
   infoText?: ReactNode;
 };
 
-const FieldLabel = forwardRef<ComponentRef<typeof Label>, FieldLabelProps>(
-  (props, ref) => {
-    const { cssOverride, infoText, children, ...rest } = props;
+const FieldLabel = forwardRef<ComponentRef<typeof Label>, FieldLabelProps>((props, ref) => {
+  const { cssOverride, infoText, children, ...rest } = props;
 
-    return (
-      <Label
-        ref={ref}
-        data-slot="field-label"
-        cssOverride={mergeCss(styles.fieldLabel, cssOverride)}
-        {...rest}
-      >
-        {children}
-        {infoText ? (
-          <Tooltip tip={infoText} position="top">
-            {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the icon is not a control; the handlers only stop a click or key press on it from activating the label it sits inside */}
-            <span
-              css={scoped(styles.infoIconTrigger)}
-              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- keyboard users need to reach the trigger for the tooltip to open
-              tabIndex={0}
-              role="img"
-              aria-label={typeof infoText === 'string' ? infoText : undefined}
-              onClick={(event) => {
+  return (
+    <Label
+      ref={ref}
+      data-slot="field-label"
+      cssOverride={mergeCss(styles.fieldLabel, cssOverride)}
+      {...rest}
+    >
+      {children}
+      {infoText ? (
+        <Tooltip tip={infoText} position="top">
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the icon is not a control; the handlers only stop a click or key press on it from activating the label it sits inside */}
+          <span
+            css={scoped(styles.infoIconTrigger)}
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- keyboard users need to reach the trigger for the tooltip to open
+            tabIndex={0}
+            role="img"
+            aria-label={typeof infoText === 'string' ? infoText : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
                 event.stopPropagation();
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }
-              }}
-            >
-              <InfoCircledIcon width={16} height={16} />
-            </span>
-          </Tooltip>
-        ) : null}
-      </Label>
-    );
-  },
-);
+              }
+            }}
+          >
+            <InfoCircledIcon width={16} height={16} />
+          </span>
+        </Tooltip>
+      ) : null}
+    </Label>
+  );
+});
 
 FieldLabel.displayName = 'FieldLabel';
 
-type FieldTitleProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  'className' | 'css'
-> & {
+type FieldTitleProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
@@ -208,27 +186,22 @@ const FieldTitle = forwardRef<HTMLDivElement, FieldTitleProps>((props, ref) => {
 
 FieldTitle.displayName = 'FieldTitle';
 
-type FieldDescriptionProps = Omit<
-  HTMLAttributes<HTMLParagraphElement>,
-  'className' | 'css'
-> & {
+type FieldDescriptionProps = Omit<HTMLAttributes<HTMLParagraphElement>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const FieldDescription = forwardRef<HTMLParagraphElement, FieldDescriptionProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const FieldDescription = forwardRef<HTMLParagraphElement, FieldDescriptionProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <p
-        ref={ref}
-        data-slot="field-description"
-        css={scopedMerge(styles.fieldDescription, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <p
+      ref={ref}
+      data-slot="field-description"
+      css={scopedMerge(styles.fieldDescription, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 FieldDescription.displayName = 'FieldDescription';
 
@@ -240,38 +213,30 @@ type FieldSeparatorProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const FieldSeparator = forwardRef<HTMLDivElement, FieldSeparatorProps>(
-  (props, ref) => {
-    const { cssOverride, children, ...rest } = props;
+const FieldSeparator = forwardRef<HTMLDivElement, FieldSeparatorProps>((props, ref) => {
+  const { cssOverride, children, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        data-slot="field-separator"
-        data-content={children ? 'true' : undefined}
-        css={scopedMerge(styles.fieldSeparator, cssOverride)}
-        {...rest}
-      >
-        <Separator cssOverride={styles.fieldSeparatorLine} />
-        {children && (
-          <span
-            data-slot="field-separator-content"
-            css={scoped(styles.fieldSeparatorContent)}
-          >
-            {children}
-          </span>
-        )}
-      </div>
-    );
-  },
-);
+  return (
+    <div
+      ref={ref}
+      data-slot="field-separator"
+      data-content={children ? 'true' : undefined}
+      css={scopedMerge(styles.fieldSeparator, cssOverride)}
+      {...rest}
+    >
+      <Separator cssOverride={styles.fieldSeparatorLine} />
+      {children && (
+        <span data-slot="field-separator-content" css={scoped(styles.fieldSeparatorContent)}>
+          {children}
+        </span>
+      )}
+    </div>
+  );
+});
 
 FieldSeparator.displayName = 'FieldSeparator';
 
-type FieldErrorProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  'className' | 'css' | 'children'
-> & {
+type FieldErrorProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'css' | 'children'> & {
   children?: ReactNode;
   errors?: ({ message?: string } | undefined)[];
   cssOverride?: CSSObject;
@@ -289,9 +254,7 @@ const FieldError = forwardRef<HTMLDivElement, FieldErrorProps>((props, ref) => {
       return null;
     }
 
-    const uniqueErrors = [
-      ...new Map(errors.map((error) => [error?.message, error])).values(),
-    ];
+    const uniqueErrors = [...new Map(errors.map((error) => [error?.message, error])).values()];
 
     if (uniqueErrors.length === 1) {
       return uniqueErrors[0]?.message;
@@ -351,8 +314,7 @@ const styles = defineStyles({
     padding: 0,
     border: 'none',
     minWidth: 0,
-    '&:has(> [data-slot="checkbox-group"]), &:has(> [data-slot="radio-group"])':
-    {
+    '&:has(> [data-slot="checkbox-group"]), &:has(> [data-slot="radio-group"])': {
       gap: theme.spacing[3],
     },
   },
@@ -409,9 +371,9 @@ const styles = defineStyles({
         alignItems: 'flex-start',
       },
       '&:has(> [data-slot="field-content"]) > [role="checkbox"], &:has(> [data-slot="field-content"]) > [role="radio"]':
-      {
-        marginTop: '1px',
-      },
+        {
+          marginTop: '1px',
+        },
     },
     responsive: {
       flexDirection: 'column',
@@ -431,9 +393,9 @@ const styles = defineStyles({
           alignItems: 'flex-start',
         },
         '&:has(> [data-slot="field-content"]) > [role="checkbox"], &:has(> [data-slot="field-content"]) > [role="radio"]':
-        {
-          marginTop: '1px',
-        },
+          {
+            marginTop: '1px',
+          },
       },
     },
   } as const,

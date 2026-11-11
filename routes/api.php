@@ -29,7 +29,6 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingBoxController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingMethodController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\EmailTemplateController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\SettingsController;
-use Kirki\Ecommerce\App\Http\Controllers\Api\ProductSchemaController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
@@ -201,14 +200,6 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::get('/settings/{key}', [SettingsController::class, 'get']);
     Route::put('/settings', [SettingsController::class, 'update']);
 
-    // Product Schemas
-    Route::get('/product-schemas', [ProductSchemaController::class, 'get']);
-    Route::get('/product-schemas/{id}', [ProductSchemaController::class, 'show']);
-    Route::post('/product-schemas', [ProductSchemaController::class, 'create']);
-    Route::put('/product-schemas/{id}', [ProductSchemaController::class, 'update']);
-    Route::delete('/product-schemas/{id}', [ProductSchemaController::class, 'delete']);
-    Route::post('/product-schemas/bulk', [ProductSchemaController::class, 'bulk_actions']);
-
     // Shipping Profiles
     Route::get('/shipping-profiles', [ShippingProfileController::class, 'get']);
     Route::get('/shipping-profiles/{id}', [ShippingProfileController::class, 'show']);
@@ -247,6 +238,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     // Online Payments
     Route::get('/online-payments/installable', [OnlinePaymentController::class, 'all']);
     Route::post('/online-payments/install', [OnlinePaymentController::class, 'install']);
+    Route::post('/online-payments/update', [OnlinePaymentController::class, 'update_plugin']);
     Route::get('/online-payments', [OnlinePaymentController::class, 'get']);
     Route::get('/online-payments/{id}', [OnlinePaymentController::class, 'show']);
     Route::put('/online-payments/{id}', [OnlinePaymentController::class, 'update']);

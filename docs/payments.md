@@ -13,19 +13,19 @@ checkout. Section 3 explains how that order is kept.
 - [3. Changing the order](#3-changing-the-order)
 - [4. The order API](#4-the-order-api)
 - [5. Methods added by other plugins](#5-methods-added-by-other-plugins)
-- [6. Where this differs from WooCommerce](#6-where-this-differs-from-woocommerce)
+- [6. Currency support](#6-currency-support)
+- [7. Where this differs from WooCommerce](#7-where-this-differs-from-woocommerce)
 
 ---
 
 ## 1. Quick start
 
 1. Go to **Settings → Payments**.
-2. Click **Add**, then:
-   - **Manual Payment** to create an offline method (name, icon, instructions), or
-   - **Payment Gateways** to install an online gateway.
-3. Move the pointer over a row and turn on its switch. Only enabled methods
+2. Click **Add**. The **Add a payment method** dialog opens (section 2).
+3. Move the pointer over a manual method or a gateway and click **Add**.
+4. Move the pointer over a row and turn on its switch. Only enabled methods
    show at checkout.
-4. To change the order, drag a row by its handle (section 3).
+5. To change the order, drag a row by its handle (section 3).
 
 ---
 
@@ -47,6 +47,49 @@ On a touch screen, which cannot hover, the handle and the controls always show.
 | Switch | Enables or disables the method at checkout. | Same. |
 
 The switch saves at once. There is no **Save** button on this page.
+
+A manual method with no uploaded icon shows the icon of its preset (a bank for
+`bank_transfer`, a receipt for `cheque`, a banknote for `cod`). A manual
+method with another id shows the generic bank icon. An uploaded icon always wins.
+
+### The Add a payment method dialog
+
+**Add** opens one dialog for manual methods and online gateways.
+
+- A **search** field at the top gets focus when the dialog opens. It filters the
+  list by name, without regard to case. It does not send a request.
+- The three **manual presets** show first, in this order:
+
+  | Name | id | Default instructions |
+  |---|---|---|
+  | Direct bank transfer | `bank_transfer` | Pay directly into our bank account, using your order number as the reference. |
+  | Cheque payments | `cheque` | Send a cheque payable to our store, with your order number on the back. |
+  | Cash on delivery | `cod` | Pay with cash when your order is delivered. |
+
+- The **gateways** from the catalog show under them. Installed gateways show
+  first. The order is set when the dialog opens and does not change while it
+  stays open.
+
+Each row shows one state:
+
+| State | Badge | At the right |
+|---|---|---|
+| Not added | none | **Add**, shown on hover or keyboard focus |
+| Added | **Added** | nothing |
+| Gateway update offered | **Update Available** | **Update** |
+| Gateway update blocked | **Update Available** | info icon; the tooltip gives the reason |
+
+**Add** on a manual preset creates the method at once, enabled, with the preset
+name and instructions and no icon (`POST /offline-payments` with the preset
+`id`). Use **Edit** on its row to change the name, the instructions or the icon.
+The id does not change, so the dialog still shows the preset as "Added". After
+you delete the method, the dialog shows **Add** again.
+
+While an add or an update runs, a spinner replaces its button and all other
+**Add** and **Update** buttons are disabled.
+
+`POST /offline-payments` accepts an optional `id`. Without it the store makes a
+UUID. An `id` that already exists returns **409** and changes nothing.
 
 ---
 
@@ -137,15 +180,83 @@ A save in the meantime drops the ID, and the method then goes last.
 
 ---
 
-## 6. Where this differs from WooCommerce
+## 6. Currency support
+
+Some gateways can accept only some currencies. The store uses this in three places.
+
+**Checkout.** A shopper does not see a gateway that cannot accept the paying currency.
+If no method is left, the payment section shows a message, and the shopper cannot place
+the order:
+
+| Situation | Message |
+|---|---|
+| Another active currency has a method | No payment method is available for USD. Switch to BDT to complete your order. |
+| No other active currency has a method | No payment method is available for USD. |
+| The store has no enabled method | No payment methods found! |
+
+The message names at most three currencies, with the base currency first. It has no
+switch button. **If you use a restricted gateway, add the currency switcher shortcode to
+your header or checkout page.** Without it, the shopper cannot follow the message.
+
+**The order API.** `POST /checkout` returns HTTP 422 and creates no order when the
+selected method cannot accept the order currency. This also applies to a manual order
+that names the method. A manual order with no method is still accepted.
+
+`POST /checkout` also returns HTTP 422 ("This currency is not available.") when the
+shopper's order uses a currency that is not active. A manual order may still use an
+inactive currency.
+
+**Settings → Payments.** A row can show a badge. Move the pointer over its info icon
+to read the reason. A badge does not stop you from enabling the method.
+
+| Badge | Meaning |
+|---|---|
+| **Unsupported** | No active store currency can use this method, so no shopper can see it. |
+| **Limited** | Only some active store currencies can use this method. |
+
+### What each gateway declares
+
+| Gateway | Accepted currencies |
+|---|---|
+| bKash | BDT |
+| PayFast | ZAR |
+| PayMongo | PHP |
+| PayPal | The 24 codes in the PayPal currency reference |
+| Authorize.net | The currencies on your merchant account |
+| Other gateways | No declaration |
+
+The PayPal list is an upper limit. Your PayPal account can accept fewer currencies.
+
+The Authorize.net list is kept for 12 hours, so an account change can take that long to
+show. If the lookup fails, the store allows the gateway and tries again after 5 minutes.
+
+**Limit.** Other gateways have limits that depend on the merchant account, so the store
+does not know them. They always show at checkout. If such a gateway rejects the currency,
+the order already exists, and it stays unpaid.
+
+### For gateway developers
+
+Override `supported_currencies()` in your `PaymentProvider` and return ISO codes. An empty
+list, which is the default, means no restriction.
+
+The site order resource no longer includes `payment_next_step`, and rendering an order
+no longer starts a payment. Only the `POST /checkout` response includes the value. So
+`pay()` runs once when the order is placed.
+
+---
+
+## 7. Where this differs from WooCommerce
 
 The page looks like WooCommerce's payment settings, but it does not match it
 one-to-one:
 
-- **Any number of manual methods.** WooCommerce ships three fixed offline
-  methods (direct bank transfer, check, cash on delivery). Here you create your
-  own manual methods, as many as you need, each with its own name, icon and
-  instructions.
+- **Three manual presets, each one time.** Like WooCommerce, the store offers
+  direct bank transfer, cheque and cash on delivery. You can add each preset
+  only one time, and you can rename it and change its icon and instructions.
+  You cannot create a new blank manual method from the page. Custom manual
+  methods made before this version stay, and you can still edit and delete
+  them. The bank transfer method has no structured bank account fields (account
+  name, IBAN, BIC) as in WooCommerce; type them in the instructions.
 - **Online gateways cannot be removed from this page.** PayPal has no delete
   control. There is no uninstall endpoint for online gateways yet, so a gateway
   added by another plugin shows a delete control that does nothing; disable it

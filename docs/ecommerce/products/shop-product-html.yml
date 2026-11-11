@@ -68,9 +68,7 @@ examples:
                 "classic",
                 "men",
                 "fashion"
-              ],
-              "schema_id": null,
-              "has_variants": true,
+              ],              "has_variants": true,
               "categories": [
                 {
                   "id": 3,

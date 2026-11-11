@@ -88,10 +88,10 @@
         "bestseller"
       ],
       "images": [
-        "linen-notebook-1.jpg",
-        "linen-notebook-2.jpg",
-        "linen-notebook-3.jpg",
-        "linen-notebook-4.jpg"
+        "linen-notebook-1.webp",
+        "linen-notebook-2.webp",
+        "linen-notebook-3.webp",
+        "linen-notebook-4.webp"
       ],
       "variants": [
         {
@@ -128,12 +128,12 @@
         "gift-idea"
       ],
       "images": [
-        "fountain-pen-coral.jpg",
-        "fountain-pen-cobalt.jpg",
-        "fountain-pen-mint.jpg",
-        "fountain-pen-2.jpg",
-        "fountain-pen-3.jpg",
-        "fountain-pen-4.jpg"
+        "fountain-pen-coral.webp",
+        "fountain-pen-cobalt.webp",
+        "fountain-pen-mint.webp",
+        "fountain-pen-2.webp",
+        "fountain-pen-3.webp",
+        "fountain-pen-4.webp"
       ],
       "variants": [
         {
@@ -142,7 +142,7 @@
             "color": "Coral",
             "nib": "Fine"
           },
-          "image": "fountain-pen-coral.jpg",
+          "image": "fountain-pen-coral.webp",
           "price": "45.00",
           "sale_price": null,
           "cost": "18.00",
@@ -159,7 +159,7 @@
             "color": "Coral",
             "nib": "Medium"
           },
-          "image": "fountain-pen-coral.jpg",
+          "image": "fountain-pen-coral.webp",
           "price": "45.00",
           "sale_price": null,
           "cost": "18.00",
@@ -176,7 +176,7 @@
             "color": "Cobalt",
             "nib": "Fine"
           },
-          "image": "fountain-pen-cobalt.jpg",
+          "image": "fountain-pen-cobalt.webp",
           "price": "45.00",
           "sale_price": null,
           "cost": "18.00",
@@ -193,7 +193,7 @@
             "color": "Cobalt",
             "nib": "Medium"
           },
-          "image": "fountain-pen-cobalt.jpg",
+          "image": "fountain-pen-cobalt.webp",
           "price": "45.00",
           "sale_price": null,
           "cost": "18.00",
@@ -210,7 +210,7 @@
             "color": "Mint",
             "nib": "Fine"
           },
-          "image": "fountain-pen-mint.jpg",
+          "image": "fountain-pen-mint.webp",
           "price": "45.00",
           "sale_price": null,
           "cost": "18.00",
@@ -227,7 +227,7 @@
             "color": "Mint",
             "nib": "Medium"
           },
-          "image": "fountain-pen-mint.jpg",
+          "image": "fountain-pen-mint.webp",
           "price": "45.00",
           "sale_price": null,
           "cost": "18.00",
@@ -254,10 +254,10 @@
         "gift-idea"
       ],
       "images": [
-        "walnut-desk-organizer-1.jpg",
-        "walnut-desk-organizer-2.jpg",
-        "walnut-desk-organizer-3.jpg",
-        "walnut-desk-organizer-4.jpg"
+        "walnut-desk-organizer-1.webp",
+        "walnut-desk-organizer-2.webp",
+        "walnut-desk-organizer-3.webp",
+        "walnut-desk-organizer-4.webp"
       ],
       "variants": [
         {
@@ -290,10 +290,10 @@
         "eco"
       ],
       "images": [
-        "kraft-gift-wrap-1.jpg",
-        "kraft-gift-wrap-2.jpg",
-        "kraft-gift-wrap-3.jpg",
-        "kraft-gift-wrap-4.jpg"
+        "kraft-gift-wrap-1.webp",
+        "kraft-gift-wrap-2.webp",
+        "kraft-gift-wrap-3.webp",
+        "kraft-gift-wrap-4.webp"
       ],
       "variants": [
         {
@@ -360,10 +360,10 @@
         "bestseller"
       ],
       "images": [
-        "wax-seal-kit-1.jpg",
-        "wax-seal-kit-2.jpg",
-        "wax-seal-kit-3.jpg",
-        "wax-seal-kit-4.jpg"
+        "wax-seal-kit-1.webp",
+        "wax-seal-kit-2.webp",
+        "wax-seal-kit-3.webp",
+        "wax-seal-kit-4.webp"
       ],
       "variants": [
         {

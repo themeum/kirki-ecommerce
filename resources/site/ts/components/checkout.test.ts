@@ -56,6 +56,18 @@ describe('checkout placeOrder', () => {
   });
 });
 
+describe('checkout with no payment method', () => {
+  it('No gateway is listed: sends no order and shows an error', async () => {
+    const component = makeCheckout('');
+    component.selectedPaymentMethod = '';
+
+    await component.placeOrder();
+
+    expect(checkoutApi.create).not.toHaveBeenCalled();
+    expect(component.paymentMethodError).toBe('No payment method is available.');
+  });
+});
+
 describe('checkout country errors', () => {
   const rejectWith = (errors: Record<string, string[]>) =>
     vi.mocked(checkoutApi.create).mockRejectedValue(

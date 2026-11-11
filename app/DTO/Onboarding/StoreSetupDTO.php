@@ -29,7 +29,7 @@ class StoreSetupDTO extends DTO
     public $currency;
 
     /** @var bool */
-    public $is_tax_collected = false;
+    public $is_tax_enabled = false;
 
     /** @var bool */
     public $is_tax_inclusive_price = false;

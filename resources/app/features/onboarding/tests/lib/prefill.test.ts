@@ -21,7 +21,7 @@ describe('toFormPrefill', () => {
         country: 'US',
         store_address: { city: 'Austin' },
         currency: 'USD',
-        is_tax_collected: true,
+        is_tax_enabled: true,
         is_tax_inclusive_price: true,
       }),
       options,
@@ -33,7 +33,7 @@ describe('toFormPrefill', () => {
       country: 'US',
       store_address: { city: 'Austin' },
       currency: 'USD',
-      is_tax_collected: true,
+      is_tax_enabled: true,
       is_tax_inclusive_price: true,
     });
   });

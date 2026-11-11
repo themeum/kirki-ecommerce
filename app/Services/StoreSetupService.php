@@ -107,7 +107,7 @@ class StoreSetupService
             'store_name' => $data->store_name,
             'store_email' => get_option('admin_email', ''),
             'industry' => $data->industry,
-            'store_tax_id' => $data->is_tax_collected ? $data->store_tax_id : null,
+            'store_tax_id' => $data->is_tax_enabled ? $data->store_tax_id : null,
             'store_address' => [
                 'address_line_1' => $address['address_line_1'] ?? null,
                 'address_line_2' => $address['address_line_2'] ?? null,
@@ -116,7 +116,7 @@ class StoreSetupService
                 'postal_code' => $address['postal_code'] ?? null,
                 'country' => $data->country,
             ],
-            'is_tax_calculation_enabled' => (bool) $data->is_tax_collected,
+            'is_tax_calculation_enabled' => (bool) $data->is_tax_enabled,
             'order_number' => [
                 'prefix' => '#'
             ]
@@ -134,7 +134,7 @@ class StoreSetupService
     protected function save_tax_settings(StoreSetupDTO $data)
     {
         Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->set([
-            'is_tax_inclusive_price' => $data->is_tax_collected && $data->is_tax_inclusive_price,
+            'is_tax_inclusive_price' => $data->is_tax_enabled && $data->is_tax_inclusive_price,
         ]);
     }
 }

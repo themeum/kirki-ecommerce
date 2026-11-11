@@ -90,10 +90,10 @@
         "bestseller"
       ],
       "images": [
-        "ceramic-diffuser-1.jpg",
-        "ceramic-diffuser-2.jpg",
-        "ceramic-diffuser-3.jpg",
-        "ceramic-diffuser-4.jpg"
+        "ceramic-diffuser-1.webp",
+        "ceramic-diffuser-2.webp",
+        "ceramic-diffuser-3.webp",
+        "ceramic-diffuser-4.webp"
       ],
       "variants": [
         {
@@ -130,12 +130,12 @@
         "new-arrival"
       ],
       "images": [
-        "silk-sleep-mask-coral.jpg",
-        "silk-sleep-mask-lilac.jpg",
-        "silk-sleep-mask-teal.jpg",
-        "silk-sleep-mask-2.jpg",
-        "silk-sleep-mask-3.jpg",
-        "silk-sleep-mask-4.jpg"
+        "silk-sleep-mask-coral.webp",
+        "silk-sleep-mask-lilac.webp",
+        "silk-sleep-mask-teal.webp",
+        "silk-sleep-mask-2.webp",
+        "silk-sleep-mask-3.webp",
+        "silk-sleep-mask-4.webp"
       ],
       "variants": [
         {
@@ -144,7 +144,7 @@
             "color": "Coral",
             "strap": "Elastic"
           },
-          "image": "silk-sleep-mask-coral.jpg",
+          "image": "silk-sleep-mask-coral.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -161,7 +161,7 @@
             "color": "Coral",
             "strap": "Adjustable"
           },
-          "image": "silk-sleep-mask-coral.jpg",
+          "image": "silk-sleep-mask-coral.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -178,7 +178,7 @@
             "color": "Lilac",
             "strap": "Elastic"
           },
-          "image": "silk-sleep-mask-lilac.jpg",
+          "image": "silk-sleep-mask-lilac.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -195,7 +195,7 @@
             "color": "Lilac",
             "strap": "Adjustable"
           },
-          "image": "silk-sleep-mask-lilac.jpg",
+          "image": "silk-sleep-mask-lilac.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -212,7 +212,7 @@
             "color": "Teal",
             "strap": "Elastic"
           },
-          "image": "silk-sleep-mask-teal.jpg",
+          "image": "silk-sleep-mask-teal.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -229,7 +229,7 @@
             "color": "Teal",
             "strap": "Adjustable"
           },
-          "image": "silk-sleep-mask-teal.jpg",
+          "image": "silk-sleep-mask-teal.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -256,10 +256,10 @@
         "home-gym"
       ],
       "images": [
-        "foam-roller-1.jpg",
-        "foam-roller-2.jpg",
-        "foam-roller-3.jpg",
-        "foam-roller-4.jpg"
+        "foam-roller-1.webp",
+        "foam-roller-2.webp",
+        "foam-roller-3.webp",
+        "foam-roller-4.webp"
       ],
       "variants": [
         {
@@ -292,10 +292,10 @@
         "fresh"
       ],
       "images": [
-        "bath-salts-1.jpg",
-        "bath-salts-2.jpg",
-        "bath-salts-3.jpg",
-        "bath-salts-4.jpg"
+        "bath-salts-1.webp",
+        "bath-salts-2.webp",
+        "bath-salts-3.webp",
+        "bath-salts-4.webp"
       ],
       "variants": [
         {
@@ -361,10 +361,10 @@
         "bestseller"
       ],
       "images": [
-        "weighted-blanket-1.jpg",
-        "weighted-blanket-2.jpg",
-        "weighted-blanket-3.jpg",
-        "weighted-blanket-4.jpg"
+        "weighted-blanket-1.webp",
+        "weighted-blanket-2.webp",
+        "weighted-blanket-3.webp",
+        "weighted-blanket-4.webp"
       ],
       "variants": [
         {

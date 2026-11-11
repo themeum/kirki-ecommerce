@@ -4,7 +4,7 @@ Tags: ecommerce, online store, shopping cart, checkout, payments
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -397,23 +397,44 @@ PayPal is a trademark of PayPal, Inc. CurrencyApi and ExchangeRate-API are trade
 
 == Changelog ==
 
+= 1.0.1 - Nov 11, 2026 =
+
+* New: Added bKash as a payment method.
+* New: Added SSLCommerz as a payment method.
+* New: Added the option to update installed payment gateways when a newer version is available.
+* New: Hid payment methods at checkout that cannot accept the customer’s currency.
+* New: Added automatic rechecking of unpaid bKash orders to mark completed payments as paid.
+* Update: Redesigned the “Add a payment method” dialog with search and ready-made manual methods.
+* Update: Removed product schema profiles. All products now use the same search engine data, and saved profiles are deleted on update.
+* Update: Improved the speed of bulk updates for product variants.
+* Update: Improved the speed and responsiveness of the product selection dialog.
+* Update: Changed the shop page to use the page’s own title and excerpt as its heading and description.
+* Update: Hid tax fields in the product form and bulk edit when tax calculation is off.
+* Update: Made the Brand field in the product form addable and removable.
+* Update: Improved the add currency dialog in multi-currency settings.
+* Update: Added a loading preview in payment settings while the payment list loads.
+* Fix: Stopped tax from being charged on variants with “Charge tax” turned off.
+* Fix: Removed the “Incl. tax” label from products that do not charge tax.
+* Fix: Fixed product images not showing correctly on analytics page.
+* Fix: Fixed dialog titles and headings not displaying correctly.
+
 = 1.0.0 - Nov 04, 2026 =
 
 * Initial release
-* Adds a setup wizard with industry and location presets, optional sample products
-* Adds products with variants, a variation library, categories, tags, brands, collections, ribbons, scheduling, preview, duplication, bulk edit, SKUs, and trash management
-* Adds inventory tracking with committed stock, low-stock thresholds for the store, products, and variants, backorders, out-of-stock protection, per-order quantity limits, and email alerts
-* Adds orders with separate payment and fulfillment statuses, manual orders, order editing, notes, a timeline and activity log, tracking links, archiving, and guest order merge
-* Adds coupons with percentage, fixed-amount, and free shipping discounts, targeting and customer eligibility rules, usage limits, validity windows, and duplication
-* Adds cart and checkout with guest checkout, legal consents, and cart syncing between guest and logged-in sessions
-* Adds payments with PayPal, Cash on Delivery, and Bank Transfer, and more gateways as companion plugins
-* Adds shipping with zones, flat rate, local pickup, and weight-based methods, profiles, boxes, carriers, and rules
-* Adds tax with profiles, regional rates, rules, EU VAT and OSS support
-* Adds multi-currency pricing with automatic exchange rate sync and a currency switcher shortcode
-* Adds transactional emails for customers and administrators, with a template editor, live preview, and SMTP or PHP mail delivery
-* Adds a built-in storefront with shop, product, cart, checkout, and account pages and search
-* Adds a wishlist for logged-in customers and a mini cart block and shortcode
-* Adds customer accounts with order history, saved addresses, email verification, and profile management
-* Adds an Analytics dashboard with comparison periods and a customizable advanced layout
-* Adds WooCommerce migration
-* Adds product SEO and schema tools
+* New: Adds a setup wizard with industry and location presets, optional sample products
+* New: Adds products with variants, a variation library, categories, tags, brands, collections, ribbons, scheduling, preview, duplication, bulk edit, SKUs, and trash management
+* New: Adds inventory tracking with committed stock, low-stock thresholds for the store, products, and variants, backorders, out-of-stock protection, per-order quantity limits, and email alerts
+* New: Adds orders with separate payment and fulfillment statuses, manual orders, order editing, notes, a timeline and activity log, tracking links, archiving, and guest order merge
+* New: Adds coupons with percentage, fixed-amount, and free shipping discounts, targeting and customer eligibility rules, usage limits, validity windows, and duplication
+* New: Adds cart and checkout with guest checkout, legal consents, and cart syncing between guest and logged-in sessions
+* New: Adds payments with PayPal, Cash on Delivery, and Bank Transfer, and more gateways as companion plugins
+* New: Adds shipping with zones, flat rate, local pickup, and weight-based methods, profiles, boxes, carriers, and rules
+* New: Adds tax with profiles, regional rates, rules, EU VAT and OSS support
+* New: Adds multi-currency pricing with automatic exchange rate sync and a currency switcher shortcode
+* New: Adds transactional emails for customers and administrators, with a template editor, live preview, and SMTP or PHP mail delivery
+* New: Adds a built-in storefront with shop, product, cart, checkout, and account pages and search
+* New: Adds a wishlist for logged-in customers and a mini cart block and shortcode
+* New: Adds customer accounts with order history, saved addresses, email verification, and profile management
+* New: Adds an Analytics dashboard with comparison periods and a customizable advanced layout
+* New: Adds WooCommerce migration
+* New: Adds product SEO and schema tools

@@ -18,9 +18,9 @@ class OnBoardingSeeder extends Seeder
      *
      * The merchant's onboarding answers, written after this seeder drains, merge
      * over the defaults. The seeder guards its own target, so this is safe to
-     * reach more than once. Categories, attributes and schema profiles come from
-     * the store presets, and demo products are loaded on request through the
-     * sample data importer.
+     * reach more than once. Categories and attributes come from the store
+     * presets, and demo products are loaded on request through the sample data
+     * importer.
      *
      * This queues only - the caller invokes the seeder to drain the queue.
      *

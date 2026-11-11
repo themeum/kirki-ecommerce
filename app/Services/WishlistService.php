@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Services;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
@@ -27,6 +28,21 @@ use function Kirki\Ecommerce\Framework\user;
  */
 class WishlistService
 {
+    use HasSortableColumns;
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'product_id' => 'product_id',
+        ];
+    }
+
     /**
      * Get a page of a user's wishlist items.
      *
@@ -71,7 +87,7 @@ class WishlistService
     /**
      * Build the query for a user's wishlist items, with their products and variants loaded.
      *
-     * Sorts by the filters' sort field and order, or newest first when they are missing.
+     * Sorts by the filters' sort field and order when the field is sortable, or newest first otherwise.
      *
      * @since 1.0.0
      *
@@ -86,16 +102,10 @@ class WishlistService
             ->with(['product.media', 'product.categories', 'product.variants.media']);
 
         if ($filters) {
-            $query->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $q) use ($filters) {
-                return $q->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $q) {
-                return $q->order_by('id', 'desc');
-            });
-        } else {
-            $query->order_by('id', 'desc');
+            return $this->apply_sorting($query, $filters);
         }
 
-        return $query;
+        return $query->order_by('id', 'desc');
     }
 
     /**

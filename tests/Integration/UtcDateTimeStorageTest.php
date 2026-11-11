@@ -4,11 +4,8 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\App\Services\AttributeValueService;
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
-use Kirki\Ecommerce\App\Setup\Presets\SchemaProfilePresets;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
@@ -187,7 +184,6 @@ class UtcDateTimeStorageTest extends RestTestCase
     {
         $attribute_id = $this->request_attribute_id();
         Currency::create(['code' => 'USD', 'name' => 'US Dollar', 'symbol' => '$', 'exchange_rate' => 1, 'is_base' => true]);
-        $this->assertFalse(ProductSchema::query()->exists(), 'The product schema table must start empty.');
 
         $this->with_session_time_zone('+07:00', function () use ($attribute_id) {
             $currencies = app()->make(CurrencyService::class);
@@ -201,11 +197,6 @@ class UtcDateTimeStorageTest extends RestTestCase
             ]);
             $values->insert(['attribute_id' => $attribute_id, 'value' => 'Green']);
 
-            (new SchemaProfilePresets())->apply(
-                ['schema_profiles' => [['name' => 'Utc profile', 'is_default' => true, 'schema' => ['general' => ['Field one']]]]],
-                PresetContext::from_array(['industry' => 'other', 'currency' => 'USD', 'is_tax_collected' => false])
-            );
-
             $rows = array_merge(
                 (array) DB::select(
                     sprintf("select code as name, created_at, updated_at from %s where code in ('EUR', 'GBP')", $this->table('currencies')),
@@ -214,14 +205,10 @@ class UtcDateTimeStorageTest extends RestTestCase
                 (array) DB::select(
                     sprintf('select value as name, created_at, updated_at from %s where attribute_id = %d', $this->table('attribute_values'), $attribute_id),
                     []
-                ),
-                (array) DB::select(
-                    sprintf("select name, created_at, updated_at from %s where name = 'Utc profile'", $this->table('product_schemas')),
-                    []
                 )
             );
 
-            $this->assertCount(6, $rows, 'Expected 2 currencies, 3 attribute values and 1 schema profile.');
+            $this->assertCount(5, $rows, 'Expected 2 currencies and 3 attribute values.');
 
             foreach ($rows as $row) {
                 $this->assert_is_current_utc($row['created_at'], $row['name'] . ' created_at');

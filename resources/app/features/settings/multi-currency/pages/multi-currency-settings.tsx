@@ -125,6 +125,8 @@ const MultiCurrencySettings = () => {
     hideFloatingBar: isAddCurrencyOpen || isApiConfigOpen,
   });
 
+  const hasMultipleCurrency = isDefined(currencies) && currencies.length > 1;
+
   return !isLoading ? (
     <Container size="sm">
       <Form {...form}>
@@ -137,7 +139,7 @@ const MultiCurrencySettings = () => {
             cssOverride={cardStyles.innerCard}
           >
             <CardContent>
-              <Flex direction="column" gap={3}>
+              <Flex direction="column" gap={2}>
                 <Flex
                   justify="space-between"
                   cssOverride={{ marginTop: theme.spacing[3], marginBottom: theme.spacing[3] }}
@@ -156,10 +158,11 @@ const MultiCurrencySettings = () => {
                   <AddCurrencyPopup
                     onOpenChange={setIsAddCurrencyOpen}
                     isSelectingBaseCurrency={isDefined(currencies) && currencies.length === 0}
+                    onSave={form.handleSubmit(handleSaveData)}
                   />
                 </Flex>
                 <AvailableCurrencyList />
-                {isDefined(currencies) && currencies.length > 1 && (
+                {hasMultipleCurrency && (
                   <ApiConfig
                     currencySettings={currencySettingsData}
                     onOpenChange={setIsApiConfigOpen}

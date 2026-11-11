@@ -120,8 +120,8 @@ One request, `POST /wp-json/kirki/ecommerce/v1/onboarding`, runs these steps in
 order:
 
 1. **Baseline seed.** Default settings. Each group is skipped when it already
-   holds data. The default payment settings add two offline payment
-   methods, *Cash on Delivery* and *Direct bank transfer*. Both are **disabled**:
+   holds data. The default payment settings add one offline payment
+   method, *Cash on delivery*. It is **disabled**:
    the merchant enables one from the Home page's setup checklist (see
    [`docs/home.md`](home.md)).
 2. **General settings.** Store name, industry and Tax ID. The store address gets
@@ -188,7 +188,10 @@ The plugin requests only an `https://` URL, or an `http://` URL on `localhost`,
 under a key for the base URL (`PresetRepository::cache_key()`). Store setup and
 sample data loading in that hour use the kept copy and do not request the file.
 A failed read is not kept. So a newly published `presets.json` reaches a store
-that read the file in the last hour only after that hour ends.
+that read the file in the last hour only after that hour ends. On a development
+site, `wp kirki presets:cache` puts the local `presets.json` under the same key,
+and each local products file under `PresetRepository::products_cache_key()`. Only
+that command writes the products key (see [`docs/preset-data.md`](preset-data.md#1-quick-start)).
 
 **Failures are silent.** When the request fails, the URL is not trusted, the
 status is not 2xx, the body is not JSON, or the version is not supported, nothing
@@ -208,9 +211,8 @@ kind, and each kind's inserter reads only its key:
 | Key | Holds |
 |---|---|
 | `attributes` | `name`, `slug`, `type` (`color` or `list`), `values` (`value`, optional hex `color`) |
-| `schema_profiles` | Stored fields of each record |
 | `shipping_profiles`, `tax_profiles` | `key`, `name`, `is_default` |
-| `legal` | `pages` (`key`, `slug`, `title`, `content`) and `consents` (`title`, `locations`, `method`, `message` with `{page:<key>}` tokens) |
+| `legal` | `pages` (`key`, `slug`, `title`, `content`) and `consents` (`title`, `locations`, `method`, `message` with `{page:<key>}` tokens, `is_enabled`) |
 | `shipping_zones` | `title`, `is_enabled`, `regions`, `methods` (stored method fields plus `rules`) |
 | `tax_region` | The stored region, or `null` when no region applies. `rules`, and each state's `rules`, use `{profile, action}`. |
 
@@ -230,9 +232,9 @@ still written.
 
 | Section | Holds | Applies to |
 |---|---|---|
-| `common` | Color attribute, default schema profile, *General* shipping profile, *Standard* tax profile, generic shipping methods, zone titles, legal pages and consents | Every store |
+| `common` | Color attribute, *General* shipping profile, *Standard* tax profile, generic shipping methods, zone titles, legal pages and consents | Every store |
 | `industries.<slug>` | Attributes, shipping profiles and their rule templates, tax profiles. No categories and no tags: they are in the industry's products file (section 5). | The chosen industry. *Other* has an entry with attributes only. An industry with no entry gets nothing from this section. |
-| `countries.<ISO2>` | `bloc`, `gdpr`, shipping methods with local-currency amounts, `tax` (mode, rates, rates per tax profile, `source` or `sources`, `verified_at`) | The chosen country |
+| `countries.<ISO2>` | `bloc`, `gdpr`, shipping methods with local-currency amounts, optional `domestic_zones` (state-based zones that replace *Domestic*), `tax` (mode, rates, rates per tax profile, `source` or `sources`, `verified_at`) | The chosen country |
 | `blocs.<code>` | Member country codes of a trade bloc (`EU`, `GCC`) | Countries whose entry names the bloc |
 
 A country's currency and its EU membership come from the bundled country
@@ -243,12 +245,11 @@ dataset. A unit test fails if `blocs.EU` does not match that dataset.
 | Preset | What the store gets | Skipped when |
 |---|---|---|
 | Attributes | *Color* (30 named colours with hex codes) plus the industry's attributes (for example *Size* and *Material* for Fashion & Apparel). The industry's extra colours, such as *Marigold*, are not added here: the sample data adds them when a product needs them. | An attribute with the same slug exists (checked per attribute) |
-| Schema profile | One default profile with every field the schema picker supports | Any schema profile exists |
 | Shipping profiles | *General* (default) plus the industry's profiles, such as *Fragile* or *Perishable* | A profile with the same name exists. *General* is the default only when no default exists. |
 | Tax profiles | *Standard* (default) plus the industry's profiles, such as *Food*. Created even when the merchant does not collect tax. | A profile with the same name exists |
 | Legal pages | Published *Terms & Conditions*, *Privacy Policy* and *Refund & Returns Policy* pages with placeholder text | A page with the slug exists. A **published** WordPress privacy page (Settings → Privacy) is used in place of a new privacy page. |
-| Consents | Terms (checkout, mandatory), Privacy (signup and checkout), Marketing emails (signup and checkout, optional). Privacy is a mandatory checkbox where the country has a GDPR-style law, and display text elsewhere. | Any consent exists |
-| Shipping zones | *Domestic* (the store country), then *Regional* (the other members of the country's bloc, if it has one). There is no zone for the rest of the world. A region with a country and no state is saved with every state of that country selected. | Any zone exists |
+| Consents | Terms (checkout, mandatory), Privacy (signup and checkout), Marketing emails (signup and checkout, optional). Privacy is a mandatory checkbox where the country has a GDPR-style law, and display text elsewhere. Only Terms is enabled; Privacy and Marketing emails are created disabled. | Any consent exists |
+| Shipping zones | *Domestic* (the store country), then *Regional* (the other members of the country's bloc, if it has one). A country with `domestic_zones` gets those zones in place of *Domestic*, each with its own states and methods (Bangladesh: *Inside Dhaka* for Dhaka, *Outside Dhaka* for every other district). There is no zone for the rest of the world. A region with a country and no state is saved with every state of that country selected. | Any zone exists |
 | Tax region | One enabled region for the store country (see 4.6) | The merchant does not collect tax, no region applies, or any region exists |
 
 Each kind checks its own target. A kind that fails is logged, and the other

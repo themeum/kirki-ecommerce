@@ -612,7 +612,9 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         }
 
         if (!this.selectedPaymentMethod) {
-          this.paymentMethodError = __('Please select a payment method.', 'kirki-ecommerce');
+          this.paymentMethodError = document.querySelector('input[name="payment_provider"]')
+            ? __('Please select a payment method.', 'kirki-ecommerce')
+            : __('No payment method is available.', 'kirki-ecommerce');
           scrollToFirstError();
           return;
         }

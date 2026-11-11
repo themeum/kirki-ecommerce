@@ -10,22 +10,21 @@ overwriting configuration that already exists.
 ### Requirement: Baseline seed runs during store setup
 
 The baseline onboarding dataset SHALL be seeded as part of the merchant's store setup
-in the onboarding wizard. That dataset is the attribute presets, product schema
-profiles and settings defaults. Store setup SHALL NOT create categories or tags. The
-baseline dataset SHALL NOT be seeded on plugin activation, on a version update, by the
-developer seeding command, or by the demo seeder set. Settings defaults SHALL be
-seeded before the merchant's wizard answers are applied, so the answers take
-precedence.
+in the onboarding wizard. That dataset is the settings defaults only. Categories and
+attributes are not part of the baseline; the store presets supply them. The baseline
+SHALL NOT be seeded on plugin activation, on a version update, by the developer
+seeding command, or by the demo seeder set. Settings defaults SHALL be seeded before
+the merchant's wizard answers are applied, so the answers take precedence.
 
 #### Scenario: Fresh install before onboarding
 
 - **WHEN** the plugin is activated and no store setup has been submitted yet
-- **THEN** no categories, tags, attributes, schema profiles, or settings defaults have been seeded
+- **THEN** no categories, attributes, or settings defaults have been seeded
 
 #### Scenario: Store setup
 
-- **WHEN** the merchant's store setup succeeds and the presets can be read
-- **THEN** the attribute presets, product schema profiles, and settings defaults are seeded, and no categories or tags are created
+- **WHEN** the merchant's store setup succeeds
+- **THEN** the settings defaults are seeded by the baseline, and no categories or attributes are created by it
 
 #### Scenario: Wizard answers win over defaults
 
@@ -60,72 +59,6 @@ repeated.
 - **WHEN** the seed runs on a store that already has categories, products, or a configured setting
 - **THEN** that existing data is left untouched
 
-### Requirement: A category tree is available
-
-The store SHALL receive the category tree of its sample products when the merchant
-loads sample data. The tree SHALL come from the same products file as the products.
-Each category SHALL be found by its slug. When the store has no category with that
-slug, it SHALL be created with that slug, linked to its parent, and with a level one
-greater than its parent's. An existing category SHALL be reused and SHALL NOT be
-changed.
-
-#### Scenario: Categories are created with the sample data
-
-- **WHEN** sample data is loaded on a store with no categories
-- **THEN** every category of the products file is created with its slug, each child linked to its parent, and each level numbered from 1
-
-#### Scenario: A category with the same slug exists
-
-- **WHEN** sample data is loaded and the store already has a category with the slug `notebooks`
-- **THEN** that category is reused unchanged, the sample products link to it, and no second `notebooks` category is created
-
-#### Scenario: Store setup creates no categories
-
-- **WHEN** the merchant's store setup succeeds
-- **THEN** no categories are created
-
-### Requirement: Colour and material attribute presets are available
-
-The store SHALL be seeded with a colour attribute whose values each carry a hex
-code, and a material attribute needed by the demo catalog.
-
-#### Scenario: Colour attribute is seeded
-
-- **WHEN** the seed runs on a store with no colour attribute
-- **THEN** a colour-type attribute is created with a named preset value and hex code for each colour in the preset library
-
-#### Scenario: Material attribute is seeded
-
-- **WHEN** the seed runs on a store with no material attribute
-- **THEN** a list-type material attribute is created with the values required by the demo products
-
-#### Scenario: One attribute already exists
-
-- **WHEN** the seed runs on a store that already has the colour attribute but not the material attribute
-- **THEN** the colour attribute is left untouched and only the material attribute is created
-
-### Requirement: Product schema profiles are available and editable
-
-The store SHALL be seeded with product schema profiles, exactly one of which is
-the default. Every seeded profile SHALL contain only fields the product form's
-schema picker can render, so that opening and saving a profile does not silently
-discard data.
-
-#### Scenario: Schema profiles are seeded
-
-- **WHEN** the seed runs on a store with no product schema rows
-- **THEN** profiles are created, exactly one is marked as default, and each includes the required product name and offer price fields
-
-#### Scenario: A merchant edits a seeded profile
-
-- **WHEN** a merchant opens a seeded schema profile in the product form and saves it without changes
-- **THEN** the stored profile is unchanged
-
-#### Scenario: Schema profiles already exist
-
-- **WHEN** the seed runs on a store that already has a product schema row
-- **THEN** no profiles are created
-
 ### Requirement: Store settings have onboarding defaults
 
 The seed SHALL establish default values for the general, product, payment, and
@@ -150,7 +83,8 @@ been configured.
 #### Scenario: Cash on Delivery is offered
 
 - **WHEN** payment settings have not been configured
-- **THEN** an enabled offline payment method named "Cash on Delivery" is available with descriptive instructions and no icon
+- **THEN** one disabled offline payment method "Cash on delivery" (id `cod`) is available, with the same instructions as its manual preset in the "Add a payment method" dialog, and no icon
+- **AND** no other offline payment method is seeded
 
 #### Scenario: A settings group is already configured
 
@@ -305,3 +239,4 @@ created.
 
 - **WHEN** the products to create name 30 different images that were not imported before
 - **THEN** no more than 25 image requests are in flight at the same time, and all 30 images are requested
+

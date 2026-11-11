@@ -16,7 +16,7 @@ const OnboardingDefaultsSchema = z.object({
         })
         .optional(),
       currency: z.string().optional(),
-      is_tax_collected: z.boolean().optional(),
+      is_tax_enabled: z.boolean().optional(),
       is_tax_inclusive_price: z.boolean().optional(),
     })
     .default({}),
@@ -24,4 +24,5 @@ const OnboardingDefaultsSchema = z.object({
 
 type OnboardingDefaults = z.infer<typeof OnboardingDefaultsSchema>;
 
-export { type OnboardingDefaults, OnboardingDefaultsSchema };
+export { OnboardingDefaultsSchema };
+export type { OnboardingDefaults };

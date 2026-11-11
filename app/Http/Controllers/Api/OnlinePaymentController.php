@@ -72,6 +72,24 @@ class OnlinePaymentController
     }
 
     /**
+     * Update the plugin of the online payment gateway identified by the `id` parameter.
+     *
+     * @since 1.0.1
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated gateway resource.
+     */
+    public function update_plugin(Request $request)
+    {
+        $data = $this->service->update_plugin($request->string('id'));
+
+        return response()->json([
+            'data' => OnlinePaymentResource::make($data),
+            'message' => __('Payment gateway updated', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
      * Deactivate and delete the online payment gateway identified by the route ID.
      *
      * @since 1.0.0

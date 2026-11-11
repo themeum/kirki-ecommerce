@@ -101,8 +101,7 @@ const useCreateCurrencyMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createCurrency,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Currency added', 'kirki-ecommerce'));
+    onSuccess() {
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
@@ -116,8 +115,7 @@ const useUpdateCurrencyMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateCurrency,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Currency updated', 'kirki-ecommerce'));
+    onSuccess() {
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
@@ -161,7 +159,6 @@ const useSyncCurrencyRatesMutation = () => {
 
 export {
   createCurrency,
-  type CurrencyBulkPayload,
   deleteCurrency,
   getAllCurrencies,
   getAvailableCurrencies,
@@ -176,3 +173,5 @@ export {
   useSyncCurrencyRatesMutation,
   useUpdateCurrencyMutation,
 };
+
+export type { CurrencyBulkPayload };

@@ -48,6 +48,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
 use function Kirki\Ecommerce\App\base_currency;
+use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
@@ -155,6 +156,8 @@ class CreateOrderAction
      */
     public function execute(CreateOrderPayloadDTO $dto)
     {
+        $this->validate_active_currency($dto);
+
         $this->validate_payment_provider($dto);
 
         $this->resolve_billing_and_shipping_addresses($dto);
@@ -294,6 +297,23 @@ class CreateOrderAction
     }
 
     /**
+     * Check the payload's currency is active.
+     *
+     * Only a shopper's order is checked. A manual (admin-created) order may use a currency
+     * that has since been deactivated.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return void
+     * @throws ValidationException When a shopper's order uses a currency that is not active.
+     */
+    protected function validate_active_currency(CreateOrderPayloadDTO $dto): void
+    {
+        throw_if(!$dto->is_manual && !Currency::is_active($dto->currency_code), __('This currency is not available.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+    }
+
+    /**
      * Check the payload's payment provider is one the order may use.
      *
      * A provider must be registered. For a shopper's order it must also be enabled, so checkout
@@ -304,7 +324,7 @@ class CreateOrderAction
      *
      * @param CreateOrderPayloadDTO $dto Order payload.
      * @return void
-     * @throws ValidationException When the provider is unknown, or disabled for a shopper's order.
+     * @throws ValidationException When the provider is unknown, disabled for a shopper's order, or cannot accept the order currency.
      */
     protected function validate_payment_provider(CreateOrderPayloadDTO $dto): void
     {
@@ -316,6 +336,10 @@ class CreateOrderAction
 
         throw_if(!$provider, __('Invalid payment method.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
         throw_if(!$dto->is_manual && !$provider->enabled(), __('This payment method is not available.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+
+        if (!$provider->supports_currency((string) $dto->currency_code)) {
+            throw_anyway($provider->currency_unavailable_message((string) $dto->currency_code), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+        }
     }
 
     /**

@@ -92,10 +92,10 @@
         "bestseller"
       ],
       "images": [
-        "silicone-bib-1.jpg",
-        "silicone-bib-2.jpg",
-        "silicone-bib-3.jpg",
-        "silicone-bib-4.jpg"
+        "silicone-bib-1.webp",
+        "silicone-bib-2.webp",
+        "silicone-bib-3.webp",
+        "silicone-bib-4.webp"
       ],
       "variants": [
         {
@@ -131,12 +131,12 @@
         "new-arrival"
       ],
       "images": [
-        "organic-cotton-romper-butter.jpg",
-        "organic-cotton-romper-peach.jpg",
-        "organic-cotton-romper-sky.jpg",
-        "organic-cotton-romper-2.jpg",
-        "organic-cotton-romper-3.jpg",
-        "organic-cotton-romper-4.jpg"
+        "organic-cotton-romper-butter.webp",
+        "organic-cotton-romper-peach.webp",
+        "organic-cotton-romper-sky.webp",
+        "organic-cotton-romper-2.webp",
+        "organic-cotton-romper-3.webp",
+        "organic-cotton-romper-4.webp"
       ],
       "variants": [
         {
@@ -145,7 +145,7 @@
             "color": "Butter",
             "size": "0–3 m"
           },
-          "image": "organic-cotton-romper-butter.jpg",
+          "image": "organic-cotton-romper-butter.webp",
           "price": "28.00",
           "sale_price": null,
           "cost": "11.00",
@@ -162,7 +162,7 @@
             "color": "Butter",
             "size": "3–6 m"
           },
-          "image": "organic-cotton-romper-butter.jpg",
+          "image": "organic-cotton-romper-butter.webp",
           "price": "28.00",
           "sale_price": null,
           "cost": "11.00",
@@ -179,7 +179,7 @@
             "color": "Butter",
             "size": "6–12 m"
           },
-          "image": "organic-cotton-romper-butter.jpg",
+          "image": "organic-cotton-romper-butter.webp",
           "price": "28.00",
           "sale_price": null,
           "cost": "11.00",
@@ -196,7 +196,7 @@
             "color": "Peach",
             "size": "0–3 m"
           },
-          "image": "organic-cotton-romper-peach.jpg",
+          "image": "organic-cotton-romper-peach.webp",
           "price": "28.00",
           "sale_price": null,
           "cost": "11.00",
@@ -213,7 +213,7 @@
             "color": "Peach",
             "size": "3–6 m"
           },
-          "image": "organic-cotton-romper-peach.jpg",
+          "image": "organic-cotton-romper-peach.webp",
           "price": "28.00",
           "sale_price": null,
           "cost": "11.00",
@@ -230,7 +230,7 @@
             "color": "Peach",
             "size": "6–12 m"
           },
-          "image": "organic-cotton-romper-peach.jpg",
+          "image": "organic-cotton-romper-peach.webp",
           "price": "28.00",
           "sale_price": null,
           "cost": "11.00",
@@ -247,7 +247,7 @@
             "color": "Sky",
             "size": "0–3 m"
           },
-          "image": "organic-cotton-romper-sky.jpg",
+          "image": "organic-cotton-romper-sky.webp",
           "price": "28.00",
           "sale_price": null,
           "cost": "11.00",
@@ -264,7 +264,7 @@
             "color": "Sky",
             "size": "3–6 m"
           },
-          "image": "organic-cotton-romper-sky.jpg",
+          "image": "organic-cotton-romper-sky.webp",
           "price": "28.00",
           "sale_price": null,
           "cost": "11.00",
@@ -281,7 +281,7 @@
             "color": "Sky",
             "size": "6–12 m"
           },
-          "image": "organic-cotton-romper-sky.jpg",
+          "image": "organic-cotton-romper-sky.webp",
           "price": "28.00",
           "sale_price": null,
           "cost": "11.00",
@@ -308,10 +308,10 @@
         "gift-idea"
       ],
       "images": [
-        "muslin-swaddle-set-1.jpg",
-        "muslin-swaddle-set-2.jpg",
-        "muslin-swaddle-set-3.jpg",
-        "muslin-swaddle-set-4.jpg"
+        "muslin-swaddle-set-1.webp",
+        "muslin-swaddle-set-2.webp",
+        "muslin-swaddle-set-3.webp",
+        "muslin-swaddle-set-4.webp"
       ],
       "variants": [
         {
@@ -344,10 +344,10 @@
         "eco"
       ],
       "images": [
-        "bamboo-tableware-set-1.jpg",
-        "bamboo-tableware-set-2.jpg",
-        "bamboo-tableware-set-3.jpg",
-        "bamboo-tableware-set-4.jpg"
+        "bamboo-tableware-set-1.webp",
+        "bamboo-tableware-set-2.webp",
+        "bamboo-tableware-set-3.webp",
+        "bamboo-tableware-set-4.webp"
       ],
       "variants": [
         {
@@ -402,10 +402,10 @@
         "bestseller"
       ],
       "images": [
-        "knitted-bunny-1.jpg",
-        "knitted-bunny-2.jpg",
-        "knitted-bunny-3.jpg",
-        "knitted-bunny-4.jpg"
+        "knitted-bunny-1.webp",
+        "knitted-bunny-2.webp",
+        "knitted-bunny-3.webp",
+        "knitted-bunny-4.webp"
       ],
       "variants": [
         {

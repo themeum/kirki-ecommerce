@@ -9,7 +9,6 @@ use Kirki\Ecommerce\App\Hooks\Actions\AddWpHeadMeta;
 use Kirki\Ecommerce\App\Hooks\Filters\AddProductRobots;
 use Kirki\Ecommerce\App\Hooks\Filters\ReplaceSiteTitle;
 use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -27,14 +26,6 @@ class ProductHeadMetaTest extends RestTestCase
 {
     use CreatesTestProducts;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Profile rows are not rolled back with the test transaction, so start from none.
-        ProductSchema::query()->where('id', '>', 0)->delete();
-    }
-
     public function tear_down(): void
     {
         CurrentRoute::reset();
@@ -45,7 +36,6 @@ class ProductHeadMetaTest extends RestTestCase
         remove_all_filters(DevHookNames::PRODUCT_JSON_LD);
 
         parent::tear_down();
-        ProductSchema::query()->where('id', '>', 0)->delete();
     }
 
     /**
@@ -177,49 +167,34 @@ class ProductHeadMetaTest extends RestTestCase
         $this->assertStringContainsString('<meta property="og:title" content="5 &lt; 6 &amp; &quot;best&quot;">', $head);
     }
 
-    public function test_json_ld_uses_the_built_in_profile_without_a_stored_one()
+    public function test_json_ld_prints_the_fixed_field_set_from_product_data()
     {
-        $this->visit_product(['variants' => [['base_price' => 29.99, 'sku' => 'LMP-1', 'available_quantity' => 5, 'in_stock' => true, 'is_default' => true, 'attribute_values' => []]]]);
+        $product = $this->visit_product([
+            'brand_id' => $this->create_brand('Teak Works'),
+            'categories' => [$this->create_category('Lamps')],
+            'variants' => [['base_price' => 29.99, 'sku' => 'LMP-1', 'available_quantity' => 5, 'in_stock' => true, 'is_default' => true, 'attribute_values' => []]],
+        ]);
         $data = $this->json_ld($this->head());
+        $url = Url::get_product_url($product['slug']);
 
         $this->assertSame('Product', $data['@type']);
         $this->assertSame('Wooden Lamp', $data['name']);
+        $this->assertSame('Handmade teak lamp.', $data['description']);
         $this->assertSame('LMP-1', $data['sku']);
+        $this->assertSame('Lamps', $data['category']);
+        $this->assertSame('Teak Works', $data['brand']['name']);
+        $this->assertSame($url, $data['url']);
         $this->assertSame('Offer', $data['offers']['@type']);
-        $this->assertSame('29.99', $data['offers']['price']);
+        $this->assertSame(29.99, $data['offers']['price']);
+        $this->assertSame('USD', $data['offers']['priceCurrency']);
         $this->assertSame('https://schema.org/InStock', $data['offers']['availability']);
+        $this->assertSame('https://schema.org/NewCondition', $data['offers']['itemCondition']);
+        $this->assertSame($url, $data['offers']['url']);
+        $this->assertSame(['@type' => 'Organization', 'name' => get_bloginfo('name')], $data['offers']['seller']);
+        $this->assertArrayNotHasKey('priceSpecification', $data['offers']);
+        $this->assertArrayNotHasKey('gtin', $data);
         $this->assertArrayNotHasKey('aggregateRating', $data);
         $this->assertArrayNotHasKey('review', $data);
-    }
-
-    public function test_product_profile_then_default_profile_choose_the_fields()
-    {
-        $default = ProductSchema::create(['name' => 'Default', 'is_default' => true, 'schema' => ['Product' => ['name']]]);
-        $own = ProductSchema::create(['name' => 'Own', 'is_default' => false, 'schema' => ['Product' => ['name', 'description'], 'Offer' => ['price']]]);
-
-        $this->visit_product();
-        $from_default = $this->json_ld($this->head());
-        app(ViewContext::class)->clear();
-
-        $this->visit_product(['schema_id' => $own->id]);
-        $from_own = $this->json_ld($this->head());
-
-        $this->assertArrayNotHasKey('offers', $from_default);
-        $this->assertArrayNotHasKey('description', $from_default);
-        $this->assertSame('Handmade teak lamp.', $from_own['description']);
-        $this->assertSame('29.99', $from_own['offers']['price']);
-        $this->assertNotNull($default->id);
-    }
-
-    public function test_unusable_profile_falls_back_to_the_built_in_set()
-    {
-        ProductSchema::query()->insert([['name' => 'Broken', 'is_default' => true, 'schema' => '{not json', 'created_at' => '2026-01-01 00:00:00', 'updated_at' => '2026-01-01 00:00:00']]);
-
-        $this->visit_product();
-        $data = $this->json_ld($this->head());
-
-        $this->assertSame('Wooden Lamp', $data['name']);
-        $this->assertSame('Offer', $data['offers']['@type']);
     }
 
     public function test_script_closing_text_cannot_break_out_of_json_ld()

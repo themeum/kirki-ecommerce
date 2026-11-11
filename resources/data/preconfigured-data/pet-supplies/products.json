@@ -95,10 +95,10 @@
         "bestseller"
       ],
       "images": [
-        "ceramic-pet-bowl-1.jpg",
-        "ceramic-pet-bowl-2.jpg",
-        "ceramic-pet-bowl-3.jpg",
-        "ceramic-pet-bowl-4.jpg"
+        "ceramic-pet-bowl-1.webp",
+        "ceramic-pet-bowl-2.webp",
+        "ceramic-pet-bowl-3.webp",
+        "ceramic-pet-bowl-4.webp"
       ],
       "variants": [
         {
@@ -134,12 +134,12 @@
         "new-arrival"
       ],
       "images": [
-        "leather-dog-collar-coral.jpg",
-        "leather-dog-collar-sunshine.jpg",
-        "leather-dog-collar-teal.jpg",
-        "leather-dog-collar-2.jpg",
-        "leather-dog-collar-3.jpg",
-        "leather-dog-collar-4.jpg"
+        "leather-dog-collar-coral.webp",
+        "leather-dog-collar-sunshine.webp",
+        "leather-dog-collar-teal.webp",
+        "leather-dog-collar-2.webp",
+        "leather-dog-collar-3.webp",
+        "leather-dog-collar-4.webp"
       ],
       "variants": [
         {
@@ -148,7 +148,7 @@
             "color": "Coral",
             "size": "S"
           },
-          "image": "leather-dog-collar-coral.jpg",
+          "image": "leather-dog-collar-coral.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -165,7 +165,7 @@
             "color": "Coral",
             "size": "M"
           },
-          "image": "leather-dog-collar-coral.jpg",
+          "image": "leather-dog-collar-coral.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -182,7 +182,7 @@
             "color": "Coral",
             "size": "L"
           },
-          "image": "leather-dog-collar-coral.jpg",
+          "image": "leather-dog-collar-coral.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -199,7 +199,7 @@
             "color": "Sunshine",
             "size": "S"
           },
-          "image": "leather-dog-collar-sunshine.jpg",
+          "image": "leather-dog-collar-sunshine.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -216,7 +216,7 @@
             "color": "Sunshine",
             "size": "M"
           },
-          "image": "leather-dog-collar-sunshine.jpg",
+          "image": "leather-dog-collar-sunshine.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -233,7 +233,7 @@
             "color": "Sunshine",
             "size": "L"
           },
-          "image": "leather-dog-collar-sunshine.jpg",
+          "image": "leather-dog-collar-sunshine.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -250,7 +250,7 @@
             "color": "Teal",
             "size": "S"
           },
-          "image": "leather-dog-collar-teal.jpg",
+          "image": "leather-dog-collar-teal.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -267,7 +267,7 @@
             "color": "Teal",
             "size": "M"
           },
-          "image": "leather-dog-collar-teal.jpg",
+          "image": "leather-dog-collar-teal.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -284,7 +284,7 @@
             "color": "Teal",
             "size": "L"
           },
-          "image": "leather-dog-collar-teal.jpg",
+          "image": "leather-dog-collar-teal.webp",
           "price": "32.00",
           "sale_price": null,
           "cost": "13.00",
@@ -311,10 +311,10 @@
         "wool"
       ],
       "images": [
-        "felt-cat-cave-1.jpg",
-        "felt-cat-cave-2.jpg",
-        "felt-cat-cave-3.jpg",
-        "felt-cat-cave-4.jpg"
+        "felt-cat-cave-1.webp",
+        "felt-cat-cave-2.webp",
+        "felt-cat-cave-3.webp",
+        "felt-cat-cave-4.webp"
       ],
       "variants": [
         {
@@ -347,10 +347,10 @@
         "fresh"
       ],
       "images": [
-        "dog-treats-1.jpg",
-        "dog-treats-2.jpg",
-        "dog-treats-3.jpg",
-        "dog-treats-4.jpg"
+        "dog-treats-1.webp",
+        "dog-treats-2.webp",
+        "dog-treats-3.webp",
+        "dog-treats-4.webp"
       ],
       "variants": [
         {
@@ -416,10 +416,10 @@
         "bestseller"
       ],
       "images": [
-        "orthopedic-dog-bed-1.jpg",
-        "orthopedic-dog-bed-2.jpg",
-        "orthopedic-dog-bed-3.jpg",
-        "orthopedic-dog-bed-4.jpg"
+        "orthopedic-dog-bed-1.webp",
+        "orthopedic-dog-bed-2.webp",
+        "orthopedic-dog-bed-3.webp",
+        "orthopedic-dog-bed-4.webp"
       ],
       "variants": [
         {

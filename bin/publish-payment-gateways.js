@@ -51,10 +51,12 @@ const aws = (...args) => {
 };
 
 const main = () => {
-  run('node', [path.join(__dirname, 'build-payment-zips.js')]);
+  // The build writes only the gateways that changed, so only those are uploaded.
+  // "--full" rebuilds and uploads all gateways.
+  run('node', [path.join(__dirname, 'build-payment-zips.js'), ...(process.argv.includes('--full') ? ['--full'] : [])]);
 
-  // Zips and logos first. Installs fail the hash check if the catalog lists a zip that is not uploaded yet.
-  aws('cp', GATEWAYS_DIR, target, '--recursive', '--exclude', 'payments', '--exclude', '*/meta.json');
+  // Zips, logos and meta.json first. Nothing is deleted, so the zips of older versions stay.
+  aws('cp', GATEWAYS_DIR, target, '--recursive', '--exclude', 'payments');
 
   // The catalog goes last, as JSON, with a short cache time.
   aws(

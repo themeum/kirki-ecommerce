@@ -23,10 +23,14 @@ use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\RemoveDuplicateSubmenu;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SendCustomerNewAccountEmail;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SMTPConfig;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SyncCustomerEmailFromWordPressUser;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\EnableShopPageExcerpt;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\InjectPaymentGatewayUpdates;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\MailFromEmail;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\MailFromName;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\PaymentGatewayPluginInformation;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\SendCustomerPasswordResetEmail;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\SuppressCoreNewUserEmail;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\VerifyPaymentGatewayPackage;
 use Kirki\Ecommerce\Framework\Wordpress\Hooks\Actions\RegisterAdminMenu;
 use Kirki\Ecommerce\Framework\Wordpress\Hooks\Actions\RegisterRestApi;
 
@@ -61,5 +65,9 @@ return [
         ValidateRegisterConsents::class,
         SendCustomerPasswordResetEmail::class,
         SuppressCoreNewUserEmail::class,
+        EnableShopPageExcerpt::class,
+        InjectPaymentGatewayUpdates::class,
+        PaymentGatewayPluginInformation::class,
+        VerifyPaymentGatewayPackage::class,
     ],
 ];

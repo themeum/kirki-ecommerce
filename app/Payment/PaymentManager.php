@@ -23,6 +23,11 @@ defined('ABSPATH') || exit;
  */
 class PaymentManager
 {
+    /**
+     * The most currencies that the checkout message suggests.
+     */
+    const MAX_ALTERNATIVE_CURRENCIES = 3;
+
     /** @var array<string, PaymentProvider> */
     protected $providers_registry = [];
 
@@ -176,6 +181,84 @@ class PaymentManager
     public function get_available_offline_providers()
     {
         return $this->ordered_providers()->filter(fn($provider) => $provider->enabled() && $provider->is_offline())->values()->to_array();
+    }
+
+    /**
+     * Get the enabled providers that can accept a currency.
+     *
+     * @since 1.0.0
+     *
+     * @param string $currency Paying currency code.
+     * @return PaymentProvider[]
+     */
+    public function get_checkout_providers(string $currency)
+    {
+        return array_values(array_filter(
+            $this->get_available_providers(),
+            fn($provider) => $provider->supports_currency($currency)
+        ));
+    }
+
+    /**
+     * Get the other active currencies that have an enabled provider.
+     *
+     * @since 1.0.0
+     *
+     * @param string   $currency     Paying currency code.
+     * @param string[] $active_codes Active store currency codes, in the order to suggest them.
+     * @return string[] At most MAX_ALTERNATIVE_CURRENCIES codes.
+     */
+    public function get_alternative_currencies(string $currency, array $active_codes)
+    {
+        $alternatives = [];
+
+        foreach ($active_codes as $code) {
+            if (strtoupper($code) === strtoupper($currency) || empty($this->get_checkout_providers($code))) {
+                continue;
+            }
+
+            $alternatives[] = strtoupper($code);
+
+            if (count($alternatives) === static::MAX_ALTERNATIVE_CURRENCIES) {
+                break;
+            }
+        }
+
+        return $alternatives;
+    }
+
+    /**
+     * Get the checkout message for a currency that leaves no payment method.
+     *
+     * @since 1.0.0
+     *
+     * @param string   $currency     Paying currency code.
+     * @param string[] $active_codes Active store currency codes, in the order to suggest them.
+     * @return string|null Null when a provider can accept the currency, or when no provider is enabled.
+     */
+    public function get_currency_unavailable_notice(string $currency, array $active_codes)
+    {
+        if (empty($this->get_available_providers()) || !empty($this->get_checkout_providers($currency))) {
+            return null;
+        }
+
+        $code = strtoupper($currency);
+        $alternatives = $this->get_alternative_currencies($currency, $active_codes);
+
+        switch (count($alternatives)) {
+            case 0:
+                /* translators: %s: currency code. */
+                return sprintf(__('No payment method is available for %s.', 'kirki-ecommerce'), $code);
+            case 1:
+                /* translators: 1: paying currency code, 2: currency code to switch to. */
+                return sprintf(__('No payment method is available for %1$s. Switch to %2$s to complete your order.', 'kirki-ecommerce'), $code, ...$alternatives);
+            case 2:
+                /* translators: 1: paying currency code, 2 and 3: currency codes to switch to. */
+                return sprintf(__('No payment method is available for %1$s. Switch to %2$s or %3$s to complete your order.', 'kirki-ecommerce'), $code, ...$alternatives);
+            default:
+                /* translators: 1: paying currency code, 2, 3 and 4: currency codes to switch to. */
+                return sprintf(__('No payment method is available for %1$s. Switch to %2$s, %3$s, or %4$s to complete your order.', 'kirki-ecommerce'), $code, ...$alternatives);
+        }
     }
 
     /**

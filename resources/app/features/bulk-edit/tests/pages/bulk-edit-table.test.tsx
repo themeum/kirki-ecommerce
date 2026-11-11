@@ -7,6 +7,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { endpoints } from '@/config/endpoints';
 import { AppConfigProvider } from '@/contexts/app-config-context';
 import BulkEditPage from '@/features/bulk-edit/pages/bulk-edit';
+import { appConfigResponse } from '@/tests/msw/handlers/app-config';
 import { server } from '@/tests/msw/server';
 
 const baseUrl = () => window.kirki_ecommerce.rest_url_base;
@@ -74,9 +75,15 @@ const registerReferenceDataHandlers = () => {
   );
 };
 
-const renderBulkEditPage = (variants: ReturnType<typeof buildVariant>[]) => {
+const renderBulkEditPage = (
+  variants: ReturnType<typeof buildVariant>[],
+  isTaxEnabled = true,
+) => {
   registerReferenceDataHandlers();
   server.use(
+    http.get(`${baseUrl()}${endpoints.APP_CONFIG}`, () =>
+      HttpResponse.json({ data: { ...appConfigResponse, is_tax_enabled: isTaxEnabled } }),
+    ),
     http.get(`${baseUrl()}${endpoints.VARIANTS_BULK_BY_IDS(variants.map((v) => v.id))}`, () =>
       HttpResponse.json({ data: variants, message: 'ok' }),
     ),
@@ -719,5 +726,23 @@ describe('BulkEditPage grid', () => {
     expect(getCell('base_price', 0)?.dataset.bulkCell).toBeUndefined();
     expect(getCell('base_price', 1)?.dataset.bulkCell).toBeUndefined();
     expect(getCell('base_price', 2)?.dataset.bulkCell).toBe('selected');
+  });
+
+  it('shows the tax columns when tax calculation is enabled', async () => {
+    renderBulkEditPage([buildVariant(1)], true);
+
+    await waitFor(() => expect(getCellInput('base_price', 0)).toBeTruthy());
+
+    expect(getCell('charge_taxes', 0)).toBeTruthy();
+    expect(getCell('tax_profile_id', 0)).toBeTruthy();
+  });
+
+  it('hides the tax columns when tax calculation is disabled', async () => {
+    renderBulkEditPage([buildVariant(1)], false);
+
+    await waitFor(() => expect(getCellInput('base_price', 0)).toBeTruthy());
+
+    expect(getCell('charge_taxes', 0)).toBeNull();
+    expect(getCell('tax_profile_id', 0)).toBeNull();
   });
 });

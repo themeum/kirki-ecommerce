@@ -24,14 +24,10 @@ import {
   type OfflinePaymentFormPayload,
   OfflinePaymentFormSchema,
 } from '@/features/settings/payment/schemas/forms/offline-payment-form';
-import {
-  useCreateOfflinePaymentMutation,
-  useUpdateOfflinePaymentMutation,
-} from '@/features/settings/payment/services/payment';
+import { useUpdateOfflinePaymentMutation } from '@/features/settings/payment/services/payment';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
-import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type OfflinePaymentPopupProps = {
@@ -44,10 +40,7 @@ type OfflinePaymentPopupProps = {
 const OfflinePaymentPopup = (props: OfflinePaymentPopupProps) => {
   const { openPopup, setOpenPopup, editingMethod, setEditingMethod } = props;
 
-  const { mutateAsync: createMethod, isPending: isCreating } = useCreateOfflinePaymentMutation();
-  const { mutateAsync: updateMethod, isPending: isUpdating } = useUpdateOfflinePaymentMutation();
-  const isSubmitting = isCreating || isUpdating;
-  const isEditing = isDefined(editingMethod);
+  const { mutateAsync: updateMethod, isPending: isSubmitting } = useUpdateOfflinePaymentMutation();
 
   const form = useForm<OfflinePaymentFormInput, unknown, OfflinePaymentFormPayload>({
     resolver: zodResolver(OfflinePaymentFormSchema),
@@ -77,15 +70,15 @@ const OfflinePaymentPopup = (props: OfflinePaymentPopupProps) => {
   };
 
   const handleSaveOrUpdateData = async (payload: OfflinePaymentFormPayload) => {
+    if (!editingMethod) {
+      return;
+    }
+
     try {
-      if (editingMethod) {
-        await updateMethod({
-          id: editingMethod.id,
-          data: payload,
-        });
-      } else {
-        await createMethod(payload);
-      }
+      await updateMethod({
+        id: editingMethod.id,
+        data: payload,
+      });
       handleClose();
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -104,7 +97,7 @@ const OfflinePaymentPopup = (props: OfflinePaymentPopupProps) => {
       <DialogContent>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>{isEditing ? __('Edit Payment Method', 'kirki-ecommerce') : __('Add Manual Payment Method', 'kirki-ecommerce')}</DialogTitle>
+          <DialogTitle>{__('Edit Payment Method', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSaveOrUpdateData)}>

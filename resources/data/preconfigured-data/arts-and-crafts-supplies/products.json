@@ -92,10 +92,10 @@
         "bestseller"
       ],
       "images": [
-        "watercolor-set-1.jpg",
-        "watercolor-set-2.jpg",
-        "watercolor-set-3.jpg",
-        "watercolor-set-4.jpg"
+        "watercolor-set-1.webp",
+        "watercolor-set-2.webp",
+        "watercolor-set-3.webp",
+        "watercolor-set-4.webp"
       ],
       "variants": [
         {
@@ -131,12 +131,12 @@
         "new-arrival"
       ],
       "images": [
-        "merino-yarn-marigold.jpg",
-        "merino-yarn-fuchsia.jpg",
-        "merino-yarn-teal.jpg",
-        "merino-yarn-2.jpg",
-        "merino-yarn-3.jpg",
-        "merino-yarn-4.jpg"
+        "merino-yarn-marigold.webp",
+        "merino-yarn-fuchsia.webp",
+        "merino-yarn-teal.webp",
+        "merino-yarn-2.webp",
+        "merino-yarn-3.webp",
+        "merino-yarn-4.webp"
       ],
       "variants": [
         {
@@ -145,7 +145,7 @@
             "color": "Marigold",
             "weight": "DK"
           },
-          "image": "merino-yarn-marigold.jpg",
+          "image": "merino-yarn-marigold.webp",
           "price": "12.00",
           "sale_price": null,
           "cost": "5.00",
@@ -162,7 +162,7 @@
             "color": "Marigold",
             "weight": "Worsted"
           },
-          "image": "merino-yarn-marigold.jpg",
+          "image": "merino-yarn-marigold.webp",
           "price": "12.00",
           "sale_price": null,
           "cost": "5.00",
@@ -179,7 +179,7 @@
             "color": "Fuchsia",
             "weight": "DK"
           },
-          "image": "merino-yarn-fuchsia.jpg",
+          "image": "merino-yarn-fuchsia.webp",
           "price": "12.00",
           "sale_price": null,
           "cost": "5.00",
@@ -196,7 +196,7 @@
             "color": "Fuchsia",
             "weight": "Worsted"
           },
-          "image": "merino-yarn-fuchsia.jpg",
+          "image": "merino-yarn-fuchsia.webp",
           "price": "12.00",
           "sale_price": null,
           "cost": "5.00",
@@ -213,7 +213,7 @@
             "color": "Teal",
             "weight": "DK"
           },
-          "image": "merino-yarn-teal.jpg",
+          "image": "merino-yarn-teal.webp",
           "price": "12.00",
           "sale_price": null,
           "cost": "5.00",
@@ -230,7 +230,7 @@
             "color": "Teal",
             "weight": "Worsted"
           },
-          "image": "merino-yarn-teal.jpg",
+          "image": "merino-yarn-teal.webp",
           "price": "12.00",
           "sale_price": null,
           "cost": "5.00",
@@ -257,10 +257,10 @@
         "beginner"
       ],
       "images": [
-        "brush-set-1.jpg",
-        "brush-set-2.jpg",
-        "brush-set-3.jpg",
-        "brush-set-4.jpg"
+        "brush-set-1.webp",
+        "brush-set-2.webp",
+        "brush-set-3.webp",
+        "brush-set-4.webp"
       ],
       "variants": [
         {
@@ -293,10 +293,10 @@
         "beginner"
       ],
       "images": [
-        "air-dry-clay-1.jpg",
-        "air-dry-clay-2.jpg",
-        "air-dry-clay-3.jpg",
-        "air-dry-clay-4.jpg"
+        "air-dry-clay-1.webp",
+        "air-dry-clay-2.webp",
+        "air-dry-clay-3.webp",
+        "air-dry-clay-4.webp"
       ],
       "variants": [
         {
@@ -362,10 +362,10 @@
         "bestseller"
       ],
       "images": [
-        "sketchbook-1.jpg",
-        "sketchbook-2.jpg",
-        "sketchbook-3.jpg",
-        "sketchbook-4.jpg"
+        "sketchbook-1.webp",
+        "sketchbook-2.webp",
+        "sketchbook-3.webp",
+        "sketchbook-4.webp"
       ],
       "variants": [
         {

@@ -89,10 +89,10 @@
         "bestseller"
       ],
       "images": [
-        "facial-serum-1.jpg",
-        "facial-serum-2.jpg",
-        "facial-serum-3.jpg",
-        "facial-serum-4.jpg"
+        "facial-serum-1.webp",
+        "facial-serum-2.webp",
+        "facial-serum-3.webp",
+        "facial-serum-4.webp"
       ],
       "variants": [
         {
@@ -128,12 +128,12 @@
         "new-arrival"
       ],
       "images": [
-        "tinted-lip-balm-coral.jpg",
-        "tinted-lip-balm-fuchsia.jpg",
-        "tinted-lip-balm-cherry.jpg",
-        "tinted-lip-balm-2.jpg",
-        "tinted-lip-balm-3.jpg",
-        "tinted-lip-balm-4.jpg"
+        "tinted-lip-balm-coral.webp",
+        "tinted-lip-balm-fuchsia.webp",
+        "tinted-lip-balm-cherry.webp",
+        "tinted-lip-balm-2.webp",
+        "tinted-lip-balm-3.webp",
+        "tinted-lip-balm-4.webp"
       ],
       "variants": [
         {
@@ -142,7 +142,7 @@
             "shade": "Coral",
             "finish": "Sheer"
           },
-          "image": "tinted-lip-balm-coral.jpg",
+          "image": "tinted-lip-balm-coral.webp",
           "price": "18.00",
           "sale_price": null,
           "cost": "7.00",
@@ -159,7 +159,7 @@
             "shade": "Coral",
             "finish": "Satin"
           },
-          "image": "tinted-lip-balm-coral.jpg",
+          "image": "tinted-lip-balm-coral.webp",
           "price": "18.00",
           "sale_price": null,
           "cost": "7.00",
@@ -176,7 +176,7 @@
             "shade": "Fuchsia",
             "finish": "Sheer"
           },
-          "image": "tinted-lip-balm-fuchsia.jpg",
+          "image": "tinted-lip-balm-fuchsia.webp",
           "price": "18.00",
           "sale_price": null,
           "cost": "7.00",
@@ -193,7 +193,7 @@
             "shade": "Fuchsia",
             "finish": "Satin"
           },
-          "image": "tinted-lip-balm-fuchsia.jpg",
+          "image": "tinted-lip-balm-fuchsia.webp",
           "price": "18.00",
           "sale_price": null,
           "cost": "7.00",
@@ -210,7 +210,7 @@
             "shade": "Cherry",
             "finish": "Sheer"
           },
-          "image": "tinted-lip-balm-cherry.jpg",
+          "image": "tinted-lip-balm-cherry.webp",
           "price": "18.00",
           "sale_price": null,
           "cost": "7.00",
@@ -227,7 +227,7 @@
             "shade": "Cherry",
             "finish": "Satin"
           },
-          "image": "tinted-lip-balm-cherry.jpg",
+          "image": "tinted-lip-balm-cherry.webp",
           "price": "18.00",
           "sale_price": null,
           "cost": "7.00",
@@ -254,10 +254,10 @@
         "fragrance-free"
       ],
       "images": [
-        "body-oil-1.jpg",
-        "body-oil-2.jpg",
-        "body-oil-3.jpg",
-        "body-oil-4.jpg"
+        "body-oil-1.webp",
+        "body-oil-2.webp",
+        "body-oil-3.webp",
+        "body-oil-4.webp"
       ],
       "variants": [
         {
@@ -290,10 +290,10 @@
         "fragrance-free"
       ],
       "images": [
-        "face-cream-1.jpg",
-        "face-cream-2.jpg",
-        "face-cream-3.jpg",
-        "face-cream-4.jpg"
+        "face-cream-1.webp",
+        "face-cream-2.webp",
+        "face-cream-3.webp",
+        "face-cream-4.webp"
       ],
       "variants": [
         {
@@ -360,10 +360,10 @@
         "bestseller"
       ],
       "images": [
-        "shampoo-bar-1.jpg",
-        "shampoo-bar-2.jpg",
-        "shampoo-bar-3.jpg",
-        "shampoo-bar-4.jpg"
+        "shampoo-bar-1.webp",
+        "shampoo-bar-2.webp",
+        "shampoo-bar-3.webp",
+        "shampoo-bar-4.webp"
       ],
       "variants": [
         {

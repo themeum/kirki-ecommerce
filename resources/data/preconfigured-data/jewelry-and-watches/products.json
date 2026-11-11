@@ -79,10 +79,10 @@
         "bestseller"
       ],
       "images": [
-        "pearl-stud-earrings-1.jpg",
-        "pearl-stud-earrings-2.jpg",
-        "pearl-stud-earrings-3.jpg",
-        "pearl-stud-earrings-4.jpg"
+        "pearl-stud-earrings-1.webp",
+        "pearl-stud-earrings-2.webp",
+        "pearl-stud-earrings-3.webp",
+        "pearl-stud-earrings-4.webp"
       ],
       "variants": [
         {
@@ -118,12 +118,12 @@
         "new-arrival"
       ],
       "images": [
-        "pendant-necklace-emerald.jpg",
-        "pendant-necklace-ruby.jpg",
-        "pendant-necklace-sapphire.jpg",
-        "pendant-necklace-2.jpg",
-        "pendant-necklace-3.jpg",
-        "pendant-necklace-4.jpg"
+        "pendant-necklace-emerald.webp",
+        "pendant-necklace-ruby.webp",
+        "pendant-necklace-sapphire.webp",
+        "pendant-necklace-2.webp",
+        "pendant-necklace-3.webp",
+        "pendant-necklace-4.webp"
       ],
       "variants": [
         {
@@ -132,7 +132,7 @@
             "stone": "Emerald",
             "length": "40 cm"
           },
-          "image": "pendant-necklace-emerald.jpg",
+          "image": "pendant-necklace-emerald.webp",
           "price": "85.00",
           "sale_price": null,
           "cost": "34.00",
@@ -149,7 +149,7 @@
             "stone": "Emerald",
             "length": "45 cm"
           },
-          "image": "pendant-necklace-emerald.jpg",
+          "image": "pendant-necklace-emerald.webp",
           "price": "85.00",
           "sale_price": null,
           "cost": "34.00",
@@ -166,7 +166,7 @@
             "stone": "Ruby",
             "length": "40 cm"
           },
-          "image": "pendant-necklace-ruby.jpg",
+          "image": "pendant-necklace-ruby.webp",
           "price": "85.00",
           "sale_price": null,
           "cost": "34.00",
@@ -183,7 +183,7 @@
             "stone": "Ruby",
             "length": "45 cm"
           },
-          "image": "pendant-necklace-ruby.jpg",
+          "image": "pendant-necklace-ruby.webp",
           "price": "85.00",
           "sale_price": null,
           "cost": "34.00",
@@ -200,7 +200,7 @@
             "stone": "Sapphire",
             "length": "40 cm"
           },
-          "image": "pendant-necklace-sapphire.jpg",
+          "image": "pendant-necklace-sapphire.webp",
           "price": "85.00",
           "sale_price": null,
           "cost": "34.00",
@@ -217,7 +217,7 @@
             "stone": "Sapphire",
             "length": "45 cm"
           },
-          "image": "pendant-necklace-sapphire.jpg",
+          "image": "pendant-necklace-sapphire.webp",
           "price": "85.00",
           "sale_price": null,
           "cost": "34.00",
@@ -244,10 +244,10 @@
         "gift-idea"
       ],
       "images": [
-        "minimal-wristwatch-1.jpg",
-        "minimal-wristwatch-2.jpg",
-        "minimal-wristwatch-3.jpg",
-        "minimal-wristwatch-4.jpg"
+        "minimal-wristwatch-1.webp",
+        "minimal-wristwatch-2.webp",
+        "minimal-wristwatch-3.webp",
+        "minimal-wristwatch-4.webp"
       ],
       "variants": [
         {
@@ -280,10 +280,10 @@
         "gift-idea"
       ],
       "images": [
-        "stacking-ring-1.jpg",
-        "stacking-ring-2.jpg",
-        "stacking-ring-3.jpg",
-        "stacking-ring-4.jpg"
+        "stacking-ring-1.webp",
+        "stacking-ring-2.webp",
+        "stacking-ring-3.webp",
+        "stacking-ring-4.webp"
       ],
       "variants": [
         {
@@ -369,10 +369,10 @@
         "bestseller"
       ],
       "images": [
-        "chain-bracelet-1.jpg",
-        "chain-bracelet-2.jpg",
-        "chain-bracelet-3.jpg",
-        "chain-bracelet-4.jpg"
+        "chain-bracelet-1.webp",
+        "chain-bracelet-2.webp",
+        "chain-bracelet-3.webp",
+        "chain-bracelet-4.webp"
       ],
       "variants": [
         {

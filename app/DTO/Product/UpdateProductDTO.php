@@ -64,9 +64,6 @@ class UpdateProductDTO extends DTO
     /** @var int|null */
     public $og_image;
 
-    /** @var int|null */
-    public $schema_id;
-
     /** @var bool|null */
     public $has_variants = false;
 

@@ -1,0 +1,68 @@
+## MODIFIED Requirements
+
+### Requirement: Catalog comes from one configurable base URL
+
+The system SHALL read the installable gateway list from `{base}/payments`,
+where `{base}` is defined in exactly one place in the code. The response SHALL
+be cached for a short time. All other URLs used by the feature SHALL be
+derived from the catalog response or from `{base}`. Each catalog entry SHALL
+carry `slug`, and MAY carry `requires_kirki_ecommerce`, `requires_wp` and
+`requires_php`. An entry whose `slug` is missing or is not a safe plugin
+folder name SHALL be dropped. A `requires_*` value that is not a version
+string SHALL be read as empty.
+
+#### Scenario: Listing installable gateways
+
+- **WHEN** a client requests the installable online providers
+- **THEN** the backend returns each remote gateway with `id`, `name`,
+  `description`, `version`, `icon`, `is_installed`, `installed_version`,
+  `update_available` and `update_blocked_reason`
+
+#### Scenario: Gateway not installed
+
+- **WHEN** a gateway is not installed
+- **THEN** `installed_version` is null, `update_available` is false and
+  `update_blocked_reason` is null
+
+#### Scenario: Catalog is a static object
+
+- **WHEN** the store requests `{base}/payments`
+- **THEN** the response is a JSON object stored in the S3 bucket, with no
+  server code between the store and the bucket
+
+#### Scenario: Switching servers
+
+- **WHEN** the base URL value changes
+- **THEN** the list, logos, downloads and details come from the new server
+  with no other code change
+
+#### Scenario: Remote server unreachable
+
+- **WHEN** the catalog request fails and no cached list exists
+- **THEN** the endpoint returns an error and the dialog shows an error state
+  with a retry action
+
+#### Scenario: Entry without slug
+
+- **WHEN** a catalog entry has no `slug`, or a `slug` with characters other
+  than lowercase letters, digits and hyphens
+- **THEN** the entry is dropped from the list
+
+### Requirement: Downloads are restricted and verified
+
+The system SHALL install or update a package only if its `download_url`
+starts with the base URL and uses HTTPS (HTTP is allowed only for local
+development hosts). It SHALL compare the SHA-256 of the downloaded zip with
+the catalog `sha256` and SHALL NOT install on a mismatch. This SHALL apply to
+first installs and to updates from every path.
+
+#### Scenario: URL outside the base URL
+
+- **WHEN** the catalog `download_url` is on a different host than the base URL
+- **THEN** the install or update fails and nothing is installed
+
+#### Scenario: Checksum mismatch
+
+- **WHEN** the downloaded zip hash differs from `sha256`
+- **THEN** the install or update fails, the file is deleted, and nothing is
+  installed

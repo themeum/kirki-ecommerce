@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "499d8db6343404aedb3035030aa44f5d",
+    "content-hash": "a01969a744b924433b4c873dfbe89da2",
     "packages": [
         {
             "name": "brick/math",
@@ -122,16 +122,16 @@
         },
         {
             "name": "themeum/framework",
-            "version": "3.3.0",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/themeum/framework.git",
-                "reference": "95661b83aa47a8f22d4cd686c89f7a96a374ef3a"
+                "reference": "124ec7985d6d8978bd519907f64b92b426694b48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/themeum/framework/zipball/95661b83aa47a8f22d4cd686c89f7a96a374ef3a",
-                "reference": "95661b83aa47a8f22d4cd686c89f7a96a374ef3a",
+                "url": "https://api.github.com/repos/themeum/framework/zipball/124ec7985d6d8978bd519907f64b92b426694b48",
+                "reference": "124ec7985d6d8978bd519907f64b92b426694b48",
                 "shasum": ""
             },
             "require": {
@@ -218,10 +218,10 @@
                 "wordpress"
             ],
             "support": {
-                "source": "https://github.com/themeum/framework/tree/v3.3.0",
+                "source": "https://github.com/themeum/framework/tree/v3.3.1",
                 "issues": "https://github.com/themeum/framework/issues"
             },
-            "time": "2026-11-03T19:11:43+00:00"
+            "time": "2026-11-10T14:17:01+00:00"
         }
     ],
     "packages-dev": [
@@ -3312,16 +3312,16 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v5.4.54",
+            "version": "v5.4.56",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "c4a6cc5733386414f6d17d744ee5ad8b445e349d"
+                "reference": "97768a0b5c3495c2a2469dfc1f3db00e006fc5d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/c4a6cc5733386414f6d17d744ee5ad8b445e349d",
-                "reference": "c4a6cc5733386414f6d17d744ee5ad8b445e349d",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/97768a0b5c3495c2a2469dfc1f3db00e006fc5d5",
+                "reference": "97768a0b5c3495c2a2469dfc1f3db00e006fc5d5",
                 "shasum": ""
             },
             "require": {
@@ -3359,7 +3359,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v5.4.54"
+                "source": "https://github.com/symfony/filesystem/tree/v5.4.56"
             },
             "funding": [
                 {
@@ -3379,7 +3379,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-30T06:54:06+00:00"
+            "time": "2026-11-03T06:18:36+00:00"
         },
         {
             "name": "symfony/finder",

@@ -6,9 +6,7 @@ Defines what the store guarantees when a payment gateway reports, or repeats, a
 payment event: the money received is checked against the order, repeated events
 and repeated payment attempts have no extra effect, and handling is atomic and
 leaves a trace when it fails.
-
 ## Requirements
-
 ### Requirement: A captured payment must match the order before it marks the order paid
 
 The system SHALL compare the amount and currency of a captured payment reported
@@ -66,19 +64,33 @@ a refund that is already completed SHALL NOT change the refund or log it again.
 
 ### Requirement: Starting payment for an order is idempotent
 
-The system SHALL send the gateway an idempotency key, derived from the order,
-when it creates a payment for an order, so that starting payment again for the
-same order does not create a second payment with the gateway.
+When the gateway API supports an idempotency key, the system SHALL send the gateway
+an idempotency key, derived from the order, when it creates a payment for an order,
+so that starting payment again for the same order does not create a second payment
+with the gateway.
+
+When the gateway API has no idempotency key, the system SHALL make sure that only the
+latest payment created for an order can complete, so that starting payment again for
+the same order cannot charge the customer twice.
 
 #### Scenario: Opening an unpaid order twice
 
-- **WHEN** payment is started twice for the same unpaid order
+- **WHEN** payment is started twice for the same unpaid order through a gateway that
+  supports an idempotency key
 - **THEN** both create-payment requests carry the same idempotency key
 
 #### Scenario: Two different orders
 
-- **WHEN** payment is started for two different orders
+- **WHEN** payment is started for two different orders through a gateway that supports
+  an idempotency key
 - **THEN** the create-payment requests carry different idempotency keys
+
+#### Scenario: Gateway without an idempotency key
+
+- **WHEN** payment is started twice for the same unpaid order through a gateway that
+  has no idempotency key, and the customer approves the first payment
+- **THEN** the store does not complete the first payment
+- **AND** the order payment status does not change
 
 ### Requirement: Webhook handling is atomic and failures are logged
 
@@ -100,3 +112,33 @@ gateway redelivers it.
 
 - **WHEN** a verified webhook carries an event type the store does not handle
 - **THEN** the request succeeds and no order is changed
+
+### Requirement: Viewing an order does not start a payment
+
+The system SHALL start a gateway payment only as part of the order placement response. Rendering
+an order on a storefront page, including the checkout success and failed pages, the order tracking
+page, and the account order page, SHALL NOT call the gateway and SHALL NOT change the payment data
+stored on the order.
+
+#### Scenario: Order placement starts the payment
+
+- **WHEN** a shopper places an order with an online provider
+- **THEN** the response includes the payment next step from that provider
+
+#### Scenario: Customer opens the order tracking page
+
+- **WHEN** a customer opens the tracking page of an unpaid order
+- **THEN** no call goes to the gateway
+- **AND** the payment data stored on the order does not change
+
+#### Scenario: Customer reaches the failed page
+
+- **WHEN** a customer reaches the checkout failed page for an unpaid order
+- **THEN** no call goes to the gateway
+- **AND** the payment data stored on the order does not change
+
+#### Scenario: Customer opens the account order page
+
+- **WHEN** a customer opens the account page of an unpaid order
+- **THEN** no call goes to the gateway
+

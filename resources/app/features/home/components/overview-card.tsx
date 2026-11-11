@@ -64,6 +64,6 @@ const styles = defineStyles({
   },
   header: {
     minHeight: '60px',
-    padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
+    padding: `0 ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
   },
 });

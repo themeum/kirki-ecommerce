@@ -88,10 +88,10 @@
         "bestseller"
       ],
       "images": [
-        "coffee-beans-1.jpg",
-        "coffee-beans-2.jpg",
-        "coffee-beans-3.jpg",
-        "coffee-beans-4.jpg"
+        "coffee-beans-1.webp",
+        "coffee-beans-2.webp",
+        "coffee-beans-3.webp",
+        "coffee-beans-4.webp"
       ],
       "variants": [
         {
@@ -128,12 +128,12 @@
         "new-arrival"
       ],
       "images": [
-        "loose-leaf-tea-berry-hibiscus.jpg",
-        "loose-leaf-tea-matcha.jpg",
-        "loose-leaf-tea-butterfly-pea.jpg",
-        "loose-leaf-tea-2.jpg",
-        "loose-leaf-tea-3.jpg",
-        "loose-leaf-tea-4.jpg"
+        "loose-leaf-tea-berry-hibiscus.webp",
+        "loose-leaf-tea-matcha.webp",
+        "loose-leaf-tea-butterfly-pea.webp",
+        "loose-leaf-tea-2.webp",
+        "loose-leaf-tea-3.webp",
+        "loose-leaf-tea-4.webp"
       ],
       "variants": [
         {
@@ -142,7 +142,7 @@
             "blend": "Berry Hibiscus",
             "weight": "50 g"
           },
-          "image": "loose-leaf-tea-berry-hibiscus.jpg",
+          "image": "loose-leaf-tea-berry-hibiscus.webp",
           "price": "14.00",
           "sale_price": null,
           "cost": "6.00",
@@ -159,7 +159,7 @@
             "blend": "Berry Hibiscus",
             "weight": "100 g"
           },
-          "image": "loose-leaf-tea-berry-hibiscus.jpg",
+          "image": "loose-leaf-tea-berry-hibiscus.webp",
           "price": "24.00",
           "sale_price": null,
           "cost": "10.00",
@@ -176,7 +176,7 @@
             "blend": "Matcha",
             "weight": "50 g"
           },
-          "image": "loose-leaf-tea-matcha.jpg",
+          "image": "loose-leaf-tea-matcha.webp",
           "price": "14.00",
           "sale_price": null,
           "cost": "6.00",
@@ -193,7 +193,7 @@
             "blend": "Matcha",
             "weight": "100 g"
           },
-          "image": "loose-leaf-tea-matcha.jpg",
+          "image": "loose-leaf-tea-matcha.webp",
           "price": "24.00",
           "sale_price": null,
           "cost": "10.00",
@@ -210,7 +210,7 @@
             "blend": "Butterfly Pea",
             "weight": "50 g"
           },
-          "image": "loose-leaf-tea-butterfly-pea.jpg",
+          "image": "loose-leaf-tea-butterfly-pea.webp",
           "price": "14.00",
           "sale_price": null,
           "cost": "6.00",
@@ -227,7 +227,7 @@
             "blend": "Butterfly Pea",
             "weight": "100 g"
           },
-          "image": "loose-leaf-tea-butterfly-pea.jpg",
+          "image": "loose-leaf-tea-butterfly-pea.webp",
           "price": "24.00",
           "sale_price": null,
           "cost": "10.00",
@@ -254,10 +254,10 @@
         "organic"
       ],
       "images": [
-        "olive-oil-gift-set-1.jpg",
-        "olive-oil-gift-set-2.jpg",
-        "olive-oil-gift-set-3.jpg",
-        "olive-oil-gift-set-4.jpg"
+        "olive-oil-gift-set-1.webp",
+        "olive-oil-gift-set-2.webp",
+        "olive-oil-gift-set-3.webp",
+        "olive-oil-gift-set-4.webp"
       ],
       "variants": [
         {
@@ -293,10 +293,10 @@
         "fresh"
       ],
       "images": [
-        "wildflower-honey-1.jpg",
-        "wildflower-honey-2.jpg",
-        "wildflower-honey-3.jpg",
-        "wildflower-honey-4.jpg"
+        "wildflower-honey-1.webp",
+        "wildflower-honey-2.webp",
+        "wildflower-honey-3.webp",
+        "wildflower-honey-4.webp"
       ],
       "variants": [
         {
@@ -360,10 +360,10 @@
         "bestseller"
       ],
       "images": [
-        "dark-chocolate-bar-1.jpg",
-        "dark-chocolate-bar-2.jpg",
-        "dark-chocolate-bar-3.jpg",
-        "dark-chocolate-bar-4.jpg"
+        "dark-chocolate-bar-1.webp",
+        "dark-chocolate-bar-2.webp",
+        "dark-chocolate-bar-3.webp",
+        "dark-chocolate-bar-4.webp"
       ],
       "variants": [
         {

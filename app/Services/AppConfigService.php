@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Supports\Tax;
+
 defined('ABSPATH') || exit;
 
 use function Kirki\Ecommerce\App\base_currency;
@@ -30,6 +32,7 @@ class AppConfigService
             'current_user' => user()->get_data(),
             'base_currency' => base_currency(),
             'currency_preferences' => app(CurrencyService::class)->get_currency_preferences(),
+            'is_tax_enabled' => Tax::is_tax_enabled()
         ];
     }
 }

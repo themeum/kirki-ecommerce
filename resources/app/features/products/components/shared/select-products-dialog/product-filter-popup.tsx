@@ -1,4 +1,4 @@
-import { memo, type ReactNode, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
@@ -14,7 +14,7 @@ import CategoriesFilter from '@/features/products/components/product-table/filte
 import CollectionFilter from '@/features/products/components/product-table/filter-popup/collection-filter';
 import InventoryTypeFilter from '@/features/products/components/product-table/filter-popup/inventory-filter';
 import StatusFilter from '@/features/products/components/product-table/filter-popup/status-filter';
-import { CloseIcon } from '@/icons/common';
+import { CloseIcon, ListFilter } from '@/icons/common';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
@@ -30,7 +30,6 @@ type ProductFilterValue = {
 type ProductFilterPopupProps = {
   value: ProductFilterValue;
   onApply: (value: ProductFilterValue) => void;
-  children: ReactNode;
 };
 
 const emptyFilter: ProductFilterValue = {
@@ -41,7 +40,7 @@ const emptyFilter: ProductFilterValue = {
   brand_id: undefined,
 };
 
-const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopupProps) => {
+const ProductFilterPopup = memo(({ value, onApply }: ProductFilterPopupProps) => {
   const [openPopup, setOpenPopup] = useState(false);
   const [filterObject, setFilterObject] = useState<ProductFilterValue>(emptyFilter);
 
@@ -109,7 +108,12 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
   return (
     <DropdownMenu open={openPopup} onOpenChange={handleOpenChange}>
       <Flex>
-        <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">
+            <ListFilter />
+            {__('Filter', 'kirki-ecommerce')}
+          </Button>
+        </DropdownMenuTrigger>
         {filterCount ? (
           <Button
             variant="outline"

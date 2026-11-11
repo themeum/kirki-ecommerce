@@ -1,0 +1,24 @@
+info:
+  name: bKash
+  type: http
+  seq: 10
+  tags:
+    - online-payments
+
+http:
+  method: POST
+  url: "{{baseUrl}}/online-payments/install"
+  body:
+    type: json
+    data: |-
+      {
+        "id": "bkash"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

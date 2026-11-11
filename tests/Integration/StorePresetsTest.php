@@ -13,7 +13,6 @@ use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
 use Kirki\Ecommerce\App\Models\Tag;
 use Kirki\Ecommerce\App\Models\Variant;
@@ -67,7 +66,6 @@ class StorePresetsTest extends RestTestCase
         Tag::query()->delete();
         AttributeValue::query()->delete();
         Attribute::query()->delete();
-        ProductSchema::query()->delete();
         Coupon::query()->delete();
         ShippingProfile::query()->delete();
         TaxProfile::query()->delete();
@@ -151,28 +149,28 @@ class StorePresetsTest extends RestTestCase
         $this->assertSame(['One size'], AttributeValue::query()->where('attribute_id', $size->id)->order_by('id')->get()->pluck('value')->all());
     }
 
-    public function test_one_default_schema_profile_with_every_picker_field(): void
+    public function test_schema_profiles_in_the_preset_data_are_ignored(): void
     {
-        $this->setup_store();
+        app()->instance(LocalPresetSource::class, new class extends LocalPresetSource {
+            public function __construct() {}
 
-        $profiles = ProductSchema::query()->get();
-        $this->assertCount(1, $profiles);
-        $this->assertTrue((bool) $profiles->first()->is_default);
-        $this->assertEquals([
-            'Product' => ['name', 'description', 'image'],
-            'Offer' => ['price', 'priceCurrency', 'availability'],
-            'AggregateRating' => ['ratingValue', 'reviewCount'],
-            'Brand' => ['name', 'logo'],
-        ], $profiles->first()->schema);
-    }
+            public function fetch(PresetContext $context)
+            {
+                return [
+                    'attributes' => [['name' => 'Color', 'slug' => 'color', 'type' => 'color', 'values' => [['value' => 'Red', 'color' => '#FF0000']]]],
+                    'schema_profiles' => [['name' => 'Default Product Schema', 'is_default' => true, 'schema' => ['Product' => ['name']]]],
+                ];
+            }
+        });
 
-    public function test_existing_schema_profile_blocks_the_preset(): void
-    {
-        ProductSchema::query()->insert([['name' => 'Mine', 'is_default' => true, 'schema' => wp_json_encode(['Product' => ['name']])]]);
+        try {
+            $this->setup_store(['industry' => 'other']);
+        } finally {
+            static::forget_singleton(LocalPresetSource::class);
+        }
 
-        $this->setup_store();
-
-        $this->assertSame(['Mine'], ProductSchema::query()->get()->pluck('name')->all());
+        $this->assertSame(['color'], Attribute::query()->get()->pluck('slug')->all());
+        $this->assertNotEmpty(Option::get(OptionKeys::PRESETS_APPLIED_AT));
     }
 
     public function test_sample_data_creates_the_welcome_coupon_inactive(): void
@@ -214,7 +212,6 @@ class StorePresetsTest extends RestTestCase
 
         $this->assertSame($category_count, Category::query()->count());
         $this->assertSame(3, Attribute::query()->count());
-        $this->assertSame(1, ProductSchema::query()->count());
         $this->assertSame(1, ShippingProfile::query()->where('name', 'General')->count());
         $this->assertCount(1, $this->zones());
     }
@@ -335,7 +332,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_sample_variant_fields_are_stored(): void
     {
-        $this->setup_store(['industry' => 'fashion-and-apparel', 'country' => 'JP', 'currency' => 'JPY', 'is_tax_collected' => false]);
+        $this->setup_store(['industry' => 'fashion-and-apparel', 'country' => 'JP', 'currency' => 'JPY', 'is_tax_enabled' => false]);
 
         $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
 
@@ -582,7 +579,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_tax_profiles_are_created_when_tax_is_off(): void
     {
-        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'is_tax_collected' => false]);
+        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'is_tax_enabled' => false]);
 
         $this->assertSame(1, TaxProfile::query()->where('name', 'Food')->count());
     }
@@ -610,8 +607,11 @@ class StorePresetsTest extends RestTestCase
         $this->assertSame(['checkout'], $consents['Terms & Conditions']['locations']);
         $this->assertSame('optional_checkbox', $consents['Marketing emails']['method']);
 
+        $this->assertTrue($consents['Terms & Conditions']['is_enabled']);
+        $this->assertFalse($consents['Privacy Policy']['is_enabled']);
+        $this->assertFalse($consents['Marketing emails']['is_enabled']);
+
         foreach ($consents as $consent) {
-            $this->assertTrue($consent['is_enabled']);
             $this->assertNotEmpty($consent['id']);
         }
     }
@@ -681,9 +681,74 @@ class StorePresetsTest extends RestTestCase
 
     public function test_country_without_bloc_gets_only_the_domestic_zone(): void
     {
-        $this->setup_store(['country' => 'BD', 'currency' => 'BDT']);
+        $this->setup_store(['country' => 'AU', 'currency' => 'AUD']);
 
         $this->assertSame(['Domestic'], array_column($this->zones(), 'title'));
+    }
+
+    public function test_bangladesh_store_gets_inside_and_outside_dhaka_zones(): void
+    {
+        $this->setup_store(['country' => 'BD', 'currency' => 'BDT']);
+
+        $zones = $this->zones();
+        $this->assertSame(['Inside Dhaka', 'Outside Dhaka'], array_column($zones, 'title'));
+        $this->assertSame(['BD'], $this->zone_countries($zones[0]));
+        $this->assertSame(['771'], $zones[0]['regions'][0]['states']);
+
+        $outside_states = $zones[1]['regions'][0]['states'];
+        $this->assertSame(['BD'], $this->zone_countries($zones[1]));
+        $this->assertCount(60, $outside_states);
+        $this->assertNotContains('771', $outside_states);
+        $this->assertSame([], array_diff($outside_states, CountryData::state_ids('BD')));
+
+        $inside_methods = array_column($zones[0]['shipping_methods'], null, 'name');
+        $this->assertSame(['Inside Dhaka'], array_keys($inside_methods));
+        $this->assertSame(12000, $inside_methods['Inside Dhaka']['base_amount']);
+
+        foreach ($inside_methods as $method) {
+            $this->assertTrue($method['is_enabled']);
+        }
+
+        $outside_methods = $zones[1]['shipping_methods'];
+        $this->assertSame(['Outside Dhaka'], array_column($outside_methods, 'name'));
+        $this->assertSame(20000, $outside_methods[0]['base_amount']);
+        $this->assertTrue($outside_methods[0]['is_enabled']);
+    }
+
+    public function test_bangladesh_zones_in_another_currency_are_disabled_at_zero(): void
+    {
+        $this->setup_store(['country' => 'BD', 'currency' => 'USD']);
+
+        $zones = $this->zones();
+        $this->assertSame(['Inside Dhaka', 'Outside Dhaka'], array_column($zones, 'title'));
+
+        foreach ($zones as $zone) {
+            foreach ($zone['shipping_methods'] as $method) {
+                $this->assertFalse($method['is_enabled']);
+
+                if ('flat_rate' === $method['type']) {
+                    $this->assertSame(0, $method['base_amount']);
+                }
+            }
+        }
+    }
+
+    public function test_domestic_rules_apply_to_both_bangladesh_zones(): void
+    {
+        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'country' => 'BD', 'currency' => 'BDT']);
+        $fragile_id = (string) ShippingProfile::query()->where('name', 'Fragile')->first()->id;
+        $perishable_id = (string) ShippingProfile::query()->where('name', 'Perishable')->first()->id;
+        $rule_for = fn($profile_id, $action) => [
+            'relation' => 'AND',
+            'conditions' => [['type' => 'shipping_profile', 'operator' => '=', 'value' => $profile_id]],
+            'action' => $action,
+        ];
+
+        foreach ($this->zones() as $zone) {
+            $rules = $zone['shipping_methods'][0]['shipping_rules'];
+            $this->assertContains($rule_for($fragile_id, ['type' => 'multiply_shipping_cost', 'value' => 1.25]), $rules);
+            $this->assertNotContains($rule_for($perishable_id, ['type' => 'disable_shipping_method', 'value' => null]), $rules);
+        }
     }
 
     public function test_matching_currency_enables_country_methods_with_amounts(): void
@@ -711,7 +776,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_country_without_method_data_gets_generic_methods_disabled(): void
     {
-        $this->setup_store(['country' => 'MY', 'currency' => 'MYR', 'is_tax_collected' => false]);
+        $this->setup_store(['country' => 'MY', 'currency' => 'MYR', 'is_tax_enabled' => false]);
 
         $methods = $this->zones()[0]['shipping_methods'];
         $this->assertSame(['Standard Shipping', 'Express Shipping', 'Local Pickup'], array_column($methods, 'name'));
@@ -766,9 +831,7 @@ class StorePresetsTest extends RestTestCase
     public function test_malformed_preset_records_are_skipped(): void
     {
         app()->instance(LocalPresetSource::class, new class extends LocalPresetSource {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
 
             public function fetch(PresetContext $context)
             {
@@ -865,7 +928,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_preset_shipping_is_marked_preconfigured(): void
     {
-        $this->setup_store(['country' => 'GB', 'currency' => 'GBP', 'is_tax_collected' => false]);
+        $this->setup_store(['country' => 'GB', 'currency' => 'GBP', 'is_tax_enabled' => false]);
 
         $this->assertContains('shipping', Option::get(OptionKeys::SETUP_CHECKLIST)['preconfigured']);
     }
@@ -954,7 +1017,7 @@ class StorePresetsTest extends RestTestCase
 
     public function test_no_region_when_not_collecting_tax(): void
     {
-        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'is_tax_collected' => false]);
+        $this->setup_store(['industry' => 'food-beverage-and-gourmet', 'is_tax_enabled' => false]);
 
         $this->assertSame([], $this->tax_regions());
         $this->assertSame(1, TaxProfile::query()->where('name', 'Food')->count());
@@ -1055,7 +1118,7 @@ class StorePresetsTest extends RestTestCase
             'country' => 'GB',
             'store_address' => ['city' => 'London'],
             'currency' => 'GBP',
-            'is_tax_collected' => true,
+            'is_tax_enabled' => true,
             'is_tax_inclusive_price' => true,
             'store_tax_id' => null,
         ], $overrides)));

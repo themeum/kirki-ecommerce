@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Http\Requests\PaymentMethod\PaymentMethodOrderRequest;
 use Kirki\Ecommerce\App\Resources\PaymentMethod\PaymentMethodListResource;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Services\PaymentMethodService;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 
@@ -21,16 +22,21 @@ class PaymentMethodController
     /** @var PaymentMethodService */
     protected $service;
 
+    /** @var CurrencyService */
+    protected $currency_service;
+
     /**
-     * Create the controller with the payment method service.
+     * Create the controller with the payment method and currency services.
      *
      * @since 1.0.0
      *
      * @param PaymentMethodService $service
+     * @param CurrencyService      $currency_service
      */
-    public function __construct(PaymentMethodService $service)
+    public function __construct(PaymentMethodService $service, CurrencyService $currency_service)
     {
         $this->service = $service;
+        $this->currency_service = $currency_service;
     }
 
     /**
@@ -46,7 +52,7 @@ class PaymentMethodController
         $data = $this->service->get();
 
         return response()->json([
-            'data' => PaymentMethodListResource::collection($data),
+            'data' => PaymentMethodListResource::collection($data, $this->currency_service->get_active_currency_codes()),
             'message' => __('Payment methods retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -64,7 +70,7 @@ class PaymentMethodController
         $data = $this->service->reorder($request->array('ids'));
 
         return response()->json([
-            'data' => PaymentMethodListResource::collection($data),
+            'data' => PaymentMethodListResource::collection($data, $this->currency_service->get_active_currency_codes()),
             'message' => __('Payment methods reordered.', 'kirki-ecommerce'),
         ]);
     }

@@ -37,6 +37,9 @@ class ShippingZoneBuilder
     /**
      * Build the zones in matching order, with their methods and profile rules.
      *
+     * A country entry with `domestic_zones` gets those state-based zones in
+     * place of the single Domestic zone.
+     *
      * @since 1.0.0
      *
      * @param PresetContext $context      The store's answers.
@@ -48,18 +51,52 @@ class ShippingZoneBuilder
         $country = $this->presets->get_country($context->country);
         $titles = $this->presets->get_common()['zone_titles'] ?? [];
         $templates = $this->get_rule_templates($context, $profile_keys);
+        $domestic_zones = $country['shipping']['domestic_zones'] ?? [];
         $zones = [];
 
         foreach ($this->get_destinations($context->country, $country['bloc'] ?? null) as $kind => $codes) {
+            if (static::DOMESTIC === $kind && !empty($domestic_zones)) {
+                foreach ($domestic_zones as $domestic_zone) {
+                    $zones[] = [
+                        'title' => $domestic_zone['title'],
+                        'is_enabled' => true,
+                        'regions' => [['country' => $context->country, 'states' => $this->get_zone_states($context->country, $domestic_zone)]],
+                        'methods' => $this->make_methods($context, $kind, $templates, $domestic_zone['methods'] ?? []),
+                    ];
+                }
+
+                continue;
+            }
+
             $zones[] = [
                 'title' => $titles[$kind] ?? $kind,
                 'is_enabled' => true,
                 'regions' => array_map(fn($code) => ['country' => $code, 'states' => []], $codes),
-                'methods' => $this->make_methods($context, $kind, $templates),
+                'methods' => $this->make_methods($context, $kind, $templates, $country['shipping'][$kind] ?? []),
             ];
         }
 
         return $zones;
+    }
+
+    /**
+     * Get the state ids of a state-based zone.
+     *
+     * @since 1.0.0
+     *
+     * @param string               $country_code The store's country.
+     * @param array<string, mixed> $zone         Zone entry with `states` (only these) or `exclude_states` (all but these), each keyed by state id.
+     * @return string[]
+     */
+    protected function get_zone_states(string $country_code, array $zone)
+    {
+        if (isset($zone['states'])) {
+            return array_map('strval', array_keys($zone['states']));
+        }
+
+        $excluded = array_map('strval', array_keys($zone['exclude_states'] ?? []));
+
+        return array_values(array_diff(CountryData::state_ids($country_code), $excluded));
     }
 
     /**
@@ -96,14 +133,14 @@ class ShippingZoneBuilder
      *
      * @since 1.0.0
      *
-     * @param PresetContext                    $context   The store's answers.
-     * @param string                           $kind      Zone kind.
-     * @param array<int, array<string, mixed>> $templates The industry's rule templates.
+     * @param PresetContext                    $context         The store's answers.
+     * @param string                           $kind            Zone kind.
+     * @param array<int, array<string, mixed>> $templates       The industry's rule templates.
+     * @param array<int, array<string, mixed>> $country_methods The country's method definitions for the zone; empty for the generic methods.
      * @return array<int, array<string, mixed>> Methods with their `{profile, action}` rules.
      */
-    protected function make_methods(PresetContext $context, string $kind, array $templates)
+    protected function make_methods(PresetContext $context, string $kind, array $templates, array $country_methods)
     {
-        $country_methods = $this->presets->get_country($context->country)['shipping'][$kind] ?? null;
         $country_currency = CountryData::find_index_entry($context->country)['currency'] ?? null;
         $has_amounts = !empty($country_methods) && $country_currency === $context->currency;
         $definitions = $country_methods ?: ($this->presets->get_common()['shipping_methods'][$kind] ?? []);

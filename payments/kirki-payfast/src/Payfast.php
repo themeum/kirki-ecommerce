@@ -70,6 +70,14 @@ class Payfast extends PaymentProvider
     }
 
     /**
+     * @inheritDoc
+     */
+    public function supported_currencies()
+    {
+        return [PayfastConstant::CURRENCY];
+    }
+
+    /**
      * Pay for an order.
      *
      * @param Order $order

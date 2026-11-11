@@ -42,12 +42,6 @@ const paymentKeys = {
   },
 };
 
-const schemaProfileKeys = {
-  all: ['Schemas'] as const,
-  lists: () => [...schemaProfileKeys.all, 'list'] as const,
-  list: (params?: ListQueryParams) => [...schemaProfileKeys.lists(), params] as const,
-};
-
 export {
-  currencyKeys, paymentKeys, schemaProfileKeys, shippingKeys, taxKeys,
+  currencyKeys, paymentKeys, shippingKeys, taxKeys,
 };

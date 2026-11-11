@@ -5,16 +5,16 @@
 Defines how the plugin evolves an existing installation's database schema across releases via versioned alter migrations, so that upgrading the plugin never leaves a site's schema out of sync with the code running against it.
 ## Requirements
 ### Requirement: Existing installations converge to the current schema on upgrade
-When a site upgrades to a plugin version whose table definitions differ from what that site's database currently has, the system SHALL run alter migrations that bring every affected table's columns, keys, and foreign keys in line with the current definitions, without requiring manual database intervention by the site owner.
+From the first stable `1.0.0` release onward, when a site upgrades to a plugin version whose table definitions differ from what that site's database currently has, the system SHALL run alter migrations that bring every affected table's columns, keys, and foreign keys in line with the current definitions, without requiring manual database intervention by the site owner. From that release onward, a released create migration SHALL NOT be edited, and any schema change SHALL ship as a new alter migration registered after every existing migration.
 
 #### Scenario: Site upgrades across a schema-changing release
-- **WHEN** a site running an older plugin version, whose database still reflects the prior schema for `kirki_ecommerce_carts`, `kirki_ecommerce_coupon_customers`, `kirki_ecommerce_coupons`, `kirki_ecommerce_shipping_profiles`, and `kirki_ecommerce_tax_profiles`, is upgraded to this release
-- **THEN** each of those tables' columns, keys, and foreign keys match the current definitions after the upgrade completes
+- **WHEN** a site running a stable plugin version is upgraded to a later stable version that changes a table's columns, keys, or foreign keys
+- **THEN** that table's columns, keys, and foreign keys match the current definitions after the upgrade completes
 - **AND** no manual SQL or database intervention is required by the site owner
 
 #### Scenario: Fresh install reaches the current schema via the same migration sequence
-- **WHEN** the plugin is installed fresh with no prior version ever having run
-- **THEN** the migrations that create these tables in their original shape and the migrations that alter them to the current shape both run, in that order, as part of the same initial migration run
+- **WHEN** a stable plugin version is installed fresh with no prior version ever having run
+- **THEN** the create migrations and every alter migration released since `1.0.0` run in registration order as part of the same initial migration run
 - **AND** the resulting schema matches the current definitions exactly, identical to what an upgraded existing installation ends up with
 
 ### Requirement: Schema migrations run at most once per installation
@@ -25,113 +25,74 @@ An alter migration SHALL be recorded as applied once it runs successfully, and S
 - **THEN** subsequent plugin upgrades or reactivations do not run that migration again
 - **AND** the table's data introduced or modified since is left untouched by it
 
-### Requirement: Cart identity migration accepts loss of existing cart-owner association
-Because carts are ephemeral and time-limited, the migration that changes how a cart's owner is identified SHALL be permitted to discard the existing owner association for carts that predate the change, rather than remapping it.
-
-#### Scenario: Pre-upgrade cart loses its prior owner association
-- **WHEN** a site upgrades and had carts associated with an owner under the prior identity scheme
-- **THEN** those carts remain present with their line items intact after the upgrade
-- **AND** their prior owner association is not guaranteed to be preserved or remapped
-
 ### Requirement: Fixed-value-set columns are stored as strings with documented allowed values
 Columns representing a fixed set of allowed values SHALL be stored as string columns with the allowed values documented in the column's comment, rather than as native database `enum` columns, so that supporting a new allowed value is an application-level change and does not require a schema migration.
 
+#### Scenario: Fixed-value-set column is a string with its values documented
+- **WHEN** a plugin table has a column limited to a fixed set of values
+- **THEN** the column is a string column, not a database `enum`
+- **AND** its comment lists the allowed values
+
 #### Scenario: Existing enum column converts without changing its data
-- **WHEN** a site upgrades and had a column previously stored as a database `enum`
-- **THEN** that column's existing values are preserved unchanged after conversion to a string column
-- **AND** the column's default value and nullability are unchanged
+- **WHEN** a pre-release site had a column stored as a database `enum`
+- **THEN** no conversion migration runs, because pre-release builds do not upgrade in place
+- **AND** a fresh install creates that column as a string column with the same default value and nullability
 
 #### Scenario: New allowed value does not require a migration
-- **WHEN** a new value needs to be supported for a column that was previously modeled as a database `enum`
+- **WHEN** a new value needs to be supported for a column limited to a fixed set of values
 - **THEN** supporting that value requires only an application-level validation change
 - **AND** no database migration is required to widen the column's storage
 
-### Requirement: Coupon customer-eligibility migration accepts reset to defaults
-The migration that restructures how a coupon's customer eligibility is stored SHALL be permitted to reset existing coupons to the new scheme's default eligibility values, rather than mapping forward the prior scheme's values.
-
-#### Scenario: Existing coupon's eligibility resets on upgrade
-- **WHEN** a site upgrades and had coupons configured with the prior customer-eligibility columns
-- **THEN** those coupons remain present and usable after the upgrade
-- **AND** their customer-eligibility configuration reflects the new scheme's defaults rather than a value carried over from the prior columns
-
 ### Requirement: Every schema key carries an explicit project-owned name
-Every index, unique key, and foreign key on a plugin table SHALL have a name determined by the
-plugin itself, following a single documented scheme derived from the table and the columns the key
-covers. No key's name may be left for the database engine or the underlying schema library to
-choose, so that a key's name is a stable fact of the plugin rather than a side effect of the
-environment or library version it was created under.
+Every index, unique key, and foreign key on a plugin table SHALL have a name determined by the plugin itself, written out literally in the migration that creates it. Names SHALL follow the scheme `{type}_kecom_{table}_{columns}`, where `{type}` is `fk` for a foreign key, `uq` for a unique key, and `idx` for a plain index; `{table}` is the table name without the WordPress table prefix and without the `kirki_ecommerce_` namespace; and `{columns}` is the covered columns in index order, joined with `_`. A name that would be longer than 64 characters SHALL instead use a shorter, hand-chosen name that keeps the `{type}_kecom_{table}_` prefix. No key's name may be left for the database engine or the underlying schema library to choose.
 
 Primary keys are exempt: the database engine names the primary index unconditionally and ignores
 any requested name, so a primary key is already identical everywhere and is referred to
 positionally rather than by name.
 
 #### Scenario: Every key in a fully migrated database matches the naming scheme
-- **WHEN** a database is migrated to the current schema from any starting point
-- **THEN** every index, unique key, and foreign key on every plugin table has the name the scheme
-  produces for that table and column set
-- **AND** no key retains a name chosen by the database engine or by the schema library's own
-  name-generation
+- **WHEN** a database is migrated from empty to the current schema
+- **THEN** every index, unique key, and foreign key on every plugin table has the name the scheme produces for its table and columns, or its documented short form
+- **AND** no key carries a name chosen by the database engine or by the schema library's own name generation
 
-#### Scenario: A migration that omits an explicit key name is rejected
-- **WHEN** a migration creates an index, unique key, or foreign key without giving it a name
-- **THEN** the resulting key does not match the naming scheme
-- **AND** the mismatch is reported as a failure that identifies the offending table and key
-
-### Requirement: Key names are stable across schema-library upgrades
-A key's name SHALL NOT change as a result of upgrading the underlying schema library. Two
-installations running the same plugin version SHALL have identical key names regardless of which
-library version originally created their tables.
-
-#### Scenario: Sites created under different library versions converge
-- **WHEN** a site whose tables were created under an older schema library, and a site freshly
-  installed under the current one, are both migrated to the same plugin version
-- **THEN** both databases have identical index, unique key, and foreign key names on every plugin
-  table
-- **AND** subsequent migrations that drop or recreate a key by name succeed on both
+#### Scenario: Foreign key and its backing index share one name
+- **WHEN** a foreign key is created on a column that has no other index
+- **THEN** the index the engine creates to back it carries the foreign key's `fk_kecom_…` name
+- **AND** no second, differently named index exists over the same column
 
 #### Scenario: A migration can drop a key by a name written in its source
 - **WHEN** a migration needs to drop an existing index or foreign key
 - **THEN** it identifies that key by a name literally present in the plugin's own source
 - **AND** it does not need to query the database to discover what the key is currently called
 
-### Requirement: Renaming a key preserves its referential semantics
-A migration that renames existing keys SHALL change only their names. The columns a key covers,
-its uniqueness, and for a foreign key its referenced table, referenced column, and its
-`ON DELETE` and `ON UPDATE` rules SHALL be identical before and after.
+#### Scenario: A migration that omits an explicit key name is rejected
+- **WHEN** a migration creates an index, unique key, or foreign key without giving it a name
+- **THEN** the resulting key does not follow the naming scheme
+- **AND** the migration must be corrected to give the key its scheme name before it is released; no automated check enforces this
 
-#### Scenario: Foreign key behaviour is unchanged by a rename
-- **WHEN** a foreign key is renamed during an upgrade
-- **THEN** it still references the same table and column
-- **AND** its delete and update rules are unchanged
-- **AND** rows continue to cascade, restrict, or null exactly as they did before the upgrade
+### Requirement: Pre-release builds define each table in a single create migration
+Until the first stable `1.0.0` release, the plugin SHALL define every table it owns in exactly one create migration that builds the table in its current shape. It SHALL NOT ship migrations that alter, rename, re-key, or drop a table created by an earlier migration, nor migrations that only rewrite stored data. A schema change made before the first stable release SHALL be made by editing the table's create migration.
 
-#### Scenario: Index coverage is unchanged by a rename
-- **WHEN** an index or unique key is renamed during an upgrade
-- **THEN** it still covers the same columns in the same order
-- **AND** its uniqueness is unchanged
+#### Scenario: Migration set holds only table creations
+- **WHEN** the registered migrations of a pre-release build are listed
+- **THEN** every entry creates exactly one plugin table
+- **AND** no two entries create the same table
+- **AND** no entry alters, drops, or renames a table, a column, or a key, and none rewrites option or row data
 
-### Requirement: Key renaming is idempotent and resumable
-Because schema changes are not transactional, a migration that renames keys SHALL leave any
-already-correct key untouched and SHALL be safe to run again after a partial failure, reaching the
-same end state as an uninterrupted run.
+#### Scenario: Fresh install builds every table in its final shape
+- **WHEN** a pre-release build is installed on a site with no plugin tables and no migration history
+- **THEN** each plugin table is created once, already carrying all of its current columns, keys, and foreign keys
+- **AND** no table is created and then modified within the same migration run
 
-#### Scenario: Re-running after a partial failure completes the work
-- **WHEN** a key-renaming migration fails partway through, leaving some keys renamed and some not
-- **THEN** running it again renames only the keys still carrying the wrong name
-- **AND** the database reaches the same final state as an uninterrupted run
+#### Scenario: A table that is no longer used is not created
+- **WHEN** a table has been retired before the first stable release
+- **THEN** no migration creates it, and a fresh install does not contain it
 
-#### Scenario: Running against an already-correct database does nothing
-- **WHEN** a key-renaming migration runs against a database whose keys already match the scheme
-- **THEN** no key is dropped or recreated
-- **AND** the schema is unchanged
+### Requirement: Pre-release builds do not support in-place upgrades
+A site running an alpha or beta build SHALL NOT be expected to upgrade to a later pre-release build in place. Moving between pre-release builds SHALL require a fresh install: the plugin's tables and migration history are removed and the migrations run again.
 
-### Requirement: Only the plugin's own keys are renamed
-A key-renaming migration SHALL restrict itself to keys belonging to the plugin's own tables, and
-SHALL NOT alter constraints defined by WordPress core or by other plugins, including foreign keys
-declared on a non-plugin table that reference a plugin table.
-
-#### Scenario: A foreign key owned by another plugin is left alone
-- **WHEN** a table outside the plugin declares a foreign key referencing a plugin table
-- **THEN** that foreign key is not dropped, renamed, or recreated
-- **AND** it continues to function unchanged after the upgrade
+#### Scenario: Beta site moves to a later pre-release build
+- **WHEN** a site running `1.0.0-beta.1` wants to run a later pre-release build
+- **THEN** its owner removes the plugin's tables and migration history and installs the new build fresh
+- **AND** after that, the site's schema matches the new build's create migrations exactly
 

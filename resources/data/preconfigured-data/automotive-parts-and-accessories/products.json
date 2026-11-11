@@ -91,10 +91,10 @@
         "bestseller"
       ],
       "images": [
-        "magnetic-phone-mount-1.jpg",
-        "magnetic-phone-mount-2.jpg",
-        "magnetic-phone-mount-3.jpg",
-        "magnetic-phone-mount-4.jpg"
+        "magnetic-phone-mount-1.webp",
+        "magnetic-phone-mount-2.webp",
+        "magnetic-phone-mount-3.webp",
+        "magnetic-phone-mount-4.webp"
       ],
       "variants": [
         {
@@ -131,12 +131,12 @@
         "new-arrival"
       ],
       "images": [
-        "steering-wheel-cover-racing-red.jpg",
-        "steering-wheel-cover-royal-blue.jpg",
-        "steering-wheel-cover-sunflower.jpg",
-        "steering-wheel-cover-2.jpg",
-        "steering-wheel-cover-3.jpg",
-        "steering-wheel-cover-4.jpg"
+        "steering-wheel-cover-racing-red.webp",
+        "steering-wheel-cover-royal-blue.webp",
+        "steering-wheel-cover-sunflower.webp",
+        "steering-wheel-cover-2.webp",
+        "steering-wheel-cover-3.webp",
+        "steering-wheel-cover-4.webp"
       ],
       "variants": [
         {
@@ -145,7 +145,7 @@
             "color": "Racing Red",
             "size": "37 cm"
           },
-          "image": "steering-wheel-cover-racing-red.jpg",
+          "image": "steering-wheel-cover-racing-red.webp",
           "price": "35.00",
           "sale_price": null,
           "cost": "14.00",
@@ -162,7 +162,7 @@
             "color": "Racing Red",
             "size": "39 cm"
           },
-          "image": "steering-wheel-cover-racing-red.jpg",
+          "image": "steering-wheel-cover-racing-red.webp",
           "price": "35.00",
           "sale_price": null,
           "cost": "14.00",
@@ -179,7 +179,7 @@
             "color": "Royal Blue",
             "size": "37 cm"
           },
-          "image": "steering-wheel-cover-royal-blue.jpg",
+          "image": "steering-wheel-cover-royal-blue.webp",
           "price": "35.00",
           "sale_price": null,
           "cost": "14.00",
@@ -196,7 +196,7 @@
             "color": "Royal Blue",
             "size": "39 cm"
           },
-          "image": "steering-wheel-cover-royal-blue.jpg",
+          "image": "steering-wheel-cover-royal-blue.webp",
           "price": "35.00",
           "sale_price": null,
           "cost": "14.00",
@@ -213,7 +213,7 @@
             "color": "Sunflower",
             "size": "37 cm"
           },
-          "image": "steering-wheel-cover-sunflower.jpg",
+          "image": "steering-wheel-cover-sunflower.webp",
           "price": "35.00",
           "sale_price": null,
           "cost": "14.00",
@@ -230,7 +230,7 @@
             "color": "Sunflower",
             "size": "39 cm"
           },
-          "image": "steering-wheel-cover-sunflower.jpg",
+          "image": "steering-wheel-cover-sunflower.webp",
           "price": "35.00",
           "sale_price": null,
           "cost": "14.00",
@@ -257,10 +257,10 @@
         "travel"
       ],
       "images": [
-        "trunk-organizer-1.jpg",
-        "trunk-organizer-2.jpg",
-        "trunk-organizer-3.jpg",
-        "trunk-organizer-4.jpg"
+        "trunk-organizer-1.webp",
+        "trunk-organizer-2.webp",
+        "trunk-organizer-3.webp",
+        "trunk-organizer-4.webp"
       ],
       "variants": [
         {
@@ -293,10 +293,10 @@
         "eco"
       ],
       "images": [
-        "car-wash-shampoo-1.jpg",
-        "car-wash-shampoo-2.jpg",
-        "car-wash-shampoo-3.jpg",
-        "car-wash-shampoo-4.jpg"
+        "car-wash-shampoo-1.webp",
+        "car-wash-shampoo-2.webp",
+        "car-wash-shampoo-3.webp",
+        "car-wash-shampoo-4.webp"
       ],
       "variants": [
         {
@@ -362,10 +362,10 @@
         "bestseller"
       ],
       "images": [
-        "all-weather-floor-mats-1.jpg",
-        "all-weather-floor-mats-2.jpg",
-        "all-weather-floor-mats-3.jpg",
-        "all-weather-floor-mats-4.jpg"
+        "all-weather-floor-mats-1.webp",
+        "all-weather-floor-mats-2.webp",
+        "all-weather-floor-mats-3.webp",
+        "all-weather-floor-mats-4.webp"
       ],
       "variants": [
         {

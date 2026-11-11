@@ -357,7 +357,7 @@ class SettingsSeeder extends Seeder
                         "states" => [
                             [
                                 "id" => "771",
-                                "name" => "Dhaka District",
+                                "name" => "Dhaka",
                                 "product_tax_rate" => 20,
                                 "shipping_tax_rate" => 5,
                                 "rules" => [

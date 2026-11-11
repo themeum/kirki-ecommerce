@@ -11,7 +11,6 @@ use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
 use Kirki\Ecommerce\App\Models\TaxProfile;
 use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
@@ -176,7 +175,7 @@ class OnboardingApiTest extends RestTestCase
     }
 
     /**
-     * Setup offers Cash on Delivery and Direct bank transfer, both disabled.
+     * Setup offers only Cash on delivery, disabled, with the preset text.
      *
      * @return void
      * @since 1.0.0
@@ -187,11 +186,15 @@ class OnboardingApiTest extends RestTestCase
 
         $offline_payments = Option::get(OptionKeys::PAYMENT_SETTINGS)['offline_payments'];
 
-        $this->assertSame(['cod', 'bank_transfer'], array_column($offline_payments, 'id'));
+        $this->assertSame(['cod'], array_column($offline_payments, 'id'));
+        $this->assertSame(['Cash on delivery'], array_column($offline_payments, 'name'));
+        $this->assertSame(
+            ['Pay with cash when your order is delivered.'],
+            array_column($offline_payments, 'instructions')
+        );
 
         foreach ($offline_payments as $offline_payment) {
             $this->assertFalse($offline_payment['is_enabled']);
-            $this->assertNotEmpty($offline_payment['instructions']);
         }
     }
 
@@ -222,7 +225,7 @@ class OnboardingApiTest extends RestTestCase
     public function test_tax_included_in_price_is_saved(): void
     {
         $this->assert_api_success($this->request('POST', 'onboarding', $this->payload([
-            'is_tax_collected' => true,
+            'is_tax_enabled' => true,
             'is_tax_inclusive_price' => true,
             'store_tax_id' => 'VAT-123',
         ])));
@@ -243,7 +246,7 @@ class OnboardingApiTest extends RestTestCase
     public function test_tax_values_are_ignored_when_tax_is_off(): void
     {
         $this->assert_api_success($this->request('POST', 'onboarding', $this->payload([
-            'is_tax_collected' => false,
+            'is_tax_enabled' => false,
             'is_tax_inclusive_price' => true,
             'store_tax_id' => 'VAT-123',
         ])));
@@ -395,7 +398,6 @@ class OnboardingApiTest extends RestTestCase
 
         $this->assertFalse(Category::query()->exists());
         $this->assertTrue(Attribute::query()->where('slug', 'size')->exists());
-        $this->assertSame(1, ProductSchema::query()->count());
         $this->assertFalse(Coupon::query()->exists());
         $this->assertTrue(ShippingProfile::query()->where('name', 'Oversized')->exists());
         $this->assertTrue(TaxProfile::query()->where('name', "Children's Clothing")->exists());
@@ -434,9 +436,7 @@ class OnboardingApiTest extends RestTestCase
     {
         $this->clear_preset_targets();
         app()->instance(ShippingZonePresets::class, new class extends ShippingZonePresets {
-            public function __construct()
-            {
-            }
+            public function __construct() {}
 
             public function apply(array $presets, PresetContext $context)
             {
@@ -496,7 +496,7 @@ class OnboardingApiTest extends RestTestCase
                 'city' => 'Dhaka',
             ],
             'currency' => 'BDT',
-            'is_tax_collected' => false,
+            'is_tax_enabled' => false,
             'is_tax_inclusive_price' => false,
             'store_tax_id' => null,
         ], $overrides);
@@ -515,7 +515,7 @@ class OnboardingApiTest extends RestTestCase
             'country' => 'GB',
             'store_address' => ['city' => 'London'],
             'currency' => 'GBP',
-            'is_tax_collected' => true,
+            'is_tax_enabled' => true,
         ]);
     }
 
@@ -530,7 +530,6 @@ class OnboardingApiTest extends RestTestCase
         Category::query()->delete();
         AttributeValue::query()->delete();
         Attribute::query()->delete();
-        ProductSchema::query()->delete();
         Coupon::query()->delete();
         ShippingProfile::query()->delete();
         TaxProfile::query()->delete();

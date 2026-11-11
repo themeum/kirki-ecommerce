@@ -86,7 +86,6 @@ class BulkUpdateVariantRequest extends Request
             'variants.*.shipping_box_id' => 'integer|nullable',
             'variants.*.is_visible' => 'boolean|nullable',
             'variants.*.is_physical_product' => 'boolean|nullable',
-            'variants.*.is_default' => 'boolean|nullable',
         ];
     }
 
@@ -125,11 +124,6 @@ class BulkUpdateVariantRequest extends Request
             'variants.*.shipping_box_id' => Sanitizer::INT,
             'variants.*.is_visible' => Sanitizer::BOOL,
             'variants.*.is_physical_product' => Sanitizer::BOOL,
-            'variants.*.is_default' => Sanitizer::BOOL,
-
-            // variant attributes
-            'variants.*.attribute_values' => Sanitizer::ARRAY,
-            'variants.*.attribute_values.*' => Sanitizer::INT,
         ];
     }
 }
