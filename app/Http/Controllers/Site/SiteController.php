@@ -14,6 +14,7 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\ConsentLocations;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
@@ -22,7 +23,6 @@ use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource as SiteOrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
@@ -42,7 +42,6 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
-use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -185,22 +184,28 @@ class SiteController
         AddressService $address_service
     ) {
         $status = $request->get('order');
+        $uuid = $request->get('uuid');
 
-        if (in_array($status, ['success', 'failed'], true)) {
-            $order_resource = null;
+        if (in_array($status, ['success', 'failed'], true) && $uuid) {
+            $order = $order_service->find_order_by_uuid($uuid);
 
-            if ($uuid = $request->get('uuid')) {
-                $order = $order_service->find_order_by_uuid($uuid);
-                $order_resource = $order ? SiteOrderResource::make($order) : null;
+            if (is_null($order)) {
+                wp_safe_redirect(home_url());
+                exit;
             }
 
-            if (! $order_resource) {
+            if ($status === 'success' && $order->payment_status !== PaymentStatus::PAID) {
+                wp_safe_redirect(home_url());
+                exit;
+            }
+
+            if ($status === 'failed' && !in_array($order->payment_status, [PaymentStatus::FAILED, PaymentStatus::UNPAID], true)) {
                 wp_safe_redirect(home_url());
                 exit;
             }
 
             return view("site.order-{$status}", [
-                'order' => $order_resource,
+                'order' => SiteOrderResource::make($order),
             ])->layout(false);
         }
 
