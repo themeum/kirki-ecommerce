@@ -194,7 +194,7 @@ class SiteController
                 exit;
             }
 
-            if ($status === 'success' && $order->payment_status !== PaymentStatus::PAID) {
+            if ($status === 'success' && !in_array($order->payment_status, [PaymentStatus::PAID, PaymentStatus::PROCESSING, PaymentStatus::PENDING], true)) {
                 wp_safe_redirect(home_url());
                 exit;
             }
