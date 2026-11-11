@@ -19,6 +19,8 @@ class DateTimeFormats
 
     const HUMAN_READABLE_DATE = 'M j, Y';
 
+    const HUMAN_READABLE_FULL_DATE = 'F j, Y';
+
     const HUMAN_READABLE_DATE_TIME = 'M j, Y, H:i A';
 
     const HUMAN_READABLE_DAY_OF_MONTH = 'M j';
