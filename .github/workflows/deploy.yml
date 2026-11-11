@@ -16,6 +16,9 @@ concurrency:
 
 jobs:
   deploy:
+    # Turned off for now: the build is uploaded to SVN by hand.
+    # Remove this line to deploy on a tag push again.
+    if: false
     runs-on: ubuntu-latest
 
     permissions:
