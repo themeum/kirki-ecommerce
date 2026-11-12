@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 
 import GroupSelect from '@/components/group-select';
@@ -6,7 +7,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import Chip from '@/components/ui/chip';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { MinusIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -162,7 +162,7 @@ const GroupTagTable = (props: GroupTagTableProps) => {
                           key={innerIndex}
                           closeIcon={
                             isEditable && !requiredFields[groupName]?.includes(tagName) ? (
-                              <MinusIcon />
+                              <X size={14} aria-hidden="true" />
                             ) : null
                           }
                           onRemove={() => handleDeleteSingleTag(tagName, groupName)}

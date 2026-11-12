@@ -661,16 +661,6 @@ export const ClipboardListIcon = () => (
   </svg>
 );
 
-export const MinusIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M2.93311 7.9668H13.0669C13.0851 7.96697 13.1 7.98179 13.1001 8C13.1001 8.01827 13.0851 8.03303 13.0669 8.0332H2.93311C2.91476 8.03313 2.8999 8.01836 2.8999 8C2.89997 7.9817 2.9148 7.96687 2.93311 7.9668Z"
-      fill="#4D4D4D"
-      stroke="#4D4D4D"
-    />
-  </svg>
-);
-
 export const ListFilter = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path

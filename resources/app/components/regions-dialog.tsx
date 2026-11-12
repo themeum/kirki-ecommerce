@@ -366,7 +366,8 @@ export const RegionsDialog = ({
           (country) =>
             (country.states?.length ?? 0) > 0 &&
             !isCountryFullyDisabled(country) &&
-            (initiallySelectedCodes.has(country.code) || getDisabledStateIds(country.code).size > 0),
+            (initiallySelectedCodes.has(country.code) ||
+              getDisabledStateIds(country.code).size > 0),
         )
         .map((country) => country.code),
     );
@@ -604,7 +605,9 @@ export const RegionsDialog = ({
           country={country}
           state={state}
           used={used}
-          checked={used || Boolean(selectedStatesByCountry.get(country.code)?.has(String(state.id)))}
+          checked={
+            used || Boolean(selectedStatesByCountry.get(country.code)?.has(String(state.id)))
+          }
           onToggle={handleSelectStates}
         />
       );
