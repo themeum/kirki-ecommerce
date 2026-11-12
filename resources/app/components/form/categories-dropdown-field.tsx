@@ -1,5 +1,4 @@
 import type { CSSObject } from '@emotion/react';
-import { ChevronDownIcon } from '@radix-ui/react-icons';
 import { Minus } from 'lucide-react';
 import { type ReactNode, useMemo, useRef, useState } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
@@ -7,9 +6,9 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 import CategoryTree from '@/components/ui/category-tree/category-tree';
 import type { CategoryTreeItem } from '@/components/ui/category-tree/types';
 import { filterCategoryTree, toggleCategorySelection } from '@/components/ui/category-tree/utils';
-import Chip from '@/components/ui/chip';
-import ChipField from '@/components/ui/chip-field';
-import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
+import Chip from '@/components/ui/chip/chip';
+import ChipInput from '@/components/ui/chip/chip-input';
+import { chipsInputControlCss } from '@/components/ui/chip/chip-input-styles';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
@@ -76,17 +75,20 @@ const CategoriesDropdownField = <
             {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
             <Popover open={isOpen} onOpenChange={setIsOpen}>
               <PopoverAnchor asChild>
-                <ChipField
+                <ChipInput
                   ref={fieldRef}
                   error={Boolean(fieldState.error)}
                   disabled={disabled}
+                  maxVisibleRows={2}
                   control={
                     <div css={scoped(styles.control)}>
                       <Input
                         value={search}
-                        placeholder={placeholder}
+                        placeholder={
+                          selectedIds.length > 0 ? __('Add more', 'kirki-ecommerce') : placeholder
+                        }
                         disabled={disabled}
-                        cssOverride={mergeCss(chipFieldControlCss, styles.input)}
+                        cssOverride={mergeCss(chipsInputControlCss, styles.input)}
                         onChange={(event) => {
                           setSearch(event.target.value);
                           setIsOpen(true);
@@ -97,25 +99,22 @@ const CategoriesDropdownField = <
                           }
                         }}
                       />
-                      <span css={scoped(styles.chevron)}>
-                        <ChevronDownIcon width={16} height={16} />
-                      </span>
                     </div>
                   }
                   chips={
                     selected.length > 0
                       ? selected.map((category) => (
-                        <Chip
-                          key={category.id}
-                          text={category.name}
-                          closeIcon={<Minus size={14} aria-hidden="true" />}
-                          onRemove={() => {
-                            applyIds(
-                              toggleCategorySelection(categories, selectedIds, category, false),
-                            );
-                          }}
-                        />
-                      ))
+                          <Chip
+                            key={category.id}
+                            text={category.name}
+                            closeIcon={<Minus size={14} aria-hidden="true" />}
+                            onRemove={() => {
+                              applyIds(
+                                toggleCategorySelection(categories, selectedIds, category, false),
+                              );
+                            }}
+                          />
+                        ))
                       : undefined
                   }
                 />

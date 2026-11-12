@@ -1,7 +1,7 @@
 import type { CSSObject } from '@emotion/react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
-import Chip from '@/components/ui/chip';
+import Chip from '@/components/ui/chip/chip';
 import {
   StackedItem,
   StackedItemActions,

@@ -18,7 +18,7 @@ const renderField = (onCommit?: (next: string[]) => void, flags: string[] = []) 
     </FormHarness>,
   );
 
-  return screen.getByPlaceholderText('i.e Backorder');
+  return screen.getByLabelText('Flag');
 };
 
 const probe = () => screen.getByTestId('probe-flags').textContent;
@@ -46,6 +46,14 @@ describe('ChipsInputField', () => {
     expect(probe()).toBe('["backorder"]');
     expect(screen.getByText('backorder')).toBeInTheDocument();
     expect(input).toHaveValue('');
+  });
+
+  it('switches the placeholder once a chip exists', () => {
+    const input = renderField();
+
+    pressEnter(input, 'backorder');
+
+    expect(input).toHaveAttribute('placeholder', 'Add more');
   });
 
   it('ignores blank and duplicate entries', () => {
