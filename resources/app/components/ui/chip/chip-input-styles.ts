@@ -3,15 +3,18 @@ import type { CSSObject } from '@emotion/react';
 import { theme } from '@/theme';
 
 /**
- * Styles for the input placed in ChipField's `control` slot, so it reads as
+ * Styles for the control placed in ChipsInput's `control` slot, so it reads as
  * part of the box rather than as a nested input.
+ *
+ * The box sets the height, so the control is left at its own line height and
+ * capped only so a chip beside it stays the tallest thing on the row.
  */
-const chipFieldControlCss: CSSObject = {
+const chipsInputControlCss: CSSObject = {
   width: '100%',
-  minHeight: '32px',
-  maxHeight: '32px',
+  minHeight: 0,
+  maxHeight: '24px',
   margin: 0,
-  padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
+  padding: `0 ${theme.spacing[1]}`,
   border: 'none',
   borderRadius: theme.radius.none,
   backgroundColor: 'transparent',
@@ -35,4 +38,4 @@ const chipFieldControlCss: CSSObject = {
   },
 };
 
-export { chipFieldControlCss };
+export { chipsInputControlCss };

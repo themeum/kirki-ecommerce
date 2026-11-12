@@ -3,7 +3,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import GroupSelect from '@/components/group-select';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import Chip from '@/components/ui/chip';
+import Chip from '@/components/ui/chip/chip';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { MinusIcon } from '@/icons/common';

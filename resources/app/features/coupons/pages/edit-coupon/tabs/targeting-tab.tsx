@@ -60,7 +60,6 @@ const TargetingTab = () => {
                 name="target_countries"
                 label={__('Select Countries', 'kirki-ecommerce')}
                 placeholder={__('Select countries..', 'kirki-ecommerce')}
-                emptyText={__('Added countries will appear here', 'kirki-ecommerce')}
               />
             )}
           </Flex>

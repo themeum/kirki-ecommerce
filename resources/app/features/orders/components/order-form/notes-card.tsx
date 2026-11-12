@@ -36,7 +36,14 @@ const NotesCard = ({ mode = 'create', onSave, isSaving = false }: NotesCardProps
   };
 
   return (
-    <Card cssOverride={{ gap: theme.spacing[2] }}>
+    <Card
+      cssOverride={{
+        gap:
+          mode === 'edit' && !isEditing && !savedNotes?.trim()
+            ? theme.spacing[0]
+            : theme.spacing[2],
+      }}
+    >
       <CardHeader>
         <CardTitle>
           <Flex cssOverride={{ justifyContent: 'space-between', alignItems: 'center' }}>
