@@ -28,6 +28,13 @@ abstract class TestCase extends BaseTestCase
      */
     protected $original_wpdb;
 
+    /**
+     * The fake currency service bound by bind_money_dependencies(); its `calls` list the methods used.
+     *
+     * @var object|null
+     */
+    protected $fake_currency_service;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -205,6 +212,13 @@ abstract class TestCase extends BaseTestCase
 
             protected array $preferences;
 
+            /**
+             * Names of the methods called so far, so a test can assert that none was.
+             *
+             * @var string[]
+             */
+            public array $calls = [];
+
             public function __construct($currency, array $symbol_map, array $preferences)
             {
                 $this->currency = $currency;
@@ -214,12 +228,28 @@ abstract class TestCase extends BaseTestCase
 
             public function get_base_currency()
             {
+                $this->calls[] = 'get_base_currency';
+
                 return $this->currency;
+            }
+
+            public function get_by_code(string $code)
+            {
+                $this->calls[] = 'get_by_code';
+
+                return strtoupper($code) === strtoupper($this->currency->code) ? $this->currency : null;
             }
 
             public function get_symbol_map()
             {
+                $this->calls[] = 'get_symbol_map';
+
                 return $this->symbol_map;
+            }
+
+            public function flush_cache()
+            {
+                $this->calls[] = 'flush_cache';
             }
 
             public function get_currency_preferences()
@@ -227,6 +257,8 @@ abstract class TestCase extends BaseTestCase
                 return $this->preferences;
             }
         };
+
+        $this->fake_currency_service = $currency_service;
 
         $container = new Container();
         $container->instance('app', $container);

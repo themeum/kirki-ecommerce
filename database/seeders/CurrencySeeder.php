@@ -5,8 +5,11 @@ namespace Kirki\Ecommerce\Database\Seeders;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Models\Currency;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
+
+use function Kirki\Ecommerce\Framework\app;
 
 /**
  * Seeds the US Dollar base currency.
@@ -37,6 +40,9 @@ class CurrencySeeder extends Seeder
         ];
 
         Currency::query()->insert($currencies);
+
+        // The insert skips CurrencyService, so its per-request currency data is out of date.
+        app(CurrencyService::class)->flush_cache();
 
         Log::info('CurrencySeeder run successfully');
     }

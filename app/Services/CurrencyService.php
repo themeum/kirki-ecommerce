@@ -56,6 +56,16 @@ class CurrencyService
     }
 
     /**
+     * Every stored currency for the current request, keyed by uppercase code.
+     *
+     * Null until the first read. It is static because the router builds its own service objects, so one cache has
+     * to serve every instance. Read it through load() and clear it with flush_cache().
+     *
+     * @var array<string, Currency>|null
+     */
+    protected static $currencies = null;
+
+    /**
      * Get the store's base currency.
      *
      * @since 1.0.0
@@ -64,7 +74,28 @@ class CurrencyService
      */
     public function get_base_currency()
     {
-        return Currency::base()->first();
+        foreach ($this->load() as $currency) {
+            if ($currency->is_base) {
+                return $currency;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get a stored currency by its code.
+     *
+     * Unlike find_by_code(), it reads the per-request currency data and returns null when the code is not stored.
+     *
+     * @since 1.0.0
+     *
+     * @param string $code Currency code, in any case.
+     * @return Currency|null Null when no currency has that code.
+     */
+    public function get_by_code(string $code)
+    {
+        return $this->load()[strtoupper($code)] ?? null;
     }
 
     /**
@@ -76,10 +107,48 @@ class CurrencyService
      */
     public function get_symbol_map()
     {
-        return array_change_key_case(
-            Currency::query()->pluck('symbol', 'code')->all(),
-            CASE_UPPER
-        );
+        $symbols = [];
+
+        foreach ($this->load() as $code => $currency) {
+            $symbols[$code] = $currency->symbol;
+        }
+
+        return $symbols;
+    }
+
+    /**
+     * Forget the per-request currency data, so the next read loads it from the database again.
+     *
+     * The service clears it after each of its own writes. Code that writes to the currencies table without this
+     * service must call it afterwards.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    public function flush_cache()
+    {
+        static::$currencies = null;
+    }
+
+    /**
+     * Get every stored currency, keyed by uppercase code, reading the database once per request.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, Currency>
+     */
+    protected function load()
+    {
+        if (static::$currencies === null) {
+            static::$currencies = [];
+
+            foreach (Currency::query()->order_by('id')->get() as $currency) {
+                static::$currencies[$currency->code] = $currency;
+            }
+        }
+
+        return static::$currencies;
     }
 
     /**
@@ -280,7 +349,10 @@ class CurrencyService
         }
 
         if (is_null($base_index)) {
-            return Currency::insert($items_array);
+            $is_inserted = Currency::insert($items_array);
+            $this->flush_cache();
+
+            return $is_inserted;
         }
 
         $previous_rate = $items_array[$base_index]['exchange_rate'] ?? null;
@@ -306,7 +378,10 @@ class CurrencyService
     public function create(CreateCurrencyDTO $data)
     {
         if (!$data->is_base) {
-            return Currency::create($data->to_array());
+            $currency = Currency::create($data->to_array());
+            $this->flush_cache();
+
+            return $currency;
         }
 
         $previous_rate = $data->exchange_rate;
@@ -359,6 +434,7 @@ class CurrencyService
             $this->with_demoted_bases($update, $currency->exchange_rate);
         } else {
             $update();
+            $this->flush_cache();
         }
 
         return Currency::find($data->id);
@@ -376,6 +452,7 @@ class CurrencyService
     public function delete(int $id)
     {
         $is_deleted = (bool) Currency::query()->where('id', $id)->delete();
+        $this->flush_cache();
 
         throw_if(!$is_deleted, __('Currency could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
@@ -394,6 +471,7 @@ class CurrencyService
     public function bulk_delete(array $ids)
     {
         $is_deleted = (bool) Currency::where_in('id', $ids)->delete();
+        $this->flush_cache();
 
         throw_if(!$is_deleted, __('Currencies could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
@@ -410,7 +488,10 @@ class CurrencyService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return (bool) $this->list_query($filters)->delete();
+        $is_deleted = (bool) $this->list_query($filters)->delete();
+        $this->flush_cache();
+
+        return $is_deleted;
     }
 
     /**
@@ -446,6 +527,9 @@ class CurrencyService
         } catch (Exception $e) {
             DB::rollback();
             throw $e;
+        } finally {
+            // Reads inside the transaction may have cached rows that the commit or the rollback changed.
+            $this->flush_cache();
         }
     }
 

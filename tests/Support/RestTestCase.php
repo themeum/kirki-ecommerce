@@ -2,7 +2,9 @@
 
 namespace Kirki\Ecommerce\Tests\Support;
 
+use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Settings\SettingsFactory;
 use Kirki\Ecommerce\Framework\Facade;
@@ -10,6 +12,7 @@ use Kirki\Ecommerce\Framework\Managers\OptionManager;
 use Kirki\Ecommerce\Framework\Route;
 use WP_UnitTestCase;
 
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\migrator;
 
 abstract class RestTestCase extends WP_UnitTestCase
@@ -63,6 +66,7 @@ abstract class RestTestCase extends WP_UnitTestCase
         $this->reset_option_manager_cache();
         $this->reset_route_instance_cache();
         static::forget_singleton(PaymentManager::class);
+        static::forget_currency_singletons();
 
         parent::tearDown();
     }
@@ -178,5 +182,25 @@ abstract class RestTestCase extends WP_UnitTestCase
         migrator()->fresh();
         migrator()->run();
         static::forget_singleton(ShippingService::class);
+        static::forget_currency_singletons();
+    }
+
+    /**
+     * Clear the caches and the singleton that hold currency data.
+     *
+     * They live for the whole PHP process, but each test's database changes are
+     * rolled back, so a kept copy would serve rows an earlier test wrote.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected static function forget_currency_singletons(): void
+    {
+        app(CurrencyService::class)->flush_cache();
+        static::forget_singleton(MoneyManager::class);
+
+        $symbols = new \ReflectionProperty(MoneyManager::class, 'currency_symbols');
+        $symbols->setAccessible(true);
+        $symbols->setValue(null, null);
     }
 }

@@ -14,7 +14,6 @@ use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\DTO\CurrencyDTO;
 use Kirki\Ecommerce\App\DTO\MoneyDTO;
 use Kirki\Ecommerce\App\DTO\ShortMoneyDTO;
-use Kirki\Ecommerce\App\Models\Currency as CurrencyModel;
 use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
@@ -52,13 +51,6 @@ class MoneyManager
     public const DISPLAY_CURRENCY_HEADER = 'HTTP_X_KECOM_CURRENCY';
 
     /**
-     * Base currency for the application.
-     *
-     * @var string
-     */
-    protected $base_currency;
-
-    /**
      * The resolved display currency code for the current request, or null
      * when nothing valid was requested. False when not yet resolved.
      *
@@ -75,17 +67,10 @@ class MoneyManager
     protected static $currency_symbols;
 
     /**
-     * Create the manager and load the store's base currency.
+     * Make the next read of the base currency load it from the database again.
      *
-     * @since 1.0.0
-     */
-    public function __construct()
-    {
-        $this->load_base_currency();
-    }
-
-    /**
-     * Load the store's base currency code into the manager.
+     * The manager keeps no copy of the base currency. It reads it from the currency service each time, so this
+     * clears the currency service's per-request data.
      *
      * @since 1.0.0
      *
@@ -93,7 +78,7 @@ class MoneyManager
      */
     public function load_base_currency()
     {
-        $this->base_currency = base_currency()->code;
+        app(CurrencyService::class)->flush_cache();
 
         return $this;
     }
@@ -107,7 +92,7 @@ class MoneyManager
      */
     public function get_base_currency()
     {
-        return $this->base_currency;
+        return base_currency()->code;
     }
 
     /**
@@ -146,7 +131,7 @@ class MoneyManager
         $code = $this->get_requested_currency_code();
 
         if ($code !== null && $code !== $this->get_base_currency()) {
-            $currency = CurrencyModel::where('code', $code)->first();
+            $currency = app(CurrencyService::class)->get_by_code($code);
 
             if ($currency && $currency->is_active) {
                 $this->display_currency = $currency->code;
@@ -191,7 +176,7 @@ class MoneyManager
      */
     public static function to_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static();
+        $instance = app(static::class);
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();
@@ -213,7 +198,7 @@ class MoneyManager
      */
     public static function from_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static();
+        $instance = app(static::class);
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();
@@ -223,9 +208,7 @@ class MoneyManager
     }
 
     /**
-     * Build a Money object from a minor amount using this manager's base currency.
-     *
-     * Unlike from_minor(), it does not create a new manager, so it does not query the base currency again.
+     * Build a Money object from a minor amount, with this manager's base currency as the default currency.
      *
      * @since 1.0.0
      *
@@ -369,14 +352,11 @@ class MoneyManager
      */
     public function format_from_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static();
-
         if (empty($currency)) {
-            $currency = $instance->get_base_currency();
+            $currency = $this->get_base_currency();
         }
 
-        $money = static::from_minor($amount, $currency, $rounding, $context);
-        return $this->format($money);
+        return $this->format($this->of_minor($amount, $currency, $context, $rounding));
     }
 
     /**
@@ -392,14 +372,11 @@ class MoneyManager
      */
     public function format_from_decimal($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static();
-
         if (empty($currency)) {
-            $currency = $instance->get_base_currency();
+            $currency = $this->get_base_currency();
         }
 
-        $money = static::of($amount, $currency, $context, $rounding);
-        return $this->format($money);
+        return $this->format($this->of($amount, $currency, $context, $rounding));
     }
 
     /**
@@ -522,7 +499,7 @@ class MoneyManager
      */
     public function to_dto($minor_amount, $currency = null)
     {
-        $currency = $currency ?? $this->base_currency;
+        $currency = $currency ?? $this->get_base_currency();
         $money = $this->money_from_minor($minor_amount, $currency);
 
         return MoneyDTO::from_array([
@@ -546,7 +523,7 @@ class MoneyManager
      */
     public function to_short_dto($minor_amount, $currency = null)
     {
-        $currency = $currency ?? $this->base_currency;
+        $currency = $currency ?? $this->get_base_currency();
 
         return ShortMoneyDTO::from_array(array_merge($this->to_dto($minor_amount, $currency)->all(), [
             'short_display' => $this->format_short($this->money_from_minor($minor_amount, $currency)),
