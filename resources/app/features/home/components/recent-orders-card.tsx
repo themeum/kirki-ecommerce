@@ -122,7 +122,7 @@ const RecentOrdersCard = ({ orders }: RecentOrdersCardProps) => {
                     </Flex>
                     <Flex direction="column" gap={1} align="end" cssOverride={styles.summary}>
                       <Text variant="small" weight="semibold">
-                        {order.invoiced_total_money_object.display}
+                        {order.base_total_money_object.display}
                       </Text>
                       <Text variant="small" color="subdued">
                         {formatTimeAgo(order.created_at)}
