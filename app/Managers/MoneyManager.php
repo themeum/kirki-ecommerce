@@ -59,31 +59,6 @@ class MoneyManager
     protected $display_currency = false;
 
     /**
-     * Currency symbols keyed by currency code (uppercase), cached for the
-     * current request.
-     *
-     * @var array<string, string>|null
-     */
-    protected static $currency_symbols;
-
-    /**
-     * Make the next read of the base currency load it from the database again.
-     *
-     * The manager keeps no copy of the base currency. It reads it from the currency service each time, so this
-     * clears the currency service's per-request data.
-     *
-     * @since 1.0.0
-     *
-     * @return $this
-     */
-    public function load_base_currency()
-    {
-        app(CurrencyService::class)->flush_cache();
-
-        return $this;
-    }
-
-    /**
      * Get the store's base currency code.
      *
      * @since 1.0.0
@@ -397,12 +372,10 @@ class MoneyManager
     {
         $code = strtoupper($code);
 
-        if (static::$currency_symbols === null) {
-            static::$currency_symbols = app(CurrencyService::class)->get_symbol_map();
-        }
+        $symbols = app(CurrencyService::class)->get_symbol_map();
 
-        if (!empty(static::$currency_symbols[$code])) {
-            return static::$currency_symbols[$code];
+        if (!empty($symbols[$code])) {
+            return $symbols[$code];
         }
 
         return (new NumberFormatter('en_US@currency=' . $code, NumberFormatter::CURRENCY))

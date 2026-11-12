@@ -4,7 +4,6 @@ namespace Kirki\Ecommerce\Tests\Unit;
 
 use Kirki\Ecommerce\App\DTO\Calculation\TaxRateDTO;
 use Kirki\Ecommerce\Framework\Application;
-use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\Framework\Container;
 use Kirki\Ecommerce\Framework\Database\Connection\Connection;
@@ -46,7 +45,6 @@ abstract class TestCase extends BaseTestCase
     {
         $this->reset_container_instance();
         $this->reset_european_country_checker_cache();
-        $this->reset_money_manager_symbol_cache();
         $this->reset_str_macros();
         $this->reset_test_wpdb();
         $this->reset_route_state();
@@ -109,13 +107,6 @@ abstract class TestCase extends BaseTestCase
         $property->setValue(null, $countries);
     }
 
-    protected function reset_money_manager_symbol_cache(): void
-    {
-        $reflection = new \ReflectionClass(MoneyManager::class);
-        $property = $reflection->getProperty('currency_symbols');
-        $property->setAccessible(true);
-        $property->setValue(null, null);
-    }
 
     protected function reset_str_macros(): void
     {

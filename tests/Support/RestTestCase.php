@@ -66,7 +66,7 @@ abstract class RestTestCase extends WP_UnitTestCase
         $this->reset_option_manager_cache();
         $this->reset_route_instance_cache();
         static::forget_singleton(PaymentManager::class);
-        static::forget_currency_singletons();
+        static::reset_currency_state();
 
         parent::tearDown();
     }
@@ -182,11 +182,11 @@ abstract class RestTestCase extends WP_UnitTestCase
         migrator()->fresh();
         migrator()->run();
         static::forget_singleton(ShippingService::class);
-        static::forget_currency_singletons();
+        static::reset_currency_state();
     }
 
     /**
-     * Clear the caches and the singleton that hold currency data.
+     * Clear the cached currency data and forget the money manager.
      *
      * They live for the whole PHP process, but each test's database changes are
      * rolled back, so a kept copy would serve rows an earlier test wrote.
@@ -194,13 +194,9 @@ abstract class RestTestCase extends WP_UnitTestCase
      * @return void
      * @since 1.0.0
      */
-    protected static function forget_currency_singletons(): void
+    protected static function reset_currency_state(): void
     {
         app(CurrencyService::class)->flush_cache();
         static::forget_singleton(MoneyManager::class);
-
-        $symbols = new \ReflectionProperty(MoneyManager::class, 'currency_symbols');
-        $symbols->setAccessible(true);
-        $symbols->setValue(null, null);
     }
 }

@@ -18,7 +18,6 @@ use Kirki\Ecommerce\Framework\Facade;
  * @method static \Brick\Money\Money create(\Brick\Math\BigNumber $amount, \Brick\Money\Currency $currency, \Brick\Money\Context $context, int $roundingMode = \Brick\Math\RoundingMode::UNNECESSARY)
  * @method static \Brick\Money\Money of(mixed $amount, mixed $currency = null, ?\Brick\Money\Context $context = null, int $roundingMode = \Brick\Math\RoundingMode::UNNECESSARY)
  * @method static \Brick\Money\Money of_minor(mixed $minorAmount, mixed $currency = null, ?\Brick\Money\Context $context = null, int $roundingMode = \Brick\Math\RoundingMode::UNNECESSARY)
- * @method static static load_base_currency()
  * @method static string get_base_currency()
  * @method static string resolve_display_currency()
  * @method static int to_minor(mixed $amount, mixed $currency = null, int $roundingMode = \Brick\Math\RoundingMode::HALF_UP, \Brick\Money\Context $context = null)

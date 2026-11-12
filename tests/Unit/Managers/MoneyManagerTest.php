@@ -148,6 +148,15 @@ class MoneyManagerTest extends TestCase
         $this->assertSame("\u{09F3}", MoneyManager::get_currency_symbol('bdt'));
     }
 
+    public function test_get_currency_symbol_follows_the_currency_service(): void
+    {
+        $this->bind_money_dependencies('USD', [], ['EUR' => 'E1']);
+        $this->assertSame('E1', MoneyManager::get_currency_symbol('EUR'));
+
+        $this->bind_money_dependencies('USD', [], ['EUR' => 'E2']);
+        $this->assertSame('E2', MoneyManager::get_currency_symbol('EUR'));
+    }
+
     public function test_get_currency_symbol_falls_back_to_icu_when_not_in_database(): void
     {
         $this->bind_money_dependencies('USD', [], []);
@@ -302,13 +311,6 @@ class MoneyManagerTest extends TestCase
         $this->assertSame('EUR', $manager->get_base_currency());
     }
 
-    public function test_load_base_currency_clears_the_currency_cache_and_returns_the_manager(): void
-    {
-        $manager = new MoneyManager();
-
-        $this->assertSame($manager, $manager->load_base_currency());
-        $this->assertContains('flush_cache', $this->fake_currency_service->calls);
-    }
 
     public function test_requested_currency_that_is_not_stored_falls_back_to_the_base_currency(): void
     {

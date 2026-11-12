@@ -261,6 +261,33 @@ class CurrencyLookupCachingTest extends RestTestCase
     }
 
     /**
+     * A new symbol is used by the next call of the money helpers.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_of_a_symbol_is_visible_to_money_helpers(): void
+    {
+        $service = app(CurrencyService::class);
+        $created = $service->create($this->currency_dto('EUR', 0.9, false, 'E1'));
+
+        $this->assertSame('E1', Money::get_currency_symbol('EUR'));
+
+        $service->update(UpdateCurrencyDTO::from_array([
+            'id' => $created->id,
+            'code' => 'EUR',
+            'name' => 'Euro',
+            'symbol' => 'E2',
+            'exchange_rate' => 0.9,
+            'is_base' => false,
+            'is_active' => true,
+        ]));
+
+        $this->assertSame('E2', Money::get_currency_symbol('EUR'));
+        $this->assertSame('E210.00', Money::format_from_minor(1000, 'EUR'));
+    }
+
+    /**
      * Turning a currency inactive is used by the next read.
      *
      * @return void
