@@ -14,10 +14,10 @@ import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import type { SettingsBreadcrumb } from '@/features/settings/pages/settings-page-header';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import FlatRateSettings from '@/features/settings/shipping/pages/shipping-method/flat-rate-settings';
-import LocalPickupSettings from '@/features/settings/shipping/pages/shipping-method/local-pickup-settings';
-import RateByWeightSettings from '@/features/settings/shipping/pages/shipping-method/rate-by-weight-settings';
-import { ShippingRules } from '@/features/settings/shipping/pages/shipping-method/shipping-rules/shipping-rules';
+import FlatRateSettings from '@/features/settings/shipping/components/shipping-method/flat-rate-settings';
+import LocalPickupSettings from '@/features/settings/shipping/components/shipping-method/local-pickup-settings';
+import RateByWeightSettings from '@/features/settings/shipping/components/shipping-method/rate-by-weight-settings';
+import { ShippingRules } from '@/features/settings/shipping/components/shipping-method/shipping-rules/shipping-rules';
 import {
   type ShippingMethodFormInput,
   type ShippingMethodFormPayload,

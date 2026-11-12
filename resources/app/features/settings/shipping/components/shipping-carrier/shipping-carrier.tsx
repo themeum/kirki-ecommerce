@@ -3,13 +3,13 @@ import { type Dispatch, type SetStateAction, useMemo, useState } from 'react';
 import HeaderActionsCard from '@/components/header-actions-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { StackedItems } from '@/components/ui/stacked-items';
+import ShippingCarrierAddMenu from '@/features/settings/shipping/components/shipping-carrier/shipping-carrier-add-menu';
+import ShippingCarrierRow from '@/features/settings/shipping/components/shipping-carrier/shipping-carrier-row';
 import {
   buildCarrierFromPreset,
   getMissingCarrierPresets,
 } from '@/features/settings/shipping/lib/shipping-carrier-presets';
 import { saveShippingZones } from '@/features/settings/shipping/lib/utils';
-import ShippingCarrierAddMenu from '@/features/settings/shipping/pages/shipping-carrier/shipping-carrier-add-menu';
-import ShippingCarrierRow from '@/features/settings/shipping/pages/shipping-carrier/shipping-carrier-row';
 import type {
   ShippingCarrier,
   ShippingCarrierPreset,

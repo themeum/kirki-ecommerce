@@ -14,6 +14,8 @@ import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import { useCategoriesQuery } from '@/features/categories';
+import type { DestinationConditionValue } from '@/features/settings/shipping/components/shipping-method/select-destination-dialog';
+import { SelectDestinationPopup } from '@/features/settings/shipping/components/shipping-method/select-destination-dialog';
 import {
   getDestinationLabel,
   resolveDestinationRegion,
@@ -27,8 +29,6 @@ import {
   resolveDestinationSelection,
 } from '@/features/settings/shipping/lib/shipping-rules/rule-form';
 import { actionOptionsArray, conditionOptions } from '@/features/settings/shipping/lib/utils';
-import type { DestinationConditionValue } from '@/features/settings/shipping/pages/shipping-method/select-destination-dialog';
-import { SelectDestinationPopup } from '@/features/settings/shipping/pages/shipping-method/select-destination-dialog';
 import {
   NUMERIC_CONDITIONS,
   type ShippingRuleFormInput,

@@ -19,6 +19,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useCategoriesQuery } from '@/features/categories';
+import ShippingRuleFormCard from '@/features/settings/shipping/components/shipping-method/shipping-rules/shipping-rule-form-card';
 import {
   getActionLabel,
   getActionValue,
@@ -27,7 +28,6 @@ import {
   resolveConditionValues,
 } from '@/features/settings/shipping/lib/shipping-rules/helper';
 import { saveShippingZones } from '@/features/settings/shipping/lib/utils';
-import ShippingRuleFormCard from '@/features/settings/shipping/pages/shipping-method/shipping-rules/shipping-rule-form-card';
 import { useShippingProfilesQuery } from '@/features/settings/shipping/services/shipping';
 import type { ShippingRule, ShippingZone } from '@/features/settings/shipping/types';
 import { useBaseCurrencySymbol, useConfirmDelete } from '@/hooks';
@@ -56,7 +56,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   const baseCurrencySymbol = useBaseCurrencySymbol();
   const { data: countries } = useCountriesQuery({ limit: -1 });
   const { data: productSettings } = useSettingsQuery('product');
-    const storeWeightUnit = (productSettings?.weight_unit as string | undefined) || 'kg';
+  const storeWeightUnit = (productSettings?.weight_unit as string | undefined) || 'kg';
 
   useEffect(() => {
     if (!shippingSettingsData?.shipping_zones || !methodId) {

@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import ShippingProfile from '@/features/settings/shipping/pages/shipping-profile/shipping-profile';
+import ShippingProfile from '@/features/settings/shipping/components/shipping-profile/shipping-profile';
 import { server } from '@/tests/msw/server';
 
 const API = 'https://example.test/wp-json/kirki/ecommerce/v1';

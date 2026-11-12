@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import ShippingBoxDialog from '@/features/settings/shipping/pages/shipping-box/shipping-box-dialog';
+import ShippingBoxDialog from '@/features/settings/shipping/components/shipping-box/shipping-box-dialog';
 import { useShippingBoxesQuery } from '@/features/settings/shipping/services/shipping';
 import { PlusCircleIcon } from '@/icons/common';
 import type { SelectOption } from '@/types/components/common';

@@ -15,8 +15,8 @@ import {
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
-import { CreateProfilePopup } from '@/features/settings/shipping/pages/shipping-profile/create-profile-dialog';
-import { CreateProfilePopover } from '@/features/settings/shipping/pages/shipping-profile/create-profile-popover';
+import { CreateProfilePopup } from '@/features/settings/shipping/components/shipping-profile/create-profile-dialog';
+import { CreateProfilePopover } from '@/features/settings/shipping/components/shipping-profile/create-profile-popover';
 import type { ShippingProfile as ShippingProfileType } from '@/features/settings/shipping/schemas/catalog/shipping';
 import {
   useDeleteShippingProfileMutation,

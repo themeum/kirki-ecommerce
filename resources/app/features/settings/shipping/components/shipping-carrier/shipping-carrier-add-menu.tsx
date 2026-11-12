@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Image from '@/components/ui/image';
 import { PopoverAnchor } from '@/components/ui/popover';
-import ShippingCarrierPopover from '@/features/settings/shipping/pages/shipping-carrier/shipping-carrier-popover';
+import ShippingCarrierPopover from '@/features/settings/shipping/components/shipping-carrier/shipping-carrier-popover';
 import type { ShippingCarrierPreset } from '@/features/settings/shipping/schemas/catalog/shipping';
 import type { ShippingCarrierFormPayload } from '@/features/settings/shipping/schemas/forms/shipping-carrier-form';
 import { TruckIcon } from '@/icons/common';

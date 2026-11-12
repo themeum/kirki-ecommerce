@@ -27,13 +27,11 @@ const GeneralSettings = lazy(() => import('@/features/settings/general/pages/gen
 const ProductsSettings = lazy(() => import('@/features/settings/products/pages/products-settings'));
 const PaymentSettings = lazy(() => import('@/features/settings/payment/pages/payment-settings'));
 const ShippingSettings = lazy(() => import('@/features/settings/shipping/pages/shipping-settings'));
-const ShippingZone = lazy(
-  () => import('@/features/settings/shipping/pages/shipping-zone/shipping-zone'),
-);
+const ShippingZone = lazy(() => import('@/features/settings/shipping/pages/shipping-zone'));
 const TaxSettings = lazy(() => import('@/features/settings/tax/pages/tax-settings'));
 const EmailSettings = lazy(() => import('@/features/settings/email/pages/email-settings'));
 const ShippingDeliveryMethod = lazy(
-  () => import('@/features/settings/shipping/pages/shipping-method/shipping-delivery-method'),
+  () => import('@/features/settings/shipping/pages/shipping-delivery-method'),
 );
 const MultiCurrencySettings = lazy(
   () => import('@/features/settings/multi-currency/pages/multi-currency-settings'),
