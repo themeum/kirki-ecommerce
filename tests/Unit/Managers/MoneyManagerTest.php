@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\Tests\Unit\Managers;
 use BadMethodCallException;
 use Brick\Money\Money;
 use InvalidArgumentException;
+use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
@@ -147,6 +148,15 @@ class MoneyManagerTest extends TestCase
         $this->assertSame("\u{09F3}", MoneyManager::get_currency_symbol('bdt'));
     }
 
+    public function test_get_currency_symbol_follows_the_currency_service(): void
+    {
+        $this->bind_money_dependencies('USD', [], ['EUR' => 'E1']);
+        $this->assertSame('E1', MoneyManager::get_currency_symbol('EUR'));
+
+        $this->bind_money_dependencies('USD', [], ['EUR' => 'E2']);
+        $this->assertSame('E2', MoneyManager::get_currency_symbol('EUR'));
+    }
+
     public function test_get_currency_symbol_falls_back_to_icu_when_not_in_database(): void
     {
         $this->bind_money_dependencies('USD', [], []);
@@ -198,5 +208,137 @@ class MoneyManagerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         $manager->of();
+    }
+
+    protected function tearDown(): void
+    {
+        unset($_COOKIE[CookieNames::CURRENCY]);
+
+        parent::tearDown();
+    }
+
+    public function test_format_from_decimal_rounds_half_up(): void
+    {
+        $manager = new MoneyManager();
+
+        $this->assertSame('$1.01', $manager->format_from_decimal('1.005', 'USD'));
+        $this->assertSame('$1.00', $manager->format_from_decimal('1.004', 'USD'));
+    }
+
+    public function test_format_from_minor_applies_position_and_separators(): void
+    {
+        $this->bind_money_dependencies('USD', [
+            'decimal_separator' => ',',
+            'thousand_separator' => '.',
+            'currency_position' => 'after',
+        ]);
+        $manager = new MoneyManager();
+
+        $this->assertSame('1.234,50$', $manager->format_from_minor(123450, 'USD'));
+        $this->assertSame('1.234,50$', $manager->format_from_decimal('1234.50', 'USD'));
+    }
+
+    public function test_format_from_minor_keeps_zero_decimal_currency_whole(): void
+    {
+        $manager = new MoneyManager();
+
+        $this->assertSame('¥1,500', $manager->format_from_minor(1500, 'JPY'));
+    }
+
+    public function test_constructing_the_manager_does_not_read_the_currency_service(): void
+    {
+        new MoneyManager();
+
+        $this->assertSame([], $this->fake_currency_service->calls);
+    }
+
+    public function test_to_minor_with_a_named_currency_does_not_read_the_base_currency(): void
+    {
+        $this->assertSame(1099, MoneyManager::to_minor('10.99', 'USD'));
+
+        $this->assertNotContains('get_base_currency', $this->fake_currency_service->calls);
+    }
+
+    public function test_from_minor_with_a_named_currency_does_not_read_the_base_currency(): void
+    {
+        MoneyManager::from_minor(1099, 'USD');
+
+        $this->assertNotContains('get_base_currency', $this->fake_currency_service->calls);
+    }
+
+    public function test_to_minor_without_a_currency_reads_the_base_currency_from_the_service(): void
+    {
+        $this->bind_money_dependencies('EUR');
+
+        $this->assertSame(500, MoneyManager::to_minor('5.00'));
+        $this->assertContains('get_base_currency', $this->fake_currency_service->calls);
+        $this->assertSame('EUR', MoneyManager::from_minor(500)->getCurrency()->getCurrencyCode());
+    }
+
+    public function test_format_from_minor_with_a_named_currency_does_not_read_the_base_currency(): void
+    {
+        $manager = new MoneyManager();
+
+        $this->assertSame('$10.99', $manager->format_from_minor(1099, 'USD'));
+        $this->assertNotContains('get_base_currency', $this->fake_currency_service->calls);
+    }
+
+    public function test_format_from_decimal_with_a_named_currency_does_not_read_the_base_currency(): void
+    {
+        $manager = new MoneyManager();
+
+        $this->assertSame('$25.00', $manager->format_from_decimal('25', 'USD'));
+        $this->assertNotContains('get_base_currency', $this->fake_currency_service->calls);
+    }
+
+    public function test_format_from_minor_without_a_currency_uses_the_base_currency(): void
+    {
+        $this->bind_money_dependencies('EUR', [], ['EUR' => '€']);
+        $manager = new MoneyManager();
+
+        $this->assertSame('€10.99', $manager->format_from_minor(1099));
+        $this->assertSame('€25.00', $manager->format_from_decimal('25'));
+    }
+
+    public function test_the_manager_does_not_keep_a_copy_of_the_base_currency(): void
+    {
+        $manager = new MoneyManager();
+
+        $this->assertSame('USD', $manager->get_base_currency());
+
+        $this->bind_money_dependencies('EUR');
+
+        $this->assertSame('EUR', $manager->get_base_currency());
+    }
+
+
+    public function test_requested_currency_that_is_not_stored_falls_back_to_the_base_currency(): void
+    {
+        $_COOKIE[CookieNames::CURRENCY] = 'EUR';
+        $manager = new MoneyManager();
+
+        $this->assertSame('USD', $manager->resolve_display_currency());
+        $this->assertContains('get_by_code', $this->fake_currency_service->calls);
+    }
+
+    public function test_requested_currency_equal_to_the_base_currency_is_not_looked_up(): void
+    {
+        $_COOKIE[CookieNames::CURRENCY] = 'usd';
+        $manager = new MoneyManager();
+
+        $this->assertSame('USD', $manager->resolve_display_currency());
+        $this->assertNotContains('get_by_code', $this->fake_currency_service->calls);
+    }
+
+    public function test_display_currency_is_resolved_once_per_manager(): void
+    {
+        $_COOKIE[CookieNames::CURRENCY] = 'EUR';
+        $manager = new MoneyManager();
+
+        $manager->resolve_display_currency();
+        $manager->resolve_display_currency();
+        $manager->resolve_display_currency();
+
+        $this->assertSame(1, count(array_keys($this->fake_currency_service->calls, 'get_by_code', true)));
     }
 }

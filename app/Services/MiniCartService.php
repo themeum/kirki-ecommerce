@@ -23,7 +23,7 @@ class MiniCartService extends CartService
      * @param array<string, mixed> $attributes Element attributes; supports a `class` entry.
      * @return string Mini cart HTML.
      */
-    public function get_mimi_cart_html($attributes)
+    public function get_mini_cart_html($attributes)
     {
         $attributes = wp_parse_args(
             $attributes,
@@ -37,8 +37,8 @@ class MiniCartService extends CartService
         $total_items_count = $cart_resource['items_count'] ?? 0;
 
         ob_start();
-        ?>
-        <a  href="<?php echo esc_url(Url::get_cart_url()); ?>"
+?>
+        <a href="<?php echo esc_url(Url::get_cart_url()); ?>"
             aria-label="<?php esc_attr_e('View Cart', 'kirki-ecommerce'); ?>"
             class="kecom-mini-cart <?php echo esc_attr($attributes['class']); ?>"
             @kecom:cart-updated.document="updateCount($event.detail.items_count)"
@@ -53,7 +53,7 @@ class MiniCartService extends CartService
                 }"
                 x-text="cartCount"></span>
         </a>
-        <?php
+<?php
         return ob_get_clean();
     }
 }
