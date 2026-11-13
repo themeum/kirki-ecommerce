@@ -240,7 +240,7 @@ abstract class TestCase extends BaseTestCase
     {
         $reflection = new \ReflectionClass(Route::class);
 
-        foreach (['namespace', 'routes', 'group_stack', 'instances'] as $property_name) {
+        foreach (['namespace', 'routes', 'group_stack'] as $property_name) {
             $property = $reflection->getProperty($property_name);
             $property->setAccessible(true);
 

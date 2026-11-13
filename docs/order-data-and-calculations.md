@@ -47,6 +47,14 @@ Order dates such as `paid_at`, `shipped_at` and `estimated_delivery_date`, and t
 | `invoiced_` | The same amount converted to the order currency, at the exchange rate saved on the order. This is what the customer sees on the invoice. | `invoiced_total = 6073` |
 
 If the order currency is the same as the store currency, both values are equal.
+
+**The base currency of an order does not change.** Each order saves the store
+currency it was made in (`base_currency_code`), and its `base_` amounts stay in
+that currency. If the store changes its base currency later, old orders keep
+their amounts and their `base_currency_code`. The order payloads show every
+`base_*_money_object` of an order with the order's own `base_currency_code`, not
+the store's current base currency. An unpaid order in an old base currency cannot
+be edited (see [`order-editing.md`](order-editing.md), section 2).
 Each value is converted on its own and rounded half up. This means the
 `invoiced_` parts can differ from the `invoiced_` total by a cent or two
 (see section 5, step 9).

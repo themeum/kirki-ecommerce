@@ -7,6 +7,8 @@ use InvalidArgumentException;
 use Kirki\Ecommerce\Framework\Contracts\Request as RequestContract;
 use Kirki\Ecommerce\Framework\Route;
 
+use function Kirki\Ecommerce\Framework\app;
+
 class RouteDiTest extends TestCase
 {
     protected function setUp(): void
@@ -46,15 +48,24 @@ class RouteDiTest extends TestCase
         $this->assertSame('products/(?P<id>[0-9]+)', $formatted);
     }
 
-    public function test_make_resolves_constructor_dependencies_and_caches_instances(): void
+    public function test_make_resolves_constructor_dependencies_through_the_container(): void
     {
+        $route = Route::get('ping', [RouteDiTestController::class, 'show']);
+
+        $service = $this->invoke_route_method($route, 'make', RouteDiServiceWithDependency::class);
+
+        $this->assertInstanceOf(RouteDiServiceWithDependency::class, $service);
+        $this->assertInstanceOf(RouteDiLeafService::class, $service->leaf);
+    }
+
+    public function test_make_returns_the_container_singleton_for_a_bound_singleton(): void
+    {
+        app()->singleton(RouteDiLeafService::class);
         $route = Route::get('ping', [RouteDiTestController::class, 'show']);
 
         $first = $this->invoke_route_method($route, 'make', RouteDiServiceWithDependency::class);
         $second = $this->invoke_route_method($route, 'make', RouteDiServiceWithDependency::class);
 
-        $this->assertInstanceOf(RouteDiServiceWithDependency::class, $first);
-        $this->assertSame($first, $second);
         $this->assertSame($first->leaf, $second->leaf);
     }
 

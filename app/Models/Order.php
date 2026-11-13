@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
@@ -314,7 +315,10 @@ class Order extends Model
     }
 
     /**
-     * Tell whether an admin may edit this order: it is not paid, not cancelled and not shipped yet.
+     * Tell whether an admin may edit this order.
+     *
+     * The order must not be paid, cancelled or shipped yet, and it must have been placed in the store's current
+     * base currency.
      *
      * @since 1.0.0
      *
@@ -324,6 +328,7 @@ class Order extends Model
     {
         return in_array($this->payment_status, static::EDITABLE_PAYMENT_STATUSES, true)
             && empty($this->cancelled_at)
-            && in_array($this->fulfillment_status, static::EDITABLE_FULFILLMENT_STATUSES, true);
+            && in_array($this->fulfillment_status, static::EDITABLE_FULFILLMENT_STATUSES, true)
+            && $this->base_currency_code === Money::get_base_currency();
     }
 }

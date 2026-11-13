@@ -76,10 +76,7 @@ class CurrencyService
      */
     public function get_symbol_map()
     {
-        return array_change_key_case(
-            Currency::query()->pluck('symbol', 'code')->all(),
-            CASE_UPPER
-        );
+        return $this->list()->pluck('symbol', 'code')->all();
     }
 
     /**
