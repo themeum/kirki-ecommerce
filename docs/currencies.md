@@ -98,8 +98,12 @@ This applies to every way the base changes:
   there is no previous rate, so the other rates stay unchanged; enter them again or
   run **Sync now**.
 
-Stored product, cart and order amounts do **not** change. They are read in the new
-base currency from then on.
+Stored product and cart amounts do **not** change. They are read in the new base
+currency from then on. An order keeps the base currency it was placed in
+(`base_currency_code`), and its `base_*` amounts stay in that currency. An unpaid,
+open order in a previous base currency can no longer be edited (see
+[`docs/order-editing.md`](order-editing.md), section 2). It can be edited again if
+that currency becomes the base again.
 
 ## 4. The currencies API and request order
 

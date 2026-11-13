@@ -75,6 +75,7 @@ An order can be edited only when **all** of these are true:
 | `payment_status` | `pending`, `unpaid`, `failed` |
 | `cancelled_at` | empty |
 | `fulfillment_status` | `unfulfilled`, `processing`, `on-hold` |
+| `base_currency_code` | the store's current base currency |
 
 So these orders cannot be edited:
 - paid orders
@@ -82,13 +83,22 @@ So these orders cannot be edited:
 - cancelled orders
 - orders that are shipped, delivered or returned (also unpaid ones, for
   example cash on delivery)
+- orders placed in a previous base currency (see below)
+
+**Base currency.** Every order stores the base currency it was placed in
+(`base_currency_code`), and its `base_*` amounts are in that currency. An edit
+prices the order in the store's current base currency. After the store changes
+its base currency, an old order's amounts and an edit's amounts would be in two
+currencies, so the order cannot be edited. It stays readable, payable,
+cancellable and refundable. If the store sets the old base currency again, the
+order can be edited again.
 
 `GET /orders` (each row) and `GET /orders/{id}` give this result as
 `is_editable`. The rule is in `Order::is_editable()`.
 
 The save checks the rule **after** it locks the order. If the order was paid
-or shipped after the screen was opened, the save is refused and nothing
-changes.
+or shipped after the screen was opened, or the store changed its base currency,
+the save is refused and nothing changes.
 
 ---
 
@@ -359,7 +369,7 @@ customer paid.
 | Status | When |
 |---|---|
 | 404 | The order does not exist, or a `variant_id` does not exist. |
-| 422 | The order cannot be edited (section 2). |
+| 422 | The order cannot be edited (section 2), also when it was placed in a previous base currency. The edit read and the preview give it too. |
 | 422 | `currency_code` differs from the order's currency. The preview gives it too. |
 | 422 | A line has neither `id` nor `variant_id`. |
 | 422 | An item `id` is not on the order or is sent twice. |
@@ -446,6 +456,11 @@ The admin app edits an order at `#/orders/{id}/edit`. It is the same screen as
   payment and fulfillment statuses (section 2). An unpaid order that is
   *processing* can be edited. A paid, cancelled or shipped order cannot. A
   changed total never triggers an extra charge or a refund.
+- **The store base currency can lock an order.** WooCommerce has one store
+  currency and does not keep a base currency on each order. Here an order keeps
+  the base currency it was placed in, and after a base currency change an
+  unpaid, open order in the old base currency cannot be edited (section 2).
+  There is no tool to move such an order to the new base currency.
 - **Deleted and unpublished products stay, locked.** WooCommerce lets you
   change the quantity of such a line. Here its quantity cannot change, and the
   line can only stay or be removed.

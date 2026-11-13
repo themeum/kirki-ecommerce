@@ -18,7 +18,9 @@ use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
+use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Order;
@@ -28,6 +30,7 @@ use Kirki\Ecommerce\App\Models\OrderItemCoupon;
 use Kirki\Ecommerce\App\Models\OrderTax;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\EnablesPaymentProviders;
@@ -1283,6 +1286,112 @@ class OrderEditApiTest extends RestTestCase
         $this->assert_api_error($this->request('GET', 'orders/999999/edit'), 404);
     }
 
+    public function test_an_order_placed_in_a_previous_base_currency_is_not_editable(): void
+    {
+        $order = $this->create_order();
+
+        $this->with_base_currency('GBP', function () use ($order) {
+            $detail = $this->assert_api_success($this->request('GET', 'orders/' . $order['id']))['data'];
+            $list = $this->assert_api_success($this->request('GET', 'orders', ['page' => 1, 'limit' => 50]))['data']['results'];
+
+            $this->assertFalse($detail['is_editable']);
+            $this->assertFalse(array_column($list, 'is_editable', 'id')[$order['id']]);
+
+            $this->switch_base_currency('USD');
+
+            $this->assertTrue($this->assert_api_success($this->request('GET', 'orders/' . $order['id']))['data']['is_editable']);
+        });
+    }
+
+    public function test_the_edit_read_the_preview_and_the_save_refuse_an_order_in_a_previous_base_currency(): void
+    {
+        $order = $this->create_order();
+        $stored = Order::find($order['id']);
+        $payload = $this->order_payload(['items' => [$this->line($order, 2)]]);
+
+        $this->with_base_currency('GBP', function () use ($order, $stored, $payload) {
+            $this->assert_api_error($this->request('GET', 'orders/' . $order['id'] . '/edit'), 422);
+            $this->assert_api_error($this->request('POST', 'calculate/order', array_merge($payload, ['order_id' => $order['id']])), 422);
+            $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $payload), 422);
+
+            $unchanged = Order::find($order['id']);
+            $this->assertSame('USD', $unchanged->base_currency_code);
+            $this->assertSame($stored->base_total, $unchanged->base_total);
+            $this->assertEquals(1, OrderItem::where('order_id', $order['id'])->first()->quantity);
+
+            $this->switch_base_currency('USD');
+
+            $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $payload));
+            $this->assertEquals(2, OrderItem::where('order_id', $order['id'])->first()->quantity);
+        });
+    }
+
+    public function test_a_save_is_refused_when_the_base_currency_changes_after_the_preview(): void
+    {
+        $order = $this->create_order();
+        $payload = $this->order_payload(['items' => [$this->line($order, 2)]]);
+
+        $this->preview(array_merge($payload, ['order_id' => $order['id']]));
+
+        $this->with_base_currency('GBP', function () use ($order, $payload) {
+            $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $payload), 422);
+            $this->assertSame('USD', Order::find($order['id'])->base_currency_code);
+        });
+    }
+
+    public function test_every_base_amount_of_an_order_stays_in_the_base_currency_it_was_placed_in(): void
+    {
+        $this->enable_tax(false, 10, 10);
+        $order_coupon = $this->create_amount_off_coupon(DiscountTarget::ORDER, DiscountValueType::FIXED, 300);
+        $product_coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 200);
+        $order = $this->create_order(['coupon_codes' => [$order_coupon->code, $product_coupon->code]]);
+
+        $this->with_base_currency('GBP', function () use ($order) {
+            $detail = $this->assert_api_success($this->request('GET', 'orders/' . $order['id']))['data'];
+            $list = $this->assert_api_success($this->request('GET', 'orders', ['page' => 1, 'limit' => 50]))['data']['results'];
+            $row = array_column($list, null, 'id')[$order['id']];
+
+            $base_money_objects = $this->collect_base_money_objects($detail);
+
+            $this->assertGreaterThan(15, count($base_money_objects));
+
+            foreach ($base_money_objects as $path => $money_object) {
+                $this->assertSame('USD', $money_object['currency']['code'], $path);
+            }
+
+            $this->assertSame('USD', $row['base_total_money_object']['currency']['code']);
+        });
+    }
+
+    /**
+     * Collect every `base_*_money_object` in a payload, keyed by its path.
+     *
+     * @param array<string, mixed> $payload Payload to search.
+     * @param string               $path    Path of the payload, for failure messages.
+     * @return array<string, array<string, mixed>>
+     */
+    protected function collect_base_money_objects(array $payload, string $path = ''): array
+    {
+        $found = [];
+
+        foreach ($payload as $key => $value) {
+            if (!is_array($value)) {
+                continue;
+            }
+
+            $child_path = $path . '/' . $key;
+
+            if (is_string($key) && preg_match('/^base_.*_money_object$/', $key)) {
+                $found[$child_path] = $value;
+                continue;
+            }
+
+            $found += $this->collect_base_money_objects($value, $child_path);
+        }
+
+        return $found;
+    }
+
     public function test_the_preview_and_the_save_both_refuse_a_quantity_over_the_per_order_limit(): void
     {
         Variant::query()->where('id', $this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => 3]);
@@ -1451,6 +1560,47 @@ class OrderEditApiTest extends RestTestCase
         $this->assertEquals($moved_preview['totals']['base_shipping_amount_money_object']['raw'], $moved->base_shipping_total / 100);
         $this->assertEquals($moved_preview['totals']['base_tax_total_money_object']['raw'], $moved->base_tax_total / 100);
         $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+    }
+
+    /**
+     * Make the given currency the store's base currency and reload it the way a new request would.
+     *
+     * @param string $code ISO 4217 currency code.
+     * @return void
+     */
+    protected function switch_base_currency(string $code): void
+    {
+        app()->make(CurrencyService::class)->ensure_base($code);
+        Money::load_base_currency();
+    }
+
+    /**
+     * Run a callback with another base currency, then put USD back as the base currency.
+     *
+     * Changing the base currency commits its own transaction, so the test's rollback does not undo it. This drops
+     * the temporary currency if it created it, restores USD and drops the cached MoneyManager, so later tests do
+     * not inherit the change.
+     *
+     * @param string   $code     ISO 4217 currency code to switch to.
+     * @param callable $callback Test steps to run under the new base currency.
+     * @return void
+     */
+    protected function with_base_currency(string $code, callable $callback): void
+    {
+        $existed = Currency::query()->where('code', $code)->count() > 0;
+
+        try {
+            $this->switch_base_currency($code);
+            $callback();
+        } finally {
+            $this->switch_base_currency('USD');
+
+            if (!$existed) {
+                Currency::query()->where('code', $code)->delete();
+            }
+
+            static::forget_singleton(MoneyManager::class);
+        }
     }
 
     /**
