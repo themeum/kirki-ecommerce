@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Jobs\SendUserMailJob;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerNewAccountMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerResetPasswordMail;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Wordpress\User;
 use Kirki\Ecommerce\Framework\Queue\QueueFake;
 use Kirki\Ecommerce\Framework\Queue\QueueManager;
 use Kirki\Ecommerce\Framework\Supports\Facades\Queue;
@@ -161,6 +162,45 @@ class CustomerAccountEmailsTest extends RestTestCase
         $this->assertSame(1, preg_match('/action=rp&key=([^&"]+)&login=([^"&\s]+)/', $body, $matches));
         $this->assertSame($user->user_login, rawurldecode($matches[2]));
         $this->assertInstanceOf(\WP_User::class, check_password_reset_key($matches[1], $user->user_login));
+    }
+
+    /**
+     * The email subject is plain text, so escaped shortcode values are decoded.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_subject_decodes_escaped_shortcode_values(): void
+    {
+        update_option('blogname', 'Tom & Jerry');
+        $user = $this->create_user('subscriber');
+
+        $mail = CustomerNewAccountMail::make(new User($user->ID))
+            ->with_email_settings_overrides(['subject' => 'Welcome to {site_title}']);
+
+        $this->assertSame('Welcome to Tom & Jerry', $mail->subject());
+    }
+
+    /**
+     * HTML in a stored shortcode value is escaped in the email body.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_preview_escapes_html_in_shortcode_values(): void
+    {
+        global $wpdb;
+
+        $user = $this->create_user('subscriber');
+        $wpdb->update($wpdb->users, ['display_name' => '<b>x</b>'], ['ID' => $user->ID]);
+        clean_user_cache($user->ID);
+
+        $html = CustomerNewAccountMail::make(new User($user->ID))
+            ->with_email_settings_overrides(['message' => '{full_name}'])
+            ->get_preview_html();
+
+        $this->assertStringContainsString('&lt;b&gt;x&lt;/b&gt;', $html);
+        $this->assertStringNotContainsString('<b>x</b>', $html);
     }
 
     /**
