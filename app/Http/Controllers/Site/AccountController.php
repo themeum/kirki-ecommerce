@@ -268,12 +268,10 @@ class AccountController
      */
     public function reviews(Request $request, ReviewService $review_service)
     {
-        $this->ensure_user_logged_in();
-
         $user = wp_get_current_user();
         $paginator = $review_service->get_customer_reviews(
-            (int) $user->ID,
-            (string) $user->user_email,
+            $user && !empty($user->ID) ? (int) $user->ID : null,
+            $user && !empty($user->user_email) ? (string) $user->user_email : '',
             $request->int('page', 1),
             $this->list_limit
         );
