@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Constants\Cart;
+use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
@@ -18,9 +19,11 @@ use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\App\Models\Coupon as CouponModel;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
+use Kirki\Ecommerce\Tests\Support\CountsCurrencyQueries;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -30,6 +33,7 @@ use function Kirki\Ecommerce\Framework\uuid;
 
 class CartApiTest extends RestTestCase
 {
+    use CountsCurrencyQueries;
     use CreatesTestProducts;
     use SeedsTestShipping;
 
@@ -853,6 +857,44 @@ class CartApiTest extends RestTestCase
         $this->assertNull($item['display_strikethrough_price_money_object']);
         $this->assertEquals(29.99, $item['display_subtotal_money_object']['raw']);
         $this->assertSame([], $item['applied_product_coupons']);
+    }
+
+    /**
+     * A cart priced in a display currency reads the currencies table at most once.
+     *
+     * Before the currency data was cached, each amount in the cart response queried the exchange rate again.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_cart_with_a_display_currency_reads_the_currencies_table_at_most_once(): void
+    {
+        $this->assert_api_success($this->request('POST', 'currencies', ['items' => [[
+            'code' => 'EUR',
+            'name' => 'Euro',
+            'symbol' => '€',
+            'exchange_rate' => 0.9,
+            'is_active' => true,
+            'is_base' => false,
+        ]]]), 201);
+
+        // The display currency is read once per request and kept, so the cookie must be set before any response reads it.
+        $_COOKIE[CookieNames::CURRENCY] = 'EUR';
+
+        try {
+            $this->prepare_variant();
+            $this->add_cart_item(2);
+            app(CurrencyService::class)->flush_cache();
+
+            $this->start_counting_currency_queries();
+            $cart = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
+            $this->stop_counting_currency_queries();
+        } finally {
+            unset($_COOKIE[CookieNames::CURRENCY]);
+        }
+
+        $this->assertSame('EUR', $cart['items'][0]['display_subtotal_money_object']['currency']['code']);
+        $this->assert_currency_queries_at_most(1, 'Cart request.');
     }
 
     public function test_display_price_strikes_through_regular_price_when_only_a_sale_is_active(): void

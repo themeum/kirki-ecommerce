@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Migration\Sources\WooCommerce;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
@@ -347,7 +348,7 @@ class WooCommerceDatabase
         $meta = [];
 
         foreach ($this->rows(DB::table('postmeta')->where_in('post_id', $post_ids)->where_in('meta_key', $keys)->select(['post_id', 'meta_key', 'meta_value'])->get()) as $row) {
-            $meta[(int) $row['post_id']][$row['meta_key']] = maybe_unserialize($row['meta_value']);
+            $meta[(int) $row['post_id']][$row['meta_key']] = Sanitizer::apply_rule($row['meta_value'], Sanitizer::UNSERIALIZED);
         }
 
         return $meta;

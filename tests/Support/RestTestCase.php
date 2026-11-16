@@ -2,14 +2,16 @@
 
 namespace Kirki\Ecommerce\Tests\Support;
 
+use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Settings\SettingsFactory;
 use Kirki\Ecommerce\Framework\Facade;
 use Kirki\Ecommerce\Framework\Managers\OptionManager;
-use Kirki\Ecommerce\Framework\Route;
 use WP_UnitTestCase;
 
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\migrator;
 
 abstract class RestTestCase extends WP_UnitTestCase
@@ -61,8 +63,8 @@ abstract class RestTestCase extends WP_UnitTestCase
         $this->reset_facade_cache();
         $this->reset_settings_factory_cache();
         $this->reset_option_manager_cache();
-        $this->reset_route_instance_cache();
         static::forget_singleton(PaymentManager::class);
+        static::reset_currency_state();
 
         parent::tearDown();
     }
@@ -105,23 +107,6 @@ abstract class RestTestCase extends WP_UnitTestCase
     {
         $reflection = new \ReflectionClass(OptionManager::class);
         $property = $reflection->getProperty('cache');
-        $property->setAccessible(true);
-        $property->setValue(null, []);
-    }
-
-    /**
-     * Reset the router's static cache of controller and service instances.
-     *
-     * A cached service keeps the settings object it was built with, so without
-     * this a later test is served an earlier test's state.
-     *
-     * @return void
-     * @since 1.0.0
-     */
-    protected function reset_route_instance_cache(): void
-    {
-        $reflection = new \ReflectionClass(Route::class);
-        $property = $reflection->getProperty('instances');
         $property->setAccessible(true);
         $property->setValue(null, []);
     }
@@ -178,5 +163,21 @@ abstract class RestTestCase extends WP_UnitTestCase
         migrator()->fresh();
         migrator()->run();
         static::forget_singleton(ShippingService::class);
+        static::reset_currency_state();
+    }
+
+    /**
+     * Clear the cached currency data and forget the money manager.
+     *
+     * They live for the whole PHP process, but each test's database changes are
+     * rolled back, so a kept copy would serve rows an earlier test wrote.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected static function reset_currency_state(): void
+    {
+        app(CurrencyService::class)->flush_cache();
+        static::forget_singleton(MoneyManager::class);
     }
 }
