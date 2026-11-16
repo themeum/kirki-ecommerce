@@ -286,6 +286,7 @@ class OrderEditApiTest extends RestTestCase
         $order = $this->create_order(['currency_code' => $code]);
 
         Currency::query()->where('code', $code)->update(['exchange_rate' => 1.5]);
+        app(CurrencyService::class)->flush_cache();
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload(['currency_code' => $code, 'items' => [$this->line($order, 2)]])));
 
@@ -1734,6 +1735,7 @@ class OrderEditApiTest extends RestTestCase
 
         if (Currency::query()->where('code', $code)->count() > 0) {
             Currency::query()->where('code', $code)->update(['exchange_rate' => $exchange_rate, 'is_active' => true]);
+            app(CurrencyService::class)->flush_cache();
 
             return $code;
         }

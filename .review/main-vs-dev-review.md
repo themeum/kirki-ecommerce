@@ -6,27 +6,28 @@
 
 ## Verification
 
-| | before | after |
-|---|---|---|
+|                                          | before                | after                    |
+| ---------------------------------------- | --------------------- | ------------------------ |
 | PHP integration (`composer test:docker`) | 22 failures, 3 errors | **4 failures, 0 errors** |
-| Frontend (`npm test`, `resources/app`) | 669 passed | 669 passed |
+| Frontend (`npm test`, `resources/app`)   | 669 passed            | 669 passed               |
 
 The 4 remaining failures all exist on `main` and exercise code this branch does not
 touch — see [Not fixed](#not-fixed) below.
 
 ### Withdrawn after review feedback
 
-| Item | Reason |
-|---|---|
-| Open redirect in `handle_login` | Not an issue. `redirect()` returns a `RedirectResponse` whose `send()` uses `wp_safe_redirect()` (`libraries/framework/Http/RedirectResponse.php:84`). |
-| Guest cart merge overwrites quantity | Intentional — guest quantity wins by design. |
-| Migrations edited in place / no upgrade path | Handled on a separate branch. |
+| Item                                         | Reason                                                                                                                                                 |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Open redirect in `handle_login`              | Not an issue. `redirect()` returns a `RedirectResponse` whose `send()` uses `wp_safe_redirect()` (`libraries/framework/Http/RedirectResponse.php:84`). |
+| Guest cart merge overwrites quantity         | Intentional — guest quantity wins by design.                                                                                                           |
+| Migrations edited in place / no upgrade path | Handled on a separate branch.                                                                                                                          |
 
 ---
 
 ## Fixed
 
 ### 1. Reflected XSS in the login form's hidden `redirect` field — CRITICAL
+
 `resources/views/site/login.php:61`
 
 `request('redirect', '')` was echoed raw into an HTML attribute, so
@@ -34,6 +35,7 @@ touch — see [Not fixed](#not-fixed) below.
 origin. **Fix:** wrapped in `esc_url()`.
 
 ### 2. Duplicating a coupon dropped its discount amount — HIGH
+
 `app/Actions/Coupon/DuplicateCouponAction.php`
 
 The coupons table has no `discount_amount` column (the value lives in
@@ -44,6 +46,7 @@ that matches `discount_value_type`. Covered by a new assertion in
 `tests/Integration/CouponApiTest.php`.
 
 ### 3. `null` coupon datetimes stored as "now" — HIGH
+
 `app/helpers.php`
 
 `to_utc_datetime_string()` had no empty guard and `Somoy::parse(null)` resolves to
@@ -55,6 +58,7 @@ also named the wrong FQN (`Kirki\Ecommerce\…` instead of `Kirki\Ecommerce\App\
 and were corrected at the same time.
 
 ### 4. Percentage coupons could be created but not updated — HIGH
+
 `app/Http/Requests/Coupon/CouponUpdateRequest.php:41`
 
 `discount_amount` was validated as `integer` on update but `number` on create, so a
@@ -62,16 +66,17 @@ and were corrected at the same time.
 uses `number`, matching create.
 
 ### 5. Checkout customer provisioning ran for orders that have no customer — HIGH
+
 `app/Actions/Order/CreateOrderAction.php`
 
 The `!$dto->is_manual && !empty($dto->created_by)` guard had been dropped, so
 `resolve_checkout_customer_id()` ran unconditionally. Two live failures resulted:
 
-- a **manual** order with no customer picked provisioned a Customer from the *admin's*
+- a **manual** order with no customer picked provisioned a Customer from the _admin's_
   WordPress user and linked the order to it;
 - a **guest** checkout (no `created_by`) fell through to `create_customer_action`,
-  which died on `wp_insert_user` with *"Cannot create a user with an empty login
-  name"*, or violated the `customers_created_by_foreign` FK.
+  which died on `wp_insert_user` with _"Cannot create a user with an empty login
+  name"_, or violated the `customers_created_by_foreign` FK.
 
 **Fix:** resolve a customer only when there is one to resolve —
 `!empty($dto->customer_id) || (!$dto->is_manual && !empty($dto->created_by))`. This
@@ -83,7 +88,7 @@ This fixed 4 previously failing integration tests (`Checkout guest order has no
 customer`, `Order customer contact uses billing for guest checkout`, `Checkout
 empties guest cart by token`, `Checkout rejects consumed guest cart token`).
 
-> **Partially addressed:** the customer/address writes still happen *outside* the
+> **Partially addressed:** the customer/address writes still happen _outside_ the
 > order transaction, so a later failure (e.g. out-of-stock) leaves them committed.
 > Full atomicity is not fixable here: `Connection::begin_transaction()` issues a
 > bare `START TRANSACTION` with no savepoint/nesting support, and
@@ -92,12 +97,14 @@ empties guest cart by token`, `Checkout rejects consumed guest cart token`).
 > failure paths; proper nesting needs framework support and is filed as follow-up.
 
 ### 6. Submit buttons never disabled during submission — MEDIUM
+
 `resources/views/site/login.php:92`, `resources/views/site/register.php:112`
 
 `:disable` → **`:disabled`**. The typo let a double-click fire two `wp_insert_user`
 requests.
 
 ### 7. `echo printf(...)` printed the byte count after the order number — MEDIUM
+
 `resources/views/site/account/order-details.php:76`
 
 "Order #1005" rendered as "Order #100512". **Fix:** dropped the redundant `echo`,
@@ -105,19 +112,22 @@ escaped the order number, and wrapped the two adjacent badge-class attributes in
 `esc_attr()`.
 
 ### 8. `to_date`-only filters ignored; end day truncated — MEDIUM
+
 `app/Traits/HasDateRangeFilter.php`
 
 The outer `when(!empty($from_date))` made a `to_date`-only filter a silent no-op
-(returning the *unfiltered* list), and `to_utc_datetime_string('2026-08-21')` yields
+(returning the _unfiltered_ list), and `to_utc_datetime_string('2026-08-21')` yields
 `00:00:00`, so a same-day filter matched almost nothing. **Fix:** the two bounds are
 now independent, and the range is widened with `start_of_day()` / `end_of_day()` in
 the site timezone before conversion to UTC — matching what the admin date-range
 picker actually sends (`formatDateValue` → `yyyy-MM-dd`).
 
 ### 9. Square webhook HMAC compared with `===` — MEDIUM
+
 `payments/kirki-square/src/SquareClient.php:52` → `hash_equals()`.
 
 ### 10. Order-details ownership check passed when both IDs were `NULL` — MEDIUM
+
 `app/Http/Controllers/Site/AccountController.php`
 
 A logged-in user with no Customer record satisfied `null !== null === false` for
@@ -125,12 +135,14 @@ every order with a `NULL` `customer_id`. **Fix:** reject outright when
 `get_customer_id()` is empty.
 
 ### 11. N+1 query on the account order list — MEDIUM
+
 `app/Resources/Site/Order/OrderListResource.php`, `app/Services/OrderService.php`
 
 `get_items_images()` called `$this->items()->get()` per row. **Fix:** use the loaded
 `$this->items` relation and eager load `items` in `get_current_customer_orders()`.
 
 ### 12. Viewing a past order re-opened a live gateway payment session — MEDIUM
+
 `app/Resources/Site/Order/OrderResource.php`
 
 `Payment::pay()` runs on every render of this resource, which the branch newly wired
@@ -145,6 +157,7 @@ preserving the retry path for `unpaid`/`failed`.
 ## Found while verifying (not in the original review)
 
 ### 13. Creating a tax or shipping profile always failed — HIGH
+
 `app/Http/Requests/{TaxProfile,ShippingProfile}/*`, `app/DTO/{TaxProfile,ShippingProfile}/*`
 
 The `is_default` field added by this branch had two defects that compounded:
@@ -154,13 +167,14 @@ The `is_default` field added by this branch had two defects that compounded:
    omitting the field 422'd;
 2. once past validation, the DTO property defaulted to `null` while the column is
    `boolean NOT NULL DEFAULT 0`, producing
-   *"Column 'is_default' cannot be null"* — a 500.
+   _"Column 'is_default' cannot be null"_ — a 500.
 
 **Fix:** `|nullable` on the three rules added by this branch, and `= false` on all four
 DTO properties (matching how `CreateCouponDTO`/`UpdateCouponDTO` declare their booleans).
 This turned 18 failing tax/shipping-profile tests green.
 
 ### 14. Free-shipping and buy-x-get-y coupons were silently never applied — HIGH
+
 `app/Services/DiscountService.php`
 
 The new `validate_items_eligibility()` ran `get_eligible_items()` for every coupon, but
@@ -175,6 +189,7 @@ This fixed `Checkout accepts first time buyer coupon for new customer` and
 `Checkout accepts customer usage limit coupon for new customer`.
 
 ### Also corrected
+
 - `tests/Integration/CouponApiTest.php:318` asserted `$duplicated['customers']` was a
   list of IDs, but `CouponResource` was changed in this branch to return
   `CustomerInfoResource::collection(...)`. The sibling `categories`/`products`
@@ -188,9 +203,9 @@ Four integration tests still fail. **All four exist on `main`** and exercise cod
 branch does not modify, so they are outside the scope of this review — and both root
 causes are decisions rather than clear defects:
 
-| Test | Root cause |
-|---|---|
-| `Create refund on order` | `CreateRefundAction` requires `payment_status = paid` **and** `fulfillment_status ∈ {delivered, cancelled}`; the test refunds a freshly created order. The action carries a `// @todo: need to fix this`. Whether the guard or the test is wrong is a product decision. |
+| Test                                                                                                                                                | Root cause                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Create refund on order`                                                                                                                            | `CreateRefundAction` requires `payment_status = paid` **and** `fulfillment_status ∈ {delivered, cancelled}`; the test refunds a freshly created order. The action carries a `// @todo: need to fix this`. Whether the guard or the test is wrong is a product decision.                                                                                                                                                                                                                                                                                                                         |
 | `Duplicate variant combination is rejected`<br>`Update without attribute values is rejected`<br>`Variant referencing an unlisted value is rejected` | All three fail on a shared helper at `ProductApiTest.php:251`, creating an attribute value. `AttributeValueCreateRequest` declares `unique:kirki_ecommerce_attribute_values,value` (**globally** unique) while the migration declares `unique(['attribute_id', 'value'])` (unique **per attribute**). Two attributes can therefore never both have a value "Red". The framework's `UniqueRule` supports only `table,column,ignore_id`, so fixing this needs either a scoped-unique rule in `libraries/framework` (vendored — CLAUDE.md says do not hand-edit) or a custom check in the request. |
 
 ## Remaining minor items (not addressed)
@@ -206,7 +221,7 @@ causes are decisions rather than clear defects:
   `app/Concerns/` exists and the new `HasCartToken` trait went there correctly.
 - **`app/Supports/Url.php:159,161`** — uses `self::` where the standard is `static::`,
   and `urlencode($redirect)` is applied before the query-param builder encodes it again.
-- **`app/Services/MiniCartService.php:27`** — method name typo: `get_mimi_cart_html`.
+- **`app/Services/MiniCartService.php:27`** — method name typo: `get_mini_cart_html`.
 - **`app/Services/CustomerService.php:151-155`** — unreachable `if (empty($customer))`
   after `find()`, which already throws.
 - **`CouponService::delete_all()` / `CustomerService::delete_all()`** call `->delete()`
