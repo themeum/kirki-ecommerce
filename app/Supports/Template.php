@@ -13,8 +13,10 @@ namespace Kirki\Ecommerce\App\Supports;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\Category;
+use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
@@ -52,6 +54,21 @@ class Template
     public static function is_block_theme(): bool
     {
         return function_exists('wp_is_block_theme') && wp_is_block_theme();
+    }
+
+    /**
+     * Check if a template should be overridden by other plugins.
+     *
+     * @since 1.0.2
+     * 
+     * @param string  $name    Name of the template being rendered.
+     * @param Request $request The current request.
+     *
+     * @return string|null
+     */
+    public static function override(string $name, Request $request)
+    {
+        return apply_filters(DevHookNames::TEMPLATE_OVERRIDE, null, $name, $request);
     }
 
     /**
