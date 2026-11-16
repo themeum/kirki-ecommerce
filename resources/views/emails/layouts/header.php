@@ -4,6 +4,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Constants\EmailDefaultTemplate;
 
 $default_template = $data['default_template'] ?? [];
+$store_name = $data['store_name'] ?? $data['site_title'] ?? '';
 
 $logo_url = $default_template['logo_url'] ?? '';
 $height = $default_template['height'] ?? EmailDefaultTemplate::HEIGHT;
@@ -25,14 +26,14 @@ $headings_color = $default_template['colors']['typography']['headings'] ?? Email
         <?php if (!empty($logo_url)) : ?>
             <img
                 src="<?php echo esc_url($logo_url); ?>"
-                alt="<?php echo esc_attr(get_bloginfo('name')); ?>"
+                alt="<?php echo esc_attr($store_name); ?>"
                 data-email-part="logo"
                 style="height: <?php echo esc_attr($height); ?>; width: auto; display: inline-block; border: 0;" />
         <?php else : ?>
             <span
                 data-email-part="logo colors.typography.headings"
                 style="font-size: 18px; font-weight: 700; color: <?php echo esc_attr($headings_color); ?>;">
-                <?php echo esc_html(get_bloginfo('name')); ?>
+                <?php echo esc_html($store_name); ?>
             </span>
         <?php endif; ?>
     </td>

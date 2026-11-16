@@ -4,11 +4,15 @@ namespace Kirki\Ecommerce\App\Mails;
 
 defined('ABSPATH') || exit;
 
+use DateTimeInterface;
 use InvalidArgumentException;
+use Kirki\Ecommerce\App\Constants\DateTimeFormats;
 use Kirki\Ecommerce\App\Contracts\Mailable;
 use Kirki\Ecommerce\App\Parsers\ShortcodeParser;
 use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Supports\Arr;
+use Kirki\Ecommerce\Framework\View\View;
 
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\view;
@@ -25,6 +29,12 @@ abstract class Mailer implements Mailable
 
     /** @var array<string, mixed> */
     protected $email_settings_overrides = [];
+
+    /** @var string[] */
+    protected $reserved_variables = ['header', 'body', 'footer', 'heading', 'additional_description', 'subject'];
+
+    /** @var array<string, mixed> */
+    protected $variables;
 
     /**
      * Create a new instance of the concrete mail.
@@ -138,7 +148,9 @@ abstract class Mailer implements Mailable
     {
         $subject = $this->get_email_settings_value('subject');
 
-        return ShortcodeParser::create()->with($this->get_variables())->parse($subject);
+        $parsed = ShortcodeParser::create()->with($this->get_shortcode_variables())->parse($subject);
+
+        return wp_specialchars_decode($parsed, ENT_QUOTES);
     }
 
     /**
@@ -181,6 +193,42 @@ abstract class Mailer implements Mailable
     }
 
     /**
+     * Build the escaped default and notification variables.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed>
+     */
+    protected function prepare_variables()
+    {
+        $general_settings = Settings::get('general');
+        $email_settings = Settings::get('email');
+        $country_code = $general_settings->get('store_address.country');
+        $state_id = $general_settings->get('store_address.state');
+
+        $default_variables = [
+            'heading' => $this->get_email_settings_value('heading'),
+            'body' => $this->get_email_settings_value('message'),
+            'additional_description' => $email_settings->get('default_template.additional_description') ?? '',
+            'footer' => $email_settings->get('default_template.footer') ?? '',
+            'site_title' => get_bloginfo('name'),
+            'store_name' => $general_settings->get('store_name'),
+            'store_email' => $general_settings->get('store_email'),
+            'store_phone' => $general_settings->get('store_phone'),
+            'store_address' => collection([
+                $general_settings->get('store_address.address_line_1'),
+                $general_settings->get('store_address.address_line_2'),
+                $general_settings->get('store_address.city'),
+                CountryData::get_state_name((string) $country_code, $state_id) ?? $state_id,
+                CountryData::get_country_name((string) $country_code) ?? $country_code,
+                $general_settings->get('store_address.postal_code'),
+            ])->filter(fn($value) => !empty($value))->join(', '),
+        ];
+
+        return $this->esc_template_data(array_merge($default_variables, $this->with()));
+    }
+
+    /**
      * Get all variables available to the email template and shortcodes.
      *
      * Combines heading, body, footer and store details with the notification's own variables.
@@ -191,34 +239,22 @@ abstract class Mailer implements Mailable
      */
     public function get_variables()
     {
-        $general_settings = Settings::get('general');
-        $country_code = $general_settings->get('store_address.country');
-        $state_id = $general_settings->get('store_address.state');
+        return $this->variables ??= $this->prepare_variables();
+    }
 
-        $settings = Settings::get('email');
-        $heading = $this->get_email_settings_value('heading');
-        $body = $this->get_email_settings_value('message');
-
-        $default_variables = [
-            'heading' => $heading,
-            'body' => $body,
-            'additional_description' => $settings->get('default_template.additional_description') ?? '',
-            'footer' => $settings->get('default_template.footer') ?? '',
-            'site_title' => get_bloginfo('name'),
-            'store_name' => $general_settings->get('store_name'),
-            'store_email' => $general_settings->get('store_email'),
-            'store_phone' => $general_settings->get('store_phone'),
-            'store_address' => collection([
-                'address_line_1' => $general_settings->get('store_address.address_line_1'),
-                'address_line_2' => $general_settings->get('store_address.address_line_2'),
-                'city' => $general_settings->get('store_address.city'),
-                'state' => CountryData::get_state_name((string) $country_code, $state_id) ?? $state_id,
-                'country' => CountryData::get_country_name((string) $country_code) ?? $country_code,
-                'postal_code' => $general_settings->get('store_address.postal_code'),
-            ])->filter(fn($value) => !empty($value))->join(', '),
-        ];
-
-        return array_merge($default_variables, $this->with());
+    /**
+     * Get the scalar variables the shortcode parser may replace, without the reserved variables.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed>
+     */
+    protected function get_shortcode_variables()
+    {
+        return Arr::where(
+            $this->get_variables(),
+            fn($value, $key) => (is_scalar($value) && !in_array($key, $this->reserved_variables, true))
+        );
     }
 
     /**
@@ -234,7 +270,7 @@ abstract class Mailer implements Mailable
 
         $body = view($this->template(), array_merge(['default_template' => $default_template], $this->get_variables()))->layout(false)->__toString();
 
-        return ShortcodeParser::create()->with($this->get_variables())->parse($body);
+        return ShortcodeParser::create()->with($this->get_shortcode_variables())->parse($body);
     }
 
     /**
@@ -292,11 +328,13 @@ abstract class Mailer implements Mailable
             throw new InvalidArgumentException(esc_html__('The recipient email address is empty.', 'kirki-ecommerce'));
         }
 
-        if (empty($this->subject())) {
+        $subject = $this->subject();
+
+        if (empty($subject)) {
             throw new InvalidArgumentException(esc_html__('Email subject is required.', 'kirki-ecommerce'));
         }
 
-        return wp_mail($to, $this->subject(), $this->body(), $this->headers(), $this->attachments());
+        return wp_mail($to, $subject, $this->body(), $this->headers(), $this->attachments());
     }
 
     /**
@@ -316,12 +354,53 @@ abstract class Mailer implements Mailable
      *
      * @param string               $template View name.
      * @param array<string, mixed> $data     Variables passed to the view.
-     * @return string
+     * @return View
      */
     protected function get_content(string $template, array $data = [])
     {
         $default_template = $this->get_default_template_settings();
 
-        return view($template, array_merge(['default_template' => $default_template], $data))->layout(false)->__toString();
+        return view($template, array_merge(['default_template' => $default_template], $data))->layout(false);
+    }
+
+    /**
+     * Escape template variables for HTML output.
+     *
+     * Rendered views become strings, URLs use esc_url() and other scalars use esc_html().
+     * Reserved variables keep their raw value.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Template variables.
+     * @return array<string, mixed>
+     */
+    protected function esc_template_data(array $data)
+    {
+        foreach ($data as $key => $value) {
+            if (in_array($key, $this->reserved_variables, true)) {
+                continue;
+            }
+
+            if (is_null($value)) {
+                $data[$key] = '';
+                continue;
+            }
+
+            if ($value instanceof DateTimeInterface) {
+                $data[$key] = $value->format(DateTimeFormats::HUMAN_READABLE_FULL_DATE);
+                continue;
+            }
+
+            if ($value instanceof View) {
+                $data[$key] = $value->__toString();
+                continue;
+            }
+
+            if (is_scalar($value)) {
+                $data[$key] = filter_var($value, FILTER_VALIDATE_URL) !== false ? esc_url($value) : esc_html($value);
+            }
+        }
+
+        return $data;
     }
 }
