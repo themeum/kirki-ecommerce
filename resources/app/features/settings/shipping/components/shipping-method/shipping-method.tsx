@@ -1,5 +1,4 @@
-import { type Dispatch, type SetStateAction, useMemo } from 'react';
-import { useNavigate } from 'react-router';
+import { type Dispatch, type SetStateAction, useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
@@ -16,7 +15,7 @@ import {
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
-import { RouteConfig } from '@/config/route-config';
+import ShippingMethodDialog from '@/features/settings/shipping/components/shipping-method/shipping-method-dialog';
 import {
   getShippingMethodRightText,
   getShippingMethodSubText,
@@ -30,13 +29,8 @@ import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import { uuid } from '@/utils';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
-
-const ShippingMethodRoute = RouteConfig.Settings.get('ShippingSettings')
-  .get('ShippingZone')
-  .get('ShippingDeliveryMethod');
 
 type ShippingMethodProps = {
   shippingSettingsData: ShippingSettings | null | undefined;
@@ -53,7 +47,9 @@ export const ShippingMethod = ({
   shippingZonesObj,
   zoneId = null,
 }: ShippingMethodProps) => {
-  const navigate = useNavigate();
+  const [dialogState, setDialogState] = useState<{ method: ShippingMethodData | null } | null>(
+    null,
+  );
   const baseCurrencySymbol = useBaseCurrencySymbol();
 
   const shippingMethodListWithIcon = useMemo(() => {
@@ -98,14 +94,14 @@ export const ShippingMethod = ({
   };
 
   const handleEditDeliveryMethod = (item: ShippingMethodData) => {
-    void navigate(ShippingMethodRoute.buildLink({ zone_id: item.zoneId, method_id: item.id }));
+    setDialogState({ method: item });
   };
 
   const handleAddMethod = () => {
     if (!isDefined(zoneId)) {
       return;
     }
-    void navigate(ShippingMethodRoute.buildLink({ zone_id: zoneId, method_id: uuid() }));
+    setDialogState({ method: null });
   };
 
   return (
@@ -119,6 +115,7 @@ export const ShippingMethod = ({
               'kirki-ecommerce',
             )}
             buttonText={__('Add', 'kirki-ecommerce')}
+            buttonVariant="primary"
             onAdd={handleAddMethod}
           />
 
@@ -182,6 +179,15 @@ export const ShippingMethod = ({
         </CardContent>
       </Card>
       {deleteConfirmation}
+      {dialogState && isDefined(zoneId) && (
+        <ShippingMethodDialog
+          zoneId={zoneId}
+          method={dialogState.method}
+          shippingZones={shippingZonesObj}
+          onClose={() => setDialogState(null)}
+          onSaved={setShippingZonesObj}
+        />
+      )}
     </div>
   );
 };

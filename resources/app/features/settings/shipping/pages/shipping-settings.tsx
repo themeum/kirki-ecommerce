@@ -24,6 +24,7 @@ import { RouteConfig } from '@/config/route-config';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import ShippingZoneActions from '@/features/settings/shipping/components/actions/shipping-zone-actions';
 import ShippingBox from '@/features/settings/shipping/components/shipping-box/shipping-box';
+import ShippingMethodDialog from '@/features/settings/shipping/components/shipping-method/shipping-method-dialog';
 import ShippingProfile from '@/features/settings/shipping/components/shipping-profile/shipping-profile';
 import { useShippingSettings } from '@/features/settings/shipping/hooks/use-shipping-settings';
 import {
@@ -57,6 +58,8 @@ const ShippingSettings = () => {
     setShowCreateZonePopup,
     popupErrors,
     isSaving,
+    editingMethod,
+    closeMethodDialog,
     getShippingMethodData,
     handleToggleMethod,
     handleEditMethod,
@@ -249,6 +252,14 @@ const ShippingSettings = () => {
           disabledRegions={usedRegions}
           onDone={handleCreateZone}
           errors={popupErrors}
+        />
+      )}
+      {editingMethod && (
+        <ShippingMethodDialog
+          zoneId={editingMethod.zoneId}
+          method={editingMethod}
+          shippingZones={shippingZonesObj}
+          onClose={closeMethodDialog}
         />
       )}
     </>

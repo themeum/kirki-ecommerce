@@ -82,6 +82,7 @@ export default ItemsTable;
 
 const styles = defineStyles({
   itemsTable: {
+    userSelect: 'text',
     '& th, & td': {
       padding: '10px',
     },

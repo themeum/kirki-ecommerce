@@ -20,7 +20,7 @@ const RateByWeightSettings = () => {
     <Flex direction="column" gap={4}>
       <TextareaField
         name="description"
-        label={__('Pickup Instructions', 'kirki-ecommerce')}
+        label={__('Description', 'kirki-ecommerce')}
         placeholder={__('e.g., 3-5 business days', 'kirki-ecommerce')}
         rows={4}
       />

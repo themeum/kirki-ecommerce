@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Check, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useParams } from 'react-router';
-import { toast } from 'sonner';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
+import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
@@ -25,7 +25,6 @@ import {
   type ConditionDataMap,
   getConditionValueOptions,
   getOperatorOptions,
-  mergeRuleIntoMethodRules,
   resolveDestinationSelection,
 } from '@/features/settings/shipping/lib/shipping-rules/rule-form';
 import { actionOptionsArray, conditionOptions } from '@/features/settings/shipping/lib/utils';
@@ -44,40 +43,33 @@ import type {
 } from '@/features/settings/shipping/types';
 import { useBaseCurrencySymbol } from '@/hooks';
 import { LighteningIcon } from '@/icons/common';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { queryClient } from '@/libs/query-client';
-import { settingsKeys } from '@/libs/query-keys';
 import { useCountriesQuery } from '@/services/country';
-import { getErrorMessage } from '@/services/helpers';
-import { updateSettings, useSettingsQuery } from '@/services/settings';
+import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { noop } from '@/utils/function';
-import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
 type ShippingRuleFormCardProps = {
-  methodId: string | number;
+  zoneId: string | number;
   mode?: 'add' | 'edit';
   initialRule?: ShippingRule;
-  ruleIndex?: number;
   onCancel: () => void;
+  onSubmit: (rule: ShippingRuleFormPayload) => void;
   onSaved: () => void;
   storeWeightUnit: string;
 };
 
 const ShippingRuleFormCard = ({
-  methodId,
+  zoneId,
   mode = 'add',
   initialRule,
-  ruleIndex = -1,
   onCancel,
+  onSubmit,
   onSaved,
   storeWeightUnit,
 }: ShippingRuleFormCardProps) => {
-  const { zone_id: zoneId } = useParams();
   const baseCurrencySymbol = useBaseCurrencySymbol();
 
   const [openDestinationPopup, setOpenDestinationPopup] = useState(false);
@@ -174,7 +166,7 @@ const ShippingRuleFormCard = ({
           shippingSettingsData: shippingSettingsData as {
             shipping_zones?: ShippingZone[];
           },
-          methodID: methodId,
+          methodID: null,
           setSelectedRegion: setSelectedRegion as (regions: unknown) => void,
           activeZoneId: zoneId,
         });
@@ -188,55 +180,13 @@ const ShippingRuleFormCard = ({
     categoryData,
     shippingProfile,
     shippingSettingsData,
-    methodId,
     zoneId,
     conditionData,
   ]);
 
-  const handleSave = async (payload: ShippingRuleFormPayload) => {
-    if (!isDefined(zoneId)) {
-      return;
-    }
-
-    const zones = (shippingSettingsData as { shipping_zones: ShippingZone[] }).shipping_zones;
-    const updatedShippingZones = zones.map((zone) => {
-      if (String(zone.id) !== String(zoneId)) {
-        return zone;
-      }
-
-      return {
-        ...zone,
-        shipping_methods: zone.shipping_methods.map((method) => {
-          if (method.id !== methodId) {
-            return method;
-          }
-
-          return {
-            ...method,
-            shipping_rules: mergeRuleIntoMethodRules(method.shipping_rules, payload, ruleIndex),
-          };
-        }),
-      };
-    });
-
-    try {
-      await updateSettings({
-        key: 'shipping',
-        data: { shipping_zones: updatedShippingZones },
-      });
-      void queryClient.invalidateQueries({
-        queryKey: settingsKeys.section('shipping'),
-      });
-      toast.success(__('Shipping rule updated', 'kirki-ecommerce'));
-      onSaved();
-    } catch (error) {
-      const errObj = error as ErrorResponse & { message?: string };
-      if (errObj?.errors) {
-        applyServerErrors(form, errObj);
-      } else {
-        toast.error(getErrorMessage(error));
-      }
-    }
+  const handleSave = (payload: ShippingRuleFormPayload) => {
+    onSubmit(payload);
+    onSaved();
   };
 
   const conditionSelectOptions = conditionOptions.map((option) => {
@@ -277,19 +227,46 @@ const ShippingRuleFormCard = ({
     <>
       <Card
         data-search-skip="true"
-        cssOverride={mergeCss(cardStyles.formCard, styles.dashedCard)}
+        cssOverride={mergeCss(
+          cardStyles.formCard,
+          mode === 'edit' ? styles.editRuleCard : styles.addRuleCard,
+        )}
         noShadow
       >
         <CardContent>
           <Form {...form}>
             <Flex direction="column" gap={4}>
-              <Flex gap={2} align="center">
-                <LighteningIcon />
-                <Text weight="medium">
-                  {mode === 'edit'
-                    ? __('Edit Shipping Rule', 'kirki-ecommerce')
-                    : __('New Shipping Rule', 'kirki-ecommerce')}
-                </Text>
+              <Flex align="center" justify="space-between">
+                <Flex gap={2} align="center">
+                  <LighteningIcon />
+                  <Text weight="medium">
+                    {mode === 'edit'
+                      ? __('Edit Shipping Rule', 'kirki-ecommerce')
+                      : __('New Shipping Rule', 'kirki-ecommerce')}
+                  </Text>
+                </Flex>
+                <ActionGroup>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={__('Discard rule', 'kirki-ecommerce')}
+                    onClick={onCancel}
+                  >
+                    <X />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon-sm"
+                    aria-label={
+                      mode === 'edit'
+                        ? __('Update rule', 'kirki-ecommerce')
+                        : __('Add rule', 'kirki-ecommerce')
+                    }
+                    onClick={form.handleSubmit(handleSave)}
+                  >
+                    <Check />
+                  </Button>
+                </ActionGroup>
               </Flex>
               <Flex direction="column" gap={2}>
                 <Text>{__('IF', 'kirki-ecommerce')}</Text>
@@ -347,14 +324,6 @@ const ShippingRuleFormCard = ({
                   )}
                 </Grid>
               </Flex>
-              <Flex justify="end" gap={2}>
-                <Button variant="secondary" onClick={onCancel}>
-                  {__('Cancel', 'kirki-ecommerce')}
-                </Button>
-                <Button variant="primary" onClick={form.handleSubmit(handleSave)}>
-                  {mode === 'edit' ? __('Update', 'kirki-ecommerce') : __('Add', 'kirki-ecommerce')}
-                </Button>
-              </Flex>
             </Flex>
           </Form>
         </CardContent>
@@ -395,7 +364,12 @@ ShippingRuleFormCard.displayName = 'ShippingRuleFormCard';
 export default ShippingRuleFormCard;
 
 const styles = defineStyles({
-  dashedCard: {
+  addRuleCard: {
     border: `1px dashed ${theme.colors.border.default}`,
+  },
+  editRuleCard: {
+    backgroundColor: theme.colors.background.solidSurfaceAlt,
+    border: 'none',
+    borderRadius: theme.radius.none,
   },
 });

@@ -1,6 +1,5 @@
 import { Edit3, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import {
@@ -27,212 +26,159 @@ import {
   getOperatorLabel,
   resolveConditionValues,
 } from '@/features/settings/shipping/lib/shipping-rules/helper';
-import { saveShippingZones } from '@/features/settings/shipping/lib/utils';
+import { mergeRuleIntoMethodRules } from '@/features/settings/shipping/lib/shipping-rules/rule-form';
 import { useShippingProfilesQuery } from '@/features/settings/shipping/services/shipping';
-import type { ShippingRule, ShippingZone } from '@/features/settings/shipping/types';
-import { useBaseCurrencySymbol, useConfirmDelete } from '@/hooks';
+import type { ShippingRule } from '@/features/settings/shipping/types';
+import { useBaseCurrencySymbol } from '@/hooks';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 type ShippingRulesProps = {
-  methodId: string | number;
+  zoneId: string | number;
+  rules: ShippingRule[];
+  onChange: (rules: ShippingRule[]) => void;
 };
 
-export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
-  const { zone_id: zoneId } = useParams();
-
+export const ShippingRules = ({ zoneId, rules, onChange }: ShippingRulesProps) => {
   const [showAddCard, setShowAddCard] = useState(false);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
 
-  const [rulesObj, setRulesObj] = useState<ShippingRule[]>([]);
-  const { data: shippingSettingsData } = useSettingsQuery('shipping');
   const { data: categoryData } = useCategoriesQuery({ limit: -1 });
   const { data: shippingProfiles } = useShippingProfilesQuery({ limit: -1 });
-  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
   const baseCurrencySymbol = useBaseCurrencySymbol();
   const { data: countries } = useCountriesQuery({ limit: -1 });
   const { data: productSettings } = useSettingsQuery('product');
   const storeWeightUnit = (productSettings?.weight_unit as string | undefined) || 'kg';
 
-  useEffect(() => {
-    if (!shippingSettingsData?.shipping_zones || !methodId) {
-      return;
-    }
-    const zones = shippingSettingsData.shipping_zones as ShippingZone[];
-    if (!zones?.length) {
-      return;
-    }
-    let foundMethod = null;
+  const handleRemoveRule = (index: number) => {
+    onChange(rules.filter((_, idx) => idx !== index));
+  };
 
-    for (const zone of zones) {
-      const method = zone.shipping_methods?.find((m) => m.id === methodId);
+  const handleAddRule = () => {
+    setShowAddCard(true);
+    setEditingRuleIndex(null);
+  };
 
-      if (method) {
-        foundMethod = method;
-        break;
-      }
-    }
-    if (foundMethod) {
-      setRulesObj(foundMethod.shipping_rules ?? []);
-    }
-  }, [shippingSettingsData, methodId]);
-
-  const handleDeleteRules = (index: number) => {
-    confirmDelete(
-      {
-        title: __('Delete shipping rule?', 'kirki-ecommerce'),
-        description: __(
-          'This rule will no longer adjust shipping prices for this method. This cannot be undone.',
-          'kirki-ecommerce',
-        ),
-      },
-      () => {
-        const updatedRules = rulesObj.filter((_, idx) => idx !== index);
-        setRulesObj(updatedRules);
-
-        const zones = shippingSettingsData?.shipping_zones as ShippingZone[];
-        const updatedShippingZones = zones?.map((zone) => {
-          if (String(zone.id) !== String(zoneId)) {
-            return zone;
-          }
-
-          return {
-            ...zone,
-            shipping_methods: zone?.shipping_methods.map((method) => {
-              if (method.id !== methodId) {
-                return method;
-              }
-
-              return {
-                ...method,
-                shipping_rules: updatedRules,
-              };
-            }),
-          };
-        });
-
-        void saveShippingZones({
-          zones: updatedShippingZones,
-          shippingSettingsData,
-          toastMessage: __('Shipping rule deleted', 'kirki-ecommerce'),
-        });
-      },
-    );
+  const handleEditRule = (index: number) => {
+    setEditingRuleIndex(index);
+    setShowAddCard(false);
   };
 
   return (
-    <div>
-      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
-        <CardContent>
-          <HeaderActionsCard
-            header={__('Shipping Rules', 'kirki-ecommerce')}
-            subHeader={__(
-              'Define conditional rules to adjust shipping prices based on product type, weight, zone, or cart value.',
-              'kirki-ecommerce',
+    <Card
+      data-search-skip="true"
+      cssOverride={mergeCss(cardStyles.formCard, { border: 'none' })}
+      noShadow
+    >
+      <CardContent cssOverride={{ paddingInline: theme.spacing[0] }}>
+        <HeaderActionsCard
+          header={__('Shipping Rules', 'kirki-ecommerce')}
+          subHeader={__(
+            'Define conditional rules to adjust shipping prices based on product type, weight, zone, or cart value.',
+            'kirki-ecommerce',
+          )}
+          buttonText={__('Add', 'kirki-ecommerce')}
+          onAdd={handleAddRule}
+        />
+        {(showAddCard || rules.length > 0) && (
+          <Flex direction="column" gap={4} cssOverride={{ marginTop: theme.spacing[5] }}>
+            {showAddCard && (
+              <ShippingRuleFormCard
+                zoneId={zoneId}
+                mode="add"
+                onSubmit={(rule) => onChange(mergeRuleIntoMethodRules(rules, rule, -1))}
+                onCancel={() => setShowAddCard(false)}
+                onSaved={() => setShowAddCard(false)}
+                storeWeightUnit={storeWeightUnit}
+              />
             )}
-            buttonText={__('Add', 'kirki-ecommerce')}
-            onAdd={() => setShowAddCard(true)}
-          />
-          {(showAddCard || rulesObj.length > 0) && (
-            <Flex direction="column" gap={4} cssOverride={{ marginTop: theme.spacing[5] }}>
-              {showAddCard && (
-                <ShippingRuleFormCard
-                  methodId={methodId}
-                  mode="add"
-                  onCancel={() => setShowAddCard(false)}
-                  onSaved={() => setShowAddCard(false)}
-                  storeWeightUnit={storeWeightUnit}
-                />
-              )}
 
-              <RuleItems>
-                {rulesObj?.map((item, index) =>
-                  editingRuleIndex === index ? (
-                    <ShippingRuleFormCard
-                      key={index}
-                      methodId={methodId}
-                      mode="edit"
-                      initialRule={item}
-                      ruleIndex={index}
-                      onCancel={() => setEditingRuleIndex(null)}
-                      onSaved={() => setEditingRuleIndex(null)}
-                      storeWeightUnit={storeWeightUnit}
-                    />
-                  ) : (
-                    <RuleItem key={index} id={String(index)}>
-                      <RuleItemContent>
-                        <RuleItemConditions>
-                          <RuleItemCondition>
-                            <Text variant="small" weight="medium">
-                              {__('IF', 'kirki-ecommerce')}
-                            </Text>
-                            <Text variant="small" color="secondary">
-                              {sprintf(
-                                __('%1$s %2$s', 'kirki-ecommerce'),
-                                getConditionLabel(item?.conditions[0]?.type),
-                                getOperatorLabel(item?.conditions[0]?.operator),
-                              )}
-                            </Text>
-                            <RuleItemValues
-                              values={resolveConditionValues(
-                                item?.conditions[0],
-                                categoryData?.results ?? [],
-                                shippingProfiles ?? [],
-                                baseCurrencySymbol,
-                                countries ?? [],
-                                storeWeightUnit,
-                              )}
-                            />
-                            <Text variant="small" weight="medium">
-                              ,
-                            </Text>
-                          </RuleItemCondition>
-                        </RuleItemConditions>
-                        <RuleItemAction>
+            <RuleItems>
+              {rules.map((item, index) =>
+                editingRuleIndex === index ? (
+                  <ShippingRuleFormCard
+                    key={index}
+                    zoneId={zoneId}
+                    mode="edit"
+                    initialRule={item}
+                    onSubmit={(rule) => onChange(mergeRuleIntoMethodRules(rules, rule, index))}
+                    onCancel={() => setEditingRuleIndex(null)}
+                    onSaved={() => setEditingRuleIndex(null)}
+                    storeWeightUnit={storeWeightUnit}
+                  />
+                ) : (
+                  <RuleItem key={index} id={String(index)}>
+                    <RuleItemContent>
+                      <RuleItemConditions>
+                        <RuleItemCondition>
                           <Text variant="small" weight="medium">
-                            {__('Then', 'kirki-ecommerce')}
+                            {__('IF', 'kirki-ecommerce')}
                           </Text>
                           <Text variant="small" color="secondary">
-                            {getActionLabel(item?.action?.type)}
+                            {sprintf(
+                              __('%1$s %2$s', 'kirki-ecommerce'),
+                              getConditionLabel(item?.conditions[0]?.type),
+                              getOperatorLabel(item?.conditions[0]?.operator),
+                            )}
                           </Text>
-                          <Text variant="small" weight="medium" cssOverride={styles.accentText}>
-                            {getActionValue(item?.action, baseCurrencySymbol)}
+                          <RuleItemValues
+                            values={resolveConditionValues(
+                              item?.conditions[0],
+                              categoryData?.results ?? [],
+                              shippingProfiles ?? [],
+                              baseCurrencySymbol,
+                              countries ?? [],
+                              storeWeightUnit,
+                            )}
+                          />
+                          <Text variant="small" weight="medium">
+                            ,
                           </Text>
-                        </RuleItemAction>
-                      </RuleItemContent>
-                      <RuleItemActions>
-                        <ActionGroup>
-                          <Button
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => handleDeleteRules(index)}
-                          >
-                            <Trash2 />
-                          </Button>
+                        </RuleItemCondition>
+                      </RuleItemConditions>
+                      <RuleItemAction>
+                        <Text variant="small" weight="medium">
+                          {__('Then', 'kirki-ecommerce')}
+                        </Text>
+                        <Text variant="small" color="secondary">
+                          {getActionLabel(item?.action?.type)}
+                        </Text>
+                        <Text variant="small" weight="medium" cssOverride={styles.accentText}>
+                          {getActionValue(item?.action, baseCurrencySymbol)}
+                        </Text>
+                      </RuleItemAction>
+                    </RuleItemContent>
+                    <RuleItemActions>
+                      <ActionGroup>
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          onClick={() => handleRemoveRule(index)}
+                        >
+                          <Trash2 />
+                        </Button>
 
-                          <Button
-                            variant="outline"
-                            size="icon-sm"
-                            onClick={() => setEditingRuleIndex(index)}
-                          >
-                            <Edit3 />
-                          </Button>
-                        </ActionGroup>
-                      </RuleItemActions>
-                    </RuleItem>
-                  ),
-                )}
-              </RuleItems>
-            </Flex>
-          )}
-        </CardContent>
-      </Card>
-      {deleteConfirmation}
-    </div>
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          onClick={() => handleEditRule(index)}
+                        >
+                          <Edit3 />
+                        </Button>
+                      </ActionGroup>
+                    </RuleItemActions>
+                  </RuleItem>
+                ),
+              )}
+            </RuleItems>
+          </Flex>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

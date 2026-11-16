@@ -2,7 +2,7 @@ import { type CSSObject } from '@emotion/react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import {
   type ComponentPropsWithoutRef,
-  type ElementRef,
+  type ComponentRef,
   forwardRef,
   useCallback,
   useLayoutEffect,
@@ -21,7 +21,7 @@ type TabsListProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const TabsList = forwardRef<ElementRef<typeof TabsPrimitive.List>, TabsListProps>((props, ref) => {
+const TabsList = forwardRef<ComponentRef<typeof TabsPrimitive.List>, TabsListProps>((props, ref) => {
   const { cssOverride, children, ...rest } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
@@ -96,7 +96,7 @@ type TabsTriggerProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const TabsTrigger = forwardRef<ElementRef<typeof TabsPrimitive.Trigger>, TabsTriggerProps>(
+const TabsTrigger = forwardRef<ComponentRef<typeof TabsPrimitive.Trigger>, TabsTriggerProps>(
   (props, ref) => {
     const { cssOverride, ...rest } = props;
 
@@ -115,7 +115,7 @@ type TabsContentProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const TabsContent = forwardRef<ElementRef<typeof TabsPrimitive.Content>, TabsContentProps>(
+const TabsContent = forwardRef<ComponentRef<typeof TabsPrimitive.Content>, TabsContentProps>(
   (props, ref) => {
     const { cssOverride, ...rest } = props;
 

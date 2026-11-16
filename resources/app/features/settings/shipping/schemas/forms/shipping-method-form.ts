@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import type { ShippingRule } from '@/features/settings/shipping/types';
 import { isEmptyValue, numberOrNull, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
@@ -75,6 +76,7 @@ const ShippingMethodFormShape = z.object({
       isEmptyValue(values.base_free_shipping_min_amount),
     __('Amount is required', 'kirki-ecommerce'),
   ),
+  shipping_rules: z.array(z.custom<ShippingRule>()).default([]),
 });
 
 export const ShippingMethodFormSchema = prepareFormSchema(ShippingMethodFormShape).transform(
@@ -82,6 +84,7 @@ export const ShippingMethodFormSchema = prepareFormSchema(ShippingMethodFormShap
     const base = {
       name: values.name,
       description: values.description || null,
+      shipping_rules: values.shipping_rules,
     };
 
     if (values.type === 'flat_rate') {

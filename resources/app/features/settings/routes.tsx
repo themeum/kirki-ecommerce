@@ -16,7 +16,6 @@ import LegalSettingsSkeleton from '@/features/settings/legal/skeletons/legal-set
 import MultiCurrencySettingsSkeleton from '@/features/settings/multi-currency/skeletons/multi-currency-settings-skeleton';
 import PaymentSettingsSkeleton from '@/features/settings/payment/skeletons/payment-settings-skeleton';
 import ProductsSettingsSkeleton from '@/features/settings/products/skeletons/products-settings-skeleton';
-import ShippingDeliveryMethodSkeleton from '@/features/settings/shipping/skeletons/shipping-delivery-method-skeleton';
 import ShippingSettingsSkeleton from '@/features/settings/shipping/skeletons/shipping-settings-skeleton';
 import ShippingZoneSkeleton from '@/features/settings/shipping/skeletons/shipping-zone-skeleton';
 import { taxRoutes } from '@/features/settings/tax/routes';
@@ -30,9 +29,6 @@ const ShippingSettings = lazy(() => import('@/features/settings/shipping/pages/s
 const ShippingZone = lazy(() => import('@/features/settings/shipping/pages/shipping-zone'));
 const TaxSettings = lazy(() => import('@/features/settings/tax/pages/tax-settings'));
 const EmailSettings = lazy(() => import('@/features/settings/email/pages/email-settings'));
-const ShippingDeliveryMethod = lazy(
-  () => import('@/features/settings/shipping/pages/shipping-delivery-method'),
-);
 const MultiCurrencySettings = lazy(
   () => import('@/features/settings/multi-currency/pages/multi-currency-settings'),
 );
@@ -91,12 +87,6 @@ const settingsRoutes: RouteObject[] = [
       {
         path: SettingsRoutes.get('ShippingSettings').get('ShippingZone').template,
         element: withSuspense(ShippingZone, <ShippingZoneSkeleton />),
-      },
-      {
-        path: SettingsRoutes.get('ShippingSettings')
-          .get('ShippingZone')
-          .get('ShippingDeliveryMethod').template,
-        element: withSuspense(ShippingDeliveryMethod, <ShippingDeliveryMethodSkeleton />),
       },
       {
         path: SettingsRoutes.get('MultiCurrencySettings').template,
