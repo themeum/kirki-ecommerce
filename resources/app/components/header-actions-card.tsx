@@ -2,16 +2,17 @@ import { PlusIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
+import type { ButtonVariant } from '@/components/ui/button';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { theme } from '@/theme';
 
 type HeaderActionsCardProps = {
   'data-search-id'?: string;
   header?: string;
   subHeader?: string;
   buttonText?: string;
+  buttonVariant?: ButtonVariant;
   onAdd?: () => void;
   actions?: ReactNode;
   hideButton?: boolean;
@@ -20,7 +21,15 @@ type HeaderActionsCardProps = {
 };
 
 const HeaderActionsCard = (props: HeaderActionsCardProps) => {
-  const { header, subHeader, buttonText, onAdd, actions, hideButton = false } = props;
+  const {
+    header,
+    subHeader,
+    buttonText,
+    onAdd,
+    actions,
+    buttonVariant = 'secondary',
+    hideButton = false,
+  } = props;
   return (
     <>
       <Flex gap={4} data-search-id={props['data-search-id']} align="flex-start">
@@ -35,12 +44,7 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
         {actions && <ActionGroup>{actions}</ActionGroup>}
         {!actions && !hideButton && (
           <ActionGroup>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onAdd}
-              cssOverride={{ color: theme.colors.text.emphasis }}
-            >
+            <Button variant={buttonVariant} size="sm" onClick={onAdd}>
               <PlusIcon />
               {buttonText}
             </Button>

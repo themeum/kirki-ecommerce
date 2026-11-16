@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/stacked-items';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
-import ShippingCarrierPopover from '@/features/settings/shipping/pages/shipping-carrier/shipping-carrier-popover';
+import ShippingCarrierPopover from '@/features/settings/shipping/components/shipping-carrier/shipping-carrier-popover';
 import type { ShippingCarrier } from '@/features/settings/shipping/schemas/catalog/shipping';
 import type { ShippingCarrierFormPayload } from '@/features/settings/shipping/schemas/forms/shipping-carrier-form';
 import { EditPenIcon, TrashIcon, TruckIcon } from '@/icons/common';

@@ -1,6 +1,6 @@
 import { type CSSObject } from '@emotion/react';
 import * as SwitchPrimitive from '@radix-ui/react-switch';
-import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
+import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
@@ -12,7 +12,7 @@ type SwitchProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, SwitchProps>((props, ref) => {
+const Switch = forwardRef<ComponentRef<typeof SwitchPrimitive.Root>, SwitchProps>((props, ref) => {
   const { cssOverride, ...rest } = props;
 
   return (

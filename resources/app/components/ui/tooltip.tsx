@@ -1,6 +1,11 @@
 import { type CSSObject } from '@emotion/react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, type ReactNode } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  type ComponentRef,
+  forwardRef,
+  type ReactNode,
+} from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
@@ -68,22 +73,23 @@ type TooltipContentProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const TooltipContent = forwardRef<ElementRef<typeof TooltipPrimitive.Content>, TooltipContentProps>(
-  (props, ref) => {
-    const { cssOverride, sideOffset = 4, dark, ...rest } = props;
+const TooltipContent = forwardRef<
+  ComponentRef<typeof TooltipPrimitive.Content>,
+  TooltipContentProps
+>((props, ref) => {
+  const { cssOverride, sideOffset = 4, dark, ...rest } = props;
 
-    return (
-      <TooltipPrimitive.Portal container={getPortalContainer()}>
-        <TooltipPrimitive.Content
-          ref={ref}
-          sideOffset={sideOffset}
-          css={scopedMerge(styles.content, dark && styles.dark, cssOverride)}
-          {...rest}
-        />
-      </TooltipPrimitive.Portal>
-    );
-  },
-);
+  return (
+    <TooltipPrimitive.Portal container={getPortalContainer()}>
+      <TooltipPrimitive.Content
+        ref={ref}
+        sideOffset={sideOffset}
+        css={scopedMerge(styles.content, dark && styles.dark, cssOverride)}
+        {...rest}
+      />
+    </TooltipPrimitive.Portal>
+  );
+});
 
 TooltipContent.displayName = 'TooltipContent';
 

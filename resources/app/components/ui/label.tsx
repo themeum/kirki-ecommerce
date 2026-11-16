@@ -1,6 +1,6 @@
 import { type CSSObject } from '@emotion/react';
 import * as LabelPrimitive from '@radix-ui/react-label';
-import { type ComponentPropsWithoutRef, type ElementRef, forwardRef } from 'react';
+import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
@@ -12,20 +12,18 @@ type LabelProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const Label = forwardRef<ElementRef<typeof LabelPrimitive.Root>, LabelProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const Label = forwardRef<ComponentRef<typeof LabelPrimitive.Root>, LabelProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <LabelPrimitive.Root
-        ref={ref}
-        data-slot="label"
-        css={scopedMerge(styles.root, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <LabelPrimitive.Root
+      ref={ref}
+      data-slot="label"
+      css={scopedMerge(styles.root, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 Label.displayName = 'Label';
 

@@ -17,7 +17,7 @@ import {
   useStackedItem,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
-import ShippingBoxPopup from '@/features/settings/shipping/pages/shipping-box/shipping-box-dialog';
+import ShippingBoxPopup from '@/features/settings/shipping/components/shipping-box/shipping-box-dialog';
 import type { ShippingBox as ShippingBoxType } from '@/features/settings/shipping/schemas/catalog/shipping';
 import {
   useDeleteShippingBoxMutation,

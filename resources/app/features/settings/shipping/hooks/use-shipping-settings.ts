@@ -47,6 +47,8 @@ type UseShippingSettingsResult = {
   setShowCreateZonePopup: (open: boolean) => void;
   popupErrors: FormErrors;
   isSaving: boolean;
+  editingMethod: ShippingMethodData | null;
+  closeMethodDialog: () => void;
   getShippingMethodData: (zoneId: string | number) => ShippingMethodData[];
   handleToggleMethod: (method: ShippingMethodData) => Promise<void>;
   handleEditMethod: (method: ShippingMethodData) => void;
@@ -63,6 +65,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   const newZoneIdRef = useRef(uuid());
   const [showCreateZonePopup, setShowCreateZonePopup] = useState(false);
   const [popupErrors, setPopupErrors] = useState<FormErrors>({});
+  const [editingMethod, setEditingMethod] = useState<ShippingMethodData | null>(null);
 
   const baseCurrencySymbol = useBaseCurrencySymbol();
 
@@ -160,13 +163,12 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
 
   const handleEditMethod = (method: ShippingMethodData) => {
     confirmAction({
-      action: () =>
-        navigate(
-          ShippingRoutes.get('ShippingZone')
-            .get('ShippingDeliveryMethod')
-            .buildLink({ zone_id: method.zoneId, method_id: method.id }),
-        ),
+      action: () => setEditingMethod(method),
     });
+  };
+
+  const closeMethodDialog = () => {
+    setEditingMethod(null);
   };
 
   const handleDeleteMethod = (method: ShippingMethodData) => {
@@ -276,6 +278,8 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
     setShowCreateZonePopup,
     popupErrors,
     isSaving,
+    editingMethod,
+    closeMethodDialog,
     getShippingMethodData,
     handleToggleMethod,
     handleEditMethod,

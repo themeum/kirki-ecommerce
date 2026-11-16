@@ -154,8 +154,17 @@ const styles = defineStyles({
   item: {
     paddingBlock: theme.spacing[2],
     height: 'auto',
+    flexWrap: 'nowrap',
+    '& [data-slot="item-actions"]': {
+      flexShrink: 0,
+    },
+    '& [data-action-group="true"]': {
+      position: 'static',
+      transform: 'none',
+    },
   },
   content: {
+    minWidth: 0,
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
@@ -170,6 +179,7 @@ const styles = defineStyles({
   },
   line: {
     display: 'flex',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: theme.spacing[2],
   },

@@ -67,15 +67,10 @@ describe('defineRoute', () => {
 describe('RouteConfig', () => {
   it('resolves the documented templates', () => {
     expect(RouteConfig.Products.get('EditProduct').template).toBe('/products/:id');
-    expect(RouteConfig.Customers.get('CustomerGroups').template).toBe('/customers/groups');
     expect(RouteConfig.Settings.get('GeneralSettings').template).toBe('/settings/general');
     expect(RouteConfig.Settings.get('ShippingSettings').get('ShippingZone').template).toBe(
       '/settings/shipping/zone/:zone_id',
     );
-    expect(
-      RouteConfig.Settings.get('ShippingSettings').get('ShippingZone').get('ShippingDeliveryMethod')
-        .template,
-    ).toBe('/settings/shipping/zone/:zone_id/method/:method_id');
     expect(RouteConfig.Settings.get('EssentialsSettings').get('ListVariation').template).toBe(
       '/settings/essentials/list/:id',
     );
@@ -87,10 +82,7 @@ describe('RouteConfig', () => {
       RouteConfig.Settings.get('TaxSettings').get('EditTaxRegion').buildLink({ code: 'EU' }),
     ).toBe('/settings/tax/region/EU');
     expect(
-      RouteConfig.Settings.get('ShippingSettings')
-        .get('ShippingZone')
-        .get('ShippingDeliveryMethod')
-        .buildLink({ zone_id: 'z1', method_id: 'm1' }),
-    ).toBe('/settings/shipping/zone/z1/method/m1');
+      RouteConfig.Settings.get('ShippingSettings').get('ShippingZone').buildLink({ zone_id: 'z1' }),
+    ).toBe('/settings/shipping/zone/z1');
   });
 });

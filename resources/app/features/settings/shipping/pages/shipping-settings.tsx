@@ -22,6 +22,10 @@ import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
+import ShippingZoneActions from '@/features/settings/shipping/components/actions/shipping-zone-actions';
+import ShippingBox from '@/features/settings/shipping/components/shipping-box/shipping-box';
+import ShippingMethodDialog from '@/features/settings/shipping/components/shipping-method/shipping-method-dialog';
+import ShippingProfile from '@/features/settings/shipping/components/shipping-profile/shipping-profile';
 import { useShippingSettings } from '@/features/settings/shipping/hooks/use-shipping-settings';
 import {
   getShippingMethodRightText,
@@ -29,9 +33,6 @@ import {
   getShippingZoneSummary,
   shippingMethodIconMap,
 } from '@/features/settings/shipping/lib/utils';
-import ShippingBox from '@/features/settings/shipping/pages/shipping-box/shipping-box';
-import ShippingProfile from '@/features/settings/shipping/pages/shipping-profile/shipping-profile';
-import ShippingZoneActions from '@/features/settings/shipping/pages/shipping-zone-actions';
 import ShippingSettingsSkeleton from '@/features/settings/shipping/skeletons/shipping-settings-skeleton';
 import { useBaseCurrencySymbol } from '@/hooks';
 import { EditPenIcon, TrashIcon, TruckIcon } from '@/icons/common';
@@ -57,6 +58,8 @@ const ShippingSettings = () => {
     setShowCreateZonePopup,
     popupErrors,
     isSaving,
+    editingMethod,
+    closeMethodDialog,
     getShippingMethodData,
     handleToggleMethod,
     handleEditMethod,
@@ -249,6 +252,14 @@ const ShippingSettings = () => {
           disabledRegions={usedRegions}
           onDone={handleCreateZone}
           errors={popupErrors}
+        />
+      )}
+      {editingMethod && (
+        <ShippingMethodDialog
+          zoneId={editingMethod.zoneId}
+          method={editingMethod}
+          shippingZones={shippingZonesObj}
+          onClose={closeMethodDialog}
         />
       )}
     </>

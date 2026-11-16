@@ -43,9 +43,7 @@ export const RouteConfig = {
     ProductsSettings: defineRoute('/products'),
     PaymentSettings: defineRoute('/payments'),
     ShippingSettings: defineRoute('/shipping', {
-      ShippingZone: defineRoute('/zone/:zone_id', {
-        ShippingDeliveryMethod: defineRoute('/method/:method_id'),
-      }),
+      ShippingZone: defineRoute('/zone/:zone_id'),
     }),
     MultiCurrencySettings: defineRoute('/currency'),
     TaxSettings: defineRoute('/tax', {
