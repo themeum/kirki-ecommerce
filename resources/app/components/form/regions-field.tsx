@@ -1,6 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { ChevronDownIcon } from '@radix-ui/react-icons';
-import { Minus } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
   Controller,
@@ -12,11 +11,10 @@ import {
 
 import { RegionsDialog } from '@/components/regions-dialog';
 import Button from '@/components/ui/button';
-import Chip from '@/components/ui/chip';
-import ChipField from '@/components/ui/chip-field';
-import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
+import Chip from '@/components/ui/chip/chip';
+import ChipInput from '@/components/ui/chip/chip-input';
+import { chipsInputControlCss } from '@/components/ui/chip/chip-input-styles';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { LocationIcon } from '@/icons/common';
 import type { Region } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
@@ -32,7 +30,6 @@ type RegionsFieldProps<
   label?: string;
   infoText?: string;
   placeholder?: string;
-  emptyText?: string;
   disabled?: boolean;
   disabledRegions?: Region[];
   cssOverride?: CSSObject;
@@ -48,7 +45,6 @@ const RegionsField = <
   label,
   infoText,
   placeholder = __('Select destinations..', 'kirki-ecommerce'),
-  emptyText = __('Added destinations will appear here', 'kirki-ecommerce'),
   disabled,
   disabledRegions,
   cssOverride,
@@ -84,18 +80,18 @@ const RegionsField = <
             <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
               {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
               <div css={scoped(styles.wrapper)}>
-                <ChipField
+                <ChipInput
                   error={Boolean(fieldState.error)}
+                  maxVisibleRows={2}
                   control={
                     <Button
                       variant="ghost"
                       disabled={disabled}
-                      cssOverride={mergeCss(chipFieldControlCss, styles.trigger)}
+                      cssOverride={mergeCss(chipsInputControlCss, styles.trigger)}
                       onClick={() => setIsDialogOpen(true)}
                     >
-                      <span css={scoped(styles.value)}>{placeholder}</span>
-                      <span css={scoped(styles.chevron)}>
-                        <ChevronDownIcon width={16} height={16} />
+                      <span css={scoped(styles.value)}>
+                        {tags.length > 0 ? __('Add more', 'kirki-ecommerce') : placeholder}
                       </span>
                     </Button>
                   }
@@ -107,18 +103,12 @@ const RegionsField = <
                         text={tag.title}
                         img={<span>{tag.tagIcon}</span>}
                         subText={tag.subText}
-                        closeIcon={<Minus size={14} aria-hidden="true" />}
+                        closeIcon={<X size={14} aria-hidden="true" />}
                         onRemove={() => removeRegion(tag.id)}
                       />
                     ))
                   }
                 />
-                {tags.length === 0 && (
-                  <div css={scoped(styles.emptyState)}>
-                    <LocationIcon />
-                    <span css={scoped(styles.emptyStateText)}>{emptyText}</span>
-                  </div>
-                )}
               </div>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -152,7 +142,6 @@ const styles = defineStyles({
   trigger: {
     ...itemCenter(),
     ...theme.typography.small(),
-    height: '36px',
     justifyContent: 'space-between',
     gap: theme.spacing[2],
     textAlign: 'left',
@@ -177,6 +166,7 @@ const styles = defineStyles({
   chevron: {
     ...flexCenter(),
     flexShrink: 0,
+    marginRight: '-2px',
   },
   emptyState: {
     display: 'flex',

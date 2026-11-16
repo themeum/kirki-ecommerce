@@ -66,7 +66,12 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
         {!showClear && (
           <SelectPrimitive.Icon asChild>
             <span data-slot="select-icon" css={scoped(styles.chevron)}>
-              <ChevronDownIcon width={16} height={16} />
+              <ChevronDownIcon
+                width={16}
+                height={16}
+                color={theme.colors.text.secondary}
+                css={scoped({ opacity: 0.5 })}
+              />
             </span>
           </SelectPrimitive.Icon>
         )}
@@ -114,11 +119,7 @@ const SelectContent = forwardRef<ComponentRef<typeof SelectPrimitive.Content>, S
         <SelectPrimitive.Content
           ref={ref}
           position={position}
-          css={scopedMerge(
-            styles.content,
-            isPopper && styles.contentPopper,
-            cssOverride,
-          )}
+          css={scopedMerge(styles.content, isPopper && styles.contentPopper, cssOverride)}
           {...rest}
         >
           <SelectPrimitive.Viewport css={scoped(styles.viewport)}>
@@ -284,6 +285,7 @@ const styles = defineStyles({
   chevron: {
     ...flexCenter(),
     flexShrink: 0,
+    marginRight: '-2px',
   },
   triggerWrapper: {
     position: 'relative',

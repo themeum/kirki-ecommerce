@@ -1,6 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\DateTimeFormats;
 use Kirki\Ecommerce\App\Constants\EmailDefaultTemplate;
 
 use function Kirki\Ecommerce\Framework\view_data;
@@ -17,7 +18,7 @@ $billing_address = $order['billing_address'] ?? [];
 $shipping_address = $order['shipping_address'] ?? [];
 
 $order_date = $order['created_at'] ?? null;
-$order_date_display = $order_date instanceof DateTimeInterface ? $order_date->format('F j, Y') : (string) $order_date;
+$order_date_display = $order_date instanceof DateTimeInterface ? $order_date->format(DateTimeFormats::HUMAN_READABLE_FULL_DATE) : (string) $order_date;
 
 $format_address = function (array $address) {
     $lines = array_filter([

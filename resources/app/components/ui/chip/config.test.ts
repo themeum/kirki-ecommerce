@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { countChipsWithinRows } from '@/components/ui/multi-select-rows';
+import { countChipsWithinRows } from '@/components/ui/chip/config';
 
 describe('countChipsWithinRows', () => {
   it('fits every chip when they all sit within the cap', () => {

@@ -57,7 +57,7 @@ class MailFromEmail extends BaseHook
             return $from_email;
         }
 
-        $admin_email = get_bloginfo('admin_email');
+        $admin_email = Settings::get('general')->get('store_email') ?: (get_bloginfo('admin_email') ?? '');
 
         return !empty($admin_email) ? $admin_email : $default;
     }
