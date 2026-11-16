@@ -97,6 +97,107 @@ class AnalyticsRangeTest extends RestTestCase
     }
 
     /**
+     * Scenario "Week to date with a Monday week start": Wednesday Oct 14 gives Oct 12 - Oct 14.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_week_to_date_with_a_monday_week_start(): void
+    {
+        update_option('start_of_week', 1);
+
+        $meta = $this->metric('kpis', ['range' => 'week_to_date'])['meta'];
+
+        $this->assertSame('week_to_date', $meta['range']['preset']);
+        $this->assertSame('2026-10-12', $meta['range']['from']);
+        $this->assertSame('2026-10-14', $meta['range']['to']);
+    }
+
+    /**
+     * Week to date follows a Sunday week start.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_week_to_date_with_a_sunday_week_start(): void
+    {
+        update_option('start_of_week', 0);
+
+        $meta = $this->metric('kpis', ['range' => 'week_to_date'])['meta'];
+
+        $this->assertSame('2026-10-11', $meta['range']['from']);
+        $this->assertSame('2026-10-14', $meta['range']['to']);
+    }
+
+    /**
+     * Scenario "Week to date on the first day of the week": the range is today only.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_week_to_date_on_the_first_day_of_the_week(): void
+    {
+        update_option('start_of_week', 3);
+
+        $meta = $this->metric('kpis', ['range' => 'week_to_date'])['meta'];
+
+        $this->assertSame('2026-10-14', $meta['range']['from']);
+        $this->assertSame('2026-10-14', $meta['range']['to']);
+    }
+
+    /**
+     * Scenario "All time": the range starts on the day of the first order, of any status, and has no comparison.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_all_time_starts_on_the_first_order_and_has_no_comparison(): void
+    {
+        $this->make_order(['payment_status' => 'unpaid'], [], null, '2025-03-03 10:00:00');
+        $this->make_sale('2026-10-01 10:00:00', 1000);
+
+        $data = $this->metric('kpis', ['range' => 'all_time', 'compare' => 'previous_period']);
+
+        $this->assertSame('all_time', $data['meta']['range']['preset']);
+        $this->assertSame('2025-03-03', $data['meta']['range']['from']);
+        $this->assertSame('2026-10-14', $data['meta']['range']['to']);
+        $this->assertNull($data['meta']['compare']);
+        $this->assertSame(1000, $this->minor($data['data']['gross_sales']['current_money_object']));
+        $this->assertNull($data['data']['gross_sales']['change']);
+    }
+
+    /**
+     * All time uses the local day of the first order.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_all_time_uses_the_local_day_of_the_first_order(): void
+    {
+        $this->set_timezone('Asia/Dhaka');
+        $this->make_order([], [], null, '2025-03-02 20:30:00');
+
+        $meta = $this->metric('kpis', ['range' => 'all_time'])['meta'];
+
+        $this->assertSame('2025-03-03', $meta['range']['from']);
+    }
+
+    /**
+     * Scenario "All time with no orders": the range is today only and every metric is 0.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_all_time_with_no_orders_is_today(): void
+    {
+        $data = $this->metric('kpis', ['range' => 'all_time']);
+
+        $this->assertSame('2026-10-14', $data['meta']['range']['from']);
+        $this->assertSame('2026-10-14', $data['meta']['range']['to']);
+        $this->assertSame(0, $this->minor($data['data']['gross_sales']['current_money_object']));
+    }
+
+    /**
      * Date range presets: a custom range is kept as given.
      *
      * @return void

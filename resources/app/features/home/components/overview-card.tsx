@@ -5,6 +5,7 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { CardMenu } from '@/features/analytics';
 import OverviewTitle from '@/features/home/components/overview-title';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -12,13 +13,15 @@ import { defineStyles } from '@/theme/mixins';
 type OverviewCardProps = {
   title: string;
   info: string;
-  actionLabel: string;
-  actionTo: string;
+  actionLabel?: string;
+  actionTo?: string;
+  headerExtra?: ReactNode;
+  onHide?: () => void;
   children: ReactNode;
 };
 
 const OverviewCard = (props: OverviewCardProps) => {
-  const { title, info, actionLabel, actionTo, children } = props;
+  const { title, info, actionLabel, actionTo, headerExtra, onHide, children } = props;
 
   return (
     <Card cssOverride={styles.card}>
@@ -28,9 +31,15 @@ const OverviewCard = (props: OverviewCardProps) => {
             {title}
           </Text>
         </OverviewTitle>
-        <Button variant="ghost" size="sm" asChild data-overview-action="">
-          <Link to={actionTo}>{actionLabel}</Link>
-        </Button>
+        <Flex align="center" gap={2}>
+          {headerExtra}
+          {actionLabel && actionTo && (
+            <Button variant="ghost" size="sm" asChild data-overview-action="">
+              <Link to={actionTo}>{actionLabel}</Link>
+            </Button>
+          )}
+          {onHide && <CardMenu title={title} canHide onHide={onHide} />}
+        </Flex>
       </Flex>
       {children}
     </Card>
@@ -41,23 +50,29 @@ OverviewCard.displayName = 'OverviewCard';
 
 export default OverviewCard;
 
-const ACTION_SELECTOR = '[data-overview-action]';
-const INFO_SELECTOR = '[data-tooltip]';
+const HIDDEN_PARTS = '& [data-overview-action], & [data-card-menu], & [data-tooltip]';
 
 const styles = defineStyles({
   card: {
     padding: 0,
     gap: 0,
     overflow: 'hidden',
-    [`& ${ACTION_SELECTOR}, & ${INFO_SELECTOR}`]: {
+    [HIDDEN_PARTS]: {
       opacity: 0,
       transition: 'opacity 0.15s ease',
     },
-    [`&:hover ${ACTION_SELECTOR}, &:focus-within ${ACTION_SELECTOR}, &:hover ${INFO_SELECTOR}`]: {
+    [[
+      '&:hover [data-overview-action]',
+      '&:focus-within [data-overview-action]',
+      '&:hover [data-card-menu]',
+      '&:focus-within [data-card-menu]',
+      '& [data-card-menu][data-state="open"]',
+      '&:hover [data-tooltip]',
+    ].join(', ')]: {
       opacity: 1,
     },
     '@media (hover: none)': {
-      [`& ${ACTION_SELECTOR}, & ${INFO_SELECTOR}`]: {
+      [HIDDEN_PARTS]: {
         opacity: 1,
       },
     },

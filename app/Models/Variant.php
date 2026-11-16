@@ -158,6 +158,45 @@ class Variant extends Model
     }
 
     /**
+     * Narrow the query to variants that cannot be sold now: tracked with no stock left, or untracked and marked out of stock.
+     *
+     * @since 1.0.2
+     *
+     * @param \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder $query Query being scoped.
+     * @return \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder
+     */
+    public function scope_out_of_stock($query)
+    {
+        return $query->where(function ($query) {
+            $query->where(function ($query) {
+                $query->where('track_inventory', true);
+                $query->where('available_quantity', '<=', 0);
+            });
+
+            $query->or_where(function ($query) {
+                $query->where('track_inventory', false);
+                $query->where('in_stock', false);
+            });
+        });
+    }
+
+    /**
+     * Narrow the query to tracked variants that still have stock, at or under their low-stock threshold.
+     *
+     * @since 1.0.2
+     *
+     * @param \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder $query                   Query being scoped.
+     * @param int                                                    $store_default_threshold Threshold of a variant that has none.
+     * @return \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder
+     */
+    public function scope_low_stock($query, int $store_default_threshold)
+    {
+        return $query->where('track_inventory', true)
+            ->where('available_quantity', '>', 0)
+            ->where_raw('available_quantity <= COALESCE(low_stock_threshold, %d)', [$store_default_threshold]);
+    }
+
+    /**
      * Tell whether this variant is currently sellable: its product is published and the variant itself is visible.
      *
      * @since 1.0.0

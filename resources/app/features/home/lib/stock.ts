@@ -1,30 +1,33 @@
-import type { BadgeVariant } from '@/components/ui/badge';
-import type { TopProduct } from '@/features/home/schemas/catalog/dashboard-overview';
+import type { TextColor } from '@/components/ui/text';
 import { __, sprintf } from '@/wpi18n';
 
-type StockBadge = {
+type StockText = {
   text: string;
-  variant: BadgeVariant;
+  color: TextColor;
 };
 
-export const getStockBadge = (
-  product: Pick<TopProduct, 'availability_status' | 'track_inventory' | 'inventory'>,
-): StockBadge | null => {
-  if (product.availability_status === null) {
+type ProductStock = {
+  availability_status?: string | null;
+  track_inventory?: boolean | null;
+  inventory?: number | null;
+};
+
+export const getStockText = (product: ProductStock): StockText | null => {
+  if (!product.availability_status) {
     return null;
   }
 
   if (product.availability_status === 'out_of_stock') {
-    return { text: __('Out of stock', 'kirki-ecommerce'), variant: 'destructive' };
+    return { text: __('Out of stock', 'kirki-ecommerce'), color: 'critical' };
   }
 
-  if (product.track_inventory && product.inventory > 0) {
+  if (product.track_inventory && product.inventory && product.inventory > 0) {
     return {
       /* translators: %d: number of units left in stock */
       text: sprintf(__('%d left in stock', 'kirki-ecommerce'), product.inventory),
-      variant: product.availability_status === 'low_stock' ? 'warning' : 'default',
+      color: product.availability_status === 'low_stock' ? 'critical' : 'secondary',
     };
   }
 
-  return { text: __('In stock', 'kirki-ecommerce'), variant: 'success' };
+  return { text: __('In stock', 'kirki-ecommerce'), color: 'secondary' };
 };

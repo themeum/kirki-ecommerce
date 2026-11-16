@@ -558,6 +558,9 @@ class OrderService
             })
             ->when(!empty($filters->shipping_method), function (QueryBuilder $query) use ($filters) {
                 return $query->where('shipping_method', $filters->shipping_method);
+            })
+            ->when(!empty($filters->attention), function (QueryBuilder $query) use ($filters) {
+                return $query->apply_attention_filter($filters->attention);
             });
 
         return $this->apply_sorting($query, $filters);

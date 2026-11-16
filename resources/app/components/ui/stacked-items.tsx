@@ -168,7 +168,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[3]}`,
 
     '&:hover': {
-      backgroundColor: theme.colors.background.surfaceAlt,
+      backgroundColor: theme.colors.background.solidSurfaceAlt,
     },
     '& [data-action-group="true"]': {
       position: 'absolute',

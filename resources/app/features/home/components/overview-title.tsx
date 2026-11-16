@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import Tooltip from '@/components/ui/tooltip';
-import { InfoIcon } from '@/icons/common';
+import { theme } from '@/theme';
+import { Info } from 'lucide-react';
 
 type OverviewTitleProps = {
   info: string;
@@ -16,7 +17,7 @@ const OverviewTitle = (props: OverviewTitleProps) => {
     <Flex align="center" gap={1}>
       {children}
       <Tooltip tip={info} position="top">
-        <InfoIcon aria-label={info} role="img" />
+        <Info size={14} color={theme.colors.icon.secondary} aria-label={info} role="img" />
       </Tooltip>
     </Flex>
   );

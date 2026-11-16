@@ -46,4 +46,20 @@ class DashboardController
             'message' => __('Dashboard overview retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
+
+    /**
+     * Get the orders to ship, the payments to collect, the out-of-stock count and the low-stock variants.
+     *
+     * @since 1.0.2
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     */
+    public function attention(Request $request)
+    {
+        return response()->json([
+            'data' => $this->service->get_attention(),
+            'message' => __('Dashboard attention items retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
 }

@@ -6,12 +6,13 @@ import type { SuggestionOption } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 const orderListFilterConfig: ListFilterConfig<OrderListFilter> = {
-  keys: ['search', 'status', 'payment_status', 'shipping_method'],
+  keys: ['search', 'status', 'payment_status', 'shipping_method', 'attention'],
   parsers: {
     search: { parse: parseString },
     status: { parse: parseString },
     payment_status: { parse: parseString },
     shipping_method: { parse: parseString },
+    attention: { parse: parseString },
   },
 };
 

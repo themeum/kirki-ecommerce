@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\DTO\Variant\VariantListFilterDTO;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Supports\ListPaginator;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -583,17 +584,11 @@ class VariantService
         });
 
         $query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::OUT_OF_STOCK, function ($query) {
-            return $query->where(function ($query) {
-                $query->where(function ($query) {
-                    $query->where('track_inventory', true);
-                    $query->where('available_quantity', '<=', 0);
-                });
+            return $query->out_of_stock();
+        });
 
-                $query->or_where(function ($query) {
-                    $query->where('track_inventory', false);
-                    $query->where('in_stock', false);
-                });
-            });
+        $query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::LOW_STOCK, function ($query) {
+            return $query->low_stock((int) Settings::get('product.low_stock_threshold', 0));
         });
 
         $query->filter_with_datetime_range($filters->from_date, $filters->to_date);

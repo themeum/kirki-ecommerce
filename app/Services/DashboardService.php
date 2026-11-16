@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Constants\Order\OrderAttention;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\Facades\Money;
@@ -9,9 +10,11 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Refund;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Resources\Order\OrderListResource;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -30,6 +33,8 @@ class DashboardService
 {
     const LIST_LIMIT = 5;
 
+    const LATE_AFTER_DAYS = 2;
+
     /**
      * Get the overview metrics, the most recent orders and the top selling products.
      *
@@ -43,6 +48,88 @@ class DashboardService
             'metrics' => $this->get_metrics(),
             'recent_orders' => $this->get_recent_orders(),
             'top_products' => $this->get_top_products(),
+        ];
+    }
+
+    /**
+     * Get the work that waits for the merchant now: orders to ship, payments to collect and stock to refill.
+     *
+     * The counts use the same conditions as the order list attention filter and
+     * the inventory list stock filters, so a count always equals its list.
+     *
+     * @since 1.0.2
+     *
+     * @return array<string, mixed>
+     */
+    public function get_attention()
+    {
+        $late_since = Date::now('UTC')->sub_days(static::LATE_AFTER_DAYS)->to_date_time_string();
+
+        $to_ship = Order::query()
+            ->apply_attention_filter(OrderAttention::TO_SHIP)
+            ->select_raw(
+                'COUNT(*) AS orders_count, COALESCE(SUM(CASE WHEN COALESCE(paid_at, created_at) < %s THEN 1 ELSE 0 END), 0) AS late_count',
+                [$late_since]
+            )
+            ->first();
+
+        $to_collect = Order::query()
+            ->apply_attention_filter(OrderAttention::TO_COLLECT)
+            ->select_raw('COUNT(*) AS orders_count, COALESCE(SUM(base_total), 0) AS base_total')
+            ->first();
+
+        return [
+            'to_ship' => [
+                'count' => (int) ($to_ship->orders_count ?? 0),
+                'late_count' => (int) ($to_ship->late_count ?? 0),
+            ],
+            'to_collect' => [
+                'count' => (int) ($to_collect->orders_count ?? 0),
+                'base_total_money_object' => Money::to_short_dto((int) ($to_collect->base_total ?? 0)),
+            ],
+            'out_of_stock' => [
+                'count' => Variant::query()->where_has('product')->out_of_stock()->count(),
+            ],
+            'low_stock' => $this->get_low_stock(),
+        ];
+    }
+
+    /**
+     * Get the tracked variants that are low on stock, fewest available first, and how many there are.
+     *
+     * @since 1.0.2
+     *
+     * @return array<string, mixed>
+     */
+    protected function get_low_stock()
+    {
+        $threshold = (int) Settings::get('product.low_stock_threshold', 0);
+
+        $total = Variant::query()->where_has('product')->low_stock($threshold)->count();
+
+        $variants = Variant::with('product.media', 'attribute_values')
+            ->where_has('product')
+            ->low_stock($threshold)
+            ->order_by('available_quantity')
+            ->order_by('id')
+            ->limit(static::LIST_LIMIT)
+            ->get();
+
+        return [
+            'total' => $total,
+            'items' => $variants->map(function ($variant) {
+                return [
+                    'variant_id' => (int) $variant->id,
+                    'product_id' => (int) $variant->product->id,
+                    'product_name' => $variant->product->title,
+                    'variant_name' => implode(' / ', $variant->attribute_values
+                        ->map(fn($attribute_value) => $attribute_value->value ?? $attribute_value->color)
+                        ->filter()
+                        ->all()),
+                    'image' => MediaAttachment::make($variant->media ?? $variant->product->media->first()->id ?? null),
+                    'available_quantity' => (int) $variant->available_quantity,
+                ];
+            })->values()->all(),
         ];
     }
 

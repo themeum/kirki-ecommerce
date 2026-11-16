@@ -285,4 +285,22 @@ describe('CustomizeSheet', () => {
       false,
     );
   });
+
+  it('floats when its header is dragged, and remembers it apart from the Home sheet', () => {
+    const dialog = openSheet();
+    const header = within(dialog).getByText('Customize analytics').parentElement!;
+
+    fireEvent.pointerDown(header, { button: 0, clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(window, { clientX: 200, clientY: 100 });
+    fireEvent.pointerUp(window);
+
+    expect(screen.getByRole('dialog', { name: 'Customize analytics' })).toHaveAttribute(
+      'data-floating',
+      'true',
+    );
+    expect(window.localStorage.getItem('kirki-ecommerce:analytics:customize-sheet')).toContain(
+      'floating',
+    );
+    expect(window.localStorage.getItem('kirki-ecommerce:home:customize-sheet')).toBeNull();
+  });
 });

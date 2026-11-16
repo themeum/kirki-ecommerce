@@ -59,6 +59,7 @@ export const endpoints = {
   SETUP_CHECKLIST_COMPLETE_STEP: (step: string) => `/setup-checklist/${step}/complete`,
 
   DASHBOARD_OVERVIEW: '/dashboard/overview',
+  DASHBOARD_ATTENTION: '/dashboard/attention',
 
   ANALYTICS_METRIC: (key: string) => `/analytics/metrics/${key}`,
   ANALYTICS_REGIONS: '/analytics/regions',

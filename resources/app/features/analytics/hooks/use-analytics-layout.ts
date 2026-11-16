@@ -22,6 +22,8 @@ const readStoredLayout = (): AnalyticsLayout => {
   }
 };
 
+const readAnalyticsAmountFormat = (): AmountFormat => readStoredLayout().amounts;
+
 const canHideItem = <K extends string>(items: LayoutItem<K>[], key: K) => {
   return items.some((item) => item.visible && item.key !== key);
 };
@@ -80,5 +82,5 @@ const useAnalyticsLayout = () => {
 
 type AnalyticsLayoutControls = ReturnType<typeof useAnalyticsLayout>;
 
-export { canHideItem, STORAGE_KEY, useAnalyticsLayout };
+export { canHideItem, readAnalyticsAmountFormat, STORAGE_KEY, useAnalyticsLayout };
 export type { AnalyticsLayoutControls };
