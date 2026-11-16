@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+import { useMultiSelectChipLayer } from '@/components/ui/chip/chip-layer';
 import {
   ColorPicker,
   ColorPickerArea,
@@ -8,7 +9,6 @@ import {
   ColorPickerSwatch,
   ColorPickerTrigger,
 } from '@/components/ui/color-picker';
-import { useMultiSelectChipLayer } from '@/components/ui/multi-select-chip-layer';
 import type { AttributeValueOption } from '@/features/products/components/attribute-value-types';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';

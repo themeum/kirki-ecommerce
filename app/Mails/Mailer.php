@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Contracts\Mailable;
 use Kirki\Ecommerce\App\Parsers\ShortcodeParser;
 use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\Framework\View\View;
 
@@ -397,7 +398,7 @@ abstract class Mailer implements Mailable
             }
 
             if (is_scalar($value)) {
-                $data[$key] = filter_var($value, FILTER_VALIDATE_URL) !== false ? esc_url($value) : esc_html($value);
+                $data[$key] = Url::is_valid_url($value) ? esc_url($value) : esc_html($value);
             }
         }
 

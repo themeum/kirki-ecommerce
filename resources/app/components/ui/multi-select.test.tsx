@@ -2,11 +2,11 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { type CSSProperties, type ReactNode, useState } from 'react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { useMultiSelectChipLayer } from '@/components/ui/chip/chip-layer';
 import MultiSelect, {
   type ChipCapProps,
   type MultiSelectOption,
 } from '@/components/ui/multi-select';
-import { useMultiSelectChipLayer } from '@/components/ui/multi-select-chip-layer';
 
 const OPTIONS: MultiSelectOption[] = [
   { value: 1, title: 'Hoodie' },
@@ -404,7 +404,7 @@ describe('MultiSelect panel slot', () => {
  * Row capping is measured from `offsetTop`, which jsdom reports as 0 for
  * every element — so a rendered field here always looks like one row and the
  * cut itself can never be exercised. The cut is tested directly instead, in
- * `multi-select-rows.test.ts`. What is worth asserting here is the wiring
+ * `chip-rows.test.ts`. What is worth asserting here is the wiring
  * around it: that a row cap subscribes to size and that a field without one
  * pays nothing.
  */
