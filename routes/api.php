@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\OnlinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PaymentMethodController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\VariantController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ProductController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\ReviewController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\TagController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CollectionController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CouponController;
@@ -164,6 +165,13 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::post('/products/bulk', [ProductController::class, 'bulk_actions']);
     Route::post('/products/{id}/duplicate', [ProductController::class, 'duplicate'])->where('id', '[\d]+');
 
+    // Reviews (Admin)
+    Route::get('/reviews', [ReviewController::class, 'get']);
+    Route::get('/reviews/{id}', [ReviewController::class, 'show'])->where('id', '[\d]+');
+    Route::put('/reviews/{id}/status', [ReviewController::class, 'update_status'])->where('id', '[\d]+');
+    Route::delete('/reviews/{id}', [ReviewController::class, 'delete'])->where('id', '[\d]+');
+    Route::post('/reviews/bulk', [ReviewController::class, 'bulk_actions']);
+
     Route::post('/variants/generate-sku', [VariantController::class, 'generate_sku']);
     Route::post('/variants/generate-skus', [VariantController::class, 'generate_skus']);
     Route::get('/variants/bulk/{ids}', [VariantController::class, 'get_by_ids']);
@@ -256,6 +264,9 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
 
 // Site api endpoints.
 Route::get('/shop/products', [SiteController::class, 'products']);
+Route::get('/shop/products/{id}/reviews', [ReviewController::class, 'product_reviews'])->where('id', '[\d]+');
+Route::post('/shop/products/{id}/reviews', [ReviewController::class, 'store'])->where('id', '[\d]+');
+Route::post('/reviews', [ReviewController::class, 'store']);
 
 // Cart api endpoints for guest card.
 Route::get('/cart', [CartController::class, 'get']);

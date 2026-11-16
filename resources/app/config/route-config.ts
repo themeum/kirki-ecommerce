@@ -32,6 +32,7 @@ export const RouteConfig = {
   Tags: defineRoute('/tags'),
   Categories: defineRoute('/categories'),
   Brands: defineRoute('/brands'),
+  Reviews: defineRoute('/reviews'),
 
   Customers: defineRoute('/customers', {
     CustomerGroups: defineRoute('/groups'),

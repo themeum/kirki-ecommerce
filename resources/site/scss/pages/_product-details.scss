@@ -376,6 +376,250 @@
       display: block;
     }
   }
+
+  // ── Product Reviews ───────────────────────────────────────────────────────────
+  .kecom-product-rating-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-3;
+    margin-bottom: $spacing-4;
+
+    .kecom-stars {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      color: #f59e0b;
+      font-size: 15px;
+      line-height: 1;
+
+      .star-empty {
+        color: $border-default;
+      }
+    }
+
+    .kecom-rating-link {
+      @include typography(sm, normal, $text-secondary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-2;
+
+      strong {
+        color: $text-primary;
+        font-weight: 600;
+      }
+
+      &:hover {
+        color: $text-primary;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .kecom-reviews-container {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-8;
+
+    .kecom-reviews-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: $spacing-6;
+      border-bottom: 1px solid $border-default;
+
+      @include breakpoint-down(sm) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $spacing-4;
+      }
+
+      .kecom-reviews-score {
+        display: flex;
+        align-items: center;
+        gap: $spacing-5;
+
+        .kecom-score-number {
+          @include typography(4xl, bold, $text-primary);
+          line-height: 1;
+        }
+
+        .kecom-score-meta {
+          display: flex;
+          flex-direction: column;
+          gap: $spacing-1;
+
+          .kecom-stars {
+            display: inline-flex;
+            gap: 2px;
+            color: #f59e0b;
+            font-size: 16px;
+
+            .star-empty {
+              color: $border-default;
+            }
+          }
+
+          .kecom-count {
+            @include typography(sm, normal, $text-secondary);
+          }
+        }
+      }
+    }
+
+    .kecom-review-form-card {
+      background-color: $background-surface-alt;
+      border: 1px solid $border-default;
+      border-radius: $radius-xl;
+      padding: $spacing-8;
+
+      .kecom-form-title {
+        @include typography(lg, semibold, $text-primary);
+        margin: 0 0 $spacing-6 0;
+      }
+
+      .kecom-rating-selector {
+        display: flex;
+        align-items: center;
+        gap: $spacing-3;
+        margin-bottom: $spacing-2;
+
+        .kecom-stars-input {
+          display: inline-flex;
+          gap: $spacing-1;
+
+          button {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 26px;
+            cursor: pointer;
+            line-height: 1;
+            transition: transform 0.1s ease, color 0.1s ease;
+
+            &:hover {
+              transform: scale(1.15);
+            }
+          }
+        }
+
+        .kecom-rating-label {
+          @include typography(sm, medium, $text-secondary);
+        }
+      }
+    }
+
+    .kecom-reviews-list {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-6;
+
+      .kecom-review-card {
+        padding-bottom: $spacing-6;
+        border-bottom: 1px solid $border-default;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-3;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .kecom-review-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          .kecom-author-info {
+            display: flex;
+            align-items: center;
+            gap: $spacing-3;
+
+            .kecom-author-avatar {
+              width: 36px;
+              height: 36px;
+              border-radius: $radius-full;
+              background-color: $background-fill-brand;
+              color: $text-light;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: 600;
+              font-size: 14px;
+            }
+
+            .kecom-author-name {
+              @include typography(base, semibold, $text-primary);
+            }
+
+            .kecom-verified-badge {
+              display: inline-flex;
+              align-items: center;
+              gap: 4px;
+              padding: 2px 8px;
+              border-radius: $radius-full;
+              background-color: #ecfdf5;
+              color: #059669;
+              font-size: 12px;
+              font-weight: 500;
+            }
+          }
+
+          .kecom-review-date {
+            @include typography(sm, normal, $text-secondary);
+          }
+        }
+
+        .kecom-review-stars {
+          display: inline-flex;
+          gap: 2px;
+          color: #f59e0b;
+          font-size: 14px;
+
+          .star-empty {
+            color: $border-default;
+          }
+        }
+
+        .kecom-review-title {
+          @include typography(base, semibold, $text-primary);
+          margin: 0;
+        }
+
+        .kecom-review-content {
+          @include typography(base, normal, $text-secondary);
+          margin: 0;
+          line-height: 1.6;
+        }
+      }
+    }
+
+    .kecom-reviews-empty {
+      text-align: center;
+      padding: $spacing-12 $spacing-6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-4;
+
+      .kecom-empty-icon {
+        font-size: 36px;
+        color: #f59e0b;
+        opacity: 0.7;
+      }
+
+      h4 {
+        @include typography(lg, semibold, $text-primary);
+        margin: 0;
+      }
+
+      p {
+        @include typography(base, normal, $text-secondary);
+        max-width: 420px;
+        margin: 0;
+      }
+    }
+  }
 }
 
 // Product not-found page

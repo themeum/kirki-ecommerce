@@ -14,6 +14,7 @@ import { OnboardingGate } from '@/features/onboarding';
 import onboardingRoutes from '@/features/onboarding/routes';
 import ordersRoutes from '@/features/orders/routes';
 import productsRoutes from '@/features/products/routes';
+import reviewsRoutes from '@/features/reviews/routes';
 import settingsRoutes from '@/features/settings/routes';
 import systemRoutes from '@/features/system/routes';
 import tagsRoutes from '@/features/tags/routes';
@@ -42,6 +43,7 @@ export const router = createHashRouter([
               ...categoriesRoutes,
               ...brandsRoutes,
               ...customersRoutes,
+              ...reviewsRoutes,
               ...settingsRoutes,
               ...systemRoutes,
             ],

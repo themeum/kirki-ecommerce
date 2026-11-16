@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Menu\Home;
 use Kirki\Ecommerce\App\Menu\Inventory;
 use Kirki\Ecommerce\App\Menu\Orders;
 use Kirki\Ecommerce\App\Menu\Products;
+use Kirki\Ecommerce\App\Menu\Reviews;
 use Kirki\Ecommerce\App\Menu\Root;
 use Kirki\Ecommerce\App\Menu\Separator;
 use Kirki\Ecommerce\App\Menu\Settings;
@@ -29,6 +30,7 @@ return [
     Categories::class,
     Tags::class,
     Brands::class,
+    Reviews::class,
     Customers::class,
     Coupons::class,
     Settings::class,

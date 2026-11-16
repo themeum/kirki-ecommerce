@@ -123,7 +123,8 @@ class SiteController
             'attributes',
             'attribute_values',
             'variants.attribute_values',
-            'media'
+            'media',
+            'approved_reviews',
         ])->where('slug', $slug);
 
         $has_valid_preview_nonce = $request->bool('preview', false)

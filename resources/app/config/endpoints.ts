@@ -77,6 +77,11 @@ export const endpoints = {
   COUPON_ACTION: (id: string | number) => `/coupons/${id}/action`,
   COUPONS_BULK: '/coupons/bulk',
 
+  REVIEWS: '/reviews',
+  REVIEW: (id: string | number) => `/reviews/${id}`,
+  REVIEW_STATUS: (id: string | number) => `/reviews/${id}/status`,
+  REVIEWS_BULK: '/reviews/bulk',
+
   PAGES: '/pages',
   PAGES_FIX: '/pages/fix',
 

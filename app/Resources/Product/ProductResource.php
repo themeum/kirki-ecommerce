@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Models\Review;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\ProductAttributeFormatter;
@@ -54,9 +55,27 @@ class ProductResource extends Resource
         $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
         $availability_status = $availability_service->resolve_product_status($this->variants->all(), $store_default_threshold);
 
+        $approved_reviews = $this->relation_loaded('approved_reviews')
+            ? $this->approved_reviews
+            : ($this->resource && method_exists($this->resource, 'approved_reviews') ? $this->resource->approved_reviews()->get() : null);
+
+        $reviews_count = $approved_reviews ? $approved_reviews->count() : 0;
+        $total_rating = 0;
+        if ($approved_reviews) {
+            foreach ($approved_reviews as $rev) {
+                $total_rating += (int) $rev->rating;
+            }
+        }
+        $average_rating = $reviews_count > 0 ? round($total_rating / $reviews_count, 1) : 0;
+
         foreach ($this->variants as $variant) {
             $variant->set_relation('product', $this->resource);
         }
+
+        $current_user_id = function_exists('is_user_logged_in') && is_user_logged_in() ? get_current_user_id() : null;
+        $current_wp_user = $current_user_id ? wp_get_current_user() : null;
+        $current_email = $current_wp_user ? $current_wp_user->user_email : null;
+        $review_eligibility = Review::check_user_eligibility($this->id, $current_user_id, $current_email);
 
         return [
             'id' => $this->id,
@@ -65,6 +84,22 @@ class ProductResource extends Resource
             'status' => $this->status,
             'ribbon' => $this->ribbon,
             'ribbon_color' => $this->ribbon_color,
+            'reviews_count' => $reviews_count,
+            'average_rating' => $average_rating,
+            'review_eligibility' => $review_eligibility,
+            'reviews' => $approved_reviews ? $approved_reviews->map(function ($review) {
+                return [
+                    'id' => (int) $review->id,
+                    'author_name' => $review->author_name,
+                    'rating' => (int) $review->rating,
+                    'title' => $review->title,
+                    'content' => $review->content,
+                    'is_verified_purchase' => (bool) $review->is_verified_purchase,
+                    'created_at' => $review->created_at ? (is_string($review->created_at) ? date('M d, Y', strtotime($review->created_at)) : $review->created_at->format('M d, Y')) : '',
+                ];
+            })->all() : [],
+            'is_enabled_reviews' => (bool) Settings::get('product.is_enabled_reviews', true),
+            'is_enabled_star_ratings' => (bool) Settings::get('product.is_enabled_star_ratings', true),
 
             'brand' => !$this->brand_id ? null : [
                 'id' => $this->brand_id,
