@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import { ChevronDownIcon } from '@radix-ui/react-icons';
-import { Minus } from 'lucide-react';
+import { X } from 'lucide-react';
 import { type ReactNode, useMemo, useRef, useState } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
@@ -98,24 +98,29 @@ const CategoriesDropdownField = <
                         }}
                       />
                       <span css={scoped(styles.chevron)}>
-                        <ChevronDownIcon width={16} height={16} />
+                        <ChevronDownIcon
+                          width={16}
+                          height={16}
+                          color={theme.colors.text.secondary}
+                          css={scoped({ opacity: 0.5 })}
+                        />
                       </span>
                     </div>
                   }
                   chips={
                     selected.length > 0
                       ? selected.map((category) => (
-                        <Chip
-                          key={category.id}
-                          text={category.name}
-                          closeIcon={<Minus size={14} aria-hidden="true" />}
-                          onRemove={() => {
-                            applyIds(
-                              toggleCategorySelection(categories, selectedIds, category, false),
-                            );
-                          }}
-                        />
-                      ))
+                          <Chip
+                            key={category.id}
+                            text={category.name}
+                            closeIcon={<X size={14} aria-hidden="true" />}
+                            onRemove={() => {
+                              applyIds(
+                                toggleCategorySelection(categories, selectedIds, category, false),
+                              );
+                            }}
+                          />
+                        ))
                       : undefined
                   }
                 />
@@ -174,7 +179,6 @@ const styles = defineStyles({
     ...itemCenter(),
     flexShrink: 0,
     paddingRight: theme.spacing[3],
-    color: theme.colors.icon.primary,
   },
   content: {
     width: 'var(--radix-popover-trigger-width)',

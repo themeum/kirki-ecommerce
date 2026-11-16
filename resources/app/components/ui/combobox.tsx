@@ -498,6 +498,7 @@ const styles = defineStyles({
     flexShrink: 0,
     color: theme.colors.text.secondary,
     opacity: 0.5,
+    marginRight: '-2px',
   },
   tags: {
     ...itemCenter(),

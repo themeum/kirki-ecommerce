@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import { ChevronDownIcon } from '@radix-ui/react-icons';
-import { Minus } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
   Controller,
@@ -95,7 +95,12 @@ const RegionsField = <
                     >
                       <span css={scoped(styles.value)}>{placeholder}</span>
                       <span css={scoped(styles.chevron)}>
-                        <ChevronDownIcon width={16} height={16} />
+                        <ChevronDownIcon
+                          width={16}
+                          height={16}
+                          color={theme.colors.text.secondary}
+                          css={scoped({ opacity: 0.5 })}
+                        />
                       </span>
                     </Button>
                   }
@@ -107,7 +112,7 @@ const RegionsField = <
                         text={tag.title}
                         img={<span>{tag.tagIcon}</span>}
                         subText={tag.subText}
-                        closeIcon={<Minus size={14} aria-hidden="true" />}
+                        closeIcon={<X size={14} aria-hidden="true" />}
                         onRemove={() => removeRegion(tag.id)}
                       />
                     ))
@@ -177,6 +182,7 @@ const styles = defineStyles({
   chevron: {
     ...flexCenter(),
     flexShrink: 0,
+    marginRight: '-2px',
   },
   emptyState: {
     display: 'flex',
