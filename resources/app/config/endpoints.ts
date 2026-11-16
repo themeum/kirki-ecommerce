@@ -119,14 +119,10 @@ export const endpoints = {
   ORDER_EDIT: (id: string | number) => `/orders/${id}/edit`,
   ORDER_ACTION: (id: string | number) => `/orders/${id}/action`,
   ORDERS: '/orders',
-  ORDERS_BULK: '/orders/bulk',
   SHIPPING_METHODS: '/shipping-methods',
   CALCULATE_ORDER: '/calculate/order',
   ORDER_ACTIVITIES: (orderId: string | number) => `/orders/${orderId}/activities`,
   ORDER_SHIPPING_CARRIERS: (orderId: string | number) => `/orders/${orderId}/shipping-carriers`,
   ORDER_ACTIVITY: (orderId: string | number, activityId: string | number) =>
     `/orders/${orderId}/activities/${activityId}`,
-
-  CATALOG_EXPORT: '/catalog/export',
-  CATALOG_IMPORT: '/catalog/import',
 } as const;

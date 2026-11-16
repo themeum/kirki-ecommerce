@@ -63,17 +63,8 @@ class ShopProductResource extends Resource
         $product_id    = $this->resolve_product_id();
         $is_wishlisted = app(WishlistService::class)->is_wishlisted($product_id);
 
-        $approved_reviews = $this->relation_loaded('approved_reviews')
-            ? $this->approved_reviews
-            : ($this->resource && method_exists($this->resource, 'approved_reviews') ? $this->resource->approved_reviews()->get() : null);
-
-        $reviews_count = $approved_reviews ? $approved_reviews->count() : 0;
-        $total_rating = 0;
-        if ($approved_reviews) {
-            foreach ($approved_reviews as $rev) {
-                $total_rating += (int) $rev->rating;
-            }
-        }
+        $reviews_count  = (int) $this->approved_reviews()->count();
+        $total_rating   = (int) $this->approved_reviews()->sum('rating');
         $average_rating = $reviews_count > 0 ? round($total_rating / $reviews_count, 1) : 0;
 
         return [

@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Resources\Product;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Resources\Review\ReviewResource;
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Models\Product;
@@ -55,21 +56,11 @@ class ProductResource extends Resource
         $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
         $availability_status = $availability_service->resolve_product_status($this->variants->all(), $store_default_threshold);
 
-        $approved_reviews = $this->relation_loaded('approved_reviews')
-            ? $this->approved_reviews
-            : ($this->resource && method_exists($this->resource, 'approved_reviews') ? $this->resource->approved_reviews()->get() : null);
-
-        $reviews_count = $approved_reviews ? $approved_reviews->count() : 0;
-        $total_rating = 0;
-        $rating_breakdown = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
-        if ($approved_reviews) {
-            foreach ($approved_reviews as $rev) {
-                $r = max(1, min(5, (int) $rev->rating));
-                $total_rating += $r;
-                $rating_breakdown[$r] = ($rating_breakdown[$r] ?? 0) + 1;
-            }
-        }
-        $average_rating = $reviews_count > 0 ? round($total_rating / $reviews_count, 1) : 0;
+        $this->load_missing('approved_reviews');
+        $rating_summary = app(ReviewService::class)->get_product_rating_summary($this->id);
+        $reviews_count = $rating_summary['reviews_count'];
+        $average_rating = $rating_summary['average_rating'];
+        $rating_breakdown = $rating_summary['rating_breakdown'];
 
         foreach ($this->variants as $variant) {
             $variant->set_relation('product', $this->resource);
@@ -91,20 +82,7 @@ class ProductResource extends Resource
             'average_rating' => $average_rating,
             'rating_breakdown' => $rating_breakdown,
             'review_eligibility' => $review_eligibility,
-            'reviews' => $approved_reviews ? $approved_reviews->map(function ($review) {
-                return [
-                    'id' => (int) $review->id,
-                    'author_name' => $review->author_name,
-                    'rating' => (int) $review->rating,
-                    'title' => $review->title,
-                    'content' => $review->content,
-                    'is_verified_purchase' => (bool) $review->is_verified_purchase,
-                    'admin_reply' => $review->admin_reply,
-                    'admin_replied_at' => $review->admin_replied_at ? (is_string($review->admin_replied_at) ? date('M d, Y', strtotime($review->admin_replied_at)) : $review->admin_replied_at->format('M d, Y')) : null,
-                    'helpful_count' => (int) ($review->helpful_count ?? 0),
-                    'created_at' => $review->created_at ? (is_string($review->created_at) ? date('M d, Y', strtotime($review->created_at)) : $review->created_at->format('M d, Y')) : '',
-                ];
-            })->all() : [],
+            'reviews' => $this->approved_reviews ? ReviewResource::collection($this->approved_reviews) : [],
             'is_enabled_reviews' => (bool) Settings::get('product.is_enabled_reviews', true),
             'is_enabled_star_ratings' => (bool) Settings::get('product.is_enabled_star_ratings', true),
 

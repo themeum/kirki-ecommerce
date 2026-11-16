@@ -60,11 +60,7 @@ class ReviewController
     {
         $product_id = $request->int('id');
 
-        $reviews = Review::where('product_id', $product_id)
-            ->where('status', ReviewStatus::APPROVED)
-            ->order_by_desc('created_at')
-            ->get();
-
+        $reviews = $this->service->get_approved_product_reviews($product_id);
         $summary = $this->service->get_product_rating_summary($product_id);
 
         return response()->json([

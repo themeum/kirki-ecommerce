@@ -16,6 +16,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
+use function Kirki\Ecommerce\Framework\user;
 
 /**
  * Creates a product review after verifying customer eligibility.
@@ -82,8 +83,9 @@ class CreateReviewAction
             }
         }
 
+        $is_admin = user()->is_admin();
         $payload->is_verified_purchase = true;
-        $payload->status = ReviewStatus::PENDING;
+        $payload->status = $is_admin ? ReviewStatus::APPROVED : ReviewStatus::PENDING;
 
         DB::begin_transaction();
 

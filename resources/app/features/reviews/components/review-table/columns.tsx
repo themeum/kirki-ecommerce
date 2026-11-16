@@ -1,24 +1,37 @@
 import type { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
 import { Check, Eye, Trash2, X } from 'lucide-react';
 
 import type { DataTableBulkAction } from '@/components/data-table';
 import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
-import Badge from '@/components/ui/badge';
+import Badge, { type BadgeVariant } from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { RatingStars } from '@/features/reviews/components/review-detail-modal';
 import type { Review, ReviewStatusType } from '@/features/reviews/schemas/review';
-import { DATE_FORMATS } from '@/libs/date';
+import { DATE_FORMATS, formatDateValue } from '@/libs/date';
 import { theme } from '@/theme';
-import { defineStyles, scoped } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+import { defineStyles } from '@/theme/mixins';
+import { __, sprintf } from '@/wpi18n';
 
 export type ReviewColumnsOptions = {
   onView: (review: Review) => void;
   onStatusChange: (id: number, status: ReviewStatusType) => void;
   onDelete: (id: number) => void;
+};
+
+const getStatusBadgeVariant = (status: string): BadgeVariant => {
+  switch (status) {
+    case 'approved':
+      return 'success';
+    case 'pending':
+      return 'warning';
+    case 'trash':
+    case 'spam':
+    default:
+      return 'secondary';
+  }
 };
 
 export const createReviewColumns = ({
@@ -32,17 +45,18 @@ export const createReviewColumns = ({
     enableSorting: false,
     cell: ({ row }) => {
       const product = row.original.product;
-      const title = product?.title || `${__('Product #', 'kirki-ecommerce')}${row.original.product_id}`;
+      const title =
+        product?.title || sprintf(__('Product #%s', 'kirki-ecommerce'), row.original.product_id);
       return (
-        <button
-          type="button"
-          css={scoped(styles.clickable)}
+        <Button
+          variant="ghost"
+          cssOverride={styles.clickable}
           onClick={() => onView(row.original)}
         >
           <Text variant="small" weight="medium">
             {title}
           </Text>
-        </button>
+        </Button>
       );
     },
   },
@@ -83,7 +97,7 @@ export const createReviewColumns = ({
     header: __('Review', 'kirki-ecommerce'),
     enableSorting: false,
     cell: ({ row }) => (
-      <div css={styles.reviewCell}>
+      <Flex direction="column" gap={1} cssOverride={styles.reviewCell}>
         {row.original.title && (
           <Text variant="small" weight="semibold" cssOverride={styles.reviewTitle}>
             {row.original.title}
@@ -92,7 +106,7 @@ export const createReviewColumns = ({
         <Text variant="tiny" cssOverride={styles.reviewSnippet}>
           {row.original.content}
         </Text>
-      </div>
+      </Flex>
     ),
   },
   {
@@ -101,12 +115,7 @@ export const createReviewColumns = ({
     enableSorting: false,
     cell: ({ row }) => {
       const status = row.original.status;
-      const variant =
-        status === 'approved'
-          ? 'success'
-          : status === 'pending'
-            ? 'warning'
-            : 'secondary';
+      const variant = getStatusBadgeVariant(status);
       return <Badge variant={variant}>{status.toUpperCase()}</Badge>;
     },
   },
@@ -116,7 +125,7 @@ export const createReviewColumns = ({
     enableSorting: true,
     cell: ({ row }) =>
       row.original.created_at
-        ? format(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT)
+        ? formatDateValue(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT)
         : '-',
   },
   {
@@ -174,7 +183,8 @@ export const reviewBulkActions: DataTableBulkAction[] = [
 
 const styles = defineStyles({
   clickable: {
-    padding: 0,
+    padding: theme.spacing[0],
+    height: 'auto',
     border: 'none',
     background: 'none',
     font: 'inherit',
@@ -187,9 +197,6 @@ const styles = defineStyles({
   },
   reviewCell: {
     maxWidth: '280px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing[1],
   },
   reviewTitle: {
     whiteSpace: 'nowrap',

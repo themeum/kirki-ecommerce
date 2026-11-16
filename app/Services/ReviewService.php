@@ -440,12 +440,13 @@ class ReviewService
      */
     public function get_product_rating_summary(int $product_id)
     {
-        $reviews = Review::where('product_id', $product_id)
-            ->where('status', ReviewStatus::APPROVED)
-            ->get();
-
-        $count = $reviews ? $reviews->count() : 0;
         $breakdown = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
+
+        $base_query = Review::query()
+            ->where('product_id', $product_id)
+            ->where('status', ReviewStatus::APPROVED);
+
+        $count = (int) (clone $base_query)->count();
 
         if ($count === 0) {
             return [
@@ -455,22 +456,45 @@ class ReviewService
             ];
         }
 
-        $sum = 0;
-        foreach ($reviews as $rev) {
-            $r = (int) $rev->rating;
-            $sum += $r;
-            if (isset($breakdown[$r])) {
-                $breakdown[$r]++;
+        $sum = (int) (clone $base_query)->sum('rating');
+        $average = round($sum / $count, 1);
+
+        $breakdown_rows = (clone $base_query)
+            ->select_raw('rating, COUNT(*) as count')
+            ->group_by('rating')
+            ->get();
+
+        if ($breakdown_rows) {
+            foreach ($breakdown_rows as $row) {
+                $r = (int) $row->rating;
+                if (isset($breakdown[$r])) {
+                    $breakdown[$r] = (int) $row->count;
+                }
             }
         }
-
-        $average = round($sum / $count, 1);
 
         return [
             'average_rating' => $average,
             'reviews_count' => $count,
             'rating_breakdown' => $breakdown,
         ];
+    }
+
+    /**
+     * Get all approved reviews for a given product.
+     *
+     * @since 1.0.1
+     *
+     * @param int $product_id
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection
+     */
+    public function get_approved_product_reviews(int $product_id)
+    {
+        return Review::query()
+            ->where('product_id', $product_id)
+            ->where('status', ReviewStatus::APPROVED)
+            ->order_by_desc('created_at')
+            ->get();
     }
 
     /**
