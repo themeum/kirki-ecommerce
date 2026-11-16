@@ -34,6 +34,7 @@ export const RouteConfig = {
   Brands: defineRoute('/brands'),
 
   Customers: defineRoute('/customers', {
+    CustomerGroups: defineRoute('/groups'),
     CustomerDetail: defineRoute('/:id'),
   }),
 
