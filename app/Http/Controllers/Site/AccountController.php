@@ -255,4 +255,29 @@ class AccountController
 
         return view('site.account.wishlist', $data)->layout(false);
     }
+
+    /**
+     * Render the customer's submitted reviews page.
+     *
+     * @since 1.0.1
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\View\View
+     */
+    public function reviews(Request $request)
+    {
+        $this->ensure_user_logged_in();
+
+        $user_id = user()->get_id();
+        $reviews = \Kirki\Ecommerce\App\Models\Review::with('product')
+            ->where('user_id', $user_id)
+            ->order_by_desc('created_at')
+            ->get();
+
+        $data = [
+            'reviews' => $reviews,
+        ];
+
+        return view('site.account.reviews', $data)->layout(false);
+    }
 }

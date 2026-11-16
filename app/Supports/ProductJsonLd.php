@@ -68,6 +68,8 @@ class ProductJsonLd
             'brand' => static::build_brand($product),
             'offers' => static::build_offers($seo),
             'url' => $seo['url'] ?? '',
+            'aggregateRating' => static::build_aggregate_rating($product),
+            'review' => static::build_reviews($product),
         ];
 
         return array_filter($data, [static::class, 'is_filled']);
@@ -84,6 +86,70 @@ class ProductJsonLd
     protected static function is_filled($value)
     {
         return $value !== '' && $value !== null && $value !== [];
+    }
+
+    /**
+     * Build AggregateRating schema markup when reviews exist.
+     *
+     * @since 1.0.1
+     *
+     * @param array<string, mixed> $product The product resource array.
+     * @return array<string, mixed>|string
+     */
+    protected static function build_aggregate_rating(array $product)
+    {
+        $reviews_count = (int) ($product['reviews_count'] ?? 0);
+        $average_rating = (float) ($product['average_rating'] ?? 0);
+
+        if ($reviews_count <= 0 || $average_rating <= 0) {
+            return '';
+        }
+
+        return [
+            '@type' => 'AggregateRating',
+            'ratingValue' => $average_rating,
+            'reviewCount' => $reviews_count,
+            'bestRating' => 5,
+            'worstRating' => 1,
+        ];
+    }
+
+    /**
+     * Build Review schema markup array when approved reviews exist.
+     *
+     * @since 1.0.1
+     *
+     * @param array<string, mixed> $product The product resource array.
+     * @return array<int, array<string, mixed>>|string
+     */
+    protected static function build_reviews(array $product)
+    {
+        $reviews = $product['reviews'] ?? [];
+        if (empty($reviews) || !is_array($reviews)) {
+            return '';
+        }
+
+        $items = [];
+        foreach ($reviews as $rev) {
+            $items[] = [
+                '@type' => 'Review',
+                'reviewRating' => [
+                    '@type' => 'Rating',
+                    'ratingValue' => (int) ($rev['rating'] ?? 5),
+                    'bestRating' => 5,
+                    'worstRating' => 1,
+                ],
+                'author' => [
+                    '@type' => 'Person',
+                    'name' => (string) ($rev['author_name'] ?? 'Customer'),
+                ],
+                'name' => (string) ($rev['title'] ?? ''),
+                'reviewBody' => (string) ($rev['content'] ?? ''),
+                'datePublished' => !empty($rev['created_at']) ? date('Y-m-d', strtotime($rev['created_at'])) : '',
+            ];
+        }
+
+        return $items;
     }
 
     /**

@@ -38,6 +38,9 @@ class CreateReviewsTable implements Migration
             $table->text('content');
             $table->string('status', 50)->default('pending');
             $table->boolean('is_verified_purchase')->default(false);
+            $table->text('admin_reply')->nullable();
+            $table->datetime('admin_replied_at')->nullable();
+            $table->unsigned_integer('helpful_count')->default(0);
             $table->datetimes();
 
             $table->index(['product_id', 'status'], 'idx_kecom_reviews_product_status');

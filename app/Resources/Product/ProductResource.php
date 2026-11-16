@@ -61,9 +61,12 @@ class ProductResource extends Resource
 
         $reviews_count = $approved_reviews ? $approved_reviews->count() : 0;
         $total_rating = 0;
+        $rating_breakdown = [5 => 0, 4 => 0, 3 => 0, 2 => 0, 1 => 0];
         if ($approved_reviews) {
             foreach ($approved_reviews as $rev) {
-                $total_rating += (int) $rev->rating;
+                $r = max(1, min(5, (int) $rev->rating));
+                $total_rating += $r;
+                $rating_breakdown[$r] = ($rating_breakdown[$r] ?? 0) + 1;
             }
         }
         $average_rating = $reviews_count > 0 ? round($total_rating / $reviews_count, 1) : 0;
@@ -86,6 +89,7 @@ class ProductResource extends Resource
             'ribbon_color' => $this->ribbon_color,
             'reviews_count' => $reviews_count,
             'average_rating' => $average_rating,
+            'rating_breakdown' => $rating_breakdown,
             'review_eligibility' => $review_eligibility,
             'reviews' => $approved_reviews ? $approved_reviews->map(function ($review) {
                 return [
@@ -95,6 +99,9 @@ class ProductResource extends Resource
                     'title' => $review->title,
                     'content' => $review->content,
                     'is_verified_purchase' => (bool) $review->is_verified_purchase,
+                    'admin_reply' => $review->admin_reply,
+                    'admin_replied_at' => $review->admin_replied_at ? (is_string($review->admin_replied_at) ? date('M d, Y', strtotime($review->admin_replied_at)) : $review->admin_replied_at->format('M d, Y')) : null,
+                    'helpful_count' => (int) ($review->helpful_count ?? 0),
                     'created_at' => $review->created_at ? (is_string($review->created_at) ? date('M d, Y', strtotime($review->created_at)) : $review->created_at->format('M d, Y')) : '',
                 ];
             })->all() : [],
@@ -120,26 +127,26 @@ class ProductResource extends Resource
             'availability_status' => $availability_status,
             'availability_label' => !is_null($availability_status) ? AvailabilityStatus::get_formatted($availability_status) : null,
 
-            'categories' => $this->categories->map(function ($item) {
+            'categories' => $this->categories ? $this->categories->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
                     'parent_id' => $item->parent_id,
                     'level' => $item->level,
                 ];
-            }),
-            'tags' => $this->tags->map(function ($item) {
+            }) : [],
+            'tags' => $this->tags ? $this->tags->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
                 ];
-            }),
-            'collections' => $this->collections->map(function ($item) {
+            }) : [],
+            'collections' => $this->collections ? $this->collections->map(function ($item) {
                 return [
                     'id' => $item->id,
                     'title' => $item->title,
                 ];
-            }),
+            }) : [],
 
             'attributes' => !empty($this->attributes)
                 ? ProductAttributeFormatter::format($this->attributes->to_array(), $this->attribute_values->to_array(), $this->variants)

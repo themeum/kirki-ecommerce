@@ -28,6 +28,24 @@ const updateReviewStatus = ({ id, status }: { id: number; status: ReviewStatusTy
     .then((response) => parseResponse(ReviewSchema, response));
 };
 
+const updateReview = ({
+  id,
+  data,
+}: {
+  id: number;
+  data: { rating?: number; title?: string; content?: string; status?: string };
+}) => {
+  return apiClient
+    .put(endpoints.REVIEW(id), data)
+    .then((response) => parseResponse(ReviewSchema, response));
+};
+
+const replyToReview = ({ id, admin_reply }: { id: number; admin_reply: string }) => {
+  return apiClient
+    .post(endpoints.REVIEW_REPLY(id), { admin_reply })
+    .then((response) => parseResponse(ReviewSchema, response));
+};
+
 const deleteReview = (id: number) => {
   return apiClient.delete(endpoints.REVIEW(id)).then((response) => parseMessage(response));
 };
@@ -52,6 +70,34 @@ export const useUpdateReviewStatusMutation = () => {
     mutationFn: updateReviewStatus,
     onSuccess(response) {
       toastMutationSuccess(response.message || __('Review updated', 'kirki-ecommerce'));
+      void queryClient.invalidateQueries({ queryKey: reviewsKeys.lists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+export const useUpdateReviewMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateReview,
+    onSuccess(response) {
+      toastMutationSuccess(response.message || __('Review updated successfully', 'kirki-ecommerce'));
+      void queryClient.invalidateQueries({ queryKey: reviewsKeys.lists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+export const useReplyToReviewMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: replyToReview,
+    onSuccess(response) {
+      toastMutationSuccess(response.message || __('Reply saved successfully', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: reviewsKeys.lists() });
     },
     onError(error) {

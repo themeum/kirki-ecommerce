@@ -92,6 +92,28 @@
     overflow-wrap: anywhere;
   }
 
+  &-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-1;
+    font-size: 13px;
+    line-height: 1;
+
+    .kecom-stars {
+      color: #f59e0b;
+      font-size: 14px;
+    }
+
+    .kecom-rating-score {
+      font-weight: 600;
+      color: $text-primary;
+    }
+
+    .kecom-rating-count {
+      color: $text-secondary;
+    }
+  }
+
   &-footer {
     display: flex;
     flex-direction: column;

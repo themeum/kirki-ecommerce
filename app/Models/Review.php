@@ -25,7 +25,9 @@ class Review extends Model
         'product_id' => 'integer',
         'user_id' => 'integer',
         'rating' => 'integer',
+        'helpful_count' => 'integer',
         'is_verified_purchase' => 'boolean',
+        'admin_replied_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -41,6 +43,9 @@ class Review extends Model
         'content',
         'status',
         'is_verified_purchase',
+        'admin_reply',
+        'admin_replied_at',
+        'helpful_count',
     ];
 
     const STATUS_PENDING = 'pending';
@@ -187,7 +192,7 @@ class Review extends Model
         }
 
         // 3. Check if the user already submitted a review
-        $already_reviewed = static::where('product_id', $product_id)
+        $existing_review = static::where('product_id', $product_id)
             ->where(function ($q) use ($user_id, $email) {
                 if ($user_id) {
                     $q->where('user_id', $user_id);
@@ -199,13 +204,20 @@ class Review extends Model
                         $q->where('author_email', $email);
                     }
                 }
-            })->exists();
+            })->first();
 
         return [
             'can_review' => true,
             'reason' => 'eligible',
             'message' => __('You are eligible to review this product.', 'kirki-ecommerce'),
-            'already_reviewed' => (bool) $already_reviewed,
+            'already_reviewed' => !empty($existing_review),
+            'existing_review' => $existing_review ? [
+                'id' => (int) $existing_review->id,
+                'rating' => (int) $existing_review->rating,
+                'title' => $existing_review->title,
+                'content' => $existing_review->content,
+                'status' => $existing_review->status,
+            ] : null,
         ];
     }
 }

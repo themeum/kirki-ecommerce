@@ -80,6 +80,7 @@ export const endpoints = {
   REVIEWS: '/reviews',
   REVIEW: (id: string | number) => `/reviews/${id}`,
   REVIEW_STATUS: (id: string | number) => `/reviews/${id}/status`,
+  REVIEW_REPLY: (id: string | number) => `/reviews/${id}/reply`,
   REVIEWS_BULK: '/reviews/bulk',
 
   PAGES: '/pages',
@@ -118,10 +119,14 @@ export const endpoints = {
   ORDER_EDIT: (id: string | number) => `/orders/${id}/edit`,
   ORDER_ACTION: (id: string | number) => `/orders/${id}/action`,
   ORDERS: '/orders',
+  ORDERS_BULK: '/orders/bulk',
   SHIPPING_METHODS: '/shipping-methods',
   CALCULATE_ORDER: '/calculate/order',
   ORDER_ACTIVITIES: (orderId: string | number) => `/orders/${orderId}/activities`,
   ORDER_SHIPPING_CARRIERS: (orderId: string | number) => `/orders/${orderId}/shipping-carriers`,
   ORDER_ACTIVITY: (orderId: string | number, activityId: string | number) =>
     `/orders/${orderId}/activities/${activityId}`,
+
+  CATALOG_EXPORT: '/catalog/export',
+  CATALOG_IMPORT: '/catalog/import',
 } as const;

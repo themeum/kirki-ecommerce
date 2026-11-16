@@ -168,7 +168,9 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     // Reviews (Admin)
     Route::get('/reviews', [ReviewController::class, 'get']);
     Route::get('/reviews/{id}', [ReviewController::class, 'show'])->where('id', '[\d]+');
+    Route::put('/reviews/{id}', [ReviewController::class, 'update'])->where('id', '[\d]+');
     Route::put('/reviews/{id}/status', [ReviewController::class, 'update_status'])->where('id', '[\d]+');
+    Route::post('/reviews/{id}/reply', [ReviewController::class, 'reply'])->where('id', '[\d]+');
     Route::delete('/reviews/{id}', [ReviewController::class, 'delete'])->where('id', '[\d]+');
     Route::post('/reviews/bulk', [ReviewController::class, 'bulk_actions']);
 
@@ -266,6 +268,8 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
 Route::get('/shop/products', [SiteController::class, 'products']);
 Route::get('/shop/products/{id}/reviews', [ReviewController::class, 'product_reviews'])->where('id', '[\d]+');
 Route::post('/shop/products/{id}/reviews', [ReviewController::class, 'store'])->where('id', '[\d]+');
+Route::post('/shop/reviews/{id}/helpful', [ReviewController::class, 'vote_helpful'])->where('id', '[\d]+');
+Route::get('/account/reviews', [ReviewController::class, 'customer_reviews']);
 Route::post('/reviews', [ReviewController::class, 'store']);
 
 // Cart api endpoints for guest card.

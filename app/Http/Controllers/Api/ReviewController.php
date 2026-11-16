@@ -12,6 +12,7 @@ use Kirki\Ecommerce\App\Models\Review;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Exceptions\UnauthorizedException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
@@ -136,6 +137,23 @@ class ReviewController
         }
 
         if ($eligibility['already_reviewed']) {
+            if (!empty($eligibility['existing_review']['id'])) {
+                $existing = Review::find($eligibility['existing_review']['id']);
+                if ($existing) {
+                    $existing->update([
+                        'rating' => $request->int('rating'),
+                        'title' => $request->string('title') ?: null,
+                        'content' => $request->string('content'),
+                        'status' => Review::STATUS_PENDING,
+                    ]);
+
+                    return response()->json([
+                        'data' => $existing,
+                        'message' => __('Your review has been updated and submitted for approval.', 'kirki-ecommerce'),
+                    ]);
+                }
+            }
+
             return response()->json([
                 'message' => __('You have already submitted a review for this product.', 'kirki-ecommerce'),
                 'code' => 'already_reviewed',
@@ -156,6 +174,29 @@ class ReviewController
             'status' => $status,
             'is_verified_purchase' => true,
         ]);
+
+        // Send notification email to admin
+        try {
+            $admin_email = get_option('admin_email');
+            if (!empty($admin_email)) {
+                $rating_stars = str_repeat('★', (int) $request->int('rating'));
+                $subject = sprintf(__('[Kirki eCommerce] New Review: %s (%s)', 'kirki-ecommerce'), $product->title, $rating_stars);
+                $body = sprintf(
+                    __("A new review was submitted for \"%s\".\n\nAuthor: %s (%s)\nRating: %d/5 Stars\nTitle: %s\nReview:\n%s\n\nStatus: %s\n\nReview link in admin: %s", 'kirki-ecommerce'),
+                    $product->title,
+                    $author_name,
+                    $author_email,
+                    $request->int('rating'),
+                    $request->string('title') ?: '(No title)',
+                    $request->string('content'),
+                    $status,
+                    admin_url('admin.php?page=kirki-ecommerce#/reviews')
+                );
+                wp_mail($admin_email, $subject, $body);
+            }
+        } catch (\Throwable $e) {
+            // Silently ignore mail errors
+        }
 
         $message = $status === Review::STATUS_APPROVED
             ? __('Review submitted and published successfully.', 'kirki-ecommerce')
@@ -307,6 +348,135 @@ class ReviewController
 
         return response()->json([
             'message' => $message ?? __('Bulk action completed.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Admin updates review fields (rating, title, content, status).
+     *
+     * @since 1.0.1
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     */
+    public function update(Request $request)
+    {
+        $review = Review::find($request->int('id'));
+        throw_if(!$review, __('Review not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        $request->validate([
+            'rating' => 'sometimes|integer|min:1|max:5',
+            'title' => 'nullable|string|max:255',
+            'content' => 'sometimes|string|max:5000',
+            'status' => 'sometimes|string',
+        ]);
+
+        $data = [];
+        if ($request->has('rating')) {
+            $data['rating'] = $request->int('rating');
+        }
+        if ($request->has('title')) {
+            $data['title'] = $request->string('title') ?: null;
+        }
+        if ($request->has('content')) {
+            $data['content'] = $request->string('content');
+        }
+        if ($request->has('status')) {
+            $data['status'] = $request->string('status');
+        }
+
+        $review->update($data);
+
+        return response()->json([
+            'data' => $review,
+            'message' => __('Review updated successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Admin adds or updates a store owner reply to a review.
+     *
+     * @since 1.0.1
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     */
+    public function reply(Request $request)
+    {
+        $review = Review::find($request->int('id'));
+        throw_if(!$review, __('Review not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        $request->validate([
+            'admin_reply' => 'required|string|max:5000',
+        ]);
+
+        $review->update([
+            'admin_reply' => $request->string('admin_reply'),
+            'admin_replied_at' => current_time('mysql'),
+        ]);
+
+        return response()->json([
+            'data' => $review,
+            'message' => __('Reply saved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Upvote a review as helpful.
+     *
+     * @since 1.0.1
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     */
+    public function vote_helpful(Request $request)
+    {
+        $review_id = $request->int('id');
+        $review = Review::find($review_id);
+        throw_if(!$review, __('Review not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        $cookie_name = 'kecom_voted_review_' . $review_id;
+        if (!empty($_COOKIE[$cookie_name])) {
+            return response()->json([
+                'message' => __('You have already voted this review as helpful.', 'kirki-ecommerce'),
+                'helpful_count' => (int) $review->helpful_count,
+            ], Response::BAD_REQUEST);
+        }
+
+        $new_count = ((int) $review->helpful_count) + 1;
+        $review->update(['helpful_count' => $new_count]);
+
+        if (!headers_sent()) {
+            setcookie($cookie_name, '1', time() + (30 * DAY_IN_SECONDS), COOKIEPATH ?: '/', COOKIE_DOMAIN ?: '', is_ssl(), true);
+        }
+
+        return response()->json([
+            'message' => __('Thank you for your feedback.', 'kirki-ecommerce'),
+            'helpful_count' => $new_count,
+        ]);
+    }
+
+    /**
+     * Get reviews submitted by the currently logged-in customer.
+     *
+     * @since 1.0.1
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     */
+    public function customer_reviews(Request $request)
+    {
+        $user_id = function_exists('is_user_logged_in') && is_user_logged_in() ? get_current_user_id() : null;
+        throw_if(!$user_id, __('Please log in.', 'kirki-ecommerce'), UnauthorizedException::class, Response::UNAUTHORIZED);
+
+        $reviews = Review::with('product')
+            ->where('user_id', $user_id)
+            ->order_by_desc('created_at')
+            ->get();
+
+        return response()->json([
+            'data' => $reviews,
+            'message' => __('Your reviews retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
 }

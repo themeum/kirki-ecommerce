@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Constants\Product\RibbonColor;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Collections\Collection;
@@ -62,6 +63,19 @@ class ShopProductResource extends Resource
         $product_id    = $this->resolve_product_id();
         $is_wishlisted = app(WishlistService::class)->is_wishlisted($product_id);
 
+        $approved_reviews = $this->relation_loaded('approved_reviews')
+            ? $this->approved_reviews
+            : ($this->resource && method_exists($this->resource, 'approved_reviews') ? $this->resource->approved_reviews()->get() : null);
+
+        $reviews_count = $approved_reviews ? $approved_reviews->count() : 0;
+        $total_rating = 0;
+        if ($approved_reviews) {
+            foreach ($approved_reviews as $rev) {
+                $total_rating += (int) $rev->rating;
+            }
+        }
+        $average_rating = $reviews_count > 0 ? round($total_rating / $reviews_count, 1) : 0;
+
         return [
             'id'                      => $this->id,
             'product_id'              => $product_id,
@@ -81,6 +95,10 @@ class ShopProductResource extends Resource
             'variant_id'              => $variant_id,
             'cart_url'                => Url::get_cart_url(),
             'is_wishlisted'           => $is_wishlisted,
+            'reviews_count'           => $reviews_count,
+            'average_rating'          => $average_rating,
+            'is_enabled_reviews'      => (bool) Settings::get('product.is_enabled_reviews', true),
+            'is_enabled_star_ratings' => (bool) Settings::get('product.is_enabled_star_ratings', true),
         ];
     }
 
