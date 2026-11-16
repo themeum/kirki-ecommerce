@@ -261,4 +261,96 @@ class Url
     {
         return remove_query_arg($query_params, $url);
     }
+
+    /**
+     * Check if a URL is valid.
+     * 
+     * @since 1.0.2
+     * 
+     * @param string $url URL.
+     * @return bool
+     */
+    public static function is_valid_url($url)
+    {
+        if (!is_string($url) || empty($url)) {
+            return false;
+        }
+
+        if (!preg_match('/^https?:\/\//i', $url)) {
+            return false;
+        }
+
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
+    }
+
+    /**
+     * Filter the safe redirect URL.
+     * 
+     * @since 1.0.2
+     * 
+     * @param string $redirect_url Redirect URL.
+     * @return void
+     */
+    protected static function filter_safe_url($redirect_url)
+    {
+        add_filter('wp_safe_redirect_fallback', function ($url) use ($redirect_url) {
+            return static::is_valid_url($redirect_url) ? $redirect_url : $url;
+        }, 1, 1);
+    }
+
+    /**
+     * Redirect to a URL.
+     * 
+     * @since 1.0.2
+     * 
+     * @param string $url URL.
+     * @param array  $data Query params.
+     * @param int    $status HTTP status code.
+     * @return void
+     */
+    public static function redirect($url, $data = [], $status = 302)
+    {
+        $referer = $url;
+        $redirect_url = add_query_arg($data, $referer);
+
+        static::filter_safe_url($redirect_url);
+
+        if (headers_sent()) {
+            wp_print_inline_script_tag("window.location.href = '" . esc_url(wp_json_encode($redirect_url)) . "';");
+            exit;
+        }
+
+        wp_safe_redirect($redirect_url, $status);
+        exit;
+    }
+
+    /**
+     * Get the previous URL.
+     * 
+     * @since 1.0.2
+     * 
+     * @param array $query_params Query params.
+     * @return string
+     */
+    public static function get_previous_url(array $query_params = [])
+    {
+        $referer = wp_get_referer();
+        $redirect_url = add_query_arg($query_params, $referer);
+
+        return $redirect_url;
+    }
+
+    /**
+     * Redirect back to the previous URL.
+     * 
+     * @since 1.0.2
+     * 
+     * @param array $query_params Query params.
+     * @return void
+     */
+    public static function redirect_back($query_params = [])
+    {
+        $redirect_url = static::get_previous_url($query_params);
+        static::redirect($redirect_url);
+    }
 }
