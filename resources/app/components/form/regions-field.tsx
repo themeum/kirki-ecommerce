@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { Minus } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
   Controller,
@@ -103,7 +103,7 @@ const RegionsField = <
                         text={tag.title}
                         img={<span>{tag.tagIcon}</span>}
                         subText={tag.subText}
-                        closeIcon={<Minus size={14} aria-hidden="true" />}
+                        closeIcon={<X size={14} aria-hidden="true" />}
                         onRemove={() => removeRegion(tag.id)}
                       />
                     ))
@@ -166,6 +166,7 @@ const styles = defineStyles({
   chevron: {
     ...flexCenter(),
     flexShrink: 0,
+    marginRight: '-2px',
   },
   emptyState: {
     display: 'flex',

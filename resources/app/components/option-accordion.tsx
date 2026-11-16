@@ -83,7 +83,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
               (variant === 'shipping' || variant === 'email') && styles.shippingTrigger,
               variant === 'email' && styles.emailTrigger,
             )}
-            gap={2}
+            gap={variant === 'shipping' || variant === 'email' ? 2 : 3}
             disabled={disabled || !expandable}
             hideChevron={!expandable}
           >

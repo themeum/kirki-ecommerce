@@ -57,7 +57,7 @@ const ShippingZoneActions = ({
     }
   };
   return (
-    <ActionGroup cssOverride={{ marginLeft: theme.spacing[1] }}>
+    <ActionGroup>
       <Button
         variant="ghost"
         size="icon-sm"

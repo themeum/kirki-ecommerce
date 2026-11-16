@@ -13,9 +13,9 @@ alongside the invoiced ones.
 ### Requirement: The admin order payload exposes both invoiced and base-currency amounts
 
 The admin order payload SHALL expose, for every monetary figure, both the
-order's own invoiced-currency amount and the store's base-currency amount,
-each as a money object. It SHALL NOT expose a bare scalar amount key
-alongside a money object for the same figure.
+order's own invoiced-currency amount and the base-currency amount in the
+base currency the order was placed in, each as a money object. It SHALL NOT
+expose a bare scalar amount key alongside a money object for the same figure.
 
 #### Scenario: Order placed in a non-base currency
 

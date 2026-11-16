@@ -29,6 +29,13 @@ define('WP_HOME', $wp_url);
 define('WP_SITEURL', $wp_url);
 define('KECOM_WEBHOOK_BASE_URL', getenv('KECOM_WEBHOOK_BASE_URL') ?: 'http://localhost:20100');
 
+// If we're behind a proxy server and using HTTPS, we need to alert WordPress of that fact
+// see also https://wordpress.org/support/article/administration-over-ssl/#using-a-reverse-proxy
+$enable_proxy = getenv('ENABLE_PROXY') ?: 'off';
+if ($enable_proxy === 'on' && isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strpos($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false) {
+    $_SERVER['HTTPS'] = 'on';
+}
+
 define('KECOM_VITE_DEV_SERVER', 'http://localhost:' . (getenv('VITE_PORT') ?: '5173'));
 
 define('FS_METHOD', 'direct');
