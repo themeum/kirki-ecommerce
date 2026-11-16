@@ -7,8 +7,8 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Models\Review;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
+use Kirki\Ecommerce\App\Services\ReviewService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\ProductAttributeFormatter;
 use Kirki\Ecommerce\Framework\Resource;
@@ -78,7 +78,7 @@ class ProductResource extends Resource
         $current_user_id = function_exists('is_user_logged_in') && is_user_logged_in() ? get_current_user_id() : null;
         $current_wp_user = $current_user_id ? wp_get_current_user() : null;
         $current_email = $current_wp_user ? $current_wp_user->user_email : null;
-        $review_eligibility = Review::check_user_eligibility($this->id, $current_user_id, $current_email);
+        $review_eligibility = app(ReviewService::class)->check_eligibility($this->id, $current_user_id, $current_email);
 
         return [
             'id' => $this->id,

@@ -22,6 +22,7 @@ use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
 use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Services\ReviewService;
 use Kirki\Ecommerce\App\Services\UserService;
 use Kirki\Ecommerce\App\Services\WishlistService;
 use Kirki\Ecommerce\App\Supports\Url;
@@ -261,21 +262,24 @@ class AccountController
      *
      * @since 1.0.1
      *
-     * @param Request $request
+     * @param Request       $request
+     * @param ReviewService $review_service
      * @return \Kirki\Ecommerce\Framework\View\View
      */
-    public function reviews(Request $request)
+    public function reviews(Request $request, ReviewService $review_service)
     {
         $this->ensure_user_logged_in();
 
-        $user_id = user()->get_id();
-        $reviews = \Kirki\Ecommerce\App\Models\Review::with('product')
-            ->where('user_id', $user_id)
-            ->order_by_desc('created_at')
-            ->get();
+        $user = wp_get_current_user();
+        $paginator = $review_service->get_customer_reviews(
+            (int) $user->ID,
+            (string) $user->user_email,
+            $request->int('page', 1),
+            $this->list_limit
+        );
 
         $data = [
-            'reviews' => $reviews,
+            'reviews' => $paginator,
         ];
 
         return view('site.account.reviews', $data)->layout(false);

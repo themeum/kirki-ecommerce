@@ -1,0 +1,137 @@
+// Account - Reviews
+// Styling for the customer account reviews list
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-account-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+
+  .kecom-account-panel-header {
+    &-title {
+      @include typography(xl, semibold, $text-primary);
+      margin: 0;
+
+      .kecom-count {
+        @include typography(sm, regular, $text-secondary);
+        margin-inline-start: $spacing-2;
+      }
+    }
+  }
+
+  .kecom-account-reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+
+  .kecom-account-review-card {
+    background-color: $background-surface;
+    border: 1px solid $border-default;
+    border-radius: $radius-lg;
+    padding: $spacing-5;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    transition: box-shadow 0.2s ease-in-out;
+
+    &:hover {
+      box-shadow: $shadow-sm;
+    }
+
+    .kecom-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: $spacing-3;
+      flex-wrap: wrap;
+
+      .kecom-product-link {
+        @include typography(base, semibold, $text-primary);
+        text-decoration: none;
+
+        &:hover {
+          color: $text-brand;
+        }
+      }
+
+      .kecom-review-meta {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        margin-top: $spacing-1;
+
+        .kecom-stars {
+          color: #f59e0b;
+          font-size: 14px;
+          letter-spacing: 2px;
+        }
+
+        .kecom-date {
+          @include typography(sm, regular, $text-secondary);
+        }
+      }
+    }
+
+    .kecom-review-title {
+      @include typography(base, semibold, $text-primary);
+      margin: 0;
+    }
+
+    .kecom-review-body {
+      @include typography(sm, regular, $text-secondary);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .kecom-admin-reply {
+      margin-top: $spacing-2;
+      padding: $spacing-3 $spacing-4;
+      background-color: $background-surface-alt;
+      border-left: 3px solid $background-fill-brand;
+      border-radius: 0 $radius-md $radius-md 0;
+
+      .kecom-reply-header {
+        @include typography(xs, semibold, $text-brand);
+        margin-bottom: $spacing-1;
+
+        .kecom-reply-date {
+          @include typography(xs, regular, $text-secondary);
+          margin-inline-start: $spacing-2;
+        }
+      }
+
+      .kecom-reply-body {
+        @include typography(sm, regular, $text-primary);
+        margin: 0;
+      }
+    }
+  }
+
+  .kecom-account-empty {
+    text-align: center;
+    padding: $spacing-12 $spacing-6;
+    background-color: $background-surface;
+    border: 1px solid $border-default;
+    border-radius: $radius-lg;
+
+    .kecom-empty-icon {
+      font-size: 36px;
+      color: #f59e0b;
+      margin-bottom: $spacing-3;
+    }
+
+    h4 {
+      @include typography(lg, semibold, $text-primary);
+      margin: 0 0 $spacing-2;
+    }
+
+    p {
+      @include typography(sm, regular, $text-secondary);
+      max-width: 420px;
+      margin: 0 auto $spacing-5;
+    }
+  }
+}

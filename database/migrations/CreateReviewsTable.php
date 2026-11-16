@@ -36,7 +36,7 @@ class CreateReviewsTable implements Migration
             $table->unsigned_tiny_integer('rating');
             $table->string('title', 255)->nullable();
             $table->text('content');
-            $table->string('status', 50)->default('pending');
+            $table->string('status', 50)->default('pending')->comment('Supported values: pending, approved, spam, trash');
             $table->boolean('is_verified_purchase')->default(false);
             $table->text('admin_reply')->nullable();
             $table->datetime('admin_replied_at')->nullable();

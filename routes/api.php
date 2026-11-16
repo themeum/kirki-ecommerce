@@ -38,6 +38,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AddressController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\CheckoutController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\ReviewController as SiteReviewController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\OrderActivityController as SiteOrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\WishlistController;
@@ -266,11 +267,9 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
 
 // Site api endpoints.
 Route::get('/shop/products', [SiteController::class, 'products']);
-Route::get('/shop/products/{id}/reviews', [ReviewController::class, 'product_reviews'])->where('id', '[\d]+');
-Route::post('/shop/products/{id}/reviews', [ReviewController::class, 'store'])->where('id', '[\d]+');
-Route::post('/shop/reviews/{id}/helpful', [ReviewController::class, 'vote_helpful'])->where('id', '[\d]+');
-Route::get('/account/reviews', [ReviewController::class, 'customer_reviews']);
-Route::post('/reviews', [ReviewController::class, 'store']);
+Route::get('/shop/products/{id}/reviews', [SiteReviewController::class, 'product_reviews'])->where('id', '[\d]+');
+Route::post('/shop/products/{id}/reviews', [SiteReviewController::class, 'store'])->where('id', '[\d]+');
+Route::post('/shop/reviews/{id}/helpful', [SiteReviewController::class, 'vote_helpful'])->where('id', '[\d]+');
 
 // Cart api endpoints for guest card.
 Route::get('/cart', [CartController::class, 'get']);
@@ -291,6 +290,7 @@ Route::group([
     'middleware' => AuthMiddleware::class,
 ], function () {
     Route::get('/orders', [AccountController::class, 'customer_orders']);
+    Route::get('/reviews', [AccountController::class, 'customer_reviews']);
     Route::get('/orders/{id}/activities', [SiteOrderActivityController::class, 'get']);
     Route::put('/profile', [AccountController::class, 'update_profile']);
     Route::put('/password-change', [AccountController::class, 'change_password']);

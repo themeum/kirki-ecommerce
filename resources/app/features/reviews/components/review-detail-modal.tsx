@@ -196,7 +196,7 @@ export const ReviewDetailModal = ({
                 <Text variant="small" color="subdued">
                   ({review.rating} / 5)
                 </Text>
-                {review.helpful_count > 0 && (
+                {(review.helpful_count ?? 0) > 0 && (
                   <Badge variant="secondary" size="sm" style={{ marginLeft: 8 }}>
                     👍 {review.helpful_count} {__('helpful votes', 'kirki-ecommerce')}
                   </Badge>
@@ -354,17 +354,17 @@ export const ReviewDetailModal = ({
                   {__('Approve', 'kirki-ecommerce')}
                 </Button>
               )}
-              {review.status !== 'rejected' && (
+              {review.status !== 'trash' && (
                 <Button
                   variant="secondary"
                   size="sm"
                   onClick={() => {
-                    onStatusChange(review.id, 'rejected');
+                    onStatusChange(review.id, 'trash');
                     onClose();
                   }}
                 >
                   <X size={14} style={{ marginRight: 6 }} />
-                  {__('Reject', 'kirki-ecommerce')}
+                  {__('Move to Trash', 'kirki-ecommerce')}
                 </Button>
               )}
               <Button variant="outline" size="sm" onClick={onClose}>

@@ -143,12 +143,12 @@ export const createReviewColumns = ({
                   },
                 ]
               : []),
-            ...(item.status !== 'rejected'
+            ...(item.status !== 'trash'
               ? [
                   {
-                    label: __('Reject', 'kirki-ecommerce'),
+                    label: __('Move to Trash', 'kirki-ecommerce'),
                     icon: <X size={16} />,
-                    onClick: () => onStatusChange(item.id, 'rejected'),
+                    onClick: () => onStatusChange(item.id, 'trash'),
                   },
                 ]
               : []),

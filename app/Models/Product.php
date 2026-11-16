@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Models;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\HasSlug;
+use Kirki\Ecommerce\App\Constants\Review\ReviewStatus;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
@@ -184,6 +185,6 @@ class Product extends Model
      */
     public function approved_reviews()
     {
-        return $this->has_many(Review::class, 'product_id', 'id')->where('status', Review::STATUS_APPROVED);
+        return $this->has_many(Review::class, 'product_id', 'id')->where('status', ReviewStatus::APPROVED);
     }
 }
