@@ -72,7 +72,7 @@ define('KIRKI_ECOMMERCE_PREFIX', 'kirki_ecommerce_');
  * The kirki ecommerce plugin mode
  * @var string
  */
-define('KIRKI_ECOMMERCE_MODE', 'development');
+defined('KIRKI_ECOMMERCE_MODE') || define('KIRKI_ECOMMERCE_MODE', 'development');
 
 /**
  * The base URL of the remote payment gateway catalog (public S3 bucket).
