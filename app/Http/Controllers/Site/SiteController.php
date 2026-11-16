@@ -190,17 +190,17 @@ class SiteController
             $order = $order_service->find_order_by_uuid($uuid);
 
             if (is_null($order)) {
-                wp_safe_redirect(home_url());
+                Url::redirect(home_url());
                 exit;
             }
 
             if ($status === 'success' && !in_array($order->payment_status, [PaymentStatus::PAID, PaymentStatus::PROCESSING, PaymentStatus::PENDING], true)) {
-                wp_safe_redirect(home_url());
+                Url::redirect(home_url());
                 exit;
             }
 
             if ($status === 'failed' && !in_array($order->payment_status, [PaymentStatus::FAILED, PaymentStatus::UNPAID], true)) {
-                wp_safe_redirect(home_url());
+                Url::redirect(home_url());
                 exit;
             }
 
@@ -212,7 +212,7 @@ class SiteController
         $cart = $cart_service->get_current_cart();
 
         if (! $cart || empty($cart->items) || $cart->items->is_empty()) {
-            wp_safe_redirect(Url::get_cart_url());
+            Url::redirect(Url::get_cart_url());
             exit;
         }
 
@@ -225,7 +225,7 @@ class SiteController
         $cart = SiteCartResource::make($cart);
 
         if (!empty($cart['invalid_item'])) {
-            wp_safe_redirect(Url::get_cart_url());
+            Url::redirect(Url::get_cart_url());
             exit;
         }
 
