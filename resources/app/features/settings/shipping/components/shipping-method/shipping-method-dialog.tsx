@@ -224,7 +224,6 @@ export default ShippingMethodDialog;
 
 const styles = defineStyles({
   card: {
-    // backgroundColor: 'transparent',
     border: 'none',
   },
   dialogContent: {
