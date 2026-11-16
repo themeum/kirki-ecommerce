@@ -55,9 +55,7 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
     id: 'invoiced_total',
     header: __('Price', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => (
-      <Text variant="small">{row.original.invoiced_total_money_object.display}</Text>
-    ),
+    cell: ({ row }) => <Text variant="small">{row.original.base_total_money_object.display}</Text>,
   },
   {
     id: 'status',
