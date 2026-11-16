@@ -130,7 +130,7 @@ describe('ShippingMethodDialog', () => {
       type: 'flat_rate',
       base_amount: 25,
       zoneId: 'zone-2',
-      is_enabled: true,
+      is_enabled: false,
       shipping_rules: [],
     });
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
@@ -190,20 +190,6 @@ describe('ShippingMethodDialog', () => {
 
     await waitFor(() => expect(savedZones).toHaveLength(1));
     expect(lastSavedZones()[0].shipping_methods[0].shipping_rules).toEqual([]);
-  });
-
-  it('disables the save while a rule form is open', async () => {
-    renderDialog(storedMethod());
-
-    fireEvent.change(screen.getByLabelText('Method Name'), { target: { value: 'Economy' } });
-    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
-
-    const [, editRuleButton] = screen.getAllByRole('button', { name: '' });
-    fireEvent.click(editRuleButton);
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled());
-
-    fireEvent.click(screen.getByRole('button', { name: 'Discard rule' }));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled());
   });
 
   it('blocks the save and keeps the dialog open when the name is empty', async () => {

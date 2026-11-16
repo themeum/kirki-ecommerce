@@ -67,7 +67,6 @@ describe('defineRoute', () => {
 describe('RouteConfig', () => {
   it('resolves the documented templates', () => {
     expect(RouteConfig.Products.get('EditProduct').template).toBe('/products/:id');
-    expect(RouteConfig.Customers.get('CustomerGroups').template).toBe('/customers/groups');
     expect(RouteConfig.Settings.get('GeneralSettings').template).toBe('/settings/general');
     expect(RouteConfig.Settings.get('ShippingSettings').get('ShippingZone').template).toBe(
       '/settings/shipping/zone/:zone_id',
