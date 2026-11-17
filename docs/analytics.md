@@ -89,8 +89,9 @@ each part shows as soon as its own data comes. A hidden card sends no request:
   accessible name is "Customize analytics". It opens the "Customize analytics"
   panel from the right side of the screen:
   - The **Key metrics** group lists the 11 key metrics, with the number that is
-    on ("4/11") at the right. The **Cards** group lists the 15 cards. Check or
-    clear an item to show or hide it. The page changes at once.
+    on ("4/11") at the right. The **Cards** group lists the 15 cards, with the
+    number that is on ("15/15") at the right. Check or clear an item to show
+    or hide it. The page changes at once.
   - Each group title has an info icon (ⓘ). Hover or focus it to read what the
     group does.
   - Drag an item by its handle (⠿) to change its place in its group. With the

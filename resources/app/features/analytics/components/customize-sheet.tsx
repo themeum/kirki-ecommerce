@@ -95,6 +95,7 @@ const CustomizeSheet = (props: CustomizeSheetProps) => {
   const { layoutControls, amountExample, children } = props;
   const { layout, setVisible, move, setAmounts, reset } = layoutControls;
   const visibleKpiCount = layout.kpis.filter((item) => item.visible).length;
+  const visibleCardCount = layout.cards.filter((item) => item.visible).length;
 
   return (
     <Sheet floatable={{ storageKey: SHEET_STORAGE_KEY }}>
@@ -123,6 +124,12 @@ const CustomizeSheet = (props: CustomizeSheetProps) => {
           <SortableGroup
             heading={__('Cards', 'kirki-ecommerce')}
             info={__('Shown in this order. Drag to reorder.', 'kirki-ecommerce')}
+            count={sprintf(
+              /* translators: 1: number of cards that are on, 2: number of cards */
+              __('%1$d/%2$d', 'kirki-ecommerce'),
+              visibleCardCount,
+              layout.cards.length,
+            )}
             items={layout.cards}
             getNote={(key) =>
               CARD_REGISTRY[key].size === 'full' ? __('Full width', 'kirki-ecommerce') : undefined

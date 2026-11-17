@@ -18,7 +18,8 @@ the tooltip of its info icon, and SHALL NOT show as text under the title. The
 across the top, 4 in each row, in this order. Drag to reorder." and a count
 "N/11" on the right, where N is the number of key metrics that are on. The
 "Cards" group SHALL list the 15 cards, with the tooltip "Shown in this order.
-Drag to reorder." and the note "Full width" on each full card. Each item SHALL
+Drag to reorder.", a count "N/15" on the right, where N is the number of cards
+that are on, and the note "Full width" on each full card. Each item SHALL
 show a drag handle, a checkbox and the item title. Both groups SHALL show
 their items in the current page order. The "Amounts" group SHALL be below
 "Cards", with the tooltip "How money amounts are shown." and a radio group with
@@ -37,7 +38,7 @@ footer SHALL show "Reset to default" on the left and "Done" on the right.
 #### Scenario: Help as tooltips
 
 - **WHEN** the sheet is open with the default layout
-- **THEN** no help text shows under the title or under a group title, each group title has an info icon with its help text as the tooltip, and Key metrics shows "4/11"
+- **THEN** no help text shows under the title or under a group title, each group title has an info icon with its help text as the tooltip, Key metrics shows "4/11", and Cards shows "15/15"
 
 #### Scenario: Full width note
 

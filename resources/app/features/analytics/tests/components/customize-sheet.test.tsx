@@ -122,7 +122,7 @@ describe('CustomizeSheet', () => {
     ).not.toBeChecked();
   });
 
-  it('shows each group help as an info tooltip, and the count of key metrics that are on', () => {
+  it('shows each group help as an info tooltip, and the count of items that are on', () => {
     const sheet = openSheet();
 
     expect(within(sheet).queryByText(/Drag to reorder\./)).not.toBeInTheDocument();
@@ -138,10 +138,13 @@ describe('CustomizeSheet', () => {
       within(sheet).getByRole('img', { name: 'How money amounts are shown.' }),
     ).toBeInTheDocument();
     expect(within(sheet).getByText('4/11')).toBeInTheDocument();
+    expect(within(sheet).getByText('15/15')).toBeInTheDocument();
 
     fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Net sales' }));
+    fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Sales by product' }));
 
     expect(within(sheet).getByText('5/11')).toBeInTheDocument();
+    expect(within(sheet).getByText('14/15')).toBeInTheDocument();
   });
 
   it('has no description under the title', () => {
