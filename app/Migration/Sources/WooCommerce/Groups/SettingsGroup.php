@@ -147,7 +147,7 @@ class SettingsGroup extends WooCommerceGroup
     }
 
     /**
-     * Set the product and checkout options that Kirki has a matching setting for.
+     * Set the product and checkout options that Kirki eCommerce has a matching setting for.
      *
      * @since 1.0.0
      *
@@ -162,12 +162,11 @@ class SettingsGroup extends WooCommerceGroup
         $this->save_option(OptionKeys::PRODUCT_SETTINGS, 'is_enabled_star_ratings', $store['ratings']);
         $this->save_option(OptionKeys::PRODUCT_SETTINGS, 'low_stock_threshold', $store['low_stock_amount']);
         $this->save_option(OptionKeys::CHECKOUT_SETTINGS, 'is_allowed_guest_checkout', $store['guest_checkout']);
-        $this->save_option(OptionKeys::CHECKOUT_SETTINGS, 'has_apply_coupon_code', $store['coupons']);
 
         $this->save_option(OptionKeys::TAX_SETTINGS, 'is_enabled_display_inclusive_taxed_price', $store['tax_display_shop'] === null ? null : $store['tax_display_shop'] === 'incl');
 
         if ($store['signup_at_checkout']) {
-            $this->note(__('WooCommerce lets customers create an account at checkout. Kirki has no matching setting, so it was not migrated.', 'kirki-ecommerce'));
+            $this->note(__('WooCommerce lets customers create an account at checkout. Kirki eCommerce has no matching setting, so it was not migrated.', 'kirki-ecommerce'));
         }
     }
 
@@ -205,7 +204,7 @@ class SettingsGroup extends WooCommerceGroup
     }
 
     /**
-     * Set whether the phone and company fields are required at checkout.
+     * Set whether the phone and company fields are required at checkout, and whether coupon codes are accepted.
      *
      * @since 1.0.0
      *
@@ -223,10 +222,14 @@ class SettingsGroup extends WooCommerceGroup
             } elseif ($store[$source] !== null) {
                 $this->note(sprintf(
                     /* translators: %s: checkout field */
-                    __('The checkout field "%s" is hidden in WooCommerce. Kirki cannot hide it, so the Kirki value was kept.', 'kirki-ecommerce'),
+                    __('The checkout field "%s" is hidden in WooCommerce. Kirki eCommerce cannot hide it, so the Kirki eCommerce value was kept.', 'kirki-ecommerce'),
                     str_replace('_validation', '', $field)
                 ));
             }
+        }
+
+        if ($store['coupons'] !== null) {
+            $configuration['has_apply_coupon_code'] = $store['coupons'];
         }
 
         $settings->set(['checkout_configuration' => $configuration], false);

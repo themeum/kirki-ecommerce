@@ -10,6 +10,8 @@ use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;
 use Kirki\Ecommerce\App\Concerns\PreparesOrderItems;
 use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Constants\AddressType;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\CartService;
@@ -162,8 +164,16 @@ class CreateOrderAction
 
         $this->resolve_billing_and_shipping_addresses($dto);
 
-        if (!$dto->is_manual && (!empty($dto->cart_token) || !empty($dto->user_id))) {
-            $this->resolve_checkout_cart($dto);
+        if (!$dto->is_manual) {
+            if (!empty($dto->cart_token) || !empty($dto->user_id)) {
+                $this->resolve_checkout_cart($dto);
+            }
+
+            $has_apply_coupon_code = Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.has_apply_coupon_code', true);
+
+            if (!$has_apply_coupon_code) {
+                $dto->coupon_codes = [];
+            }
         }
 
         // Only resolve a customer when there is one to resolve: an explicitly

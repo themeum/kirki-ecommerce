@@ -181,7 +181,7 @@ class CouponMapper
     }
 
     /**
-     * Add a note for each WooCommerce option that Kirki has no matching setting for.
+     * Add a note for each WooCommerce option that Kirki eCommerce has no matching setting for.
      *
      * @since 1.0.0
      *

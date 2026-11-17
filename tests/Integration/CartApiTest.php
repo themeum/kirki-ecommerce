@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\Tests\Integration;
 use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Constants\CookieNames;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
@@ -21,6 +22,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Services\VariantService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Tests\Support\CountsCurrencyQueries;
@@ -543,6 +545,78 @@ class CartApiTest extends RestTestCase
         $remove = $this->request('DELETE', 'cart/coupon', ['code' => $code], $this->cart_headers);
         $removed = $this->assert_api_success($remove);
         $this->assertEmpty($removed['data']['pricing']['coupons']);
+    }
+
+    /**
+     * Applying a coupon fails when the store does not accept coupon codes.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_apply_coupon_is_prohibited_when_coupon_codes_are_disabled(): void
+    {
+        $this->prepare_variant();
+        $code = 'OFF-' . wp_generate_password(6, false);
+        $this->create_coupon($code);
+        $cart = $this->add_cart_item();
+
+        $snapshot = $this->set_coupon_codes_enabled(false);
+
+        try {
+            $response = $this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers);
+            $this->assert_api_error($response, 422);
+            $this->assertSame(0, CartCoupon::query()->where('cart_id', $cart['id'])->count());
+        } finally {
+            Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set($snapshot, false);
+        }
+    }
+
+    /**
+     * Coupons already on a cart are removed when the store stops accepting coupon codes.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_applied_coupons_are_removed_when_coupon_codes_are_disabled(): void
+    {
+        $this->prepare_variant();
+        $code = 'DROP-' . wp_generate_password(6, false);
+        $this->create_coupon($code);
+        $cart = $this->add_cart_item();
+
+        $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers));
+        $this->assertNotNull($this->find_coupon_in_response($applied['data'], $code));
+
+        $snapshot = $this->set_coupon_codes_enabled(false);
+
+        try {
+            $current = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
+            $this->assertEmpty($current['pricing']['coupons']);
+            $this->assertNull($this->find_coupon_in_response($current, $code));
+            $this->assertSame(0, CartCoupon::query()->where('cart_id', $cart['id'])->count());
+        } finally {
+            Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set($snapshot, false);
+        }
+    }
+
+    /**
+     * Turn the checkout "Apply Coupon Code" setting on or off.
+     *
+     * @param bool $is_enabled Whether coupon codes are accepted.
+     *
+     * @return array<string, mixed> The checkout settings before the change.
+     * @since 1.0.1
+     */
+    protected function set_coupon_codes_enabled(bool $is_enabled): array
+    {
+        $settings = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh();
+        $snapshot = $settings->to_array();
+        $configuration = (array) ($snapshot['checkout_configuration'] ?? []);
+        $configuration['has_apply_coupon_code'] = $is_enabled;
+
+        $settings->set(['checkout_configuration' => $configuration], false);
+
+        return $snapshot;
     }
 
     public function test_stacking_item_scoped_and_cart_wide_coupons(): void

@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\App\Models;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
-use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
+use Kirki\Ecommerce\App\Concerns\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 /**
