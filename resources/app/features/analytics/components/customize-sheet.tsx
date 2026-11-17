@@ -1,19 +1,17 @@
 import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import Flex from '@/components/ui/flex';
 import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import Text from '@/components/ui/text';
 import AmountFormatOptions from '@/features/analytics/components/amount-format-options';
+import CustomizeGroupHeading from '@/features/analytics/components/customize-group-heading';
 import SortableList from '@/features/analytics/components/sortable-list';
 import {
   type AnalyticsLayoutControls,
@@ -31,7 +29,8 @@ const SHEET_STORAGE_KEY = 'kirki-ecommerce:analytics:customize-sheet';
 
 type SortableGroupProps<K extends KpiKey | CardKey> = {
   heading: string;
-  help: string;
+  info: string;
+  count?: string;
   items: LayoutItem<K>[];
   getNote?: (key: K) => string | undefined;
   onToggle: (key: K, visible: boolean) => void;
@@ -39,17 +38,12 @@ type SortableGroupProps<K extends KpiKey | CardKey> = {
 };
 
 const SortableGroup = <K extends KpiKey | CardKey>(props: SortableGroupProps<K>) => {
-  const { heading, help, items, getNote, onToggle, onMove } = props;
+  const { heading, info, count, items, getNote, onToggle, onMove } = props;
   const definitions = getMetricDefinitions();
 
   return (
     <section css={scoped(styles.group)}>
-      <Flex direction="column" gap={1}>
-        <Text variant="heading6">{heading}</Text>
-        <Text variant="small" color="subdued">
-          {help}
-        </Text>
-      </Flex>
+      <CustomizeGroupHeading title={heading} info={info} count={count} />
       <SortableList
         label={heading}
         items={items.map((item) => ({
@@ -80,12 +74,10 @@ const AmountsGroup = (props: AmountsGroupProps) => {
 
   return (
     <section css={scoped(styles.group)}>
-      <Flex direction="column" gap={1}>
-        <Text variant="heading6">{heading}</Text>
-        <Text variant="small" color="subdued">
-          {__('How money amounts are shown.', 'kirki-ecommerce')}
-        </Text>
-      </Flex>
+      <CustomizeGroupHeading
+        title={heading}
+        info={__('How money amounts are shown.', 'kirki-ecommerce')}
+      />
       <AmountFormatOptions label={heading} value={value} example={example} onChange={onChange} />
     </section>
   );
@@ -107,22 +99,20 @@ const CustomizeSheet = (props: CustomizeSheetProps) => {
   return (
     <Sheet floatable={{ storageKey: SHEET_STORAGE_KEY }}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent>
+      <SheetContent aria-describedby={undefined}>
         <SheetHeader>
           <SheetTitle>{__('Customize analytics', 'kirki-ecommerce')}</SheetTitle>
-          <SheetDescription>
-            {__('Choose what the Analytics page shows, and in which order.', 'kirki-ecommerce')}
-          </SheetDescription>
         </SheetHeader>
         <div css={scoped(styles.body)}>
           <SortableGroup
             heading={__('Key metrics', 'kirki-ecommerce')}
-            help={sprintf(
+            info={__(
+              'Shown across the top, 4 in each row, in this order. Drag to reorder.',
+              'kirki-ecommerce',
+            )}
+            count={sprintf(
               /* translators: 1: number of key metrics that are on, 2: number of key metrics */
-              __(
-                'Shown across the top, 4 in each row, in this order. %1$d/%2$d on. Drag to reorder.',
-                'kirki-ecommerce',
-              ),
+              __('%1$d/%2$d', 'kirki-ecommerce'),
               visibleKpiCount,
               layout.kpis.length,
             )}
@@ -132,7 +122,7 @@ const CustomizeSheet = (props: CustomizeSheetProps) => {
           />
           <SortableGroup
             heading={__('Cards', 'kirki-ecommerce')}
-            help={__('Shown in this order. Drag to reorder.', 'kirki-ecommerce')}
+            info={__('Shown in this order. Drag to reorder.', 'kirki-ecommerce')}
             items={layout.cards}
             getNote={(key) =>
               CARD_REGISTRY[key].size === 'full' ? __('Full width', 'kirki-ecommerce') : undefined

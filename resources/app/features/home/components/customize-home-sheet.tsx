@@ -1,7 +1,6 @@
-import { Info, Settings2 } from 'lucide-react';
+import { Settings2 } from 'lucide-react';
 
 import Button from '@/components/ui/button';
-import Flex from '@/components/ui/flex';
 import {
   Sheet,
   SheetClose,
@@ -11,10 +10,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import Text from '@/components/ui/text';
-import Tooltip from '@/components/ui/tooltip';
 import {
   AmountFormatOptions,
+  CustomizeGroupHeading,
   getMetricDefinitions,
   SortableList,
   type SortableListItem,
@@ -33,32 +31,6 @@ import { defineStyles, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 const SHEET_STORAGE_KEY = 'kirki-ecommerce:home:customize-sheet';
-
-type GroupHeadingProps = {
-  title: string;
-  info: string;
-  count?: string;
-};
-
-const GroupHeading = (props: GroupHeadingProps) => {
-  const { title, info, count } = props;
-
-  return (
-    <Flex align="center" gap={1}>
-      <Text variant="heading6">{title}</Text>
-      <Tooltip tip={info} position="top">
-        <Info size={14} color={theme.colors.icon.secondary} aria-label={info} role="img" />
-      </Tooltip>
-      {count && (
-        <Text variant="tiny" color="primary" cssOverride={styles.count}>
-          {count}
-        </Text>
-      )}
-    </Flex>
-  );
-};
-
-GroupHeading.displayName = 'GroupHeading';
 
 const formatCount = (items: HomeLayoutItem<string>[], limit: number) => {
   return sprintf(
@@ -126,7 +98,7 @@ const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
         </SheetHeader>
         <div css={scoped(styles.body)}>
           <section css={scoped(styles.group)}>
-            <GroupHeading
+            <CustomizeGroupHeading
               title={quickActionsTitle}
               info={__(
                 'Buttons at the top of Home. Up to 3; the first one is the main button.',
@@ -144,7 +116,7 @@ const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
             />
           </section>
           <section css={scoped(styles.group)}>
-            <GroupHeading
+            <CustomizeGroupHeading
               title={keyNumbersTitle}
               info={__('Numbers at the top of Home, in this order. Up to 4.', 'kirki-ecommerce')}
               count={formatCount(layout.kpis, kpiLimit)}
@@ -157,7 +129,7 @@ const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
             />
           </section>
           <section css={scoped(styles.group)}>
-            <GroupHeading
+            <CustomizeGroupHeading
               title={sectionsTitle}
               info={__('Sections of Home, in this order.', 'kirki-ecommerce')}
             />
@@ -169,7 +141,7 @@ const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
             />
           </section>
           <section css={scoped(styles.group)}>
-            <GroupHeading
+            <CustomizeGroupHeading
               title={amountsTitle}
               info={__('How money amounts are shown on Home.', 'kirki-ecommerce')}
             />
@@ -215,9 +187,6 @@ const styles = defineStyles({
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing[3],
-  },
-  count: {
-    marginLeft: 'auto',
   },
   footer: {
     justifyContent: 'space-between',

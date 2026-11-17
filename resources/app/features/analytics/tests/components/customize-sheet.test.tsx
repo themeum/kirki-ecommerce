@@ -122,19 +122,34 @@ describe('CustomizeSheet', () => {
     ).not.toBeChecked();
   });
 
-  it('shows the help texts with the number of key metrics that are on', () => {
+  it('shows each group help as an info tooltip, and the count of key metrics that are on', () => {
     const sheet = openSheet();
 
+    expect(within(sheet).queryByText(/Drag to reorder\./)).not.toBeInTheDocument();
     expect(
-      within(sheet).getByText(
-        'Shown across the top, 4 in each row, in this order. 4/11 on. Drag to reorder.',
-      ),
+      within(sheet).getByRole('img', {
+        name: 'Shown across the top, 4 in each row, in this order. Drag to reorder.',
+      }),
     ).toBeInTheDocument();
-    expect(within(sheet).getByText('Shown in this order. Drag to reorder.')).toBeInTheDocument();
+    expect(
+      within(sheet).getByRole('img', { name: 'Shown in this order. Drag to reorder.' }),
+    ).toBeInTheDocument();
+    expect(
+      within(sheet).getByRole('img', { name: 'How money amounts are shown.' }),
+    ).toBeInTheDocument();
+    expect(within(sheet).getByText('4/11')).toBeInTheDocument();
 
     fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Net sales' }));
 
-    expect(within(sheet).getByText(/5\/11 on/)).toBeInTheDocument();
+    expect(within(sheet).getByText('5/11')).toBeInTheDocument();
+  });
+
+  it('has no description under the title', () => {
+    const sheet = openSheet();
+
+    expect(
+      within(sheet).queryByText('Choose what the Analytics page shows, and in which order.'),
+    ).not.toBeInTheDocument();
   });
 
   // Scenario: Full width note
@@ -168,7 +183,7 @@ describe('CustomizeSheet', () => {
       fireEvent.click(within(groupList('Key metrics')).getByRole('checkbox', { name }));
     });
 
-    expect(within(sheet).getByText(/11\/11 on/)).toBeInTheDocument();
+    expect(within(sheet).getByText('11/11')).toBeInTheDocument();
 
     const kpis = within(groupList('Key metrics')).getAllByRole('checkbox');
 

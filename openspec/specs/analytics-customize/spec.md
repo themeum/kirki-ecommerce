@@ -10,15 +10,19 @@ and in which order, and keeps that choice in the browser.
 ### Requirement: Customize sheet
 
 Selecting Customize SHALL open a sheet from the right with the title
-"Customize analytics" and three groups. The "Key metrics" group SHALL list the
-11 key metrics, with the help text "Shown across the top, 4 in each row, in
-this order. N/11 on. Drag to reorder." where N is the number of key metrics
-that are on. The "Cards" group SHALL list the 15 cards, with the help text
-"Shown in this order. Drag to reorder." and the note "Full width" on each full
-card. Each item SHALL show a drag handle, a checkbox and the item title. Both
-groups SHALL show their items in the current page order. The "Amounts" group
-SHALL be below "Cards", with the help text "How money amounts are shown." and a
-radio group with "Short" and "Long". Each option SHALL show the
+"Customize analytics" and three groups. The sheet SHALL NOT show a description
+under the title. Each group SHALL show its title with an info icon, the same
+as the groups of the Customize home sheet. The help text of a group SHALL be
+the tooltip of its info icon, and SHALL NOT show as text under the title. The
+"Key metrics" group SHALL list the 11 key metrics, with the tooltip "Shown
+across the top, 4 in each row, in this order. Drag to reorder." and a count
+"N/11" on the right, where N is the number of key metrics that are on. The
+"Cards" group SHALL list the 15 cards, with the tooltip "Shown in this order.
+Drag to reorder." and the note "Full width" on each full card. Each item SHALL
+show a drag handle, a checkbox and the item title. Both groups SHALL show
+their items in the current page order. The "Amounts" group SHALL be below
+"Cards", with the tooltip "How money amounts are shown." and a radio group with
+"Short" and "Long". Each option SHALL show the
 `short_display` (Short) or the `display` (Long) of `meta.amount_example` in
 parentheses, for example "Short ($20.3K)" and "Long ($20,345.00)". When the
 example is not loaded, the options SHALL show only "Short" and "Long". The
@@ -29,6 +33,11 @@ footer SHALL show "Reset to default" on the left and "Done" on the right.
 
 - **WHEN** the merchant selects Customize with the default layout
 - **THEN** the sheet shows the 11 key metrics with Gross sales, Orders, Average order value and Returning customer rate checked, the 15 cards all checked, and Short selected in Amounts
+
+#### Scenario: Help as tooltips
+
+- **WHEN** the sheet is open with the default layout
+- **THEN** no help text shows under the title or under a group title, each group title has an info icon with its help text as the tooltip, and Key metrics shows "4/11"
 
 #### Scenario: Full width note
 

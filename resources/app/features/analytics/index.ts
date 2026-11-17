@@ -1,5 +1,6 @@
 export { default as AmountFormatOptions } from './components/amount-format-options';
 export { default as CardMenu } from './components/card-menu';
+export { default as CustomizeGroupHeading } from './components/customize-group-heading';
 export { default as SortableList, type SortableListItem } from './components/sortable-list';
 export { AmountFormatProvider, useMoney } from './contexts/amount-format-context';
 export type { ApiRangeKey } from './lib/date-range';
