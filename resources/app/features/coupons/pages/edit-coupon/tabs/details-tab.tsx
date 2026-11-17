@@ -15,6 +15,7 @@ import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-fo
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
+
 const DetailsTab = () => {
   const { control } = useFormContext<CouponFormInput>();
   const method = useWatch({ control, name: 'method' });
