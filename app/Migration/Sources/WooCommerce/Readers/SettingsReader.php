@@ -86,7 +86,7 @@ class SettingsReader
     }
 
     /**
-     * Read the store options that Kirki has a matching setting for. An option that WooCommerce has not saved is null.
+     * Read the store options that Kirki eCommerce has a matching setting for. An option that WooCommerce has not saved is null.
      *
      * @since 1.0.0
      *
@@ -153,7 +153,7 @@ class SettingsReader
     }
 
     /**
-     * Read the enabled flag of each WooCommerce email that Kirki has a matching email for.
+     * Read the enabled flag of each WooCommerce email that Kirki eCommerce has a matching email for.
      *
      * @since 1.0.0
      *

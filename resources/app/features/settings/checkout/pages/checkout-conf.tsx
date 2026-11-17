@@ -63,7 +63,7 @@ const CheckoutConf = () => {
                 </Text>
               </Flex>
               <ActionGroup>
-                <SwitchField name="checkout_configuration.has_apply_coupon_code" />
+                <SwitchField name="checkout_configuration.can_apply_coupon_code" />
               </ActionGroup>
             </Flex>
 

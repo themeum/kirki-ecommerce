@@ -2498,6 +2498,62 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * A storefront checkout ignores the cart's coupons when the store does not accept coupon codes.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_checkout_ignores_cart_coupons_when_coupon_codes_are_disabled(): void
+    {
+        $product = $this->create_product();
+
+        $add_to_cart_dto = new AddToCartDTO();
+        $add_to_cart_dto->product_id = $product['id'];
+        $add_to_cart_dto->variant_id = $this->default_variant_id($product);
+        $add_to_cart_dto->quantity = 1;
+
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
+
+        $coupon = Coupon::create([
+            'title' => 'Disabled Coupon',
+            'code' => 'NOCOUPON' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::ORDER,
+            'discount_value_type' => DiscountValueType::PERCENTAGE,
+            'discount_amount_percentage' => 10,
+            'is_active' => true,
+        ]);
+
+        CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $coupon->id]);
+
+        $settings = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh();
+        $snapshot = $settings->to_array();
+        $settings->set(['checkout_configuration' => array_merge((array) ($snapshot['checkout_configuration'] ?? []), ['can_apply_coupon_code' => false])], false);
+
+        try {
+            $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
+                'is_manual' => false,
+                'billing_email' => 'no-coupon-' . wp_generate_password(8, false) . '@example.com',
+            ]));
+            $dto->created_by = get_current_user_id();
+            $dto->currency_code = 'USD';
+            $dto->cart_token = $cart->cart_token;
+
+            $order = app()->make(CreateOrderAction::class)->execute($dto);
+            $this->order_id = $order->id;
+
+            $this->assertSame(0, OrderCoupon::where('order_id', $order->id)->count());
+            $this->assertEquals(0, $order->base_discount_total);
+            $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
+        } finally {
+            Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set($snapshot, false);
+
+            // Placing the order committed the test transaction with coupons off, so commit the restore too.
+            $GLOBALS['wpdb']->query('COMMIT');
+        }
+    }
+
+    /**
      * A free-shipping coupon's discount is attributed to the order-coupon
      * itself (the waived shipping cost) with no `order_item_coupons` rows,
      * since it discounts shipping rather than a line item.

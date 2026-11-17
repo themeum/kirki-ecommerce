@@ -251,8 +251,9 @@ export {
   SheetPortal,
   SheetTitle,
   SheetTrigger,
-  type SheetSide,
 };
+
+export type { SheetSide };
 
 const overlayIn = keyframes({
   from: { opacity: 0 },
