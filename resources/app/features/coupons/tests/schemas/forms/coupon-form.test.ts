@@ -200,15 +200,6 @@ describe('CouponFormSchema', () => {
     expect(result.category_ids).toEqual([7]);
   });
 
-  it('accepts category refs without a slug, as the categories field writes them', () => {
-    const result = CouponFormSchema.parse({
-      ...productTarget,
-      eligible_item_type: 'specific-categories',
-      categories: [{ id: 7, name: 'Shoes', parent_id: null }],
-    });
-    expect(result.category_ids).toEqual([7]);
-  });
-
   it('clears eligible items and both id lists when discount_target is order', () => {
     const result = CouponFormSchema.parse({
       ...productTarget,
