@@ -116,7 +116,10 @@ const CouponFormShape = z.object({
     __('Select at least one product', 'kirki-ecommerce'),
   ),
   categories: requiredWhen(
-    z.array(CategorySchema).nullish().default([]),
+    z
+      .array(CategorySchema.pick({ id: true, name: true, parent_id: true }))
+      .nullish()
+      .default([]),
     (values) =>
       isProductEligibility(values, 'specific-categories') && isEmptyValue(values.categories),
     __('Select at least one category', 'kirki-ecommerce'),
