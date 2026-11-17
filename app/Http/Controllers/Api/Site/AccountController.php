@@ -19,8 +19,10 @@ use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Account\PasswordChangeRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\ProfileUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\WishlistFilterRequest;
+use Kirki\Ecommerce\App\Resources\Review\ReviewListResource;
 use Kirki\Ecommerce\App\Resources\Site\Customer\CustomerResource;
 use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
+use Kirki\Ecommerce\App\Services\ReviewService;
 use Kirki\Ecommerce\App\Services\UserService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\WishlistService;
@@ -123,6 +125,32 @@ class AccountController
         return response()->json([
             'data' => $order_data['orders'],
             'message' => __('Orders fetched successfully', 'kirki-ecommerce')
+        ]);
+    }
+
+    /**
+     * List the logged-in customer's submitted reviews, one page at a time.
+     *
+     * @since 1.0.1
+     *
+     * @param Request       $request
+     * @param ReviewService $review_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     */
+    public function customer_reviews(Request $request, ReviewService $review_service)
+    {
+        $current_user = wp_get_current_user();
+        $user_id = $current_user->ID ? (int) $current_user->ID : null;
+        $email = (string) $current_user->user_email;
+
+        $page = $request->int('page', 1);
+        $limit = $request->int('limit', $this->list_limit);
+
+        $paginator = $review_service->get_customer_reviews($user_id, $email, $page, $limit);
+
+        return response()->json([
+            'data' => ReviewListResource::paginated($paginator),
+            'message' => __('Customer reviews retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
 

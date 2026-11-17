@@ -424,7 +424,7 @@ class ProductService
      */
     protected function list_query()
     {
-        $query = Product::query()->with(['categories', 'variants', 'media']);
+        $query = Product::query()->with(['categories', 'variants', 'media', 'approved_reviews']);
         $query->select_raw('*, id as pid');
 
         return $query;

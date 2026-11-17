@@ -69,12 +69,35 @@ class EnqueueAdminScripts extends BaseHook
         wp_enqueue_style($admin_style_handle);
         wp_add_inline_style($admin_style_handle, HtmlStyle::build_style_block(HtmlStyle::richtext_styles()));
 
-        if (app()->is_dev_mode()) {
+        if (app()->is_dev_mode() && $this->is_vite_dev_server_running()) {
             $this->enqueue_vite_dev_scripts();
             return;
         }
 
         $this->enqueue_production_scripts();
+    }
+
+    /**
+     * Determine whether the Vite development server is active and reachable.
+     *
+     * @since 1.0.1
+     *
+     * @return bool
+     */
+    protected function is_vite_dev_server_running()
+    {
+        $server = $this->get_vite_dev_server();
+        $parts = wp_parse_url($server);
+        $host = $parts['host'] ?? 'localhost';
+        $port = isset($parts['port']) ? (int) $parts['port'] : 5173;
+
+        $connection = @fsockopen($host, $port, $errno, $errstr, 0.05);
+        if ($connection) {
+            fclose($connection);
+            return true;
+        }
+
+        return false;
     }
 
     /**

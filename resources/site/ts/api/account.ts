@@ -41,6 +41,11 @@ export type OrdersPayload = {
   format: 'html' | 'json';
 };
 
+export type ReviewsPayload = {
+  page: number;
+  format?: 'html' | 'json';
+};
+
 export interface ApiResponse<T = any> {
   data?: T;
   message: string;
@@ -49,6 +54,13 @@ export interface ApiResponse<T = any> {
 export const accountApi = {
   getOrders(payload: OrdersPayload): Promise<ApiResponse> {
     return apiRequest<ApiResponse>(ENDPOINTS.account.orders, {
+      method: 'GET',
+      params: payload,
+    });
+  },
+
+  getReviews(payload: ReviewsPayload): Promise<ApiResponse> {
+    return apiRequest<ApiResponse>(ENDPOINTS.account.reviews, {
       method: 'GET',
       params: payload,
     });

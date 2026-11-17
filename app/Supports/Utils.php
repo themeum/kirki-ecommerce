@@ -142,6 +142,16 @@ class Utils
                 'callback'  => [AccountController::class, 'wishlist'],
                 'is_menu'   => true,
             ],
+            'reviews' => [
+                'title'     => __('My Reviews', 'kirki-ecommerce'),
+                'icon'      => 'star',
+                'url'       => Url::get_account_url('reviews'),
+                'is_active' => Route::is('account.reviews'),
+                'route_path' => $account_page_slug . '/reviews',
+                'route_name' => 'account.reviews',
+                'callback'  => [AccountController::class, 'reviews'],
+                'is_menu'   => true,
+            ],
             'orders.show' => [
                 'title'     => __('Order Details', 'kirki-ecommerce'),
                 'route_path' => $account_page_slug . '/orders/{uuid}',

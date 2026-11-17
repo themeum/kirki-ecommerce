@@ -46,6 +46,7 @@ use Kirki\Ecommerce\Database\Migrations\CreateWishlistTable;
 use Kirki\Ecommerce\Database\Migrations\CreateJobsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateFailedJobsTable;
 use Kirki\Ecommerce\Database\Migrations\DropProductSchemasTable;
+use Kirki\Ecommerce\Database\Migrations\CreateReviewsTable;
 
 return [
     CreateLanguagesTable::class,
@@ -94,4 +95,5 @@ return [
 
     // Since v1.0.1
     DropProductSchemasTable::class,
+    CreateReviewsTable::class,
 ];

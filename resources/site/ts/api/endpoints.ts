@@ -22,7 +22,12 @@ export const ENDPOINTS = {
     addressSingle: (id: number | string) => `/account/addresses/${id}`,
     addressSetDefault: (id: number | string) => `/account/addresses/${id}/set-default`,
     orders: '/account/orders',
+    reviews: '/account/reviews',
     resendVerificationEmail: '/account/resend-verification-email',
+  },
+  shop: {
+    productReviews: (productId: number | string) => `/shop/products/${productId}/reviews`,
+    voteHelpful: (reviewId: number | string) => `/shop/reviews/${reviewId}/helpful`,
   },
   wishlist: {
     root: '/account/wishlist',

@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\OnlinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PaymentMethodController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\VariantController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ProductController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\ReviewController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\TagController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CollectionController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CouponController;
@@ -37,6 +38,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AddressController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\CheckoutController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\ReviewController as SiteReviewController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\OrderActivityController as SiteOrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\WishlistController;
@@ -164,6 +166,15 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::post('/products/bulk', [ProductController::class, 'bulk_actions']);
     Route::post('/products/{id}/duplicate', [ProductController::class, 'duplicate'])->where('id', '[\d]+');
 
+    // Reviews (Admin)
+    Route::get('/reviews', [ReviewController::class, 'get']);
+    Route::get('/reviews/{id}', [ReviewController::class, 'show'])->where('id', '[\d]+');
+    Route::put('/reviews/{id}', [ReviewController::class, 'update'])->where('id', '[\d]+');
+    Route::put('/reviews/{id}/status', [ReviewController::class, 'update_status'])->where('id', '[\d]+');
+    Route::post('/reviews/{id}/reply', [ReviewController::class, 'reply'])->where('id', '[\d]+');
+    Route::delete('/reviews/{id}', [ReviewController::class, 'delete'])->where('id', '[\d]+');
+    Route::post('/reviews/bulk', [ReviewController::class, 'bulk_actions']);
+
     Route::post('/variants/generate-sku', [VariantController::class, 'generate_sku']);
     Route::post('/variants/generate-skus', [VariantController::class, 'generate_skus']);
     Route::get('/variants/bulk/{ids}', [VariantController::class, 'get_by_ids']);
@@ -256,6 +267,9 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
 
 // Site api endpoints.
 Route::get('/shop/products', [SiteController::class, 'products']);
+Route::get('/shop/products/{id}/reviews', [SiteReviewController::class, 'product_reviews'])->where('id', '[\d]+');
+Route::post('/shop/products/{id}/reviews', [SiteReviewController::class, 'store'])->where('id', '[\d]+');
+Route::post('/shop/reviews/{id}/helpful', [SiteReviewController::class, 'vote_helpful'])->where('id', '[\d]+');
 
 // Cart api endpoints for guest card.
 Route::get('/cart', [CartController::class, 'get']);
@@ -276,6 +290,7 @@ Route::group([
     'middleware' => AuthMiddleware::class,
 ], function () {
     Route::get('/orders', [AccountController::class, 'customer_orders']);
+    Route::get('/reviews', [AccountController::class, 'customer_reviews']);
     Route::get('/orders/{id}/activities', [SiteOrderActivityController::class, 'get']);
     Route::put('/profile', [AccountController::class, 'update_profile']);
     Route::put('/password-change', [AccountController::class, 'change_password']);

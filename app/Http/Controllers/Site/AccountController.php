@@ -22,6 +22,7 @@ use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
 use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Services\ReviewService;
 use Kirki\Ecommerce\App\Services\UserService;
 use Kirki\Ecommerce\App\Services\WishlistService;
 use Kirki\Ecommerce\App\Supports\Url;
@@ -254,5 +255,31 @@ class AccountController
         ];
 
         return view('site.account.wishlist', $data)->layout(false);
+    }
+
+    /**
+     * Render the customer's submitted reviews page.
+     *
+     * @since 1.0.1
+     *
+     * @param Request       $request
+     * @param ReviewService $review_service
+     * @return \Kirki\Ecommerce\Framework\View\View
+     */
+    public function reviews(Request $request, ReviewService $review_service)
+    {
+        $user = wp_get_current_user();
+        $paginator = $review_service->get_customer_reviews(
+            $user && !empty($user->ID) ? (int) $user->ID : null,
+            $user && !empty($user->user_email) ? (string) $user->user_email : '',
+            $request->int('page', 1),
+            $this->list_limit
+        );
+
+        $data = [
+            'reviews' => $paginator,
+        ];
+
+        return view('site.account.reviews', $data)->layout(false);
     }
 }

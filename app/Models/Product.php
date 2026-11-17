@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Models;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\HasSlug;
+use Kirki\Ecommerce\App\Constants\Review\ReviewStatus;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
@@ -161,5 +162,29 @@ class Product extends Model
     public function attribute_values()
     {
         return $this->belongs_to_many(AttributeValue::class, 'kirki_ecommerce_attribute_value_product', 'product_id', 'attribute_value_id')->order_by_pivot('ordering', 'asc');
+    }
+
+    /**
+     * Define all reviews for this product.
+     *
+     * @since 1.0.1
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
+    public function reviews()
+    {
+        return $this->has_many(Review::class, 'product_id', 'id');
+    }
+
+    /**
+     * Define approved reviews for this product.
+     *
+     * @since 1.0.1
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
+    public function approved_reviews()
+    {
+        return $this->has_many(Review::class, 'product_id', 'id')->where('status', ReviewStatus::APPROVED);
     }
 }

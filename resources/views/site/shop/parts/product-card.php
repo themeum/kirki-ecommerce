@@ -40,6 +40,10 @@ $variant_id              = $product['variant_id'];
 $cart_url                = $product['cart_url'];
 $is_wishlisted           = $product['is_wishlisted'];
 $display_context         = $data['context'] ?? null;
+$reviews_count           = (int) ($product['reviews_count'] ?? 0);
+$average_rating          = (float) ($product['average_rating'] ?? 0);
+$is_enabled_reviews      = $product['is_enabled_reviews'] ?? true;
+$is_enabled_star_ratings = $product['is_enabled_star_ratings'] ?? true;
 ?>
 <div class="kecom-product-card" x-data="<?php printf('wishlist(%d, %s, \'%s\')', (int) $product_id, $is_wishlisted ? 'true' : 'false', esc_js($display_context)); ?>">
     <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
@@ -65,6 +69,15 @@ $display_context         = $data['context'] ?? null;
             <span class="kecom-product-card-category"><?php echo esc_html($category_name); ?></span>
         <?php endif; ?>
         <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-title"><?php echo esc_html($title); ?></a>
+        <?php if ($is_enabled_reviews && $is_enabled_star_ratings && $reviews_count > 0) : ?>
+            <div class="kecom-product-card-rating">
+                <span class="kecom-stars" aria-label="<?php echo esc_attr(sprintf(__('%s out of 5 stars', 'kirki-ecommerce'), $average_rating)); ?>">
+                    <span class="star-filled">★</span>
+                </span>
+                <span class="kecom-rating-score"><?php echo esc_html(number_format($average_rating, 1)); ?></span>
+                <span class="kecom-rating-count">(<?php echo esc_html($reviews_count); ?>)</span>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="kecom-product-card-footer">

@@ -103,6 +103,27 @@ foreach ($media as $media_item) {
 
                     <h1 class="kecom-product-title"><?php echo esc_html($product['title']); ?></h1>
                     
+                    <?php if ($product['is_enabled_reviews'] ?? true) : ?>
+                        <div class="kecom-product-rating-summary">
+                            <div class="kecom-stars" aria-label="<?php echo esc_attr(sprintf(__('%s out of 5 stars', 'kirki-ecommerce'), $product['average_rating'] ?? 0)); ?>">
+                                <?php
+                                $avg_val = (float) ($product['average_rating'] ?? 0);
+                                for ($star_i = 1; $star_i <= 5; $star_i++) {
+                                    echo '<span class="' . ($star_i <= round($avg_val) ? 'star-filled' : 'star-empty') . '">' . ($star_i <= round($avg_val) ? '★' : '☆') . '</span>';
+                                }
+                                ?>
+                            </div>
+                            <a href="#reviews" class="kecom-rating-link" @click.prevent="window.dispatchEvent(new CustomEvent('kecom:switch-tab', { detail: 'reviews' })); document.getElementById('product-reviews-section')?.scrollIntoView({ behavior: 'smooth' });">
+                                <?php if (!empty($product['reviews_count'])) : ?>
+                                    <strong><?php echo esc_html(number_format($product['average_rating'], 1)); ?></strong>
+                                    <span>(<?php echo esc_html(sprintf(_n('%d review', '%d reviews', $product['reviews_count'], 'kirki-ecommerce'), $product['reviews_count'])); ?>)</span>
+                                <?php else : ?>
+                                    <span>(<?php esc_html_e('No reviews yet', 'kirki-ecommerce'); ?>)</span>
+                                <?php endif; ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                    
                     <div class="kecom-product-pricing-group">
                         <div class="kecom-product-price">
                             <span class="kecom-product-price-current" x-text="selectedVariant?.sale_price ? selectedVariant?.sale_price : selectedVariant?.price"></span>
@@ -231,15 +252,20 @@ foreach ($media as $media_item) {
     </div>
 
     <!-- Bottom: Tabs -->
-    <div class="kecom-product-information">
+    <div class="kecom-product-information" id="product-reviews-section">
         <div class="kecom-container">
-            <div class="kecom-product-tabs" x-data="tabs({ activeTab: 'description' })">
+            <div class="kecom-product-tabs" x-data="tabs({ activeTab: 'description' })" @kecom:switch-tab.window="activeTab = $event.detail">
                 <div class="kecom-product-tab-header">
                     <button class="kecom-product-tab-btn" :class="{ 'active': activeTab === 'description' }" @click="activeTab = 'description'"><?php esc_html_e('Description', 'kirki-ecommerce'); ?></button>
                     <?php if (count($additional_info) > 0) : ?>
                         <?php foreach ($additional_info as $index => $info) : ?>
                             <button class="kecom-product-tab-btn" :class="{ 'active': activeTab === 'info-<?php echo esc_attr($index); ?>' }" @click="activeTab = 'info-<?php echo esc_attr($index); ?>'"><?php echo esc_html($info['title']); ?></button>
                         <?php endforeach; ?>
+                    <?php endif; ?>
+                    <?php if ($product['is_enabled_reviews'] ?? true) : ?>
+                        <button class="kecom-product-tab-btn" :class="{ 'active': activeTab === 'reviews' }" @click="activeTab = 'reviews'">
+                            <?php printf(esc_html__('Reviews (%d)', 'kirki-ecommerce'), $product['reviews_count'] ?? 0); ?>
+                        </button>
                     <?php endif; ?>
                 </div>
                 
@@ -252,6 +278,19 @@ foreach ($media as $media_item) {
                         <?php echo esc_html($info['description']); ?>
                     </div>
                 <?php endforeach; ?>
+
+                <?php if ($product['is_enabled_reviews'] ?? true) : ?>
+                    <div class="kecom-product-tab-content" :class="{ 'active': activeTab === 'reviews' }">
+                        <?php
+                        include_view(
+                            'site.shop.parts.reviews',
+                            [
+                                'product' => $product,
+                            ]
+                        );
+                        ?>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
