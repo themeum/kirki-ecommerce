@@ -29,6 +29,7 @@ class AdminApiAccessTest extends RestTestCase
             'setup checklist' => ['GET', 'setup-checklist'],
             'complete setup step' => ['POST', 'setup-checklist/tax/complete'],
             'dashboard overview' => ['GET', 'dashboard/overview'],
+            'dashboard attention' => ['GET', 'dashboard/attention'],
         ];
     }
 

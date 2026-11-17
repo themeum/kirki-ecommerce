@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Models;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
@@ -155,6 +156,48 @@ class Variant extends Model
     public function scope_visible($query)
     {
         return $query->where('is_visible', true);
+    }
+
+    /**
+     * Narrow the query to variants that cannot be sold now: tracked with no stock left, or untracked and marked out of stock.
+     *
+     * @since 1.0.2
+     *
+     * @param \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder $query Query being scoped.
+     * @return \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder
+     */
+    public function scope_only_out_of_stock($query)
+    {
+        return $query->where(function ($query) {
+            $query->where(function ($query) {
+                $query->where('track_inventory', true);
+                $query->where('available_quantity', '<=', 0);
+            });
+
+            $query->or_where(function ($query) {
+                $query->where('track_inventory', false);
+                $query->where('in_stock', false);
+            });
+        });
+    }
+
+    /**
+     * Narrow the query to tracked variants that still have stock, at or under their low-stock threshold.
+     *
+     * A variant with no threshold of its own uses the store default threshold from the product settings.
+     *
+     * @since 1.0.2
+     *
+     * @param \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder $query Query being scoped.
+     * @return \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder
+     */
+    public function scope_only_low_stock($query)
+    {
+        $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
+
+        return $query->where('track_inventory', true)
+            ->where('available_quantity', '>', 0)
+            ->where_raw('available_quantity <= COALESCE(low_stock_threshold, %d)', [$store_default_threshold]);
     }
 
     /**

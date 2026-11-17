@@ -22,6 +22,7 @@ type OrderListFilter = {
   status?: string;
   payment_status?: string;
   shipping_method?: string;
+  attention?: string;
   from_date?: string | null;
   to_date?: string | null;
 };

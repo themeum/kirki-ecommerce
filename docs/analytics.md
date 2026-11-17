@@ -72,6 +72,11 @@ each part shows as soon as its own data comes. A hidden card sends no request:
   select a day after today.
 - A range includes its first and last day. "Today" is today in the browser
   time zone. A custom range cannot end after today.
+- The API also accepts two presets that this page does not offer, for the Home
+  page ([Home](home.md#7-store-overview)): `week_to_date` (the first day of
+  this week, by **Settings → General → Week Starts On**, to today) and
+  `all_time` (the day of the store's first order, of any status, to today).
+  All time never has a comparison, whatever `compare` asks.
 - **Previous period** is the same number of days, ending the day before the
   range starts. **Previous year** is the same dates one year earlier (Feb 29
   moves to Feb 28).
@@ -80,16 +85,24 @@ each part shows as soon as its own data comes. A hidden card sends no request:
   under each option, and the footer shows the selected comparison range.
   **Custom** opens Start and End fields and a calendar with two months; it
   starts at the previous period. Select **Apply** to use the selection.
-- **Customize** is on the right of the controls. It opens the "Customize
-  analytics" panel from the right side of the screen:
-  - The **Key metrics** group lists the 11 key metrics and the **Cards** group
-    lists the 15 cards. Check or clear an item to show or hide it. The page
-    changes at once.
+- **Customize** is the icon button (sliders) on the right of the controls. Its
+  accessible name is "Customize analytics". It opens the "Customize analytics"
+  panel from the right side of the screen:
+  - The **Key metrics** group lists the 11 key metrics, with the number that is
+    on ("4/11") at the right. The **Cards** group lists the 15 cards, with the
+    number that is on ("15/15") at the right. Check or clear an item to show
+    or hide it. The page changes at once.
+  - Each group title has an info icon (ⓘ). Hover or focus it to read what the
+    group does.
   - Drag an item by its handle (⠿) to change its place in its group. With the
     keyboard, tab to the handle, press Space, move with the arrow keys and
     press Space again. An item cannot move to the other group.
   - At least one key metric and one card stay on. The last item that is on in
     a group cannot be cleared.
+  - Drag the panel's header to float it anywhere on the screen. A floating
+    panel has no dark overlay, so you can see and scroll the page. **Dock to
+    the right** puts it back. The browser remembers the place. On screens
+    narrower than 640 px, the panel does not float.
   - Cards marked **Full width** always take a whole row. A half card that is
     alone in its row fills the row.
   - The **Amounts** group, below Cards, sets how money amounts show:

@@ -122,19 +122,37 @@ describe('CustomizeSheet', () => {
     ).not.toBeChecked();
   });
 
-  it('shows the help texts with the number of key metrics that are on', () => {
+  it('shows each group help as an info tooltip, and the count of items that are on', () => {
+    const sheet = openSheet();
+
+    expect(within(sheet).queryByText(/Drag to reorder\./)).not.toBeInTheDocument();
+    expect(
+      within(sheet).getByRole('img', {
+        name: 'Shown across the top, 4 in each row, in this order. Drag to reorder.',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(sheet).getByRole('img', { name: 'Shown in this order. Drag to reorder.' }),
+    ).toBeInTheDocument();
+    expect(
+      within(sheet).getByRole('img', { name: 'How money amounts are shown.' }),
+    ).toBeInTheDocument();
+    expect(within(sheet).getByText('4/11')).toBeInTheDocument();
+    expect(within(sheet).getByText('15/15')).toBeInTheDocument();
+
+    fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Net sales' }));
+    fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Sales by product' }));
+
+    expect(within(sheet).getByText('5/11')).toBeInTheDocument();
+    expect(within(sheet).getByText('14/15')).toBeInTheDocument();
+  });
+
+  it('has no description under the title', () => {
     const sheet = openSheet();
 
     expect(
-      within(sheet).getByText(
-        'Shown across the top, 4 in each row, in this order. 4/11 on. Drag to reorder.',
-      ),
-    ).toBeInTheDocument();
-    expect(within(sheet).getByText('Shown in this order. Drag to reorder.')).toBeInTheDocument();
-
-    fireEvent.click(within(sheet).getByRole('checkbox', { name: 'Net sales' }));
-
-    expect(within(sheet).getByText(/5\/11 on/)).toBeInTheDocument();
+      within(sheet).queryByText('Choose what the Analytics page shows, and in which order.'),
+    ).not.toBeInTheDocument();
   });
 
   // Scenario: Full width note
@@ -168,7 +186,7 @@ describe('CustomizeSheet', () => {
       fireEvent.click(within(groupList('Key metrics')).getByRole('checkbox', { name }));
     });
 
-    expect(within(sheet).getByText(/11\/11 on/)).toBeInTheDocument();
+    expect(within(sheet).getByText('11/11')).toBeInTheDocument();
 
     const kpis = within(groupList('Key metrics')).getAllByRole('checkbox');
 
@@ -284,5 +302,23 @@ describe('CustomizeSheet', () => {
     expect(storedLayout().cards.find((item) => item.key === 'taxes_by_region')?.visible).toBe(
       false,
     );
+  });
+
+  it('floats when its header is dragged, and remembers it apart from the Home sheet', () => {
+    const dialog = openSheet();
+    const header = within(dialog).getByText('Customize analytics').parentElement!;
+
+    fireEvent.pointerDown(header, { button: 0, clientX: 0, clientY: 0 });
+    fireEvent.pointerMove(window, { clientX: 200, clientY: 100 });
+    fireEvent.pointerUp(window);
+
+    expect(screen.getByRole('dialog', { name: 'Customize analytics' })).toHaveAttribute(
+      'data-floating',
+      'true',
+    );
+    expect(window.localStorage.getItem('kirki-ecommerce:analytics:customize-sheet')).toContain(
+      'floating',
+    );
+    expect(window.localStorage.getItem('kirki-ecommerce:home:customize-sheet')).toBeNull();
   });
 });

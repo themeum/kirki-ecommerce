@@ -1,7 +1,7 @@
 import { useQueries, useQuery, type UseQueryResult } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
-import type { AnalyticsParams } from '@/features/analytics/lib/url-state';
+import type { AnalyticsQueryParams } from '@/features/analytics/lib/url-state';
 import {
   type AnalyticsMetric,
   type AnalyticsMetricKey,
@@ -13,13 +13,13 @@ import { apiClient } from '@/libs/api';
 import { parseData } from '@/services/helpers';
 
 const analyticsKeys = {
-  metric: (key: AnalyticsMetricKey, params: AnalyticsParams) =>
+  metric: (key: AnalyticsMetricKey, params: AnalyticsQueryParams) =>
     ['AnalyticsMetric', key, params] as const,
-  regions: (params: AnalyticsParams, country: string | null) =>
+  regions: (params: AnalyticsQueryParams, country: string | null) =>
     ['AnalyticsRegions', params, country] as const,
 };
 
-const buildQuery = (params: AnalyticsParams) => {
+const buildQuery = (params: AnalyticsQueryParams) => {
   const query: Record<string, string> = { range: params.range, compare: params.compare };
 
   if (params.range === 'custom' && params.from && params.to) {
@@ -35,7 +35,7 @@ const buildQuery = (params: AnalyticsParams) => {
   return query;
 };
 
-const getAnalyticsMetric = <K extends AnalyticsMetricKey>(key: K, params: AnalyticsParams) => {
+const getAnalyticsMetric = <K extends AnalyticsMetricKey>(key: K, params: AnalyticsQueryParams) => {
   return apiClient
     .get(endpoints.ANALYTICS_METRIC(key), { params: buildQuery(params) })
     .then((response) => parseData(analyticsMetricSchema(key), response) as AnalyticsMetric<K>);
@@ -46,7 +46,7 @@ type AnalyticsMetricQueries = {
 };
 
 const useAnalyticsMetricQueries = (
-  params: AnalyticsParams,
+  params: AnalyticsQueryParams,
   enabledKeys: ReadonlySet<AnalyticsMetricKey>,
 ) => {
   return useQueries({
@@ -64,13 +64,13 @@ const useAnalyticsMetricQueries = (
   });
 };
 
-const getAnalyticsRegions = (params: AnalyticsParams, country: string) => {
+const getAnalyticsRegions = (params: AnalyticsQueryParams, country: string) => {
   return apiClient
     .get(endpoints.ANALYTICS_REGIONS, { params: { ...buildQuery(params), country } })
     .then((response) => parseData(AnalyticsRegionsSchema, response));
 };
 
-const useAnalyticsRegionsQuery = (params: AnalyticsParams, country: string | null) => {
+const useAnalyticsRegionsQuery = (params: AnalyticsQueryParams, country: string | null) => {
   return useQuery({
     queryKey: analyticsKeys.regions(params, country),
     queryFn: () => getAnalyticsRegions(params, country ?? ''),
@@ -78,5 +78,18 @@ const useAnalyticsRegionsQuery = (params: AnalyticsParams, country: string | nul
   });
 };
 
-export { useAnalyticsMetricQueries, useAnalyticsRegionsQuery };
+const useAnalyticsMetricQuery = <K extends AnalyticsMetricKey>(
+  key: K,
+  params: AnalyticsQueryParams,
+  enabled = true,
+) => {
+  return useQuery({
+    queryKey: analyticsKeys.metric(key, params),
+    queryFn: () => getAnalyticsMetric(key, params),
+    staleTime: 0,
+    enabled,
+  });
+};
+
+export { useAnalyticsMetricQueries, useAnalyticsMetricQuery, useAnalyticsRegionsQuery };
 export type { AnalyticsMetricQueries };
