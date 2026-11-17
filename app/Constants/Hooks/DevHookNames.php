@@ -22,4 +22,5 @@ class DevHookNames
     public const SEO_HEAD_ENABLED = 'kirki_ecommerce_seo_head_enabled';
     public const PRODUCT_SEO_DATA = 'kirki_ecommerce_product_seo_data';
     public const PRODUCT_JSON_LD = 'kirki_ecommerce_product_json_ld';
+    public const TEMPLATE_OVERRIDE = 'kirki_ecommerce_template_override';
 }

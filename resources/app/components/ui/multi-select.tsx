@@ -43,6 +43,7 @@ type MultiSelectOption = {
 // Fixed so the virtualizer's estimate is exact: it positions rows from this
 // value alone, and a row that measured taller would overlap the next one.
 const VIRTUAL_ROW_HEIGHT = 32;
+const SELECT_ALL_VALUE = '__multi-select-all__';
 
 const findScrollableAncestor = (target: HTMLElement, boundary: HTMLElement) => {
   let node: HTMLElement | null = target;
@@ -152,6 +153,14 @@ type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
    * with the typed text exactly as the create row would. Enter still creates.
    */
   footer?: (state: { query: string; create: () => void }) => ReactNode;
+  /**
+   * Adds a row at the top of the option list that selects every option, or
+   * clears them all once every option is selected. Hidden while searching
+   * and for a single select.
+   */
+  showSelectAll?: boolean;
+  /** Label of the select-all row. Defaults to "Select all". */
+  selectAllLabel?: string;
 };
 
 /**
@@ -208,6 +217,8 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   listCss,
   virtualized = false,
   footer,
+  showSelectAll = false,
+  selectAllLabel = __('Select all', 'kirki-ecommerce'),
 }: MultiSelectProps<TOption>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -238,6 +249,11 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   // is empty because nothing exists yet or because an empty search matches
   // everything — either way there is nothing to show.
   const hasNoOptions = options.length === 0 && !trimmedSearch;
+  const showSelectAllRow = showSelectAll && !single && !trimmedSearch && options.length > 0;
+  const selectedOptionCount = options.filter((option) =>
+    selectedIds.has(getOptionId(option)),
+  ).length;
+  const isAllSelected = options.length > 0 && selectedOptionCount === options.length;
 
   const virtualizer = useVirtualizer({
     count: options.length,
@@ -335,6 +351,36 @@ const MultiSelect = <TOption extends MultiSelectOption>({
     setSearch('');
     onSearchChange?.('');
   };
+
+  const handleSelectAll = () => {
+    if (disabled) {
+      return;
+    }
+
+    if (isAllSelected) {
+      const optionIds = new Set(options.map(getOptionId));
+      onChange(value.filter((item) => !optionIds.has(getOptionId(item))));
+      return;
+    }
+
+    onChange([...value, ...options.filter((option) => !selectedIds.has(getOptionId(option)))]);
+  };
+
+  const selectAllRow = showSelectAllRow && (
+    <CommandItem
+      value={SELECT_ALL_VALUE}
+      cssOverride={virtualized ? styles.virtualItem : undefined}
+      onSelect={handleSelectAll}
+    >
+      <Checkbox
+        checked={isAllSelected ? true : selectedOptionCount > 0 ? 'indeterminate' : false}
+        tabIndex={-1}
+        aria-hidden="true"
+        cssOverride={styles.checkbox}
+      />
+      {selectAllLabel}
+    </CommandItem>
+  );
 
   const handleRemove = (option: TOption) => {
     if (disabled) {
@@ -568,47 +614,53 @@ const MultiSelect = <TOption extends MultiSelectOption>({
                 )}
                 {virtualized ? (
                   options.length > 0 && (
-                    <div
-                      style={{
-                        height: virtualizer.getTotalSize(),
-                        position: 'relative',
-                        width: '100%',
-                      }}
-                    >
-                      {virtualizer.getVirtualItems().map((virtualRow) => {
-                        const option = options[virtualRow.index];
-                        const id = getOptionId(option);
+                    <>
+                      {selectAllRow}
+                      <div
+                        style={{
+                          height: virtualizer.getTotalSize(),
+                          position: 'relative',
+                          width: '100%',
+                        }}
+                      >
+                        {virtualizer.getVirtualItems().map((virtualRow) => {
+                          const option = options[virtualRow.index];
+                          const id = getOptionId(option);
 
-                        return (
-                          <div
-                            key={virtualRow.key}
-                            data-index={virtualRow.index}
-                            css={scoped(styles.virtualRow)}
-                            style={{ transform: `translateY(${virtualRow.start}px)` }}
-                          >
-                            <CommandItem
-                              value={option.title}
-                              style={optionStyle?.(option)}
-                              cssOverride={styles.virtualItem}
-                              onSelect={() => handleToggle(option)}
+                          return (
+                            <div
+                              key={virtualRow.key}
+                              data-index={virtualRow.index}
+                              css={scoped(styles.virtualRow)}
+                              style={{ transform: `translateY(${virtualRow.start}px)` }}
                             >
-                              {!single && (
-                                <Checkbox
-                                  checked={selectedIds.has(id)}
-                                  tabIndex={-1}
-                                  aria-hidden="true"
-                                  cssOverride={styles.checkbox}
-                                />
-                              )}
-                              <span css={scoped(styles.virtualLabel)}>{renderOption(option)}</span>
-                            </CommandItem>
-                          </div>
-                        );
-                      })}
-                    </div>
+                              <CommandItem
+                                value={option.title}
+                                style={optionStyle?.(option)}
+                                cssOverride={styles.virtualItem}
+                                onSelect={() => handleToggle(option)}
+                              >
+                                {!single && (
+                                  <Checkbox
+                                    checked={selectedIds.has(id)}
+                                    tabIndex={-1}
+                                    aria-hidden="true"
+                                    cssOverride={styles.checkbox}
+                                  />
+                                )}
+                                <span css={scoped(styles.virtualLabel)}>
+                                  {renderOption(option)}
+                                </span>
+                              </CommandItem>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
                   )
                 ) : (
                   <CommandGroup>
+                    {selectAllRow}
                     {options.map((option) => {
                       const id = getOptionId(option);
 
