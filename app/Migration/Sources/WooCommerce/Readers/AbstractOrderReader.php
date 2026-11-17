@@ -169,31 +169,7 @@ abstract class AbstractOrderReader implements OrderReader
      */
     protected function skus(array $items)
     {
-        $ids = [];
-
-        foreach ($items as $order_items) {
-            foreach ($order_items as $item) {
-                $source_id = (int) ($item['meta']['_variation_id'] ?? 0) ?: (int) ($item['meta']['_product_id'] ?? 0);
-
-                if ($source_id > 0) {
-                    $ids[] = $source_id;
-                }
-            }
-        }
-
-        if (empty($ids)) {
-            return [];
-        }
-
-        $skus = [];
-
-        foreach ($this->rows(DB::table('postmeta')->where_in('post_id', array_unique($ids))->where('meta_key', '_sku')->select(['post_id', 'meta_value'])->get()) as $row) {
-            if ($row['meta_value'] !== '') {
-                $skus[(int) $row['post_id']] = $row['meta_value'];
-            }
-        }
-
-        return $skus;
+        return $this->product_meta($items, '_sku');
     }
 
     /**
@@ -208,31 +184,7 @@ abstract class AbstractOrderReader implements OrderReader
      */
     protected function images(array $items)
     {
-        $ids = [];
-
-        foreach ($items as $order_items) {
-            foreach ($order_items as $item) {
-                foreach (['_variation_id', '_product_id'] as $key) {
-                    $source_id = (int) ($item['meta'][$key] ?? 0);
-
-                    if ($source_id > 0) {
-                        $ids[] = $source_id;
-                    }
-                }
-            }
-        }
-
-        if (empty($ids)) {
-            return [];
-        }
-
-        $thumbnails = [];
-
-        foreach ($this->rows(DB::table('postmeta')->where_in('post_id', array_unique($ids))->where('meta_key', '_thumbnail_id')->select(['post_id', 'meta_value'])->get()) as $row) {
-            if ((int) $row['meta_value'] > 0) {
-                $thumbnails[(int) $row['post_id']] = (int) $row['meta_value'];
-            }
-        }
+        $thumbnails = array_filter(array_map('intval', $this->product_meta($items, '_thumbnail_id')));
 
         if (empty($thumbnails)) {
             return [];
@@ -247,6 +199,45 @@ abstract class AbstractOrderReader implements OrderReader
         return array_filter($thumbnails, function ($attachment_id) use ($existing) {
             return isset($existing[$attachment_id]);
         });
+    }
+
+    /**
+     * Read one meta key of the products and variations that order lines point to.
+     *
+     * Empty values are left out.
+     *
+     * @since 1.0.2
+     *
+     * @param array<int, array<int, array<string, mixed>>> $items    Order items keyed by order id.
+     * @param string                                       $meta_key The post meta key.
+     * @return array<int, string> Meta values keyed by product or variation id.
+     */
+    protected function product_meta(array $items, string $meta_key)
+    {
+        $ids = [];
+
+        foreach ($items as $order_items) {
+            foreach ($order_items as $item) {
+                $ids[(int) ($item['meta']['_variation_id'] ?? 0)] = true;
+                $ids[(int) ($item['meta']['_product_id'] ?? 0)] = true;
+            }
+        }
+
+        unset($ids[0]);
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $values = [];
+
+        foreach ($this->rows(DB::table('postmeta')->where_in('post_id', array_keys($ids))->where('meta_key', $meta_key)->select(['post_id', 'meta_value'])->get()) as $row) {
+            if ($row['meta_value'] !== '') {
+                $values[(int) $row['post_id']] = $row['meta_value'];
+            }
+        }
+
+        return $values;
     }
 
     /**
