@@ -62,6 +62,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
 
     // Dashboard
     Route::get('/dashboard/overview', [DashboardController::class, 'overview']);
+    Route::get('/dashboard/attention', [DashboardController::class, 'attention']);
 
     // Analytics
     Route::get('/analytics/metrics/{key}', [AnalyticsController::class, 'metric']);

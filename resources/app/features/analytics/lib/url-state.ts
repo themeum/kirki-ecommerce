@@ -1,6 +1,7 @@
 import { isValid, parse } from 'date-fns';
 
 import {
+  type ApiRangeKey,
   type CompareKey,
   COMPARISONS,
   RANGE_PRESETS,
@@ -15,6 +16,8 @@ type AnalyticsParams = {
   compare_from: string | null;
   compare_to: string | null;
 };
+
+type AnalyticsQueryParams = Omit<AnalyticsParams, 'range'> & { range: ApiRangeKey };
 
 const DEFAULT_ANALYTICS_PARAMS: AnalyticsParams = {
   range: 'last_30',
@@ -91,4 +94,10 @@ const serializeAnalyticsParams = (params: AnalyticsParams): URLSearchParams => {
   return query;
 };
 
-export { type AnalyticsParams, DEFAULT_ANALYTICS_PARAMS, parseAnalyticsParams, serializeAnalyticsParams };
+export {
+  type AnalyticsParams,
+  type AnalyticsQueryParams,
+  DEFAULT_ANALYTICS_PARAMS,
+  parseAnalyticsParams,
+  serializeAnalyticsParams,
+};

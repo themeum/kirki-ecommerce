@@ -76,7 +76,7 @@ export const getFulfillmentBadgeInfo = (
       };
     case 'on-hold':
       return {
-        variant: 'caution',
+        variant: 'warning',
         text: __('On hold', 'kirki-ecommerce'),
       };
     case 'cancelled':

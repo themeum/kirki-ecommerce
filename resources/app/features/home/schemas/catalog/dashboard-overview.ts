@@ -37,15 +37,6 @@ const DashboardOverviewSchema = z.object({
   top_products: z.array(TopProductSchema),
 });
 
-type DashboardMetrics = z.infer<typeof DashboardMetricsSchema>;
-type DashboardMoney = z.infer<typeof DashboardMoneySchema>;
-type TopProduct = z.infer<typeof TopProductSchema>;
 type DashboardOverview = z.infer<typeof DashboardOverviewSchema>;
 
-export {
-  type DashboardMetrics,
-  type DashboardMoney,
-  type DashboardOverview,
-  DashboardOverviewSchema,
-  type TopProduct,
-};
+export { type DashboardOverview, DashboardOverviewSchema };
