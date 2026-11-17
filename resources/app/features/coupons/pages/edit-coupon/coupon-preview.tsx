@@ -181,29 +181,29 @@ const CouponPreview = () => {
       >
         <CardContent>
           <Flex direction="column" gap={2}>
-            {values.method === 'code' && (
-              <Flex justify="space-between" align="center">
-                <Text
-                  variant="heading4"
-                  weight="semibold"
-                  color={values.code ? 'emphasis' : 'disabled'}
+            <Flex justify="space-between" align="center">
+              <Text
+                variant="heading4"
+                weight="semibold"
+                color={values.code ? 'emphasis' : 'disabled'}
+              >
+                {values.method === 'automatic'
+                  ? __('Automatic coupon', 'kirki-ecommerce')
+                  : values.code || __('No code set', 'kirki-ecommerce')}
+              </Text>
+              {values.method === 'code' && values.code && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  disabled={!values.code}
+                  onClick={handleCopyCode}
+                  aria-label={__('Copy coupon code', 'kirki-ecommerce')}
                 >
-                  {values.code || __('No code set', 'kirki-ecommerce')}
-                </Text>
-                {values.code && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    disabled={!values.code}
-                    onClick={handleCopyCode}
-                    aria-label={__('Copy coupon code', 'kirki-ecommerce')}
-                  >
-                    <Copy />
-                  </Button>
-                )}
-              </Flex>
-            )}
+                  <Copy />
+                </Button>
+              )}
+            </Flex>
 
             <Flex justify="space-between" align="center">
               <Text variant="small" weight="normal">

@@ -34,12 +34,18 @@ vi.mock('@/features/categories/services/category', () => ({
 
 type CategoryRef = { id: number; name: string; parent_id: number | null };
 
-const Harness = ({ initial = [] }: { initial?: CategoryRef[] }) => {
+const Harness = ({
+  initial = [],
+  allowCreate,
+}: {
+  initial?: CategoryRef[];
+  allowCreate?: boolean;
+}) => {
   const form = useForm({ defaultValues: { categories: initial } });
 
   return (
     <FormProvider {...form}>
-      <CategoriesField name="categories" label="Categories" />
+      <CategoriesField name="categories" label="Categories" allowCreate={allowCreate} />
     </FormProvider>
   );
 };
@@ -206,5 +212,14 @@ describe('CategoriesField creation', () => {
     open();
 
     expect(screen.queryByRole('button', { name: /Add|New category/ })).not.toBeInTheDocument();
+  });
+
+  it('offers nothing to create when creation is turned off', () => {
+    render(<Harness allowCreate={false} />);
+
+    open();
+    type('Beanies');
+
+    expect(screen.queryByRole('button', { name: /Add "Beanies"/ })).not.toBeInTheDocument();
   });
 });

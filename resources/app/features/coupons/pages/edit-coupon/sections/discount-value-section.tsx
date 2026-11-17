@@ -2,7 +2,6 @@ import { PlusIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import CategoriesDropdownField from '@/components/form/categories-dropdown-field';
 import NumberField from '@/components/form/number-field';
 import SelectField from '@/components/form/select-field';
 import Button from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { Field } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
-import { useCategoriesQuery } from '@/features/categories';
+import { CategoriesField } from '@/features/categories';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { ProductSelectionField } from '@/features/products';
 import { theme } from '@/theme';
@@ -24,25 +23,17 @@ const DiscountValueSection = () => {
   const discountValueType = useWatch({
     name: 'discount_value_type',
     control,
-  })
+  });
   const discountTarget = useWatch({ control, name: 'discount_target' });
   const eligibleItemType = useWatch({ control, name: 'eligible_item_type' });
   const products = useWatch({ control, name: 'products' });
   const [productPickerOpen, setProductPickerOpen] = useState(false);
-  const { data: categoryData } = useCategoriesQuery(
-    { limit: -1 },
-    eligibleItemType === 'specific-categories',
-  );
-  const categories = categoryData?.results ?? [];
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
         <CardTitle>{__('Discount Value', 'kirki-ecommerce')}</CardTitle>
         <Text variant="small" color="secondary">
-          {__(
-            'Select your desired discount option and specify the value.',
-            'kirki-ecommerce',
-          )}
+          {__('Select your desired discount option and specify the value.', 'kirki-ecommerce')}
         </Text>
       </CardHeader>
       <CardContent>
@@ -76,8 +67,14 @@ const DiscountValueSection = () => {
                   placeholder={__('Select eligible items', 'kirki-ecommerce')}
                   options={[
                     { value: 'all-products', label: __('All Products', 'kirki-ecommerce') },
-                    { value: 'specific-products', label: __('Specific Products', 'kirki-ecommerce') },
-                    { value: 'specific-categories', label: __('Specific Categories', 'kirki-ecommerce') },
+                    {
+                      value: 'specific-products',
+                      label: __('Specific Products', 'kirki-ecommerce'),
+                    },
+                    {
+                      value: 'specific-categories',
+                      label: __('Specific Categories', 'kirki-ecommerce'),
+                    },
                   ]}
                 />
                 {eligibleItemType === 'specific-products' && (
@@ -103,11 +100,14 @@ const DiscountValueSection = () => {
                   </Flex>
                 )}
                 {eligibleItemType === 'specific-categories' && (
-                  <CategoriesDropdownField
+                  <CategoriesField
                     name="categories"
-                    categories={categories}
                     label={__('Categories', 'kirki-ecommerce')}
                     placeholder={__('Search categories..', 'kirki-ecommerce')}
+                    showSelectAll
+                    selectAllLabel={__('All Categories', 'kirki-ecommerce')}
+                    allowCreate={false}
+                    maxVisibleChips={2}
                   />
                 )}
               </>
@@ -116,10 +116,10 @@ const DiscountValueSection = () => {
         </Flex>
       </CardContent>
     </Card>
-  )
+  );
 };
 
-export default DiscountValueSection
+export default DiscountValueSection;
 
 const styles = defineStyles({
   addMoreButton: {

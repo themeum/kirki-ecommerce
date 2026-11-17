@@ -34,6 +34,8 @@ const Harness = ({
   virtualized?: boolean;
   footer?: (state: { query: string; create: () => void }) => ReactNode;
   renderChip?: (option: MultiSelectOption) => ReactNode;
+  showSelectAll?: boolean;
+  selectAllLabel?: string;
 } & ChipCapProps) => {
   const [value, setValue] = useState<MultiSelectOption[]>(initial);
 
@@ -397,6 +399,69 @@ describe('MultiSelect panel slot', () => {
     expect(screen.getByRole('button', { name: 'Create category' })).toBeInTheDocument();
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
     expect(screen.queryByRole('option')).not.toBeInTheDocument();
+  });
+});
+
+describe('MultiSelect select-all row', () => {
+  const selectAll = () => screen.queryByRole('option', { name: /All tags/ });
+
+  const selectAllState = () =>
+    selectAll()?.querySelector('[role="checkbox"]')?.getAttribute('data-state');
+
+  it('renders no select-all row unless showSelectAll is set', () => {
+    render(<Harness selectAllLabel="All tags" />);
+
+    open();
+
+    expect(selectAll()).not.toBeInTheDocument();
+  });
+
+  it('falls back to the default label', () => {
+    render(<Harness showSelectAll />);
+
+    open();
+
+    expect(screen.getByRole('option', { name: /Select all/ })).toBeInTheDocument();
+  });
+
+  it('selects every option, then clears them all', () => {
+    render(<Harness showSelectAll selectAllLabel="All tags" />);
+
+    open();
+    fireEvent.click(selectAll()!);
+
+    expect(removeButtons()).toHaveLength(3);
+    expect(selectAllState()).toBe('checked');
+
+    fireEvent.click(selectAll()!);
+
+    expect(removeButtons()).toHaveLength(0);
+  });
+
+  it('shows a partial state when only some options are selected', () => {
+    render(<Harness showSelectAll selectAllLabel="All tags" initial={[OPTIONS[0]]} />);
+
+    open();
+
+    expect(selectAllState()).toBe('indeterminate');
+  });
+
+  it('renders the select-all row inside the option list', () => {
+    render(<Harness showSelectAll selectAllLabel="All tags" />);
+
+    open();
+
+    expect(screen.getByRole('listbox')).toContainElement(selectAll());
+    expect(screen.getAllByRole('option')[0]).toBe(selectAll());
+  });
+
+  it('hides the select-all row while searching', () => {
+    render(<Harness showSelectAll selectAllLabel="All tags" />);
+
+    open();
+    type('Hood');
+
+    expect(selectAll()).not.toBeInTheDocument();
   });
 });
 

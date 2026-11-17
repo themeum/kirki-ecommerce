@@ -1,5 +1,6 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 
+import RadioGroupField from '@/components/form/radio-group-field';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +13,10 @@ import DiscountTypeField from '@/features/coupons/components/fields/discount-typ
 import DiscountValueSection from '@/features/coupons/pages/edit-coupon/sections/discount-value-section';
 import ValidityPeriodSection from '@/features/coupons/pages/edit-coupon/sections/validity-period-section';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
 
 const DetailsTab = () => {
   const { control } = useFormContext<CouponFormInput>();
@@ -33,8 +35,7 @@ const DetailsTab = () => {
         </CardHeader>
         <CardContent>
           <Flex direction="column" gap={4}>
-            {/* TODO: implement later */}
-            {/* <RadioGroupField
+            <RadioGroupField
               name="method"
               cssOverride={styles.methodGroup}
               label={__('Method', 'kirki-ecommerce')}
@@ -48,8 +49,8 @@ const DetailsTab = () => {
                   value: 'automatic',
                 },
               ]}
-            /> */}
-            <Grid>
+            />
+            <Grid columns={method === 'code' ? 2 : 1}>
               <TextField
                 name="title"
                 label={__('Title', 'kirki-ecommerce')}
@@ -90,9 +91,8 @@ DetailsTab.displayName = 'DetailsTab';
 
 export default DetailsTab;
 
-// TODO: implement later
-// const styles = defineStyles({
-//   methodGroup: {
-//     gap: theme.spacing[2],
-//   },
-// });
+const styles = defineStyles({
+  methodGroup: {
+    gap: theme.spacing[2],
+  },
+});
