@@ -20,7 +20,7 @@ import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
-const IMAGE_SIZE = '48px';
+const IMAGE_SIZE = '42px';
 const LOADING_ROW_COUNT = 5;
 
 type RestockSoonCardProps = {
@@ -85,16 +85,16 @@ const RestockSoonCard = (props: RestockSoonCardProps) => {
                     />
                   </StackedItemMedia>
                   <StackedItemContent cssOverride={styles.details}>
-                    <Text weight="medium" color="primary" truncate>
+                    <Text variant="small" weight="medium" color="primary" truncate>
                       {item.product_name}
                     </Text>
                     {item.variant_name && (
-                      <Text variant="small" color="secondary" truncate>
+                      <Text variant="tiny" color="secondary" truncate>
                         {item.variant_name}
                       </Text>
                     )}
                   </StackedItemContent>
-                  <Text variant="small" color="warning" cssOverride={styles.left}>
+                  <Text variant="tiny" color="secondary" cssOverride={styles.left}>
                     {sprintf(
                       /* translators: %d: number of units left in stock */
                       __('%d left', 'kirki-ecommerce'),
@@ -139,7 +139,6 @@ const styles = defineStyles({
   details: {
     flex: 1,
     minWidth: 0,
-    gap: theme.spacing[1],
   },
   left: {
     flexShrink: 0,

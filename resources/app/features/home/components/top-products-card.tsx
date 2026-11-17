@@ -130,7 +130,7 @@ TopProductsCard.displayName = 'TopProductsCard';
 
 export default TopProductsCard;
 
-const PRODUCT_IMAGE_SIZE = '48px';
+const PRODUCT_IMAGE_SIZE = '42px';
 
 const styles = defineStyles({
   body: {
