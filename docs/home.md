@@ -431,8 +431,8 @@ queries are in `app/Services/DashboardService.php`.
 
 The attention endpoint takes no date range. The queries are in
 `DashboardService::get_attention()`; the order conditions are
-`Order::scope_apply_attention_filter()` and the stock conditions are
-`Variant::scope_out_of_stock()` and `Variant::scope_low_stock()`.
+`Order::scope_only_needing_attention()` and the stock conditions are
+`Variant::scope_only_out_of_stock()` and `Variant::scope_only_low_stock()`.
 
 ### Other API additions used by Home
 

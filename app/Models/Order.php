@@ -334,7 +334,7 @@ class Order extends Model
      * @param QueryBuilder $query Query being scoped.
      * @return QueryBuilder
      */
-    public function scope_paid_offline(QueryBuilder $query)
+    public function scope_only_paid_offline(QueryBuilder $query)
     {
         return $query->where_raw(static::PAID_OFFLINE_SQL);
     }
@@ -352,7 +352,7 @@ class Order extends Model
      * @param string|null  $attention An OrderAttention value; an empty or unknown value leaves the query unchanged.
      * @return QueryBuilder
      */
-    public function scope_apply_attention_filter(QueryBuilder $query, $attention)
+    public function scope_only_needing_attention(QueryBuilder $query, $attention)
     {
         if ($attention === OrderAttention::TO_SHIP) {
             return $query->where_null('archived_at')

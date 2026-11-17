@@ -66,7 +66,7 @@ class DashboardService
         $late_since = Date::now('UTC')->sub_days(static::LATE_AFTER_DAYS)->to_date_time_string();
 
         $to_ship = Order::query()
-            ->apply_attention_filter(OrderAttention::TO_SHIP)
+            ->only_needing_attention(OrderAttention::TO_SHIP)
             ->select_raw(
                 'COUNT(*) AS orders_count, COALESCE(SUM(CASE WHEN COALESCE(paid_at, created_at) < %s THEN 1 ELSE 0 END), 0) AS late_count',
                 [$late_since]
@@ -74,7 +74,7 @@ class DashboardService
             ->first();
 
         $to_collect = Order::query()
-            ->apply_attention_filter(OrderAttention::TO_COLLECT)
+            ->only_needing_attention(OrderAttention::TO_COLLECT)
             ->select_raw('COUNT(*) AS orders_count, COALESCE(SUM(base_total), 0) AS base_total')
             ->first();
 
@@ -88,7 +88,7 @@ class DashboardService
                 'base_total_money_object' => Money::to_short_dto((int) ($to_collect->base_total ?? 0)),
             ],
             'out_of_stock' => [
-                'count' => Variant::query()->where_has('product')->out_of_stock()->count(),
+                'count' => Variant::query()->where_has('product')->only_out_of_stock()->count(),
             ],
             'low_stock' => $this->get_low_stock(),
         ];
@@ -103,13 +103,11 @@ class DashboardService
      */
     protected function get_low_stock()
     {
-        $threshold = (int) Settings::get('product.low_stock_threshold', 0);
-
-        $total = Variant::query()->where_has('product')->low_stock($threshold)->count();
+        $total = Variant::query()->where_has('product')->only_low_stock()->count();
 
         $variants = Variant::with('product.media', 'attribute_values')
             ->where_has('product')
-            ->low_stock($threshold)
+            ->only_low_stock()
             ->order_by('available_quantity')
             ->order_by('id')
             ->limit(static::LIST_LIMIT)
@@ -122,10 +120,10 @@ class DashboardService
                     'variant_id' => (int) $variant->id,
                     'product_id' => (int) $variant->product->id,
                     'product_name' => $variant->product->title,
-                    'variant_name' => implode(' / ', $variant->attribute_values
+                    'variant_name' => $variant->attribute_values
                         ->map(fn($attribute_value) => $attribute_value->value ?? $attribute_value->color)
                         ->filter()
-                        ->all()),
+                        ->join(' / '),
                     'image' => MediaAttachment::make($variant->media ?? $variant->product->media->first()->id ?? null),
                     'available_quantity' => (int) $variant->available_quantity,
                 ];

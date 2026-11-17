@@ -9,7 +9,7 @@ use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 /**
  * The work that waits for a merchant, as the Home "Needs your attention" checks and the order list filter name it.
  *
- * Order::scope_apply_attention_filter() holds the condition of each one.
+ * Order::scope_only_needing_attention() holds the condition of each one.
  *
  * @since 1.0.2
  */
