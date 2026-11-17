@@ -229,7 +229,7 @@ class SettingsGroup extends WooCommerceGroup
         }
 
         if ($store['coupons'] !== null) {
-            $configuration['has_apply_coupon_code'] = $store['coupons'];
+            $configuration['can_apply_coupon_code'] = $store['coupons'];
         }
 
         $settings->set(['checkout_configuration' => $configuration], false);

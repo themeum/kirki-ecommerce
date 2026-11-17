@@ -114,7 +114,7 @@ class RecalculateCartAction
      */
     protected function get_discount_result(CalculationContextDTO $context): DiscountCalculationResultDTO
     {
-        if ($context->cart_id && !Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.has_apply_coupon_code', true)) {
+        if ($context->cart_id && !Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.can_apply_coupon_code', true)) {
             $this->remove_cart_coupons($context);
 
             return new DiscountCalculationResultDTO();

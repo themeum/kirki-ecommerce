@@ -169,9 +169,9 @@ class CreateOrderAction
                 $this->resolve_checkout_cart($dto);
             }
 
-            $has_apply_coupon_code = Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.has_apply_coupon_code', true);
+            $can_apply_coupon_code = Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.can_apply_coupon_code', true);
 
-            if (!$has_apply_coupon_code) {
+            if (!$can_apply_coupon_code) {
                 $dto->coupon_codes = [];
             }
         }

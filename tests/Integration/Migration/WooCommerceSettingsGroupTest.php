@@ -97,7 +97,7 @@ class WooCommerceSettingsGroupTest extends RestTestCase
     public function test_options_follow_woocommerce()
     {
         Settings::get(OptionKeys::PRODUCT_SETTINGS)->refresh()->set(['weight_unit' => 'kg', 'dimension_unit' => 'm', 'is_enabled_reviews' => false, 'low_stock_threshold' => 0], false);
-        Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set(['is_allowed_guest_checkout' => false, 'checkout_configuration' => ['address_line_validation' => 'required', 'has_apply_coupon_code' => true]], false);
+        Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set(['is_allowed_guest_checkout' => false, 'checkout_configuration' => ['address_line_validation' => 'required', 'can_apply_coupon_code' => true]], false);
         update_option('woocommerce_weight_unit', 'lbs');
         update_option('woocommerce_dimension_unit', 'cm');
         update_option('woocommerce_enable_reviews', 'yes');
@@ -114,7 +114,7 @@ class WooCommerceSettingsGroupTest extends RestTestCase
         $this->assertTrue($product['is_enabled_reviews']);
         $this->assertSame(4, $product['low_stock_threshold']);
         $this->assertTrue($checkout['is_allowed_guest_checkout']);
-        $this->assertFalse($checkout['checkout_configuration']['has_apply_coupon_code']);
+        $this->assertFalse($checkout['checkout_configuration']['can_apply_coupon_code']);
         $this->assertSame('required', $checkout['checkout_configuration']['address_line_validation']);
     }
 

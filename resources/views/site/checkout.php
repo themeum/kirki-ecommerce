@@ -27,7 +27,7 @@ $shipping_address = $cart["shipping_address"] ?? [];
 $billing_address = $cart["billing_address"] ?? [];
 $available_shipping_methods = $cart["available_shipping_methods"] ?? [];
 $show_customer_note = (bool) settings('checkout.checkout_configuration.show_customer_note');
-$has_apply_coupon_code = (bool) settings('checkout.checkout_configuration.has_apply_coupon_code');
+$can_apply_coupon_code = (bool) (settings('checkout.checkout_configuration.can_apply_coupon_code') ?? true);
 ?>
 
 <?php Template::get_header(); ?>
@@ -61,7 +61,7 @@ $has_apply_coupon_code = (bool) settings('checkout.checkout_configuration.has_ap
             <!-- Right Column -->
             <div class="kecom-checkout-right">
                 <?php include_view('site.checkout.parts.order-products', compact('cart')); ?>
-                <?php if ($has_apply_coupon_code) : ?>
+                <?php if ($can_apply_coupon_code) : ?>
                     <?php include_view('site.checkout.parts.coupon-form'); ?>
                 <?php endif; ?>
                 <?php include_view('site.checkout.parts.order-summary', compact('cart')); ?>

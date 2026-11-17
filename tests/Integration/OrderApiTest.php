@@ -2528,7 +2528,7 @@ class OrderApiTest extends RestTestCase
 
         $settings = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh();
         $snapshot = $settings->to_array();
-        $settings->set(['checkout_configuration' => array_merge((array) ($snapshot['checkout_configuration'] ?? []), ['has_apply_coupon_code' => false])], false);
+        $settings->set(['checkout_configuration' => array_merge((array) ($snapshot['checkout_configuration'] ?? []), ['can_apply_coupon_code' => false])], false);
 
         try {
             $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
@@ -2561,7 +2561,8 @@ class OrderApiTest extends RestTestCase
      * @return void
      */
     public function test_checkout_free_shipping_coupon_produces_no_item_attributions(): void
-    {        $coupon = Coupon::create([
+    {
+        $coupon = Coupon::create([
             'title' => 'Free Shipping',
             'code' => 'FREESHIP' . wp_generate_password(6, false),
             'discount_type' => DiscountType::FREE_SHIPPING,

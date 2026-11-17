@@ -24,7 +24,7 @@ class ApplyCouponRequest extends Request
      */
     public function rules()
     {
-        $is_coupon_disabled = !Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.has_apply_coupon_code', true);
+        $is_coupon_disabled = !Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.can_apply_coupon_code', true);
 
         return [
             'code' => [Rule::prohibited_if(fn() => $is_coupon_disabled), 'required', 'string'],

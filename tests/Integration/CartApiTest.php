@@ -612,7 +612,7 @@ class CartApiTest extends RestTestCase
         $settings = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh();
         $snapshot = $settings->to_array();
         $configuration = (array) ($snapshot['checkout_configuration'] ?? []);
-        $configuration['has_apply_coupon_code'] = $is_enabled;
+        $configuration['can_apply_coupon_code'] = $is_enabled;
 
         $settings->set(['checkout_configuration' => $configuration], false);
 
@@ -1197,8 +1197,8 @@ class CartApiTest extends RestTestCase
         // Grand total still reconciles: pre-shipping total + shipping (waived) + tax.
         $expected_total = round(
             $pricing['display_order_total_money_object']['raw']
-            + $pricing['display_shipping_amount_money_object']['raw']
-            + $pricing['display_tax_total_money_object']['raw'],
+                + $pricing['display_shipping_amount_money_object']['raw']
+                + $pricing['display_tax_total_money_object']['raw'],
             2
         );
         $this->assertEquals($expected_total, round($pricing['display_total_money_object']['raw'], 2));
