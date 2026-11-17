@@ -59,13 +59,17 @@ abstract class AbstractOrderReader implements OrderReader
         $items = $this->items($ids);
         $notes = $this->notes($ids);
         $skus = $this->skus($items);
+        $images = $this->images($items);
 
         foreach ($orders as $index => $order) {
             $order_items = $items[$order['id']] ?? [];
 
             foreach ($order_items as $item_index => $item) {
-                $source_id = (int) ($item['meta']['_variation_id'] ?? 0) ?: (int) ($item['meta']['_product_id'] ?? 0);
+                $variation_id = (int) ($item['meta']['_variation_id'] ?? 0);
+                $product_id = (int) ($item['meta']['_product_id'] ?? 0);
+                $source_id = $variation_id ?: $product_id;
                 $order_items[$item_index]['sku'] = $skus[$source_id] ?? null;
+                $order_items[$item_index]['image'] = $images[$variation_id] ?? $images[$product_id] ?? null;
             }
 
             $orders[$index]['items'] = $order_items;
@@ -190,6 +194,59 @@ abstract class AbstractOrderReader implements OrderReader
         }
 
         return $skus;
+    }
+
+    /**
+     * Read the main image of the products and variations that order lines point to.
+     *
+     * Only images that still exist are returned, so no order line points to a missing file.
+     *
+     * @since 1.0.2
+     *
+     * @param array<int, array<int, array<string, mixed>>> $items Order items keyed by order id.
+     * @return array<int, int> Attachment ids keyed by product or variation id.
+     */
+    protected function images(array $items)
+    {
+        $ids = [];
+
+        foreach ($items as $order_items) {
+            foreach ($order_items as $item) {
+                foreach (['_variation_id', '_product_id'] as $key) {
+                    $source_id = (int) ($item['meta'][$key] ?? 0);
+
+                    if ($source_id > 0) {
+                        $ids[] = $source_id;
+                    }
+                }
+            }
+        }
+
+        if (empty($ids)) {
+            return [];
+        }
+
+        $thumbnails = [];
+
+        foreach ($this->rows(DB::table('postmeta')->where_in('post_id', array_unique($ids))->where('meta_key', '_thumbnail_id')->select(['post_id', 'meta_value'])->get()) as $row) {
+            if ((int) $row['meta_value'] > 0) {
+                $thumbnails[(int) $row['post_id']] = (int) $row['meta_value'];
+            }
+        }
+
+        if (empty($thumbnails)) {
+            return [];
+        }
+
+        $existing = [];
+
+        foreach ($this->rows(DB::table('posts')->where('post_type', 'attachment')->where_in('ID', array_unique(array_values($thumbnails)))->select(['ID as id'])->get()) as $row) {
+            $existing[(int) $row['id']] = true;
+        }
+
+        return array_filter($thumbnails, function ($attachment_id) use ($existing) {
+            return isset($existing[$attachment_id]);
+        });
     }
 
     /**

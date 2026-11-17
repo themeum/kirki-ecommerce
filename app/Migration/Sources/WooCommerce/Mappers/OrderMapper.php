@@ -168,6 +168,7 @@ class OrderMapper
                     'variant_id' => $variant_id,
                     'product_name' => $line['name'],
                     'sku' => $line['sku'] ?? null,
+                    'product_image' => $line['image'] ?? null,
                     'quantity' => $quantity,
                     'subtotal' => $subtotal,
                     'is_physical_product' => true,
