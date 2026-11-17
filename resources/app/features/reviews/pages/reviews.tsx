@@ -15,12 +15,7 @@ const Reviews = () => {
   const { data, isFetching, isError, refetch, isFetched } = useReviewsQuery(params);
 
   const showNoRecordState =
-    isFetched &&
-    isDefined(data) &&
-    isDefined(data.has_records) &&
-    !data.has_records &&
-    !params.search &&
-    !params.status;
+    isFetched && isDefined(data) && isDefined(data.has_records) && !data.has_records;
 
   return (
     <Page>

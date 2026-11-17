@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { Check, Edit3, MessageSquare, Trash2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -14,13 +13,23 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
+import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
+import Textarea from '@/components/ui/textarea';
+import { RatingStars } from '@/features/reviews/components/rating-stars';
 import type { Review, ReviewStatusType } from '@/features/reviews/schemas/review';
-import { useReplyToReviewMutation, useUpdateReviewMutation } from '@/features/reviews/services/review';
-import { DATE_FORMATS } from '@/libs/date';
+import {
+  useReplyToReviewMutation,
+  useUpdateReviewMutation,
+} from '@/features/reviews/services/review';
+import { getStatusBadgeVariant } from '@/features/reviews/utils';
+import { DATE_FORMATS, formatDateValue } from '@/libs/date';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
+
+export { RatingStars } from '@/features/reviews/components/rating-stars';
 
 interface ReviewDetailModalProps {
   review: Review | null;
@@ -29,40 +38,6 @@ interface ReviewDetailModalProps {
   onStatusChange: (id: number, status: ReviewStatusType) => void;
   onDelete: (id: number) => void;
 }
-
-export const RatingStars = ({
-  rating,
-  size = 16,
-  interactive = false,
-  onRate,
-}: {
-  rating: number;
-  size?: number;
-  interactive?: boolean;
-  onRate?: (val: number) => void;
-}) => {
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
-      {[1, 2, 3, 4, 5].map((star) => (
-        <svg
-          key={star}
-          width={size}
-          height={size}
-          viewBox="0 0 24 24"
-          fill={star <= rating ? '#f59e0b' : 'none'}
-          stroke={star <= rating ? '#f59e0b' : '#cbd5e1'}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ cursor: interactive ? 'pointer' : 'default' }}
-          onClick={() => interactive && onRate && onRate(star)}
-        >
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-      ))}
-    </div>
-  );
-};
 
 export const ReviewDetailModal = ({
   review,
@@ -94,15 +69,10 @@ export const ReviewDetailModal = ({
     return null;
   }
 
-  const statusVariant =
-    review.status === 'approved'
-      ? 'success'
-      : review.status === 'pending'
-        ? 'warning'
-        : 'secondary';
+  const statusVariant = getStatusBadgeVariant(review.status);
 
   const formattedDate = review.created_at
-    ? format(new Date(review.created_at), DATE_FORMATS.HUMAN_READABLE_WITH_TIME)
+    ? formatDateValue(new Date(review.created_at), DATE_FORMATS.HUMAN_READABLE_WITH_TIME)
     : '--';
 
   const handleSaveEdit = () => {
@@ -111,7 +81,7 @@ export const ReviewDetailModal = ({
         id: review.id,
         data: {
           rating: editRating,
-          title: editTitle.trim() || undefined,
+          title: editTitle?.trim(),
           content: editContent.trim(),
         },
       },
@@ -153,16 +123,16 @@ export const ReviewDetailModal = ({
         </DialogHeader>
 
         <DialogBody cssOverride={styles.modalBody}>
-          <div css={styles.section}>
+          <Flex direction="column" gap={1}>
             <Text variant="small" weight="semibold" cssOverride={styles.label}>
               {__('Product', 'kirki-ecommerce')}
             </Text>
             <Text variant="paragraph">
               {review.product?.title || `${__('Product #', 'kirki-ecommerce')}${review.product_id}`}
             </Text>
-          </div>
+          </Flex>
 
-          <div css={styles.section}>
+          <Flex direction="column" gap={1}>
             <Text variant="small" weight="semibold" cssOverride={styles.label}>
               {__('Author', 'kirki-ecommerce')}
             </Text>
@@ -179,9 +149,9 @@ export const ReviewDetailModal = ({
                 </Badge>
               )}
             </Flex>
-          </div>
+          </Flex>
 
-          <div css={styles.section}>
+          <Flex direction="column" gap={1}>
             <Text variant="small" weight="semibold" cssOverride={styles.label}>
               {__('Rating', 'kirki-ecommerce')}
             </Text>
@@ -196,84 +166,71 @@ export const ReviewDetailModal = ({
                 <Text variant="small" color="subdued">
                   ({review.rating} / 5)
                 </Text>
-                {(review.helpful_count ?? 0) > 0 && (
+                {isDefined(review.helpful_count) && review.helpful_count > 0 && (
                   <Badge variant="secondary" size="sm" style={{ marginLeft: 8 }}>
                     👍 {review.helpful_count} {__('helpful votes', 'kirki-ecommerce')}
                   </Badge>
                 )}
               </Flex>
             )}
-          </div>
+          </Flex>
 
-          <div css={styles.section}>
+          <Flex direction="column" gap={1}>
             <Text variant="small" weight="semibold" cssOverride={styles.label}>
               {__('Date', 'kirki-ecommerce')}
             </Text>
             <Text variant="paragraph">{formattedDate}</Text>
-          </div>
+          </Flex>
 
           {/* Edit Mode vs View Mode */}
           {isEditing ? (
             <>
-              <div css={styles.section}>
+              <Flex direction="column" gap={1}>
                 <Text variant="small" weight="semibold" cssOverride={styles.label}>
                   {__('Review Title', 'kirki-ecommerce')}
                 </Text>
-                <input
-                  type="text"
+                <Input
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  style={{
-                    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-                    border: `1px solid ${theme.colors.border.default}`,
-                    borderRadius: theme.radius.md,
-                    fontSize: 14,
-                  }}
                 />
-              </div>
+              </Flex>
 
-              <div css={styles.section}>
+              <Flex direction="column" gap={1}>
                 <Text variant="small" weight="semibold" cssOverride={styles.label}>
                   {__('Review Content', 'kirki-ecommerce')}
                 </Text>
-                <textarea
+                <Textarea
                   rows={4}
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
-                  style={{
-                    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-                    border: `1px solid ${theme.colors.border.default}`,
-                    borderRadius: theme.radius.md,
-                    fontSize: 14,
-                    fontFamily: 'inherit',
-                  }}
                 />
-              </div>
+              </Flex>
 
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleSaveEdit}
-                disabled={updateReviewMutation.isPending}
-                style={{ alignSelf: 'flex-start' }}
-              >
-                {updateReviewMutation.isPending ? __('Saving...', 'kirki-ecommerce') : __('Save Review Changes', 'kirki-ecommerce')}
-              </Button>
+              <Flex justify="start">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleSaveEdit}
+                  loading={updateReviewMutation.isPending}
+                >
+                  {__('Save Review Changes', 'kirki-ecommerce')}
+                </Button>
+              </Flex>
             </>
           ) : (
             <>
               {review.title && (
-                <div css={styles.section}>
+                <Flex direction="column" gap={1}>
                   <Text variant="small" weight="semibold" cssOverride={styles.label}>
                     {__('Review Title', 'kirki-ecommerce')}
                   </Text>
                   <Text variant="paragraph" weight="medium">
                     {review.title}
                   </Text>
-                </div>
+                </Flex>
               )}
 
-              <div css={styles.section}>
+              <Flex direction="column" gap={1}>
                 <Text variant="small" weight="semibold" cssOverride={styles.label}>
                   {__('Content', 'kirki-ecommerce')}
                 </Text>
@@ -282,47 +239,43 @@ export const ReviewDetailModal = ({
                     {review.content}
                   </Text>
                 </div>
-              </div>
+              </Flex>
             </>
           )}
 
           {/* Store Owner Reply Section */}
           <div css={styles.replyBox}>
             <Flex gap={2} align="center" style={{ marginBottom: theme.spacing[2] }}>
-              <MessageSquare size={16} color="#2563eb" />
+              <MessageSquare size={16} color={theme.colors.icon.brand} />
               <Text variant="small" weight="semibold">
                 {__('Store Owner Public Response', 'kirki-ecommerce')}
               </Text>
               {review.admin_replied_at && (
                 <Text variant="small" color="subdued">
                   ({__('Replied on', 'kirki-ecommerce')}{' '}
-                  {format(new Date(review.admin_replied_at), DATE_FORMATS.HUMAN_READABLE)})
+                  {formatDateValue(new Date(review.admin_replied_at), DATE_FORMATS.HUMAN_READABLE)})
                 </Text>
               )}
             </Flex>
-            <textarea
-              rows={3}
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder={__('Write an official response to this customer review...', 'kirki-ecommerce')}
-              style={{
-                width: '100%',
-                padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-                border: `1px solid ${theme.colors.border.default}`,
-                borderRadius: theme.radius.md,
-                fontSize: 13,
-                fontFamily: 'inherit',
-                marginBottom: theme.spacing[2],
-              }}
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSaveReply}
-              disabled={replyToReviewMutation.isPending || !replyText.trim()}
-            >
-              {replyToReviewMutation.isPending ? __('Saving Reply...', 'kirki-ecommerce') : __('Save Response', 'kirki-ecommerce')}
-            </Button>
+            <div style={{ marginBottom: theme.spacing[2] }}>
+              <Textarea
+                rows={3}
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder={__('Write an official response to this customer review...', 'kirki-ecommerce')}
+              />
+            </div>
+            <Flex justify="start">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSaveReply}
+                loading={replyToReviewMutation.isPending}
+                disabled={!replyText.trim()}
+              >
+                {__('Save Response', 'kirki-ecommerce')}
+              </Button>
+            </Flex>
           </div>
         </DialogBody>
 
@@ -394,11 +347,6 @@ const styles = defineStyles({
   modalFooter: {
     padding: `${theme.spacing[3]} ${theme.spacing[5]}`,
   },
-  section: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing[1],
-  },
   label: {
     color: theme.colors.text.subdued,
   },
@@ -415,10 +363,10 @@ const styles = defineStyles({
     lineHeight: 1.5,
   },
   replyBox: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background.surfaceAlt,
     padding: theme.spacing[3],
     borderRadius: theme.radius.md,
     border: `1px solid ${theme.colors.border.default}`,
-    borderLeft: '3px solid #2563eb',
+    borderLeft: `3px solid ${theme.colors.background.fillBrand}`,
   },
 });

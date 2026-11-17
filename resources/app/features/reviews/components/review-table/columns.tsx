@@ -4,12 +4,13 @@ import { Check, Eye, Trash2, X } from 'lucide-react';
 import type { DataTableBulkAction } from '@/components/data-table';
 import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
-import Badge, { type BadgeVariant } from '@/components/ui/badge';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { RatingStars } from '@/features/reviews/components/review-detail-modal';
+import { RatingStars } from '@/features/reviews/components/rating-stars';
 import type { Review, ReviewStatusType } from '@/features/reviews/schemas/review';
+import { getStatusBadgeVariant } from '@/features/reviews/utils';
 import { DATE_FORMATS, formatDateValue } from '@/libs/date';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -19,19 +20,6 @@ export type ReviewColumnsOptions = {
   onView: (review: Review) => void;
   onStatusChange: (id: number, status: ReviewStatusType) => void;
   onDelete: (id: number) => void;
-};
-
-const getStatusBadgeVariant = (status: string): BadgeVariant => {
-  switch (status) {
-    case 'approved':
-      return 'success';
-    case 'pending':
-      return 'warning';
-    case 'trash':
-    case 'spam':
-    default:
-      return 'secondary';
-  }
 };
 
 export const createReviewColumns = ({

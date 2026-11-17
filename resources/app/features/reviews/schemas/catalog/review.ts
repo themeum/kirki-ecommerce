@@ -7,7 +7,8 @@ export const ReviewStatus = {
   TRASH: 'trash',
 } as const;
 
-export type ReviewStatusType = (typeof ReviewStatus)[keyof typeof ReviewStatus];
+export type ReviewStatus = (typeof ReviewStatus)[keyof typeof ReviewStatus];
+export type ReviewStatusType = ReviewStatus;
 
 export const ReviewProductSchema = z.object({
   id: z.number(),
@@ -24,7 +25,7 @@ export const ReviewSchema = z.object({
   rating: z.number(),
   title: z.string().nullish(),
   content: z.string(),
-  status: z.string(),
+  status: z.custom<ReviewStatus>(),
   is_verified_purchase: z.boolean().nullish(),
   admin_reply: z.string().nullish(),
   admin_replied_at: z.string().nullish(),
