@@ -104,6 +104,8 @@ class RecalculateCartAction
      * Calculate coupon discounts for the context.
      *
      * Coupons found invalid are also detached from the stored cart, when the context has one.
+     * When the store does not accept coupon codes, every coupon is detached from
+     * the stored cart and no discount applies.
      *
      * @since 1.0.0
      *
@@ -112,6 +114,12 @@ class RecalculateCartAction
      */
     protected function get_discount_result(CalculationContextDTO $context): DiscountCalculationResultDTO
     {
+        if ($context->cart_id && !Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.can_apply_coupon_code', true)) {
+            $this->remove_cart_coupons($context);
+
+            return new DiscountCalculationResultDTO();
+        }
+
         $stored_codes = $context->stored ? array_keys($context->stored->coupons) : [];
         $coupons = $this->resolve_coupons(array_values(array_udiff($context->coupon_codes, $stored_codes, 'strcasecmp')));
 
@@ -124,6 +132,27 @@ class RecalculateCartAction
         }
 
         return $discount_result;
+    }
+
+    /**
+     * Detach every coupon from the context's stored cart.
+     *
+     * @since 1.0.1
+     *
+     * @param CalculationContextDTO $context Calculation context with a cart.
+     * @return void
+     */
+    protected function remove_cart_coupons(CalculationContextDTO $context)
+    {
+        if (empty($context->coupon_codes)) {
+            return;
+        }
+
+        $coupon_ids = collection($this->resolve_coupons($context->coupon_codes))->pluck('id')->to_array();
+
+        $this->cart_service->remove_coupons($context->cart_id, $coupon_ids);
+
+        $context->coupon_codes = [];
     }
 
     /**

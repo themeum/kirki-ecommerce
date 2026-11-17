@@ -257,10 +257,10 @@ describe('Analytics controls', () => {
     expect(screen.queryByTestId('analytics-currency')).not.toBeInTheDocument();
   });
 
-  it('shows the Customize button', () => {
+  it('shows the Customize analytics button', () => {
     renderPage();
 
-    expect(screen.getByRole('button', { name: 'Customize' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Customize analytics' })).toBeInTheDocument();
   });
 
   // Scenario: Change the range
@@ -909,7 +909,7 @@ const openCardMenu = (title: string) => {
 };
 
 const openCustomize = () => {
-  fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Customize analytics' }));
 
   return screen.getByRole('dialog', { name: 'Customize analytics' });
 };

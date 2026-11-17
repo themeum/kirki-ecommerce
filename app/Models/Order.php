@@ -5,14 +5,16 @@ namespace Kirki\Ecommerce\App\Models;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderAttention;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
+use Kirki\Ecommerce\App\Concerns\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 /**
  * Model for a placed order with its totals, addresses and payment and fulfillment state.
@@ -26,6 +28,13 @@ class Order extends Model
     const EDITABLE_PAYMENT_STATUSES = [PaymentStatus::PENDING, PaymentStatus::UNPAID, PaymentStatus::FAILED];
 
     const EDITABLE_FULFILLMENT_STATUSES = [FulfillmentStatus::UNFULFILLED, FulfillmentStatus::PROCESSING, FulfillmentStatus::ON_HOLD];
+
+    /**
+     * SQL condition for an order paid with an offline payment method, read from its payment snapshot.
+     *
+     * @since 1.0.2
+     */
+    const PAID_OFFLINE_SQL = "JSON_UNQUOTE(JSON_EXTRACT(payment_metadata, '$.payment_provider.is_offline')) = 'true'";
 
     /** @inheritDoc */
     protected $table = 'kirki_ecommerce_orders';
@@ -309,6 +318,67 @@ class Order extends Model
 
         if (isset($lifecycle_states[$status])) {
             return $query->where('order_status', $lifecycle_states[$status]);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Narrow the query to orders paid with an offline payment method.
+     *
+     * The method is read from the payment snapshot saved on the order, so a
+     * method that was deleted later still counts.
+     *
+     * @since 1.0.2
+     *
+     * @param QueryBuilder $query Query being scoped.
+     * @return QueryBuilder
+     */
+    public function scope_only_paid_offline(QueryBuilder $query)
+    {
+        return $query->where_raw(static::PAID_OFFLINE_SQL);
+    }
+
+    /**
+     * Narrow the query to the orders of a "Needs your attention" check.
+     *
+     * To ship: not archived, unfulfilled or processing, and paid or unpaid with
+     * an offline method. To collect: not archived, and either unpaid with an
+     * offline method and not cancelled, or failed and created in the last 7 days.
+     *
+     * @since 1.0.2
+     *
+     * @param QueryBuilder $query     Query being scoped.
+     * @param string|null  $attention An OrderAttention value; an empty or unknown value leaves the query unchanged.
+     * @return QueryBuilder
+     */
+    public function scope_only_needing_attention(QueryBuilder $query, $attention)
+    {
+        if ($attention === OrderAttention::TO_SHIP) {
+            return $query->where_null('archived_at')
+                ->where_in('fulfillment_status', [FulfillmentStatus::UNFULFILLED, FulfillmentStatus::PROCESSING])
+                ->where(function (QueryBuilder $query) {
+                    $query->where('payment_status', PaymentStatus::PAID)
+                        ->or_where(function (QueryBuilder $query) {
+                            $query->where('payment_status', PaymentStatus::UNPAID)->where_raw(static::PAID_OFFLINE_SQL);
+                        });
+                });
+        }
+
+        if ($attention === OrderAttention::TO_COLLECT) {
+            $failed_since = Date::now('UTC')->sub_days(7)->to_date_time_string();
+
+            return $query->where_null('archived_at')
+                ->where(function (QueryBuilder $query) use ($failed_since) {
+                    $query->where(function (QueryBuilder $query) {
+                        $query->where('payment_status', PaymentStatus::UNPAID)
+                            ->where('fulfillment_status', '!=', FulfillmentStatus::CANCELLED)
+                            ->where_raw(static::PAID_OFFLINE_SQL);
+                    })->or_where(function (QueryBuilder $query) use ($failed_since) {
+                        $query->where('payment_status', PaymentStatus::FAILED)
+                            ->where('created_at', '>=', $failed_since);
+                    });
+                });
         }
 
         return $query;

@@ -348,9 +348,13 @@ const AnalyticsControls = (props: AnalyticsControlsProps) => {
         <CompareControl params={params} onChange={onChange} />
       </Flex>
       <CustomizeSheet layoutControls={layoutControls} amountExample={amountExample}>
-        <Button variant="outline" cssOverride={styles.trigger}>
-          <Settings2 aria-hidden="true" />
-          {__('Customize', 'kirki-ecommerce')}
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={__('Customize analytics', 'kirki-ecommerce')}
+          cssOverride={styles.trigger}
+        >
+          <Settings2 size={16} aria-hidden="true" />
         </Button>
       </CustomizeSheet>
     </Flex>
@@ -363,8 +367,7 @@ export default AnalyticsControls;
 
 const styles = defineStyles({
   trigger: {
-    gap: theme.spacing[2],
-    backgroundColor: theme.colors.background.fill,
+    backgroundColor: theme.colors.background.surface,
   },
   strong: {
     ...theme.typography.small('semibold'),

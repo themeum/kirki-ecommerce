@@ -130,14 +130,21 @@ or no end. The calendar SHALL NOT allow a day after today.
 
 ### Requirement: Customize button
 
-The controls row SHALL show a "Customize" button with a sliders icon on the
-right side. Selecting it SHALL open the Customize sheet (see the
-analytics-customize capability).
+The controls row SHALL show an icon-only Customize button with a sliders icon
+on the right side, the same as the Customize button of Home. The button SHALL
+have no visible text and SHALL have the accessible name "Customize analytics".
+Selecting it SHALL open the Customize sheet (see the analytics-customize
+capability).
 
 #### Scenario: Select Customize
 
-- **WHEN** the merchant selects Customize
+- **WHEN** the merchant selects the Customize analytics button
 - **THEN** the "Customize analytics" sheet opens from the right
+
+#### Scenario: Icon only
+
+- **WHEN** the Analytics page shows
+- **THEN** the Customize button shows only the sliders icon, and its accessible name is "Customize analytics"
 
 ### Requirement: Analytics colors only in graphs
 

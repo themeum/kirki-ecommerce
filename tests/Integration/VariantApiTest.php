@@ -3,6 +3,8 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\InventoryType;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
@@ -435,6 +437,48 @@ class VariantApiTest extends RestTestCase
             [$out_of_stock_sku],
             array_column($this->assert_api_success($out_of_stock)['data']['results'], 'sku')
         );
+    }
+
+    /**
+     * Scenario "Filtering variants by low stock": tracked variants with stock left, at or under their threshold.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_list_variants_filters_by_low_stock(): void
+    {
+        Settings::get(OptionKeys::PRODUCT_SETTINGS)->set(['low_stock_threshold' => 5], false);
+        $unique = 'VariantLowStock-' . wp_generate_password(6, false);
+        $store_default_sku = 'LOWDEF-' . wp_generate_password(6, false);
+        $own_threshold_sku = 'LOWOWN-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' StoreDefault',
+            'variants' => [$this->variant_payload($store_default_sku, 3, true)],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' OwnThreshold',
+            'variants' => [array_merge($this->variant_payload($own_threshold_sku, 10, true), ['low_stock_threshold' => 12])],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' Empty',
+            'variants' => [$this->variant_payload('LOWZERO-' . wp_generate_password(6, false), 0, false)],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' Plenty',
+            'variants' => [$this->variant_payload('LOWPLENTY-' . wp_generate_password(6, false), 10, true)],
+        ]);
+
+        $response = $this->request('GET', 'variants', [
+            'search' => $unique,
+            'inventory_type' => InventoryType::LOW_STOCK,
+        ]);
+        $skus = array_column($this->assert_api_success($response)['data']['results'], 'sku');
+        sort($skus);
+        $expected = [$own_threshold_sku, $store_default_sku];
+        sort($expected);
+
+        $this->assertEquals($expected, $skus);
     }
 
     /**

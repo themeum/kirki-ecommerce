@@ -4,7 +4,10 @@ namespace Kirki\Ecommerce\App\Http\Requests\Cart;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Validation\Rule;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 /**
@@ -21,8 +24,22 @@ class ApplyCouponRequest extends Request
      */
     public function rules()
     {
+        $is_coupon_disabled = !Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.can_apply_coupon_code', true);
+
         return [
-            'code' => 'required|string',
+            'code' => [Rule::prohibited_if(fn() => $is_coupon_disabled), 'required', 'string'],
+        ];
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
+    public function messages()
+    {
+        return [
+            'code.prohibited_if' => __('Coupon codes are not accepted.', 'kirki-ecommerce'),
         ];
     }
 

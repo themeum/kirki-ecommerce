@@ -583,17 +583,11 @@ class VariantService
         });
 
         $query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::OUT_OF_STOCK, function ($query) {
-            return $query->where(function ($query) {
-                $query->where(function ($query) {
-                    $query->where('track_inventory', true);
-                    $query->where('available_quantity', '<=', 0);
-                });
+            return $query->only_out_of_stock();
+        });
 
-                $query->or_where(function ($query) {
-                    $query->where('track_inventory', false);
-                    $query->where('in_stock', false);
-                });
-            });
+        $query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::LOW_STOCK, function ($query) {
+            return $query->only_low_stock();
         });
 
         $query->filter_with_datetime_range($filters->from_date, $filters->to_date);

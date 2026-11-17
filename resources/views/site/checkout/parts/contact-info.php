@@ -54,7 +54,7 @@ $login_url    = Url::get_login_url(Url::get_checkout_url());
                     type="email"
                     id="contact-email"
                     name="customer_email"
-                    placeholder="you@email.com"
+                    placeholder="email@example.com"
                     x-bind="register('customer_email', {
                         required: '<?php esc_html_e('Email address is required', 'kirki-ecommerce'); ?>',
                         email: '<?php esc_html_e('Please enter a valid email address', 'kirki-ecommerce'); ?>'

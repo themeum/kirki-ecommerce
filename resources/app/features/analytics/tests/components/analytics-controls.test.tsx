@@ -269,10 +269,10 @@ describe('Analytics comparison control', () => {
 });
 
 describe('Analytics controls row', () => {
-  it('opens the Customize sheet from the Customize button', () => {
+  it('opens the Customize sheet from the icon-only Customize analytics button', () => {
     const { onChange } = renderControls();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Customize' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Customize analytics' }));
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByRole('dialog', { name: 'Customize analytics' })).toBeInTheDocument();

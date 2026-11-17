@@ -1,22 +1,44 @@
 import { type CSSObject, keyframes } from '@emotion/react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
+import { Move, PanelRight, X } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
+  createContext,
   forwardRef,
   type HTMLAttributes,
+  useCallback,
+  useContext,
+  useLayoutEffect,
 } from 'react';
 
 import Button from '@/components/ui/button';
+import { FLOAT_MARGIN, type SheetFloat, useSheetFloat } from '@/components/ui/use-sheet-float';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { defineStyles, scopedMerge } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type SheetSide = 'top' | 'right' | 'bottom' | 'left';
 
-const Sheet = SheetPrimitive.Root;
+const SheetFloatContext = createContext<SheetFloat | null>(null);
+
+type SheetProps = ComponentPropsWithoutRef<typeof SheetPrimitive.Root> & {
+  floatable?: { storageKey: string };
+};
+
+const Sheet = (props: SheetProps) => {
+  const { floatable, modal, ...rest } = props;
+  const float = useSheetFloat(floatable?.storageKey);
+
+  return (
+    <SheetFloatContext.Provider value={floatable ? float : null}>
+      <SheetPrimitive.Root modal={float.floating ? false : modal} {...rest} />
+    </SheetFloatContext.Provider>
+  );
+};
+
+Sheet.displayName = 'Sheet';
 
 const SheetTrigger = SheetPrimitive.Trigger;
 
@@ -57,18 +79,67 @@ type SheetContentProps = Omit<
 
 const SheetContent = forwardRef<ComponentRef<typeof SheetPrimitive.Content>, SheetContentProps>(
   (props, ref) => {
-    const { side = 'right', cssOverride, children, ...rest } = props;
+    const { side = 'right', cssOverride, children, onInteractOutside, style, ...rest } = props;
+    const float = useContext(SheetFloatContext);
+    const floating = !!float?.floating && side === 'right';
+    const contentRef = float?.contentRef;
+    const clamp = float?.clamp;
+
+    const setRefs = useCallback(
+      (element: ComponentRef<typeof SheetPrimitive.Content> | null) => {
+        if (contentRef) {
+          contentRef.current = element;
+        }
+
+        if (typeof ref === 'function') {
+          ref(element);
+        } else if (ref) {
+          ref.current = element;
+        }
+      },
+      [contentRef, ref],
+    );
+
+    useLayoutEffect(() => {
+      if (floating && clamp) {
+        clamp();
+      }
+    }, [clamp, floating]);
 
     return (
       <SheetPortal>
-        <SheetOverlay />
+        {!floating && <SheetOverlay />}
         <SheetPrimitive.Content
-          ref={ref}
+          ref={setRefs}
           data-side={side}
-          css={scopedMerge(styles.content, sideStyles[side], cssOverride)}
+          data-floating={floating ? 'true' : undefined}
+          css={scopedMerge(
+            styles.content,
+            floating ? styles.floating : sideStyles[side],
+            cssOverride,
+          )}
+          style={floating ? { ...style, left: float.position.x, top: float.position.y } : style}
+          onInteractOutside={(event) => {
+            onInteractOutside?.(event);
+
+            if (floating) {
+              event.preventDefault();
+            }
+          }}
           {...rest}
         >
           {children}
+          {floating && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={__('Dock to the right', 'kirki-ecommerce')}
+              cssOverride={styles.dockButton}
+              onClick={float.dock}
+            >
+              <PanelRight size={16} aria-hidden="true" />
+            </Button>
+          )}
           <SheetPrimitive.Close asChild>
             <Button
               variant="ghost"
@@ -92,9 +163,31 @@ type SheetSectionProps = Omit<HTMLAttributes<HTMLDivElement>, 'className'> & {
 };
 
 const SheetHeader = (props: SheetSectionProps) => {
-  const { cssOverride, ...rest } = props;
+  const { cssOverride, children, onPointerDown, ...rest } = props;
+  const float = useContext(SheetFloatContext);
 
-  return <div css={scopedMerge(styles.header, cssOverride)} {...rest} />;
+  if (!float?.enabled) {
+    return (
+      <div css={scopedMerge(styles.header, cssOverride)} onPointerDown={onPointerDown} {...rest}>
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      data-draggable="true"
+      css={scopedMerge(styles.header, styles.draggableHeader, cssOverride)}
+      onPointerDown={(event) => {
+        onPointerDown?.(event);
+        float.startDrag(event);
+      }}
+      {...rest}
+    >
+      <Move size={14} aria-hidden="true" css={scoped(styles.moveIcon)} />
+      {children}
+    </div>
+  );
 };
 
 SheetHeader.displayName = 'SheetHeader';
@@ -156,10 +249,11 @@ export {
   SheetHeader,
   SheetOverlay,
   SheetPortal,
-  type SheetSide,
   SheetTitle,
   SheetTrigger,
 };
+
+export type { SheetSide };
 
 const overlayIn = keyframes({
   from: { opacity: 0 },
@@ -267,10 +361,36 @@ const styles = defineStyles({
       outline: 'none',
     },
   },
+  floating: {
+    width: '400px',
+    maxHeight: `calc(100vh - ${FLOAT_MARGIN * 2}px)`,
+    border: `1px solid ${theme.colors.border.default}`,
+    borderRadius: theme.radius.xl,
+    overflow: 'hidden',
+  },
   closeButton: {
     position: 'absolute',
     top: theme.spacing[3],
     right: theme.spacing[3],
+  },
+  dockButton: {
+    position: 'absolute',
+    top: theme.spacing[3],
+    right: theme.spacing[12],
+  },
+  draggableHeader: {
+    position: 'relative',
+    paddingLeft: theme.spacing[12],
+    paddingRight: `calc(${theme.spacing[12]} * 2)`,
+    cursor: 'move',
+    userSelect: 'none',
+    touchAction: 'none',
+  },
+  moveIcon: {
+    position: 'absolute',
+    top: theme.spacing[5],
+    left: theme.spacing[6],
+    color: theme.colors.text.secondary,
   },
   header: {
     display: 'flex',
@@ -293,7 +413,7 @@ const styles = defineStyles({
   },
   title: {
     margin: 0,
-    ...theme.typography.large('semibold'),
+    ...theme.typography.paragraph('semibold'),
     color: theme.colors.text.primary,
   },
   description: {

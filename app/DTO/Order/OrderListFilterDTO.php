@@ -27,4 +27,7 @@ class OrderListFilterDTO extends ListFilterDTO
 
     /** @var string|null */
     public $shipping_method;
+
+    /** @var string|null */
+    public $attention;
 }

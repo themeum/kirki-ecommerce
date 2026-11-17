@@ -1,6 +1,9 @@
+import { X } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
+import Chip from '@/components/ui/chip/chip';
+import Flex from '@/components/ui/flex';
 import NotFoundState from '@/components/ui/not-found-state';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import QueryErrorState from '@/components/ui/query-error-state';
@@ -13,9 +16,19 @@ import { OrderEmptyStateIcon } from '@/icons/empty-state';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
+const getAttentionLabel = (attention: string | undefined) => {
+  const labels: Record<string, string> = {
+    to_ship: __('To ship', 'kirki-ecommerce'),
+    to_collect: __('To collect', 'kirki-ecommerce'),
+  };
+
+  return attention ? labels[attention] : undefined;
+};
+
 const Orders = () => {
   const navigate = useNavigate();
-  const { params } = useDataTableParams(orderListOptions);
+  const { params, setParam } = useDataTableParams(orderListOptions);
+  const attentionLabel = getAttentionLabel(params.attention);
 
   const { data, isFetching, isError, refetch, isFetched } = useOrdersQuery(params);
 
@@ -70,7 +83,19 @@ const Orders = () => {
             }
           />
         ) : (
-          <OrderTable data={data} isLoading={isFetching} />
+          <Flex direction="column" gap={3}>
+            {attentionLabel && (
+              <Flex>
+                <Chip
+                  text={attentionLabel}
+                  closeIcon={<X size={12} aria-hidden="true" />}
+                  onRemove={() => setParam('attention', undefined)}
+                  data-testid="order-attention-chip"
+                />
+              </Flex>
+            )}
+            <OrderTable data={data} isLoading={isFetching} />
+          </Flex>
         )}
       </PageContent>
     </Page>
