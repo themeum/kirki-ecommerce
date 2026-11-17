@@ -1,14 +1,10 @@
-import { type ReactNode, useState } from 'react';
+import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import QueryErrorState from '@/components/ui/query-error-state';
 import Text from '@/components/ui/text';
-import {
-  AmountFormatProvider,
-  readAnalyticsAmountFormat,
-  useAnalyticsMetricQuery,
-} from '@/features/analytics';
+import { AmountFormatProvider, useAnalyticsMetricQuery } from '@/features/analytics';
 import KeyNumbersSection from '@/features/home/components/key-numbers-section';
 import NeedsAttentionCard from '@/features/home/components/needs-attention-card';
 import RecentOrdersCard from '@/features/home/components/recent-orders-card';
@@ -33,7 +29,6 @@ type HomeSectionsProps = {
 const HomeSections = (props: HomeSectionsProps) => {
   const { layoutControls, onCustomize } = props;
   const { layout, setVisible } = layoutControls;
-  const [amountFormat] = useState(readAnalyticsAmountFormat);
   const visibleSections = layout.sections.filter((item) => item.visible).map((item) => item.key);
   const isVisible = (key: SectionKey) => visibleSections.includes(key);
   const periodParams = getPeriodParams(layout.period);
@@ -114,7 +109,7 @@ const HomeSections = (props: HomeSectionsProps) => {
   };
 
   return (
-    <AmountFormatProvider format={amountFormat}>
+    <AmountFormatProvider format={layout.amounts}>
       <div css={scoped(styles.grid)}>
         {visibleSections.map((key) => (
           <div

@@ -2,8 +2,6 @@ import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Sheet,
   SheetClose,
@@ -15,6 +13,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import Text from '@/components/ui/text';
+import AmountFormatOptions from '@/features/analytics/components/amount-format-options';
 import SortableList from '@/features/analytics/components/sortable-list';
 import {
   type AnalyticsLayoutControls,
@@ -78,10 +77,6 @@ type AmountsGroupProps = {
 const AmountsGroup = (props: AmountsGroupProps) => {
   const { value, example, onChange } = props;
   const heading = __('Amounts', 'kirki-ecommerce');
-  const options: { value: AmountFormat; label: string; example?: string }[] = [
-    { value: 'short', label: __('Short', 'kirki-ecommerce'), example: example?.short_display },
-    { value: 'long', label: __('Long', 'kirki-ecommerce'), example: example?.display },
-  ];
 
   return (
     <section css={scoped(styles.group)}>
@@ -91,27 +86,7 @@ const AmountsGroup = (props: AmountsGroupProps) => {
           {__('How money amounts are shown.', 'kirki-ecommerce')}
         </Text>
       </Flex>
-      <RadioGroup
-        value={value}
-        onValueChange={(next) => onChange(next as AmountFormat)}
-        aria-label={heading}
-      >
-        {options.map((option) => (
-          <Flex key={option.value} align="center" gap={2}>
-            <RadioGroupItem value={option.value} id={`analytics-amounts-${option.value}`} />
-            <Label htmlFor={`analytics-amounts-${option.value}`}>
-              {option.example
-                ? sprintf(
-                    /* translators: 1: amount format name, 2: example amount in that format */
-                    __('%1$s (%2$s)', 'kirki-ecommerce'),
-                    option.label,
-                    option.example,
-                  )
-                : option.label}
-            </Label>
-          </Flex>
-        ))}
-      </RadioGroup>
+      <AmountFormatOptions label={heading} value={value} example={example} onChange={onChange} />
     </section>
   );
 };

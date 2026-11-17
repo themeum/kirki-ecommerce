@@ -1,10 +1,10 @@
+export { default as AmountFormatOptions } from './components/amount-format-options';
 export { default as CardMenu } from './components/card-menu';
 export { default as SortableList, type SortableListItem } from './components/sortable-list';
 export { AmountFormatProvider, useMoney } from './contexts/amount-format-context';
-export { readAnalyticsAmountFormat } from './hooks/use-analytics-layout';
 export type { ApiRangeKey } from './lib/date-range';
 export { formatKpiValue } from './lib/kpi-value';
-export { KPI_KEYS, type KpiKey } from './lib/layout';
+export { type AmountFormat, KPI_KEYS, type KpiKey } from './lib/layout';
 export { getMetricDefinitions } from './lib/metric-definitions';
 export type { AnalyticsMetric } from './schemas/catalog/analytics';
 export { useAnalyticsMetricQuery } from './services/analytics';

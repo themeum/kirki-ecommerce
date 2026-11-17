@@ -99,7 +99,7 @@ Customize home sheet. In checklist mode, the button SHALL NOT show.
 
 ### Requirement: Customize home sheet
 
-The sheet SHALL have the title "Customize home" and three groups, in this
+The sheet SHALL have the title "Customize home" and four groups, in this
 order:
 
 1. **Quick actions**: an info icon with the tooltip "Buttons at the top of
@@ -111,6 +111,12 @@ order:
    numbers.
 3. **Sections**: an info icon with the tooltip "Sections of Home, in this
    order." and the 5 sections.
+4. **Amounts**: an info icon with the tooltip "How money amounts are shown on
+   Home." and a radio group with "Short" and "Long". Each option SHALL show the
+   `short_display` (Short) or the `display` (Long) of the `meta.amount_example`
+   of the loaded key numbers in parentheses, for example "Short ($20.3K)". When
+   the key numbers are not loaded, the options SHALL show only "Short" and
+   "Long". The sheet SHALL NOT load the key numbers only for the example.
 
 Each item SHALL show a drag handle, a checkbox and the item title. Each group
 SHALL show its items in the current order. When a group with a maximum has
@@ -123,7 +129,12 @@ mode of the Sheet.
 #### Scenario: Default sheet
 
 - **WHEN** the merchant opens the sheet with the default layout
-- **THEN** Quick actions shows "2/3" with Create order (Main button) and View live site checked; Key numbers shows "4/4" with Total sales, Net sales, Orders and Items ordered checked; Sections has Key numbers, Recent orders, Top selling products and Needs your attention checked and Restock soon not checked
+- **THEN** Quick actions shows "2/3" with Create order (Main button) and View live site checked; Key numbers shows "4/4" with Total sales, Net sales, Orders and Items ordered checked; Sections has Key numbers, Recent orders, Top selling products and Needs your attention checked and Restock soon not checked; Amounts has Short selected
+
+#### Scenario: Amount examples
+
+- **WHEN** the key numbers are loaded and the example amount is 20,345 in USD
+- **THEN** the Amounts options read "Short ($20.3K)" and "Long ($20,345.00)"
 
 #### Scenario: Quick action maximum
 
@@ -170,6 +181,7 @@ layout SHALL be:
   customers, Customers, Shipping charges (off).
 - Sections: Key numbers (on), Recent orders (on), Top selling products (on),
   Restock soon (off), Needs your attention (on).
+- Amounts: Short.
 
 Reset SHALL NOT change the selected period.
 
@@ -188,8 +200,9 @@ customer rate, Net sales, Total sales, Items ordered, Discounts, New
 customers, Customers, Shipping charges), with the same title, the same value
 and the same info text as on Analytics for the same days. Each card SHALL show
 its title and its value only. It SHALL NOT show a change, a comparison value,
-a chart or a link. Money values SHALL use the amount format chosen on the
-Analytics page (Short or Long), and Short amounts that differ from the long
+a chart or a link. Money values SHALL use the Home amount format (Short or
+Long) from the Amounts group of the sheet. The Home amount format SHALL NOT
+change or follow the Analytics amount format. Short amounts that differ from the long
 text SHALL have the long text as a native hover title. When no key number is
 checked, the section SHALL show "No key numbers chosen." with a "Customize"
 link button that opens the sheet. A card SHALL NOT be a link to another page.
@@ -201,7 +214,7 @@ link button that opens the sheet. A card SHALL NOT be a link to another page.
 
 #### Scenario: Long amounts
 
-- **WHEN** the merchant selected Long amounts on Analytics and Total sales is $20,345.00
+- **WHEN** the merchant selected Long in the Amounts group of the Customize home sheet and Total sales is $20,345.00
 - **THEN** the Total sales card on Home shows `$20,345.00`
 
 #### Scenario: No comparison
@@ -253,13 +266,15 @@ as on the Analytics page.
 ### Requirement: Saved Home layout
 
 The page SHALL keep the order and the on or off state of each quick action,
-key number and section, and the selected period, in the browser's local
+key number and section, the selected period and the amount format, in the browser's local
 storage, and SHALL use them each time Home opens. When there is no saved
 layout, or it cannot be read, the page SHALL use the default layout and This
 month. A saved layout SHALL ignore keys that the page does not know, SHALL add
 keys that it does not have at the end of their group with their default
 state, SHALL keep only the first 3 checked quick actions and the first 4
-checked key numbers, and SHALL use This month for a period it does not know.
+checked key numbers, SHALL use This month for a period it does not know, and
+SHALL use Short for an amount format that is missing or is not "short" or
+"long".
 When local storage is not available, the page SHALL still work and SHALL keep
 the layout only until it closes. The layout SHALL NOT be saved on the server.
 

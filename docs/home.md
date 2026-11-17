@@ -192,7 +192,8 @@ template gallery is not shown.
 
 ### Customize home sheet
 
-The sheet opens from the right. It has three groups. Each item has a drag handle
+The sheet opens from the right. It has three groups of items and an Amounts
+option. Each item has a drag handle
 (pointer or keyboard: focus the handle, press Space, use the arrow keys, press
 Space) and a checkbox. Each group has an info icon that explains it.
 
@@ -202,9 +203,16 @@ Space) and a checkbox. Each group has an info icon that explains it.
 | Key numbers | The 11 Analytics key metrics | 4, shown as "N/4" | Total sales, Net sales, Orders, Items ordered |
 | Sections | Key numbers, Recent orders, Top selling products, Restock soon, Needs your attention | None | All except Restock soon |
 
+**Amounts** sets how money shows on Home: **Short** (`$20.3K`, the default) or
+**Long** (`$20,345.00`). When the key numbers are loaded, each option shows an
+example in parentheses, for example "Short ($20.3K)". This option is Home's own.
+It does not change, and does not follow, the Amounts option of the Customize
+analytics sheet.
+
 When a group is at its limit, the checkboxes of the items that are off are
 disabled and muted. A section group has no minimum: every section can be off.
-**Reset to default** puts back the default layout and keeps the selected period.
+**Reset to default** puts back the default layout and Short amounts, and keeps
+the selected period.
 **Done** closes the sheet. Every change shows on the page at once.
 
 The sheet can **float**. Drag its header (the move icon) to put it anywhere on
@@ -240,8 +248,8 @@ from 1024 px, 2 columns from 600 px and 1 column below. The values, titles and
 info texts come from the Analytics page (`GET /analytics/metrics/kpis` with the
 period and `compare=none`), so a number on Home is the same as that metric on
 Analytics for the same days. See [Analytics](analytics.md) for each definition.
-Money shows in the format chosen on the Analytics page (**Short** `$20.3K` or
-**Long** `$20,345.00`). In Short format, the full amount is the hover title.
+Money shows in the Amounts format of the Customize home sheet (**Short** `$20.3K`
+or **Long** `$20,345.00`). In Short format, the full amount is the hover title.
 A card is not a link. When no key number is on, the section reads "No key numbers
 chosen." with a **Customize** button.
 
@@ -262,7 +270,7 @@ The Analytics **Sales by product** data for the period
 (payment status paid, refunding or refunded) paid in the period, in the base
 currency. Variants are merged into their product. Rows are sorted by **net
 sales** (item totals after discounts, without tax), then by units sold. Each row
-shows a 48 × 48 px image, then the name with a stock line below it. At the right,
+shows a 42 × 42 px image, then the name with a stock line below it. At the right,
 it shows the net sales in bold ("$3.1K", with the full amount as the hover title
 in Short format) and the units sold below it. A deleted product shows with its
 recorded name and image, and no stock line. With no sales in the period, the
@@ -322,13 +330,14 @@ storage, per browser:
 
 | Key | Holds |
 |---|---|
-| `kirki-ecommerce:home:layout` | The period, and the order and on/off state of each quick action, key number and section. |
+| `kirki-ecommerce:home:layout` | The period, the amount format, and the order and on/off state of each quick action, key number and section. |
 | `kirki-ecommerce:home:customize-sheet` | Whether the Customize home sheet floats, and where. |
 | `kirki-ecommerce:analytics:customize-sheet` | The same for the Customize analytics sheet. |
 
 A saved layout ignores keys that Home does not know, adds new keys at the end of
 their group with their default state, keeps only the first 3 quick actions and
-the first 4 key numbers that are on, and uses This month for an unknown period.
+the first 4 key numbers that are on, uses This month for an unknown period, and
+uses Short for a missing or unknown amount format.
 A value that cannot be read gives the default layout. When local storage is
 blocked, Home works and keeps the layout until the page closes.
 
@@ -514,8 +523,9 @@ until every step completes again.
   cover reviews, stock, orders and more, and extensions can add to them. Here
   Needs your attention has three fixed checks and Restock soon uses only the
   low-stock threshold, not sales pace.
-- **Short amounts.** WooCommerce Home shows full amounts. Here money follows the
-  Analytics amount format, Short (`$20.3K`) by default. The unit letters (K, M,
+- **Short amounts.** WooCommerce Home shows full amounts. Here money is Short
+  (`$20.3K`) by default, and the merchant can select Long in the Customize home
+  sheet. The unit letters (K, M,
   B, T) are English in every language. Recent orders show the full order total.
 - **No extension API.** The sections, checks and quick actions are fixed. There
   is no filter or hook that adds one.

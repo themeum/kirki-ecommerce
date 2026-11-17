@@ -195,7 +195,7 @@ describe('HomeSections', () => {
     ]);
   });
 
-  it('shows the key numbers with no comparison, in the Analytics amount format', () => {
+  it('shows the key numbers with no comparison, in short amounts by default', () => {
     renderSections();
 
     const numbers = screen.getByTestId('home-key-numbers');
@@ -205,6 +205,16 @@ describe('HomeSections', () => {
     expect(within(numbers).getByText('31')).toBeInTheDocument();
     expect(within(numbers).queryByText(/%/)).not.toBeInTheDocument();
     expect(within(numbers).queryByText('Gross sales')).not.toBeInTheDocument();
+  });
+
+  it('shows long amounts when the Home layout selects Long', () => {
+    saveLayout({ amounts: 'long' });
+    renderSections();
+
+    const numbers = screen.getByTestId('home-key-numbers');
+
+    expect(within(numbers).getByText('$20,345.00')).toBeInTheDocument();
+    expect(screen.getByText('$3,134.00')).toBeInTheDocument();
   });
 
   it('asks Analytics for the period with no comparison', () => {

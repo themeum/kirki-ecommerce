@@ -13,10 +13,21 @@ import {
 } from '@/components/ui/sheet';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
-import { getMetricDefinitions, SortableList, type SortableListItem } from '@/features/analytics';
+import {
+  AmountFormatOptions,
+  getMetricDefinitions,
+  SortableList,
+  type SortableListItem,
+  useAnalyticsMetricQuery,
+} from '@/features/analytics';
 import type { HomeLayoutControls } from '@/features/home/hooks/use-home-layout';
 import { getActionLabel, getSectionTitle } from '@/features/home/lib/labels';
-import { GROUP_LIMITS, type HomeLayoutItem, isAtLimit } from '@/features/home/lib/layout';
+import {
+  getPeriodParams,
+  GROUP_LIMITS,
+  type HomeLayoutItem,
+  isAtLimit,
+} from '@/features/home/lib/layout';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
@@ -85,7 +96,7 @@ type CustomizeHomeSheetProps = {
 const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
   const { layoutControls, open, onOpenChange } = props;
   const customizeLabel = __('Customize home', 'kirki-ecommerce');
-  const { layout, setVisible, move, reset } = layoutControls;
+  const { layout, setVisible, move, setAmounts, reset } = layoutControls;
   const definitions = getMetricDefinitions();
   const actionLimit = GROUP_LIMITS.actions ?? layout.actions.length;
   const kpiLimit = GROUP_LIMITS.kpis ?? layout.kpis.length;
@@ -93,6 +104,9 @@ const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
   const quickActionsTitle = __('Quick actions', 'kirki-ecommerce');
   const keyNumbersTitle = __('Key numbers', 'kirki-ecommerce');
   const sectionsTitle = __('Sections', 'kirki-ecommerce');
+  const amountsTitle = __('Amounts', 'kirki-ecommerce');
+  const amountExample = useAnalyticsMetricQuery('kpis', getPeriodParams(layout.period), false).data
+    ?.meta.amount_example;
 
   return (
     <Sheet floatable={{ storageKey: SHEET_STORAGE_KEY }} open={open} onOpenChange={onOpenChange}>
@@ -152,6 +166,18 @@ const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
               items={toListItems(layout.sections, GROUP_LIMITS.sections, getSectionTitle)}
               onToggle={(key, visible) => setVisible('sections', key, visible)}
               onMove={(from, to) => move('sections', from, to)}
+            />
+          </section>
+          <section css={scoped(styles.group)}>
+            <GroupHeading
+              title={amountsTitle}
+              info={__('How money amounts are shown on Home.', 'kirki-ecommerce')}
+            />
+            <AmountFormatOptions
+              label={amountsTitle}
+              value={layout.amounts}
+              example={amountExample}
+              onChange={setAmounts}
             />
           </section>
         </div>

@@ -1,9 +1,9 @@
+import { Info } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import Tooltip from '@/components/ui/tooltip';
 import { theme } from '@/theme';
-import { Info } from 'lucide-react';
 
 type OverviewTitleProps = {
   info: string;

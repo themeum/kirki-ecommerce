@@ -1,9 +1,10 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import CustomizeHomeSheet from '@/features/home/components/customize-home-sheet';
 import { HOME_LAYOUT_STORAGE_KEY, useHomeLayout } from '@/features/home/hooks/use-home-layout';
-import { DEFAULT_HOME_LAYOUT, type HomeLayout } from '@/features/home/lib/layout';
+import { DEFAULT_HOME_LAYOUT, getPeriodParams, type HomeLayout } from '@/features/home/lib/layout';
 
 const ROW_HEIGHT = 40;
 
@@ -16,11 +17,13 @@ const Harness = () => {
   return <CustomizeHomeSheet layoutControls={layoutControls} />;
 };
 
-const openSheet = () => {
+const openSheet = (client = new QueryClient()) => {
   render(
     <div id="wpbody-content">
       <div className="kirki-ecommerce-root">
-        <Harness />
+        <QueryClientProvider client={client}>
+          <Harness />
+        </QueryClientProvider>
       </div>
     </div>,
   );
@@ -178,6 +181,38 @@ describe('CustomizeHomeSheet', () => {
 
     expect(storedLayout()).toEqual(DEFAULT_HOME_LAYOUT);
     expect(checkbox('Sections', 'Recent orders')).toBeChecked();
+  });
+
+  it('shows Short amounts by default and saves Long', () => {
+    openSheet();
+
+    const amounts = screen.getByRole('radiogroup', { name: 'Amounts' });
+
+    expect(within(amounts).getByRole('radio', { name: 'Short' })).toBeChecked();
+
+    fireEvent.click(within(amounts).getByRole('radio', { name: 'Long' }));
+
+    expect(storedLayout().amounts).toBe('long');
+  });
+
+  it('shows the amount examples when the key numbers are loaded', () => {
+    const client = new QueryClient();
+
+    client.setQueryData(['AnalyticsMetric', 'kpis', getPeriodParams('month')], {
+      meta: {
+        amount_example: {
+          raw: 20345,
+          display: '$20,345.00',
+          short_display: '$20.3K',
+          currency: { code: 'USD', symbol: '$' },
+        },
+      },
+      data: {},
+    });
+    openSheet(client);
+
+    expect(screen.getByRole('radio', { name: 'Short ($20.3K)' })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: 'Long ($20,345.00)' })).toBeInTheDocument();
   });
 
   it('closes on Done', () => {

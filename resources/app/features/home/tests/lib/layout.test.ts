@@ -102,6 +102,19 @@ describe('normalizeHomeLayout', () => {
     expect(layout.sections[0]).toEqual({ key: 'needs_attention', visible: true });
   });
 
+  it('keeps Long amounts and uses Short for a missing or unknown amount format', () => {
+    expect(normalizeHomeLayout({ ...DEFAULT_HOME_LAYOUT, amounts: 'long' }).amounts).toBe('long');
+    expect(normalizeHomeLayout({ ...DEFAULT_HOME_LAYOUT, amounts: 'tiny' }).amounts).toBe('short');
+    expect(
+      normalizeHomeLayout({
+        period: 'week',
+        actions: DEFAULT_HOME_LAYOUT.actions,
+        kpis: DEFAULT_HOME_LAYOUT.kpis,
+        sections: DEFAULT_HOME_LAYOUT.sections,
+      }).amounts,
+    ).toBe('short');
+  });
+
   it('uses This month for an unknown period', () => {
     expect(normalizeHomeLayout({ period: 'decade' }).period).toBe('month');
   });

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import type { AmountFormat } from '@/features/analytics';
 import {
   DEFAULT_HOME_LAYOUT,
   GROUP_LIMITS,
@@ -73,11 +74,15 @@ const useHomeLayout = () => {
     setLayout((current) => ({ ...current, period }));
   };
 
+  const setAmounts = (amounts: AmountFormat) => {
+    setLayout((current) => ({ ...current, amounts }));
+  };
+
   const reset = () => {
     setLayout((current) => ({ ...DEFAULT_HOME_LAYOUT, period: current.period }));
   };
 
-  return { layout, setVisible, move, setPeriod, reset };
+  return { layout, setVisible, move, setPeriod, setAmounts, reset };
 };
 
 type HomeLayoutControls = ReturnType<typeof useHomeLayout>;

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { type ApiRangeKey, KPI_KEYS, type KpiKey } from '@/features/analytics';
+import { type AmountFormat, type ApiRangeKey, KPI_KEYS, type KpiKey } from '@/features/analytics';
 
 type HomePeriod = 'month' | 'week' | 'today' | 'all';
 type ActionKey =
@@ -19,6 +19,7 @@ type HomeLayout = {
   actions: HomeLayoutItem<ActionKey>[];
   kpis: HomeLayoutItem<KpiKey>[];
   sections: HomeLayoutItem<SectionKey>[];
+  amounts: AmountFormat;
 };
 
 type HomeLayoutKey<G extends HomeLayoutGroup> = G extends 'actions'
@@ -76,6 +77,7 @@ const DEFAULT_HOME_LAYOUT: HomeLayout = {
     { key: 'restock_soon', visible: false },
     { key: 'needs_attention', visible: true },
   ],
+  amounts: 'short',
 };
 
 const StoredItemSchema = z.object({ key: z.string(), visible: z.boolean() });
@@ -85,6 +87,7 @@ const StoredHomeLayoutSchema = z.object({
   actions: z.array(StoredItemSchema).catch([]),
   kpis: z.array(StoredItemSchema).catch([]),
   sections: z.array(StoredItemSchema).catch([]),
+  amounts: z.unknown(),
 });
 
 const isAtLimit = <K extends string>(items: HomeLayoutItem<K>[], limit: number | null) => {
@@ -138,6 +141,7 @@ const normalizeHomeLayout = (raw: unknown): HomeLayout => {
       DEFAULT_HOME_LAYOUT.sections,
       GROUP_LIMITS.sections,
     ),
+    amounts: parsed.data.amounts === 'long' ? 'long' : DEFAULT_HOME_LAYOUT.amounts,
   };
 };
 
