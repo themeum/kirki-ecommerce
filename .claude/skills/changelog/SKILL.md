@@ -74,41 +74,58 @@ for the one change they care about, and a combined line hides it.
 
 ## 4. Write the entries
 
-One line per change, in this exact form:
+The 1.0.1 entry in `readme.txt` is the style to follow. One line per change,
+in this exact form:
 
 ```
-* New: - Customers can now pay with bKash at checkout.
-* New: - Customers can now pay with SSLCommerz at checkout.
-* Update: - Bulk updates of product variants are faster.
-* Update: - Schema profiles are removed. Every product now uses the same structured data.
-* Fix: - Tax is no longer charged on variants that have "Charge tax" turned off.
+* New: Added bKash as a payment method.
+* New: Hid payment methods at checkout that cannot accept the customer’s currency.
+* Update: Redesigned the “Add a payment method” dialog with search and ready-made manual methods.
+* Update: Removed product schema profiles. All products now use the same search engine data, and saved profiles are deleted on update.
+* Update: Improved the speed of bulk updates for product variants.
+* Fix: Stopped tax from being charged on variants with “Charge tax” turned off.
+* Fix: Fixed product images not showing correctly on analytics page.
 ```
 
 These lines show the style only. Take every fact from the git history, never
 from these examples.
 
+- **Form** is `* <Type>: <Description>`. One space after the colon. No dash
+  between the type and the description.
 - **Type** is one of `New` (a feature that did not exist), `Update` (an
   existing feature works better or differently, or was removed), `Fix`
   (something was broken and now works). There is no other type; technical
   changes go under one of these three. Order the list: all New, then all
   Update, then all Fix. Inside a type, put the change most owners care about
   first.
+- **Start with a past-tense verb** that says what the release did, as a
+  release note does. Do not write "Customers can now…", "X is faster", or
+  "X no longer…". Use the verb that fits the change:
+  - New: "Added …", or the action itself ("Hid …", "Showed …").
+  - Update: "Improved the speed of …", "Improved …", "Redesigned …",
+    "Changed X to …", "Made X …", "Hid …", "Removed …", "Added …" (for a
+    small addition to an existing feature).
+  - Fix: "Fixed X not showing correctly", "Fixed X not …", "Stopped X from …",
+    "Removed the wrong X from …".
 - **Description** is one short sentence, about 15 words or fewer. Say what was
   added, changed, or fixed, and stop. A changelog line tells the reader *that*
   something changed so they can decide if it matters to them; it is not
   documentation. Leave out how to turn it on, where to find it, step-by-step
   use, and side details. Use a second sentence only for something an owner
-  must know before they update, such as a removed feature.
+  must know before they update, such as a removed feature or data that is
+  deleted on update.
 - **Be specific, not long.** Name the exact feature or thing that changed, so
-  the line is not vague: "Fixes the product selection dialog" says nothing;
-  "The product selection dialog is faster" names the change. If the commits do
-  not tell you what changed, read the diff, but put only the result in the
-  line.
+  the line is not vague: "Fixed the product selection dialog" says nothing;
+  "Improved the speed of the product selection dialog" names the change. If
+  the commits do not tell you what changed, read the diff, but put only the
+  result in the line.
+- **Typography:** use curly quotes for UI labels and apostrophes (“Charge
+  tax”, customer’s), like the 1.0.1 entry. End every line with a period.
 - **No code.** No code names (functions, classes, fields, tables, options,
   hooks), file names or paths, commands, backticks, PR numbers, commit hashes,
   or branch names. Technical words a store owner does not know (API, endpoint,
-  refactor, JSON-LD, migration) become plain words: "the data that search
-  engines read", "deleted on update".
+  refactor, JSON-LD, migration) become plain words: "search engine data",
+  "deleted on update".
 - Payment gateways, shipping, tax, and similar features keep their real names
   (PayPal, bKash, SSLCommerz, EU VAT), because owners search for those.
 - Call the plugin "Kirki eCommerce", never just "Kirki". "Kirki" is a

@@ -1,6 +1,6 @@
-=== Kirki eCommerce ===
+=== Kirki eCommerce – Online Store, Shopping Cart & Payments ===
 Contributors: themeum
-Tags: ecommerce, online store, shopping cart, checkout, payments
+Tags: ecommerce, e-commerce, online store, shopping cart, payments
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -8,279 +8,212 @@ Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WordPress eCommerce plugin for running a complete online store, products, orders, checkout, and payments with no transaction fees.
+Free eCommerce plugin for WordPress. Run an online store with products, shopping cart, checkout, and payments. No transaction fees.
 
 == Description ==
 
-Kirki eCommerce is a lightweight, fully featured eCommerce plugin for WordPress. It gives you everything you need to create and run an online store, products, inventory, orders, checkout, payments, tax, and shipping, without depending on any other third-party plugin.
+Kirki eCommerce is a free, open source eCommerce plugin for WordPress. Build a complete online store, sell your products, and accept payments, with no transaction fees and no other plugin required.
 
-Kirki eCommerce is open source and developed in the open on GitHub.
+All payment integrations are included free: PayPal, Stripe, and many more payment gateways, plus Cash on Delivery, Bank Transfer, and Check Payments.
 
-👉 Source Code: [GitHub Repository](https://github.com/themeum/kirki-ecommerce)
-👉 Feedback: [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform)
-👉 Community: [Kirki on Facebook](https://www.facebook.com/groups/kirkicommunity)
+Everything a store needs is built in: a product catalog with variants, inventory, shopping cart and checkout, payment gateways, order management, shipping, taxes, and analytics. A ready-made storefront puts your products in front of customers right away.
 
-== Features ==
+Setup takes care of itself. Pick your industry and where you sell, and Kirki eCommerce prepares the store behind the scenes: categories, product attributes such as colors and materials, shipping zones, and tax for your selling region.
 
-=== Everything You Need to Run Your Store ===
+[Source code on GitHub](https://github.com/themeum/kirki-ecommerce) | [Share feedback](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform) | [Join the community](https://www.facebook.com/groups/kirkicommunity)
 
-Kirki eCommerce brings everything you need to run an online store together in one place. Create and organize your products, manage inventory, accept payments, process orders, configure shipping and taxes, offer discounts, and give customers a complete shopping experience from browsing through checkout and beyond.
+= Why Kirki eCommerce =
 
-=== Product Creation & Management ===
+* **Complete out of the box.** Shop, product, cart, checkout, and customer account pages are created for you.
+* **Set up for your industry.** Choose your industry and selling region, and the store is configured for you, with matching product attributes and tax.
+* **No transaction fees.** Kirki eCommerce takes no cut of your sales. You pay only what your payment provider charges.
+* **Every payment gateway included.** PayPal, Stripe, and many more payment gateways, plus Cash on Delivery, Bank Transfer, and Check Payments, all free.
+* **Ready for international sales.** Multi-currency pricing, regional tax rules, and EU VAT with reverse charge.
+* **Lightweight and standalone.** Runs on its own, with any theme.
+* **Simple to switch.** Bring your products, customers, coupons, and orders over from WooCommerce.
 
-Create unlimited products with simple or multiple product variations, then organize your catalog with categories, tags, brands, and collections. Add rich product information, galleries, variant-specific images, promotional ribbons, and additional information to help customers make informed purchases.
+== Build Your Catalog ==
 
-* Create and manage products with multiple product variations.
-* Generate purchasable variants from your product attributes.
-* Set individual prices, SKUs, stock levels, and images for each variant.
+= Products & Variants =
+
+Create unlimited products, simple or with multiple variations, and present each one with galleries, variant images, and promotional ribbons.
+
+* Generate purchasable variants from product attributes, each with its own price, SKU, stock level, and image.
 * Reuse attributes, color swatches, and variation presets across your catalog.
 * Organize products with categories, tags, brands, and collections.
-* Update products and variants in bulk when you need to make changes quickly.
-* Preview products before publishing and easily duplicate existing products.
-* Schedule products to publish automatically at a set time.
-* Generate SKUs for products and variants with rules.
+* Edit products and variants in bulk, duplicate them, and preview before publishing.
+* Schedule products to publish at a set time.
+* Generate SKUs automatically with rules.
 
-=== Stock & Inventory Management ===
+= Stock & Inventory Management =
 
-Get complete inventory management control without constantly checking individual products. Kirki eCommerce tracks stock as orders move through your store and gives you the tools to handle low-stock products, backorders, and purchase limits.
+Stock updates itself as orders move through your store.
 
-* Track available and committed inventory.
-* See inventory across your catalog from a dedicated inventory workspace.
-* Set low-stock thresholds for your entire store, individual products, or variants.
-* Allow backorders when you want to continue selling beyond available stock.
-* Reserve stock while orders are being processed.
-* Prevent customers from purchasing unavailable products.
-* Set limits on how many units a customer can purchase in one order.
+* Track available and committed inventory from a dedicated inventory workspace.
+* Set low-stock thresholds for the whole store, a product, or a single variant.
+* Reserve stock while orders are processing, and block purchases of unavailable products.
+* Allow backorders when you want to keep selling beyond available stock.
+* Limit how many units a customer can buy in one order.
 * Get low-stock and out-of-stock alerts by email.
 
-=== Product Pricing & Currency ===
-
-Set the prices that make sense for your business and give customers a clear view of what they'll pay.
+= Pricing & Multi-Currency =
 
 * Set regular, sale, and cost prices for each variant.
-* Support unit-based pricing for products sold by weight, length, volume, or other units.
-* Sell in multiple currencies.
-* Automatically convert displayed prices using exchange rates.
-* Use CurrencyApi or ExchangeRatesApi for currency conversion.
+* Sell by weight, length, volume, or other units with unit-based pricing.
+* Sell in multiple currencies, with a currency switcher for shoppers.
+* Convert prices with exchange rates from CurrencyApi or ExchangeRate-API, synced on a schedule or manually.
 * Control currency symbols, decimal places, separators, and formatting.
-* Let shoppers choose their currency with a currency switcher shortcode.
-* Update exchange rates automatically on a schedule, or sync them manually.
 
-=== Discounts & Coupons ===
+== Sell and Get Paid ==
 
-Give customers more reasons to buy with coupons that can be tailored to your products, customers, locations, and campaigns.
+= Built-in Storefront =
 
-* Offer percentage, fixed-amount, or free-shipping discounts.
-* Target specific products, customers, countries, or categories.
-* Set minimum spending or item-count requirements.
-* Schedule when coupons become active and when they expire.
-* Set overall and per-customer usage limits.
-* Control whether multiple coupons can be combined.
-* Generate coupon codes and validate them before they're applied.
-* Offer coupons that shoppers enter, or coupons that apply automatically.
-* Limit a coupon to everyone, specific customers, logged-in customers, guests, or first-time buyers.
-* Duplicate a coupon in one click.
+You don't have to build the essential shopping pages. Kirki eCommerce creates them for you, styled and ready, on any theme.
 
-=== Cart & Checkout ===
+* Shop and product pages with search, filtering, galleries, and variant swatches.
+* Cart, checkout, login, registration, and customer account pages.
+* A wishlist for logged-in customers.
+* A mini cart, available as a Gutenberg block or a shortcode.
+* Storefront SEO metadata, breadcrumbs, and pagination.
 
-Make it easy for customers to move from browsing to buying. Kirki eCommerce includes cart and secure checkout functionality out of the box, including support for guest purchases.
+= Shopping Cart & Checkout =
 
-* Let customers shop with or without an account with guest checkout.
-* Add, update, remove, and manage items directly from the cart.
-* Apply coupons and automatically recalculate totals, discounts, tax, and shipping.
-* Customize checkout fields and validation rules.
-* Collect terms and privacy consent where required.
-* Create or match customer accounts during checkout.
-* Provide dedicated success and failure pages.
-* Keep guest and logged-in carts in sync, including applied coupons.
+A short path from browsing to buying.
 
-=== Order Management & Fulfillment ===
+* Guest checkout, with customer accounts created or matched during checkout.
+* Totals, discounts, tax, and shipping recalculated automatically as the cart changes.
+* Custom checkout fields and validation rules.
+* Terms and privacy consent where required.
+* Guest and logged-in carts kept in sync, including applied coupons.
+* Dedicated order success and failure pages.
 
-Get a complete view of every order, from payment through fulfillment. Create orders manually, track what happened over time, and keep important purchase information together.
+= Payment Gateways =
 
-* Complete order & fulfillment management.
-* Keep payment and fulfillment status separate so you always know what needs attention.
-* Create orders manually when you need to handle an order outside the normal checkout flow.
-* Manage payments, invoices, cancellations, shipping, and tracking.
-* Add notes and view a chronological order timeline.
-* Keep a snapshot of important order information at the time of purchase.
-* Merge eligible guest orders with customer accounts.
-* Edit items, addresses, and shipping on an existing order.
-* Add tracking numbers with a carrier so customers get a working tracking link.
-* Resend order emails and archive orders.
+Every payment gateway is included free, with no transaction fees. PayPal and the offline methods are ready out of the box, and every other gateway installs from the built-in gateway catalog as a free companion plugin.
 
-=== Payments ===
+* **Online payments:** PayPal, Stripe, Mollie, Square, Razorpay, Klarna, Paddle, PayStack, PayU, PayFast, PayMongo, AuthorizeNet, Eway, QuickPay, Redsys, 2Checkout, bKash, and SSLCommerz.
+* **Offline payments:** Cash on Delivery, Bank Transfer, Check Payments, and custom manual payment methods.
+* Payment updates arrive through webhooks, and provider fees can be recorded against each order.
+* Checkout shows only the payment methods that accept the customer's currency.
 
-Choose the payment methods that work best for your customers with no transaction fees. Kirki eCommerce has a flexible gateway system that lets you add online payment providers through separately installable companion plugins.
+= Discounts & Coupons =
 
-Core payment methods:
+* Percentage, fixed-amount, and free-shipping discounts.
+* Coupon codes that shoppers enter, or discounts that apply automatically.
+* Targeting by product, category, customer, or country.
+* Eligibility for everyone, logged-in customers, guests, or first-time buyers.
+* Minimum spend or item count, usage limits, and start and end dates.
+* Control over whether coupons can be combined.
 
-* PayPal
-* Cash on Delivery
-* Bank Transfer
-* Custom manual payment methods
+== Fulfill Every Order ==
 
-Install more payment gateways from the built-in gateway catalog as companion plugins:
+= Order Management =
 
-* Stripe
-* Mollie
-* Square
-* Razorpay
-* Klarna
-* Paddle
-* PayStack
-* PayU
-* PayFast
-* PayMongo
-* AuthorizeNet
-* Eway
-* QuickPay
-* Redsys
-* 2Checkout
+See every order in one place, from payment through fulfillment.
 
-Payment gateways can send payment updates back to your store through webhooks, and payment provider fees can be recorded against orders.
+* Separate payment and fulfillment statuses, so you always know what needs attention.
+* Manual orders, plus editing of items, addresses, and shipping on existing orders.
+* Payments, invoices, cancellations, shipping, and tracking managed from the order.
+* Tracking numbers with a carrier, so customers get a working tracking link.
+* Notes and a chronological timeline on every order.
+* Guest orders merged into customer accounts.
 
-=== Shipping ===
+= Shipping =
 
-Whether you ship locally or across regions, configure your delivery options around how you actually fulfill orders.
+* Shipping zones for different destinations.
+* Flat-rate, weight-based, and local pickup methods, plus free shipping above an order amount.
+* Rules based on destination, cart value, weight, product category, or shipping profile.
+* Reusable shipping profiles, boxes, and package dimensions.
+* Carriers with tracking link templates and logos for each zone.
 
-* Create shipping zones for different destinations.
-* Offer flat-rate shipping, local pickup, or weight-based rates.
-* Reuse shipping profiles across products.
-* Define shipping boxes and package dimensions.
-* Create rules based on destination, cart value, weight, product category, or shipping profile.
-* Show customers the shipping methods available for their order.
-* Choose the weight and dimension units used by your store.
-* Add shipping carriers, with tracking link templates and logos, for each zone.
-* Offer free shipping above an order amount.
+= Taxes & EU VAT =
 
-=== Taxes ===
+* Tax profiles and regional tax rules.
+* EU VAT support, including reverse charge.
+* Product prices that include or exclude tax.
+* Tax on shipping where required.
+* Customer tax IDs such as VAT, GST, or EIN.
+* Tax-exempt products and variants.
 
-Configure your store's tax behavior based on where you sell and how your products are priced.
+= Email Notifications =
 
-* Create tax profiles and regional tax rules.
-* Support EU tax requirements, including reverse charge.
-* Choose whether product prices include or exclude tax.
-* Apply tax to shipping where required.
-* Capture customer tax IDs such as VAT, GST, or EIN.
-* Mark individual products or variants as tax exempt.
+* Order emails to customers for new, processing, completed, cancelled, and failed orders.
+* Alerts to store administrators about important store events.
+* Editable subjects, headings, and content, with shortcodes for order and customer details.
+* Your logo and brand colors on every email.
+* Delivery through SMTP or PHP mail, queued in the background for reliability.
 
-=== Customers & Accounts ===
+== Grow Your Store ==
 
-Customers get a built-in account area where they can manage their information and keep track of their purchases.
+= Analytics & Reports =
 
-* Let customers register and log in from the storefront.
-* Verify customer email addresses.
-* View order history and individual order details.
-* See order activity from their account.
-* Manage multiple billing and shipping addresses.
-* Update profile information and passwords.
-* Link customers to WordPress users, with email addresses kept in sync.
+One dashboard shows how your store is performing. Compare any date range with the period before it.
 
-=== Built-in Storefront ===
+* Gross sales, orders, average order value, and returning customer rate.
+* Sales by product, category, coupon code, payment method, and location.
+* A breakdown of discounts, returns, shipping charges, and taxes.
+* New versus returning customers.
+* Inventory health, with out-of-stock, low-stock, and in-stock counts.
+* A dashboard layout you can customize.
 
-You don't need to build the essential shopping pages yourself. Kirki eCommerce automatically provides the core pages customers need to browse and buy.
+= Customer Accounts =
 
-* Shop and product pages.
-* Product detail pages with variations, galleries, and purchasing controls.
-* Cart and checkout pages.
-* Login, registration, and customer account pages.
-* Product search and filtering.
-* Breadcrumbs, product cards, pagination, and empty states.
-* Automatic generation of required storefront pages.
-* Built-in notifications for common customer actions.
-* Storefront SEO metadata.
-* Let logged-in customers save products to a wishlist, with an optional variant.
-* Add a mini cart with a Gutenberg block or a shortcode.
+* Registration, login, and email verification from the storefront.
+* Order history and individual order details.
+* Multiple saved billing and shipping addresses.
+* Profile and password management.
+* Customers linked to WordPress users, with email addresses kept in sync.
 
-=== Email Notifications ===
+= Product SEO =
 
-Keep order communication running automatically with built-in email notifications.
+* SEO metadata for every product, with a search result preview.
+* Open Graph and social sharing information.
+* Structured product data for search engines.
 
-* Send order updates to customers for new, cancelled, failed, processing, and completed orders.
-* Notify store administrators about important store events.
-* Customize email subjects, headings, and content.
-* Add dynamic order and customer information using email shortcodes.
-* Customize email branding with your logo and colors.
-* Enable or disable individual email templates.
-* Send through SMTP or PHP mail.
-* Queue emails in the background for more reliable delivery.
+== Easy Setup and Migration ==
 
-=== Product Schema & SEO ===
+= Guided Setup =
 
-Give search engines and social networks the information they need to understand and display your products.
+Tell Kirki eCommerce your industry and where you sell, and it sets up the store behind the scenes.
 
-* Configure product SEO metadata.
-* Preview how products can appear in search results.
-* Add Open Graph and social sharing information.
-* Create reusable product schema profiles.
-* Preview structured product data.
+* Industry presets for stores selling fashion, home decor and furniture, beauty and personal care, food and beverage, electronics, sports and fitness, books and gifts, and more.
+* Categories and product attributes that fit your industry, such as colors and materials, ready to use on your first product.
+* Tax configured for the tax region you select.
+* Shipping zones and legal texts based on your location.
+* Optional sample products to explore before you add your own.
+* Dedicated settings for store details, selling locations, payments, shipping, taxes, currencies, emails, and checkout.
 
-=== Store Configurations ===
+= Migrate from WooCommerce =
 
-A guided setup experience helps you get started, while dedicated settings give you control as your store grows.
+Bring your store with you. Your WooCommerce data does not change.
 
-* Start with industry and location presets for categories, attributes, shipping zones, tax regions, and legal texts.
-* Load optional sample products from the setup wizard.
-* Prefill the setup wizard from your WooCommerce settings when WooCommerce is found.
-* Find and repair missing store pages from the Advanced settings.
-* Configure store information, selling locations, products, payments, shipping, taxes, currencies, emails, and checkout.
-* Restrict where you sell.
-* Manage countries and regions used throughout your store.
-* Configure product units, inventory, and barcode defaults.
-* Manage your email templates and store branding.
-* Configure advanced store behavior when you need more control.
-
-=== Analytics & Reports ===
-
-See how your store is performing from one dashboard. Compare any date range with the period before it, and choose which metrics and cards to show.
-
-* Track gross sales, orders, average order value, and returning customer rate.
-* See total sales over time, with a breakdown of discounts, returns, shipping charges, and taxes.
-* View sales by product, category, coupon code, payment method, and location.
-* See orders over time, by fulfillment status, and by time of day.
-* Compare new and returning customers.
-* Review taxes collected by region and shipping charges by method.
-* Monitor inventory health with out-of-stock, low-stock, and in-stock counts.
-* Customize the dashboard layout.
-
-=== Migrate from WooCommerce ===
-
-Moving from WooCommerce? Bring your store with you. Your WooCommerce data does not change.
-
-* Move settings, terms, attributes, categories, tags, brands, products, customers, coupons, and orders.
+* Move settings, attributes, categories, tags, brands, products, customers, coupons, and orders.
 * Resume, retry, revert, or clean up a migration run if something goes wrong.
+* Prefill the setup wizard from your WooCommerce settings.
 
-=== Built to Grow With Your Store ===
+== Built for Developers ==
 
-Kirki eCommerce is designed to be extended without making the core plugin dependent on every feature or service you might need.
+Kirki eCommerce is open source and designed to be extended.
 
 * REST API for integrations and custom applications.
-* Extension hooks and WordPress actions and filters.
+* Extension hooks, plus WordPress actions and filters.
 * Companion plugin support for payment gateways and other extensions.
-* Background jobs for tasks that don't need to run during a customer's request.
-* Caching and session management.
-* Rate limiting and policy-based authorization.
-* Database migrations and upgrade routines.
-* Internationalization support.
+* Background jobs, caching, and session management.
+* Translation ready.
 
-The result is a complete eCommerce foundation that can work on its own while remaining flexible enough to adapt to different types of stores.
+== Who It's For ==
 
-== Best For ==
+* Store owners who want a complete online store for free, with no transaction fees
+* Merchants selling products with multiple variants, sizes, colors, or materials
+* International sellers who need multi-currency pricing and EU tax handling
+* Stores that need flexible payment options, from major payment gateways to Cash on Delivery, Bank Transfer, and Check Payments
+* Developers and agencies building client stores on a REST API and extension hooks
+* Store owners moving from WooCommerce with their products, customers, and orders
 
-* Store owners who want a complete eCommerce solution without paying for a premium tier
-* Merchants selling products with multiple variants, sizes, colors, materials, or other attribute combinations
-* International sellers who need multi-currency pricing and EU tax handling, including reverse charge
-* Stores that need flexible payment options, from major gateways to offline methods like Cash on Delivery and Bank Transfer
-* Anyone replacing a heavier eCommerce setup with something simpler to manage
-* Developers and agencies building client stores who want a REST API and extension hooks to customize
-* Store owners moving from WooCommerce who want to bring their products, customers, and orders with them
+== Support & Community ==
 
-== Feedback & Support ==
-
-If something doesn't work as expected, or a feature you need is missing, we want to hear about it.
-
-* Share feedback or feature ideas in the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform) or join the [Kirki eCommerce Facebook community](https://www.facebook.com/groups/557837446451017).
+* Share feedback or feature ideas in the [feedback form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform).
+* Join the [Kirki eCommerce Facebook community](https://www.facebook.com/groups/557837446451017).
 * Report a bug on [GitHub Issues](https://github.com/themeum/kirki-ecommerce/issues).
 
 == Source Code ==
@@ -304,28 +237,41 @@ Each build writes the compiled files to the `assets/` folder.
 1. In your WordPress dashboard, go to Plugins → Add New Plugin.
 2. Search for "Kirki eCommerce".
 3. Click Install Now, then Activate.
-4. Go to Kirki eCommerce → Settings to configure your store and payment gateway.
-5. Create your first product and start selling.
+4. Follow the setup wizard: enter your store name, pick your industry, and choose where you sell. Kirki eCommerce configures the rest.
+5. Go to Kirki eCommerce → Settings to add your payment gateway.
+6. Create your first product and start selling.
 
 To install manually, download the plugin ZIP file, go to Plugins → Add New Plugin → Upload Plugin, upload the file, then install and activate it.
 
 == Frequently Asked Questions ==
 
+= Is Kirki eCommerce free? =
+
+Yes. Kirki eCommerce is free and open source. The store features described on this page, including every payment gateway, are included for free and will stay free.
+
+= Does Kirki eCommerce charge transaction fees? =
+
+No. Kirki eCommerce takes no percentage of your sales. Your payment provider, such as PayPal or Stripe, charges its own processing fees.
+
+= Which payment gateways are supported? =
+
+All of them are included free: PayPal, Stripe, Mollie, Square, Razorpay, Klarna, Paddle, PayStack, PayU, PayFast, PayMongo, AuthorizeNet, Eway, QuickPay, Redsys, 2Checkout, bKash, and SSLCommerz, plus Cash on Delivery, Bank Transfer, Check Payments, and custom manual payment methods. PayPal and the offline methods are ready out of the box. The other payment gateways install from the built-in gateway catalog as free companion plugins.
+
 = Do I need Kirki installed to use Kirki eCommerce? =
 
 No. Kirki eCommerce is a fully standalone eCommerce plugin, built independently from the Kirki website builder, and works without requiring Kirki or any other plugin installed.
-
-= Is Kirki eCommerce free? =
-
-Yes. Every feature in Kirki eCommerce is free, with no premium tier or paid upgrades.
 
 = Does Kirki eCommerce require a specific theme? =
 
 No. Kirki eCommerce includes its own storefront styling and doesn't depend on your active theme to function or display correctly.
 
-= Which payment gateways are supported? =
+= Can I sell in multiple currencies? =
 
-PayPal ships with the core plugin. Offline options include Cash on Delivery, Bank Transfer, and custom manual payment methods. You can add more online gateways as companion plugins, including Stripe, Mollie, Square, Razorpay, Klarna, Paddle, PayStack, PayU, PayFast, PayMongo, AuthorizeNet, Eway, QuickPay, Redsys, and 2Checkout.
+Yes. Add the currencies you want to sell in, let shoppers pick one with the currency switcher, and keep exchange rates current automatically or by syncing them manually.
+
+= Does Kirki eCommerce handle EU VAT? =
+
+Yes. You can set regional tax rules, choose whether prices include tax, collect customer VAT IDs, and apply reverse charge where it is required.
 
 = Can I move my store from WooCommerce? =
 
@@ -334,6 +280,14 @@ Yes. The migration tool moves your settings, products, customers, coupons, order
 = Does Kirki eCommerce include analytics? =
 
 Yes. The Analytics dashboard shows sales, orders, customers, and inventory health, and lets you compare any date range with the period before it.
+
+= Can developers extend Kirki eCommerce? =
+
+Yes. Kirki eCommerce has a REST API, extension hooks, and standard WordPress actions and filters. The full source code is on [GitHub](https://github.com/themeum/kirki-ecommerce).
+
+= Does Kirki eCommerce collect data from my store? =
+
+No. Kirki eCommerce does not collect usage or telemetry data. It connects only to the payment and currency services you set up yourself, as listed under External Services.
 
 = How do I report a bug? =
 
@@ -396,6 +350,28 @@ PayPal is a trademark of PayPal, Inc. CurrencyApi and ExchangeRate-API are trade
 15. Monitor store performance with insights into sales, orders, revenue, and customer activity.
 
 == Changelog ==
+
+= 1.0.2 - Nov 19, 2026 =
+
+* New: Added options to customize the Home dashboard, including quick actions, key numbers, and sections.
+* New: Added a Needs Your Attention section to the Home dashboard to highlight orders awaiting shipment and payments awaiting collection.
+* New: Added a Restock Soon section to highlight products running low on stock.
+* New: Added a template override filter hook for greater control over storefront UI customization.
+* Update: Improved request validation performance by reducing overhead and processing time.
+* Update: Added product images to order items migrated from WooCommerce.
+* Update: Changed the shipping method form to open in a dialog instead of a separate page.
+* Update: Combined the two category fields in the coupon form into a single field.
+* Update: Improved page loading speed by reducing repeated currency lookups.
+* Update: Prevented search engines from indexing order tracking and checkout pages.
+* Update: Improved the UI of form select dropdowns.
+* Fix: Fixed an issue where older orders displayed the wrong currency after changing the store’s base currency.
+* Fix: Fixed an issue that allowed customers to apply coupons even when coupon codes were disabled in checkout settings.
+* Fix: Fixed the order list and Recent Orders card displaying totals in the wrong currency instead of the store’s base currency.
+* Fix: Fixed an issue where order success and failure pages appeared for orders with mismatched payment statuses.
+* Fix: Fixed shortcode escaping in email templates.
+* Fix: Fixed email sender names and headers not using the store name.
+* Fix: Fixed an issue that allowed customer addresses belonging to other customers to be saved.
+* Fix: Fixed a security issue where potentially harmful stored data could execute during WooCommerce data migration.
 
 = 1.0.1 - Nov 11, 2026 =
 
