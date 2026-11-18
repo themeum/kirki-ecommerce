@@ -41,10 +41,10 @@ class FirstSaleController
      */
     public function show(Request $request)
     {
-        return $this->respond(
-            $this->service->get_state((int) $request->user_id()),
-            __('First sale retrieved successfully.', 'kirki-ecommerce')
-        );
+        return response()->json([
+            'data' => $this->service->get_state((int) $request->user_id()),
+            'message' => __('First sale retrieved successfully.', 'kirki-ecommerce'),
+        ]);
     }
 
     /**
@@ -57,10 +57,10 @@ class FirstSaleController
      */
     public function celebrated(Request $request)
     {
-        return $this->respond(
-            $this->service->celebrate((int) $request->user_id()),
-            __('First sale celebration recorded.', 'kirki-ecommerce')
-        );
+        return response()->json([
+            'data' => $this->service->celebrate((int) $request->user_id()),
+            'message' => __('First sale celebration recorded.', 'kirki-ecommerce'),
+        ]);
     }
 
     /**
@@ -73,10 +73,10 @@ class FirstSaleController
      */
     public function dismiss(Request $request)
     {
-        return $this->respond(
-            $this->service->dismiss((int) $request->user_id()),
-            __('First sale card closed.', 'kirki-ecommerce')
-        );
+        return response()->json([
+            'data' => $this->service->dismiss((int) $request->user_id()),
+            'message' => __('First sale card closed.', 'kirki-ecommerce'),
+        ]);
     }
 
     /**
@@ -89,26 +89,9 @@ class FirstSaleController
      */
     public function fulfill(Request $request)
     {
-        return $this->respond(
-            $this->service->fulfill((int) $request->user_id()),
-            __('First sale card completed.', 'kirki-ecommerce')
-        );
-    }
-
-    /**
-     * Wrap the state in the API response shape.
-     *
-     * @since 1.0.2
-     *
-     * @param array<string, mixed> $state
-     * @param string               $message
-     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
-     */
-    protected function respond(array $state, string $message)
-    {
         return response()->json([
-            'data' => $state,
-            'message' => $message,
+            'data' => $this->service->fulfill((int) $request->user_id()),
+            'message' => __('First sale card completed.', 'kirki-ecommerce'),
         ]);
     }
 }
