@@ -43,6 +43,7 @@ Route::site(function () {
         ->name('order_tracking');
 
     Route::get($cart_page_id, [SiteController::class, 'cart_page'])
+        ->middleware(ProtectOrderLinkMiddleware::class)
         ->name('cart')
         ->match_page();
 
@@ -53,7 +54,7 @@ Route::site(function () {
 });
 
 // Customer account routes.
-Route::group(['middleware' => SiteAuthMiddleware::class], function () {
+Route::group(['middleware' => [ProtectOrderLinkMiddleware::class, SiteAuthMiddleware::class]], function () {
     Route::site(function () {
         $account_pages = Utils::get_account_route_config();
         foreach ($account_pages as $key => $page) {
