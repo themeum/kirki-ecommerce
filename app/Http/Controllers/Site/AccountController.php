@@ -168,7 +168,6 @@ class AccountController
 
         if (!$order || empty($customer_id) || $order->customer_id !== $customer_id) {
             Url::redirect(Route::site_url('account.orders'));
-            exit;
         }
 
         $order_resource = OrderResource::make($order);
