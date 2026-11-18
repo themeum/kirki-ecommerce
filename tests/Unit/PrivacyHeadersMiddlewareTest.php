@@ -22,10 +22,10 @@ namespace Kirki\Ecommerce\App\Http\Middlewares {
 }
 
 namespace Kirki\Ecommerce\Tests\Unit {
-    use Kirki\Ecommerce\App\Http\Middlewares\ProtectOrderLinkMiddleware;
+    use Kirki\Ecommerce\App\Http\Middlewares\PrivacyHeadersMiddleware;
     use Kirki\Ecommerce\Framework\Contracts\Request;
 
-    class ProtectOrderLinkMiddlewareTest extends TestCase
+    class PrivacyHeadersMiddlewareTest extends TestCase
     {
         protected function setUp(): void
         {
@@ -40,7 +40,7 @@ namespace Kirki\Ecommerce\Tests\Unit {
             $request->method('string')->willReturn('');
             $next_called = false;
 
-            $result = (new ProtectOrderLinkMiddleware())->handle($request, function () use (&$next_called) {
+            $result = (new PrivacyHeadersMiddleware())->handle($request, function () use (&$next_called) {
                 $next_called = true;
 
                 return 'next';

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Protect order link pages
+ * Send privacy headers for private pages
  *
  * @package Kirki\Ecommerce\App\Http\Middlewares
  * @author Themeum <support@themeum.com>
@@ -25,7 +25,7 @@ use Kirki\Ecommerce\Framework\Contracts\Request;
  *
  * @since 1.0.0
  */
-class ProtectOrderLinkMiddleware implements Middleware
+class PrivacyHeadersMiddleware implements Middleware
 {
     /**
      * Send the privacy headers, then pass the request on.
