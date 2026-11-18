@@ -98,7 +98,7 @@ const FirstSaleCard = () => {
         {order.customer_name ?? __('A customer', 'kirki-ecommerce')}
       </strong>,
       <strong key="total" css={scoped(styles.strong)}>
-        {order.invoiced_total_money_object.display}
+        {order.base_total_money_object.display}
       </strong>,
       <strong key="order">{order.order_number}</strong>,
     ],

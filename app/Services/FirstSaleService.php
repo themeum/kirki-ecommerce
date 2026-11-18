@@ -135,7 +135,7 @@ class FirstSaleService
             'id' => $resource['id'],
             'order_number' => $resource['order_number'],
             'customer_name' => $resource['customer_name'],
-            'invoiced_total_money_object' => $resource['invoiced_total_money_object'],
+            'base_total_money_object' => $resource['base_total_money_object'],
         ];
     }
 

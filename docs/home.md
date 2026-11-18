@@ -544,7 +544,7 @@ All four return the state for the current user:
       "id": 12,
       "order_number": "#2026-2236",
       "customer_name": "Ibrahim Fischer",
-      "invoiced_total_money_object": { "raw": 43.88, "display": "£43.88", "currency": { "code": "GBP", "symbol": "£" } }
+      "base_total_money_object": { "raw": 43.88, "display": "£43.88", "currency": { "code": "GBP", "symbol": "£" } }
     }
   },
   "message": "First sale retrieved successfully."

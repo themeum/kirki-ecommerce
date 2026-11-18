@@ -29,7 +29,7 @@ const firstSale = (overrides: Partial<FirstSale> = {}): FirstSale => ({
     id: 12,
     order_number: '#2026-2236',
     customer_name: 'Ibrahim Fischer',
-    invoiced_total_money_object: {
+    base_total_money_object: {
       raw: 43.88,
       display: '£43.88',
       currency: { code: 'GBP', symbol: '£' },

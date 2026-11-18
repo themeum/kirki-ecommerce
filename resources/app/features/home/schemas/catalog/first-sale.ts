@@ -6,7 +6,7 @@ const FirstSaleOrderSchema = z.object({
   id: z.number(),
   order_number: z.string(),
   customer_name: z.string().nullable(),
-  invoiced_total_money_object: MoneyObjectSchema,
+  base_total_money_object: MoneyObjectSchema,
 });
 
 const FirstSaleSchema = z.object({

@@ -13,10 +13,11 @@ Status: analysis only. No code is changed.
 5. Impact by hosting setup
 6. How Laravel solves this
 7. Proposed solution for `themeum/framework`
-8. Test cases (acceptance criteria)
-9. Out of scope
-10. Open questions
-11. Where this differs from Laravel
+8. Site owner experience
+9. Test cases (acceptance criteria)
+10. Out of scope
+11. Open questions
+12. Where this differs from Laravel
 
 ---
 
@@ -457,7 +458,112 @@ trusted_in_chain(ip): ip in expanded list   // '*'/'REMOTE_ADDR' do not apply to
 
 ---
 
-## 8. Test cases (acceptance criteria)
+## 8. Site owner experience
+
+Most shop owners are not developers. A fix that needs the owner to find and type IP addresses will not be
+used. Also, Cloudflare changes its ranges from time to time, so a list that an owner types becomes old.
+So the owner must never collect Cloudflare IPs. The software detects the setup, and the owner makes one
+choice at most.
+
+This section has two parts:
+- **Framework:** detection data (7.7), the `CLOUDFLARE` keyword (7.2, 7.3), and the constant and filter
+  (7.1).
+- **Application** (for example Kirki eCommerce): the Site Health check, the notices, the settings UI, and
+  the docs.
+
+### 8.1 Detect Cloudflare from the socket address
+
+`REMOTE_ADDR` comes from the TCP connection, so a client cannot fake it. The detection uses three inputs:
+`REMOTE_ADDR`, whether `REMOTE_ADDR` is in Cloudflare's ranges, and whether `CF-Connecting-IP` is present.
+
+| `REMOTE_ADDR` | `CF-Connecting-IP` | Meaning | Action |
+|---|---|---|---|
+| In Cloudflare's ranges | Present | Behind Cloudflare, and the host does not restore the visitor IP | Tell the owner (8.2) |
+| Not in Cloudflare's ranges | Present | Behind Cloudflare, and the host already restores the IP (or a client sent a fake header) | Nothing to do |
+| Not in Cloudflare's ranges | Absent | Not behind Cloudflare | Nothing to do |
+| In Cloudflare's ranges, and the `CLOUDFLARE` preset is on | Present | Correct setup | Report "good" |
+
+Rules:
+- Run the detection on the owner's own admin requests. An admin request goes through the same network
+  path as a shopper's request.
+- The header alone proves nothing, because a client can send it. Only the socket address can prove that
+  the request came through Cloudflare.
+- Detection only shows information. It never adds entries to the trust list (see 7.1: never learn trust
+  from requests).
+
+### 8.2 Where to tell the owner
+
+1. **WordPress Site Health check** (Tools → Site Health). This is the usual WordPress place for problems
+   with the server setup. Status "recommended". Example text:
+
+   > **Your store is behind Cloudflare, but Kirki eCommerce cannot see your shoppers' real IP addresses.**
+   > Checkout and login limits count all shoppers together. During busy periods, this can block real
+   > shoppers. Turn on Cloudflare support to fix this.
+   > [Turn on Cloudflare support]
+
+2. **A notice on the application's settings page.** Show it only while the problem exists, and let the
+   owner dismiss it. Do not show a notice on every admin page.
+3. **Docs.** A `docs/trusted-proxies.md` page and a readme FAQ entry: "My store uses Cloudflare. What do I
+   need to do?"
+
+### 8.3 What the owner does: three options
+
+**Option A: one click (recommended for owners).** A "My site uses Cloudflare" switch in the application's
+settings. When the switch is on, the application adds `CLOUDFLARE` to the list through the filter from 7.1.
+The owner never sees an IP address. This is an application setting, not a framework one.
+
+**Option B: one line in `wp-config.php`.** For hosts, developers, and owners who do not want a setting:
+
+```php
+define( 'KIRKI_ECOMMERCE_TRUSTED_PROXIES', 'CLOUDFLARE' );
+```
+
+The final constant name depends on open question 1. The notice gives a "Copy" button for the line and
+says: "If you cannot edit this file, send this line to your host."
+
+**Option C: the host restores the IP on the server.** Cloudflare documents this ("Restoring original
+visitor IPs"), with nginx `real_ip` or Apache `mod_remoteip`. After that, `REMOTE_ADDR` is the visitor, the
+framework needs no setup, and other plugins (security, spam filters) also get the correct IP. Give the owner
+a message to send to the host:
+
+> My site uses Cloudflare. Please restore the original visitor IP into `REMOTE_ADDR` (with mod_remoteip,
+> or nginx real_ip with `CF-Connecting-IP`), as Cloudflare's documentation describes.
+
+Recommendation: Option A in the UI, with Options B and C in the docs.
+
+### 8.4 Load balancers and other proxies
+
+A load balancer cannot be detected reliably. A private `REMOTE_ADDR` together with an `X-Forwarded-For`
+header is a hint, but it is not proof. There are also no public ranges to ship. So:
+
+- Show a softer Site Health message: "Your site seems to be behind a proxy or load balancer. Kirki eCommerce
+  may see one IP address for all shoppers."
+- Tell the owner to ask the host for the load balancer's IP or subnet, then add it with Option B (for
+  example `define( 'KIRKI_ECOMMERCE_TRUSTED_PROXIES', '10.0.0.0/24' );`), or ask the host for Option C.
+- Give a message to send to the host:
+
+  > Kirki eCommerce needs the IP address or subnet of the proxy or load balancer in front of my site, so
+  > that it can read the real visitor IP from `X-Forwarded-For`. Can you send it to me, or restore the
+  > visitor IP into `REMOTE_ADDR`?
+
+Do not offer a free-text IP field in the settings UI for this. A wrong entry (for example `0.0.0.0/0`) lets
+every client spoof its IP. Keep custom entries in `wp-config.php` or the filter, where a host or developer
+sets them.
+
+### 8.5 Possible later step: turn on Cloudflare support automatically
+
+The detection in 8.1 uses the socket address, so the framework could trust the `CLOUDFLARE` ranges with no
+owner action. Before you choose this, check one thing: can a client send a request through Cloudflare (for
+example through its own Cloudflare zone that points at the victim's origin IP, or through a Cloudflare
+Worker) with a `CF-Connecting-IP` value that the client chooses? The reporter does not know of such a way,
+but did not verify it.
+
+This would also change how rate limiting works for existing sites that did not change a setting. So for
+the first release, keep it opt-in (Options A–C), and decide on automatic trust later.
+
+---
+
+## 9. Test cases (acceptance criteria)
 
 `R` = `REMOTE_ADDR`, `XFF` = `X-Forwarded-For`, `CF` = `CF-Connecting-IP`.
 Trust list `L1` = `['10.0.0.5', '10.0.1.0/24']`. `L2` = `['CLOUDFLARE']`. `L3` = `['*']`.
@@ -495,7 +601,7 @@ Rate-limit key tests (P7):
 
 ---
 
-## 9. Out of scope
+## 10. Out of scope
 
 - The RFC 7239 `Forwarded` header. Few WordPress hosts send it. Add it later if a host needs it, with
   Symfony's conflict check.
@@ -505,7 +611,7 @@ Rate-limit key tests (P7):
 
 ---
 
-## 10. Open questions
+## 11. Open questions
 
 1. **Constant name.** Use a name for each application (`<PREFIX>_TRUSTED_PROXIES`), or one shared name for
    all framework applications on the same site? A shared name lets a host set it once, but two plugins with
@@ -520,20 +626,20 @@ Rate-limit key tests (P7):
 
 ---
 
-## 11. Where this differs from Laravel
+## 12. Where this differs from Laravel
 
 | Topic | Laravel / Symfony | This proposal |
 |---|---|---|
 | Where the list lives | Application code | Config default + `wp-config.php` constant + filter |
 | `*` | Direct peer only | Direct peer only (the same) |
-| `Forwarded` (RFC 7239) | Supported, with a conflict check | Not supported (section 9) |
+| `Forwarded` (RFC 7239) | Supported, with a conflict check | Not supported (section 10) |
 | `X-Forwarded-Host/Proto/Port` | Supported, by header mask | Not supported |
 | Header mask | The developer chooses | Fixed: `X-Forwarded-For`, plus `CF-Connecting-IP` from Cloudflare only |
 | `CF-Connecting-IP` | Not read | Read only from Cloudflare ranges |
 | Cloudflare ranges | Community package | Built in (`CLOUDFLARE` keyword) |
 | Invalid chain entry | Dropped, and the walk goes on | Ends the walk (stricter) |
 | IPv6 `/64` rate-limit keys | Not grouped | Grouped |
-| Diagnostics | None | Optional `proxy_diagnosis()` |
+| Diagnostics | None | Optional `proxy_diagnosis()`, used by a Site Health check (section 8) |
 
 Laravel's list of trusted proxies lives in code that the developer owns. A WordPress plugin runs on sites
 that its developer does not own, so this proposal adds the `wp-config.php` constant and the filter.

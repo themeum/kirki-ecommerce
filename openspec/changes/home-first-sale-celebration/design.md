@@ -14,7 +14,7 @@ behavior. Facts from the code that shape the approach:
   `AdminMiddleware` (`manage_options`), next to `/setup-checklist` and
   `/dashboard/*`.
 - `OrderListResource` already gives `customer_name`, `order_number`,
-  `invoiced_total_money_object` (display string in the order currency).
+  `base_total_money_object` (display string in the store base currency).
   Archived orders have `archived_at` set.
 - No fulfil page exists. `RouteConfig.Orders.get('OrderDetail')` builds the
   order detail link.
@@ -90,7 +90,7 @@ Each returns the same shape:
       "id": 12,
       "order_number": "#2026-2236",
       "customer_name": "Ibrahim Fischer",
-      "invoiced_total_money_object": { "raw": 43.88, "display": "£43.88", "currency": { "code": "GBP", "symbol": "£" } }
+      "base_total_money_object": { "raw": 43.88, "display": "£43.88", "currency": { "code": "GBP", "symbol": "£" } }
     }
   },
   "message": "..."

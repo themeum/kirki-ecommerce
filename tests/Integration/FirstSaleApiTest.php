@@ -56,7 +56,7 @@ class FirstSaleApiTest extends RestTestCase
     public function test_first_order_is_the_oldest_not_archived_order(): void
     {
         $this->create_order(['archived_at' => '2026-01-01 00:00:00'], '2026-01-01 00:00:00');
-        $second = $this->create_order(['payment_status' => PaymentStatus::UNPAID, 'customer_first_name' => 'Ibrahim', 'customer_last_name' => 'Fischer', 'invoiced_total' => 4388], '2026-01-02 00:00:00');
+        $second = $this->create_order(['payment_status' => PaymentStatus::UNPAID, 'customer_first_name' => 'Ibrahim', 'customer_last_name' => 'Fischer', 'base_total' => 4388], '2026-01-02 00:00:00');
         $this->create_order([], '2026-01-03 00:00:00');
 
         $state = $this->get_state();
@@ -65,7 +65,7 @@ class FirstSaleApiTest extends RestTestCase
         $this->assertTrue($state['should_celebrate']);
         $this->assertSame($second->id, $state['order']['id']);
         $this->assertSame('Ibrahim Fischer', $state['order']['customer_name']);
-        $this->assertEqualsWithDelta(43.88, $state['order']['invoiced_total_money_object']['raw'], 0.001);
+        $this->assertEqualsWithDelta(43.88, $state['order']['base_total_money_object']['raw'], 0.001);
     }
 
     /**

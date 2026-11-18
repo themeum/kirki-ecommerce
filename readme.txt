@@ -351,6 +351,28 @@ PayPal is a trademark of PayPal, Inc. CurrencyApi and ExchangeRate-API are trade
 
 == Changelog ==
 
+= 1.0.2 - Nov 19, 2026 =
+
+* New: Added the option to customize the Home dashboard’s quick actions, key numbers, and sections.
+* New: Added a “Needs your attention” section to the Home dashboard for orders to ship and payments to collect.
+* New: Added a “Restock soon” section to the Home dashboard for low-stock products.
+* New: Added a template override filter hook to enable storefront UI customization.
+* Update: Improved request validation performance by reducing validation overhead and processing time.
+* Update: Added product images to order lines of orders moved from WooCommerce.
+* Update: Changed the shipping method form to open in a dialog instead of a separate page.
+* Update: Merged the two category fields in the coupon form into one field.
+* Update: Improved page speed by reducing repeated currency lookups.
+* Update: Hid order tracking and checkout page links from search engines.
+* Update: Improved the form select dropdown UI.
+* Fix: Fixed old orders showing the wrong currency after the store’s base currency changes.
+* Fix: Stopped customers from applying coupons when coupon codes are turned off in checkout settings.
+* Fix: Fixed the order list and Recent orders card not showing the total in the base currency.
+* Fix: Stopped the order success and failed pages from showing for orders with a different payment status.
+* Fix: Properly escaped all shortcodes in email templates.
+* Fix: Fixed emails not using the store name as the sender name and header.
+* Fix: Stopped a customer from being saved with an address that belongs to another customer.
+* Fix: Stopped harmful stored data from running when moving data from WooCommerce.
+
 = 1.0.1 - Nov 11, 2026 =
 
 * New: Added bKash as a payment method.
