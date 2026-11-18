@@ -9,6 +9,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
+import {
+  hasDiscountAmount,
+  isAmountOff,
+  isPercentageDiscount,
+} from '@/features/coupons/lib/coupon-preview';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { useFormatCurrency } from '@/hooks/use-base-currency';
 import {
@@ -22,7 +27,6 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { copyToClipboard } from '@/utils';
-import { isDefined } from '@/utils/object';
 import { __, _n, sprintf } from '@/wpi18n';
 
 const formatDisplayDate = (date?: string | null, time?: string | null) =>
@@ -31,6 +35,54 @@ const formatDisplayDate = (date?: string | null, time?: string | null) =>
 type PreviewSectionProps = {
   title: string;
   lines?: string[];
+};
+
+const PreviewTitle = () => {
+  const formatCurrency = useFormatCurrency();
+  const { control } = useFormContext<CouponFormInput>();
+  const values = useWatch({ control });
+  const handleCopyCode = async () => {
+    if (!values.code) {
+      return;
+    }
+
+    await copyToClipboard(values.code);
+  };
+
+  return (
+    <>
+      <Flex justify="space-between" align="center">
+        <Text variant="heading4" weight="semibold" color={values.code ? 'emphasis' : 'disabled'}>
+          {values.code || __('No code set', 'kirki-ecommerce')}
+        </Text>
+        {values.method === 'code' && values.code && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
+            disabled={!values.code}
+            onClick={handleCopyCode}
+            aria-label={__('Copy coupon code', 'kirki-ecommerce')}
+          >
+            <Copy />
+          </Button>
+        )}
+      </Flex>
+
+      <Flex justify="space-between" align="center">
+        <Text variant="small" weight="normal">
+          {values.title?.trim() || __('Untitled coupon', 'kirki-ecommerce')}
+        </Text>
+        {hasDiscountAmount(values.discount_type, values.discount_amount) && (
+          <Badge variant="destructive">
+            {isPercentageDiscount(values.discount_value_type)
+              ? sprintf('%s%% OFF', values.discount_amount ?? '')
+              : sprintf('%s OFF', formatCurrency(values.discount_amount ?? 0))}
+          </Badge>
+        )}
+      </Flex>
+    </>
+  );
 };
 
 const PreviewSection = ({ title, lines }: PreviewSectionProps) => (
@@ -60,19 +112,6 @@ const CouponPreview = () => {
   const formatCurrency = useFormatCurrency();
   const { control } = useFormContext<CouponFormInput>();
   const values = useWatch({ control });
-
-  const isAmountOff = values.discount_type === 'amount-off';
-  const hasDiscountAmount = isAmountOff && isDefined(values.discount_amount);
-  const isPercentage = values.discount_value_type === 'percentage';
-
-  const handleCopyCode = async () => {
-    if (!values.code) {
-      return;
-    }
-
-    await copyToClipboard(values.code);
-  };
-
   const validUntil =
     values.has_end_datetime && values.end_date
       ? formatDisplayDate(values.end_date, values.end_time ?? END_OF_DAY_TIME)
@@ -84,7 +123,7 @@ const CouponPreview = () => {
       : values.discount_type === 'buy-x-get-y'
         ? __('Buy X Get Y', 'kirki-ecommerce')
         : __('Amount off', 'kirki-ecommerce'),
-    ...(isAmountOff
+    ...(isAmountOff(values.discount_type)
       ? [
           values.discount_target === 'products'
             ? __('Product discount', 'kirki-ecommerce')
@@ -95,8 +134,8 @@ const CouponPreview = () => {
 
   const activeFrom = formatDisplayDate(values?.start_date, values.start_time ?? START_OF_DAY_TIME);
   const detailsLines = [
-    hasDiscountAmount
-      ? isPercentage
+    hasDiscountAmount(values.discount_type, values.discount_amount)
+      ? isPercentageDiscount(values.discount_value_type)
         ? values.discount_target === 'products'
           ? sprintf(
               __('%s%% off selected products', 'kirki-ecommerce'),
@@ -181,42 +220,7 @@ const CouponPreview = () => {
       >
         <CardContent>
           <Flex direction="column" gap={2}>
-            <Flex justify="space-between" align="center">
-              <Text
-                variant="heading4"
-                weight="semibold"
-                color={values.code ? 'emphasis' : 'disabled'}
-              >
-                {values.method === 'automatic'
-                  ? __('Automatic coupon', 'kirki-ecommerce')
-                  : values.code || __('No code set', 'kirki-ecommerce')}
-              </Text>
-              {values.method === 'code' && values.code && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  disabled={!values.code}
-                  onClick={handleCopyCode}
-                  aria-label={__('Copy coupon code', 'kirki-ecommerce')}
-                >
-                  <Copy />
-                </Button>
-              )}
-            </Flex>
-
-            <Flex justify="space-between" align="center">
-              <Text variant="small" weight="normal">
-                {values.title?.trim() || __('Untitled coupon', 'kirki-ecommerce')}
-              </Text>
-              {hasDiscountAmount && (
-                <Badge variant="destructive">
-                  {isPercentage
-                    ? sprintf('%s%% OFF', values.discount_amount ?? '')
-                    : sprintf('%s OFF', formatCurrency(values.discount_amount ?? 0))}
-                </Badge>
-              )}
-            </Flex>
+            <PreviewTitle />
 
             <Separator />
 

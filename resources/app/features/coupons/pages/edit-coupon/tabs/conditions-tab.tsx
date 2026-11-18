@@ -6,34 +6,33 @@ import NumberField from '@/components/form/number-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
+import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { InfoIcon } from '@/icons/common';
 import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
+import { mergeCss } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-// TODO: implement later
-// const combinationOptions = [
-//   { id: 'amount-off', label: __('Amount off discounts', 'kirki-ecommerce') },
-//   { id: 'order', label: __('Order discounts', 'kirki-ecommerce') },
-//   { id: 'shipping', label: __('Shipping discounts', 'kirki-ecommerce') },
-// ];
-
-type UsageLimitRowProps = {
-  checkboxName: 'has_usage_limit' | 'has_customer_limit';
-  inputName: 'usage_limit' | 'customer_limit';
+type ConditionRowProps = {
+  checkboxName: 'has_usage_limit' | 'has_customer_limit' | 'is_stackable';
+  inputName?: 'usage_limit' | 'customer_limit';
   label: string;
   tooltip: string;
 };
 
-const UsageLimitRow = ({ checkboxName, inputName, label, tooltip }: UsageLimitRowProps) => {
+const ConditionRow = ({ checkboxName, inputName, label, tooltip }: ConditionRowProps) => {
   const { control, formState, setFocus } = useFormContext<CouponFormInput>();
   const isEnabled = useWatch({ control, name: checkboxName });
   const shouldFocusRef = useRef(false);
+  const hasNumberInput = isDefined(inputName);
 
   useEffect(() => {
+    if (!isDefined(inputName)) {
+      return;
+    }
     if (isEnabled && shouldFocusRef.current) {
       shouldFocusRef.current = false;
       setFocus(inputName);
@@ -46,7 +45,10 @@ const UsageLimitRow = ({ checkboxName, inputName, label, tooltip }: UsageLimitRo
         align="center"
         justify="space-between"
         gap={3}
-        cssOverride={{ ...styles.row, ...(formState.errors[inputName] ? styles.rowInvalid : {}) }}
+        cssOverride={mergeCss(
+          styles.row,
+          hasNumberInput && formState.errors[inputName] ? styles.rowInvalid : {},
+        )}
       >
         <Flex align="center" gap={2}>
           <CheckboxField
@@ -60,7 +62,7 @@ const UsageLimitRow = ({ checkboxName, inputName, label, tooltip }: UsageLimitRo
             <InfoIcon />
           </Tooltip>
         </Flex>
-        {isEnabled && (
+        {hasNumberInput && isEnabled && (
           <NumberField
             name={inputName}
             disabled={!isEnabled}
@@ -70,80 +72,56 @@ const UsageLimitRow = ({ checkboxName, inputName, label, tooltip }: UsageLimitRo
           />
         )}
       </Flex>
-      <FieldError errors={[formState.errors[inputName]]} />
+      {hasNumberInput && <FieldError errors={[formState.errors[inputName]]} />}
     </Flex>
   );
 };
 
 const ConditionsTab = () => {
-  // TODO: implement later
-  // const { control } = useFormContext<CouponFormInput>();
-  // const discountType = useWatch({ control, name: 'discount_type' });
   return (
-    <Flex direction="column" gap={4}>
-      <Card cssOverride={cardStyles.formCard}>
-        <CardHeader>
-          <CardTitle>{__('Usage Limit', 'kirki-ecommerce')}</CardTitle>
-          <Text variant="small" color="secondary">
-            {__('Limit the usage of the coupon', 'kirki-ecommerce')}
-          </Text>
-        </CardHeader>
-        <CardContent>
-          <Flex direction="column" gap={3}>
-            <UsageLimitRow
-              checkboxName="has_usage_limit"
-              inputName="usage_limit"
-              label={__(
-                'Limit number of times this discount can be used in total',
-                'kirki-ecommerce',
-              )}
-              tooltip={__(
-                'Once this limit is reached, the coupon can no longer be used.',
-                'kirki-ecommerce',
-              )}
-            />
-            <UsageLimitRow
-              checkboxName="has_customer_limit"
-              inputName="customer_limit"
-              label={__('Limit usage per customer', 'kirki-ecommerce')}
-              tooltip={__(
-                'Each customer can use this coupon up to this many times.',
-                'kirki-ecommerce',
-              )}
-            />
-          </Flex>
-        </CardContent>
-      </Card>
-      {
-        // @todo: implement later
-        // discountType !== 'free-shipping' && (
-        //   <Card cssOverride={cardStyles.formCard}>
-        //     <CardHeader>
-        //       <CardTitle>{__('Combinations', 'kirki-ecommerce')}</CardTitle>
-        //       <Text variant="small" color="secondary">
-        //         {__(
-        //           'Define how the coupon can be combined with other coupons',
-        //           'kirki-ecommerce',
-        //         )}
-        //       </Text>
-        //     </CardHeader>
-        //     <CardContent>
-        //       <Flex direction="column" gap={3}>
-        //         {combinationOptions.map((option) => {
-        //           const optionId = `combination-${option.id}`;
-        //           return (
-        //             <Field key={option.id} orientation="horizontal">
-        //               <Checkbox id={optionId} checked={false} disabled />
-        //               <FieldLabel htmlFor={optionId}>{option.label}</FieldLabel>
-        //             </Field>
-        //           );
-        //         })}
-        //       </Flex>
-        //     </CardContent>
-        //   </Card>
-        // )
-      }
-    </Flex>
+    <Card cssOverride={{ rowGap: theme.spacing[3] }}>
+      <CardHeader>
+        <CardTitle>{__('Usage Limit', 'kirki-ecommerce')}</CardTitle>
+        <Text variant="small" color="secondary">
+          {__('Limit the usage of the coupon', 'kirki-ecommerce')}
+        </Text>
+      </CardHeader>
+      <CardContent>
+        <Flex direction="column" gap={0}>
+          <ConditionRow
+            checkboxName="has_usage_limit"
+            inputName="usage_limit"
+            label={__(
+              'Limit number of times this discount can be used in total',
+              'kirki-ecommerce',
+            )}
+            tooltip={__(
+              'Once this limit is reached, the coupon can no longer be used.',
+              'kirki-ecommerce',
+            )}
+          />
+          <ConditionRow
+            checkboxName="has_customer_limit"
+            inputName="customer_limit"
+            label={__('Limit usage per customer', 'kirki-ecommerce')}
+            tooltip={__(
+              'Each customer can use this coupon up to this many times.',
+              'kirki-ecommerce',
+            )}
+          />
+          <Separator
+            marginTop={theme.spacing[2]}
+            marginBottom={theme.spacing[2]}
+            color={theme.colors.border.tertiary}
+          />
+          <ConditionRow
+            checkboxName="is_stackable"
+            label={__('Combine with other discounts', 'kirki-ecommerce')}
+            tooltip={__('This coupon can be used with other discounts.', 'kirki-ecommerce')}
+          />
+        </Flex>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -153,11 +131,9 @@ export default ConditionsTab;
 
 const styles = {
   row: {
-    padding: theme.spacing[3],
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.background.surfaceSecondary,
+    padding: `${theme.spacing[2]} ${theme.spacing[0]}`,
     border: '1px solid transparent',
-    height: '52px',
+    height: '40px',
   },
   rowInvalid: {
     borderColor: theme.colors.border.critical,
@@ -166,9 +142,5 @@ const styles = {
     width: '72px',
     minHeight: '30px',
     flexShrink: 0,
-  },
-  required: {
-    marginLeft: theme.spacing[1],
-    color: theme.colors.text.critical,
   },
 };

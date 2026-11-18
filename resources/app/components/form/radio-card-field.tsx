@@ -111,6 +111,9 @@ const styles = defineStyles({
     '&:focus-within': {
       ...uiFocusRing(theme),
     },
+    '&:has([data-state="checked"])': {
+      backgroundColor: theme.colors.background.solidSurfaceAlt,
+    },
   },
   cardField: {
     alignItems: 'center',

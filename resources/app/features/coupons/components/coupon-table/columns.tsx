@@ -145,6 +145,7 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
     header: __('Code', 'kirki-ecommerce'),
     enableSorting: true,
     cell: ({ row }) => row.original.code || '--',
+    meta: { cssOverride: { userSelect: 'text' } },
   },
   {
     id: 'status',
