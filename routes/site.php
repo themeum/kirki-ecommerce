@@ -14,6 +14,7 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
+use Kirki\Ecommerce\App\Http\Middlewares\ProtectOrderLinkMiddleware;
 use Kirki\Ecommerce\App\Http\Middlewares\SiteAuthMiddleware;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
@@ -38,6 +39,7 @@ Route::site(function () {
         ->name('shop.single');
 
     Route::get("/kirki-ecommerce-order/{uuid}", [SiteController::class, 'order_tracking_page'])
+        ->middleware(ProtectOrderLinkMiddleware::class)
         ->name('order_tracking');
 
     Route::get($cart_page_id, [SiteController::class, 'cart_page'])
@@ -45,7 +47,7 @@ Route::site(function () {
         ->match_page();
 
     Route::get($checkout_page_id, [SiteController::class, 'checkout_page'])
-        ->middleware(SiteAuthMiddleware::class)
+        ->middleware([SiteAuthMiddleware::class, ProtectOrderLinkMiddleware::class])
         ->name('checkout')
         ->match_page();
 });
