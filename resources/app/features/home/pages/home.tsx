@@ -8,6 +8,7 @@ import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import CustomizeHomeSheet from '@/features/home/components/customize-home-sheet';
+import FirstSaleCard from '@/features/home/components/first-sale-card';
 import HomeSections from '@/features/home/components/home-sections';
 import PeriodMenu from '@/features/home/components/period-menu';
 import QuickActions from '@/features/home/components/quick-actions';
@@ -117,17 +118,22 @@ const Home = () => {
           <ChecklistHeading />
         )}
         <PageContent cssOverride={{ marginTop: theme.spacing[3] }}>
-          {isDashboard ? (
-            <HomeSections
-              layoutControls={layoutControls}
-              onCustomize={() => setIsCustomizing(true)}
-            />
-          ) : (
-            <Flex direction="column" gap={4}>
-              <SetupChecklist />
-              <TemplateGallery />
-            </Flex>
-          )}
+          <Flex direction="column" gap={isDashboard ? 3 : 4}>
+            <FirstSaleCard />
+            {isDashboard ? (
+              <HomeSections
+                layoutControls={layoutControls}
+                onCustomize={() => setIsCustomizing(true)}
+              />
+            ) : (
+              <>
+                <div data-home-card="">
+                  <SetupChecklist />
+                </div>
+                <TemplateGallery />
+              </>
+            )}
+          </Flex>
         </PageContent>
       </Page>
     </div>

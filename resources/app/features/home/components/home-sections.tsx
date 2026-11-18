@@ -116,6 +116,7 @@ const HomeSections = (props: HomeSectionsProps) => {
             key={key}
             data-testid={`home-section-${key}`}
             data-span={spans.get(key)}
+            data-home-card=""
             css={scoped(styles.cell)}
           >
             {renderSection(key)}

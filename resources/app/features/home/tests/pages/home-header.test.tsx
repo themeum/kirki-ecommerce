@@ -23,6 +23,10 @@ vi.mock('@/features/home/components/template-gallery', () => ({
   default: () => null,
 }));
 
+vi.mock('@/features/home/components/first-sale-card', () => ({
+  default: () => <div data-testid="first-sale-card" />,
+}));
+
 vi.mock('@/hooks/use-current-user', () => ({
   default: () => ({ first_name: 'Sara', display_name: 'sara' }),
 }));
@@ -133,5 +137,14 @@ describe('Home header', () => {
     expect(screen.queryByRole('button', { name: 'Customize home' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View Live Site' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Add Product' })).toBeInTheDocument();
+  });
+
+  it.each([
+    ['checklist', false],
+    ['overview', true],
+  ])('shows the first-sale card in %s mode', (_mode, isSetupComplete) => {
+    renderHome(isSetupComplete);
+
+    expect(screen.getByTestId('first-sale-card')).toBeInTheDocument();
   });
 });
