@@ -1,9 +1,6 @@
-import { X } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import Chip from '@/components/ui/chip/chip';
-import Flex from '@/components/ui/flex';
 import NotFoundState from '@/components/ui/not-found-state';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import QueryErrorState from '@/components/ui/query-error-state';
@@ -83,19 +80,7 @@ const Orders = () => {
             }
           />
         ) : (
-          <Flex direction="column" gap={3}>
-            {attentionLabel && (
-              <Flex>
-                <Chip
-                  text={attentionLabel}
-                  closeIcon={<X size={12} aria-hidden="true" />}
-                  onRemove={() => setParam('attention', undefined)}
-                  data-testid="order-attention-chip"
-                />
-              </Flex>
-            )}
-            <OrderTable data={data} isLoading={isFetching} />
-          </Flex>
+          <OrderTable data={data} isLoading={isFetching} />
         )}
       </PageContent>
     </Page>

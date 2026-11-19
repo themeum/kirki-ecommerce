@@ -139,7 +139,7 @@ const styles = defineStyles({
     borderRadius: `${theme.radius.none} ${theme.radius.md} ${theme.radius.md} ${theme.radius.none}`,
   },
   content: {
-    width: '288px',
+    minWidth: '288px',
     maxHeight: '522px',
   },
   header: {
