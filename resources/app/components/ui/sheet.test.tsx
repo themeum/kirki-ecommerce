@@ -9,11 +9,16 @@ import {
   SheetDescription,
   SheetFooter,
   SheetHeader,
+  SheetSeparator,
   type SheetSide,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { PORTAL_ROOT_ID } from '@/libs/portal-container';
+
+const getHeader = () => {
+  return screen.getByRole('button', { name: 'Close' }).parentElement!.parentElement!;
+};
 
 const renderSheet = (side?: SheetSide) => {
   render(
@@ -24,7 +29,9 @@ const renderSheet = (side?: SheetSide) => {
           <SheetTitle>Customize analytics</SheetTitle>
           <SheetDescription>Choose what the page shows.</SheetDescription>
         </SheetHeader>
+        <SheetSeparator />
         <p>Body</p>
+        <SheetSeparator />
         <SheetFooter>
           <SheetClose>Done</SheetClose>
         </SheetFooter>
@@ -132,8 +139,10 @@ describe('Sheet', () => {
           }}
         >
           <SheetContent>
-            <SheetTitle>Controlled</SheetTitle>
-            <SheetDescription>Text</SheetDescription>
+            <SheetHeader>
+              <SheetTitle>Controlled</SheetTitle>
+              <SheetDescription>Text</SheetDescription>
+            </SheetHeader>
           </SheetContent>
         </Sheet>
       );
@@ -148,13 +157,32 @@ describe('Sheet', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('shows the close button in the header, next to the title', () => {
+    renderSheet();
+    fireEvent.click(screen.getByRole('button', { name: 'Open settings' }));
+
+    const header = getHeader();
+
+    expect(header).toContainElement(screen.getByText('Customize analytics'));
+    expect(header).toContainElement(screen.getByRole('button', { name: 'Close' }));
+  });
+
+  it('draws the separators across the panel', () => {
+    renderSheet();
+    fireEvent.click(screen.getByRole('button', { name: 'Open settings' }));
+
+    expect(
+      screen.getByRole('dialog').querySelectorAll('[data-orientation="horizontal"]'),
+    ).toHaveLength(2);
+  });
 });
 
 const FLOAT_KEY = 'test:sheet-float';
 
-const renderFloatableSheet = (floatable = true) => {
-  render(
-    <Sheet floatable={floatable ? { storageKey: FLOAT_KEY } : undefined}>
+const renderFloatableSheet = (floating = true) => {
+  const content = (
+    <>
       <SheetTrigger>Open settings</SheetTrigger>
       <SheetContent>
         <SheetHeader>
@@ -163,13 +191,23 @@ const renderFloatableSheet = (floatable = true) => {
         </SheetHeader>
         <p>Body</p>
       </SheetContent>
-    </Sheet>,
+    </>
+  );
+
+  render(
+    floating ? (
+      <Sheet floating storageKey={FLOAT_KEY}>
+        {content}
+      </Sheet>
+    ) : (
+      <Sheet>{content}</Sheet>
+    ),
   );
   fireEvent.click(screen.getByRole('button', { name: 'Open settings' }));
 };
 
 const dragHeader = (toX: number, toY: number) => {
-  const header = screen.getByText('Customize home').parentElement!;
+  const header = getHeader();
 
   fireEvent.pointerDown(header, { button: 0, clientX: 0, clientY: 0 });
   fireEvent.pointerMove(window, { clientX: toX, clientY: toY });
@@ -203,7 +241,9 @@ describe('Floating sheet', () => {
     expect(dialog.style.left).toBe('300px');
     expect(dialog.style.top).toBe('200px');
     expect(dialog.previousElementSibling).not.toHaveAttribute('data-state');
-    expect(screen.getByRole('button', { name: 'Dock to the right' })).toBeInTheDocument();
+    expect(getHeader()).toContainElement(
+      screen.getByRole('button', { name: 'Dock to the right' }),
+    );
   });
 
   it('docks again from the dock button', () => {
