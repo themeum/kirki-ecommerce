@@ -33,8 +33,7 @@ import { useBaseCurrencySymbol } from '@/hooks';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 type ShippingRulesProps = {
@@ -71,7 +70,7 @@ export const ShippingRules = ({ zoneId, rules, onChange }: ShippingRulesProps) =
   return (
     <Card
       data-search-skip="true"
-      cssOverride={mergeCss(cardStyles.formCard, { border: 'none' })}
+      cssOverride={{ border: 'none', paddingBlock: theme.spacing[0] }}
       noShadow
     >
       <CardContent cssOverride={{ paddingInline: theme.spacing[0] }}>

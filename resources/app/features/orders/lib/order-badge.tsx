@@ -172,7 +172,10 @@ export const getOrderStateBadgeInfo = (
     case 'delivered_unpaid':
       return {
         icon: <LeadingIconBadge variant="success" />,
-        text: __('Order delivered', 'kirki-ecommerce'),
+        text:
+          order.shipping_method_type === 'local_pickup'
+            ? __('Order picked up', 'kirki-ecommerce')
+            : __('Order delivered', 'kirki-ecommerce'),
         hintText: '',
         textColor: 'primary',
       };
@@ -191,7 +194,10 @@ export const getOrderStateBadgeInfo = (
             cssOverride={{ backgroundColor: theme.colors.background.solidSurfaceSecondary }}
           />
         ),
-        text: __('Order delivered', 'kirki-ecommerce'),
+        text:
+          order.shipping_method_type === 'local_pickup'
+            ? __('Order picked up', 'kirki-ecommerce')
+            : __('Order delivered', 'kirki-ecommerce'),
         hintText: '',
         textColor: 'primary',
       };

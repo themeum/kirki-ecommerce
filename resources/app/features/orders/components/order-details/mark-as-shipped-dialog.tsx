@@ -86,18 +86,21 @@ const LocalPickup = () => {
               <Text variant="small" weight="semibold">
                 {pickupTitle}
               </Text>
-              {shippingMeta?.pickup_time_start && shippingMeta.pickup_time_end && (
-                <Text variant="small" color="secondary">
-                  {
-                    /* translators: %1$s: pickup start time, %2$s: pickup end time */
-                    sprintf(
-                      __('Pickup time: %1$s - %2$s', 'kirki-ecommerce'),
-                      formatPickupTime(shippingMeta.pickup_time_start),
-                      formatPickupTime(shippingMeta.pickup_time_end),
-                    )
-                  }
-                </Text>
-              )}
+              {isDefined(shippingMeta) &&
+                shippingMeta.has_pick_time &&
+                shippingMeta.pickup_time_start &&
+                shippingMeta.pickup_time_end && (
+                  <Text variant="small" color="secondary">
+                    {
+                      /* translators: %1$s: pickup start time, %2$s: pickup end time */
+                      sprintf(
+                        __('Pickup time: %1$s - %2$s', 'kirki-ecommerce'),
+                        formatPickupTime(shippingMeta.pickup_time_start),
+                        formatPickupTime(shippingMeta.pickup_time_end),
+                      )
+                    }
+                  </Text>
+                )}
               {shippingMeta?.description && (
                 <Text variant="small" color="secondary">
                   {

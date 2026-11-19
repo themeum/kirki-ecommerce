@@ -550,6 +550,7 @@ class OrderResource extends Resource
             'description' => $shipping_method['description'] ?? null,
             'is_taxable' => $shipping_method['is_taxable'] ?? null,
             'address' => $shipping_method['address'] ?? null,
+            'has_pick_time' => $shipping_method['has_pick_time'] ?? false,
             'pickup_time_start' => $shipping_method['pickup_time_start'] ?? null,
             'pickup_time_end' => $shipping_method['pickup_time_end'] ?? null,
         ];
