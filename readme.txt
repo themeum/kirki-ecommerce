@@ -364,6 +364,7 @@ PayPal is a trademark of PayPal, Inc. CurrencyApi and ExchangeRate-API are trade
 * Update: Improved page loading speed by reducing repeated currency lookups.
 * Update: Prevented search engines from indexing order tracking and checkout pages.
 * Update: Improved the UI of form select dropdowns.
+* Update: Improved the Mark as Shipped and Add Tracking Number workflows on the merchant order details.
 * Fix: Fixed an issue where older orders displayed the wrong currency after changing the store’s base currency.
 * Fix: Fixed an issue that allowed customers to apply coupons even when coupon codes were disabled in checkout settings.
 * Fix: Fixed the order list and Recent Orders card displaying totals in the wrong currency instead of the store’s base currency.

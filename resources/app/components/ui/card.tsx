@@ -82,6 +82,7 @@ const styles = defineStyles({
     backgroundColor: theme.colors.background.surface,
     color: theme.colors.text.primary,
     boxShadow: theme.shadow.card,
+    '--stacked-items-bleed': theme.spacing[4],
   },
   header: {
     display: 'flex',
