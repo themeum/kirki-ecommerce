@@ -40,8 +40,7 @@ import { settingsKeys } from '@/libs/query-keys';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { updateSettings } from '@/services/settings';
 import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { uuid } from '@/utils';
 import { __ } from '@/wpi18n';
 
@@ -171,11 +170,7 @@ const ShippingMethodDialog = ({
         </DialogHeader>
         <Form {...form}>
           <DialogBody cssOverride={styles.dialogBody}>
-            <Card
-              data-search-skip="true"
-              cssOverride={mergeCss(cardStyles.formCard, styles.card)}
-              noShadow
-            >
+            <Card data-search-skip="true" cssOverride={styles.card} noShadow>
               <CardContent cssOverride={{ paddingInline: theme.spacing[0] }}>
                 <Flex direction="column" gap={4}>
                   <TextField
@@ -192,7 +187,11 @@ const ShippingMethodDialog = ({
                 </Flex>
               </CardContent>
             </Card>
-            <Separator cssOverride={{ backgroundColor: theme.colors.border.secondary }} />
+            <Separator
+              cssOverride={{ backgroundColor: theme.colors.border.secondary }}
+              marginTop={theme.spacing[2]}
+              marginBottom={theme.spacing[2]}
+            />
             <ShippingRules
               zoneId={parentZone?.id ?? zoneId}
               rules={rules}
@@ -225,6 +224,7 @@ export default ShippingMethodDialog;
 const styles = defineStyles({
   card: {
     border: 'none',
+    paddingBlock: theme.spacing[0],
   },
   dialogContent: {
     width: '632px',

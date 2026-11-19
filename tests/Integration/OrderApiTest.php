@@ -203,6 +203,7 @@ class OrderApiTest extends RestTestCase
             'description' => 'Bring your order number.',
             'is_taxable' => false,
             'address' => '221 Market St, San Francisco',
+            'has_pick_time' => true,
             'pickup_time_start' => '10:00',
             'pickup_time_end' => '18:00',
         ], $pickup_order['data']['shipping_meta']);
@@ -213,6 +214,7 @@ class OrderApiTest extends RestTestCase
             'description' => 'Ships in 3 days.',
             'is_taxable' => false,
             'address' => null,
+            'has_pick_time' => false,
             'pickup_time_start' => null,
             'pickup_time_end' => null,
         ], $flat_rate_order['data']['shipping_meta']);

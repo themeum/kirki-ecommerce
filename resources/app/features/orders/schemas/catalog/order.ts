@@ -133,6 +133,7 @@ export const OrderShippingMetaSchema = z.object({
   description: z.string().nullish(),
   is_taxable: z.boolean().nullish(),
   address: z.string().nullish(),
+  has_pick_time: z.boolean().nullish(),
   pickup_time_start: z.string().nullish(),
   pickup_time_end: z.string().nullish(),
 });

@@ -96,7 +96,7 @@ class ShippingService
      * @since 1.0.0
      *
      * @param CalculationContextDTO $context Cart or order calculation context.
-     * @return array<int, array{id: string, name: string, description: string, is_taxable: bool, type: string, address: string|null, pickup_time_start: string|null, pickup_time_end: string|null, base_cost: int}> Options with their cost in base currency (minor units).
+     * @return array<int, array{id: string, name: string, description: string, is_taxable: bool, type: string, address: string|null, has_pick_time: bool, pickup_time_start: string|null, pickup_time_end: string|null, base_cost: int}> Options with their cost in base currency (minor units).
      */
     public function get_final_available_shipping_options(CalculationContextDTO $context)
     {
@@ -130,6 +130,7 @@ class ShippingService
                 'is_taxable' => $method['is_taxable'] ?? false,
                 'type' => $method['type'],
                 'address' => $is_pickup ? ($method['address'] ?? null) : null,
+                'has_pick_time' => $has_pickup_time,
                 'pickup_time_start' => $has_pickup_time ? $pickup_time_start : null,
                 'pickup_time_end' => $has_pickup_time ? $pickup_time_end : null,
                 'base_cost' => $decision_context->get_shipping_cost(),
@@ -253,7 +254,7 @@ class ShippingService
      * @since 1.0.0
      *
      * @param CalculationContextDTO $context Calculation context with the selected shipping method.
-     * @return array{shipping_method: array{id: string, name: string, type: string, description: string, is_taxable: bool, address?: string|null, pickup_time_start?: string|null, pickup_time_end?: string|null}}|null Null when no method is selected.
+     * @return array{shipping_method: array{id: string, name: string, type: string, description: string, is_taxable: bool, address?: string|null, has_pick_time?: bool, pickup_time_start?: string|null, pickup_time_end?: string|null}}|null Null when no method is selected.
      */
     public function get_selected_shipping_method_snapshot(CalculationContextDTO $context)
     {
@@ -273,6 +274,7 @@ class ShippingService
 
         if ($method['type'] === ShippingMethodTypes::LOCAL_PICKUP) {
             $snapshot['address'] = $method['address'];
+            $snapshot['has_pick_time'] = $method['has_pick_time'] ?? false;
             $snapshot['pickup_time_start'] = $method['pickup_time_start'];
             $snapshot['pickup_time_end'] = $method['pickup_time_end'];
         }
