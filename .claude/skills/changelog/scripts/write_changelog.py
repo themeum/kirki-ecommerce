@@ -4,7 +4,7 @@
 Usage:
     write_changelog.py --readme readme.txt --version 1.0.2 --entries entries.txt
 
-`entries.txt` holds the finished bullet lines (`* New: - ...`), one per line.
+`entries.txt` holds the finished bullet lines (`* New: Added ...`), one per line.
 
 - If `= <version> - <date> =` already exists, its bullets are replaced and the
   date is kept.

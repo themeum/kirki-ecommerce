@@ -152,7 +152,12 @@ const SortableList = <K extends string>(props: SortableListProps<K>) => {
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={items.map((item) => item.key)} strategy={verticalListSortingStrategy}>
-        <StackedItems ref={listRef} variant="card" aria-label={label}>
+        <StackedItems
+          ref={listRef}
+          variant="card"
+          aria-label={label}
+          cssOverride={{ borderRadius: theme.radius.md }}
+        >
           {items.map((item) => (
             <SortableRow
               key={item.key}

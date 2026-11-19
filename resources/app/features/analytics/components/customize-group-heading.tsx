@@ -17,9 +17,11 @@ const CustomizeGroupHeading = (props: CustomizeGroupHeadingProps) => {
 
   return (
     <Flex align="center" gap={1}>
-      <Text variant="heading6">{title}</Text>
+      <Text variant="tiny" color="primary" weight="semibold">
+        {title}
+      </Text>
       <Tooltip tip={info} position="top">
-        <Info size={14} color={theme.colors.icon.secondary} aria-label={info} role="img" />
+        <Info size={12} color={theme.colors.icon.secondary} aria-label={info} role="img" />
       </Tooltip>
       {count && (
         <Text variant="tiny" color="primary" cssOverride={styles.count}>

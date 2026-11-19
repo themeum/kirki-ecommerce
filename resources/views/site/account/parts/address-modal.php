@@ -28,7 +28,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
     x-show="modalOpen"
     x-transition
     x-cloak
-    @keydown.escape.window="closeModal"
+    x-on:keydown.escape.window="closeModal"
 >
     <div
         class="kecom-modal-content kecom-modal-content-md kecom-address-modal-content"
@@ -38,74 +38,74 @@ use Kirki\Ecommerce\App\Supports\Icon;
             <button
                 type="button"
                 class="kecom-modal-header-close"
-                @click.prevent="closeModal"
+                x-on:click.prevent="closeModal"
                 aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
             >
                 <?php Icon::render('x', ['size' => 16]); ?>
             </button>
         </div>
 
-        <form @submit.prevent="saveAddress" class="kecom-form">
+        <form x-on:submit.prevent="saveAddress" class="kecom-form">
             <div class="kecom-modal-body">
-                <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.country }">
+                <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': errors.country }">
                     <label for="modal_address_country" class="kecom-field-label"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
                     <select
                         id="modal_address_country"
                         name="country"
                         class="kecom-select"
-                        :class="{ 'kecom-input-error': errors.country }"
+                        x-bind:class="{ 'kecom-input-error': errors.country }"
                         x-model="formData.country"
-                        @change="formData.state = ''; delete errors.country; delete errors.state"
+                        x-on:change="formData.state = ''; delete errors.country; delete errors.state"
                     >
                         <option value=""><?php esc_html_e('Select Country', 'kirki-ecommerce'); ?></option>
-                        <template x-for="country in countries" :key="country.code || country.id">
-                            <option :value="country.code || country.id" x-text="country.name"></option>
+                        <template x-for="country in countries" x-bind:key="country.code || country.id">
+                            <option x-bind:value="country.code || country.id" x-text="country.name"></option>
                         </template>
                     </select>
                     <span class="kecom-field-error" x-show="errors.country" x-text="errors.country"></span>
                 </div>
 
                 <div class="kecom-form-row">
-                    <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.first_name }">
+                    <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': errors.first_name }">
                         <label for="modal_address_first_name" class="kecom-field-label"><?php esc_html_e('First name', 'kirki-ecommerce'); ?></label>
                         <input
                             type="text"
                             id="modal_address_first_name"
                             name="first_name"
                             class="kecom-input"
-                            :class="{ 'kecom-input-error': errors.first_name }"
+                            x-bind:class="{ 'kecom-input-error': errors.first_name }"
                             x-model="formData.first_name"
-                            @input="delete errors.first_name"
+                            x-on:input="delete errors.first_name"
                         />
                         <span class="kecom-field-error" x-show="errors.first_name" x-text="errors.first_name"></span>
                     </div>
 
-                    <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.last_name }">
+                    <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': errors.last_name }">
                         <label for="modal_address_last_name" class="kecom-field-label"><?php esc_html_e('Last name', 'kirki-ecommerce'); ?></label>
                         <input
                             type="text"
                             id="modal_address_last_name"
                             name="last_name"
                             class="kecom-input"
-                            :class="{ 'kecom-input-error': errors.last_name }"
+                            x-bind:class="{ 'kecom-input-error': errors.last_name }"
                             x-model="formData.last_name"
-                            @input="delete errors.last_name"
+                            x-on:input="delete errors.last_name"
                         />
                         <span class="kecom-field-error" x-show="errors.last_name" x-text="errors.last_name"></span>
                     </div>
                 </div>
 
-                <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.address_line1 }">
+                <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': errors.address_line1 }">
                     <label for="modal_address_line1" class="kecom-field-label"><?php esc_html_e('Address', 'kirki-ecommerce'); ?></label>
                     <input
                         type="text"
                         id="modal_address_line1"
                         name="address_line1"
                         class="kecom-input"
-                        :class="{ 'kecom-input-error': errors.address_line1 }"
+                        x-bind:class="{ 'kecom-input-error': errors.address_line1 }"
                         placeholder="<?php esc_attr_e('123 Street Rd', 'kirki-ecommerce'); ?>"
                         x-model="formData.address_line1"
-                        @input="delete errors.address_line1"
+                        x-on:input="delete errors.address_line1"
                     />
                     <span class="kecom-field-error" x-show="errors.address_line1" x-text="errors.address_line1"></span>
                 </div>
@@ -123,80 +123,80 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 </div>
 
                 <div class="kecom-form-row kecom-form-row-3">
-                    <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.city }">
+                    <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': errors.city }">
                         <label for="modal_address_city" class="kecom-field-label"><?php esc_html_e('City', 'kirki-ecommerce'); ?></label>
                         <input
                             type="text"
                             id="modal_address_city"
                             name="city"
                             class="kecom-input"
-                            :class="{ 'kecom-input-error': errors.city }"
+                            x-bind:class="{ 'kecom-input-error': errors.city }"
                             x-model="formData.city"
-                            @input="delete errors.city"
+                            x-on:input="delete errors.city"
                         />
                         <span class="kecom-field-error" x-show="errors.city" x-text="errors.city"></span>
                     </div>
 
-                    <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.state }">
+                    <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': errors.state }">
                         <label for="modal_address_state" class="kecom-field-label"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
                         <select
                             id="modal_address_state"
                             name="state"
                             class="kecom-select"
-                            :class="{ 'kecom-input-error': errors.state }"
+                            x-bind:class="{ 'kecom-input-error': errors.state }"
                             x-model="formData.state"
-                            :disabled="getAvailableStates().length === 0"
-                            @change="delete errors.state"
+                            x-bind:disabled="getAvailableStates().length === 0"
+                            x-on:change="delete errors.state"
                         >
                             <option value="" x-text="getAvailableStates().length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
-                            <template x-for="state in getAvailableStates()" :key="state.id">
-                                <option :value="state.id" x-text="state.name" :selected="formData.state == state.id"></option>
+                            <template x-for="state in getAvailableStates()" x-bind:key="state.id">
+                                <option x-bind:value="state.id" x-text="state.name" x-bind:selected="formData.state == state.id"></option>
                             </template>
                         </select>
                         <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>
                     </div>
 
-                    <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.postal_code }">
+                    <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': errors.postal_code }">
                         <label for="modal_address_postal_code" class="kecom-field-label"><?php esc_html_e('Zip code', 'kirki-ecommerce'); ?></label>
                         <input
                             type="text"
                             id="modal_address_postal_code"
                             name="postal_code"
                             class="kecom-input"
-                            :class="{ 'kecom-input-error': errors.postal_code }"
+                            x-bind:class="{ 'kecom-input-error': errors.postal_code }"
                             x-model="formData.postal_code"
-                            @input="delete errors.postal_code"
+                            x-on:input="delete errors.postal_code"
                         />
                         <span class="kecom-field-error" x-show="errors.postal_code" x-text="errors.postal_code"></span>
                     </div>
                 </div>
 
-                <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.phone }">
+                <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': errors.phone }">
                     <label for="modal_address_phone" class="kecom-field-label"><?php esc_html_e('Phone', 'kirki-ecommerce'); ?></label>
                     <input
                         type="tel"
                         id="modal_address_phone"
                         name="phone"
                         class="kecom-input"
-                        :class="{ 'kecom-input-error': errors.phone }"
+                        x-bind:class="{ 'kecom-input-error': errors.phone }"
                         placeholder="<?php esc_attr_e('Phone number', 'kirki-ecommerce'); ?>"
                         x-model="formData.phone"
-                        @input="delete errors.phone"
+                        x-on:input="delete errors.phone"
                     />
                     <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
                 </div>
 
-                <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.email }">
+                <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': errors.email }">
                     <label for="modal_address_email" class="kecom-field-label"><?php esc_html_e('Email', 'kirki-ecommerce'); ?></label>
                     <input
                         type="email"
                         id="modal_address_email"
                         name="email"
                         class="kecom-input"
-                        :class="{ 'kecom-input-error': errors.email }"
+                        x-bind:class="{ 'kecom-input-error': errors.email }"
                         placeholder="<?php esc_attr_e('Email address', 'kirki-ecommerce'); ?>"
                         x-model="formData.email"
-                        @input="delete errors.email"
+                        x-on:input="delete errors.email"
                     />
                     <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
                 </div>
@@ -211,7 +211,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                                 class="kecom-radio-input"
                                 value="home"
                                 x-model="formData.type"
-                                @change="onTypeChange"
+                                x-on:change="onTypeChange"
                             />
                             <span class="kecom-radio-label"><?php esc_html_e('Home', 'kirki-ecommerce'); ?></span>
                         </label>
@@ -222,7 +222,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                                 class="kecom-radio-input"
                                 value="work"
                                 x-model="formData.type"
-                                @change="onTypeChange"
+                                x-on:change="onTypeChange"
                             />
                             <span class="kecom-radio-label"><?php esc_html_e('Work', 'kirki-ecommerce'); ?></span>
                         </label>
@@ -233,7 +233,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                                 class="kecom-radio-input"
                                 value="other"
                                 x-model="formData.type"
-                                @change="onTypeChange"
+                                x-on:change="onTypeChange"
                             />
                             <span class="kecom-radio-label"><?php esc_html_e('Other', 'kirki-ecommerce'); ?></span>
                         </label>
@@ -274,10 +274,10 @@ use Kirki\Ecommerce\App\Supports\Icon;
             </div>
 
             <div class="kecom-modal-footer">
-                <button type="button" class="kecom-btn kecom-btn-outline" :disabled="loading" @click.prevent="closeModal">
+                <button type="button" class="kecom-btn kecom-btn-outline" x-bind:disabled="loading" x-on:click.prevent="closeModal">
                     <?php esc_html_e('Cancel', 'kirki-ecommerce'); ?>
                 </button>
-                <button type="submit" class="kecom-btn kecom-btn-primary" :class="{ 'kecom-btn-loading': loading }" :disabled="loading">
+                <button type="submit" class="kecom-btn kecom-btn-primary" x-bind:class="{ 'kecom-btn-loading': loading }" x-bind:disabled="loading">
                     <?php esc_html_e('Save', 'kirki-ecommerce'); ?>
                 </button>
             </div>

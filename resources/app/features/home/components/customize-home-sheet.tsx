@@ -7,6 +7,7 @@ import {
   SheetContent,
   SheetFooter,
   SheetHeader,
+  SheetSeparator,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
@@ -81,7 +82,7 @@ const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
     ?.meta.amount_example;
 
   return (
-    <Sheet floatable={{ storageKey: SHEET_STORAGE_KEY }} open={open} onOpenChange={onOpenChange}>
+    <Sheet floating storageKey={SHEET_STORAGE_KEY} open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
@@ -96,6 +97,7 @@ const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
         <SheetHeader>
           <SheetTitle>{customizeLabel}</SheetTitle>
         </SheetHeader>
+        <SheetSeparator />
         <div css={scoped(styles.body)}>
           <section css={scoped(styles.group)}>
             <CustomizeGroupHeading
@@ -153,12 +155,15 @@ const CustomizeHomeSheet = (props: CustomizeHomeSheetProps) => {
             />
           </section>
         </div>
+        <SheetSeparator />
         <SheetFooter cssOverride={styles.footer}>
           <Button variant="link" onClick={reset}>
             {__('Reset to default', 'kirki-ecommerce')}
           </Button>
           <SheetClose asChild>
-            <Button variant="primary">{__('Done', 'kirki-ecommerce')}</Button>
+            <Button variant="primary" size="sm">
+              {__('Done', 'kirki-ecommerce')}
+            </Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>
@@ -177,16 +182,15 @@ const styles = defineStyles({
   body: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing[6],
+    gap: theme.spacing[4],
     flex: '1 1 auto',
     minHeight: 0,
     overflowY: 'auto',
-    padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
   },
   group: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing[3],
+    gap: theme.spacing[2],
   },
   footer: {
     justifyContent: 'space-between',

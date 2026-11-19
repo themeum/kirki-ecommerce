@@ -25,8 +25,8 @@ defined('ABSPATH') || exit;
     <a
         href="<?php echo esc_url(Url::get_checkout_url()); ?>"
         class="kecom-btn kecom-btn-primary kecom-btn-block"
-        :class="{ 'kecom-btn-disabled': !cartData.items_count || invalidItems.length > 0 }"
-        :aria-disabled="!cartData.items_count || invalidItems.length > 0">
+        x-bind:class="{ 'kecom-btn-disabled': !cartData.items_count || invalidItems.length > 0 }"
+        x-bind:aria-disabled="!cartData.items_count || invalidItems.length > 0">
         <?php esc_html_e('Proceed to Checkout', 'kirki-ecommerce'); ?>
     </a>
 </div>

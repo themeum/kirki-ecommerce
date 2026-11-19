@@ -10,7 +10,6 @@ import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { useMoney } from '@/features/analytics';
 import OverviewCard from '@/features/home/components/overview-card';
-import OverviewTitle from '@/features/home/components/overview-title';
 import SkeletonLine from '@/features/home/components/skeleton-line';
 import type { DashboardAttention } from '@/features/home/schemas/catalog/dashboard-attention';
 import { theme } from '@/theme';
@@ -20,7 +19,6 @@ import { __, _n, sprintf } from '@/wpi18n';
 type AttentionCheck = {
   key: 'to_ship' | 'to_collect' | 'out_of_stock';
   label: string;
-  info: string;
   icon: ReactNode;
   count: number;
   detail?: string;
@@ -41,10 +39,6 @@ const useAttentionChecks = (data: DashboardAttention): AttentionCheck[] => {
     {
       key: 'to_ship',
       label: __('Orders to ship', 'kirki-ecommerce'),
-      info: __(
-        'Orders that are not fulfilled or are processing, and are paid or wait for an offline payment. Archived orders are left out.',
-        'kirki-ecommerce',
-      ),
       icon: <Truck size={16} aria-hidden="true" />,
       count: data.to_ship.count,
       detail:
@@ -65,10 +59,6 @@ const useAttentionChecks = (data: DashboardAttention): AttentionCheck[] => {
     {
       key: 'to_collect',
       label: __('Payments to collect', 'kirki-ecommerce'),
-      info: __(
-        'Unpaid orders with an offline payment method that are not cancelled, and payments that failed in the last 7 days.',
-        'kirki-ecommerce',
-      ),
       icon: <Banknote size={16} aria-hidden="true" />,
       count: data.to_collect.count,
       detail: data.to_collect.count > 0 ? toCollect.text : undefined,
@@ -78,10 +68,6 @@ const useAttentionChecks = (data: DashboardAttention): AttentionCheck[] => {
     {
       key: 'out_of_stock',
       label: __('Out of stock', 'kirki-ecommerce'),
-      info: __(
-        'Variants that cannot be sold now: tracked with no stock left, or not tracked and marked out of stock.',
-        'kirki-ecommerce',
-      ),
       icon: <PackageX size={16} aria-hidden="true" />,
       count: data.out_of_stock.count,
       to: `${RouteConfig.Inventory.buildLink()}?inventory_type=out_of_stock`,
@@ -101,7 +87,7 @@ const AttentionRows = ({ data }: AttentionRowsProps) => {
   ];
 
   return (
-    <StackedItems>
+    <StackedItems variant="ghost">
       {ordered.map((check) => (
         <StackedItem key={check.key} id={check.key} cssOverride={styles.item}>
           <Link
@@ -112,13 +98,11 @@ const AttentionRows = ({ data }: AttentionRowsProps) => {
           >
             <span css={scoped(styles.icon)}>{check.icon}</span>
             <Flex direction="column" cssOverride={styles.text}>
-              <OverviewTitle info={check.info}>
-                <Text weight="medium" color="primary" variant="small">
-                  {check.label}
-                </Text>
-              </OverviewTitle>
+              <Text weight="medium" color="primary" variant="small">
+                {check.label}
+              </Text>
               {check.detail && (
-                <Text variant="tiny" color="warning" title={check.detailTitle}>
+                <Text variant="tiny" color="secondary" title={check.detailTitle}>
                   {check.detail}
                 </Text>
               )}
@@ -183,13 +167,13 @@ const NeedsAttentionCard = (props: NeedsAttentionCardProps) => {
       )}
       headerExtra={summary && <Text variant="tiny">{summary.text}</Text>}
     >
-      <div css={scoped(styles.body)}>
+      <div>
         {query.isError ? (
           <QueryErrorState onRetry={() => void query.refetch()} isRetrying={query.isFetching} />
         ) : query.data ? (
           <AttentionRows data={query.data} />
         ) : (
-          <StackedItems>
+          <StackedItems variant="ghost">
             {Array.from({ length: 3 }, (_, index) => (
               <StackedItem key={index} id={String(index)} cssOverride={styles.item}>
                 <div css={scoped(styles.row)}>
@@ -209,9 +193,6 @@ NeedsAttentionCard.displayName = 'NeedsAttentionCard';
 export default NeedsAttentionCard;
 
 const styles = defineStyles({
-  body: {
-    padding: `0 ${theme.spacing[3]} ${theme.spacing[6]} ${theme.spacing[3]}`,
-  },
   item: {
     height: 'auto',
     padding: 0,
@@ -222,7 +203,6 @@ const styles = defineStyles({
     gap: theme.spacing[3],
     width: '100%',
     minHeight: '56px',
-    padding: `${theme.spacing[2]} ${theme.spacing[4]}`,
     boxSizing: 'border-box',
     color: 'inherit',
     textDecoration: 'none',

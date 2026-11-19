@@ -28,11 +28,11 @@ use Kirki\Ecommerce\App\Supports\Icon;
     x-show="passwordModalOpen"
     x-transition
     x-cloak
-    @keydown.escape.window="closePasswordModal"
+    x-on:keydown.escape.window="closePasswordModal"
 >
     <div
         class="kecom-modal-content kecom-modal-content-md"
-        @click.outside="closePasswordModal"
+        x-on:click.outside="closePasswordModal"
     >
         <div class="kecom-modal-header">
             <div class="kecom-modal-header-with-icon">
@@ -42,7 +42,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
             <button
                 type="button"
                 class="kecom-modal-header-close"
-                @click.prevent="closePasswordModal"
+                x-on:click.prevent="closePasswordModal"
                 aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
             >
                 <?php Icon::render('x'); ?>
@@ -58,14 +58,14 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 },
                 mode: 'onChange'
             })"
-            @submit.prevent="handleSubmit((values) => updatePassword(values, () => reset(), (field, msg) => setError(field, msg)))"
+            x-on:submit.prevent="handleSubmit((values) => updatePassword(values, () => reset(), (field, msg) => setError(field, msg)))"
         >
             <div class="kecom-modal-body">
                 <div class="kecom-field" x-bind="fieldWrapper('current_password')">
                     <label for="kecom_current_password" class="kecom-field-label"><?php esc_html_e('Current password', 'kirki-ecommerce'); ?></label>
                     <div class="kecom-input-password-wrap">
                         <input
-                            :type="showCurrentPassword ? 'text' : 'password'"
+                            x-bind:type="showCurrentPassword ? 'text' : 'password'"
                             id="kecom_current_password"
                             class="kecom-input"
                             x-bind="register('current_password', { required: '<?php esc_html_e('Current password is required', 'kirki-ecommerce'); ?>' })"
@@ -74,7 +74,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                         <button
                             type="button"
                             class="kecom-password-toggle-btn"
-                            @click="showCurrentPassword = !showCurrentPassword"
+                            x-on:click="showCurrentPassword = !showCurrentPassword"
                             aria-label="<?php esc_attr_e('Toggle password visibility', 'kirki-ecommerce'); ?>"
                         >
                             <span x-show="!showCurrentPassword"><?php Icon::render('eye-off'); ?></span>
@@ -91,7 +91,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                     <label for="kecom_new_password" class="kecom-field-label"><?php esc_html_e('Password', 'kirki-ecommerce'); ?></label>
                     <div class="kecom-input-password-wrap">
                         <input
-                            :type="showNewPassword ? 'text' : 'password'"
+                            x-bind:type="showNewPassword ? 'text' : 'password'"
                             id="kecom_new_password"
                             class="kecom-input"
                             x-bind="register('new_password', {
@@ -106,7 +106,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                         <button
                             type="button"
                             class="kecom-password-toggle-btn"
-                            @click="showNewPassword = !showNewPassword"
+                            x-on:click="showNewPassword = !showNewPassword"
                             aria-label="<?php esc_attr_e('Toggle password visibility', 'kirki-ecommerce'); ?>"
                         >
                             <span x-show="!showNewPassword"><?php Icon::render('eye-off'); ?></span>
@@ -120,7 +120,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                     <label for="kecom_confirm_password" class="kecom-field-label"><?php esc_html_e('Confirm new password', 'kirki-ecommerce'); ?></label>
                     <div class="kecom-input-password-wrap">
                         <input
-                            :type="showConfirmPassword ? 'text' : 'password'"
+                            x-bind:type="showConfirmPassword ? 'text' : 'password'"
                             id="kecom_confirm_password"
                             class="kecom-input"
                             x-bind="register('new_password_confirmation', {
@@ -132,7 +132,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                         <button
                             type="button"
                             class="kecom-password-toggle-btn"
-                            @click="showConfirmPassword = !showConfirmPassword"
+                            x-on:click="showConfirmPassword = !showConfirmPassword"
                             aria-label="<?php esc_attr_e('Toggle password visibility', 'kirki-ecommerce'); ?>"
                         >
                             <span x-show="!showConfirmPassword"><?php Icon::render('eye-off'); ?></span>
@@ -147,16 +147,16 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 <button
                     type="button"
                     class="kecom-btn kecom-btn-outline"
-                    :disabled="passwordLoading"
-                    @click.prevent="closePasswordModal"
+                    x-bind:disabled="passwordLoading"
+                    x-on:click.prevent="closePasswordModal"
                 >
                     <?php esc_html_e('Cancel', 'kirki-ecommerce'); ?>
                 </button>
                 <button
                     type="submit"
                     class="kecom-btn kecom-btn-primary"
-                    :class="{ 'kecom-btn-loading': passwordLoading }"
-                    :disabled="passwordLoading"
+                    x-bind:class="{ 'kecom-btn-loading': passwordLoading }"
+                    x-bind:disabled="passwordLoading"
                 >
                     <?php esc_html_e('Update password', 'kirki-ecommerce'); ?>
                 </button>

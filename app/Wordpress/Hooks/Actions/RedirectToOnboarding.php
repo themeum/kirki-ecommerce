@@ -62,7 +62,6 @@ class RedirectToOnboarding extends BaseHook
         }
 
         Url::redirect(Onboarding::get_url());
-        exit;
     }
 
     /**

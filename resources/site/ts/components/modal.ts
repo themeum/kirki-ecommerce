@@ -4,18 +4,18 @@
  *
  * PHP usage:
  *   <div x-data="modal({ open: false })">
- *     <button @click="open">Open Modal</button>
+ *     <button x-on:click="open">Open Modal</button>
  *
- *     <div class="kecom-modal-backdrop" x-show="isOpen" @click="close"></div>
+ *     <div class="kecom-modal-backdrop" x-show="isOpen" x-on:click="close"></div>
  *     <div class="kecom-modal" x-show="isOpen">
  *       <div class="kecom-modal-content">
  *         <div class="kecom-modal-header">
  *           <h3 class="kecom-modal-header-title">Title</h3>
- *           <button class="kecom-modal-header-close" @click="close">&times;</button>
+ *           <button class="kecom-modal-header-close" x-on:click="close">&times;</button>
  *         </div>
  *         <div class="kecom-modal-body">Content</div>
  *         <div class="kecom-modal-footer">
- *           <button class="kecom-btn kecom-btn-secondary" @click="close">Cancel</button>
+ *           <button class="kecom-btn kecom-btn-secondary" x-on:click="close">Cancel</button>
  *           <button class="kecom-btn kecom-btn-primary">Save</button>
  *         </div>
  *       </div>

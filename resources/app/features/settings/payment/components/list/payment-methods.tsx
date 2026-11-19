@@ -206,7 +206,11 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
                 </Text>
               </Flex>
               <ActionGroup>
-                <Button variant="secondary" size="sm" onClick={() => setIsOnlineInstallDialogOpen(true)}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsOnlineInstallDialogOpen(true)}
+                >
                   <PlusIcon />
                   {__('Add', 'kirki-ecommerce')}
                 </Button>

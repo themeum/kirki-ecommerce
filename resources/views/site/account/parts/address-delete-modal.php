@@ -28,16 +28,16 @@ use Kirki\Ecommerce\App\Supports\Icon;
     x-show="deleteModalOpen"
     x-transition
     x-cloak
-    @keydown.escape.window="cancelDelete"
+    x-on:keydown.escape.window="cancelDelete"
 >
     <div
         class="kecom-modal-content kecom-modal-content-sm kecom-address-delete-modal-content"
-        @click.outside="cancelDelete"
+        x-on:click.outside="cancelDelete"
     >
         <button
             type="button"
             class="kecom-modal-header-close"
-            @click.prevent="cancelDelete"
+            x-on:click.prevent="cancelDelete"
             aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
         >
             <?php Icon::render('x', ['size' => 16]); ?>
@@ -61,16 +61,16 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 <button
                     type="button"
                     class="kecom-btn kecom-btn-outline kecom-btn-lg kecom-btn-block"
-                    @click="cancelDelete"
+                    x-on:click="cancelDelete"
                 >
                     <?php esc_html_e('Cancel', 'kirki-ecommerce'); ?>
                 </button>
                 <button
                     type="button"
                     class="kecom-btn kecom-btn-destructive kecom-btn-lg kecom-btn-block"
-                    :class="{ 'kecom-btn-loading': loading }"
-                    :disabled="loading"
-                    @click="confirmDelete"
+                    x-bind:class="{ 'kecom-btn-loading': loading }"
+                    x-bind:disabled="loading"
+                    x-on:click="confirmDelete"
                 >
                     <?php esc_html_e('Delete', 'kirki-ecommerce'); ?>
                 </button>

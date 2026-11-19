@@ -36,22 +36,22 @@ $current_flag   = $data['current_flag'] ?? '';
             window.location.reload();
         },
     })"
-    @click.outside="close()"
-    @keydown.escape.window="close(true)"
+    x-on:click.outside="close()"
+    x-on:keydown.escape.window="close(true)"
 >
     <button
         type="button"
         x-ref="trigger"
         class="kecom-dropdown-trigger"
-        @click="toggle()"
-        @keydown="onTriggerKeydown($event)"
-        :aria-expanded="isOpen"
+        x-on:click="toggle()"
+        x-on:keydown="onTriggerKeydown($event)"
+        x-bind:aria-expanded="isOpen"
         aria-haspopup="listbox"
     >
         <span class="kecom-dropdown-flag" x-text="selectedItem?.flag" x-show="selectedItem?.flag"><?php echo esc_html($current_flag); ?></span>
         <span class="kecom-dropdown-label" x-text="selectedItem?.code || '<?php echo esc_js($current_code); ?>'"><?php echo esc_html($current_code); ?></span>
         <span class="kecom-dropdown-sublabel" x-show="selectedItem?.symbol" x-text="selectedItem?.symbol ? `${selectedItem.symbol}` : ''"><?php echo esc_html($current_symbol ? "{$current_symbol}" : ''); ?></span>
-        <span class="kecom-dropdown-arrow" :class="{ 'is-open': isOpen }">
+        <span class="kecom-dropdown-arrow" x-bind:class="{ 'is-open': isOpen }">
             <?php Icon::render('chevron-down', ['size' => 16]); ?>
         </span>
     </button>
@@ -59,7 +59,7 @@ $current_flag   = $data['current_flag'] ?? '';
     <div
         x-ref="menu"
         class="kecom-dropdown-menu"
-        :class="{ 'kecom-dropdown-menu-end': isAlignEnd }"
+        x-bind:class="{ 'kecom-dropdown-menu-end': isAlignEnd }"
         x-show="isOpen"
         x-transition:enter="kecom-dropdown-enter"
         x-transition:enter-start="kecom-dropdown-enter-start"
@@ -69,20 +69,20 @@ $current_flag   = $data['current_flag'] ?? '';
         x-transition:leave-end="kecom-dropdown-leave-end"
         x-cloak
         role="listbox"
-        :aria-activedescendant="activeId"
-        @keydown="onListKeydown($event)"
+        x-bind:aria-activedescendant="activeId"
+        x-on:keydown="onListKeydown($event)"
         tabindex="-1"
     >
         <ul class="kecom-dropdown-list">
-            <template x-for="item in filteredItems" :key="item.value">
+            <template x-for="item in filteredItems" x-bind:key="item.value">
                 <li
-                    :id="itemId(item)"
+                    x-bind:id="itemId(item)"
                     class="kecom-dropdown-item"
                     role="option"
-                    :aria-selected="isSelected(item)"
-                    :class="{ 'is-focused': isFocused(item) }"
-                    @click="select(item)"
-                    @mouseenter="focusedIndex = filteredItems.indexOf(item)"
+                    x-bind:aria-selected="isSelected(item)"
+                    x-bind:class="{ 'is-focused': isFocused(item) }"
+                    x-on:click="select(item)"
+                    x-on:mouseenter="focusedIndex = filteredItems.indexOf(item)"
                 >
                     <div class="kecom-dropdown-item-content">
                         <span class="kecom-dropdown-item-flag" x-text="item.flag" x-show="item.flag"></span>

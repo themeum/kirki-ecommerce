@@ -20,7 +20,7 @@ import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 
 type StackedItemsElementProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
-  variant?: 'outline' | 'card';
+  variant?: 'outline' | 'card' | 'ghost';
 };
 
 type StackedItemsContextValue = {
@@ -42,6 +42,7 @@ const StackedItems = forwardRef<HTMLDivElement, StackedItemsElementProps>((props
         cssOverride={mergeCss(
           styles.container,
           variant === 'card' && styles.cardContainer,
+          variant === 'ghost' && styles.ghostContainer,
           cssOverride,
         )}
         {...rest}
@@ -156,6 +157,31 @@ const styles = defineStyles({
       backgroundColor: theme.colors.background.fill,
     },
   },
+  ghostContainer: {
+    border: 'none',
+    borderRadius: theme.radius.none,
+    overflow: 'auto',
+    marginInline: `-${theme.spacing[2]}`,
+    paddingInline: theme.spacing[2],
+    '& [data-slot="stacked-item"]': {
+      paddingInline: theme.spacing[0],
+      '&:hover': {
+        backgroundColor: 'rgba(0, 0, 0, 0.02)', // @todo: we don't have any color token for this
+      },
+      '& a:focus': {
+        outline: 'none',
+        boxShadow: 'none',
+      },
+      '&:has(a:focus-visible)::after': {
+        content: '""',
+        position: 'absolute',
+        inset: `${theme.spacing[1]} -${theme.spacing[2]}`,
+        border: `2px solid ${theme.colors.background.fillBrand}`,
+        borderRadius: theme.radius.lg,
+        pointerEvents: 'none',
+      },
+    },
+  },
   stackedItem: {
     padding: 0,
     '&:not(:last-of-type)': {
@@ -168,7 +194,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[3]}`,
 
     '&:hover': {
-      backgroundColor: theme.colors.background.solidSurfaceAlt,
+      backgroundColor: 'rgba(0, 0, 0, 0.02)', // @todo: we don't have any color token for this
     },
     '& [data-action-group="true"]': {
       position: 'absolute',

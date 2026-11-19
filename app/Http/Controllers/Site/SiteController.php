@@ -216,17 +216,12 @@ class SiteController
 
             if (is_null($order)) {
                 Url::redirect(home_url());
-                exit;
             }
 
-            if ($status === 'success' && !in_array($order->payment_status, [PaymentStatus::PAID, PaymentStatus::PROCESSING, PaymentStatus::PENDING], true)) {
-                Url::redirect(home_url());
-                exit;
-            }
+            $is_offline_payment = $order->payment_metadata['payment_provider']['is_offline'] ?? false;
 
-            if ($status === 'failed' && !in_array($order->payment_status, [PaymentStatus::FAILED, PaymentStatus::UNPAID], true)) {
+            if ($is_offline_payment && $status === 'failed') {
                 Url::redirect(home_url());
-                exit;
             }
 
             return view("site.order-{$status}", [
@@ -238,7 +233,6 @@ class SiteController
 
         if (! $cart || empty($cart->items) || $cart->items->is_empty()) {
             Url::redirect(Url::get_cart_url());
-            exit;
         }
 
         $customer = customer();
@@ -251,7 +245,6 @@ class SiteController
 
         if (!empty($cart['invalid_item'])) {
             Url::redirect(Url::get_cart_url());
-            exit;
         }
 
         $data = [

@@ -140,6 +140,28 @@ class EscapedOutputTest extends WP_UnitTestCase
     }
 
     /**
+     * Block theme markup keeps the Alpine.js attributes of the header shortcodes.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_block_markup_keeps_alpine_attributes_of_header_shortcodes(): void
+    {
+        $markup = '<div class="kecom-dropdown" x-data="dropdown({ items: [{&quot;value&quot;:&quot;USD&quot;}] })" x-on:click.outside="close()" x-on:keydown.escape.window="close(true)">'
+            . '<button type="button" x-ref="trigger" x-on:click="toggle()" x-bind:aria-expanded="isOpen" x-bind:class="{ \'is-open\': isOpen }"></button>'
+            . '<div x-show="isOpen" x-transition:enter="kecom-dropdown-enter" x-cloak>'
+            . '<template x-for="item in filteredItems" x-bind:key="item.value"><span x-text="item.label"></span></template></div></div>'
+            . '<a href="/cart" x-data="miniCart({ initialCount: 1 })" x-on:kecom:cart-updated.document="updateCount($event.detail.items_count)"></a>';
+
+        $allowed = $this->call_protected(Template::class, 'get_block_markup_allowed_html');
+        $output = wp_kses($markup, $allowed);
+
+        foreach (['x-data="dropdown(', 'x-on:click.outside="close()"', 'x-on:keydown.escape.window', 'x-ref="trigger"', 'x-bind:aria-expanded="isOpen"', 'x-bind:class=', 'x-show="isOpen"', 'x-transition:enter=', 'x-cloak', '<template x-for="item in filteredItems"', 'x-bind:key="item.value"', 'x-text="item.label"', 'x-on:kecom:cart-updated.document='] as $kept) {
+            $this->assertStringContainsString($kept, $output);
+        }
+    }
+
+    /**
      * Block theme markup loses event handler attributes.
      *
      * @return void

@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\OfflinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OnboardingController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\SetupChecklistController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\DashboardController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\FirstSaleController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OnlinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PaymentMethodController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\VariantController;
@@ -63,6 +64,12 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     // Dashboard
     Route::get('/dashboard/overview', [DashboardController::class, 'overview']);
     Route::get('/dashboard/attention', [DashboardController::class, 'attention']);
+
+    // Home first sale
+    Route::get('/home/first-sale', [FirstSaleController::class, 'show']);
+    Route::post('/home/first-sale/celebrated', [FirstSaleController::class, 'celebrated']);
+    Route::post('/home/first-sale/dismiss', [FirstSaleController::class, 'dismiss']);
+    Route::post('/home/first-sale/fulfill', [FirstSaleController::class, 'fulfill']);
 
     // Analytics
     Route::get('/analytics/metrics/{key}', [AnalyticsController::class, 'metric']);
