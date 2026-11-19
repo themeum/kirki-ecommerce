@@ -13,9 +13,6 @@ use Kirki\Ecommerce\Framework\DTO;
  */
 class PerformOrderActionDTO extends DTO
 {
-    /** @var int */
-    public $order_id;
-
     /** @var string */
     public $action;
 
@@ -45,4 +42,7 @@ class PerformOrderActionDTO extends DTO
 
     /** @var int|null */
     public $updated_by;
+
+    /** @var bool */
+    public $notify_customer = false;
 }

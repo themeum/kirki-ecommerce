@@ -18,7 +18,6 @@ use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
-use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Coupon;
@@ -1572,7 +1571,7 @@ class OrderEditApiTest extends RestTestCase
     protected function switch_base_currency(string $code): void
     {
         app()->make(CurrencyService::class)->ensure_base($code);
-        Money::load_base_currency();
+        static::reset_currency_state();
     }
 
     /**

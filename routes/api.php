@@ -214,6 +214,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/edit', [OrderController::class, 'edit']);
     Route::get('/orders/{id}/shipping-carriers', [OrderController::class, 'shipping_carriers']);
+    Route::get('/shipping-carriers/last-used', [OrderController::class, 'last_used_shipping_carrier']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::post('/orders/{order_id}/refunds', [OrderController::class, 'create_refund']);
     Route::put('/orders/{order_id}/refunds/{id}', [OrderController::class, 'update_refund']);

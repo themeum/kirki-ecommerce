@@ -29,6 +29,10 @@ class SendOrderTrackingAddedNotificationsListener extends Listener
      */
     public function handle(OrderTrackingAddedEvent $event)
     {
+        if (!$event->notify_customer) {
+            return;
+        }
+
         SendOrderMailJob::dispatch($event->order, CustomerOrderTrackingAddedMail::class, (string) $event->order->customer_email);
     }
 }

@@ -150,13 +150,30 @@ class OrderTransitionEmailsTest extends RestTestCase
         $this->perform($order, OrderAction::MARK_AS_PROCESSING);
         $this->queue->clear();
 
-        $this->perform($order, OrderAction::MARK_AS_SHIPPED);
+        $this->perform($order, OrderAction::MARK_AS_SHIPPED, ['notify_customer' => true]);
 
         $this->assertSame([CustomerOrderShippedMail::class], $this->queued_mailers());
 
         /** @var SendOrderMailJob $job */
         $job = unserialize(serialize($this->pushed_mail(CustomerOrderShippedMail::class)[0]));
         $this->assertStringContainsString($order->order_number, CustomerOrderShippedMail::make($job->order)->get_preview_html());
+    }
+
+    /**
+     * Shipping an order without notify_customer sends no email.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_shipping_an_order_without_notify_customer_queues_no_email(): void
+    {
+        $order = $this->place_order();
+        $this->perform($order, OrderAction::MARK_AS_PROCESSING);
+        $this->queue->clear();
+
+        $this->perform($order, OrderAction::MARK_AS_SHIPPED);
+
+        $this->assertSame([], $this->queued_mailers());
     }
 
     /**

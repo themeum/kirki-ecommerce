@@ -57,18 +57,19 @@ class PerformOrderAction
      * @since 1.0.0
      *
      * @param PerformOrderActionDTO $dto Order ID, the action to perform and its parameters.
+     * @param int                   $order_id Order ID.
      * @return Order The order reloaded with its refunds, items and coupons.
      * @throws ValidationException When the action is not allowed for the current order state or is unknown, or when mark-as-paid names an unregistered payment provider.
      * @throws Exception When performing the action fails; the transaction is rolled back.
      */
-    public function execute(PerformOrderActionDTO $dto)
+    public function execute(PerformOrderActionDTO $dto, int $order_id)
     {
         DB::begin_transaction();
 
         try {
             // Lock first and check after, so an action another request just finished is seen by the guard.
-            $this->order_service->lock_order($dto->order_id);
-            $order = $this->order_service->find_order_or_fail($dto->order_id);
+            $this->order_service->lock_order($order_id);
+            $order = $this->order_service->find_order_or_fail($order_id);
 
             $this->guard($order, $dto->action);
 
@@ -78,7 +79,19 @@ class PerformOrderAction
                     OrderManager::mark_as_processing($order->id);
                     break;
                 case OrderAction::MARK_AS_SHIPPED:
-                    OrderManager::mark_as_shipped($order->id);
+                    $has_tracking = $this->has_tracking_info($dto);
+                    OrderManager::mark_as_shipped($order->id, (bool) $dto->notify_customer);
+                    if ($has_tracking) {
+                        OrderManager::add_tracking($order->id, $this->resolve_tracking($order, $dto), false);
+                        $this->remember_carrier($dto);
+                    }
+                    break;
+                case OrderAction::ADD_TRACKING:
+                    OrderManager::add_tracking($order->id, $this->resolve_tracking($order, $dto), (bool) $dto->notify_customer);
+                    $this->remember_carrier($dto);
+                    break;
+                case OrderAction::REMOVE_TRACKING:
+                    OrderManager::remove_tracking($order->id);
                     break;
                 case OrderAction::MARK_AS_DELIVERED:
                     OrderManager::mark_as_delivered($order->id);
@@ -89,9 +102,6 @@ class PerformOrderAction
                 case OrderAction::CANCEL_FULFILLMENT:
                 case OrderAction::CANCEL_ORDER:
                     OrderManager::mark_as_cancel($order->id, $dto->reason);
-                    break;
-                case OrderAction::ADD_TRACKING:
-                    OrderManager::add_tracking($order->id, $this->resolve_tracking($order, $dto));
                     break;
                 case OrderAction::MARK_AS_PAID:
                     throw_if(!empty($dto->payment_provider) && !Payment::get_provider($dto->payment_provider), __('Invalid payment method.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
@@ -155,7 +165,7 @@ class PerformOrderAction
      * @param Order                 $order Order the tracking is for.
      * @param PerformOrderActionDTO $dto   Carrier reference or name, tracking number and URL.
      * @return array{carrier: string, tracking_number: string, tracking_url: string|null}
-     * @throws ValidationException When the carrier is missing or unknown, or the URL is not an http(s) URL.
+     * @throws ValidationException When the carrier id is not available for the order's shipping zone.
      */
     protected function resolve_tracking(Order $order, PerformOrderActionDTO $dto)
     {
@@ -181,23 +191,24 @@ class PerformOrderAction
             ];
         }
 
-        if (trim((string) $dto->carrier) === '') {
-            throw_exception(ValidationException::with_errors([
-                'carrier' => [__('The carrier field is required.', 'kirki-ecommerce')],
-            ]));
-        }
-
-        if ($tracking_url !== '' && !TrackingUrl::has_allowed_scheme($tracking_url)) {
-            throw_exception(ValidationException::with_errors([
-                'tracking_url' => [__('The URL must start with http:// or https://.', 'kirki-ecommerce')],
-            ]));
-        }
-
         return [
             'carrier' => trim((string) $dto->carrier),
             'tracking_number' => $tracking_number,
             'tracking_url' => $tracking_url === '' ? null : TrackingUrl::resolve($tracking_url, $tracking_number),
         ];
+    }
+
+    /**
+     * Store the carrier of the tracking just added, so the next tracking dialog pre-selects it.
+     *
+     * @since 1.0.2
+     *
+     * @param PerformOrderActionDTO $dto Carrier reference or name.
+     * @return void
+     */
+    protected function remember_carrier(PerformOrderActionDTO $dto)
+    {
+        $this->shipping_service->set_last_used_carrier($dto->carrier_id, $dto->carrier);
     }
 
     /**
@@ -217,7 +228,7 @@ class PerformOrderAction
         throw_if($order->is_refund_initiated, __('This action is not available while a refund is in progress.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $state = OrderStatus::get_state($order->order_status);
-        $allowed_actions = array_merge($state['fulfillment_actions'], $state['payment_actions'], $state['order_actions'], [OrderAction::ADD_TRACKING]);
+        $allowed_actions = array_merge($state['fulfillment_actions'], $state['payment_actions'], $state['order_actions'], [OrderAction::ADD_TRACKING, OrderAction::REMOVE_TRACKING]);
 
         throw_if(!in_array($action, $allowed_actions, true), __('This action is not available for the order\'s current status.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
@@ -241,6 +252,8 @@ class PerformOrderAction
                 return __('Order cancelled.', 'kirki-ecommerce');
             case OrderAction::ADD_TRACKING:
                 return __('Tracking number added.', 'kirki-ecommerce');
+            case OrderAction::REMOVE_TRACKING:
+                return __('Tracking removed.', 'kirki-ecommerce');
             case OrderAction::MARK_AS_PAID:
                 return __('Order marked as paid.', 'kirki-ecommerce');
                 // @todo: will implement later
@@ -263,5 +276,22 @@ class PerformOrderAction
             default:
                 return '';
         }
+    }
+
+    /**
+     * Check whether the request holds a tracking number and a carrier id or name.
+     *
+     * @since 1.0.2
+     *
+     * @param PerformOrderActionDTO $dto Carrier reference or name, and tracking number.
+     * @return bool
+     */
+    protected function has_tracking_info(PerformOrderActionDTO $dto)
+    {
+        if (empty($dto->tracking_number)) {
+            return false;
+        }
+
+        return !empty($dto->carrier_id) || !empty($dto->carrier);
     }
 }
