@@ -180,7 +180,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[3]}`,
 
     '&:hover': {
-      backgroundColor: theme.colors.background.solidSurfaceAlt,
+      backgroundColor: 'rgba(0, 0, 0, 0.02)', // @todo: we don't have any color token for this
     },
     '& [data-action-group="true"]': {
       position: 'absolute',
