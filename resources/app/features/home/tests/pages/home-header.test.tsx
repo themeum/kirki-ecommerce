@@ -105,7 +105,7 @@ describe('Home header', () => {
     );
     renderHome(true);
 
-    expect(actionNames()).toEqual(['Create order', 'Create coupon', 'Add product']);
+    expect(actionNames()).toEqual(['Create coupon', 'Create order', 'Add product']);
     expect(screen.getByRole('link', { name: 'Create coupon' })).toHaveAttribute(
       'href',
       '/coupons/create',
