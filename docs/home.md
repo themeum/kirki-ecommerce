@@ -4,8 +4,11 @@ The Home page is the plugin's dashboard root (`#/`). It opens after onboarding a
 from the **eCommerce → Home** admin menu. Until setup is done, it shows a setup
 checklist that leads a new merchant through the tasks a store needs before it can
 sell. When every checklist step is complete, the checklist is replaced by a store
-overview: sales metrics, recent orders and top selling products. While setup is
-not done, a gallery of storefront templates shows below the checklist.
+overview that the merchant can customize: key numbers for a period, recent
+orders, top selling products, the work that needs them and the variants to
+restock. While setup is not done, a gallery of storefront templates shows below
+the checklist. When the store has an order, a one-time "first sale" card and
+confetti celebration show at the top of the page in both modes.
 
 - [1. Quick start](#1-quick-start)
 - [2. The page](#2-the-page)
@@ -14,11 +17,12 @@ not done, a gallery of storefront templates shows below the checklist.
 - [5. Preconfigured steps](#5-preconfigured-steps)
 - [6. Loading sample data](#6-loading-sample-data)
 - [7. Store overview](#7-store-overview)
-- [8. Storage](#8-storage)
-- [9. REST API](#9-rest-api)
-- [10. Resetting the checklist in development](#10-resetting-the-checklist-in-development)
-- [11. Requirements and limitations](#11-requirements-and-limitations)
-- [12. Where this differs from WooCommerce](#12-where-this-differs-from-woocommerce)
+- [8. First sale](#8-first-sale)
+- [9. Storage](#9-storage)
+- [10. REST API](#10-rest-api)
+- [11. Resetting in development](#11-resetting-in-development)
+- [12. Requirements and limitations](#12-requirements-and-limitations)
+- [13. Where this differs from WooCommerce](#13-where-this-differs-from-woocommerce)
 
 ---
 
@@ -34,7 +38,8 @@ store overview (section 7) from then on.
 
 | Part | What it shows |
 |---|---|
-| Heading | While setup is not done: "Let's get you started". After: "Welcome, {name}" (section 7). Both have a **View Live Site** link that opens the site URL in a new tab, and a primary **Add Product** button that opens the create product page. |
+| Heading | While setup is not done: "Let's get you started", with a **View Live Site** link that opens the site URL in a new tab and a primary **Add Product** button that opens the create product page. After: "Welcome, {name}", the period subtitle, the merchant's quick actions and the **Customize home** button (section 7). |
+| First sale card | Only while the store has a first order that this admin did not close, and nobody clicked **Fulfill order** (section 8). At the top, in both modes. |
 | Setup checklist | Only while setup is not done. "X out of N complete", a percentage, a progress bar and the steps (section 3). |
 | Store overview | Only after every checklist step is complete, in place of the checklist (section 7). |
 | Template gallery | Only while setup is not done, below the checklist. Three square template cards (194 × 194 px, with a 150 px cover image). Each card has a **Coming soon** badge at its top-right corner. The cards cannot be clicked. |
@@ -156,95 +161,225 @@ stored completions. A step whose data was added outside Home (for example a
 product made from the products page) is recorded by the next checklist request,
 so that store shows the checklist skeleton once more on its next Home visit.
 
-In this mode the page is wider (the `xl` page container, 1024 px), and:
+In this mode the page is wider (the `xl` page container, 1024 px), and the
+template gallery is not shown.
 
-- the heading reads **"Welcome, {name}"**. The name is the current user's first
-  name, or the display name when the first name is empty. With neither, the
-  heading reads "Welcome";
-- **View Live Site** and **Add Product** stay;
-- the template gallery is not shown.
+### Header
 
-Each metric card and list card has an information icon next to its title. The
-icon shows only while the pointer is over its card (always on a device without
-hover). On hover, the icon's tooltip describes the card in plain language.
+- **Heading.** "Welcome, {name}". The name is the current user's first name, or
+  the display name when the first name is empty. With neither, the heading reads
+  "Welcome".
+- **Period subtitle.** "Your store at a glance: **This month ▾**". The menu has
+  This month (default), This week, Today and All time. The period changes the
+  key numbers and the top selling products at once. It does not change Recent
+  orders, Needs your attention or Restock soon, because they show the store as it
+  is now.
 
-### Counted orders
+  | Period | Days | Analytics range sent |
+  |---|---|---|
+  | This month | The 1st of this month to today | `month_to_date` |
+  | This week | The first day of this week (WordPress **Settings → General → Week Starts On**) to today | `week_to_date` |
+  | Today | Today | `today` |
+  | All time | The day of the store's first order, of any status, to today | `all_time` |
 
-Metrics and top products use only **counted orders**: orders whose
-`payment_status` is `paid`, `refunding` or `refunded`. An unpaid cash on delivery
-order is not counted until the merchant marks it paid. Pending, unpaid, failed,
-processing and cancelled payments are never counted. All figures are **all time**.
+  Days are in the browser's time zone, the same as the Analytics page. Home never
+  compares with an earlier period: no change percentage, arrow or "vs" text.
+- **Quick actions.** Up to 3 buttons, chosen in the Customize home sheet, from
+  Create order, View live site, Add product, Create coupon and Add customer. The
+  first action that is on is the primary **main button**, at the right. The
+  others are secondary, in list order, to its left. View live site opens the site
+  in a new tab; the others open the create page of that item. Default: Create
+  order (main) and View live site.
+- **Customize home.** An icon button (sliders) at the right of the quick actions.
+  It opens the Customize home sheet.
 
-### Metric cards
+### Customize home sheet
 
-| Card | Value |
-|---|---|
-| Total sales | Sum of `base_total` of counted orders. |
-| Net sales | Total sales − sum of `base_tax_total` − (sum of `base_shipping_total` − sum of `base_shipping_tax_amount`) − completed refunds of counted orders, in the base currency. `base_tax_total` and `base_shipping_total` both hold the shipping tax, so it is taken off once. |
-| Orders | Number of counted orders. |
-| Products sold | Sum of order item `quantity` of counted orders. |
+The sheet opens from the right. It has three groups of items and an Amounts
+option. Each item has a drag handle
+(pointer or keyboard: focus the handle, press Space, use the arrow keys, press
+Space) and a checkbox. Each group has an info icon that explains it.
 
-Money is in the store's **base currency**, formatted with the store's currency
-settings. Total sales and Net sales show **short amounts** (`$20.3K`, `$1.2M`),
-with the same rules as the Analytics page (see
-[Analytics: Short amounts](analytics.md#short-amounts)). When the short amount is
-different from the full amount, a hover tooltip shows the full amount
-(`$20,345.00`). An amount less than 1,000 shows in full (`$850.00`). Refunds are stored only in the order's currency, so each order's
-completed refunds are converted with that order's own `base_total / invoiced_total`
-ratio (the rate frozen when the order was placed). Pending and cancelled refunds
-are ignored. The cards show no change percentage or trend.
+| Group | Items | Limit | Default on |
+|---|---|---|---|
+| Quick actions | The 5 actions above. The first one that is on shows "Main button". | 3, shown as "N/3" | Create order, View live site |
+| Key numbers | The 11 Analytics key metrics | 4, shown as "N/4" | Total sales, Net sales, Orders, Items ordered |
+| Sections | Key numbers, Recent orders, Top selling products, Restock soon, Needs your attention | None | All except Restock soon |
 
-On a store with no counted orders, every card shows 0.
+**Amounts** sets how money shows on Home: **Short** (`$20.3K`, the default) or
+**Long** (`$20,345.00`). When the key numbers are loaded, each option shows an
+example in parentheses, for example "Short ($20.3K)". This option is Home's own.
+It does not change, and does not follow, the Amounts option of the Customize
+analytics sheet.
+
+When a group is at its limit, the checkboxes of the items that are off are
+disabled and muted. A section group has no minimum: every section can be off.
+**Reset to default** puts back the default layout and Short amounts, and keeps
+the selected period.
+**Done** closes the sheet. Every change shows on the page at once.
+
+The sheet can **float**. Drag its header (the move icon) to put it anywhere on
+the screen. A floating sheet has no dark overlay, so the merchant can see and
+scroll the page behind it, and a click on the page does not close it. The **Dock
+to the right** button, left of Close, puts it back at the right edge. The
+browser remembers whether the sheet floats and where. On screens narrower than
+640 px, the sheet does not float. The Customize analytics sheet floats in the
+same way, and remembers its own position.
+
+Each key number card and each section card also has a **More actions** menu
+(three dots, shown on hover or focus) with **Hide from page**. It does the same as
+clearing the checkbox in the sheet.
+
+### Sections and layout
+
+Sections show in the merchant's order. Key numbers takes the full width. The other
+sections share rows of two from 782 px. A section that is alone in its row takes
+the full width. Below 782 px, every section takes the full width. Each section
+loads its own data: it shows its own skeleton while loading, and its own error
+with a retry button when its request fails. A section that is off sends no
+request. When every section is off, the page reads "Every section is hidden.
+Customize Home to add some back."
+
+Each card has an information icon next to its title. The icon shows only while
+the pointer is over its card (always on a device without hover). Its tooltip
+describes the card in plain language.
+
+### Key numbers
+
+One card for each key number that is on, in the order of the sheet: 4 columns
+from 1024 px, 2 columns from 600 px and 1 column below. The values, titles and
+info texts come from the Analytics page (`GET /analytics/metrics/kpis` with the
+period and `compare=none`), so a number on Home is the same as that metric on
+Analytics for the same days. See [Analytics](analytics.md) for each definition.
+Money shows in the Amounts format of the Customize home sheet (**Short** `$20.3K`
+or **Long** `$20,345.00`). In Short format, the full amount is the hover title.
+A card is not a link. When no key number is on, the section reads "No key numbers
+chosen." with a **Customize** button.
 
 ### Recent orders
 
-The 5 newest orders by creation date, **of any payment status**, so a new unpaid
-order shows here even though it is not counted in the metrics. Each row shows the
-order number with the fulfillment status in colored text, the customer name, the
-number of products, the total in the order's own currency and the time since the
-order was created in short form ("Just now", "45m ago", "3h ago", "2d ago",
-"4mo ago", "2y ago"). A row opens the order. With no orders, the card
-reads "No orders yet", centered in the card.
+The 5 newest orders by creation date, **of any payment status**. Each row shows
+the order number, a fulfillment status badge and a payment status badge (the
+same badge colors as the orders list), the customer name,
+the number of products, the total in the order's own currency and the time since
+the order was created in short form ("Just now", "45m ago", "3h ago", "2d ago",
+"4mo ago", "2y ago"). A row opens the order. With no orders, the card reads "No
+orders yet", centered in the card. **View all orders** opens the orders list.
 
 ### Top selling products
 
-Up to 5 products from counted orders. Variants are merged into their product.
-Rows are sorted by units sold, then by base-currency revenue. Each row shows a
-48 × 48 px image, the name with a stock badge, the revenue as a short amount
-("$3.1K generated", with "$3,134.00 generated" as the hover tooltip)
-and the units sold ("1200 units sold"). The revenue is the sum of `base_total` of
-the product's order items in counted orders, for all of its variants. Name and
-image come from the product's newest order item, so a deleted product still
-shows. Items whose product was deleted have no product ID; they are grouped by
-their recorded name. With no counted orders, the card reads "No sales yet",
-centered in the card.
+The Analytics **Sales by product** data for the period
+(`GET /analytics/metrics/sales_by_product`): up to 5 products from paid orders
+(payment status paid, refunding or refunded) paid in the period, in the base
+currency. Variants are merged into their product. Rows are sorted by **net
+sales** (item totals after discounts, without tax), then by units sold. Each row
+shows a 42 × 42 px image, then the name with a stock line below it. At the right,
+it shows the net sales in bold ("$3.1K", with the full amount as the hover title
+in Short format) and the units sold below it. A deleted product shows with its
+recorded name and image, and no stock line. With no sales in the period, the
+card reads "No sales yet". **View all products** opens the products list.
 
-The stock badge shows the product's current stock across all of its variants,
-with the same rules as the product list:
+The stock line is text, not a badge. It shows the product's current stock across
+all of its variants, with the same rules as the product list:
 
-| Product state | Badge |
+| Product state | Stock line |
 |---|---|
-| A variant tracks inventory and the summed available quantity of the tracked variants is above 0 | "{N} left in stock": gray, or orange when the product is low on stock |
+| A variant tracks inventory and the summed available quantity of the tracked variants is above 0 | "{N} left in stock": gray, or red when the product is low on stock |
 | Out of stock (every variant is out of stock) | "Out of stock" (red) |
-| Any other state, for example inventory is not tracked | "In stock" (green) |
-| Product was deleted | No badge |
+| Any other state, for example inventory is not tracked | "In stock" (gray) |
+| Product was deleted | No stock line |
 
-### Card buttons
+### Needs your attention
 
-**View all orders** (Recent orders) opens the orders list. **View all products**
-(Top selling products) opens the products list. Both are ghost buttons. A
-button shows when the pointer is over its card or keyboard focus is inside it.
-On a device without hover, both buttons always show.
+Three checks of the store as it is now. Archived orders never count. An order
+uses an **offline** payment method when the payment snapshot saved on the order
+marks it offline (`payment_metadata.payment_provider.is_offline`).
 
-### Layout
+| Check | Counts | Line under the label | Opens |
+|---|---|---|---|
+| Orders to ship | Orders whose fulfillment status is `unfulfilled` or `processing`, and whose payment status is `paid`, or `unpaid` with an offline method | "N waiting over 2 days": orders paid, or created when not paid, more than 2 days ago | Orders with the **To ship** filter |
+| Payments to collect | Orders whose payment status is `unpaid` with an offline method and whose fulfillment status is not `cancelled`, plus orders whose payment status is `failed` that were created in the last 7 days | The sum of their base-currency totals | Orders with the **To collect** filter |
+| Out of stock | Variants in the Inventory list's **Out of stock** filter: tracked with 0 or less available, or not tracked and marked out of stock | — | Inventory with the **Out of stock** filter |
 
-The metric cards are in 4 columns from 1024 px, 2 columns from 600 px and 1
-column below. The two list cards are side by side, with the same height, from
-782 px and stacked below.
-While the data loads, skeletons show in their place. If the request fails, an
-error message shows and the rest of the page still renders.
+Checks with a count above 0 are listed first; the others show a check mark and
+"Clear". The card header reads "N of 3 need you", or "All caught up". The count of
+a check and the list it opens use the same query condition, so they always
+match.
 
-## 8. Storage
+### Restock soon
+
+Off by default. Up to 5 tracked variants with more than 0 available and at or
+under their low-stock threshold (the store default threshold when the variant has
+none), fewest available first. Each row shows the product image, the product
+name, the variant name and "N left", and opens that variant's inventory page.
+**View inventory** opens the Inventory list with the **Low stock** filter. With no
+such variant, the card reads "Nothing is low on stock."
+
+## 8. First sale
+
+When the store has its first order, Home celebrates it once for each admin and
+shows a card that leads the team to fulfil that order.
+
+### The first order
+
+The store's oldest order by creation time (the lower id first when two orders
+have the same time) that is **not archived**. Every payment status and
+fulfillment status counts, and so do orders that an admin created and orders
+that were imported. If that order is deleted, the next oldest order is the
+first order.
+
+### The card
+
+A full-width card at the top of the page content: above the setup checklist
+while setup is not done, and above the first overview section after. It is not
+a section of the Customize home sheet.
+
+- A blue bag icon in a light-blue squircle. A small red dot pops onto the bag
+  when the card appears, and again when the pointer moves over the card.
+- **You made your first sale!**
+- "**{customer}** ordered **{total}** ({order number}). Every store starts with
+  one order. This one is yours." The total is in the order's own currency. The
+  order number is shown as stored, with the store's order prefix (`#` by
+  default), and opens the order. An order without a customer name reads "A
+  customer".
+- **Fulfill order** and **Close** (X).
+
+The card shows for an admin while all of these are true:
+
+| Rule | Ends when |
+|---|---|
+| A first order exists | Every order is deleted or archived |
+| The store is not done | Any admin clicks **Fulfill order** |
+| This admin did not close the card | This admin clicks **Close** |
+
+- **Close** hides the card for the admin who clicks it. Other admins still see
+  it. If the request fails, an error toast shows and the card stays hidden
+  until the page reloads.
+- **Fulfill order** marks the store as done, removes every admin's close
+  record, and opens the order detail page. After that, no admin sees the card.
+  If the request fails, an error toast shows and the order still opens.
+  Fulfilling the order on the order page, without this button, does not hide
+  the card.
+
+Stores that already had orders before this feature also show the card, once
+for each admin, with their oldest order.
+
+### The celebration
+
+When the card shows for an admin who was not celebrated yet, a confetti burst
+plays over the page: about 150 pieces fire from the two bottom corners, arc up
+and flutter down. A few pieces land on the top edge of the card and of one
+other card, rest there for a few seconds, then tip off and fall. The canvas
+does not take clicks, is hidden from screen readers, and removes itself when
+the last piece leaves the screen or when the admin leaves Home.
+
+The admin is recorded as celebrated when the confetti starts, so a reload does
+not play it again. If that request fails, it plays again on the next visit. The
+confetti plays only together with the card: an admin who closed the card, or
+who first opens Home after **Fulfill order**, never sees it. It plays also when
+the operating system's "Reduce motion" setting is on.
+
+## 9. Storage
 
 One option, `kirki_ecommerce_setup_checklist`:
 
@@ -257,7 +392,37 @@ One option, `kirki_ecommerce_setup_checklist`:
 
 The option is created the first time a step completes, or at store setup.
 
-## 9. REST API
+The first-sale state (section 8) is one more option, `kirki_ecommerce_first_sale`,
+that is not autoloaded:
+
+```php
+[
+    'done_at'    => null,               // Unix time of the first "Fulfill order" click
+    'celebrated' => [1 => 1794900000],  // user id => Unix time of the first celebration
+    'dismissed'  => [5 => 1794903700],  // user id => Unix time of the close; emptied by "Fulfill order"
+]
+```
+
+The option is created by the first celebration, close or fulfill. A missing or
+unreadable value counts as empty.
+
+The Home layout is **not** stored on the server. The browser keeps it in local
+storage, per browser:
+
+| Key | Holds |
+|---|---|
+| `kirki-ecommerce:home:layout` | The period, the amount format, and the order and on/off state of each quick action, key number and section. |
+| `kirki-ecommerce:home:customize-sheet` | Whether the Customize home sheet floats, and where. |
+| `kirki-ecommerce:analytics:customize-sheet` | The same for the Customize analytics sheet. |
+
+A saved layout ignores keys that Home does not know, adds new keys at the end of
+their group with their default state, keeps only the first 3 quick actions and
+the first 4 key numbers that are on, uses This month for an unknown period, and
+uses Short for a missing or unknown amount format.
+A value that cannot be read gives the default layout. When local storage is
+blocked, Home works and keeps the layout until the page closes.
+
+## 10. REST API
 
 All routes require a user who can manage the store (`manage_options`) and a valid
 REST nonce.
@@ -288,7 +453,8 @@ response. They are in the admin app (`resources/app/features/home/lib/steps.ts`)
 
 | Method | Route | Does |
 |---|---|---|
-| `GET` | `/wp-json/kirki/ecommerce/v1/dashboard/overview` | Returns the metrics, the 5 most recent orders and the top 5 products (section 7). |
+| `GET` | `/wp-json/kirki/ecommerce/v1/dashboard/overview` | Returns all-time metrics, the 5 most recent orders and the all-time top 5 products by units. Home reads only `recent_orders` from it; the other fields stay for compatibility. |
+| `GET` | `/wp-json/kirki/ecommerce/v1/dashboard/attention` | Returns the Needs your attention counts and the Restock soon rows (section 7). |
 
 ```json
 {
@@ -320,14 +486,86 @@ response. They are in the admin app (`resources/app/features/home/lib/steps.ts`)
 }
 ```
 
-The metric and top product money objects have `short_display` (section 7).
+In this response, `metrics` counts orders whose payment status is paid,
+refunding or refunded, for all time. Net sales is the order total minus tax,
+shipping without its tax and completed refunds. Top products are sorted by units
+sold, then by revenue (`base_total`). These rules are kept for clients of the
+endpoint; Home itself now shows Analytics numbers.
+
+The metric and top product money objects have `short_display`.
 `recent_orders` items use the same resource as the order list (`OrderListResource`),
 so their money objects have no `short_display`.
 `product_id` is `null` for a product that was deleted. The endpoint does not check
 whether setup is complete; the admin app only calls it in overview mode. The
 queries are in `app/Services/DashboardService.php`.
 
-## 10. Resetting the checklist in development
+```json
+{
+  "data": {
+    "to_ship": { "count": 3, "late_count": 1 },
+    "to_collect": {
+      "count": 2,
+      "base_total_money_object": { "raw": 100, "display": "$100.00", "short_display": "$100.00", "currency": { "code": "USD", "symbol": "$" } }
+    },
+    "out_of_stock": { "count": 4 },
+    "low_stock": {
+      "total": 6,
+      "items": [
+        { "variant_id": 9, "product_id": 3, "product_name": "Mug", "variant_name": "Blue / Large", "image": null, "available_quantity": 2 }
+      ]
+    }
+  },
+  "message": "Dashboard attention items retrieved successfully."
+}
+```
+
+The attention endpoint takes no date range. The queries are in
+`DashboardService::get_attention()`; the order conditions are
+`Order::scope_only_needing_attention()` and the stock conditions are
+`Variant::scope_only_out_of_stock()` and `Variant::scope_only_low_stock()`.
+
+### First sale
+
+| Method | Route | Does |
+|---|---|---|
+| `GET` | `/wp-json/kirki/ecommerce/v1/home/first-sale` | Returns the state for the current user. |
+| `POST` | `/wp-json/kirki/ecommerce/v1/home/first-sale/celebrated` | Records the current user as celebrated. Keeps an earlier time. |
+| `POST` | `/wp-json/kirki/ecommerce/v1/home/first-sale/dismiss` | Records the current user's close. Keeps an earlier time. |
+| `POST` | `/wp-json/kirki/ecommerce/v1/home/first-sale/fulfill` | Marks the store as done (keeps an earlier time) and removes every close record. |
+
+All four return the state for the current user:
+
+```json
+{
+  "data": {
+    "is_visible": true,
+    "should_celebrate": true,
+    "order": {
+      "id": 12,
+      "order_number": "#2026-2236",
+      "customer_name": "Ibrahim Fischer",
+      "base_total_money_object": { "raw": 43.88, "display": "£43.88", "currency": { "code": "GBP", "symbol": "£" } }
+    }
+  },
+  "message": "First sale retrieved successfully."
+}
+```
+
+`is_visible` is true when a first order exists, the store is not done and the
+current user did not close the card. `should_celebrate` is true when the card
+is visible and the current user was not celebrated. `order` is `null` when the
+store has no first order. The order fields use the same resource as the order
+list. The rules are in `app/Services/FirstSaleService.php`.
+
+### Other API additions used by Home
+
+| Route | Addition |
+|---|---|
+| `GET /analytics/metrics/{key}`, `GET /analytics/regions` | `range=week_to_date` and `range=all_time`. All time has no comparison, whatever `compare` asks. The Analytics page date control does not offer them. |
+| `GET /orders` | `attention=to_ship` or `attention=to_collect`. The order list reads it from its address and shows it as a removable chip. Another value returns `422`. |
+| `GET /variants` | `inventory_type=low_stock`. The Inventory list offers it as **Low stock**. |
+
+## 11. Resetting in development
 
 Delete the option to clear every completion and the preconfigured snapshot:
 
@@ -339,14 +577,21 @@ The next Home load checks the rules again. Steps whose data still exists complet
 again at once. This also brings back the checklist in place of the store overview
 until every step completes again.
 
-## 11. Requirements and limitations
+Delete the first-sale option to show the card and play the celebration again
+for every admin:
+
+```bash
+wp option delete kirki_ecommerce_first_sale
+```
+
+## 12. Requirements and limitations
 
 - **The checklist cannot be dismissed.** It goes away only when every step is
   completed. Then the store overview replaces it for good.
 - **Completion is not a health check.** A sticky step stays checked after its data
   is removed, for example after all payment methods are disabled.
 - **Earlier completions stay.** A step that completed under an earlier, looser
-  rule stays completed. Reset the checklist (section 10) to check it again.
+  rule stays completed. Reset the checklist (section 11) to check it again.
 - **The "Cash on delivery" button only opens Payment settings.** It does not enable
   Cash on Delivery.
 - **No CSV import.** Step 1 has only **Add products** and **Load sample data**.
@@ -357,14 +602,30 @@ until every step completes again.
   products. The import itself skips only the sample products that exist (matched
   by SKU), so a load that was cut off can be run again.
 - **Template gallery is a placeholder.** There is no template catalog or API.
-- **Overview is all time only.** There is no date range, comparison or chart.
-- **Net sales subtracts the full refund.** Refunds do not record how much of them
-  was tax or shipping, so the refunded tax and shipping are subtracted a second
-  time.
-- **Products sold is not reduced by refunds.** Refunds do not record items.
-- **No caching.** The overview runs its queries on each Home visit.
+- **No comparison on Home.** The period has no earlier period to compare with,
+  and there are no charts. Use the Analytics page for that.
+- **The layout is per browser.** It is in local storage, so it does not follow
+  the merchant to another browser or computer.
+- **No cash on delivery type.** Offline payment methods are names that the
+  merchant makes, so Home cannot tell cash on delivery from bank transfer. An
+  unpaid offline order counts both in Orders to ship and in Payments to collect,
+  also before it is delivered.
+- **No failed refunds or returns.** Refunds have no failed status and there are
+  no return requests, so Needs your attention has no check for them.
+- **No Goal section and no import.** The Goal section and an Import products
+  quick action are not built yet.
+- **No caching.** Each section runs its queries on each Home visit.
+- **The first-sale card ends only on its button.** Fulfilling the order
+  elsewhere does not hide it. Each admin can close it.
+- **First sale on an existing store.** A store that already had orders when it
+  updated celebrates its oldest order, which can be old or imported.
+- **The confetti ignores "Reduce motion".** It plays also when the operating
+  system asks for less motion.
+- **Two admins at the same moment.** The first-sale state is one option. If two
+  admins write it at the same moment, one write can be lost, so one admin can
+  see the card or the celebration once more.
 
-## 12. Where this differs from WooCommerce
+## 13. Where this differs from WooCommerce
 
 ### Task list
 
@@ -379,22 +640,27 @@ until every step completes again.
 
 ### Store overview (compared with WooCommerce Analytics / Home)
 
-- **Which orders count.** WooCommerce Analytics counts orders by their *order*
-  status (by default processing, completed and on-hold). Here an order counts by
-  its *payment* status (paid, refunding or refunded).
-- **Net sales.** In WooCommerce, net sales is gross sales minus coupons and
-  refunds, with tax and shipping never included. Here net sales starts from the
-  order total, which is already after coupons, and subtracts tax, shipping and the
-  **full** refund amounts. A refund that included tax or shipping makes net sales
-  lower than WooCommerce would show.
-- **Items sold and refunds.** WooCommerce subtracts refunded items. Here they
-  stay counted.
-- **No date range, no comparison, no charts, no reports pages.** WooCommerce's
-  Home and Analytics have all of these. "View all products" opens the plain
-  products list, not a sales report.
-- **Short amounts.** WooCommerce Home shows full amounts. Here Total sales, Net
-  sales and the top product revenue show short amounts (`$20.3K`), and the full
-  amount is only in the hover tooltip. The unit letters (K, M, B, T) are English
-  in every language. Recent orders show the full order total.
-- **No extension API.** The cards are fixed. There is no filter or hook that adds
-  a metric.
+- **Numbers come from this plugin's Analytics.** The key numbers and top
+  products use the Analytics definitions (see
+  [Analytics: Where this differs from WooCommerce](analytics.md)), not
+  WooCommerce Analytics.
+- **Four fixed periods, no comparison.** WooCommerce Home's performance block has
+  a date range picker and compares with the previous period. Here the merchant
+  picks This month, This week, Today or All time, and there is no comparison.
+- **Per-browser layout.** WooCommerce saves the Home layout per user on the
+  server. Here it is in the browser's local storage.
+- **Fewer to-do items.** WooCommerce's "Things to do next" and activity panels
+  cover reviews, stock, orders and more, and extensions can add to them. Here
+  Needs your attention has three fixed checks and Restock soon uses only the
+  low-stock threshold, not sales pace.
+- **Short amounts.** WooCommerce Home shows full amounts. Here money is Short
+  (`$20.3K`) by default, and the merchant can select Long in the Customize home
+  sheet. The unit letters (K, M,
+  B, T) are English in every language. Recent orders show the full order total.
+- **No extension API.** The sections, checks and quick actions are fixed. There
+  is no filter or hook that adds one.
+
+### First sale
+
+- **WooCommerce has no first-sale card or celebration.** Its Home shows the
+  first order only in its activity panels and order lists.

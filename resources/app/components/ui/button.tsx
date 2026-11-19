@@ -89,6 +89,8 @@ Button.displayName = 'Button';
 
 export default Button;
 
+export type { ButtonProps, ButtonSize, ButtonVariant };
+
 const buttonSpin = keyframes({
   from: {
     transform: 'rotate(0deg)',

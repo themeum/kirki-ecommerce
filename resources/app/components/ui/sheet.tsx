@@ -1,22 +1,44 @@
 import { type CSSObject, keyframes } from '@emotion/react';
 import * as SheetPrimitive from '@radix-ui/react-dialog';
-import { X } from 'lucide-react';
+import { Move, PanelRight, X } from 'lucide-react';
 import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
+  createContext,
   forwardRef,
   type HTMLAttributes,
+  useCallback,
+  useContext,
+  useLayoutEffect,
 } from 'react';
 
 import Button from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { FLOAT_MARGIN, type SheetFloat, useSheetFloat } from '@/components/ui/use-sheet-float';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { defineStyles, scopedMerge } from '@/theme/mixins';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type SheetSide = 'top' | 'right' | 'bottom' | 'left';
 
-const Sheet = SheetPrimitive.Root;
+const SheetFloatContext = createContext<SheetFloat | null>(null);
+
+type SheetProps = ComponentPropsWithoutRef<typeof SheetPrimitive.Root> &
+  ({ floating: true; storageKey: string } | { floating?: false; storageKey?: never });
+
+const Sheet = (props: SheetProps) => {
+  const { floating, storageKey, modal, ...rest } = props;
+  const float = useSheetFloat(floating ? storageKey : undefined);
+
+  return (
+    <SheetFloatContext.Provider value={floating ? float : null}>
+      <SheetPrimitive.Root modal={float.floating ? false : modal} {...rest} />
+    </SheetFloatContext.Provider>
+  );
+};
+
+Sheet.displayName = 'Sheet';
 
 const SheetTrigger = SheetPrimitive.Trigger;
 
@@ -57,28 +79,58 @@ type SheetContentProps = Omit<
 
 const SheetContent = forwardRef<ComponentRef<typeof SheetPrimitive.Content>, SheetContentProps>(
   (props, ref) => {
-    const { side = 'right', cssOverride, children, ...rest } = props;
+    const { side = 'right', cssOverride, children, onInteractOutside, style, ...rest } = props;
+    const float = useContext(SheetFloatContext);
+    const floating = !!float?.floating && side === 'right';
+    const contentRef = float?.contentRef;
+    const clamp = float?.clamp;
+
+    const setRefs = useCallback(
+      (element: ComponentRef<typeof SheetPrimitive.Content> | null) => {
+        if (contentRef) {
+          contentRef.current = element;
+        }
+
+        if (typeof ref === 'function') {
+          ref(element);
+        } else if (ref) {
+          ref.current = element;
+        }
+      },
+      [contentRef, ref],
+    );
+
+    useLayoutEffect(() => {
+      if (floating && clamp) {
+        clamp();
+      }
+    }, [clamp, floating]);
 
     return (
       <SheetPortal>
-        <SheetOverlay />
+        {!floating && <SheetOverlay />}
         <SheetPrimitive.Content
-          ref={ref}
+          ref={setRefs}
           data-side={side}
-          css={scopedMerge(styles.content, sideStyles[side], cssOverride)}
+          data-floating={floating ? 'true' : undefined}
+          css={scopedMerge(
+            styles.content,
+            floating ? styles.floating : sideStyles[side],
+            cssOverride,
+          )}
+          style={floating ? { ...style, left: float.position.x, top: float.position.y } : style}
+          onInteractOutside={(event) => {
+            onInteractOutside?.(event);
+
+            if (floating) {
+              event.preventDefault();
+            }
+          }}
           {...rest}
         >
-          {children}
-          <SheetPrimitive.Close asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={__('Close', 'kirki-ecommerce')}
-              cssOverride={styles.closeButton}
-            >
-              <X size={16} aria-hidden="true" />
-            </Button>
-          </SheetPrimitive.Close>
+          <SheetFloatContext.Provider value={float ? { ...float, floating } : null}>
+            {children}
+          </SheetFloatContext.Provider>
         </SheetPrimitive.Content>
       </SheetPortal>
     );
@@ -92,9 +144,43 @@ type SheetSectionProps = Omit<HTMLAttributes<HTMLDivElement>, 'className'> & {
 };
 
 const SheetHeader = (props: SheetSectionProps) => {
-  const { cssOverride, ...rest } = props;
+  const { cssOverride, children, onPointerDown, ...rest } = props;
+  const float = useContext(SheetFloatContext);
+  const draggable = !!float?.enabled;
 
-  return <div css={scopedMerge(styles.header, cssOverride)} {...rest} />;
+  return (
+    <div
+      data-draggable={draggable ? 'true' : undefined}
+      css={scopedMerge(styles.header, draggable && styles.draggableHeader, cssOverride)}
+      onPointerDown={(event) => {
+        onPointerDown?.(event);
+        float?.startDrag(event);
+      }}
+      {...rest}
+    >
+      <div css={scoped(styles.titleGroup)}>
+        {draggable && <Move size={14} aria-hidden="true" css={scoped(styles.moveIcon)} />}
+        <div css={scoped(styles.titleContent)}>{children}</div>
+      </div>
+      <div css={scoped(styles.actionGroup)}>
+        {float?.floating && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={__('Dock to the right', 'kirki-ecommerce')}
+            onClick={float.dock}
+          >
+            <PanelRight aria-hidden="true" color={theme.colors.icon.primary} />
+          </Button>
+        )}
+        <SheetPrimitive.Close asChild>
+          <Button variant="ghost" size="icon-sm" aria-label={__('Close', 'kirki-ecommerce')}>
+            <X aria-hidden="true" color={theme.colors.icon.primary} />
+          </Button>
+        </SheetPrimitive.Close>
+      </div>
+    </div>
+  );
 };
 
 SheetHeader.displayName = 'SheetHeader';
@@ -106,6 +192,14 @@ const SheetFooter = (props: SheetSectionProps) => {
 };
 
 SheetFooter.displayName = 'SheetFooter';
+
+type SheetSeparatorProps = Omit<ComponentPropsWithoutRef<typeof Separator>, 'negativeMargin'>;
+
+const SheetSeparator = (props: SheetSeparatorProps) => {
+  return <Separator negativeMargin={SHEET_PADDING} {...props} />;
+};
+
+SheetSeparator.displayName = 'SheetSeparator';
 
 type SheetTitleProps = Omit<ComponentPropsWithoutRef<typeof SheetPrimitive.Title>, 'className'> & {
   cssOverride?: CSSObject;
@@ -156,10 +250,15 @@ export {
   SheetHeader,
   SheetOverlay,
   SheetPortal,
-  type SheetSide,
+  SheetSeparator,
   SheetTitle,
   SheetTrigger,
 };
+
+export type { SheetSide };
+
+const SHEET_PADDING = 16;
+const FLOAT_MAX_HEIGHT = 720;
 
 const overlayIn = keyframes({
   from: { opacity: 0 },
@@ -200,6 +299,8 @@ const slide = (side: SheetSide): CSSObject => {
   };
 };
 
+const SHEET_CONTENT_WIDTH = '360px';
+
 const sideStyles = defineStyles({
   top: {
     top: 0,
@@ -213,7 +314,7 @@ const sideStyles = defineStyles({
     top: 0,
     right: 0,
     bottom: 0,
-    width: '400px',
+    width: SHEET_CONTENT_WIDTH,
     maxWidth: '100vw',
     borderLeft: `1px solid ${theme.colors.border.default}`,
     ...slide('right'),
@@ -230,7 +331,7 @@ const sideStyles = defineStyles({
     top: 0,
     left: 0,
     bottom: 0,
-    width: '400px',
+    width: SHEET_CONTENT_WIDTH,
     maxWidth: '100vw',
     borderRight: `1px solid ${theme.colors.border.default}`,
     ...slide('left'),
@@ -263,23 +364,52 @@ const styles = defineStyles({
     backgroundColor: theme.colors.background.fill,
     boxShadow: theme.shadow.lg,
     color: theme.colors.text.primary,
+    padding: theme.spacing[3],
+    rowGap: theme.spacing[2],
     '&:focus, &:focus-visible': {
       outline: 'none',
     },
   },
-  closeButton: {
-    position: 'absolute',
-    top: theme.spacing[3],
-    right: theme.spacing[3],
+  floating: {
+    width: SHEET_CONTENT_WIDTH,
+    maxHeight: `min(${FLOAT_MAX_HEIGHT}px, calc(100vh - ${FLOAT_MARGIN * 2}px))`,
+    border: `1px solid ${theme.colors.border.default}`,
+    borderRadius: theme.radius.xl,
+    overflow: 'hidden',
+  },
+  draggableHeader: {
+    cursor: 'move',
+    userSelect: 'none',
+    touchAction: 'none',
+  },
+  moveIcon: {
+    flexShrink: 0,
+    color: theme.colors.text.secondary,
   },
   header: {
     display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     flexShrink: 0,
+    columnGap: theme.spacing[2],
+  },
+  titleGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 1,
+    columnGap: theme.spacing[2],
+    minWidth: 0,
+  },
+  titleContent: {
+    display: 'flex',
+    flexDirection: 'column',
     rowGap: theme.spacing[1],
-    padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
-    paddingRight: theme.spacing[12],
-    borderBottom: `1px solid ${theme.colors.border.default}`,
+    minWidth: 0,
+  },
+  actionGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   footer: {
     display: 'flex',
@@ -288,12 +418,10 @@ const styles = defineStyles({
     justifyContent: 'flex-end',
     columnGap: theme.spacing[2],
     marginTop: 'auto',
-    padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
-    borderTop: `1px solid ${theme.colors.border.default}`,
   },
   title: {
     margin: 0,
-    ...theme.typography.large('semibold'),
+    ...theme.typography.paragraph('semibold'),
     color: theme.colors.text.primary,
   },
   description: {

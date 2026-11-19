@@ -3,7 +3,7 @@
 /**
  * Plugin Name:       Kirki eCommerce
  * Description:       Kirki eCommerce is an all-in-one solution that empowers users to build and run professional online stores with an intuitive UX, modern UI, and lightning-fast performance.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Author:            Themeum
  * Author URI:        https://www.themeum.com
  * Text Domain:       kirki-ecommerce
@@ -24,7 +24,7 @@ use Kirki\Ecommerce\App\KirkiEcommerce;
  * The kirki ecommerce plugin version
  * @var string
  */
-define('KIRKI_ECOMMERCE_VERSION', '1.0.1');
+define('KIRKI_ECOMMERCE_VERSION', '1.0.2');
 
 /**
  * The kirki ecommerce plugin slug

@@ -34,7 +34,7 @@ $payment_notice = $data['payment_notice'] ?? null;
                     name="payment_provider"
                     value="<?php echo esc_attr($payment_gateway->id()); ?>"
                     x-model="selectedPaymentMethod"
-                    @change="setPaymentMethod('<?php echo esc_attr($payment_gateway->id()); ?>')">
+                    x-on:change="setPaymentMethod('<?php echo esc_attr($payment_gateway->id()); ?>')">
                 <div class="kecom-radio-label">
                     <div class="kecom-payment-header">
                         <?php if ($payment_gateway->icon()) : ?>

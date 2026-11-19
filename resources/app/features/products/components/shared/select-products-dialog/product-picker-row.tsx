@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react';
 import { memo, type MouseEvent, useCallback, useMemo, useRef } from 'react';
 
 import Badge from '@/components/ui/badge';
@@ -15,7 +16,6 @@ import type {
   ProductVariantSelection,
   SelectProductsMode,
 } from '@/features/products/components/shared/select-products-dialog/types';
-import { ChevronDownIcon } from '@/icons/common';
 import { __, sprintf } from '@/wpi18n';
 
 type ProductPickerRowProps = {
@@ -211,7 +211,7 @@ const ProductPickerRowComponent = ({
                 onClick={handleToggleExpandClick}
                 style={{ transform: expanded ? 'rotate(180deg)' : undefined }}
               >
-                <ChevronDownIcon />
+                <ChevronDown size={16} />
               </Button>
             )}
           </Flex>

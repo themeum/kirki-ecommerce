@@ -5,12 +5,14 @@ namespace Kirki\Ecommerce\App\Services;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
 use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\App\Supports\ShippingCarrierPresets;
 use Kirki\Ecommerce\App\Supports\Weight;
+use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 
 use function Kirki\Ecommerce\App\decision_engine;
 
@@ -94,7 +96,7 @@ class ShippingService
      * @since 1.0.0
      *
      * @param CalculationContextDTO $context Cart or order calculation context.
-     * @return array<int, array{id: string, name: string, description: string, is_taxable: bool, type: string, address: string|null, pickup_time_start: string|null, pickup_time_end: string|null, base_cost: int}> Options with their cost in base currency (minor units).
+     * @return array<int, array{id: string, name: string, description: string, is_taxable: bool, type: string, address: string|null, has_pick_time: bool, pickup_time_start: string|null, pickup_time_end: string|null, base_cost: int}> Options with their cost in base currency (minor units).
      */
     public function get_final_available_shipping_options(CalculationContextDTO $context)
     {
@@ -128,6 +130,7 @@ class ShippingService
                 'is_taxable' => $method['is_taxable'] ?? false,
                 'type' => $method['type'],
                 'address' => $is_pickup ? ($method['address'] ?? null) : null,
+                'has_pick_time' => $has_pickup_time,
                 'pickup_time_start' => $has_pickup_time ? $pickup_time_start : null,
                 'pickup_time_end' => $has_pickup_time ? $pickup_time_end : null,
                 'base_cost' => $decision_context->get_shipping_cost(),
@@ -245,10 +248,13 @@ class ShippingService
     /**
      * Build the snapshot of the selected shipping method that an order stores.
      *
+     * Every snapshot keeps the method id, name, type, description and taxable flag.
+     * A local-pickup snapshot also keeps the pickup address and pickup times.
+     *
      * @since 1.0.0
      *
      * @param CalculationContextDTO $context Calculation context with the selected shipping method.
-     * @return array<string, mixed>|null Shipping method id, name and type; null when no method is selected.
+     * @return array{shipping_method: array{id: string, name: string, type: string, description: string, is_taxable: bool, address?: string|null, has_pick_time?: bool, pickup_time_start?: string|null, pickup_time_end?: string|null}}|null Null when no method is selected.
      */
     public function get_selected_shipping_method_snapshot(CalculationContextDTO $context)
     {
@@ -258,13 +264,22 @@ class ShippingService
             return null;
         }
 
-        return [
-            'shipping_method' => [
-                'id' => $method['id'],
-                'name' => $method['name'],
-                'type' => $method['type'],
-            ],
+        $snapshot = [
+            'id' => $method['id'],
+            'name' => $method['name'],
+            'type' => $method['type'],
+            'description' => $method['description'] ?? '',
+            'is_taxable' => $method['is_taxable'] ?? false,
         ];
+
+        if ($method['type'] === ShippingMethodTypes::LOCAL_PICKUP) {
+            $snapshot['address'] = $method['address'];
+            $snapshot['has_pick_time'] = $method['has_pick_time'] ?? false;
+            $snapshot['pickup_time_start'] = $method['pickup_time_start'];
+            $snapshot['pickup_time_end'] = $method['pickup_time_end'];
+        }
+
+        return ['shipping_method' => $snapshot];
     }
 
     /**
@@ -313,6 +328,48 @@ class ShippingService
         }
 
         return $carriers;
+    }
+
+    /**
+     * Get the carrier that was last used to add tracking to an order.
+     *
+     * @since 1.0.2
+     *
+     * @return array{carrier_id: string|null, carrier: string|null}|null Null when no tracking was added yet.
+     */
+    public function get_last_used_carrier()
+    {
+        $stored = Option::get(OptionKeys::LAST_USED_SHIPPING_CARRIER);
+
+        if (!is_array($stored)) {
+            return null;
+        }
+
+        return [
+            'carrier_id' => $stored['carrier_id'] ?? null,
+            'carrier' => $stored['carrier'] ?? null,
+        ];
+    }
+
+    /**
+     * Remember the carrier that was used to add tracking to an order.
+     *
+     * A listed carrier is stored by its id. An ad-hoc carrier (Other) is stored by its name.
+     *
+     * @since 1.0.2
+     *
+     * @param string|null $carrier_id Id of a listed carrier of the order's zone.
+     * @param string|null $carrier    Name of an ad-hoc carrier.
+     * @return void
+     */
+    public function set_last_used_carrier($carrier_id, $carrier = null)
+    {
+        $carrier_id = trim((string) $carrier_id);
+
+        Option::set(OptionKeys::LAST_USED_SHIPPING_CARRIER, [
+            'carrier_id' => $carrier_id === '' ? null : $carrier_id,
+            'carrier' => $carrier_id === '' ? trim((string) $carrier) : null,
+        ]);
     }
 
     /**

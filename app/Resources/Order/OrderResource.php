@@ -74,19 +74,19 @@ class OrderResource extends Resource
 
             'totals' => [
                 'invoiced_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($items_subtotal['invoiced'], $this->currency_code),
-                'base_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($items_subtotal['base']),
+                'base_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($items_subtotal['base'], $this->base_currency_code),
                 'invoiced_order_discount_money_object' => Money::prepare_amount_object_from_minor($order_discount['invoiced'], $this->currency_code),
-                'base_order_discount_money_object' => Money::prepare_amount_object_from_minor($order_discount['base']),
+                'base_order_discount_money_object' => Money::prepare_amount_object_from_minor($order_discount['base'], $this->base_currency_code),
                 'invoiced_order_total_money_object' => Money::prepare_amount_object_from_minor($invoiced_order_total, $this->currency_code),
-                'base_order_total_money_object' => Money::prepare_amount_object_from_minor($base_order_total),
+                'base_order_total_money_object' => Money::prepare_amount_object_from_minor($base_order_total, $this->base_currency_code),
                 'invoiced_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_tax_total, $this->currency_code),
-                'base_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->base_tax_total),
+                'base_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->base_tax_total, $this->base_currency_code),
                 'invoiced_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($invoiced_shipping_amount, $this->currency_code),
-                'base_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($base_shipping_amount),
+                'base_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($base_shipping_amount, $this->base_currency_code),
                 'invoiced_shipping_strikethrough_money_object' => Money::prepare_amount_object_from_minor($invoiced_shipping_strikethrough, $this->currency_code),
-                'base_shipping_strikethrough_money_object' => Money::prepare_amount_object_from_minor($base_shipping_strikethrough),
+                'base_shipping_strikethrough_money_object' => Money::prepare_amount_object_from_minor($base_shipping_strikethrough, $this->base_currency_code),
                 'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_total, $this->currency_code),
-                'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total),
+                'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total, $this->base_currency_code),
             ],
 
             'tax_lines' => $this->format_tax_breakdown(
@@ -133,6 +133,7 @@ class OrderResource extends Resource
             'shipping_method' => $this->shipping_method,
             'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
             'shipping_method_type' => $this->shipping_metadata['shipping_method']['type'] ?? null,
+            'shipping_meta' => $this->prepare_shipping_meta(),
             'order_notes' => $this->order_notes,
             'flags' => $this->flags,
 
@@ -196,15 +197,15 @@ class OrderResource extends Resource
                 'image' => MediaAttachment::make($item->product_image),
                 'quantity' => $item->quantity,
                 'invoiced_subtotal_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_catalog_product_coupon_discounted_subtotal, $this->currency_code),
-                'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($item->base_catalog_product_coupon_discounted_subtotal),
+                'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($item->base_catalog_product_coupon_discounted_subtotal, $this->base_currency_code),
                 'invoiced_strikethrough_price_money_object' => $strikethrough['invoiced'] === null ? null : Money::prepare_amount_object_from_minor($strikethrough['invoiced'], $this->currency_code),
-                'base_strikethrough_price_money_object' => $strikethrough['base'] === null ? null : Money::prepare_amount_object_from_minor($strikethrough['base']),
+                'base_strikethrough_price_money_object' => $strikethrough['base'] === null ? null : Money::prepare_amount_object_from_minor($strikethrough['base'], $this->base_currency_code),
                 'invoiced_unit_price_money_object' => $this->prepare_unit_amount_object($item->invoiced_catalog_product_coupon_discounted_subtotal, $item->quantity, $this->currency_code),
-                'base_unit_price_money_object' => $this->prepare_unit_amount_object($item->base_catalog_product_coupon_discounted_subtotal, $item->quantity, null),
+                'base_unit_price_money_object' => $this->prepare_unit_amount_object($item->base_catalog_product_coupon_discounted_subtotal, $item->quantity, $this->base_currency_code),
                 'invoiced_unit_strikethrough_price_money_object' => $this->prepare_unit_amount_object($strikethrough['invoiced'], $item->quantity, $this->currency_code),
-                'base_unit_strikethrough_price_money_object' => $this->prepare_unit_amount_object($strikethrough['base'], $item->quantity, null),
+                'base_unit_strikethrough_price_money_object' => $this->prepare_unit_amount_object($strikethrough['base'], $item->quantity, $this->base_currency_code),
                 'invoiced_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_tax_total, $this->currency_code),
-                'base_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->base_tax_total),
+                'base_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->base_tax_total, $this->base_currency_code),
                 'tax_lines' => $this->format_tax_breakdown(($item->taxes ?: collection())->all()),
                 'applied_product_coupons' => $this->format_applied_product_coupons($item_discounts),
             ];
@@ -249,7 +250,7 @@ class OrderResource extends Resource
                 'discount_type' => $order_coupon->discount_type,
                 'discount_target' => $order_coupon->discount_target,
                 'invoiced_discount_amount_money_object' => Money::prepare_amount_object_from_minor($order_coupon->invoiced_discount_amount, $this->currency_code),
-                'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($order_coupon->base_discount_amount),
+                'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($order_coupon->base_discount_amount, $this->base_currency_code),
                 'usage_reversed_at' => $order_coupon->usage_reversed_at,
             ], $this->format_coupon_snapshot_fields($order_coupon));
         })->to_array();
@@ -278,7 +279,7 @@ class OrderResource extends Resource
                 'code' => $order_coupon->code,
                 'title' => $order_coupon->title,
                 'invoiced_discount_amount_money_object' => Money::prepare_amount_object_from_minor($item_discount->invoiced_discount_amount, $this->currency_code),
-                'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($item_discount->base_discount_amount),
+                'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($item_discount->base_discount_amount, $this->base_currency_code),
             ], $this->format_coupon_snapshot_fields($order_coupon));
         }
 
@@ -311,7 +312,7 @@ class OrderResource extends Resource
                 ? $this->convert_base_amount_to_invoiced($base_discount_amount_fixed)
                 : null,
             'base_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed)
-                ? Money::prepare_amount_object_from_minor($base_discount_amount_fixed)
+                ? Money::prepare_amount_object_from_minor($base_discount_amount_fixed, $this->base_currency_code)
                 : null,
         ];
     }
@@ -502,7 +503,7 @@ class OrderResource extends Resource
                 'name' => $entry['name'],
                 'rate' => $entry['rate'],
                 'invoiced_amount_money_object' => Money::prepare_amount_object_from_minor($entry['invoiced_amount'], $this->currency_code),
-                'base_amount_money_object' => Money::prepare_amount_object_from_minor($entry['base_amount']),
+                'base_amount_money_object' => Money::prepare_amount_object_from_minor($entry['base_amount'], $this->base_currency_code),
             ];
         }
 
@@ -529,5 +530,29 @@ class OrderResource extends Resource
         }
 
         return $tax_lines;
+    }
+
+    /**
+     * Prepare the shipping method details stored in the order's shipping snapshot.
+     *
+     * The pickup keys are `null` for methods that are not local pickup. Orders placed
+     * before the snapshot kept these details get `null` values.
+     *
+     * @since 1.0.2
+     *
+     * @return array{description: string|null, is_taxable: bool|null, address: string|null, pickup_time_start: string|null, pickup_time_end: string|null}
+     */
+    protected function prepare_shipping_meta()
+    {
+        $shipping_method = $this->shipping_metadata['shipping_method'] ?? [];
+
+        return [
+            'description' => $shipping_method['description'] ?? null,
+            'is_taxable' => $shipping_method['is_taxable'] ?? null,
+            'address' => $shipping_method['address'] ?? null,
+            'has_pick_time' => $shipping_method['has_pick_time'] ?? false,
+            'pickup_time_start' => $shipping_method['pickup_time_start'] ?? null,
+            'pickup_time_end' => $shipping_method['pickup_time_end'] ?? null,
+        ];
     }
 }

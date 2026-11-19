@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\OfflinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OnboardingController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\SetupChecklistController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\DashboardController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\FirstSaleController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OnlinePaymentController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PaymentMethodController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\VariantController;
@@ -62,6 +63,13 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
 
     // Dashboard
     Route::get('/dashboard/overview', [DashboardController::class, 'overview']);
+    Route::get('/dashboard/attention', [DashboardController::class, 'attention']);
+
+    // Home first sale
+    Route::get('/home/first-sale', [FirstSaleController::class, 'show']);
+    Route::post('/home/first-sale/celebrated', [FirstSaleController::class, 'celebrated']);
+    Route::post('/home/first-sale/dismiss', [FirstSaleController::class, 'dismiss']);
+    Route::post('/home/first-sale/fulfill', [FirstSaleController::class, 'fulfill']);
 
     // Analytics
     Route::get('/analytics/metrics/{key}', [AnalyticsController::class, 'metric']);
@@ -213,6 +221,7 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::get('/orders/{id}', [OrderController::class, 'show']);
     Route::get('/orders/{id}/edit', [OrderController::class, 'edit']);
     Route::get('/orders/{id}/shipping-carriers', [OrderController::class, 'shipping_carriers']);
+    Route::get('/shipping-carriers/last-used', [OrderController::class, 'last_used_shipping_carrier']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::post('/orders/{order_id}/refunds', [OrderController::class, 'create_refund']);
     Route::put('/orders/{order_id}/refunds/{id}', [OrderController::class, 'update_refund']);

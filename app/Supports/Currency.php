@@ -4,10 +4,11 @@ namespace Kirki\Ecommerce\App\Supports;
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Models\Currency as CurrencyModel;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
@@ -90,7 +91,7 @@ class Currency
     }
 
     /**
-     * Look up the stored currency by its code.
+     * Look up the stored currency by its code, from the per-request currency data.
      *
      * @since 1.0.0
      *
@@ -99,7 +100,7 @@ class Currency
      */
     protected static function resolve_currency(string $currency_code)
     {
-        return CurrencyModel::where('code', $currency_code)->first();
+        return app(CurrencyService::class)->get_by_code($currency_code);
     }
 
     /**

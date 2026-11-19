@@ -4,6 +4,8 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Constants\Cart;
+use Kirki\Ecommerce\App\Constants\CookieNames;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
@@ -18,9 +20,12 @@ use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\App\Models\Coupon as CouponModel;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Services\VariantService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
+use Kirki\Ecommerce\Tests\Support\CountsCurrencyQueries;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -30,6 +35,7 @@ use function Kirki\Ecommerce\Framework\uuid;
 
 class CartApiTest extends RestTestCase
 {
+    use CountsCurrencyQueries;
     use CreatesTestProducts;
     use SeedsTestShipping;
 
@@ -541,6 +547,78 @@ class CartApiTest extends RestTestCase
         $this->assertEmpty($removed['data']['pricing']['coupons']);
     }
 
+    /**
+     * Applying a coupon fails when the store does not accept coupon codes.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_apply_coupon_is_prohibited_when_coupon_codes_are_disabled(): void
+    {
+        $this->prepare_variant();
+        $code = 'OFF-' . wp_generate_password(6, false);
+        $this->create_coupon($code);
+        $cart = $this->add_cart_item();
+
+        $snapshot = $this->set_coupon_codes_enabled(false);
+
+        try {
+            $response = $this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers);
+            $this->assert_api_error($response, 422);
+            $this->assertSame(0, CartCoupon::query()->where('cart_id', $cart['id'])->count());
+        } finally {
+            Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set($snapshot, false);
+        }
+    }
+
+    /**
+     * Coupons already on a cart are removed when the store stops accepting coupon codes.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_applied_coupons_are_removed_when_coupon_codes_are_disabled(): void
+    {
+        $this->prepare_variant();
+        $code = 'DROP-' . wp_generate_password(6, false);
+        $this->create_coupon($code);
+        $cart = $this->add_cart_item();
+
+        $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers));
+        $this->assertNotNull($this->find_coupon_in_response($applied['data'], $code));
+
+        $snapshot = $this->set_coupon_codes_enabled(false);
+
+        try {
+            $current = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
+            $this->assertEmpty($current['pricing']['coupons']);
+            $this->assertNull($this->find_coupon_in_response($current, $code));
+            $this->assertSame(0, CartCoupon::query()->where('cart_id', $cart['id'])->count());
+        } finally {
+            Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set($snapshot, false);
+        }
+    }
+
+    /**
+     * Turn the checkout "Apply Coupon Code" setting on or off.
+     *
+     * @param bool $is_enabled Whether coupon codes are accepted.
+     *
+     * @return array<string, mixed> The checkout settings before the change.
+     * @since 1.0.1
+     */
+    protected function set_coupon_codes_enabled(bool $is_enabled): array
+    {
+        $settings = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh();
+        $snapshot = $settings->to_array();
+        $configuration = (array) ($snapshot['checkout_configuration'] ?? []);
+        $configuration['can_apply_coupon_code'] = $is_enabled;
+
+        $settings->set(['checkout_configuration' => $configuration], false);
+
+        return $snapshot;
+    }
+
     public function test_stacking_item_scoped_and_cart_wide_coupons(): void
     {
         $product_a = $this->create_product([
@@ -855,6 +933,44 @@ class CartApiTest extends RestTestCase
         $this->assertSame([], $item['applied_product_coupons']);
     }
 
+    /**
+     * A cart priced in a display currency reads the currencies table at most once.
+     *
+     * Before the currency data was cached, each amount in the cart response queried the exchange rate again.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_cart_with_a_display_currency_reads_the_currencies_table_at_most_once(): void
+    {
+        $this->assert_api_success($this->request('POST', 'currencies', ['items' => [[
+            'code' => 'EUR',
+            'name' => 'Euro',
+            'symbol' => '€',
+            'exchange_rate' => 0.9,
+            'is_active' => true,
+            'is_base' => false,
+        ]]]), 201);
+
+        // The display currency is read once per request and kept, so the cookie must be set before any response reads it.
+        $_COOKIE[CookieNames::CURRENCY] = 'EUR';
+
+        try {
+            $this->prepare_variant();
+            $this->add_cart_item(2);
+            app(CurrencyService::class)->flush_cache();
+
+            $this->start_counting_currency_queries();
+            $cart = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
+            $this->stop_counting_currency_queries();
+        } finally {
+            unset($_COOKIE[CookieNames::CURRENCY]);
+        }
+
+        $this->assertSame('EUR', $cart['items'][0]['display_subtotal_money_object']['currency']['code']);
+        $this->assert_currency_queries_at_most(1, 'Cart request.');
+    }
+
     public function test_display_price_strikes_through_regular_price_when_only_a_sale_is_active(): void
     {
         $product = $this->create_product([
@@ -1081,8 +1197,8 @@ class CartApiTest extends RestTestCase
         // Grand total still reconciles: pre-shipping total + shipping (waived) + tax.
         $expected_total = round(
             $pricing['display_order_total_money_object']['raw']
-            + $pricing['display_shipping_amount_money_object']['raw']
-            + $pricing['display_tax_total_money_object']['raw'],
+                + $pricing['display_shipping_amount_money_object']['raw']
+                + $pricing['display_tax_total_money_object']['raw'],
             2
         );
         $this->assertEquals($expected_total, round($pricing['display_total_money_object']['raw'], 2));

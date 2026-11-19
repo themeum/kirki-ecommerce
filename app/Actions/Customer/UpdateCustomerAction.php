@@ -11,6 +11,8 @@ use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
@@ -57,11 +59,15 @@ class UpdateCustomerAction
      * Default shipping and default billing are then resolved across the full
      * submitted set the same way address creation resolves them.
      *
+     * A submitted address ID that does not belong to the customer is rejected,
+     * so one customer cannot take over another customer's address.
+     *
      * @since 1.0.0
      *
      * @param UpdateCustomerDTO  $customer_payload Customer data to save.
      * @param UpdateAddressDTO[] $address_payloads The full set of addresses the customer should end up with.
      * @return Customer The updated customer.
+     * @throws NotFoundException When a submitted address ID does not belong to the customer.
      * @throws Throwable When the customer or an address cannot be saved; the transaction is rolled back.
      */
     public function execute(UpdateCustomerDTO $customer_payload, array $address_payloads)
@@ -77,6 +83,13 @@ class UpdateCustomerAction
             $submitted_address_ids = array_filter(array_map(function ($address_payload) {
                 return $address_payload->id;
             }, $address_payloads));
+
+            throw_if(
+                !empty(array_diff($submitted_address_ids, $current_address_ids)),
+                __('Address could not be found.', 'kirki-ecommerce'),
+                NotFoundException::class,
+                Response::NOT_FOUND
+            );
 
             $ids_to_delete = array_diff($current_address_ids, $submitted_address_ids);
 

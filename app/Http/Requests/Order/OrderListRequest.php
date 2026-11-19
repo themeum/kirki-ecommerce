@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Http\Requests\Order;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderAttention;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\Framework\Sanitizer;
@@ -30,6 +31,7 @@ class OrderListRequest extends Request
             'fulfillment_status' => 'nullable|string|in:' . FulfillmentStatus::join(),
             'payment_status' => 'nullable|string|in:' . PaymentStatus::join(),
             'shipping_method' => 'nullable|string|max:100',
+            'attention' => 'nullable|string|in:' . OrderAttention::join(),
         ];
     }
 
@@ -46,6 +48,7 @@ class OrderListRequest extends Request
             'fulfillment_status' => Sanitizer::TEXT,
             'payment_status' => Sanitizer::TEXT,
             'shipping_method' => Sanitizer::TEXT,
+            'attention' => Sanitizer::TEXT,
         ];
     }
 }

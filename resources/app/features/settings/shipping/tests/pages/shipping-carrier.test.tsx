@@ -4,7 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import ShippingCarrierCard from '@/features/settings/shipping/pages/shipping-carrier/shipping-carrier';
+import ShippingCarrierCard from '@/features/settings/shipping/components/shipping-carrier/shipping-carrier';
 import type {
   ShippingCarrier,
   ShippingCarrierPreset,

@@ -412,7 +412,7 @@ class SettingsSeeder extends Seeder
                     "company_name_validation" => "optional",
                     "company_id_validation" => "optional",
                     "vat_identification_number_validation" => "optional",
-                    "has_apply_coupon_code" => true,
+                    "can_apply_coupon_code" => true,
                     "show_customer_note" => false,
                 ]
             ],

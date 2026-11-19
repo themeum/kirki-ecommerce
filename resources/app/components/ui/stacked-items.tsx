@@ -20,7 +20,7 @@ import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 
 type StackedItemsElementProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
-  variant?: 'outline' | 'card';
+  variant?: 'outline' | 'card' | 'ghost';
 };
 
 type StackedItemsContextValue = {
@@ -42,6 +42,7 @@ const StackedItems = forwardRef<HTMLDivElement, StackedItemsElementProps>((props
         cssOverride={mergeCss(
           styles.container,
           variant === 'card' && styles.cardContainer,
+          variant === 'ghost' && styles.ghostContainer,
           cssOverride,
         )}
         {...rest}
@@ -88,7 +89,7 @@ const StackedItem = forwardRef<HTMLDivElement, StackedItemProps>((props, ref) =>
 
   return (
     <StackedItemContext.Provider value={{ isOpen, setOpen }}>
-      <div css={scoped(styles.stackedItem)}>
+      <div data-slot="stacked-item-wrapper" css={scoped(styles.stackedItem)}>
         <Item
           ref={ref}
           role="listitem"
@@ -143,6 +144,9 @@ export {
 
 export type { StackedItemProps, StackedItemsElementProps };
 
+const GHOST_BLEED = `var(--stacked-items-bleed, ${theme.spacing[2]})`;
+const GHOST_HIGHLIGHTED = ':hover, :has(a:focus-visible)';
+
 const styles = defineStyles({
   container: {
     overflow: 'hidden',
@@ -154,6 +158,50 @@ const styles = defineStyles({
     borderColor: theme.colors.border.secondary,
     '& [data-slot="stacked-item"]': {
       backgroundColor: theme.colors.background.fill,
+    },
+  },
+  ghostContainer: {
+    border: 'none',
+    borderRadius: theme.radius.none,
+    overflow: 'auto',
+    marginInline: `calc(-1 * ${GHOST_BLEED})`,
+    '& [data-slot="stacked-item-wrapper"]': {
+      position: 'relative',
+      '&:not(:last-of-type)': {
+        borderBottomColor: 'transparent',
+      },
+      '&:not(:last-of-type)::after': {
+        content: '""',
+        position: 'absolute',
+        bottom: '-1px',
+        left: GHOST_BLEED,
+        right: GHOST_BLEED,
+        height: '1px',
+        backgroundColor: theme.colors.border.secondary,
+        transition: 'left 180ms ease, right 180ms ease',
+        pointerEvents: 'none',
+      },
+      [`&:is(${GHOST_HIGHLIGHTED})::after, &:has(+ :is(${GHOST_HIGHLIGHTED}))::after`]: {
+        left: 0,
+        right: 0,
+      },
+    },
+    '& [data-slot="stacked-item"]': {
+      paddingInline: GHOST_BLEED,
+      '&:hover': {
+        backgroundColor: 'rgba(0, 0, 0, 0.02)', // @todo: we don't have any color token for this
+      },
+      '& a:focus': {
+        outline: 'none',
+        boxShadow: 'none',
+      },
+      '&:has(a:focus-visible)::after': {
+        content: '""',
+        position: 'absolute',
+        inset: 0,
+        border: `2px solid ${theme.colors.background.fillBrand}`,
+        pointerEvents: 'none',
+      },
     },
   },
   stackedItem: {
@@ -168,7 +216,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[3]}`,
 
     '&:hover': {
-      backgroundColor: theme.colors.background.surfaceAlt,
+      backgroundColor: 'rgba(0, 0, 0, 0.02)', // @todo: we don't have any color token for this
     },
     '& [data-action-group="true"]': {
       position: 'absolute',

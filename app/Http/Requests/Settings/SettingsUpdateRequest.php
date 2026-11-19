@@ -692,7 +692,7 @@ class SettingsUpdateRequest extends Request
             'data.checkout_configuration.company_name_validation' => 'required|string|in:required,optional',
             'data.checkout_configuration.company_id_validation' => 'required|string|in:required,optional',
             'data.checkout_configuration.vat_identification_number_validation' => 'required|string|in:required,optional',
-            'data.checkout_configuration.has_apply_coupon_code' => 'required|boolean',
+            'data.checkout_configuration.can_apply_coupon_code' => 'required|boolean',
             'data.checkout_configuration.show_customer_note' => 'nullable|boolean',
         ];
     }
@@ -714,7 +714,7 @@ class SettingsUpdateRequest extends Request
             'data.checkout_configuration.company_name_validation' => Sanitizer::TEXT,
             'data.checkout_configuration.company_id_validation' => Sanitizer::TEXT,
             'data.checkout_configuration.vat_identification_number_validation' => Sanitizer::TEXT,
-            'data.checkout_configuration.has_apply_coupon_code' => Sanitizer::BOOL,
+            'data.checkout_configuration.can_apply_coupon_code' => Sanitizer::BOOL,
             'data.checkout_configuration.show_customer_note' => Sanitizer::BOOL,
         ];
     }

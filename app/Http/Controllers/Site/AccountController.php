@@ -167,8 +167,7 @@ class AccountController
         $order = $order_service->find_order_by_uuid($request->uuid);
 
         if (!$order || empty($customer_id) || $order->customer_id !== $customer_id) {
-            wp_safe_redirect(Route::site_url('account.orders'));
-            exit;
+            Url::redirect(Route::site_url('account.orders'));
         }
 
         $order_resource = OrderResource::make($order);
@@ -247,10 +246,10 @@ class AccountController
         $filters->page = intval($sanitized_input['current_page'] ?? 1);
         $filters->limit = 9;
         $user_id   = user()->get_id();
-        $wishlists = $wishlist_service->paginated($user_id,$filters);
+        $wishlists = $wishlist_service->paginated($user_id, $filters);
         $wishlists_resource = new Collection(WishlistResource::collection($wishlists->items()->all()));
         $data = [
-            'wishlists' => new Paginator($wishlists_resource, $wishlists->total(),$wishlists->get_per_page(),$wishlists->get_current_page()),
+            'wishlists' => new Paginator($wishlists_resource, $wishlists->total(), $wishlists->get_per_page(), $wishlists->get_current_page()),
         ];
 
         return view('site.account.wishlist', $data)->layout(false);

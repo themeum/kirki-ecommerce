@@ -7,8 +7,8 @@
  * PHP usage:
  *   <div x-data="stateField()">
  *     <select x-bind="register('state', { required: '...' })">
- *       <template x-for="state in states" :key="state.id">
- *         <option :value="state.id" x-text="state.name"></option>
+ *       <template x-for="state in states" x-bind:key="state.id">
+ *         <option x-bind:value="state.id" x-text="state.name"></option>
  *       </template>
  *     </select>
  *   </div>

@@ -14,6 +14,7 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\ConsentLocations;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
@@ -22,7 +23,6 @@ use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Services\CurrencyService;
-use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource as SiteOrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
@@ -36,13 +36,13 @@ use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\LegalConsentService;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
-use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -73,10 +73,16 @@ class SiteController
      * @since 1.0.0
      *
      * @param ShopPageFilterRequest $request Validated shop filter request.
-     * @return \Kirki\Ecommerce\Framework\View\View Shop view.
+     * @return \Kirki\Ecommerce\Framework\View\View|string Shop view.
      */
     public function shop_page(ShopPageFilterRequest $request)
     {
+        $override = Template::override('shop', $request);
+
+        if ($override) {
+            return $override;
+        }
+
         $sanitized_input = $request->sanitized();
         $shop_page_data = $this->product_service->shop_page_data($sanitized_input);
 
@@ -108,10 +114,16 @@ class SiteController
      * @since 1.0.0
      *
      * @param Request $request Current request.
-     * @return \Kirki\Ecommerce\Framework\View\View Single product view, or the not-found view.
+     * @return \Kirki\Ecommerce\Framework\View\View|string Single product view, or the not-found view.
      */
     public function shop_single_page(Request $request)
     {
+        $override = Template::override('shop.single', $request);
+
+        if ($override) {
+            return $override;
+        }
+
         $slug = $request->string('slug', '');
 
         $query = Product::with([
@@ -153,10 +165,16 @@ class SiteController
      *
      * @param Request     $request      Current request.
      * @param CartService $cart_service Cart service.
-     * @return \Kirki\Ecommerce\Framework\View\View Cart view.
+     * @return \Kirki\Ecommerce\Framework\View\View|string Cart view.
      */
     public function cart_page(Request $request, CartService $cart_service)
     {
+        $override = Template::override('cart', $request);
+
+        if ($override) {
+            return $override;
+        }
+
         $cart = $cart_service->get_current_cart();
         $calculate_tax = false;
         $cart_resource = SiteCartResource::make($cart, $calculate_tax);
@@ -176,7 +194,7 @@ class SiteController
      * @param CartService    $cart_service    Cart service.
      * @param OrderService   $order_service   Order service.
      * @param AddressService $address_service Address service.
-     * @return \Kirki\Ecommerce\Framework\View\View Checkout, order success or order failed view.
+     * @return \Kirki\Ecommerce\Framework\View\View|string Checkout, order success or order failed view.
      */
     public function checkout_page(
         Request $request,
@@ -184,31 +202,37 @@ class SiteController
         OrderService $order_service,
         AddressService $address_service
     ) {
+        $override = Template::override('checkout', $request);
+
+        if ($override) {
+            return $override;
+        }
+
         $status = $request->get('order');
+        $uuid = $request->get('uuid');
 
-        if (in_array($status, ['success', 'failed'], true)) {
-            $order_resource = null;
+        if (in_array($status, ['success', 'failed'], true) && $uuid) {
+            $order = $order_service->find_order_by_uuid($uuid);
 
-            if ($uuid = $request->get('uuid')) {
-                $order = $order_service->find_order_by_uuid($uuid);
-                $order_resource = $order ? SiteOrderResource::make($order) : null;
+            if (is_null($order)) {
+                Url::redirect(home_url());
             }
 
-            if (! $order_resource) {
-                wp_safe_redirect(home_url());
-                exit;
+            $is_offline_payment = $order->payment_metadata['payment_provider']['is_offline'] ?? false;
+
+            if ($is_offline_payment && $status === 'failed') {
+                Url::redirect(home_url());
             }
 
             return view("site.order-{$status}", [
-                'order' => $order_resource,
+                'order' => SiteOrderResource::make($order),
             ])->layout(false);
         }
 
         $cart = $cart_service->get_current_cart();
 
         if (! $cart || empty($cart->items) || $cart->items->is_empty()) {
-            wp_safe_redirect(Url::get_cart_url());
-            exit;
+            Url::redirect(Url::get_cart_url());
         }
 
         $customer = customer();
@@ -220,8 +244,7 @@ class SiteController
         $cart = SiteCartResource::make($cart);
 
         if (!empty($cart['invalid_item'])) {
-            wp_safe_redirect(Url::get_cart_url());
-            exit;
+            Url::redirect(Url::get_cart_url());
         }
 
         $data = [
@@ -260,10 +283,16 @@ class SiteController
      * @param Request              $request               Current request.
      * @param OrderService         $order_service         Order service.
      * @param OrderActivityService $order_activity_service Order activity service.
-     * @return \Kirki\Ecommerce\Framework\View\View Order tracking view.
+     * @return \Kirki\Ecommerce\Framework\View\View|string Order tracking view.
      */
     public function order_tracking_page(Request $request, OrderService $order_service, OrderActivityService $order_activity_service)
     {
+        $override = Template::override('order_tracking', $request);
+
+        if ($override) {
+            return $override;
+        }
+
         $order_uuid = $request->string('uuid', '');
 
         if (empty($order_uuid)) {

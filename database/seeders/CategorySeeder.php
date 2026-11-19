@@ -10,7 +10,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
 /**
- * Seeds the Shopify Standard Product Taxonomy category tree (verticals and their subcategories).
+ * Seeds the Standard Product Taxonomy category tree (verticals and their subcategories).
  *
  * @since 1.0.0
  */

@@ -23,7 +23,7 @@ class MiniCartService extends CartService
      * @param array<string, mixed> $attributes Element attributes; supports a `class` entry.
      * @return string Mini cart HTML.
      */
-    public function get_mimi_cart_html($attributes)
+    public function get_mini_cart_html($attributes)
     {
         $attributes = wp_parse_args(
             $attributes,
@@ -37,23 +37,23 @@ class MiniCartService extends CartService
         $total_items_count = $cart_resource['items_count'] ?? 0;
 
         ob_start();
-        ?>
-        <a  href="<?php echo esc_url(Url::get_cart_url()); ?>"
+?>
+        <a href="<?php echo esc_url(Url::get_cart_url()); ?>"
             aria-label="<?php esc_attr_e('View Cart', 'kirki-ecommerce'); ?>"
             class="kecom-mini-cart <?php echo esc_attr($attributes['class']); ?>"
-            @kecom:cart-updated.document="updateCount($event.detail.items_count)"
+            x-on:kecom:cart-updated.document="updateCount($event.detail.items_count)"
             x-data="miniCart({ initialCount: <?php echo (int) $total_items_count; ?> })">
 
             <span class="kecom-mini-cart-icon" aria-hidden="true"><?php Icon::render('shopping-cart', ['size' => 20]); ?></span>
             <span
                 class="kecom-mini-cart-count"
-                :class="{
+                x-bind:class="{
                     'is-increasing': direction === 'increase',
                     'is-decreasing': direction === 'decrease'
                 }"
                 x-text="cartCount"></span>
         </a>
-        <?php
+<?php
         return ob_get_clean();
     }
 }

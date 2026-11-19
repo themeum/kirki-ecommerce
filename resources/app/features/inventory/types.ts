@@ -39,6 +39,7 @@ const inventoryListOptions: UseListParamsOptions<InventoryListFilter> = {
 const inventoryTypeOptions: SuggestionOption[] = [
   { value: 'all', title: __('All', 'kirki-ecommerce') },
   { value: 'in_stock', title: __('In stock', 'kirki-ecommerce') },
+  { value: 'low_stock', title: __('Low stock', 'kirki-ecommerce') },
   { value: 'out_of_stock', title: __('Out of stock', 'kirki-ecommerce') },
 ];
 

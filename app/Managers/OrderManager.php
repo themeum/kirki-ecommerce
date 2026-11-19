@@ -240,9 +240,10 @@ class OrderManager
      * @since 1.0.0
      *
      * @param int $id Order ID.
+     * @param bool $notify_customer Whether to notify the customer.
      * @return bool True when the transition was applied.
      */
-    public function mark_as_shipped(int $id)
+    public function mark_as_shipped(int $id, bool $notify_customer = false)
     {
         $order = $this->order_service->find_order_or_fail($id);
         $is_shipped = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::MARK_AS_SHIPPED);
@@ -254,7 +255,7 @@ class OrderManager
             OrderActivity::log($order, OrderActivityType::SHIPPED);
 
             if ($order->order_status !== $status_before) {
-                OrderShippedEvent::dispatch($order);
+                OrderShippedEvent::dispatch($order, $notify_customer);
             }
         }
 
@@ -302,9 +303,10 @@ class OrderManager
      *
      * @param int                  $id       Order ID.
      * @param array<string, mixed> $tracking Accepts carrier, tracking_number and tracking_url keys.
+     * @param bool                 $notify_customer
      * @return bool True when the order was updated.
      */
-    public function add_tracking(int $id, array $tracking)
+    public function add_tracking(int $id, array $tracking, bool $notify_customer = false)
     {
         $is_updated = $this->order_service->partial_update_order($id, [
             'shipping_carrier' => $tracking['carrier'] ?? null,
@@ -323,10 +325,27 @@ class OrderManager
             }
 
             OrderActivity::log($order, OrderActivityType::TRACKING_ADDED);
-            OrderTrackingAddedEvent::dispatch($order);
+            OrderTrackingAddedEvent::dispatch($order, $notify_customer);
         }
 
         return $is_updated;
+    }
+
+    /**
+     * Clear the shipping carrier and tracking details of an order.
+     *
+     * @since 1.0.2
+     *
+     * @param int $id Order ID.
+     * @return bool True when the order was updated.
+     */
+    public function remove_tracking(int $id)
+    {
+        return $this->order_service->partial_update_order($id, [
+            'shipping_carrier' => null,
+            'shipping_tracking_number' => null,
+            'shipping_tracking_url' => null,
+        ]);
     }
 
     /**

@@ -7,7 +7,7 @@ import LeadingIconBadge from '@/components/ui/leading-icon-badge';
 import type { TextColor } from '@/components/ui/text';
 import type {
   FulfillmentStatus,
-  OrderStatus,
+  Order,
   PaymentStatus,
 } from '@/features/orders/schemas/catalog/order';
 import { theme } from '@/theme';
@@ -76,7 +76,7 @@ export const getFulfillmentBadgeInfo = (
       };
     case 'on-hold':
       return {
-        variant: 'caution',
+        variant: 'warning',
         text: __('On hold', 'kirki-ecommerce'),
       };
     case 'cancelled':
@@ -98,14 +98,14 @@ export const getFulfillmentBadgeInfo = (
 };
 
 export const getOrderStateBadgeInfo = (
-  status: OrderStatus,
+  order: Order,
 ): {
   icon: ReactNode;
   text: string;
   hintText: string;
   textColor: TextColor;
 } => {
-  switch (status) {
+  switch (order.status) {
     case 'pending':
       return {
         icon: (
@@ -147,7 +147,10 @@ export const getOrderStateBadgeInfo = (
             cssOverride={{ backgroundColor: theme.colors.background.solidSurfaceAlt }}
           />
         ),
-        text: __('Order shipped', 'kirki-ecommerce'),
+        text:
+          order.shipping_method_type === 'local_pickup'
+            ? __('Ready for pickup', 'kirki-ecommerce')
+            : __('Order shipped', 'kirki-ecommerce'),
         hintText: __('Payment Pending', 'kirki-ecommerce'),
         textColor: 'primary',
       };
@@ -159,14 +162,20 @@ export const getOrderStateBadgeInfo = (
             cssOverride={{ backgroundColor: theme.colors.background.solidSurfaceAlt }}
           />
         ),
-        text: __('Order shipped', 'kirki-ecommerce'),
+        text:
+          order.shipping_method_type === 'local_pickup'
+            ? __('Ready for pickup', 'kirki-ecommerce')
+            : __('Order shipped', 'kirki-ecommerce'),
         hintText: __('Awaiting delivery', 'kirki-ecommerce'),
         textColor: 'primary',
       };
     case 'delivered_unpaid':
       return {
         icon: <LeadingIconBadge variant="success" />,
-        text: __('Order delivered', 'kirki-ecommerce'),
+        text:
+          order.shipping_method_type === 'local_pickup'
+            ? __('Order picked up', 'kirki-ecommerce')
+            : __('Order delivered', 'kirki-ecommerce'),
         hintText: '',
         textColor: 'primary',
       };
@@ -185,7 +194,10 @@ export const getOrderStateBadgeInfo = (
             cssOverride={{ backgroundColor: theme.colors.background.solidSurfaceSecondary }}
           />
         ),
-        text: __('Order delivered', 'kirki-ecommerce'),
+        text:
+          order.shipping_method_type === 'local_pickup'
+            ? __('Order picked up', 'kirki-ecommerce')
+            : __('Order delivered', 'kirki-ecommerce'),
         hintText: '',
         textColor: 'primary',
       };

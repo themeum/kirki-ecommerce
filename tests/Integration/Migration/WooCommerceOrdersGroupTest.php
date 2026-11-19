@@ -228,6 +228,44 @@ class WooCommerceOrdersGroupTest extends RestTestCase
     }
 
     /**
+     * A line takes the image of its variation, then the image of its product, and otherwise has none.
+     *
+     * @return void
+     */
+    public function test_line_image_comes_from_the_variation_then_the_product()
+    {
+        $product_image = self::factory()->attachment->create();
+        $variation_image = self::factory()->attachment->create();
+
+        $parent = $this->woo_product(['post_title' => 'Cap'], ['_thumbnail_id' => (string) $product_image, '_product_attributes' => ['color' => ['name' => 'Color', 'value' => 'Red | Blue', 'position' => 0, 'is_visible' => 1, 'is_variation' => 1, 'is_taxonomy' => 0]]]);
+        wp_set_object_terms($parent, ['variable'], 'product_type');
+        $red = $this->woo_product(['post_type' => 'product_variation', 'post_parent' => $parent], ['_regular_price' => '9', 'attribute_color' => 'Red', '_thumbnail_id' => (string) $variation_image]);
+        $blue = $this->woo_product(['post_type' => 'product_variation', 'post_parent' => $parent], ['_regular_price' => '9', 'attribute_color' => 'Blue']);
+        $plain = $this->simple_product('Mug', '20.00', 'MUG-1');
+        $missing = $this->woo_product(['post_title' => 'Pen'], ['_regular_price' => '3', '_thumbnail_id' => '999999']);
+        wp_set_object_terms($missing, ['simple'], 'product_type');
+
+        $line = function (int $product, int $variation, string $name) {
+            return ['type' => 'line_item', 'name' => $name, 'meta' => ['_product_id' => $product, '_variation_id' => $variation, '_qty' => 1, '_line_subtotal' => '9', '_line_subtotal_tax' => '0', '_line_total' => '9', '_line_tax' => '0']];
+        };
+        $order_id = $this->legacy_order($this->order_attributes([]), [
+            $line($parent, $red, 'Cap - Red'),
+            $line($parent, $blue, 'Cap - Blue'),
+            $line($plain, 0, 'Mug'),
+            $line($missing, 0, 'Pen'),
+        ], [], []);
+
+        $this->migrate(['products', 'orders']);
+
+        $map = new RecordLedger('woocommerce');
+        $images = OrderItem::query()->where('order_id', $map->resolve('order', $order_id))->order_by('id')->get()->map(function ($item) {
+            return $item->product_image === null ? null : (int) $item->product_image;
+        })->all();
+
+        $this->assertSame([$variation_image, $product_image, null, null], $images);
+    }
+
+    /**
      * A coupon line links to the coupon the migration made, even when its code was changed because Kirki already had it.
      *
      * @return void

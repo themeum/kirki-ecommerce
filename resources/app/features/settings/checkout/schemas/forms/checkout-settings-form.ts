@@ -8,7 +8,7 @@ export const CheckoutConfigurationSchema = z.object({
   company_name_validation: z.string().nullish().default(''),
   company_id_validation: z.string().nullish().default(''),
   vat_identification_number_validation: z.string().nullish().default(''),
-  has_apply_coupon_code: z.boolean().default(true),
+  can_apply_coupon_code: z.boolean().default(true),
   show_customer_note: z.boolean().default(false),
 });
 
@@ -27,7 +27,7 @@ export const CheckoutSettingsFormSchema = prepareFormSchema(CheckoutSettingsForm
       company_id_validation: values.checkout_configuration.company_id_validation || null,
       vat_identification_number_validation:
         values.checkout_configuration.vat_identification_number_validation || null,
-      has_apply_coupon_code: values.checkout_configuration.has_apply_coupon_code,
+      can_apply_coupon_code: values.checkout_configuration.can_apply_coupon_code,
       show_customer_note: values.checkout_configuration.show_customer_note ?? false,
     },
   }),

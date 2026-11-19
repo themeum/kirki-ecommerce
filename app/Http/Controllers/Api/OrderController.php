@@ -185,6 +185,23 @@ class OrderController
     }
 
     /**
+     * Return the carrier that was last used to add tracking to an order.
+     *
+     * @since 1.0.2
+     *
+     * @param Request         $request
+     * @param ShippingService $shipping_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The carrier id, or the name of an ad-hoc carrier; null data when no tracking was added yet.
+     */
+    public function last_used_shipping_carrier(Request $request, ShippingService $shipping_service)
+    {
+        return response()->json([
+            'data' => $shipping_service->get_last_used_carrier(),
+            'message' => __('Last used shipping carrier retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
      * Update an order from the validated request.
      *
      * @since 1.0.0
@@ -312,10 +329,9 @@ class OrderController
     public function action(OrderActionRequest $request, PerformOrderAction $action)
     {
         $dto = PerformOrderActionDTO::from_request($request);
-        $dto->order_id = $request->int('id');
         $dto->updated_by = user()->get_id() ?? null;
 
-        $order = $action->execute($dto);
+        $order = $action->execute($dto, $request->get_int('id'));
 
         return response()->json([
             'data' => OrderResource::make($order),

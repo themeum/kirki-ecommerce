@@ -1,27 +1,25 @@
 import { type CSSObject } from '@emotion/react';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Search } from 'lucide-react';
-import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, type HTMLAttributes } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  type ComponentRef,
+  forwardRef,
+  type HTMLAttributes,
+} from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 
-type CommandProps = Omit<
-  ComponentPropsWithoutRef<typeof CommandPrimitive>,
-  'className' | 'css'
-> & {
+type CommandProps = Omit<ComponentPropsWithoutRef<typeof CommandPrimitive>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const Command = forwardRef<ElementRef<typeof CommandPrimitive>, CommandProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const Command = forwardRef<ComponentRef<typeof CommandPrimitive>, CommandProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <CommandPrimitive ref={ref} css={scopedMerge(styles.root, cssOverride)} {...rest} />
-    );
-  },
-);
+  return <CommandPrimitive ref={ref} css={scopedMerge(styles.root, cssOverride)} {...rest} />;
+});
 
 Command.displayName = 'Command';
 
@@ -33,19 +31,18 @@ type CommandInputProps = Omit<
   wrapperCss?: CSSObject;
 };
 
-const CommandInput = forwardRef<
-  ElementRef<typeof CommandPrimitive.Input>,
-  CommandInputProps
->((props, ref) => {
-  const { cssOverride, wrapperCss, ...rest } = props;
+const CommandInput = forwardRef<ComponentRef<typeof CommandPrimitive.Input>, CommandInputProps>(
+  (props, ref) => {
+    const { cssOverride, wrapperCss, ...rest } = props;
 
-  return (
-    <div css={scopedMerge(styles.inputWrapper, wrapperCss)}>
-      <Search size={16} css={scoped(styles.searchIcon)} />
-      <CommandPrimitive.Input ref={ref} css={scopedMerge(styles.input, cssOverride)} {...rest} />
-    </div>
-  );
-});
+    return (
+      <div css={scopedMerge(styles.inputWrapper, wrapperCss)}>
+        <Search size={16} css={scoped(styles.searchIcon)} />
+        <CommandPrimitive.Input ref={ref} css={scopedMerge(styles.input, cssOverride)} {...rest} />
+      </div>
+    );
+  },
+);
 
 CommandInput.displayName = 'CommandInput';
 
@@ -56,14 +53,15 @@ type CommandListProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const CommandList = forwardRef<
-  ElementRef<typeof CommandPrimitive.List>,
-  CommandListProps
->((props, ref) => {
-  const { cssOverride, ...rest } = props;
+const CommandList = forwardRef<ComponentRef<typeof CommandPrimitive.List>, CommandListProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
 
-  return <CommandPrimitive.List ref={ref} css={scopedMerge(styles.list, cssOverride)} {...rest} />;
-});
+    return (
+      <CommandPrimitive.List ref={ref} css={scopedMerge(styles.list, cssOverride)} {...rest} />
+    );
+  },
+);
 
 CommandList.displayName = 'CommandList';
 
@@ -74,14 +72,15 @@ type CommandEmptyProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const CommandEmpty = forwardRef<
-  ElementRef<typeof CommandPrimitive.Empty>,
-  CommandEmptyProps
->((props, ref) => {
-  const { cssOverride, ...rest } = props;
+const CommandEmpty = forwardRef<ComponentRef<typeof CommandPrimitive.Empty>, CommandEmptyProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
 
-  return <CommandPrimitive.Empty ref={ref} css={scopedMerge(styles.empty, cssOverride)} {...rest} />;
-});
+    return (
+      <CommandPrimitive.Empty ref={ref} css={scopedMerge(styles.empty, cssOverride)} {...rest} />
+    );
+  },
+);
 
 CommandEmpty.displayName = 'CommandEmpty';
 
@@ -92,14 +91,15 @@ type CommandGroupProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const CommandGroup = forwardRef<
-  ElementRef<typeof CommandPrimitive.Group>,
-  CommandGroupProps
->((props, ref) => {
-  const { cssOverride, ...rest } = props;
+const CommandGroup = forwardRef<ComponentRef<typeof CommandPrimitive.Group>, CommandGroupProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
 
-  return <CommandPrimitive.Group ref={ref} css={scopedMerge(styles.group, cssOverride)} {...rest} />;
-});
+    return (
+      <CommandPrimitive.Group ref={ref} css={scopedMerge(styles.group, cssOverride)} {...rest} />
+    );
+  },
+);
 
 CommandGroup.displayName = 'CommandGroup';
 
@@ -110,14 +110,15 @@ type CommandItemProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const CommandItem = forwardRef<
-  ElementRef<typeof CommandPrimitive.Item>,
-  CommandItemProps
->((props, ref) => {
-  const { cssOverride, ...rest } = props;
+const CommandItem = forwardRef<ComponentRef<typeof CommandPrimitive.Item>, CommandItemProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
 
-  return <CommandPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest} />;
-});
+    return (
+      <CommandPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest} />
+    );
+  },
+);
 
 CommandItem.displayName = 'CommandItem';
 
@@ -129,7 +130,7 @@ type CommandSeparatorProps = Omit<
 };
 
 const CommandSeparator = forwardRef<
-  ElementRef<typeof CommandPrimitive.Separator>,
+  ComponentRef<typeof CommandPrimitive.Separator>,
   CommandSeparatorProps
 >((props, ref) => {
   const { cssOverride, ...rest } = props;
@@ -145,10 +146,7 @@ const CommandSeparator = forwardRef<
 
 CommandSeparator.displayName = 'CommandSeparator';
 
-type CommandShortcutProps = Omit<
-  HTMLAttributes<HTMLSpanElement>,
-  'className' | 'css'
-> & {
+type CommandShortcutProps = Omit<HTMLAttributes<HTMLSpanElement>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 

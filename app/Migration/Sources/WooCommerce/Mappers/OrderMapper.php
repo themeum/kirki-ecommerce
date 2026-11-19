@@ -168,6 +168,7 @@ class OrderMapper
                     'variant_id' => $variant_id,
                     'product_name' => $line['name'],
                     'sku' => $line['sku'] ?? null,
+                    'product_image' => $line['image'] ?? null,
                     'quantity' => $quantity,
                     'subtotal' => $subtotal,
                     'is_physical_product' => true,
@@ -222,7 +223,7 @@ class OrderMapper
 
             $notes[] = sprintf(
                 /* translators: 1: order number, 2: fee name */
-                __('Order %1$s: the fee "%2$s" was saved as a line item, because Kirki has no fee lines.', 'kirki-ecommerce'),
+                __('Order %1$s: the fee "%2$s" was saved as a line item, because Kirki eCommerce has no fee lines.', 'kirki-ecommerce'),
                 $source['id'],
                 $line['name']
             );

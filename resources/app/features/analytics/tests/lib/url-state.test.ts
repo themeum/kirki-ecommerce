@@ -69,6 +69,11 @@ describe('parseAnalyticsParams', () => {
     expect(params.compare).toBe('previous_period');
   });
 
+  it('falls back to the default for the API-only presets, which the page does not offer', () => {
+    expect(parseAnalyticsParams(new URLSearchParams('range=week_to_date')).range).toBe('last_30');
+    expect(parseAnalyticsParams(new URLSearchParams('range=all_time')).range).toBe('last_30');
+  });
+
   it('falls back to the default range for a custom range without valid dates', () => {
     expect(
       parseAnalyticsParams(new URLSearchParams('range=custom&from=nope&to=2026-09-30')).range,

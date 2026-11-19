@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Managers;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
+use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Events\Order\OrderNoteAddedEvent;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
@@ -177,7 +178,7 @@ class OrderActivityManager
      */
     protected function shipped(Order $order)
     {
-        return $this->record($order->id, OrderActivityType::SHIPPED, [], $this->resolve_author());
+        return $this->record($order->id, OrderActivityType::SHIPPED, $this->prepare_shipping_info($order), $this->resolve_author());
     }
 
     /**
@@ -190,7 +191,7 @@ class OrderActivityManager
      */
     protected function delivered(Order $order)
     {
-        return $this->record($order->id, OrderActivityType::DELIVERED, [], $this->resolve_author());
+        return $this->record($order->id, OrderActivityType::DELIVERED, $this->prepare_shipping_info($order), $this->resolve_author());
     }
 
     /**
@@ -387,8 +388,16 @@ class OrderActivityManager
             case OrderActivityType::FULFILLMENT_RESUMED:
                 return __('Order fulfillment resumed.', 'kirki-ecommerce');
             case OrderActivityType::SHIPPED:
+                if (($metadata['shipping_method_type'] ?? '') === ShippingMethodTypes::LOCAL_PICKUP) {
+                    return __('Order marked as ready for pickup.', 'kirki-ecommerce');
+                }
+
                 return __('Order marked as shipped.', 'kirki-ecommerce');
             case OrderActivityType::DELIVERED:
+                if (($metadata['shipping_method_type'] ?? '') === ShippingMethodTypes::LOCAL_PICKUP) {
+                    return __('Order marked as picked up.', 'kirki-ecommerce');
+                }
+
                 return __('Order marked as delivered.', 'kirki-ecommerce');
             case OrderActivityType::CANCELLED:
                 return $this->describe_cancelled($metadata);
@@ -657,5 +666,24 @@ class OrderActivityManager
         }
 
         return Money::format_from_minor($metadata['amount'], $metadata['currency_code'] ?? null);
+    }
+
+    protected function prepare_shipping_info(Order $order)
+    {
+        $shipping_method_type = $order->shipping_metadata['shipping_method']['type'] ?? null;
+
+        if ($shipping_method_type !== ShippingMethodTypes::LOCAL_PICKUP) {
+            return [
+                'shipping_method_type' => $shipping_method_type,
+            ];
+        }
+
+        return [
+            'shipping_method_type' => $shipping_method_type,
+            'pickup_address' => $order->shipping_metadata['shipping_method']['address'] ?? null,
+            'has_pick_time' => $order->shipping_metadata['shipping_method']['has_pick_time'] ?? false,
+            'pickup_time_start' => $order->shipping_metadata['shipping_method']['pickup_time_start'] ?? null,
+            'pickup_time_end' => $order->shipping_metadata['shipping_method']['pickup_time_end'] ?? null,
+        ];
     }
 }

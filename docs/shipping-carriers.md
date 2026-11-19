@@ -137,27 +137,53 @@ dialog:
 - Opening the dialog on an order that already has tracking pre-selects the
   listed carrier with the same name. If none matches, it selects **Other** with
   the stored name, and turns the stored link back into a template.
+- On an order without tracking, the dialog pre-selects the **last used
+  carrier**: the carrier of the last tracking added to any order, from **Add
+  tracking** or from **Mark as shipped** with tracking details. A listed carrier
+  is pre-selected only when the order's zone lists the same carrier id. A last
+  used **Other** carrier fills in **Carrier name** only; the **Tracking URL**
+  stays empty. With no usable last used carrier, the dialog selects **Other**
+  when the zone has no carrier, and otherwise shows **Select carrier**.
 
 The server builds the link, not the browser. The order keeps the carrier name,
 the tracking number and the resolved link as a **snapshot**: editing, disabling
 or deleting a carrier later does not change tracking already saved on an order.
 
+**Ship and track in one step.** The **Mark as shipped** action opens a dialog.
+Select **Add tracking details** (optional) to show the same fields as the
+Add-tracking dialog, pre-filled the same way. The remove control hides and
+clears them. **Mark as shipped** then ships the order and saves the tracking
+together; if the tracking is rejected, the order is not shipped. For a
+**local pickup** order the dialog asks "Mark … as ready for pickup?", shows the
+pickup method, and has no tracking fields.
+
+**Remove tracking.** When the order has a tracking number, the Add-tracking
+dialog shows **Remove tracking**. It clears the carrier, the number and the
+link. It sends no email and does not change the last used carrier.
+
+**On the order page.** For a shipped order, the Take action card shows the saved
+tracking: the carrier logo (or a truck icon), the carrier name and the number,
+with a menu to copy the number, edit the tracking, and open the carrier's
+tracking page. Without tracking it shows **No tracking added** and an **Add
+tracking** button.
+
 ---
 
 ## 6. The Tracking added email
 
-Adding tracking queues the **Tracking added** email to the order's customer. It
-shows the carrier, the tracking number and the clickable link. The template is
-under **Settings → Email** like the other customer order emails, with the
-shortcodes `{shipping_carrier}`, `{shipping_tracking_number}` and
-`{shipping_tracking_url}`.
+Adding tracking with `"notify_customer": true` queues the **Tracking added**
+email to the order's customer. It shows the carrier, the tracking number and the
+clickable link. The template is under **Settings → Email** like the other
+customer order emails, with the shortcodes `{shipping_carrier}`,
+`{shipping_tracking_number}` and `{shipping_tracking_url}`.
 
-- It is sent **each time** tracking is added, so correcting a number emails the
-  customer the corrected details.
-- Tracking can only be added after the order is shipped, so the **Order shipped**
-  email, sent when the order is marked shipped, never contains tracking. Tracking
-  has its own email for that reason.
-- Turn the template off to add tracking without emailing the customer.
+- It is sent **each time** tracking is added with `notify_customer: true`, so
+  correcting a number emails the customer the corrected details.
+- Without `notify_customer`, or with `false`, no email is queued.
+- When an order is marked shipped **with** tracking details, only the
+  **Order shipped** email is queued (when `notify_customer` is `true`). The
+  **Tracking added** email is not sent for that action.
+- A disabled template is never sent, even with `notify_customer: true`.
 
 See [Transactional Emails](emails.md) for how emails are queued and retried.
 
@@ -178,6 +204,15 @@ enabled carriers of the zone that covers the order's shipping address, each with
 when no enabled zone covers the address. Example:
 `docs/ecommerce/orders/get-shipping-carriers.yml`.
 
+**Last used carrier**: `GET /shipping-carriers/last-used` returns the carrier
+of the last tracking added to any order, as `{ "carrier_id": "ups", "carrier":
+null }` for a listed carrier or `{ "carrier_id": null, "carrier": "Local
+Courier" }` for **Other**. `data` is `null` until tracking is added for the first
+time. One value is kept for the whole store, in the
+`kirki_ecommerce_last_used_shipping_carrier` option. A successful **add-tracking**,
+or **mark-as-shipped** with tracking details, replaces it. A rejected request
+does not change it. Example: `docs/ecommerce/orders/get-last-used-shipping-carrier.yml`.
+
 **Add tracking**: `PATCH /orders/{id}/action` with `"action": "add-tracking"`.
 Example: `docs/ecommerce/orders/add-tracking.yml`.
 
@@ -187,8 +222,36 @@ Example: `docs/ecommerce/orders/add-tracking.yml`.
 | `carrier` + `tracking_number` + `tracking_url` holding `{tracking_number}` | Ad-hoc template (**Other**). The server resolves it and stores the carrier name and link. |
 | `carrier` + `tracking_number` + a plain http(s) `tracking_url` | Stored as sent. This is the earlier behaviour, kept for existing clients. |
 
-A `tracking_url` that is not http(s) returns `422`. `carrier` is required unless
-`carrier_id` is sent.
+The request is checked before the action runs. Each of these returns `422` and
+changes nothing:
+
+- a `tracking_url` that is not http(s);
+- neither `carrier` nor `carrier_id` on **add-tracking**;
+- both `carrier` and `carrier_id` in the same request;
+- `carrier` or `carrier_id` without `tracking_number`;
+- `carrier` (**Other**) without `tracking_url`.
+
+> **Changed in 1.0.2.** Earlier versions accepted `carrier` together with
+> `carrier_id` (the id won) and `carrier` without `tracking_url` (stored with no
+> link). Both now return `422`. Send exactly one of them, and a `tracking_url`
+> with `carrier`.
+
+**Mark as shipped with tracking**: `PATCH /orders/{id}/action` with
+`"action": "mark-as-shipped"` takes the same optional `carrier_id` or `carrier`,
+`tracking_number` and `tracking_url` as **add-tracking**, with the same rules.
+With a carrier and a number, the order is shipped and the tracking is stored in
+one transaction, and the last used carrier is updated. Without them, the order
+is only shipped.
+
+**Remove tracking**: `PATCH /orders/{id}/action` with
+`"action": "remove-tracking"` clears `shipping_carrier`,
+`shipping_tracking_number` and `shipping_tracking_url`. It is available wherever
+**add-tracking** is.
+
+**`notify_customer`** (boolean, default `false`) controls the customer email of
+**mark-as-shipped** and **add-tracking**. Send `true` to queue the **Order
+shipped** or **Tracking added** email. Omit it, or send `false`, to send no
+email. The dialogs show a checkbox for it when the email template is on.
 
 ---
 
@@ -202,8 +265,13 @@ A `tracking_url` that is not http(s) returns `422`. `carrier` is required unless
   empty. Editing a preset affects one zone, and later changes to the built-in
   links do not reach zones that already have the preset.
 - **Preset logos are not the official logos.** They are generated initials marks.
-- **Tracking only after shipping.** The order must already be shipped. There is no
-  way to enter tracking while an order is still being processed.
+- **Tracking at or after shipping.** Tracking can be entered when the order is
+  marked shipped, or added later. There is no way to enter tracking while an
+  order is still being processed.
+- **Emails are off unless you ask for them.** `mark-as-shipped` and
+  `add-tracking` email the customer only with `notify_customer: true`. Before
+  1.0.2 these actions always emailed the customer, so an API client that does
+  not send the flag no longer triggers an email.
 - **The link is stored on the order.** Changing a carrier's template later does
   not rewrite the links on existing orders.
 - **Presets cover a short list.** There is no import of a large provider list, and

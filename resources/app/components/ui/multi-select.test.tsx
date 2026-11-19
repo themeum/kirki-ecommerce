@@ -2,11 +2,11 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { type CSSProperties, type ReactNode, useState } from 'react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
+import { useMultiSelectChipLayer } from '@/components/ui/chip/chip-layer';
 import MultiSelect, {
   type ChipCapProps,
   type MultiSelectOption,
 } from '@/components/ui/multi-select';
-import { useMultiSelectChipLayer } from '@/components/ui/multi-select-chip-layer';
 
 const OPTIONS: MultiSelectOption[] = [
   { value: 1, title: 'Hoodie' },
@@ -34,6 +34,8 @@ const Harness = ({
   virtualized?: boolean;
   footer?: (state: { query: string; create: () => void }) => ReactNode;
   renderChip?: (option: MultiSelectOption) => ReactNode;
+  showSelectAll?: boolean;
+  selectAllLabel?: string;
 } & ChipCapProps) => {
   const [value, setValue] = useState<MultiSelectOption[]>(initial);
 
@@ -400,11 +402,74 @@ describe('MultiSelect panel slot', () => {
   });
 });
 
+describe('MultiSelect select-all row', () => {
+  const selectAll = () => screen.queryByRole('option', { name: /All tags/ });
+
+  const selectAllState = () =>
+    selectAll()?.querySelector('[role="checkbox"]')?.getAttribute('data-state');
+
+  it('renders no select-all row unless showSelectAll is set', () => {
+    render(<Harness selectAllLabel="All tags" />);
+
+    open();
+
+    expect(selectAll()).not.toBeInTheDocument();
+  });
+
+  it('falls back to the default label', () => {
+    render(<Harness showSelectAll />);
+
+    open();
+
+    expect(screen.getByRole('option', { name: /Select all/ })).toBeInTheDocument();
+  });
+
+  it('selects every option, then clears them all', () => {
+    render(<Harness showSelectAll selectAllLabel="All tags" />);
+
+    open();
+    fireEvent.click(selectAll()!);
+
+    expect(removeButtons()).toHaveLength(3);
+    expect(selectAllState()).toBe('checked');
+
+    fireEvent.click(selectAll()!);
+
+    expect(removeButtons()).toHaveLength(0);
+  });
+
+  it('shows a partial state when only some options are selected', () => {
+    render(<Harness showSelectAll selectAllLabel="All tags" initial={[OPTIONS[0]]} />);
+
+    open();
+
+    expect(selectAllState()).toBe('indeterminate');
+  });
+
+  it('renders the select-all row inside the option list', () => {
+    render(<Harness showSelectAll selectAllLabel="All tags" />);
+
+    open();
+
+    expect(screen.getByRole('listbox')).toContainElement(selectAll());
+    expect(screen.getAllByRole('option')[0]).toBe(selectAll());
+  });
+
+  it('hides the select-all row while searching', () => {
+    render(<Harness showSelectAll selectAllLabel="All tags" />);
+
+    open();
+    type('Hood');
+
+    expect(selectAll()).not.toBeInTheDocument();
+  });
+});
+
 /**
  * Row capping is measured from `offsetTop`, which jsdom reports as 0 for
  * every element — so a rendered field here always looks like one row and the
  * cut itself can never be exercised. The cut is tested directly instead, in
- * `multi-select-rows.test.ts`. What is worth asserting here is the wiring
+ * `chip-rows.test.ts`. What is worth asserting here is the wiring
  * around it: that a row cap subscribes to size and that a field without one
  * pays nothing.
  */

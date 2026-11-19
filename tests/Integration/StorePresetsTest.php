@@ -467,7 +467,7 @@ class StorePresetsTest extends RestTestCase
         }
 
         add_filter('pre_http_request', function ($reply, $args, $url) {
-            return substr($url, -4) === '.jpg' ? new WP_Error('http_request_failed', 'Operation timed out') : $reply;
+            return strpos($url, '/images/') !== false ? new WP_Error('http_request_failed', 'Operation timed out') : $reply;
         }, 20, 3);
 
         $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
@@ -703,7 +703,7 @@ class StorePresetsTest extends RestTestCase
 
         $inside_methods = array_column($zones[0]['shipping_methods'], null, 'name');
         $this->assertSame(['Inside Dhaka'], array_keys($inside_methods));
-        $this->assertSame(12000, $inside_methods['Inside Dhaka']['base_amount']);
+        $this->assertSame(6000, $inside_methods['Inside Dhaka']['base_amount']);
 
         foreach ($inside_methods as $method) {
             $this->assertTrue($method['is_enabled']);
@@ -711,7 +711,7 @@ class StorePresetsTest extends RestTestCase
 
         $outside_methods = $zones[1]['shipping_methods'];
         $this->assertSame(['Outside Dhaka'], array_column($outside_methods, 'name'));
-        $this->assertSame(20000, $outside_methods[0]['base_amount']);
+        $this->assertSame(12000, $outside_methods[0]['base_amount']);
         $this->assertTrue($outside_methods[0]['is_enabled']);
     }
 

@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
+use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 use function Kirki\Ecommerce\App\client_timezone;
@@ -20,7 +21,7 @@ use function Kirki\Ecommerce\App\client_timezone;
  */
 class AnalyticsRangeResolver
 {
-    const PRESETS = ['today', 'yesterday', 'last_7', 'last_30', 'last_90', 'last_12_months', 'month_to_date', 'year_to_date', 'custom'];
+    const PRESETS = ['today', 'yesterday', 'last_7', 'last_30', 'last_90', 'last_12_months', 'month_to_date', 'year_to_date', 'week_to_date', 'all_time', 'custom'];
 
     const COMPARISONS = ['previous_period', 'previous_year', 'custom', 'none'];
 
@@ -74,7 +75,10 @@ class AnalyticsRangeResolver
         [$from, $to] = $this->resolve_range($preset, $params['from'] ?? null, $params['to'] ?? null);
         $days = $this->days_between($from, $to);
         $granularity = $this->resolve_granularity($days);
-        $compare = $this->resolve_comparison($comparison, $from, $to, $days, $params['compare_from'] ?? null, $params['compare_to'] ?? null);
+        // All time has no earlier period to compare with.
+        $compare = $preset === 'all_time'
+            ? null
+            : $this->resolve_comparison($comparison, $from, $to, $days, $params['compare_from'] ?? null, $params['compare_to'] ?? null);
 
         return [
             'preset' => $preset,
@@ -119,11 +123,35 @@ class AnalyticsRangeResolver
                 return [substr($today, 0, 8) . '01', $today];
             case 'year_to_date':
                 return [substr($today, 0, 4) . '-01-01', $today];
+            case 'week_to_date':
+                return [$this->week_start($today), $today];
+            case 'all_time':
+                return [min($this->first_order_day() ?? $today, $today), $today];
             case 'custom':
                 return [(string) $from, (string) $to];
             default:
                 return [$this->shift_days($today, -29), $today];
         }
+    }
+
+    /**
+     * Get the local day of the store's first order, of any status.
+     *
+     * @since 1.0.2
+     *
+     * @return string|null Day in Y-m-d format, or null when the store has no orders.
+     */
+    protected function first_order_day()
+    {
+        $first = Order::query()->min('created_at');
+
+        if (empty($first)) {
+            return null;
+        }
+
+        return (new DateTimeImmutable((string) $first, new DateTimeZone('UTC')))
+            ->setTimezone(client_timezone())
+            ->format('Y-m-d');
     }
 
     /**

@@ -59,10 +59,12 @@ arrives, the response SHALL decide the mode.
 
 In dashboard mode, the Home heading SHALL read "Welcome, {name}". {name} SHALL be
 the current user's first name. When the first name is empty, {name} SHALL be the
-display name. When both are empty, the heading SHALL read "Welcome". The
-"View Live Site" link SHALL stay in the header. In checklist mode, the heading
-SHALL stay "Let's get you started". In both modes, the header SHALL have a primary
-"Add Product" button next to "View Live Site" that opens the create product page.
+display name. When both are empty, the heading SHALL read "Welcome". Below the
+heading, the period subtitle SHALL show, and the header actions SHALL be the
+merchant's quick actions followed by the Customize home button (see the
+home-customize capability). In checklist mode, the heading SHALL stay "Let's get
+you started", and the header SHALL show the "View Live Site" link and a primary
+"Add Product" button that opens the create product page.
 
 #### Scenario: User has a first name
 
@@ -74,10 +76,15 @@ SHALL stay "Let's get you started". In both modes, the header SHALL have a prima
 - **WHEN** the first name is empty and the display name is "store-admin"
 - **THEN** the heading reads "Welcome, store-admin"
 
-#### Scenario: Add a product from Home
+#### Scenario: Add a product from Home in checklist mode
 
-- **WHEN** the merchant selects "Add Product" in the Home header
+- **WHEN** a step is not completed and the merchant selects "Add Product" in the Home header
 - **THEN** the create product page opens
+
+#### Scenario: Dashboard header actions
+
+- **WHEN** a completed store opens Home with the default layout
+- **THEN** the header shows "View live site", a primary "Create order" and the Customize home button
 
 ### Requirement: Counted orders
 
@@ -99,7 +106,7 @@ all time, with no date filter.
 
 ### Requirement: Sales metric cards
 
-The overview SHALL show four metric cards, in this order:
+The overview endpoint SHALL keep returning four metrics, defined as:
 
 1. **Total sales**: the sum of the base-currency total of all counted orders.
 2. **Net sales**: Total sales minus the base-currency tax total, minus the
@@ -109,27 +116,24 @@ The overview SHALL show four metric cards, in this order:
 3. **Orders**: the number of counted orders.
 4. **Products sold**: the sum of item quantities on counted orders.
 
-Total sales and Net sales SHALL be shown in the store's base currency, with the
-store's currency format, as short amounts (the `short_display` of their money
-objects). When the short amount is different from the long amount, the card
-SHALL show the long amount as a native hover tooltip. A refund amount SHALL be
-converted to the base currency with the rate frozen on its order. The cards
-SHALL NOT show a change percentage or a trend.
+A refund amount SHALL be converted to the base currency with the rate frozen on
+its order. The Home page SHALL NOT show these four metrics. In their place, it
+SHALL show the Key numbers section (see the home-customize capability).
 
 #### Scenario: Paid order with tax and shipping
 
 - **WHEN** the only counted order has base total 120.00, tax 10.00 and shipping 10.00, with no refunds
-- **THEN** Total sales shows 120.00, Net sales shows 100.00, Orders shows 1 and Products sold shows the item quantity of that order
+- **THEN** the endpoint returns Total sales 120.00, Net sales 100.00, Orders 1 and Products sold equal to the item quantity of that order
 
 #### Scenario: Shipping with tax
 
 - **WHEN** the only counted order has base total 120.00, tax 10.00 of which 2.00 is shipping tax, and shipping 10.00 that includes the 2.00 tax
-- **THEN** Net sales shows 102.00
+- **THEN** the endpoint returns Net sales 102.00
 
 #### Scenario: Partial refund
 
 - **WHEN** that order then gets a completed refund of 20.00 in the base currency
-- **THEN** Total sales still shows 120.00 and Net sales shows 80.00
+- **THEN** the endpoint returns Total sales 120.00 and Net sales 80.00
 
 #### Scenario: Pending refund
 
@@ -141,20 +145,10 @@ SHALL NOT show a change percentage or a trend.
 - **WHEN** a counted order was paid in a currency that is not the base currency
 - **THEN** its base-currency amounts are used, and its refunds are converted with that order's frozen rate
 
-#### Scenario: No counted orders
+#### Scenario: Home does not show the overview metrics
 
-- **WHEN** the store has no counted orders
-- **THEN** all four cards show 0, with the money cards formatted in the base currency
-
-#### Scenario: Large total
-
-- **WHEN** Total sales is 20,345.00 USD
-- **THEN** the Total sales card shows `$20.3K`, and its hover tooltip shows `$20,345.00`
-
-#### Scenario: Small total
-
-- **WHEN** Net sales is 850.00 USD
-- **THEN** the Net sales card shows `$850.00`, with no long-amount tooltip
+- **WHEN** a completed store opens Home
+- **THEN** the page shows the Key numbers section and no "Products sold" card
 
 ### Requirement: Recent orders card
 
@@ -188,56 +182,49 @@ When the store has no orders, the card SHALL show "No orders yet".
 
 ### Requirement: Top selling products card
 
-The overview SHALL show a "Top selling products" card with up to 5 products from
-counted orders. Order items SHALL be grouped by product, with all variants of a
-product merged into one row. Rows SHALL be sorted by units sold, highest first;
-equal units SHALL be sorted by base-currency revenue, highest first. Each row
-SHALL show a 48 × 48 px product image, the product name, a stock badge, the
-base-currency revenue of all the product's order items in counted orders as a
-short amount ("{amount} generated") and the units sold. When the short revenue
-is different from the long revenue, the revenue text SHALL show the long text
-("{long amount} generated") as a native hover tooltip. The stock badge SHALL use
-the product's current variants: "{N} left in stock" when a variant tracks
-inventory and the summed available quantity of the tracked variants is above 0;
-"Out of stock" when every variant is out of stock; "In stock" otherwise. A
-deleted product SHALL have no stock badge. A product that was deleted after it
-was sold SHALL still be listed with the name and image recorded on its order
-items. When there are no counted orders, the card SHALL show "No sales yet".
+The overview SHALL show a "Top selling products" card with the products of the
+Analytics "Sales by product" data for the Home period: up to 5 products from
+sales orders paid in the period, with all variants of a product merged into one
+row, sorted by net sales, highest first, then by units sold, highest first.
+Each row SHALL show a 48 × 48 px product image, the product name with a stock
+line below it, and, at the right, the product's net sales in bold in the
+Analytics amount format with the units sold below it. In Short format, when the
+short amount is different from the long amount, the amount SHALL have the long
+amount as a native hover tooltip. The stock line SHALL be text, not a badge, and
+SHALL use the product's current variants: "{N} left in stock" when a variant
+tracks inventory and the summed available quantity of the tracked variants is
+above 0, in red when the product is low on stock and gray otherwise; "Out of
+stock" in red when every variant is out of stock; "In stock" in gray otherwise.
+A deleted product SHALL have no stock line. A product
+that was deleted after it was sold SHALL still be listed with the name and image
+recorded on its order items. When there are no sales in the period, the card
+SHALL show "No sales yet". The overview endpoint SHALL keep returning its
+all-time `top_products` field, and Home SHALL NOT use it.
 
 #### Scenario: Tracked stock
 
 - **WHEN** a top product has two tracked variants with 40 and 19 units available and one variant that does not track inventory
-- **THEN** its badge reads "59 left in stock"
-
-#### Scenario: Stock not tracked
-
-- **WHEN** a top product does not track inventory and is out of stock
-- **THEN** its badge reads "Out of stock"
+- **THEN** its stock line reads "59 left in stock"
 
 #### Scenario: Variants merged
 
-- **WHEN** 3 units of "T-shirt / Red" and 2 units of "T-shirt / Blue" were sold in counted orders
-- **THEN** one "T-shirt" row shows 5 units
+- **WHEN** 3 units of "T-shirt / Red" and 2 units of "T-shirt / Blue" were sold in sales orders paid this month
+- **THEN** with the period This month, one "T-shirt" row shows 5 units
 
-#### Scenario: Tie on units
+#### Scenario: Ranked by money
 
-- **WHEN** two products both sold 4 units and one earned more base revenue
-- **THEN** the product with more revenue is listed first
+- **WHEN** this month product A sold 10 units for 50.00 net and product B sold 1 unit for 300.00 net
+- **THEN** product B is listed above product A
 
-#### Scenario: Deleted product
+#### Scenario: Period change
 
-- **WHEN** a sold product is later deleted
-- **THEN** it can still appear in the list with its recorded name and image
-
-#### Scenario: No sales
-
-- **WHEN** there are no counted orders
+- **WHEN** the merchant changes the period from All time to Today and nothing was sold today
 - **THEN** the card shows "No sales yet"
 
-#### Scenario: Large revenue
+#### Scenario: Same rows as Analytics
 
-- **WHEN** a top product earned 3,134.00 USD
-- **THEN** its row reads "$3.1K generated", and the hover tooltip reads "$3,134.00 generated"
+- **WHEN** the Home period is This month and the Analytics page shows Month to date
+- **THEN** Top selling products lists the same products in the same order as Analytics "Sales by product"
 
 ### Requirement: Card actions
 
@@ -265,41 +252,52 @@ order.
 
 ### Requirement: Card information tooltips
 
-Each metric card (Total sales, Net sales, Orders, Products sold) and each list
-card (Recent orders, Top selling products) SHALL show an information icon next to
-its title. The icon SHALL be hidden until the pointer is over its card, and SHALL
-always show on devices without hover. When the pointer is over the icon, a tooltip SHALL show a plain-language,
-translatable description of what the card shows.
+Each key number card, each section card (Recent orders, Top selling products,
+Needs your attention, Restock soon) and each Needs your attention row SHALL show
+an information icon or tooltip with a plain-language, translatable description
+of what it shows. A card's information icon SHALL be hidden until the pointer is
+over its card, and SHALL always show on devices without hover. When the pointer
+is over the icon, the tooltip SHALL show.
 
 #### Scenario: Hover over the Net sales information icon
 
 - **WHEN** the merchant moves the pointer over the information icon next to "Net sales"
-- **THEN** a tooltip says that net sales is total sales minus tax, shipping and completed refunds
+- **THEN** a tooltip shows the Analytics definition of Net sales
+
+#### Scenario: Hover over a Needs your attention row
+
+- **WHEN** the merchant moves the pointer over the information icon of the Orders to ship row
+- **THEN** a tooltip says which orders count as orders to ship
 
 ### Requirement: Overview layout
 
 In dashboard mode, the Home page SHALL use a wider page container than in
-checklist mode. The metric cards SHALL be in 4 columns on wide screens, 2 columns
-on medium screens and 1 column on narrow screens. The Recent orders and Top
-selling products cards SHALL be side by side, with the same height, on wide
-screens and stacked on narrow screens. The "No orders yet" and "No sales yet"
-empty states SHALL be centered in their card.
+checklist mode. The sections SHALL be laid out as in the home-customize
+"Sections layout" requirement. The "No orders yet", "No sales yet" and "Nothing
+is low on stock." empty states SHALL be centered in their card.
 
 #### Scenario: Narrow screen
 
 - **WHEN** the overview is shown on a narrow screen
-- **THEN** the metric cards and both list cards are stacked in one column
+- **THEN** the key number cards and every section are stacked in one column
 
 ### Requirement: Overview loading and errors
 
-While the overview data is loading, the overview SHALL show skeleton placeholders
-in the place of the metric and list cards. If the request fails, the overview
-SHALL show an error message in their place, and the header SHALL still render.
+Each section SHALL load its data on its own. While a section's data is loading,
+it SHALL show a skeleton placeholder in its place. If a section's request fails,
+that section SHALL show an error message with a retry button in its place, and
+the header and the other sections SHALL still render. A section that is off
+SHALL NOT request its data.
 
 #### Scenario: Request fails
 
-- **WHEN** the overview request fails
-- **THEN** an error message is shown in place of the cards and the rest of the page renders
+- **WHEN** the Key numbers request fails and the other requests succeed
+- **THEN** an error message is shown in place of the Key numbers, and Recent orders and Top selling products render
+
+#### Scenario: Hidden section
+
+- **WHEN** Restock soon and Needs your attention are off
+- **THEN** no attention request is sent
 
 ### Requirement: Overview endpoint
 

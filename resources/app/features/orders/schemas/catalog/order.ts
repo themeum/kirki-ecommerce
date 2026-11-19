@@ -5,6 +5,7 @@ import {
   CouponDiscountTypeSchema,
   CouponDiscountValueTypeSchema,
 } from '@/features/coupons';
+import { ShippingMethodTypeSchema } from '@/features/settings/shipping/schemas/forms/shipping-method-form';
 import { MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
@@ -70,6 +71,15 @@ export const OrderShippingCarrierSchema = z.object({
 
 export type OrderShippingCarrier = z.infer<typeof OrderShippingCarrierSchema>;
 
+export const LastUsedShippingCarrierSchema = z
+  .object({
+    carrier_id: z.string().nullish(),
+    carrier: z.string().nullish(),
+  })
+  .nullable();
+
+export type LastUsedShippingCarrier = z.infer<typeof LastUsedShippingCarrierSchema>;
+
 export const RefundStatusSchema = z.enum(['pending', 'completed', 'cancelled']);
 
 export type RefundStatus = z.infer<typeof RefundStatusSchema>;
@@ -118,6 +128,17 @@ export const OrderTaxLineSchema = z.object({
 });
 
 export type OrderTaxLine = z.infer<typeof OrderTaxLineSchema>;
+
+export const OrderShippingMetaSchema = z.object({
+  description: z.string().nullish(),
+  is_taxable: z.boolean().nullish(),
+  address: z.string().nullish(),
+  has_pick_time: z.boolean().nullish(),
+  pickup_time_start: z.string().nullish(),
+  pickup_time_end: z.string().nullish(),
+});
+
+export type OrderShippingMeta = z.infer<typeof OrderShippingMetaSchema>;
 
 export const OrderCalculationTaxLineSchema = z.object({
   name: z.string(),
@@ -307,7 +328,8 @@ export const OrderSchema = z.object({
   payment_status: PaymentStatusSchema,
   shipping_method: z.string().nullish(),
   shipping_method_name: z.string().nullish(),
-  shipping_method_type: z.string().nullish(),
+  shipping_method_type: ShippingMethodTypeSchema.nullish(),
+  shipping_meta: OrderShippingMetaSchema.nullish(),
   order_notes: z.string().nullish(),
   flags: z.array(z.string()).nullish(),
   shipping_tracking: OrderTrackingSchema,

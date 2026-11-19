@@ -59,13 +59,17 @@ abstract class AbstractOrderReader implements OrderReader
         $items = $this->items($ids);
         $notes = $this->notes($ids);
         $skus = $this->skus($items);
+        $images = $this->images($items);
 
         foreach ($orders as $index => $order) {
             $order_items = $items[$order['id']] ?? [];
 
             foreach ($order_items as $item_index => $item) {
-                $source_id = (int) ($item['meta']['_variation_id'] ?? 0) ?: (int) ($item['meta']['_product_id'] ?? 0);
+                $variation_id = (int) ($item['meta']['_variation_id'] ?? 0);
+                $product_id = (int) ($item['meta']['_product_id'] ?? 0);
+                $source_id = $variation_id ?: $product_id;
                 $order_items[$item_index]['sku'] = $skus[$source_id] ?? null;
+                $order_items[$item_index]['image'] = $images[$variation_id] ?? $images[$product_id] ?? null;
             }
 
             $orders[$index]['items'] = $order_items;
@@ -165,31 +169,75 @@ abstract class AbstractOrderReader implements OrderReader
      */
     protected function skus(array $items)
     {
+        return $this->product_meta($items, '_sku');
+    }
+
+    /**
+     * Read the main image of the products and variations that order lines point to.
+     *
+     * Only images that still exist are returned, so no order line points to a missing file.
+     *
+     * @since 1.0.2
+     *
+     * @param array<int, array<int, array<string, mixed>>> $items Order items keyed by order id.
+     * @return array<int, int> Attachment ids keyed by product or variation id.
+     */
+    protected function images(array $items)
+    {
+        $thumbnails = array_filter(array_map('intval', $this->product_meta($items, '_thumbnail_id')));
+
+        if (empty($thumbnails)) {
+            return [];
+        }
+
+        $existing = [];
+
+        foreach ($this->rows(DB::table('posts')->where('post_type', 'attachment')->where_in('ID', array_unique(array_values($thumbnails)))->select(['ID as id'])->get()) as $row) {
+            $existing[(int) $row['id']] = true;
+        }
+
+        return array_filter($thumbnails, function ($attachment_id) use ($existing) {
+            return isset($existing[$attachment_id]);
+        });
+    }
+
+    /**
+     * Read one meta key of the products and variations that order lines point to.
+     *
+     * Empty values are left out.
+     *
+     * @since 1.0.2
+     *
+     * @param array<int, array<int, array<string, mixed>>> $items    Order items keyed by order id.
+     * @param string                                       $meta_key The post meta key.
+     * @return array<int, string> Meta values keyed by product or variation id.
+     */
+    protected function product_meta(array $items, string $meta_key)
+    {
         $ids = [];
 
         foreach ($items as $order_items) {
             foreach ($order_items as $item) {
-                $source_id = (int) ($item['meta']['_variation_id'] ?? 0) ?: (int) ($item['meta']['_product_id'] ?? 0);
-
-                if ($source_id > 0) {
-                    $ids[] = $source_id;
-                }
+                $ids[(int) ($item['meta']['_variation_id'] ?? 0)] = true;
+                $ids[(int) ($item['meta']['_product_id'] ?? 0)] = true;
             }
         }
+
+        unset($ids[0]);
 
         if (empty($ids)) {
             return [];
         }
 
-        $skus = [];
+        $values = [];
 
-        foreach ($this->rows(DB::table('postmeta')->where_in('post_id', array_unique($ids))->where('meta_key', '_sku')->select(['post_id', 'meta_value'])->get()) as $row) {
+        foreach ($this->rows(DB::table('postmeta')->where_in('post_id', array_keys($ids))->where('meta_key', $meta_key)->select(['post_id', 'meta_value'])->get()) as $row) {
             if ($row['meta_value'] !== '') {
-                $skus[(int) $row['post_id']] = $row['meta_value'];
+                $values[(int) $row['post_id']] = $row['meta_value'];
             }
         }
 
-        return $skus;
+        return $values;
     }
 
     /**

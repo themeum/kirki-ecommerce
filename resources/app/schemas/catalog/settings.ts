@@ -101,7 +101,7 @@ export const CheckoutConfigurationSchema = z
     company_name_validation: z.string().nullish(),
     company_id_validation: z.string().nullish(),
     vat_identification_number_validation: z.string().nullish(),
-    has_apply_coupon_code: z.boolean().nullish(),
+    can_apply_coupon_code: z.boolean().nullish(),
     show_customer_note: z.boolean().nullish(),
   })
   .passthrough();

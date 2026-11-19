@@ -17,6 +17,7 @@ const COMPARISONS = ['previous_period', 'previous_year', 'custom', 'none'] as co
 
 type RangePreset = (typeof RANGE_PRESETS)[number];
 type RangeKey = RangePreset | 'custom';
+type ApiRangeKey = RangeKey | 'week_to_date' | 'all_time';
 type CompareKey = (typeof COMPARISONS)[number];
 type DayRange = { from: string; to: string };
 
@@ -131,4 +132,4 @@ export {
   resolveComparisonRange,
   resolvePresetRange,
 };
-export type { CompareKey, DayRange, RangeKey, RangePreset };
+export type { ApiRangeKey, CompareKey, DayRange, RangeKey, RangePreset };

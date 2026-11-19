@@ -16,12 +16,15 @@ use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderProcessingMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderShippedMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerPaymentFailedMail;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Queue\QueueFake;
 use Kirki\Ecommerce\Framework\Queue\QueueManager;
 use Kirki\Ecommerce\Framework\Supports\Facades\Queue;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
+
+use function Kirki\Ecommerce\Framework\app;
 
 class OrderTransitionEmailsTest extends RestTestCase
 {
@@ -147,13 +150,30 @@ class OrderTransitionEmailsTest extends RestTestCase
         $this->perform($order, OrderAction::MARK_AS_PROCESSING);
         $this->queue->clear();
 
-        $this->perform($order, OrderAction::MARK_AS_SHIPPED);
+        $this->perform($order, OrderAction::MARK_AS_SHIPPED, ['notify_customer' => true]);
 
         $this->assertSame([CustomerOrderShippedMail::class], $this->queued_mailers());
 
         /** @var SendOrderMailJob $job */
         $job = unserialize(serialize($this->pushed_mail(CustomerOrderShippedMail::class)[0]));
         $this->assertStringContainsString($order->order_number, CustomerOrderShippedMail::make($job->order)->get_preview_html());
+    }
+
+    /**
+     * Shipping an order without notify_customer sends no email.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_shipping_an_order_without_notify_customer_queues_no_email(): void
+    {
+        $order = $this->place_order();
+        $this->perform($order, OrderAction::MARK_AS_PROCESSING);
+        $this->queue->clear();
+
+        $this->perform($order, OrderAction::MARK_AS_SHIPPED);
+
+        $this->assertSame([], $this->queued_mailers());
     }
 
     /**
@@ -303,6 +323,23 @@ class OrderTransitionEmailsTest extends RestTestCase
 
         $this->assertSame([CustomerNewOrderMail::class], $this->queued_mailers());
         $this->assertSame($order->customer_email, $this->pushed_mail(CustomerNewOrderMail::class)[0]->email);
+    }
+
+    /**
+     * A shortcode for a variable that is not a string stays as literal text.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_object_shortcode_value_is_not_replaced(): void
+    {
+        $order = app(OrderService::class)->find_order_by_uuid($this->place_order()->uuid);
+
+        $html = CustomerNewOrderMail::make($order)
+            ->with_email_settings_overrides(['message' => '{order}'])
+            ->get_preview_html();
+
+        $this->assertStringContainsString('{order}', $html);
     }
 
     /**

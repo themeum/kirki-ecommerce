@@ -17,25 +17,22 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import type { Order } from '@/features/orders/schemas/catalog/order';
+import { useOrderAction } from '@/features/orders/hooks/use-order-action';
+import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import { useOfflinePaymentsQuery } from '@/features/settings';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type MarkAsPaidFormValues = {
   payment_provider: string;
 };
 
-type MarkAsPaidDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  order: Order;
-  isSaving?: boolean;
-  onSubmit: (paymentMethod: string) => void;
-};
-
-const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: MarkAsPaidDialogProps) => {
+const MarkAsPaidDialog = () => {
+  const { order } = useOrderDetails();
+  const { isMarkAsPaidDialogOpen, setIsMarkAsPaidDialogOpen, isActionPending, handleMarkAsPaid } =
+    useOrderAction();
   const navigate = useNavigate();
   const form = useForm<MarkAsPaidFormValues>({ defaultValues: { payment_provider: '' } });
 
@@ -53,12 +50,16 @@ const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: Mar
       return;
     }
 
-    onSubmit(values.payment_provider);
+    handleMarkAsPaid(values.payment_provider);
   });
+
+  if (!isDefined(order)) {
+    return null;
+  }
 
   if (!isLoading && availablePaymentMethods.length === 0) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={isMarkAsPaidDialogOpen} onOpenChange={setIsMarkAsPaidDialogOpen}>
         <DialogContent cssOverride={{ width: '440px' }}>
           <DialogCloseButton />
           <DialogBody>
@@ -75,7 +76,7 @@ const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: Mar
             </Flex>
           </DialogBody>
           <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => setIsMarkAsPaidDialogOpen(false)}>
               {__('Dismiss', 'kirki-ecommerce')}
             </Button>
             <Button
@@ -91,7 +92,7 @@ const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: Mar
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isMarkAsPaidDialogOpen} onOpenChange={setIsMarkAsPaidDialogOpen}>
       <DialogContent cssOverride={{ width: '440px' }}>
         <DialogHeader>
           <DialogTitle>
@@ -109,13 +110,13 @@ const MarkAsPaidDialog = ({ open, onOpenChange, order, isSaving, onSubmit }: Mar
             />
           </DialogBody>
           <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => setIsMarkAsPaidDialogOpen(false)}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button
               variant="primary"
               disabled={!paymentMethod}
-              loading={isSaving}
+              loading={isActionPending}
               onClick={handleSubmit}
             >
               {__('Mark as paid', 'kirki-ecommerce')}

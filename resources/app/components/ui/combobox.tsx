@@ -1,7 +1,7 @@
 import { type CSSObject } from '@emotion/react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { defaultFilter } from 'cmdk';
-import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react';
+import { Check, ChevronDown, PlusCircle, X } from 'lucide-react';
 import {
   type KeyboardEvent,
   type ReactNode,
@@ -302,7 +302,7 @@ const Combobox = ({
           css={scopedMerge(styles.trigger, error && styles.triggerError, cssOverride)}
         >
           <span css={scoped(styles.value)}>{triggerLabel()}</span>
-          <ChevronsUpDown size={16} css={scoped(styles.chevron)} />
+          <ChevronDown size={16} css={scoped(styles.chevron)} />
         </button>
       </PopoverTrigger>
       <PopoverContent
@@ -498,6 +498,7 @@ const styles = defineStyles({
     flexShrink: 0,
     color: theme.colors.text.secondary,
     opacity: 0.5,
+    marginRight: '-2px',
   },
   tags: {
     ...itemCenter(),

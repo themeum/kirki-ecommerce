@@ -5,8 +5,17 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { endpoints } from '@/config/endpoints';
 import AddTrackingDialog from '@/features/orders/components/order-details/add-tracking-dialog';
-import type { OrderShippingCarrier, OrderTracking } from '@/features/orders/schemas/catalog/order';
+import { useOrderAction } from '@/features/orders/hooks/use-order-action';
+import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
+import type {
+  LastUsedShippingCarrier,
+  OrderShippingCarrier,
+  OrderTracking,
+} from '@/features/orders/schemas/catalog/order';
 import { server } from '@/tests/msw/server';
+
+vi.mock('@/features/orders/hooks/use-order-action', () => ({ useOrderAction: vi.fn() }));
+vi.mock('@/features/orders/hooks/use-order-details', () => ({ useOrderDetails: vi.fn() }));
 
 const ORDER_ID = 42;
 
@@ -34,30 +43,50 @@ const mockCarriers = (list: OrderShippingCarrier[] | 'error') => {
   );
 };
 
+const mockLastUsedCarrier = (lastUsed: LastUsedShippingCarrier) => {
+  server.use(
+    http.get(`${window.kirki_ecommerce.rest_url_base}${endpoints.LAST_USED_SHIPPING_CARRIER}`, () =>
+      HttpResponse.json({ success: true, message: 'OK', data: lastUsed }),
+    ),
+  );
+};
+
 const renderDialog = async ({
   list = carriers,
   tracking = {},
-}: { list?: OrderShippingCarrier[] | 'error'; tracking?: OrderTracking } = {}) => {
+  lastUsed = null,
+}: {
+  list?: OrderShippingCarrier[] | 'error';
+  tracking?: OrderTracking;
+  lastUsed?: LastUsedShippingCarrier;
+} = {}) => {
   mockCarriers(list);
+  mockLastUsedCarrier(lastUsed);
   const onSubmit = vi.fn();
+  const onRemove = vi.fn();
+
+  vi.mocked(useOrderDetails).mockReturnValue({
+    order: { id: ORDER_ID, shipping_tracking: tracking },
+  } as unknown as ReturnType<typeof useOrderDetails>);
+  vi.mocked(useOrderAction).mockReturnValue({
+    isTrackingDialogOpen: true,
+    setIsTrackingDialogOpen: vi.fn(),
+    isActionPending: false,
+    handleAddTracking: onSubmit,
+    handleRemoveTracking: onRemove,
+  } as unknown as ReturnType<typeof useOrderAction>);
 
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <AddTrackingDialog
-        open
-        onOpenChange={vi.fn()}
-        orderId={ORDER_ID}
-        tracking={tracking}
-        onSubmit={onSubmit}
-      />
+      <AddTrackingDialog />
     </QueryClientProvider>,
   );
 
   await screen.findByText('Tracking number');
 
-  return { onSubmit };
+  return { onSubmit, onRemove };
 };
 
 const chooseCarrier = (name: string) => {
@@ -73,10 +102,51 @@ const saveButton = () => screen.getByRole('button', { name: 'Save' });
 afterEach(cleanup);
 
 describe('AddTrackingDialog', () => {
-  it('shows the Select carrier placeholder', async () => {
+  it('shows the Select carrier placeholder when no carrier was used before', async () => {
     await renderDialog();
 
     expect(screen.getByRole('combobox')).toHaveTextContent('Select carrier');
+  });
+
+  it('pre-selects the last used carrier when the zone lists it', async () => {
+    await renderDialog({ lastUsed: { carrier_id: 'dhl', carrier: null } });
+
+    expect(screen.getByRole('combobox')).toHaveTextContent('DHL');
+    expect(screen.queryByLabelText('Carrier name')).not.toBeInTheDocument();
+  });
+
+  it('ignores a last used carrier that the zone does not list', async () => {
+    await renderDialog({ lastUsed: { carrier_id: 'royal', carrier: null } });
+
+    expect(screen.getByRole('combobox')).toHaveTextContent('Select carrier');
+  });
+
+  it('pre-selects Other with the name of a last used ad-hoc carrier', async () => {
+    await renderDialog({ lastUsed: { carrier_id: null, carrier: 'Local Courier' } });
+
+    expect(screen.getByRole('combobox')).toHaveTextContent('Other');
+    expect(screen.getByLabelText('Carrier name')).toHaveValue('Local Courier');
+    expect(screen.getByLabelText('Tracking URL')).toHaveValue('');
+  });
+
+  it('prefers the stored tracking of the order over the last used carrier', async () => {
+    await renderDialog({
+      tracking: { carrier: 'UPS', tracking_number: '1Z', tracking_url: null },
+      lastUsed: { carrier_id: 'dhl', carrier: null },
+    });
+
+    expect(screen.getByRole('combobox')).toHaveTextContent('UPS');
+  });
+
+  it('calls onRemove without submitting when Remove tracking is clicked', async () => {
+    const { onSubmit, onRemove } = await renderDialog({
+      tracking: { carrier: 'UPS', tracking_number: '1Z', tracking_url: null },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove tracking' }));
+
+    expect(onRemove).toHaveBeenCalledTimes(1);
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('shows the carrier logo, or a fallback icon, in the list and the selected value', async () => {

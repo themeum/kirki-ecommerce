@@ -1,0 +1,81 @@
+info:
+  name: Get Last Used Shipping Carrier
+  type: http
+  seq: 18
+  tags:
+    - orders
+
+http:
+  method: GET
+  url: "{{baseUrl}}/shipping-carriers/last-used"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response (listed carrier)
+    description: The last tracking was added with a carrier of the order's zone. Only its id is kept.
+    request:
+      url: "{{baseUrl}}/shipping-carriers/last-used"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "carrier_id": "ups",
+              "carrier": null
+            },
+            "message": "Last used shipping carrier retrieved successfully."
+          }
+  - name: 200 Response (Other)
+    description: The last tracking was added with an ad-hoc carrier (Other). Only its name is kept.
+    request:
+      url: "{{baseUrl}}/shipping-carriers/last-used"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "carrier_id": null,
+              "carrier": "Local Courier"
+            },
+            "message": "Last used shipping carrier retrieved successfully."
+          }
+  - name: 200 Response (none)
+    description: No tracking was added yet.
+    request:
+      url: "{{baseUrl}}/shipping-carriers/last-used"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": null,
+            "message": "Last used shipping carrier retrieved successfully."
+          }

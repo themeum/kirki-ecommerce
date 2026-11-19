@@ -1,5 +1,5 @@
 export { orderListFilterConfig, orderListOptions, orderStatusOptions, paymentStatusOptions } from './config';
-export { getFulfillmentBadgeInfo } from './lib/order-badge';
+export { getFulfillmentBadgeInfo, getPaymentBadgeInfo } from './lib/order-badge';
 export {
   type FulfillmentStatus,
   type OrderListItem,

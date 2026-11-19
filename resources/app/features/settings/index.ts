@@ -10,6 +10,7 @@ export type { ProductsSettingsFormPayload } from './products/schemas/forms/produ
 export { currencyKeys, paymentKeys, shippingKeys, taxKeys } from './services/query-keys';
 export { default as ShippingBoxField } from './shipping/components/fields/shipping-box-field';
 export { default as ShippingProfileField } from './shipping/components/fields/shipping-profile-field';
+export { CreateProfilePopup } from './shipping/components/shipping-profile/create-profile-dialog';
 export {
   getTrackingTemplateError,
   isTrackingTemplate,
@@ -17,7 +18,6 @@ export {
   toTrackingTemplate,
   TRACKING_PLACEHOLDER,
 } from './shipping/lib/shipping-carrier-url';
-export { CreateProfilePopup } from './shipping/pages/shipping-profile/create-profile-dialog';
 export type { ShippingSettingsFormPayload } from './shipping/schemas/forms/shipping-settings-form';
 export { useShippingBoxesQuery, useShippingProfilesQuery } from './shipping/services/shipping';
 export { TaxProfilePopup } from './tax/shared/components/tax-profile/tax-profile-dialog';

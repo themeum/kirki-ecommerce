@@ -4,7 +4,6 @@
  * Imports per-country address field rules from Google's libaddressinput.
  *
  * Source: https://chromium-i18n.appspot.com/ssl-address/data/<CC> (Apache-2.0).
- * That dataset is the upstream both Shopify and WooCommerce derive their
  * address behaviour from. It publishes, per country:
  *
  *   fmt             the address layout, e.g. "%N%n%O%n%A%n%C, %S %Z"

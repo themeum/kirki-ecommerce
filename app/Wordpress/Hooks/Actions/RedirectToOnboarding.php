@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Supports\Onboarding;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
@@ -60,8 +61,7 @@ class RedirectToOnboarding extends BaseHook
             return;
         }
 
-        wp_safe_redirect(Onboarding::get_url());
-        exit;
+        Url::redirect(Onboarding::get_url());
     }
 
     /**

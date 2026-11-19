@@ -57,7 +57,7 @@ class MailFromName extends BaseHook
             return $from_name;
         }
 
-        $from_name = get_bloginfo('name');
+        $from_name = Settings::get('general')->get('store_name') ?: (get_bloginfo('name') ?? '');
 
         return !empty($from_name) ? $from_name : $default;
     }

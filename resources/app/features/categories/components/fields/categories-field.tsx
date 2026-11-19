@@ -36,6 +36,13 @@ type CategoriesFieldProps<
   placeholder?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
+  /** Offers to create a category from an unmatched search. */
+  allowCreate?: boolean;
+  /** Adds a row at the top of the list that selects every category. */
+  showSelectAll?: boolean;
+  /** Label of the select-all row. */
+  selectAllLabel?: string;
+  maxVisibleChips?: number;
 };
 
 const INDENT_PER_LEVEL_PX = 16;
@@ -94,6 +101,10 @@ const CategoriesField = <
   placeholder = __('Add categories', 'kirki-ecommerce'),
   disabled,
   cssOverride,
+  allowCreate = true,
+  selectAllLabel,
+  showSelectAll = false,
+  maxVisibleChips = 1,
 }: CategoriesFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const { data: categoryData } = useCategoriesQuery({ limit: -1 });
@@ -218,7 +229,7 @@ const CategoriesField = <
               value={selectedCategories.map(toOption)}
               onChange={handleChange}
               onSearchChange={setSearch}
-              onCreate={(query) => setPendingName(query)}
+              onCreate={allowCreate ? (query) => setPendingName(query) : undefined}
               panel={
                 pendingName !== null ? (
                   <CategoryQuickCreate
@@ -228,7 +239,7 @@ const CategoriesField = <
                   />
                 ) : undefined
               }
-              maxVisibleChips={1}
+              maxVisibleChips={maxVisibleChips}
               virtualized
               renderOption={renderOption}
               optionStyle={optionStyle}
@@ -236,7 +247,11 @@ const CategoriesField = <
               placeholder={placeholder}
               selectedPlaceholder={__('Add more', 'kirki-ecommerce')}
               emptyText={__('No matching categories', 'kirki-ecommerce')}
-              emptyStateText={__('Type a category name to add it.', 'kirki-ecommerce')}
+              emptyStateText={
+                allowCreate ? __('Type a category name to add it.', 'kirki-ecommerce') : undefined
+              }
+              selectAllLabel={selectAllLabel}
+              showSelectAll={showSelectAll}
               disabled={disabled}
               error={Boolean(fieldState.error)}
             />

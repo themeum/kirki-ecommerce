@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
@@ -41,6 +42,7 @@ use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
@@ -140,6 +142,82 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals('flat_rate', $payload['data']['shipping_method_type']);
 
         $this->order_id = $payload['data']['id'];
+    }
+
+    /**
+     * Every order returns the shipping method details stored when it was made;
+     * the pickup details are null for a method that is not local pickup.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_order_returns_the_stored_shipping_meta(): void
+    {
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::SHIPPING_SETTINGS,
+            'data' => [
+                'shipping_zones' => [
+                    [
+                        'id' => 'zone-test',
+                        'is_enabled' => true,
+                        'title' => 'Test Zone',
+                        'regions' => [['country' => 'US', 'states' => []]],
+                        'shipping_methods' => [
+                            [
+                                'id' => 'method-0001',
+                                'is_enabled' => true,
+                                'name' => 'Standard Delivery',
+                                'type' => ShippingMethodTypes::FLAT_RATE,
+                                'base_amount' => 10,
+                                'is_taxable' => false,
+                                'description' => 'Ships in 3 days.',
+                                'shipping_rules' => [],
+                            ],
+                            [
+                                'id' => 'method-pickup',
+                                'is_enabled' => true,
+                                'name' => 'Store pickup',
+                                'type' => ShippingMethodTypes::LOCAL_PICKUP,
+                                'base_amount' => 0,
+                                'is_taxable' => false,
+                                'description' => 'Bring your order number.',
+                                'address' => '221 Market St, San Francisco',
+                                'has_pick_time' => true,
+                                'pickup_time_start' => '10:00',
+                                'pickup_time_end' => '18:00',
+                                'shipping_rules' => [],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]));
+        static::forget_singleton(ShippingService::class);
+
+        $pickup_order = $this->assert_api_success(
+            $this->request('POST', 'orders', $this->order_payload(['shipping_method' => 'method-pickup'])),
+            201
+        );
+
+        $this->assertSame([
+            'description' => 'Bring your order number.',
+            'is_taxable' => false,
+            'address' => '221 Market St, San Francisco',
+            'has_pick_time' => true,
+            'pickup_time_start' => '10:00',
+            'pickup_time_end' => '18:00',
+        ], $pickup_order['data']['shipping_meta']);
+
+        $flat_rate_order = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload()), 201);
+
+        $this->assertSame([
+            'description' => 'Ships in 3 days.',
+            'is_taxable' => false,
+            'address' => null,
+            'has_pick_time' => false,
+            'pickup_time_start' => null,
+            'pickup_time_end' => null,
+        ], $flat_rate_order['data']['shipping_meta']);
     }
 
     /**
@@ -2495,6 +2573,62 @@ class OrderApiTest extends RestTestCase
 
         $this->assertEquals(1, Coupon::find($item_coupon->id)->current_usage_count);
         $this->assertEquals(1, Coupon::find($order_coupon_def->id)->current_usage_count);
+    }
+
+    /**
+     * A storefront checkout ignores the cart's coupons when the store does not accept coupon codes.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_checkout_ignores_cart_coupons_when_coupon_codes_are_disabled(): void
+    {
+        $product = $this->create_product();
+
+        $add_to_cart_dto = new AddToCartDTO();
+        $add_to_cart_dto->product_id = $product['id'];
+        $add_to_cart_dto->variant_id = $this->default_variant_id($product);
+        $add_to_cart_dto->quantity = 1;
+
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
+
+        $coupon = Coupon::create([
+            'title' => 'Disabled Coupon',
+            'code' => 'NOCOUPON' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::ORDER,
+            'discount_value_type' => DiscountValueType::PERCENTAGE,
+            'discount_amount_percentage' => 10,
+            'is_active' => true,
+        ]);
+
+        CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $coupon->id]);
+
+        $settings = Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh();
+        $snapshot = $settings->to_array();
+        $settings->set(['checkout_configuration' => array_merge((array) ($snapshot['checkout_configuration'] ?? []), ['can_apply_coupon_code' => false])], false);
+
+        try {
+            $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
+                'is_manual' => false,
+                'billing_email' => 'no-coupon-' . wp_generate_password(8, false) . '@example.com',
+            ]));
+            $dto->created_by = get_current_user_id();
+            $dto->currency_code = 'USD';
+            $dto->cart_token = $cart->cart_token;
+
+            $order = app()->make(CreateOrderAction::class)->execute($dto);
+            $this->order_id = $order->id;
+
+            $this->assertSame(0, OrderCoupon::where('order_id', $order->id)->count());
+            $this->assertEquals(0, $order->base_discount_total);
+            $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
+        } finally {
+            Settings::get(OptionKeys::CHECKOUT_SETTINGS)->refresh()->set($snapshot, false);
+
+            // Placing the order committed the test transaction with coupons off, so commit the restore too.
+            $GLOBALS['wpdb']->query('COMMIT');
+        }
     }
 
     /**

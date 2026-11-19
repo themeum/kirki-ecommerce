@@ -1,0 +1,199 @@
+import { type Dispatch, type SetStateAction, useMemo, useState } from 'react';
+
+import HeaderActionsCard from '@/components/header-actions-card';
+import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import Flex from '@/components/ui/flex';
+import {
+  StackedItem,
+  StackedItemActions,
+  StackedItemContent,
+  StackedItemMedia,
+  StackedItems,
+  StackedItemTitle,
+} from '@/components/ui/stacked-items';
+import Text from '@/components/ui/text';
+import ShippingMethodDialog from '@/features/settings/shipping/components/shipping-method/shipping-method-dialog';
+import {
+  getShippingMethodRightText,
+  getShippingMethodSubText,
+  saveShippingZones,
+  shippingMethodIconMap,
+} from '@/features/settings/shipping/lib/utils';
+import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
+import { useBaseCurrencySymbol, useConfirmDelete } from '@/hooks';
+import { EditPenIcon, TrashIcon } from '@/icons/common';
+import type { ShippingSettings } from '@/schemas/catalog/settings';
+import { theme } from '@/theme';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
+import { __ } from '@/wpi18n';
+
+type ShippingMethodProps = {
+  shippingSettingsData: ShippingSettings | null | undefined;
+  shippingMethodList: ShippingMethodData[];
+  setShippingZonesObj: Dispatch<SetStateAction<ShippingZone[]>>;
+  shippingZonesObj: ShippingZone[];
+  zoneId?: string | number | null;
+};
+
+export const ShippingMethod = ({
+  shippingSettingsData,
+  shippingMethodList,
+  setShippingZonesObj,
+  shippingZonesObj,
+  zoneId = null,
+}: ShippingMethodProps) => {
+  const [dialogState, setDialogState] = useState<{ method: ShippingMethodData | null } | null>(
+    null,
+  );
+  const baseCurrencySymbol = useBaseCurrencySymbol();
+
+  const shippingMethodListWithIcon = useMemo(() => {
+    return (shippingMethodList || []).map((method) => ({
+      ...method,
+      icon: shippingMethodIconMap[method.type] || null,
+      subText: getShippingMethodSubText(method),
+      rightText: getShippingMethodRightText(method, baseCurrencySymbol),
+    }));
+  }, [shippingMethodList, baseCurrencySymbol]);
+
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
+
+  const handleDeleteMethodItem = (item: ShippingMethodData) => {
+    confirmDelete(
+      {
+        title: __('Delete shipping method?', 'kirki-ecommerce'),
+        description: __(
+          'This method will be removed from the zone and will no longer be offered at checkout. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
+      },
+      () => {
+        const updatedZones = shippingZonesObj.map((zone) => {
+          if (!zone.shipping_methods?.some((m) => m.id === item.id)) {
+            return zone;
+          }
+          return {
+            ...zone,
+            shipping_methods: zone.shipping_methods.filter((m) => m.id !== item.id),
+          };
+        });
+        setShippingZonesObj(updatedZones);
+
+        void saveShippingZones({
+          zones: updatedZones,
+          shippingSettingsData,
+          toastMessage: __('Shipping method deleted', 'kirki-ecommerce'),
+        });
+      },
+    );
+  };
+
+  const handleEditDeliveryMethod = (item: ShippingMethodData) => {
+    setDialogState({ method: item });
+  };
+
+  const handleAddMethod = () => {
+    if (!isDefined(zoneId)) {
+      return;
+    }
+    setDialogState({ method: null });
+  };
+
+  return (
+    <div>
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
+        <CardContent>
+          <HeaderActionsCard
+            header={__('Shipping Methods', 'kirki-ecommerce')}
+            subHeader={__(
+              'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
+              'kirki-ecommerce',
+            )}
+            buttonText={__('Add', 'kirki-ecommerce')}
+            buttonVariant="primary"
+            onAdd={handleAddMethod}
+          />
+
+          {shippingMethodList.length > 0 && (
+            <StackedItems cssOverride={{ marginTop: theme.spacing[5] }}>
+              {shippingMethodListWithIcon.map((item) => (
+                <StackedItem key={item.id} id={String(item.id)}>
+                  {item.icon && (
+                    <StackedItemMedia cssOverride={{ color: theme.colors.icon.disabled }}>
+                      {item.icon}
+                    </StackedItemMedia>
+                  )}
+                  <StackedItemContent>
+                    <StackedItemTitle>
+                      <Flex align="center" gap={2}>
+                        <Text variant="small" weight="medium">
+                          {item.name ?? ''}
+                        </Text>
+                        {item.subText && (
+                          <Text
+                            variant="tiny"
+                            color="subdued"
+                            truncate
+                            cssOverride={{ maxWidth: 280 }}
+                          >
+                            {item.subText}
+                          </Text>
+                        )}
+                        {item.is_enabled === false && (
+                          <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
+                        )}
+                      </Flex>
+                    </StackedItemTitle>
+                  </StackedItemContent>
+                  <StackedItemActions>
+                    <ActionGroup>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Delete', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleDeleteMethodItem(item)}
+                      >
+                        <TrashIcon />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label={__('Edit', 'kirki-ecommerce')}
+                        cssOverride={styles.actionButton}
+                        onClick={() => handleEditDeliveryMethod(item)}
+                      >
+                        <EditPenIcon />
+                      </Button>
+                    </ActionGroup>
+                  </StackedItemActions>
+                </StackedItem>
+              ))}
+            </StackedItems>
+          )}
+        </CardContent>
+      </Card>
+      {deleteConfirmation}
+      {dialogState && isDefined(zoneId) && (
+        <ShippingMethodDialog
+          zoneId={zoneId}
+          method={dialogState.method}
+          shippingZones={shippingZonesObj}
+          onClose={() => setDialogState(null)}
+          onSaved={setShippingZonesObj}
+        />
+      )}
+    </div>
+  );
+};
+
+const styles = defineStyles({
+  actionButton: {
+    padding: theme.spacing[1],
+  },
+});
