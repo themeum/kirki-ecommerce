@@ -20,6 +20,7 @@ const ORDER_ACTIONS = {
   CANCEL_FULFILLMENT: 'cancel-fulfillment',
   RESUME_FULFILLMENT: 'resume-fulfillment',
   ADD_TRACKING: 'add-tracking',
+  REMOVE_TRACKING: 'remove-tracking',
   MARK_AS_PAID: 'mark-as-paid',
   // @todo: will implement later
   // SEND_PAYMENT_LINK: 'send-payment-link',
@@ -39,6 +40,7 @@ type OrderActionPayload = {
   tracking_url?: string;
   reason?: string;
   payment_provider?: string;
+  notify_customer?: boolean;
 };
 
 type OrderStatusState = {
@@ -81,15 +83,22 @@ const FULFILLMENT_ACTION_GROUP: OrderAction[] = [
   ORDER_ACTIONS.RESUME_FULFILLMENT,
 ];
 
-const getActionLabel = (action: OrderAction): string => {
+const getActionLabel = (action: OrderAction, order: Order): string => {
   const labels: Record<OrderAction, string> = {
     [ORDER_ACTIONS.MARK_AS_PROCESSING]: __('Mark as processing', 'kirki-ecommerce'),
-    [ORDER_ACTIONS.MARK_AS_SHIPPED]: __('Mark as shipped', 'kirki-ecommerce'),
-    [ORDER_ACTIONS.MARK_AS_DELIVERED]: __('Mark as delivered', 'kirki-ecommerce'),
+    [ORDER_ACTIONS.MARK_AS_SHIPPED]:
+      order.shipping_method_type === 'local_pickup'
+        ? __('Mark as ready for pickup', 'kirki-ecommerce')
+        : __('Mark as shipped', 'kirki-ecommerce'),
+    [ORDER_ACTIONS.MARK_AS_DELIVERED]:
+      order.shipping_method_type === 'local_pickup'
+        ? __('Mark as picked up', 'kirki-ecommerce')
+        : __('Mark as delivered', 'kirki-ecommerce'),
     [ORDER_ACTIONS.MARK_AS_HOLD]: __('On hold', 'kirki-ecommerce'),
     [ORDER_ACTIONS.CANCEL_FULFILLMENT]: __('Cancel fulfillment', 'kirki-ecommerce'),
     [ORDER_ACTIONS.RESUME_FULFILLMENT]: __('Resume fulfillment', 'kirki-ecommerce'),
     [ORDER_ACTIONS.ADD_TRACKING]: __('Add tracking', 'kirki-ecommerce'),
+    [ORDER_ACTIONS.REMOVE_TRACKING]: __('Remove tracking', 'kirki-ecommerce'),
     [ORDER_ACTIONS.MARK_AS_PAID]: __('Mark as paid', 'kirki-ecommerce'),
     // @todo: will implement later
     // [ORDER_ACTIONS.SEND_PAYMENT_LINK]: __('Send payment link', 'kirki-ecommerce'),

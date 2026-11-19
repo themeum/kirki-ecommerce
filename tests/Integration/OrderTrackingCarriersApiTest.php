@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\Email\CustomerOrderNotification;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderAction;
 use Kirki\Ecommerce\App\Jobs\SendOrderMailJob;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderShippedMail;
@@ -13,6 +14,7 @@ use Kirki\Ecommerce\App\Services\EmailPreviewService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Queue\QueueManager;
+use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Framework\Supports\Facades\Queue;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
@@ -44,6 +46,7 @@ class OrderTrackingCarriersApiTest extends RestTestCase
         $this->seed_shipping_settings();
         $this->variant_id = $this->default_variant_id($this->create_product());
         $this->queue = Queue::fake();
+        Option::delete(OptionKeys::LAST_USED_SHIPPING_CARRIER);
     }
 
     protected function tearDown(): void
@@ -123,9 +126,10 @@ class OrderTrackingCarriersApiTest extends RestTestCase
      * Place a manual order shipping to New York, US and ship it, the state that allows adding tracking.
      *
      * @param array<string, mixed> $overrides Payload overrides.
+     * @param bool                 $ship      Whether to mark the order as shipped.
      * @return Order
      */
-    protected function place_order(array $overrides = []): Order
+    protected function place_order(array $overrides = [], bool $ship = true): Order
     {
         $response = $this->request('POST', 'orders', array_merge([
             'items' => [['variant_id' => $this->variant_id, 'quantity' => 1]],
@@ -155,7 +159,9 @@ class OrderTrackingCarriersApiTest extends RestTestCase
 
         $order = Order::find($payload['data']['id']);
         $this->perform($order, OrderAction::MARK_AS_PROCESSING);
-        $this->perform($order, OrderAction::MARK_AS_SHIPPED);
+        if ($ship) {
+            $this->perform($order, OrderAction::MARK_AS_SHIPPED);
+        }
         $this->queue->clear();
 
         return $order;
@@ -227,6 +233,116 @@ class OrderTrackingCarriersApiTest extends RestTestCase
     public function test_the_endpoint_for_a_missing_order_is_not_found(): void
     {
         $this->assert_api_error($this->request('GET', 'orders/999999/shipping-carriers'), 404);
+    }
+
+    protected function last_used_carrier(): ?array
+    {
+        return $this->assert_api_success($this->request('GET', 'shipping-carriers/last-used'))['data'];
+    }
+
+    public function test_the_last_used_carrier_is_null_before_any_tracking_is_added(): void
+    {
+        $this->assertNull($this->last_used_carrier());
+    }
+
+    public function test_adding_tracking_with_a_listed_carrier_remembers_its_id(): void
+    {
+        $this->save_zones([$this->zone('us', [['country' => 'US', 'states' => []]], [$this->carrier('ups', 'UPS')])]);
+        $order = $this->place_order();
+
+        $this->assert_api_success($this->add_tracking($order, ['carrier_id' => 'ups', 'tracking_number' => '123']));
+
+        $this->assertSame(['carrier_id' => 'ups', 'carrier' => null], $this->last_used_carrier());
+    }
+
+    public function test_adding_tracking_with_other_remembers_the_carrier_name(): void
+    {
+        $order = $this->place_order();
+
+        $this->assert_api_success($this->add_tracking($order, [
+            'carrier' => 'Local Courier',
+            'tracking_number' => 'AB12',
+            'tracking_url' => 'https://track.example.com/?n={tracking_number}',
+        ]));
+
+        $this->assertSame(['carrier_id' => null, 'carrier' => 'Local Courier'], $this->last_used_carrier());
+    }
+
+    public function test_marking_as_shipped_with_tracking_remembers_the_carrier(): void
+    {
+        $this->save_zones([$this->zone('us', [['country' => 'US', 'states' => []]], [$this->carrier('ups', 'UPS')])]);
+        $payload = $this->assert_api_success($this->request('POST', 'orders', [
+            'items' => [['variant_id' => $this->variant_id, 'quantity' => 1]],
+            'currency_code' => 'USD',
+            'payment_provider' => 'paypal',
+            'shipping_method' => 'method-0001',
+            'is_manual' => true,
+            'customer_first_name' => 'John',
+            'customer_last_name' => 'Doe',
+            'customer_email' => 'buyer@example.com',
+            'shipping_first_name' => 'John',
+            'shipping_last_name' => 'Doe',
+            'shipping_address_line1' => '123 Main St',
+            'shipping_city' => 'New York',
+            'shipping_state' => 'NY',
+            'shipping_postal_code' => '10001',
+            'shipping_country' => 'US',
+            'billing_first_name' => 'John',
+            'billing_last_name' => 'Doe',
+            'billing_address_line1' => '123 Main St',
+            'billing_city' => 'New York',
+            'billing_state' => 'NY',
+            'billing_postal_code' => '10001',
+            'billing_country' => 'US',
+        ]), 201);
+        $order = Order::find($payload['data']['id']);
+        $this->perform($order, OrderAction::MARK_AS_PROCESSING);
+
+        $this->perform($order, OrderAction::MARK_AS_SHIPPED, ['carrier_id' => 'ups', 'tracking_number' => '123']);
+
+        $this->assertSame(['carrier_id' => 'ups', 'carrier' => null], $this->last_used_carrier());
+    }
+
+    public function test_a_rejected_add_tracking_does_not_change_the_last_used_carrier(): void
+    {
+        $this->save_zones([$this->zone('us', [['country' => 'US', 'states' => []]], [$this->carrier('ups', 'UPS')])]);
+        $order = $this->place_order();
+        $this->assert_api_success($this->add_tracking($order, ['carrier_id' => 'ups', 'tracking_number' => '123']));
+
+        $this->assert_validation_error($this->add_tracking($order, ['carrier_id' => 'nope', 'tracking_number' => '123']));
+
+        $this->assertSame(['carrier_id' => 'ups', 'carrier' => null], $this->last_used_carrier());
+    }
+
+    public function test_marking_as_shipped_with_a_carrier_but_no_number_is_rejected(): void
+    {
+        $this->save_zones([$this->zone('us', [['country' => 'US', 'states' => []]], [$this->carrier('ups', 'UPS')])]);
+        $order = $this->place_order([], false);
+
+        $errors = $this->assert_validation_error($this->request('PATCH', 'orders/' . $order->id . '/action', [
+            'action' => OrderAction::MARK_AS_SHIPPED,
+            'carrier_id' => 'ups',
+        ]))['errors'];
+
+        $this->assertArrayHasKey('tracking_number', $errors);
+        $this->assertNotSame(FulfillmentStatus::SHIPPED, $order->fresh()->fulfillment_status);
+        $this->assertNull($this->last_used_carrier());
+    }
+
+    public function test_remove_tracking_clears_the_tracking_and_keeps_the_last_used_carrier(): void
+    {
+        $this->save_zones([$this->zone('us', [['country' => 'US', 'states' => []]], [$this->carrier('ups', 'UPS')])]);
+        $order = $this->place_order();
+        $this->assert_api_success($this->add_tracking($order, ['carrier_id' => 'ups', 'tracking_number' => '123']));
+
+        $this->perform($order, OrderAction::REMOVE_TRACKING);
+
+        $fresh = $order->fresh();
+
+        $this->assertNull($fresh->shipping_carrier);
+        $this->assertNull($fresh->shipping_tracking_number);
+        $this->assertNull($fresh->shipping_tracking_url);
+        $this->assertSame(['carrier_id' => 'ups', 'carrier' => null], $this->last_used_carrier());
     }
 
     public function test_a_listed_carrier_is_resolved_and_stored_on_the_order(): void
@@ -371,7 +487,7 @@ class OrderTrackingCarriersApiTest extends RestTestCase
         $this->save_zones([$this->zone('us', [['country' => 'US', 'states' => []]], [$this->carrier('ups', 'UPS')])]);
         $order = $this->place_order();
 
-        $this->assert_api_success($this->add_tracking($order, ['carrier_id' => 'ups', 'tracking_number' => '1Z999']));
+        $this->assert_api_success($this->add_tracking($order, ['carrier_id' => 'ups', 'tracking_number' => '1Z999', 'notify_customer' => true]));
 
         $jobs = $this->tracking_mail_jobs();
 
@@ -390,10 +506,19 @@ class OrderTrackingCarriersApiTest extends RestTestCase
     {
         $order = $this->place_order();
 
-        $this->assert_api_success($this->add_tracking($order, ['carrier' => 'DHL', 'tracking_number' => '111', 'tracking_url' => 'https://x.test/{tracking_number}']));
-        $this->assert_api_success($this->add_tracking($order, ['carrier' => 'DHL', 'tracking_number' => '222', 'tracking_url' => 'https://x.test/{tracking_number}']));
+        $this->assert_api_success($this->add_tracking($order, ['carrier' => 'DHL', 'tracking_number' => '111', 'tracking_url' => 'https://x.test/{tracking_number}', 'notify_customer' => true]));
+        $this->assert_api_success($this->add_tracking($order, ['carrier' => 'DHL', 'tracking_number' => '222', 'tracking_url' => 'https://x.test/{tracking_number}', 'notify_customer' => true]));
 
         $this->assertCount(2, $this->tracking_mail_jobs());
+    }
+
+    public function test_adding_tracking_without_notify_customer_queues_no_email(): void
+    {
+        $order = $this->place_order();
+
+        $this->assert_api_success($this->add_tracking($order, ['carrier' => 'DHL', 'tracking_number' => '111', 'tracking_url' => 'https://x.test/{tracking_number}']));
+
+        $this->assertSame([], $this->tracking_mail_jobs());
     }
 
     public function test_a_rejected_add_tracking_queues_no_email(): void

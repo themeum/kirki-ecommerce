@@ -32,5 +32,7 @@ class OptionKeys
     const ONBOARDING_COMPLETED_AT = 'onboarding_completed_at';
     const SETUP_CHECKLIST = 'setup_checklist';
     const PRESETS_APPLIED_AT = 'presets_applied_at';
+
+    const LAST_USED_SHIPPING_CARRIER = 'last_used_shipping_carrier';
     const FIRST_SALE = 'first_sale';
 }

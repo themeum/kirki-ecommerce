@@ -16,15 +16,18 @@ import { Page, PAGE_HEADING_HEIGHT, PageContent, PageHeading } from '@/component
 import QueryErrorState from '@/components/ui/query-error-state';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import AddTrackingDialog from '@/features/orders/components/order-details/add-tracking-dialog';
 import FlagCard from '@/features/orders/components/order-details/flag-card';
 import ItemsTable from '@/features/orders/components/order-details/items-table';
 import MarkAsPaidDialog from '@/features/orders/components/order-details/mark-as-paid-dialog';
+import MarkAsShippedDialog from '@/features/orders/components/order-details/mark-as-shipped-dialog';
 import TakeActionCard from '@/features/orders/components/order-details/take-action-card';
 import Timeline from '@/features/orders/components/order-details/timeline';
 import CustomerCard from '@/features/orders/components/order-form/customer-card';
 import NotesCard from '@/features/orders/components/order-form/notes-card';
 import PaymentSummaryCard from '@/features/orders/components/order-form/payment-summary-card';
+import { OrderActionProvider } from '@/features/orders/contexts/order-action-context';
+import { OrderDetailsProvider } from '@/features/orders/contexts/order-details-context';
+import { useOrderAction } from '@/features/orders/hooks/use-order-action';
 import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import { getActionLabel } from '@/features/orders/lib/order-actions';
 import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
@@ -35,8 +38,7 @@ import { defineStyles, mergeCss } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
-const OrderDetails = () => {
-  const { id } = useParams();
+const OrderDetailsContent = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -52,19 +54,18 @@ const OrderDetails = () => {
     form,
     paymentBadge,
     fulfillmentBadge,
+    isSaving,
+    handleSaveOrder,
+  } = useOrderDetails();
+
+  const {
     orderActions,
     paymentActions,
     isActionPending,
-    isSaving,
-    isTrackingDialogOpen,
-    setIsTrackingDialogOpen,
     isMarkAsPaidDialogOpen,
-    setIsMarkAsPaidDialogOpen,
+    isMarkAsShippedDialogOpen,
     handleAction,
-    handleAddTracking,
-    handleMarkAsPaid,
-    handleSaveOrder,
-  } = useOrderDetails(id);
+  } = useOrderAction();
 
   if (isLoading) {
     return <OrderDetailsSkeleton />;
@@ -117,7 +118,7 @@ const OrderDetails = () => {
                   <DropdownMenuContent align="end">
                     {orderActions.map((action) => (
                       <DropdownMenuItem key={action} onSelect={() => handleAction(action)}>
-                        {getActionLabel(action)}
+                        {getActionLabel(action, order)}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -142,22 +143,13 @@ const OrderDetails = () => {
               <Card cssOverride={{ gap: theme.spacing[2] }}>
                 <CardHeader>
                   <CardTitle>
-                    <Flex justify="space-between" align="center">
-                      <Text variant="heading6" weight="semibold">
-                        {sprintf(
-                          /* translators: %s: number of items */
-                          __('Items (%s)', 'kirki-ecommerce'),
-                          order.items_count,
-                        )}
-                      </Text>
-                      <Button variant="link" onClick={() => setIsTrackingDialogOpen(true)}>
-                        <Text variant="small" weight="medium" color="emphasis">
-                          {isDefined(order.shipping_tracking.tracking_number)
-                            ? __('Edit tracking No.', 'kirki-ecommerce')
-                            : __('Add tracking No.', 'kirki-ecommerce')}
-                        </Text>
-                      </Button>
-                    </Flex>
+                    <Text variant="heading6" weight="semibold">
+                      {sprintf(
+                        /* translators: %s: number of items */
+                        __('Items (%s)', 'kirki-ecommerce'),
+                        order.items_count,
+                      )}
+                    </Text>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -187,7 +179,7 @@ const OrderDetails = () => {
                           disabled={isActionPending}
                           onClick={() => handleAction(action)}
                         >
-                          {getActionLabel(action)}
+                          {getActionLabel(action, order)}
                         </Button>
                       ))}
                     </ActionGroup>
@@ -208,11 +200,7 @@ const OrderDetails = () => {
                 alignSelf: 'flex-start',
               }}
             >
-              <TakeActionCard
-                order={order}
-                onAction={handleAction}
-                isPerforming={isActionPending}
-              />
+              <TakeActionCard />
 
               <CustomerCard isGuest={order.is_guest} mode="view" order={order} />
 
@@ -227,28 +215,25 @@ const OrderDetails = () => {
           </Flex>
         </PageContent>
 
-        {isTrackingDialogOpen && (
-          <AddTrackingDialog
-            open
-            onOpenChange={setIsTrackingDialogOpen}
-            orderId={order.id}
-            tracking={order.shipping_tracking}
-            isSaving={isActionPending}
-            onSubmit={handleAddTracking}
-          />
-        )}
+        {isMarkAsShippedDialogOpen && <MarkAsShippedDialog />}
 
-        {isMarkAsPaidDialogOpen && (
-          <MarkAsPaidDialog
-            open
-            onOpenChange={setIsMarkAsPaidDialogOpen}
-            order={order}
-            isSaving={isActionPending}
-            onSubmit={handleMarkAsPaid}
-          />
-        )}
+        {isMarkAsPaidDialogOpen && <MarkAsPaidDialog />}
       </Form>
     </Page>
+  );
+};
+
+OrderDetailsContent.displayName = 'OrderDetailsContent';
+
+const OrderDetails = () => {
+  const { id } = useParams();
+
+  return (
+    <OrderDetailsProvider orderId={id}>
+      <OrderActionProvider>
+        <OrderDetailsContent />
+      </OrderActionProvider>
+    </OrderDetailsProvider>
   );
 };
 

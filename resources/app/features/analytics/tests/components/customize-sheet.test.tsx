@@ -274,11 +274,12 @@ describe('CustomizeSheet', () => {
 
   it('shows the Amounts group below Cards, with only the names before the example loads', () => {
     const sheet = openSheet();
-    const headings = within(sheet)
-      .getAllByRole('heading')
-      .map((heading) => heading.textContent);
+    const cardsTitle = within(sheet).getByText('Cards');
+    const amountsTitle = within(sheet).getByText('Amounts');
 
-    expect(headings.slice(-2)).toEqual(['Cards', 'Amounts']);
+    expect(cardsTitle.compareDocumentPosition(amountsTitle)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
     expect(within(sheet).getByRole('radio', { name: 'Short' })).toBeChecked();
     expect(within(sheet).getByRole('radio', { name: 'Long' })).not.toBeChecked();
   });

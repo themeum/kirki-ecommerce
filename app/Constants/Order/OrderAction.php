@@ -22,6 +22,7 @@ final class OrderAction
     const CANCEL_FULFILLMENT = 'cancel-fulfillment';
     const RESUME_FULFILLMENT = 'resume-fulfillment';
     const ADD_TRACKING = 'add-tracking';
+    const REMOVE_TRACKING = 'remove-tracking';
     const MARK_AS_PAID = 'mark-as-paid';
     // const SEND_PAYMENT_LINK = 'send-payment-link';
     // const SEND_INVOICE = 'send-invoice';

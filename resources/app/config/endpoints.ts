@@ -123,6 +123,7 @@ export const endpoints = {
   CALCULATE_ORDER: '/calculate/order',
   ORDER_ACTIVITIES: (orderId: string | number) => `/orders/${orderId}/activities`,
   ORDER_SHIPPING_CARRIERS: (orderId: string | number) => `/orders/${orderId}/shipping-carriers`,
+  LAST_USED_SHIPPING_CARRIER: '/shipping-carriers/last-used',
   ORDER_ACTIVITY: (orderId: string | number, activityId: string | number) =>
     `/orders/${orderId}/activities/${activityId}`,
 } as const;

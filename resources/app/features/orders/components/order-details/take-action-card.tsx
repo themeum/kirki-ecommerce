@@ -12,6 +12,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Text from '@/components/ui/text';
+import AddTrackingDialog from '@/features/orders/components/order-details/add-tracking-dialog';
+import TrackingInfo from '@/features/orders/components/order-details/tracking-info';
+import { useOrderAction } from '@/features/orders/hooks/use-order-action';
+import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import {
   FULFILLMENT_ACTION_GROUP,
   getActionLabel,
@@ -20,31 +24,33 @@ import {
   type OrderAction,
 } from '@/features/orders/lib/order-actions';
 import { getOrderStateBadgeInfo } from '@/features/orders/lib/order-badge';
-import type { Order } from '@/features/orders/schemas/catalog/order';
+import { isTrackingNumberAdded } from '@/features/orders/lib/shipping-tracking';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-type TakeActionCardProps = {
-  order: Order;
-  onAction: (action: OrderAction) => void;
-  isPerforming?: boolean;
-};
+const TakeActionCard = () => {
+  const [selectedAction, setSelectedAction] = useState<OrderAction | null>(null);
+  const { handleAction, isActionPending, isTrackingDialogOpen } = useOrderAction();
+  const { order } = useOrderDetails();
 
-const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) => {
-  const [selectedAction, setSelectedAction] = useState<OrderAction | ''>('');
-
+  if (!isDefined(order)) {
+    return null;
+  }
   const availableActions = getAvailableActions(order, FULFILLMENT_ACTION_GROUP);
-  const orderState = getOrderStateBadgeInfo(order.status);
+  const orderState = getOrderStateBadgeInfo(order);
+  const isTrackingAvailable = order.fulfillment_status === 'shipped' && order.shipping_method_type !== 'local_pickup';
 
   const handleUpdate = () => {
     if (!selectedAction) {
       return;
     }
 
-    onAction(selectedAction);
+    handleAction(selectedAction);
 
     if (selectedAction !== ORDER_ACTIONS.ADD_TRACKING) {
-      setSelectedAction('');
+      setSelectedAction(null);
     }
   };
 
@@ -64,8 +70,38 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
             </Text>
           </Flex>
 
+          {isTrackingNumberAdded(order.shipping_tracking) ? (
+            <TrackingInfo
+              orderId={order.id}
+              tracking={order.shipping_tracking}
+              onEdit={() => handleAction(ORDER_ACTIONS.ADD_TRACKING)}
+            />
+          ) : (
+            isTrackingAvailable && (
+              <Flex
+                justify="space-between"
+                align="center"
+                cssOverride={{
+                  backgroundColor: theme.colors.background.surfaceAlt,
+                  padding: theme.spacing[2],
+                  borderRadius: theme.radius.lg,
+                }}
+              >
+                <Text variant="heading6" weight="normal" color="subdued">
+                  {__('No tracking added', 'kirki-ecommerce')}
+                </Text>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAction(ORDER_ACTIONS.ADD_TRACKING)}
+                >
+                  {__('Add tracking', 'kirki-ecommerce')}
+                </Button>
+              </Flex>
+            )
+          )}
           {availableActions.length > 0 && (
-            <Flex direction="column" gap={4}>
+            <Flex direction="column" gap={2}>
               <Field>
                 <FieldLabel>
                   <Text variant="small" weight="medium">
@@ -73,7 +109,7 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
                   </Text>
                 </FieldLabel>
                 <Select
-                  value={selectedAction}
+                  value={selectedAction ?? ''}
                   onValueChange={(value) => setSelectedAction(value as OrderAction)}
                 >
                   <SelectTrigger>
@@ -82,7 +118,7 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
                   <SelectContent>
                     {availableActions.map((action) => (
                       <SelectItem key={action} value={action}>
-                        {getActionLabel(action)}
+                        {getActionLabel(action, order)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -93,7 +129,7 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
                 variant="primary"
                 style={{ width: '100%' }}
                 disabled={!selectedAction}
-                loading={isPerforming}
+                loading={isActionPending}
                 onClick={handleUpdate}
               >
                 <Text variant="tiny" weight="medium" color="light">
@@ -103,6 +139,7 @@ const TakeActionCard = ({ order, onAction, isPerforming }: TakeActionCardProps) 
             </Flex>
           )}
         </Flex>
+        {isTrackingDialogOpen && <AddTrackingDialog />}
       </CardContent>
     </Card>
   );

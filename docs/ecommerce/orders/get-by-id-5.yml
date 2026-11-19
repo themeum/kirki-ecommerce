@@ -153,6 +153,13 @@ examples:
               "shipping_method": "fsdfdsfsdfsdf343432jh4",
               "shipping_method_name": "Standard Delivery",
               "shipping_method_type": "flat_rate",
+              "shipping_meta": {
+                "description": "Delivered in 3-5 business days.",
+                "is_taxable": false,
+                "address": null,
+                "pickup_time_start": null,
+                "pickup_time_end": null
+              },
               "order_notes": "Please leave the package at the front door.",
               "flags": [],
               "shipping_tracking": {

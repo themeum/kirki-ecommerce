@@ -6,6 +6,8 @@ import { __ } from '@/wpi18n';
 
 const ShippingMethodTypeSchema = z.enum(['flat_rate', 'local_pickup', 'weight']);
 
+type ShippingMethodType = z.infer<typeof ShippingMethodTypeSchema>;
+
 const WeightRangeRowShape = z.object({
   from: required(numberOrNull(), __('From is required', 'kirki-ecommerce')),
   to: numberOrNull(),
@@ -79,7 +81,7 @@ const ShippingMethodFormShape = z.object({
   shipping_rules: z.array(z.custom<ShippingRule>()).default([]),
 });
 
-export const ShippingMethodFormSchema = prepareFormSchema(ShippingMethodFormShape).transform(
+ const ShippingMethodFormSchema = prepareFormSchema(ShippingMethodFormShape).transform(
   (values) => {
     const base = {
       name: values.name,
@@ -122,6 +124,9 @@ export const ShippingMethodFormSchema = prepareFormSchema(ShippingMethodFormShap
   },
 );
 
-export type ShippingMethodFormInput = z.input<typeof ShippingMethodFormSchema>;
+type ShippingMethodFormInput = z.input<typeof ShippingMethodFormSchema>;
 
-export type ShippingMethodFormPayload = z.output<typeof ShippingMethodFormSchema>;
+type ShippingMethodFormPayload = z.output<typeof ShippingMethodFormSchema>;
+
+export { ShippingMethodFormSchema, ShippingMethodTypeSchema };
+export type { ShippingMethodFormInput, ShippingMethodFormPayload, ShippingMethodType };
