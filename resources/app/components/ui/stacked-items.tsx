@@ -89,7 +89,7 @@ const StackedItem = forwardRef<HTMLDivElement, StackedItemProps>((props, ref) =>
 
   return (
     <StackedItemContext.Provider value={{ isOpen, setOpen }}>
-      <div css={scoped(styles.stackedItem)}>
+      <div data-slot="stacked-item-wrapper" css={scoped(styles.stackedItem)}>
         <Item
           ref={ref}
           role="listitem"
@@ -144,6 +144,9 @@ export {
 
 export type { StackedItemProps, StackedItemsElementProps };
 
+const GHOST_BLEED = `var(--stacked-items-bleed, ${theme.spacing[2]})`;
+const GHOST_HIGHLIGHTED = ':hover, :has(a:focus-visible)';
+
 const styles = defineStyles({
   container: {
     overflow: 'hidden',
@@ -161,10 +164,30 @@ const styles = defineStyles({
     border: 'none',
     borderRadius: theme.radius.none,
     overflow: 'auto',
-    marginInline: `-${theme.spacing[2]}`,
-    paddingInline: theme.spacing[2],
+    marginInline: `calc(-1 * ${GHOST_BLEED})`,
+    '& [data-slot="stacked-item-wrapper"]': {
+      position: 'relative',
+      '&:not(:last-of-type)': {
+        borderBottomColor: 'transparent',
+      },
+      '&:not(:last-of-type)::after': {
+        content: '""',
+        position: 'absolute',
+        bottom: '-1px',
+        left: GHOST_BLEED,
+        right: GHOST_BLEED,
+        height: '1px',
+        backgroundColor: theme.colors.border.secondary,
+        transition: 'left 180ms ease, right 180ms ease',
+        pointerEvents: 'none',
+      },
+      [`&:is(${GHOST_HIGHLIGHTED})::after, &:has(+ :is(${GHOST_HIGHLIGHTED}))::after`]: {
+        left: 0,
+        right: 0,
+      },
+    },
     '& [data-slot="stacked-item"]': {
-      paddingInline: theme.spacing[0],
+      paddingInline: GHOST_BLEED,
       '&:hover': {
         backgroundColor: 'rgba(0, 0, 0, 0.02)', // @todo: we don't have any color token for this
       },
@@ -175,9 +198,8 @@ const styles = defineStyles({
       '&:has(a:focus-visible)::after': {
         content: '""',
         position: 'absolute',
-        inset: `${theme.spacing[1]} -${theme.spacing[2]}`,
+        inset: 0,
         border: `2px solid ${theme.colors.background.fillBrand}`,
-        borderRadius: theme.radius.lg,
         pointerEvents: 'none',
       },
     },
