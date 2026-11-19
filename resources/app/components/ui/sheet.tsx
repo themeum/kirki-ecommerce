@@ -371,7 +371,7 @@ const styles = defineStyles({
     },
   },
   floating: {
-    width: '360px',
+    width: SHEET_CONTENT_WIDTH,
     maxHeight: `min(${FLOAT_MAX_HEIGHT}px, calc(100vh - ${FLOAT_MARGIN * 2}px))`,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.xl,

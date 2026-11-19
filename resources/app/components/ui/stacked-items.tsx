@@ -161,10 +161,24 @@ const styles = defineStyles({
     border: 'none',
     borderRadius: theme.radius.none,
     overflow: 'auto',
+    marginInline: `-${theme.spacing[2]}`,
+    paddingInline: theme.spacing[2],
     '& [data-slot="stacked-item"]': {
       paddingInline: theme.spacing[0],
       '&:hover': {
         backgroundColor: 'rgba(0, 0, 0, 0.02)', // @todo: we don't have any color token for this
+      },
+      '& a:focus': {
+        outline: 'none',
+        boxShadow: 'none',
+      },
+      '&:has(a:focus-visible)::after': {
+        content: '""',
+        position: 'absolute',
+        inset: `${theme.spacing[1]} -${theme.spacing[2]}`,
+        border: `2px solid ${theme.colors.background.fillBrand}`,
+        borderRadius: theme.radius.lg,
+        pointerEvents: 'none',
       },
     },
   },

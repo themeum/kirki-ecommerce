@@ -152,10 +152,6 @@ const styles = defineStyles({
     minHeight: '60px',
     color: 'inherit',
     textDecoration: 'none',
-    '&:focus-visible': {
-      outline: `1px solid ${theme.colors.background.fillBrand}`,
-      outlineOffset: '-1px',
-    },
   },
   details: {
     flex: 1,
