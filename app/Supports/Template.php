@@ -148,8 +148,12 @@ class Template
          * Get the tags and attributes that rendered block template markup may contain.
          *
          * Starts from the `post` list and adds what block theme headers and footers
-         * use beyond it: forms, inline SVG, responsive image attributes, and the ARIA
-         * and `data-*` attributes of the navigation and interactivity blocks.
+         * use beyond it: forms, inline SVG, responsive image attributes, the ARIA
+         * and `data-*` attributes of the navigation and interactivity blocks, and
+         * the Alpine.js attributes of the storefront shortcodes (currency switcher,
+         * mini cart). kses drops attribute names that start with `@` or `:`, so
+         * those shortcodes use the long `x-on:` and `x-bind:` forms. Add an
+         * attribute to `$alpine_attributes` when a shortcode view starts using it.
          *
          * @since 1.0.0
          *
@@ -177,6 +181,34 @@ class Template
                 'line' => ['x1' => true, 'y1' => true, 'x2' => true, 'y2' => true] + $svg_attributes,
                 'polyline' => ['points' => true] + $svg_attributes,
                 'polygon' => ['points' => true] + $svg_attributes,
+                'template' => [],
+            ];
+
+            $alpine_attributes = [
+                'x-data',
+                'x-show',
+                'x-text',
+                'x-for',
+                'x-ref',
+                'x-cloak',
+                'x-bind:id',
+                'x-bind:key',
+                'x-bind:class',
+                'x-bind:aria-selected',
+                'x-bind:aria-expanded',
+                'x-bind:aria-activedescendant',
+                'x-on:click',
+                'x-on:click.outside',
+                'x-on:keydown',
+                'x-on:keydown.escape.window',
+                'x-on:mouseenter',
+                'x-on:kecom:cart-updated.document',
+                'x-transition:enter',
+                'x-transition:enter-start',
+                'x-transition:enter-end',
+                'x-transition:leave',
+                'x-transition:leave-start',
+                'x-transition:leave-end',
             ];
 
             $global_attributes = [
@@ -200,7 +232,7 @@ class Template
                 'aria-live' => true,
                 'aria-modal' => true,
                 'data-*' => true,
-            ];
+            ] + array_fill_keys($alpine_attributes, true);
 
             foreach ($extra_tags as $tag => $attributes) {
                 $allowed[$tag] = array_merge($allowed[$tag] ?? [], $attributes);

@@ -41,13 +41,13 @@ class MiniCartService extends CartService
         <a href="<?php echo esc_url(Url::get_cart_url()); ?>"
             aria-label="<?php esc_attr_e('View Cart', 'kirki-ecommerce'); ?>"
             class="kecom-mini-cart <?php echo esc_attr($attributes['class']); ?>"
-            @kecom:cart-updated.document="updateCount($event.detail.items_count)"
+            x-on:kecom:cart-updated.document="updateCount($event.detail.items_count)"
             x-data="miniCart({ initialCount: <?php echo (int) $total_items_count; ?> })">
 
             <span class="kecom-mini-cart-icon" aria-hidden="true"><?php Icon::render('shopping-cart', ['size' => 20]); ?></span>
             <span
                 class="kecom-mini-cart-count"
-                :class="{
+                x-bind:class="{
                     'is-increasing': direction === 'increase',
                     'is-decreasing': direction === 'decrease'
                 }"
