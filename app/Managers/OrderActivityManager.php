@@ -388,13 +388,13 @@ class OrderActivityManager
             case OrderActivityType::FULFILLMENT_RESUMED:
                 return __('Order fulfillment resumed.', 'kirki-ecommerce');
             case OrderActivityType::SHIPPED:
-                if ($metadata['shipping_method_type'] ?? '' === ShippingMethodTypes::LOCAL_PICKUP) {
+                if (($metadata['shipping_method_type'] ?? '') === ShippingMethodTypes::LOCAL_PICKUP) {
                     return __('Order marked as ready for pickup.', 'kirki-ecommerce');
                 }
 
                 return __('Order marked as shipped.', 'kirki-ecommerce');
             case OrderActivityType::DELIVERED:
-                if ($metadata['shipping_method_type'] ?? '' === ShippingMethodTypes::LOCAL_PICKUP) {
+                if (($metadata['shipping_method_type'] ?? '') === ShippingMethodTypes::LOCAL_PICKUP) {
                     return __('Order marked as picked up.', 'kirki-ecommerce');
                 }
 
