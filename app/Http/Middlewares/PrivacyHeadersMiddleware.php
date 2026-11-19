@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Protect order link pages
+ * Send privacy headers for private pages
  *
  * @package Kirki\Ecommerce\App\Http\Middlewares
  * @author Themeum <support@themeum.com>
@@ -17,18 +17,18 @@ use Kirki\Ecommerce\Framework\Contracts\Middleware;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 
 /**
- * Keeps the order UUID in a page URL from leaking to other sites or to search engines.
+ * Keeps private pages from leaking to other sites or to search engines.
  *
- * The UUID in the URL works as a secret link. This middleware tells the browser to send no
- * Referer header, asks search engines to skip the page, and stops shared caches from storing it.
- * It does nothing when the request carries no UUID.
+ * Use it on the order, cart, checkout, and account routes. The order UUID in a URL works as a
+ * secret link. This middleware tells the browser to send no Referer header, asks search engines
+ * to skip the page, and stops shared caches from storing it.
  *
  * @since 1.0.0
  */
-class ProtectOrderLinkMiddleware implements Middleware
+class PrivacyHeadersMiddleware implements Middleware
 {
     /**
-     * Send the privacy headers when the request carries an order UUID, then pass the request on.
+     * Send the privacy headers, then pass the request on.
      *
      * @since 1.0.0
      *
@@ -38,7 +38,7 @@ class ProtectOrderLinkMiddleware implements Middleware
      */
     public function handle(Request $request, callable $next)
     {
-        if ($request->string('uuid', '') !== '' && !headers_sent()) {
+        if (!headers_sent()) {
             nocache_headers();
             header('Referrer-Policy: no-referrer');
             header('X-Robots-Tag: noindex, nofollow');
