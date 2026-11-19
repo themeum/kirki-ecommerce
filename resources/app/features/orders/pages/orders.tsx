@@ -13,19 +13,9 @@ import { OrderEmptyStateIcon } from '@/icons/empty-state';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-const getAttentionLabel = (attention: string | undefined) => {
-  const labels: Record<string, string> = {
-    to_ship: __('To ship', 'kirki-ecommerce'),
-    to_collect: __('To collect', 'kirki-ecommerce'),
-  };
-
-  return attention ? labels[attention] : undefined;
-};
-
 const Orders = () => {
   const navigate = useNavigate();
-  const { params, setParam } = useDataTableParams(orderListOptions);
-  const attentionLabel = getAttentionLabel(params.attention);
+  const { params } = useDataTableParams(orderListOptions);
 
   const { data, isFetching, isError, refetch, isFetched } = useOrdersQuery(params);
 

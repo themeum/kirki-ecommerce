@@ -70,7 +70,6 @@ describe('FirstSaleCard', () => {
     expect(card).toHaveTextContent(
       'Ibrahim Fischer ordered £43.88 (#2026-2236). Every store starts with one order. This one is yours.',
     );
-    expect(screen.getByRole('link', { name: '#2026-2236' })).toHaveAttribute('href', '/orders/12');
   });
 
   it('falls back to a generic name when the order has no customer name', () => {

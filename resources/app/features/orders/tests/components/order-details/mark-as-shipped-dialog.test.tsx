@@ -132,8 +132,8 @@ describe('MarkAsShippedDialog', () => {
     });
 
     expect(screen.getByText('Pickup at 221 Market St, San Francisco')).toBeInTheDocument();
-    expect(screen.getByText('10:00 – 18:00')).toBeInTheDocument();
-    expect(screen.getByText('Bring your order number.')).toBeInTheDocument();
+    expect(screen.getByText('Pickup time: 10:00 AM - 6:00 PM')).toBeInTheDocument();
+    expect(screen.getByText('Pickup instruction: Bring your order number.')).toBeInTheDocument();
     expect(screen.queryByText('Store pickup')).not.toBeInTheDocument();
   });
 

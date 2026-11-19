@@ -81,6 +81,7 @@ class PerformOrderAction
                 case OrderAction::MARK_AS_SHIPPED:
                     $has_tracking = $this->has_tracking_info($dto);
                     OrderManager::mark_as_shipped($order->id, (bool) $dto->notify_customer);
+
                     if ($has_tracking) {
                         OrderManager::add_tracking($order->id, $this->resolve_tracking($order, $dto), false);
                         $this->remember_carrier($dto);
