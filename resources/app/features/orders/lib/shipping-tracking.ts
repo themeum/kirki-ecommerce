@@ -24,10 +24,6 @@ const getInitialTrackingValues = (
     return { carrier: OTHER_CARRIER_VALUE, other_name: lastUsedName };
   }
 
-  if (carriers.length === 0) {
-    return { carrier: OTHER_CARRIER_VALUE };
-  }
-
   return { carrier: '' };
 };
 

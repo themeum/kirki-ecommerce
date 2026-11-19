@@ -1,4 +1,4 @@
-import { Copy, EllipsisVertical, ExternalLink } from 'lucide-react';
+import { Copy, Edit3, EllipsisVertical, ExternalLink } from 'lucide-react';
 
 import Button from '@/components/ui/button';
 import {
@@ -14,7 +14,7 @@ import Text from '@/components/ui/text';
 import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import type { OrderTracking } from '@/features/orders/schemas/catalog/order';
 import { useOrderShippingCarriersQuery } from '@/features/orders/services/order';
-import { EditPenIcon, TruckIcon } from '@/icons/common';
+import { TruckIcon } from '@/icons/common';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter } from '@/theme/mixins';
 import { copyToClipboard } from '@/utils';
@@ -74,12 +74,12 @@ const TrackingInfo = ({ orderId, tracking, onEdit }: TrackingInfoProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => copyToClipboard(trackingNumber)}>
-            <Copy size={16} />
+            <Copy size={14} color={theme.colors.icon.secondary} />
             <span>{__('Copy tracking number', 'kirki-ecommerce')}</span>
           </DropdownMenuItem>
           {isDefined(order) && order.fulfillment_status !== 'delivered' && (
             <DropdownMenuItem onClick={onEdit}>
-              <EditPenIcon />
+              <Edit3 size={14} color={theme.colors.icon.secondary} />
               <span>{__('Edit tracking', 'kirki-ecommerce')}</span>
             </DropdownMenuItem>
           )}
@@ -90,7 +90,7 @@ const TrackingInfo = ({ orderId, tracking, onEdit }: TrackingInfoProps) => {
               <DropdownMenuItem
                 onClick={() => window.open(trackingUrl, '_blank', 'noopener,noreferrer')}
               >
-                <ExternalLink size={16} />
+                <ExternalLink size={14} color={theme.colors.icon.secondary} />
                 <span>{trackLabel}</span>
               </DropdownMenuItem>
             </>
