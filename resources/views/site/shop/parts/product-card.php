@@ -51,7 +51,7 @@ $display_context         = $data['context'] ?? null;
         <?php endif; ?>
     </a>
     <?php if (is_user_logged_in()) : ?>
-    <span class="kecom-product-card-wishlist" id="<?php echo esc_attr($product_id) ?>" :class="{ 'active' : isWishlisted }" @click.prevent="wishlistItem();">
+    <span class="kecom-product-card-wishlist" id="<?php echo esc_attr($product_id) ?>" x-bind:class="{ 'active' : isWishlisted }" x-on:click.prevent="wishlistItem();">
         <?php Icon::render('heart'); ?>
     </span>
     <?php else : ?>
@@ -92,9 +92,9 @@ $display_context         = $data['context'] ?? null;
             <button
                 type="button"
                 class="kecom-btn kecom-btn-primary kecom-btn-block kecom-product-card-add-to-cart"
-                @click="add(1)"
-                :disabled="loading"
-                :class="{ 'kecom-btn-loading': loading }"
+                x-on:click="add(1)"
+                x-bind:disabled="loading"
+                x-bind:class="{ 'kecom-btn-loading': loading }"
             >
                 <?php Icon::render('shopping-cart'); ?>
                 <span x-text="buttonText"></span>

@@ -50,14 +50,14 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
             <button
                 type="button"
                 class="kecom-btn kecom-btn-outline kecom-btn-icon kecom-products-search-btn"
-                :class="{ 'is-visible': searchBtnVisible }"
-                @click="openSearch()"
+                x-bind:class="{ 'is-visible': searchBtnVisible }"
+                x-on:click="openSearch()"
                 aria-label="<?php esc_attr_e('Open search', 'kirki-ecommerce'); ?>">
                 <?php Icon::render('search') ?>
             </button>
             <div
                 class="kecom-products-search-field"
-                :class="{ 'is-open': searchOpen }">
+                x-bind:class="{ 'is-open': searchOpen }">
                 <?php Icon::render('search', ['class' => 'kecom-products-search-field-icon']); ?>
                 <input
                     id="kecom-search-input"
@@ -66,14 +66,14 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
                     placeholder="<?php esc_html_e('Search products...', 'kirki-ecommerce'); ?>"
                     name="search"
                     x-model="searchQuery"
-                    @keydown.enter.prevent="search()"
-                    @keydown.escape="closeSearch()"
+                    x-on:keydown.enter.prevent="search()"
+                    x-on:keydown.escape="closeSearch()"
                     value="<?php echo esc_attr($search); ?>">
                 <button
                     type="button"
                     class="kecom-products-search-clear"
-                    :class="{ 'is-visible': searchQuery }"
-                    @click="applySearch('')"
+                    x-bind:class="{ 'is-visible': searchQuery }"
+                    x-on:click="applySearch('')"
                     aria-label="<?php esc_attr_e('Clear search', 'kirki-ecommerce'); ?>">
                     <?php Icon::render('x', ['size' => 14]); ?>
                 </button>
@@ -82,7 +82,7 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
 
         <div class="kecom-products-page-meta-sortby">
             <label for="sort_by"><?php esc_html_e('Sort by:', 'kirki-ecommerce'); ?></label>
-            <select name="sort_by" id="sort_by" x-model="sortBy" @change="applySort($event.target.value)">
+            <select name="sort_by" id="sort_by" x-model="sortBy" x-on:change="applySort($event.target.value)">
                 <option value="recommended" <?php selected($current_sort_by, 'recommended'); ?>><?php esc_html_e('Recommended', 'kirki-ecommerce'); ?></option>
                 <option value="low_to_high" <?php selected($current_sort_by, 'low_to_high'); ?>><?php esc_html_e('Price: Low to High', 'kirki-ecommerce'); ?></option>
                 <option value="high_to_low" <?php selected($current_sort_by, 'high_to_low'); ?>><?php esc_html_e('Price: High to Low', 'kirki-ecommerce'); ?></option>

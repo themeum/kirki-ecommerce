@@ -69,7 +69,7 @@ $can_apply_coupon_code = (bool) (settings('checkout.checkout_configuration.can_a
                 <?php include_view('site.checkout.parts.consents', ['consents' => $data->consents ?? []]); ?>
 
                 <!-- Pay Button -->
-                <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-lg kecom-pay-btn" :class="{ 'kecom-btn-loading': loading }" :disabled="loading" @click="placeOrder">
+                <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-lg kecom-pay-btn" x-bind:class="{ 'kecom-btn-loading': loading }" x-bind:disabled="loading" x-on:click="placeOrder">
                     <?php esc_html_e('Place Order', 'kirki-ecommerce'); ?>
                 </button>
             </div>

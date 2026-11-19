@@ -211,9 +211,9 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
 
         <!-- Right Column (Products List & Total Breakdown) -->
         <div class="kecom-order-details-col-right">
-            <div class="kecom-order-summary-card" x-data="{ expanded: false, isAtBottom: false }" :class="expanded ? 'expanded' : ''">
+            <div class="kecom-order-summary-card" x-data="{ expanded: false, isAtBottom: false }" x-bind:class="expanded ? 'expanded' : ''">
                 <!-- Order Items List -->
-                <div class="kecom-product-list-wrapper" x-ref="list_wrapper" :class="expanded ? 'scrollable': ''" @scroll="isAtBottom = $el.scrollHeight - $el.scrollTop <= $el.clientHeight + 1">
+                <div class="kecom-product-list-wrapper" x-ref="list_wrapper" x-bind:class="expanded ? 'scrollable': ''" x-on:scroll="isAtBottom = $el.scrollHeight - $el.scrollTop <= $el.clientHeight + 1">
                     <div class="kecom-product-list">
                         <?php foreach ($items as $item) :
                             $inv_price_obj = $item['invoiced_subtotal_money_object'] ?? null;
@@ -263,17 +263,17 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                         <?php endforeach; ?>
                     </div>
                     <div class="kecom-collapse-button" x-show="expanded" x-cloak>
-                        <button @click="expanded = !expanded; $refs.list_wrapper.scrollTop = 0;" class="kecom-btn kecom-btn-link"><?php esc_html_e('Show Less', 'kirki-ecommerce'); ?></button>
+                        <button x-on:click="expanded = !expanded; $refs.list_wrapper.scrollTop = 0;" class="kecom-btn kecom-btn-link"><?php esc_html_e('Show Less', 'kirki-ecommerce'); ?></button>
                     </div>
                 </div>
                 <?php if (count($items) > 3) : ?>
-                    <div class="kecom-expand-button" :class="expanded ? 'expanded' : ''">
+                    <div class="kecom-expand-button" x-bind:class="expanded ? 'expanded' : ''">
                         <?php /* translators: %d: number of additional items */ ?>
-                        <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php echo esc_js(sprintf(__('Show More (%d)', 'kirki-ecommerce'), count($items) - 3)); ?>'"></button>
+                        <button x-on:click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php echo esc_js(sprintf(__('Show More (%d)', 'kirki-ecommerce'), count($items) - 3)); ?>'"></button>
                     </div>
                 <?php endif; ?>
                 <!-- Summary Totals Breakdown -->
-                <div class="kecom-order-pricing-breakdown" :class="expanded && !isAtBottom ? 'expanded' : ''">
+                <div class="kecom-order-pricing-breakdown" x-bind:class="expanded && !isAtBottom ? 'expanded' : ''">
                     <?php if (! empty($coupons)) : ?>
                         <div class="kecom-applied-coupons">
                             <?php foreach ($coupons as $coupon) : ?>

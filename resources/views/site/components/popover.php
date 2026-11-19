@@ -44,13 +44,13 @@ $items         = $data['items'] ?? [];
 <div
     class="kecom-popover"
     x-data="popover({ placement: '<?php echo esc_attr($placement); ?>' })"
-    @click.outside="close()"
-    @keydown.escape.window="close()"
+    x-on:click.outside="close()"
+    x-on:keydown.escape.window="close()"
 >
     <button
         type="button"
         class="<?php echo esc_attr($trigger_class); ?>"
-        @click.stop="toggle()"
+        x-on:click.stop="toggle()"
         aria-label="<?php echo esc_attr($trigger_label); ?>"
     >
         <?php if (!empty($trigger_icon)) : ?>
@@ -99,7 +99,7 @@ $items         = $data['items'] ?? [];
                         href="<?php echo esc_url($item['href']); ?>"
                         class="<?php echo esc_attr($item_class); ?>"
                         <?php if (!empty($item['click'])) : ?>
-                            @click="<?php echo esc_attr($item['click']); ?>; close()"
+                            x-on:click="<?php echo esc_attr($item['click']); ?>; close()"
                         <?php endif; ?>
                     >
                         <?php echo esc_html($item['label']); ?>
@@ -109,13 +109,13 @@ $items         = $data['items'] ?? [];
                         type="button"
                         class="<?php echo esc_attr($item_class); ?>"
                         <?php if (!empty($item['click'])) : ?>
-                            @click="<?php echo esc_attr($item['click']); ?>; close()"
+                            x-on:click="<?php echo esc_attr($item['click']); ?>; close()"
                         <?php endif; ?>
                         <?php if (!empty($item['bind_class'])) : ?>
-                            :class="<?php echo esc_attr($item['bind_class']); ?>"
+                            x-bind:class="<?php echo esc_attr($item['bind_class']); ?>"
                         <?php endif; ?>
                         <?php if (!empty($item['bind_disable'])) : ?>
-                            :disabled="<?php echo esc_attr($item['bind_disable']); ?>"
+                            x-bind:disabled="<?php echo esc_attr($item['bind_disable']); ?>"
                         <?php endif; ?>
                     >
                         <?php echo esc_html($item['label']); ?>

@@ -23,7 +23,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
         },
         mode: 'onBlur'
     })"
-    @submit.prevent="handleSubmit((values) => saveProfile(values, (field, msg) => setError(field, msg)))"
+    x-on:submit.prevent="handleSubmit((values) => saveProfile(values, (field, msg) => setError(field, msg)))"
 >
     <!-- Personal Information Card -->
     <div class="kecom-card kecom-account-details-card">
@@ -58,7 +58,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 id="kecom_email"
                 name="email"
                 class="kecom-input"
-                :value="profileData.email"
+                x-bind:value="profileData.email"
                 readonly
             />
         </div>
@@ -67,7 +67,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
         <button
             type="button"
             class="kecom-btn kecom-btn-secondary kecom-btn-block"
-            @click.prevent="openPasswordModal"
+            x-on:click.prevent="openPasswordModal"
         >
             <?php Icon::render('key-round'); ?>
             <span><?php esc_html_e('Reset Password', 'kirki-ecommerce'); ?></span>
@@ -79,8 +79,8 @@ use Kirki\Ecommerce\App\Supports\Icon;
         <button
             type="submit"
             class="kecom-btn kecom-btn-primary"
-            :class="{ 'kecom-btn-loading': profileLoading }"
-            :disabled="profileLoading"
+            x-bind:class="{ 'kecom-btn-loading': profileLoading }"
+            x-bind:disabled="profileLoading"
         >
             <?php esc_html_e('Save Changes', 'kirki-ecommerce'); ?>
         </button>

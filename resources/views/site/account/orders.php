@@ -43,10 +43,10 @@ $has_more_pages = $orders['has_more_pages'] ?? false;
                     <?php if ($has_more_pages) { ?>
                         <div class="kecom-flex kecom-justify-center kecom-mt-9">
                             <button class="kecom-btn kecom-btn-primary"
-                                :class="{ 'kecom-btn-loading': isLoading }"
-                                :disabled="isLoading"
+                                x-bind:class="{ 'kecom-btn-loading': isLoading }"
+                                x-bind:disabled="isLoading"
                                 x-show="hasMorePages" 
-                                @click="fetchOrders()">
+                                x-on:click="fetchOrders()">
                                 <?php esc_html_e('Load More', 'kirki-ecommerce'); ?>
                             </button>
                         </div>

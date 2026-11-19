@@ -49,7 +49,7 @@ defined('ABSPATH') || exit;
             <div class="kecom-inclusive-tax-wrapper" x-show="isTaxInclusivePrice && Boolean(cartData.pricing?.display_tax_total_money_object?.raw)" x-cloak>
                 <span class="kecom-inclusive-tax-summary" x-text="inclusiveTaxSummary"></span>
                 <div class="kecom-inclusive-tax-lines" x-show="(cartData.pricing?.tax_lines || []).length > 1">
-                    <template x-for="tax_line in (cartData.pricing?.tax_lines || [])" :key="tax_line.name + '|' + tax_line.rate">
+                    <template x-for="tax_line in (cartData.pricing?.tax_lines || [])" x-bind:key="tax_line.name + '|' + tax_line.rate">
                         <div class="kecom-inclusive-tax-line" x-text="formatTaxLine(tax_line)"></div>
                     </template>
                 </div>

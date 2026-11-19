@@ -3,7 +3,7 @@
  * Simplified form validation for ecommerce forms
  *
  * PHP usage:
- *   <form x-data="form({ defaultValues: { email: '', password: '' } })" @submit.prevent="handleSubmit">
+ *   <form x-data="form({ defaultValues: { email: '', password: '' } })" x-on:submit.prevent="handleSubmit">
  *     <input x-bind="register('email', { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ })">
  *     <span x-show="errors.email" x-text="errors.email"></span>
  *   </form>

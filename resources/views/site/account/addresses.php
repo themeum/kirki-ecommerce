@@ -34,7 +34,7 @@ $pages = view_data('pages');
                     <!-- Page Header -->
                     <div class="kecom-account-addresses-header">
                         <h1 class="kecom-account-addresses-title"><?php esc_html_e('Addresses', 'kirki-ecommerce'); ?></h1>
-                        <button type="button" class="kecom-btn kecom-btn-primary" @click="openAddModal">
+                        <button type="button" class="kecom-btn kecom-btn-primary" x-on:click="openAddModal">
                             <?php Icon::render('plus', ['size' => 16]); ?>
                             <span><?php esc_html_e('Add Address', 'kirki-ecommerce'); ?></span>
                         </button>
@@ -42,7 +42,7 @@ $pages = view_data('pages');
 
                     <!-- Address Cards Grid -->
                     <div class="kecom-account-addresses-grid" x-show="addresses.length > 0">
-                        <template x-for="address in addresses" :key="address.id">
+                        <template x-for="address in addresses" x-bind:key="address.id">
                             <?php include_view('site.account.parts.address-card'); ?>
                         </template>
                     </div>

@@ -28,16 +28,16 @@ use Kirki\Ecommerce\App\Supports\Icon;
     x-show="clearModalOpen"
     x-transition
     x-cloak
-    @keydown.escape.window="cancelClear"
+    x-on:keydown.escape.window="cancelClear"
 >
     <div
         class="kecom-modal-content kecom-modal-content-sm kecom-address-delete-modal-content"
-        @click.outside="cancelClear"
+        x-on:click.outside="cancelClear"
     >
         <button
             type="button"
             class="kecom-modal-header-close"
-            @click.prevent="cancelClear"
+            x-on:click.prevent="cancelClear"
             aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
         >
             <?php Icon::render('x', ['size' => 16]); ?>
@@ -61,16 +61,16 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 <button
                     type="button"
                     class="kecom-btn kecom-btn-outline kecom-btn-lg kecom-btn-block"
-                    @click="cancelClear"
+                    x-on:click="cancelClear"
                 >
                     <?php esc_html_e('Cancel', 'kirki-ecommerce'); ?>
                 </button>
                 <button
                     type="button"
                     class="kecom-btn kecom-btn-destructive kecom-btn-lg kecom-btn-block"
-                    :class="{ 'kecom-btn-loading': isLoading }"
-                    :disabled="isLoading"
-                    @click="emptyWishlist"
+                    x-bind:class="{ 'kecom-btn-loading': isLoading }"
+                    x-bind:disabled="isLoading"
+                    x-on:click="emptyWishlist"
                 >
                     <?php esc_html_e('Clear', 'kirki-ecommerce'); ?>
                 </button>
