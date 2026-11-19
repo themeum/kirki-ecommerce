@@ -15,7 +15,7 @@ import SkeletonLine from '@/features/home/components/skeleton-line';
 import { getStockText } from '@/features/home/lib/stock';
 import { ProductEmptyStateIcon } from '@/icons/empty-state';
 import { theme } from '@/theme';
-import { defineStyles, scoped } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __, _n, sprintf } from '@/wpi18n';
 
 const LOADING_ROW_COUNT = 5;
@@ -54,8 +54,8 @@ const TopProductsCard = ({ products, onHide }: TopProductsCardProps) => {
       onHide={onHide}
     >
       {products === undefined ? (
-        <div css={scoped(styles.body)}>
-          <StackedItems>
+        <div>
+          <StackedItems variant="ghost">
             {Array.from({ length: LOADING_ROW_COUNT }, (_, index) => (
               <StackedItem key={index} id={String(index)} cssOverride={styles.item}>
                 <StackedItemMedia>
@@ -76,8 +76,8 @@ const TopProductsCard = ({ products, onHide }: TopProductsCardProps) => {
       ) : products.length === 0 ? (
         <NoProductState />
       ) : (
-        <div css={scoped(styles.body)}>
-          <StackedItems>
+        <div>
+          <StackedItems variant="ghost">
             {products.map((product) => {
               const key = String(product.product_id ?? product.name);
               const stock = getStockText(product);
@@ -140,7 +140,7 @@ const styles = defineStyles({
     height: 'auto',
     flexWrap: 'nowrap',
     gap: theme.spacing[3],
-    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
+    minHeight: '60px',
   },
   details: {
     flex: 1,

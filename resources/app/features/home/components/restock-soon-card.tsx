@@ -44,12 +44,12 @@ const RestockSoonCard = (props: RestockSoonCardProps) => {
       onHide={onHide}
     >
       {query.isError ? (
-        <div css={scoped(styles.body)}>
+        <div>
           <QueryErrorState onRetry={() => void query.refetch()} isRetrying={query.isFetching} />
         </div>
       ) : items === undefined ? (
-        <div css={scoped(styles.body)}>
-          <StackedItems>
+        <div>
+          <StackedItems variant="ghost">
             {Array.from({ length: LOADING_ROW_COUNT }, (_, index) => (
               <StackedItem key={index} id={String(index)} cssOverride={styles.item}>
                 <SkeletonLine width="70%" lineHeight="48px" />
@@ -63,8 +63,8 @@ const RestockSoonCard = (props: RestockSoonCardProps) => {
           <Text color="subdued">{__('Nothing is low on stock.', 'kirki-ecommerce')}</Text>
         </Flex>
       ) : (
-        <div css={scoped(styles.body)}>
-          <StackedItems>
+        <div>
+          <StackedItems variant="ghost">
             {items.map((item) => (
               <StackedItem
                 key={item.variant_id}
@@ -128,13 +128,10 @@ const styles = defineStyles({
     alignItems: 'center',
     gap: theme.spacing[3],
     width: '100%',
-    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
     boxSizing: 'border-box',
     color: 'inherit',
     textDecoration: 'none',
-    '&:hover': {
-      backgroundColor: theme.colors.background.fillHover,
-    },
+    minHeight: '60px',
   },
   details: {
     flex: 1,

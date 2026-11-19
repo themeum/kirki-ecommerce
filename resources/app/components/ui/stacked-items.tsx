@@ -20,7 +20,7 @@ import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 
 type StackedItemsElementProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
-  variant?: 'outline' | 'card';
+  variant?: 'outline' | 'card' | 'ghost';
 };
 
 type StackedItemsContextValue = {
@@ -42,6 +42,7 @@ const StackedItems = forwardRef<HTMLDivElement, StackedItemsElementProps>((props
         cssOverride={mergeCss(
           styles.container,
           variant === 'card' && styles.cardContainer,
+          variant === 'ghost' && styles.ghostContainer,
           cssOverride,
         )}
         {...rest}
@@ -154,6 +155,17 @@ const styles = defineStyles({
     borderColor: theme.colors.border.secondary,
     '& [data-slot="stacked-item"]': {
       backgroundColor: theme.colors.background.fill,
+    },
+  },
+  ghostContainer: {
+    border: 'none',
+    borderRadius: theme.radius.none,
+    overflow: 'auto',
+    '& [data-slot="stacked-item"]': {
+      paddingInline: theme.spacing[0],
+      '&:hover': {
+        backgroundColor: 'rgba(0, 0, 0, 0.02)', // @todo: we don't have any color token for this
+      },
     },
   },
   stackedItem: {

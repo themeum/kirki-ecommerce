@@ -50,7 +50,7 @@ const RecentOrdersCard = ({ orders, onHide }: RecentOrdersCardProps) => {
       onHide={onHide}
     >
       {orders === undefined ? (
-        <div css={scoped(styles.body)}>
+        <div>
           <StackedItems>
             {Array.from({ length: LOADING_ROW_COUNT }, (_, index) => (
               <StackedItem key={index} id={String(index)} cssOverride={styles.item}>
@@ -71,8 +71,8 @@ const RecentOrdersCard = ({ orders, onHide }: RecentOrdersCardProps) => {
       ) : orders.length === 0 ? (
         <NoOrderState />
       ) : (
-        <div css={scoped(styles.body)}>
-          <StackedItems>
+        <div>
+          <StackedItems variant="ghost">
             {orders.map((order) => {
               const fulfillment = getFulfillmentBadgeInfo(order.fulfillment_status);
               const payment = getPaymentBadgeInfo(order.payment_status);
@@ -137,9 +137,6 @@ RecentOrdersCard.displayName = 'RecentOrdersCard';
 export default RecentOrdersCard;
 
 const styles = defineStyles({
-  body: {
-    padding: `0 ${theme.spacing[3]} ${theme.spacing[6]} ${theme.spacing[3]}`,
-  },
   item: {
     height: 'auto',
     flexWrap: 'nowrap',
@@ -151,12 +148,13 @@ const styles = defineStyles({
     alignItems: 'center',
     gap: theme.spacing[3],
     minWidth: 0,
-    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
+    // padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
+    minHeight: '60px',
     color: 'inherit',
     textDecoration: 'none',
     '&:focus-visible': {
-      outline: `2px solid ${theme.colors.background.fillBrand}`,
-      outlineOffset: '-2px',
+      outline: `1px solid ${theme.colors.background.fillBrand}`,
+      outlineOffset: '-1px',
     },
   },
   details: {
