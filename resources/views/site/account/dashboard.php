@@ -80,7 +80,7 @@ $has_sent_verification = !empty($verification_sent_at);
                         <p x-show="!verificationSent"><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
                         <p x-show="verificationSent" x-cloak><?php esc_html_e('A confirmation link has been sent to your email address. Please check your inbox', 'kirki-ecommerce'); ?></p>
 
-                        <button type="button" class="kecom-alert-action" @click="resendVerificationEmail()" :disabled="verificationLoading || cooldownRemaining > 0" :style="cooldownRemaining > 0 ? 'text-decoration: none; cursor: default;' : ''">
+                        <button type="button" class="kecom-alert-action" x-on:click="resendVerificationEmail()" x-bind:disabled="verificationLoading || cooldownRemaining > 0" x-bind:style="cooldownRemaining > 0 ? 'text-decoration: none; cursor: default;' : ''">
                             <span x-show="cooldownRemaining > 0" x-cloak x-text="`<?php esc_html_e('Resend after', 'kirki-ecommerce'); ?> ${cooldownRemaining} <?php esc_html_e('sec', 'kirki-ecommerce'); ?>`"></span>
                             <span x-show="cooldownRemaining <= 0 && !verificationLoading" x-text="hasSentVerification ? '<?php echo esc_js(__('Resend', 'kirki-ecommerce')); ?>' : '<?php echo esc_js(__('Confirm Email', 'kirki-ecommerce')); ?>'">
                                 <?php echo $has_sent_verification ? esc_html__('Resend', 'kirki-ecommerce') : esc_html__('Confirm Email', 'kirki-ecommerce'); ?>

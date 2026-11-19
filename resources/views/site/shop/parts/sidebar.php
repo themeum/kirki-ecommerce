@@ -21,7 +21,7 @@ $brands = $data['brands'] ?? [];
 $selected_category_ids = $data['filters']->category_ids ?? [];
 $selected_brand_ids = $data['filters']->brand_ids ?? [];
 ?>
-<div class="kirki-ecom-shop-sidebar" x-data="shopSidebar" @change="applyFilters($event)">
+<div class="kirki-ecom-shop-sidebar" x-data="shopSidebar" x-on:change="applyFilters($event)">
     <?php Template::render_category_filter(__('Categories', 'kirki-ecommerce'), 'kirki-shop-sidebar-categories', 2); ?>
 
     <h3><?php esc_html_e('Brands', 'kirki-ecommerce'); ?></h3>

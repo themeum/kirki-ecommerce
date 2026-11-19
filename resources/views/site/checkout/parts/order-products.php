@@ -65,7 +65,7 @@ $items_count = $cart['items_count'] ?? count($cart_items);
                     <?php endif; ?>
 
                     <div class="kecom-product-coupons" x-cloak>
-                        <template x-for="appliedProductCoupon in (getItem(<?php echo (int) $item['id']; ?>)?.applied_product_coupons || [])" :key="appliedProductCoupon.code">
+                        <template x-for="appliedProductCoupon in (getItem(<?php echo (int) $item['id']; ?>)?.applied_product_coupons || [])" x-bind:key="appliedProductCoupon.code">
                             <div class="kecom-product-coupon">
                                 <span class="kecom-product-coupon-icon">
                                     <?php Icon::render('tag', ['size' => 12]); ?>

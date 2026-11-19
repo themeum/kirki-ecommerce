@@ -28,7 +28,7 @@ $open_picker_function = $is_billing ? 'openBillingPicker' : 'openShippingPicker'
             <div class="kecom-checkout-address-card-line" x-text="getFormattedAddressFirstLine(<?php echo esc_attr($address_expression); ?>)"></div>
             <div class="kecom-checkout-address-card-line" x-text="getFormattedAddressSecondLine(<?php echo esc_attr($address_expression); ?>)"></div>
         </div>
-        <button type="button" class="kecom-btn kecom-btn-link kecom-btn-sm" @click.prevent="<?php echo esc_attr($open_picker_function); ?>">
+        <button type="button" class="kecom-btn kecom-btn-link kecom-btn-sm" x-on:click.prevent="<?php echo esc_attr($open_picker_function); ?>">
             <?php esc_html_e('Change', 'kirki-ecommerce'); ?>
         </button>
     </div>

@@ -28,18 +28,18 @@ use Kirki\Ecommerce\App\Supports\Icon;
     x-show="shippingPickerOpen || billingPickerOpen"
     x-transition
     x-cloak
-    @keydown.escape.window="!modalOpen && closeAddressPicker()"
+    x-on:keydown.escape.window="!modalOpen && closeAddressPicker()"
 >
     <div
         class="kecom-modal-content kecom-modal-content-md kecom-checkout-address-picker-modal"
-        @click.outside="!modalOpen && closeAddressPicker()"
+        x-on:click.outside="!modalOpen && closeAddressPicker()"
     >
         <div class="kecom-modal-header">
             <h3 class="kecom-modal-header-title"><?php esc_html_e('Addresses', 'kirki-ecommerce'); ?></h3>
             <button
                 type="button"
                 class="kecom-modal-header-close"
-                @click.prevent="closeAddressPicker"
+                x-on:click.prevent="closeAddressPicker"
                 aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
             >
                 <?php Icon::render('x', ['size' => 16]); ?>
@@ -48,19 +48,19 @@ use Kirki\Ecommerce\App\Supports\Icon;
 
         <div class="kecom-modal-body">
             <div class="kecom-checkout-address-picker-list">
-                <template x-for="address in savedAddresses" :key="address.id">
+                <template x-for="address in savedAddresses" x-bind:key="address.id">
                     <label
                         class="kecom-checkout-address-picker-card"
-                        :class="{ 'is-selected': String(tempSelectedAddressId) === String(address.id) }"
+                        x-bind:class="{ 'is-selected': String(tempSelectedAddressId) === String(address.id) }"
                     >
                         <div class="kecom-checkout-address-picker-radio">
                             <input
                                 type="radio"
                                 name="checkout_address_selection"
                                 class="kecom-radio-input"
-                                :value="address.id"
-                                :checked="String(tempSelectedAddressId) === String(address.id)"
-                                @change="tempSelectedAddressId = address.id"
+                                x-bind:value="address.id"
+                                x-bind:checked="String(tempSelectedAddressId) === String(address.id)"
+                                x-on:change="tempSelectedAddressId = address.id"
                             />
                         </div>
 
@@ -81,7 +81,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                             <button
                                 type="button"
                                 class="kecom-btn kecom-btn-ghost kecom-btn-sm kecom-btn-icon"
-                                @click.stop.prevent="openEditModal(address)"
+                                x-on:click.stop.prevent="openEditModal(address)"
                                 aria-label="<?php esc_attr_e('Edit address', 'kirki-ecommerce'); ?>"
                             >
                                 <?php Icon::render('pen-line', ['size' => 16]); ?>
@@ -95,7 +95,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 <button
                     type="button"
                     class="kecom-btn kecom-btn-link"
-                    @click.prevent="openAddModal"
+                    x-on:click.prevent="openAddModal"
                 >
                     <?php Icon::render('plus', ['size' => 16]); ?>
                     <span><?php esc_html_e('Add new address', 'kirki-ecommerce'); ?></span>
@@ -107,15 +107,15 @@ use Kirki\Ecommerce\App\Supports\Icon;
             <button
                 type="button"
                 class="kecom-btn kecom-btn-outline"
-                @click.prevent="closeAddressPicker"
+                x-on:click.prevent="closeAddressPicker"
             >
                 <?php esc_html_e('Cancel', 'kirki-ecommerce'); ?>
             </button>
             <button
                 type="button"
                 class="kecom-btn kecom-btn-primary"
-                :disabled="!tempSelectedAddressId"
-                @click.prevent="confirmAddressSelection"
+                x-bind:disabled="!tempSelectedAddressId"
+                x-on:click.prevent="confirmAddressSelection"
             >
                 <?php esc_html_e('Add', 'kirki-ecommerce'); ?>
             </button>

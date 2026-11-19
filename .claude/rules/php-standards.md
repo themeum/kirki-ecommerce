@@ -86,6 +86,24 @@ static::PAGINATION_LIMIT;
   in long DTOs, `// phpcs:ignore ... -- reason` directives, and genuinely
   non-obvious context. Don't add comments that just restate what the code does.
 
+### Alpine Attributes in Views
+
+Write Alpine directives in the long form in `resources/views/` and in PHP
+markup: `x-on:click`, `x-bind:class`, with modifiers kept (`x-on:click.outside`).
+Never use the `@click` or `:class` shorthand. `wp_kses()` drops attribute names
+that start with `@` or `:`, and any view can end up in a block theme header or
+footer. When a header or footer shortcode starts using a new Alpine attribute,
+add its name to `Template::get_block_markup_allowed_html()`.
+`tests/Unit/AlpineAttributeConventionTest.php` fails on shorthand.
+
+```php
+// ❌ BAD
+<button @click="toggle()" :aria-expanded="isOpen">
+
+// ✅ GOOD
+<button x-on:click="toggle()" x-bind:aria-expanded="isOpen">
+```
+
 ### Type Hints and Return Types
 
 Type hints and return types are used, but **not** on every method — treat

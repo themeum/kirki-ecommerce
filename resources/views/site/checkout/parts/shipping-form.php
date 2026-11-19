@@ -20,7 +20,7 @@ extract($data);
     ]); ?>
     <div class="kecom-field kecom-checkout-billing-toggle">
         <label class="kecom-checkbox">
-            <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping" @change="onBillingSameAsShippingChange">
+            <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping" x-on:change="onBillingSameAsShippingChange">
             <span class="kecom-checkbox-label"><?php esc_html_e('The billing address is same as shipping address.', 'kirki-ecommerce'); ?></span>
         </label>
     </div>
@@ -30,9 +30,9 @@ extract($data);
 <div class="kecom-billing-section" x-show="!hasSavedAddresses">
     <h2 class="kecom-section-title"><?php esc_html_e('Shipping Details', 'kirki-ecommerce'); ?></h2>
     <div id="shipping-form" class="kecom-billing-form kecom-form">
-        <div class="kecom-field" :class="{ 'kecom-field-error-state': shippingErrors.country }">
+        <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': shippingErrors.country }">
             <label class="kecom-field-label" for="shipping-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
-            <select class="kecom-select" id="shipping-country" name="country" x-model="shippingAddress.country" @change="onShippingCountryChange">
+            <select class="kecom-select" id="shipping-country" name="country" x-model="shippingAddress.country" x-on:change="onShippingCountryChange">
                 <option value=""><?php esc_html_e('Select Country', 'kirki-ecommerce'); ?></option>
                 <?php foreach ($countries as $country) : ?>
                     <option value="<?php echo esc_attr($country['code']); ?>">
@@ -43,7 +43,7 @@ extract($data);
             <span class="kecom-field-error" x-show="shippingErrors.country" x-text="shippingErrors.country"></span>
         </div>
         <div class="kecom-billing-form-row">
-            <div class="kecom-field" :class="{ 'kecom-field-error-state': shippingErrors.first_name }">
+            <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': shippingErrors.first_name }">
                 <label class="kecom-field-label" for="shipping-first-name"><?php esc_html_e('First Name', 'kirki-ecommerce'); ?></label>
                 <input
                     class="kecom-input"
@@ -51,10 +51,10 @@ extract($data);
                     id="shipping-first-name"
                     name="first_name"
                     x-model="shippingAddress.first_name"
-                    @input="delete shippingErrors.first_name">
+                    x-on:input="delete shippingErrors.first_name">
                 <span class="kecom-field-error" x-show="shippingErrors.first_name" x-text="shippingErrors.first_name"></span>
             </div>
-            <div class="kecom-field" :class="{ 'kecom-field-error-state': shippingErrors.last_name }">
+            <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': shippingErrors.last_name }">
                 <label class="kecom-field-label" for="shipping-last-name"><?php esc_html_e('Last Name', 'kirki-ecommerce'); ?></label>
                 <input
                     class="kecom-input"
@@ -62,11 +62,11 @@ extract($data);
                     id="shipping-last-name"
                     name="last_name"
                     x-model="shippingAddress.last_name"
-                    @input="delete shippingErrors.last_name">
+                    x-on:input="delete shippingErrors.last_name">
                 <span class="kecom-field-error" x-show="shippingErrors.last_name" x-text="shippingErrors.last_name"></span>
             </div>
         </div>
-        <div class="kecom-field" :class="{ 'kecom-field-error-state': shippingErrors.address_line1 }">
+        <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': shippingErrors.address_line1 }">
             <label class="kecom-field-label" for="shipping-address-line1"><?php esc_html_e('Address', 'kirki-ecommerce'); ?></label>
             <input
                 class="kecom-input"
@@ -74,7 +74,7 @@ extract($data);
                 id="shipping-address-line1"
                 name="address_line1"
                 x-model="shippingAddress.address_line1"
-                @input="delete shippingErrors.address_line1">
+                x-on:input="delete shippingErrors.address_line1">
             <span class="kecom-field-error" x-show="shippingErrors.address_line1" x-text="shippingErrors.address_line1"></span>
         </div>
         <div class="kecom-field">
@@ -84,7 +84,7 @@ extract($data);
             <input class="kecom-input" type="text" id="shipping-address-line2" name="address_line2" x-model="shippingAddress.address_line2">
         </div>
         <div class="kecom-billing-form-row">
-            <div class="kecom-field" :class="{ 'kecom-field-error-state': shippingErrors.city }">
+            <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': shippingErrors.city }">
                 <label class="kecom-field-label" for="shipping-city"><?php esc_html_e('City', 'kirki-ecommerce'); ?></label>
                 <input
                     class="kecom-input"
@@ -92,26 +92,26 @@ extract($data);
                     id="shipping-city"
                     name="city"
                     x-model="shippingAddress.city"
-                    @input="delete shippingErrors.city">
+                    x-on:input="delete shippingErrors.city">
                 <span class="kecom-field-error" x-show="shippingErrors.city" x-text="shippingErrors.city"></span>
             </div>
-            <div class="kecom-field" x-show="shippingRule.state.mode !== 'hidden'" :class="{ 'kecom-field-error-state': shippingErrors.state }">
+            <div class="kecom-field" x-show="shippingRule.state.mode !== 'hidden'" x-bind:class="{ 'kecom-field-error-state': shippingErrors.state }">
                 <label class="kecom-field-label" for="shipping-state" x-text="shippingRule.state.label"></label>
                 <select
                     class="kecom-select"
                     id="shipping-state"
                     name="state"
-                    :disabled="shippingStates.length === 0"
+                    x-bind:disabled="shippingStates.length === 0"
                     x-model="shippingAddress.state"
-                    @change="onShippingStateChange">
+                    x-on:change="onShippingStateChange">
                     <option value="" x-text="shippingStates.length ? '<?php esc_attr_e('Select', 'kirki-ecommerce'); ?> ' + shippingRule.state.label : '<?php esc_attr_e('Not applicable', 'kirki-ecommerce'); ?>'"></option>
-                    <template x-for="state in shippingStates" :key="state.id">
-                        <option :value="state.id" x-text="state.name" :selected="String(state.id) === String(shippingAddress.state)"></option>
+                    <template x-for="state in shippingStates" x-bind:key="state.id">
+                        <option x-bind:value="state.id" x-text="state.name" x-bind:selected="String(state.id) === String(shippingAddress.state)"></option>
                     </template>
                 </select>
                 <span class="kecom-field-error" x-show="shippingErrors.state" x-text="shippingErrors.state"></span>
             </div>
-            <div class="kecom-field" x-show="shippingRule.postal_code.mode !== 'hidden'" :class="{ 'kecom-field-error-state': shippingErrors.postal_code }">
+            <div class="kecom-field" x-show="shippingRule.postal_code.mode !== 'hidden'" x-bind:class="{ 'kecom-field-error-state': shippingErrors.postal_code }">
                 <label class="kecom-field-label" for="shipping-postal-code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
                 <input
                     class="kecom-input"
@@ -119,11 +119,11 @@ extract($data);
                     id="shipping-postal-code"
                     name="postal_code"
                     x-model="shippingAddress.postal_code"
-                    @input="delete shippingErrors.postal_code">
+                    x-on:input="delete shippingErrors.postal_code">
                 <span class="kecom-field-error" x-show="shippingErrors.postal_code" x-text="shippingErrors.postal_code"></span>
             </div>
         </div>
-        <div class="kecom-field" :class="{ 'kecom-field-error-state': shippingErrors.phone }">
+        <div class="kecom-field" x-bind:class="{ 'kecom-field-error-state': shippingErrors.phone }">
             <label class="kecom-field-label" for="shipping-phone"><?php esc_html_e('Phone Number', 'kirki-ecommerce'); ?></label>
             <input
                 class="kecom-input"
@@ -131,12 +131,12 @@ extract($data);
                 id="shipping-phone"
                 name="phone"
                 x-model="shippingAddress.phone"
-                @input="delete shippingErrors.phone">
+                x-on:input="delete shippingErrors.phone">
             <span class="kecom-field-error" x-show="shippingErrors.phone" x-text="shippingErrors.phone"></span>
         </div>
         <div class="kecom-field">
             <label class="kecom-checkbox">
-                <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping" @change="onBillingSameAsShippingChange">
+                <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping" x-on:change="onBillingSameAsShippingChange">
                 <span class="kecom-checkbox-label"><?php esc_html_e('The billing address is same as shipping address.', 'kirki-ecommerce'); ?></span>
             </label>
         </div>
