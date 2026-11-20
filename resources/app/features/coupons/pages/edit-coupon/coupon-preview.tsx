@@ -125,7 +125,12 @@ const PreviewTitle = () => {
   if (values.method === 'automatic') {
     return (
       <Flex justify="space-between" align="center">
-        <Text variant="heading4" weight="semibold" color={title ? 'emphasis' : 'disabled'}>
+        <Text
+          variant="heading4"
+          weight="semibold"
+          color={title ? 'emphasis' : 'disabled'}
+          cssOverride={styles.breakWord}
+        >
           {title || __('Untitled coupon', 'kirki-ecommerce')}
         </Text>
         {hasDiscount(values.discount_type, values.discount_amount) && (
@@ -142,7 +147,12 @@ const PreviewTitle = () => {
   return (
     <>
       <Flex justify="space-between" align="center">
-        <Text variant="heading4" weight="semibold" color={values.code ? 'emphasis' : 'disabled'}>
+        <Text
+          variant="heading4"
+          weight="semibold"
+          color={values.code ? 'emphasis' : 'disabled'}
+          cssOverride={styles.breakWord}
+        >
           {values.code || __('No code set', 'kirki-ecommerce')}
         </Text>
         {values.method === 'code' && values.code && (
@@ -160,7 +170,7 @@ const PreviewTitle = () => {
       </Flex>
 
       <Flex justify="space-between" align="center">
-        <Text variant="small" weight="normal">
+        <Text variant="small" weight="normal" cssOverride={styles.breakWord}>
           {title || __('Untitled coupon', 'kirki-ecommerce')}
         </Text>
         {hasDiscount(values.discount_type, values.discount_amount) && (
@@ -183,7 +193,7 @@ const PreviewSection = ({ title, lines }: PreviewSectionProps) => (
     {lines && lines.length > 0 ? (
       <Flex direction="column" gap={1}>
         {lines.filter(Boolean).map((line) => (
-          <Text key={line} variant="small">
+          <Text key={line} variant="small" cssOverride={styles.breakWord}>
             {`• ${line}`}
           </Text>
         ))}
@@ -325,5 +335,9 @@ export default CouponPreview;
 const styles = defineStyles({
   emptySection: {
     minHeight: '2rem',
+  },
+  breakWord: {
+    minWidth: 0,
+    overflowWrap: 'anywhere',
   },
 });
