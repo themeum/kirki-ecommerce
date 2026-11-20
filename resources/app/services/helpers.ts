@@ -1,6 +1,6 @@
-import { toast } from 'sonner';
 import type { z } from 'zod';
 
+import { toast } from '@/components/ui/toast/toast';
 import type { ApiClientResponse, ErrorResponse } from '@/libs/api';
 import {
   ApiEnvelopeSchema,

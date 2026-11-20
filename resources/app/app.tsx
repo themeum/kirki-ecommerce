@@ -2,14 +2,13 @@ import { ThemeProvider } from '@emotion/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { RouterProvider } from 'react-router';
-import { Toaster } from 'sonner';
 
+import Toaster from '@/components/ui/toast/toaster';
 import Init from '@/init/init';
 import { queryClient } from '@/libs/query-client';
 import { router } from '@/routes';
 import { theme } from '@/theme';
 import GlobalStyles from '@/theme/global-styles';
-import { TOAST_CLOSE_BUTTON_CLASS } from '@/theme/shell-styles';
 
 const App = () => {
   useEffect(() => {
@@ -21,22 +20,7 @@ const App = () => {
       <GlobalStyles />
       <QueryClientProvider client={queryClient}>
         <Init>
-          <Toaster
-            richColors
-            closeButton
-            position="bottom-right"
-            toastOptions={{
-              classNames: {
-                closeButton: TOAST_CLOSE_BUTTON_CLASS,
-              },
-              style: {
-                padding: theme.spacing[4],
-                backgroundColor: theme.colors.background.fill,
-                color: theme.colors.text.primary,
-                border: `1px solid ${theme.colors.border.default}`,
-              },
-            }}
-          />
+          <Toaster />
           <RouterProvider router={router} />
         </Init>
       </QueryClientProvider>

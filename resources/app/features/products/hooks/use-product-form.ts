@@ -2,8 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useForm, useWatch } from 'react-hook-form';
-import { toast } from 'sonner';
 
+import { toast } from '@/components/ui/toast/toast';
 import { useGenerateSkuMutation } from '@/features/inventory';
 import {
   resolveSaveFailure,

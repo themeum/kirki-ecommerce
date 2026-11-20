@@ -16,8 +16,6 @@ const pageEnterKeyframes = keyframes({
 
 const NOT_FOUND_SELECTOR = '[data-not-found="true"]';
 
-const TOAST_CLOSE_BUTTON_CLASS = 'kirki-ecommerce-toast-close-button';
-
 /**
  * WordPress admin shell styles ported from global.scss.
  *
@@ -69,21 +67,7 @@ const getShellStyles = (theme: Theme): CSSObject => {
       minHeight: 'calc(100vh - 32px - 41px)',
       backgroundColor: 'transparent',
     },
-    [`[data-sonner-toast][data-styled="true"] [data-close-button="true"]`]: {
-      left: 'auto',
-      right: 20,
-      top: '50%',
-      transform: 'translate(35%, -50%)',
-    },
-    [`.kirki-ecommerce-root .${TOAST_CLOSE_BUTTON_CLASS}`]: {
-      borderRadius: `${theme.radius.md} !important`,
-      backgroundColor: 'transparent !important',
-      color: `${theme.colors.icon.primary} !important`,
-      '&:hover': {
-        backgroundColor: `${theme.colors.background.surfaceAlt} !important`,
-      },
-    },
   };
 };
 
-export { getShellStyles, pageEnterKeyframes, TOAST_CLOSE_BUTTON_CLASS };
+export { getShellStyles, pageEnterKeyframes };

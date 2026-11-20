@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { toast } from 'sonner';
 
+import { toast } from '@/components/ui/toast/toast';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import type {
   SaveShippingZonesParams,

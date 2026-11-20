@@ -518,6 +518,8 @@ const theme = {
     popover: `0px 10px 15px -3px rgba(0, 0, 0, 0.1),
       0px 4px 6px -4px rgba(0, 0, 0, 0.1)`,
     card: `0px -1px 1px 0.5px rgba(0, 0, 0, 0.1) inset, 0px 0.5px 1px 0px rgba(0, 0, 0, 0.1) inset`,
+    toast: `0px -3px 8px -4px rgba(0, 0, 0, 0.1), 0px 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0px 4px 22px -4px rgba(0, 0, 0, 0.03)`,
   },
 
   // WordPress's own chrome sits at #adminmenu(back) z-index 9990 and
