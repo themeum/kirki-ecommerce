@@ -80,7 +80,7 @@ const VariationList = () => {
         ),
       },
       () => {
-        deleteAttribute(item.id, { onSuccess: () => refetch() });
+        deleteAttribute({ id: item.id, name: item.name }, { onSuccess: () => refetch() });
       },
     );
   };

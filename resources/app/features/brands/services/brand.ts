@@ -7,6 +7,8 @@ import type { BrandFormPayload } from '@/features/brands/schemas/forms/brand-for
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -84,9 +86,13 @@ const useUpdateBrandMutation = () => {
 const useDeleteBrandMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteBrand,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Brand deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<number>) => deleteBrand(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Brand deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
     },
     onError(error) {

@@ -18,6 +18,7 @@ import type { ShippingCarrierFormPayload } from '@/features/settings/shipping/sc
 import type { ShippingZone } from '@/features/settings/shipping/types';
 import { useConfirmDelete } from '@/hooks';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
+import { getItemActionMessage } from '@/services/helpers';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { uuid } from '@/utils';
@@ -85,7 +86,11 @@ const ShippingCarrierCard = ({
       carriers.map((carrier) =>
         carrier.id === target.id ? { ...carrier, is_enabled: !carrier.is_enabled } : carrier,
       ),
-      __('Shipping carrier updated', 'kirki-ecommerce'),
+      target.is_enabled
+        ? getItemActionMessage('deactivated', target.name) ||
+            __('Shipping carrier deactivated', 'kirki-ecommerce')
+        : getItemActionMessage('activated', target.name) ||
+            __('Shipping carrier activated', 'kirki-ecommerce'),
     );
   };
 
@@ -101,7 +106,8 @@ const ShippingCarrierCard = ({
       () =>
         saveCarriers(
           carriers.filter((carrier) => carrier.id !== target.id),
-          __('Shipping carrier deleted', 'kirki-ecommerce'),
+          getItemActionMessage('deleted', target.name) ||
+            __('Shipping carrier deleted', 'kirki-ecommerce'),
         ),
     );
   };

@@ -7,6 +7,8 @@ import type { TaxProfileFormPayload } from '@/features/settings/tax/shared/schem
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -78,9 +80,13 @@ const useUpdateTaxProfileMutation = () => {
 const useDeleteTaxProfileMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteTaxProfile,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Tax profile deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<string | number>) => deleteTaxProfile(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Tax profile deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: taxKeys.all });
     },
     onError(error) {

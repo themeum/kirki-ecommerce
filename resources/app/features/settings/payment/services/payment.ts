@@ -15,6 +15,8 @@ import type { OnlinePaymentEditFormPayload } from '@/features/settings/payment/s
 import { apiClient } from '@/libs/api';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -133,6 +135,30 @@ const deleteOfflinePayment = (id: string | number) => {
   return apiClient.delete(endpoints.OFFLINE_PAYMENT(id)).then((response) => parseMessage(response));
 };
 
+type SetEnabledPaymentVariables = {
+  id: string | number;
+  data: { is_enabled: boolean };
+  name?: string | null;
+};
+
+const getSetEnabledMessage = (
+  serverMessage: string | undefined,
+  { data, name }: SetEnabledPaymentVariables,
+) => {
+  if (data.is_enabled) {
+    return (
+      getItemActionMessage('activated', name) ||
+      serverMessage ||
+      __('Payment method activated', 'kirki-ecommerce')
+    );
+  }
+  return (
+    getItemActionMessage('deactivated', name) ||
+    serverMessage ||
+    __('Payment method deactivated', 'kirki-ecommerce')
+  );
+};
+
 const updatePaymentMethodsCache = async (
   queryClient: QueryClient,
   updater: (methods: PaymentMethod[]) => PaymentMethod[],
@@ -224,7 +250,9 @@ const useUpdateOnlinePaymentPluginMutation = () => {
   return useMutation({
     mutationFn: updateOnlinePaymentPlugin,
     onSuccess(response) {
-      toastMutationSuccess(response.message || __('Payment gateway updated', 'kirki-ecommerce'));
+      toastMutationSuccess(
+        response.message || __('Payment gateway updated to the latest version', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
       void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
       void queryClient.invalidateQueries({
@@ -240,14 +268,18 @@ const useUpdateOnlinePaymentPluginMutation = () => {
 const useUninstallOnlinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: uninstallOnlinePayment,
-    onMutate(id) {
+    mutationFn: ({ id }: NamedItemVariables<string | number>) => uninstallOnlinePayment(id),
+    onMutate({ id }) {
       return updatePaymentMethodsCache(queryClient, (methods) =>
         methods.filter((method) => method.id !== id),
       );
     },
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Payment gateway removed', 'kirki-ecommerce'));
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('removed', name) ||
+          response.message ||
+          __('Payment gateway removed', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
       void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
       void queryClient.invalidateQueries({
@@ -266,7 +298,7 @@ const useUpdateOnlinePaymentMutation = () => {
   return useMutation({
     mutationFn: updateOnlinePayment,
     onSuccess(response, variables) {
-      toastMutationSuccess(response.message || __('Payment gateway updated', 'kirki-ecommerce'));
+      toastMutationSuccess(response.message || __('Payment method updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
       void queryClient.invalidateQueries({ queryKey: paymentKeys.methods.all });
       void queryClient.invalidateQueries({
@@ -282,12 +314,12 @@ const useUpdateOnlinePaymentMutation = () => {
 const useSetEnabledOnlinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: setEnabledOnlinePayment,
+    mutationFn: ({ id, data }: SetEnabledPaymentVariables) => setEnabledOnlinePayment({ id, data }),
     onMutate({ id, data }) {
       return updatePaymentMethodsCache(queryClient, setMethodEnabled(id, data.is_enabled));
     },
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Payment gateway updated', 'kirki-ecommerce'));
+    onSuccess(response, variables) {
+      toastMutationSuccess(getSetEnabledMessage(response.message, variables));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
     },
     onError(error, _variables, context) {
@@ -349,12 +381,13 @@ const useUpdateOfflinePaymentMutation = () => {
 const useSetEnabledOfflinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: setEnabledOfflinePayment,
+    mutationFn: ({ id, data }: SetEnabledPaymentVariables) =>
+      setEnabledOfflinePayment({ id, data }),
     onMutate({ id, data }) {
       return updatePaymentMethodsCache(queryClient, setMethodEnabled(id, data.is_enabled));
     },
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Payment method updated', 'kirki-ecommerce'));
+    onSuccess(response, variables) {
+      toastMutationSuccess(getSetEnabledMessage(response.message, variables));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
     },
     onError(error, _variables, context) {
@@ -367,14 +400,18 @@ const useSetEnabledOfflinePaymentMutation = () => {
 const useDeleteOfflinePaymentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteOfflinePayment,
-    onMutate(id) {
+    mutationFn: ({ id }: NamedItemVariables<string | number>) => deleteOfflinePayment(id),
+    onMutate({ id }) {
       return updatePaymentMethodsCache(queryClient, (methods) =>
         methods.filter((method) => method.id !== id),
       );
     },
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Payment method deleted', 'kirki-ecommerce'));
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Payment method deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
     },
     onError(error, _variables, context) {

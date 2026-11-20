@@ -23,7 +23,7 @@ describe('getOnlinePayments against a gateway map keyed by provider id', () => {
    * `OnlinePaymentListSchema`'s `normalizeProviderCollection` preprocessing
    * existed, this made the payments settings page unreachable.
    */
-  it('normalizes a keyed gateway map into a list, preserving each provider\'s fields', async () => {
+  it("normalizes a keyed gateway map into a list, preserving each provider's fields", async () => {
     server.use(
       http.get(url, () =>
         HttpResponse.json({
@@ -61,12 +61,8 @@ describe('getOnlinePayments against a gateway map keyed by provider id', () => {
     expect(result).toEqual([{ id: 'stripe', name: 'Stripe', is_enabled: true, is_offline: false }]);
   });
 
-  it('resolves an empty gateway map (PHP\'s empty associative array) to an empty list', async () => {
-    server.use(
-      http.get(url, () =>
-        HttpResponse.json({ success: true, message: '', data: [] }),
-      ),
-    );
+  it("resolves an empty gateway map (PHP's empty associative array) to an empty list", async () => {
+    server.use(http.get(url, () => HttpResponse.json({ success: true, message: '', data: [] })));
 
     expect(await getOnlinePayments()).toEqual([]);
   });
@@ -82,8 +78,20 @@ describe('getPaymentMethods', () => {
           success: true,
           message: '',
           data: [
-            { id: 'cod', name: 'Cash on Delivery', is_enabled: true, is_offline: true, icon_media: null },
-            { id: 'paypal', name: 'PayPal', is_enabled: false, is_offline: false, icon_media: null },
+            {
+              id: 'cod',
+              name: 'Cash on Delivery',
+              is_enabled: true,
+              is_offline: true,
+              icon_media: null,
+            },
+            {
+              id: 'paypal',
+              name: 'PayPal',
+              is_enabled: false,
+              is_offline: false,
+              icon_media: null,
+            },
           ],
         }),
       ),
@@ -117,7 +125,11 @@ describe('setEnabledOfflinePayment', () => {
       http.patch(offlineUrl('cod'), async ({ request }) => {
         received = await request.json();
 
-        return HttpResponse.json({ success: true, message: 'Payment method updated', data: true });
+        return HttpResponse.json({
+          success: true,
+          message: 'Payment method deactivated',
+          data: true,
+        });
       }),
     );
 

@@ -238,42 +238,42 @@ class PerformOrderAction
     {
         switch ($dto->action) {
             case OrderAction::MARK_AS_PROCESSING:
-                return __('Order marked as processing.', 'kirki-ecommerce');
+                return __('Order marked as processing', 'kirki-ecommerce');
             case OrderAction::RESUME_FULFILLMENT:
-                return __('Fulfillment resumed.', 'kirki-ecommerce');
+                return __('Fulfillment resumed', 'kirki-ecommerce');
             case OrderAction::MARK_AS_SHIPPED:
-                return __('Order marked as shipped.', 'kirki-ecommerce');
+                return __('Order marked as shipped', 'kirki-ecommerce');
             case OrderAction::MARK_AS_DELIVERED:
-                return __('Order delivered.', 'kirki-ecommerce');
+                return __('Order marked as delivered', 'kirki-ecommerce');
             case OrderAction::MARK_AS_HOLD:
-                return __('Order on hold.', 'kirki-ecommerce');
+                return __('Order put on hold', 'kirki-ecommerce');
             case OrderAction::CANCEL_FULFILLMENT:
-                return __('Fulfillment cancelled.', 'kirki-ecommerce');
+                return __('Fulfillment cancelled', 'kirki-ecommerce');
             case OrderAction::CANCEL_ORDER:
-                return __('Order cancelled.', 'kirki-ecommerce');
+                return __('Order cancelled', 'kirki-ecommerce');
             case OrderAction::ADD_TRACKING:
-                return __('Tracking number added.', 'kirki-ecommerce');
+                return __('Tracking number added', 'kirki-ecommerce');
             case OrderAction::REMOVE_TRACKING:
-                return __('Tracking removed.', 'kirki-ecommerce');
+                return __('Tracking number removed', 'kirki-ecommerce');
             case OrderAction::MARK_AS_PAID:
-                return __('Order marked as paid.', 'kirki-ecommerce');
+                return __('Order marked as paid', 'kirki-ecommerce');
                 // @todo: will implement later
                 // case OrderAction::SEND_PAYMENT_LINK:
                 //     return __('Payment link sent.', 'kirki-ecommerce');
                 // case OrderAction::SEND_INVOICE:
                 //     return __('Invoice sent.', 'kirki-ecommerce');
             case OrderAction::RESEND_ORDER_EMAIL:
-                return __('Order email resent.', 'kirki-ecommerce');
+                return __('Order email resent', 'kirki-ecommerce');
             case OrderAction::ARCHIVE_ORDER:
-                return __('Order archived.', 'kirki-ecommerce');
+                return __('Order archived', 'kirki-ecommerce');
             case OrderAction::INITIATE_REFUND:
-                return __('Refund initiated.', 'kirki-ecommerce');
+                return __('Refund initiated', 'kirki-ecommerce');
             case OrderAction::APPROVE_REFUND:
-                return __('Refund approved.', 'kirki-ecommerce');
+                return __('Refund approved', 'kirki-ecommerce');
             case OrderAction::DECLINE_REFUND:
-                return __('Refund declined.', 'kirki-ecommerce');
+                return __('Refund declined', 'kirki-ecommerce');
             case OrderAction::MARK_REFUND_COMPLETE:
-                return __('Refund marked as completed.', 'kirki-ecommerce');
+                return __('Refund marked as completed', 'kirki-ecommerce');
             default:
                 return '';
         }

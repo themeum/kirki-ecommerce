@@ -112,6 +112,7 @@ const ShippingZonePage = () => {
       await saveSettings({
         key: 'shipping',
         data: { shipping_zones: updatedZones },
+        successMessage: __('Shipping zone updated', 'kirki-ecommerce'),
       });
       setShippingZonesObj(updatedZones);
       form.reset(payload);

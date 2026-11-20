@@ -60,7 +60,7 @@ const TaxProfile = () => {
         ),
       },
       () => {
-        deleteTaxProfile(item?.id);
+        deleteTaxProfile({ id: item?.id, name: item?.name });
       },
     );
   };

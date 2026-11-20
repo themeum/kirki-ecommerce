@@ -63,7 +63,7 @@ const ShippingProfile = () => {
         ),
       },
       () => {
-        deleteShippingProfile(item?.id);
+        deleteShippingProfile({ id: item?.id, name: item?.name });
       },
     );
   };

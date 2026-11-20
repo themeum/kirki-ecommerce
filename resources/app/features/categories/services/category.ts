@@ -7,6 +7,8 @@ import type { CategoryFormPayload } from '@/features/categories/schemas/forms/ca
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -85,9 +87,13 @@ const useUpdateCategoryMutation = () => {
 const useDeleteCategoryMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteCategory,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Category deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<number>) => deleteCategory(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Category deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError(error) {

@@ -12,7 +12,7 @@ import {
   formatValidationIssues,
   isApiValidationError,
 } from '@/schemas/shared/errors';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 const unwrapData = <T>(response: unknown): T => {
   return (response as ApiClientResponse<T>).data;
@@ -129,8 +129,74 @@ const toastMutationSuccess = (message?: string, options?: { description?: string
   toast.success(message, options);
 };
 
+type ItemAction =
+  | 'activated'
+  | 'deactivated'
+  | 'enabled'
+  | 'disabled'
+  | 'deleted'
+  | 'deleted-permanently'
+  | 'removed'
+  | 'duplicated'
+  | 'restored'
+  | 'moved-to-trash'
+  | 'set-as-default'
+  | 'removed-as-default';
+
+const getItemActionFormat = (action: ItemAction) => {
+  switch (action) {
+    case 'activated':
+      /* translators: %s: item name */
+      return __('"%s" activated', 'kirki-ecommerce');
+    case 'deactivated':
+      /* translators: %s: item name */
+      return __('"%s" deactivated', 'kirki-ecommerce');
+    case 'enabled':
+      /* translators: %s: item name */
+      return __('"%s" enabled', 'kirki-ecommerce');
+    case 'disabled':
+      /* translators: %s: item name */
+      return __('"%s" disabled', 'kirki-ecommerce');
+    case 'deleted':
+      /* translators: %s: item name */
+      return __('"%s" deleted', 'kirki-ecommerce');
+    case 'deleted-permanently':
+      /* translators: %s: item name */
+      return __('"%s" deleted permanently', 'kirki-ecommerce');
+    case 'removed':
+      /* translators: %s: item name */
+      return __('"%s" removed', 'kirki-ecommerce');
+    case 'duplicated':
+      /* translators: %s: item name */
+      return __('"%s" duplicated', 'kirki-ecommerce');
+    case 'restored':
+      /* translators: %s: item name */
+      return __('"%s" restored', 'kirki-ecommerce');
+    case 'moved-to-trash':
+      /* translators: %s: item name */
+      return __('"%s" moved to trash', 'kirki-ecommerce');
+    case 'set-as-default':
+      /* translators: %s: item name */
+      return __('"%s" set as default', 'kirki-ecommerce');
+    case 'removed-as-default':
+      /* translators: %s: item name */
+      return __('"%s" removed as default', 'kirki-ecommerce');
+  }
+};
+
+type NamedItemVariables<TId> = { id: TId; name?: string | null };
+
+const getItemActionMessage = (action: ItemAction, name?: string | null) => {
+  const itemName = name?.trim();
+  if (!itemName) {
+    return undefined;
+  }
+  return sprintf(getItemActionFormat(action), itemName);
+};
+
 export {
   getErrorMessage,
+  getItemActionMessage,
   parseData,
   parseMessage,
   parseResponse,
@@ -140,3 +206,5 @@ export {
   unwrapDataList,
   unwrapResponse,
 };
+
+export type { NamedItemVariables };

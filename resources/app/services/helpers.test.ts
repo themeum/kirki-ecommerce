@@ -1,8 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 
 import { isApiValidationError } from '@/schemas/shared/errors';
-import { parseData, parseResponse, unwrapDataList } from '@/services/helpers';
+import { getItemActionMessage, parseData, parseResponse, unwrapDataList } from '@/services/helpers';
+
+vi.mock('@/wpi18n', () => ({
+  __: (text: string) => text,
+  sprintf: (format: string, value: string) => format.replace('%s', value),
+}));
 
 const ItemSchema = z.object({ id: z.number(), name: z.string() });
 
@@ -22,7 +27,7 @@ describe('unwrapDataList', () => {
     expect(unwrapDataList(response)).toEqual([{ id: 1 }, { id: 2 }]);
   });
 
-  it('converts a keyed object into a list — PHP losing an associative array\'s integer keys', () => {
+  it("converts a keyed object into a list — PHP losing an associative array's integer keys", () => {
     const response = { data: { stripe: { id: 'stripe' }, paypal: { id: 'paypal' } } };
 
     expect(unwrapDataList(response)).toEqual([{ id: 'stripe' }, { id: 'paypal' }]);
@@ -78,5 +83,32 @@ describe('parseResponse schema mismatch', () => {
     const error = getThrownError(() => parseResponse(ItemSchema, 'unexpected string'));
 
     expect(isApiValidationError(error)).toBe(true);
+  });
+});
+
+describe('getItemActionMessage', () => {
+  it.each([
+    ['activated', '"Acme" activated'],
+    ['deactivated', '"Acme" deactivated'],
+    ['enabled', '"Acme" enabled'],
+    ['disabled', '"Acme" disabled'],
+    ['deleted', '"Acme" deleted'],
+    ['deleted-permanently', '"Acme" deleted permanently'],
+    ['removed', '"Acme" removed'],
+    ['duplicated', '"Acme" duplicated'],
+    ['restored', '"Acme" restored'],
+    ['moved-to-trash', '"Acme" moved to trash'],
+    ['set-as-default', '"Acme" set as default'],
+    ['removed-as-default', '"Acme" removed as default'],
+  ] as const)('names the item for %s', (action, expected) => {
+    expect(getItemActionMessage(action, 'Acme')).toBe(expected);
+  });
+
+  it('trims the name', () => {
+    expect(getItemActionMessage('deleted', '  Acme  ')).toBe('"Acme" deleted');
+  });
+
+  it.each([undefined, null, '', '   '])('gives undefined for the name %j', (name) => {
+    expect(getItemActionMessage('deleted', name)).toBeUndefined();
   });
 });

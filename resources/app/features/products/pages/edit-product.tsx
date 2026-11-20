@@ -57,19 +57,22 @@ const EditProduct = () => {
   };
 
   const handleDuplicate = async () => {
-    const response = await duplicateProductMutation.mutateAsync(Number(id));
+    const response = await duplicateProductMutation.mutateAsync({
+      id: Number(id),
+      name: product?.title,
+    });
     if (isDefined(response.data.id)) {
       void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: response.data.id }));
     }
   };
 
   const handleTrash = async () => {
-    await trashProductMutation.mutateAsync({ ids: [Number(id)] });
+    await trashProductMutation.mutateAsync({ ids: [Number(id)], name: product?.title });
     void navigate(RouteConfig.Products.buildLink());
   };
 
   const handleDelete = async () => {
-    await deleteProductMutation.mutateAsync(Number(id));
+    await deleteProductMutation.mutateAsync({ id: Number(id), name: product?.title });
     void navigate(RouteConfig.Products.buildLink());
   };
 

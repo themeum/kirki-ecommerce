@@ -94,7 +94,7 @@ class EmailTemplateController
 
             return response()->json([
                 'data' => $restored,
-                'message' => __('Template restored to default.', 'kirki-ecommerce'),
+                'message' => __('Template restored to default', 'kirki-ecommerce'),
             ]);
         }
 
@@ -157,7 +157,7 @@ class EmailTemplateController
         }
 
         return response()->json([
-            'message' => __('Test email sent successfully.', 'kirki-ecommerce'),
+            'message' => __('Test email sent', 'kirki-ecommerce'),
         ]);
     }
 }

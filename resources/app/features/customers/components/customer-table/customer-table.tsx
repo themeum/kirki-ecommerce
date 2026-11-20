@@ -101,7 +101,14 @@ const CustomerTable = ({ data, isLoading = false }: ListingTableProps<CustomerLi
                           'kirki-ecommerce',
                         ),
                       },
-                      () => deleteMutation.mutate(row.original.id),
+                      () =>
+                        deleteMutation.mutate({
+                          id: row.original.id,
+                          name:
+                            [row.original.first_name, row.original.last_name]
+                              .filter(Boolean)
+                              .join(' ') || row.original.email,
+                        }),
                     ),
                 },
               ]}

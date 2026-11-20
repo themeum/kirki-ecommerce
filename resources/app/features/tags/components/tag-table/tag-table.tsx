@@ -88,7 +88,7 @@ const TagTable = ({ data, isLoading = false }: ListingTableProps<Tag>) => {
                         'kirki-ecommerce',
                       ),
                     },
-                    () => deleteMutation.mutate(row.original.id),
+                    () => deleteMutation.mutate({ id: row.original.id, name: row.original.name }),
                   ),
               },
             ]}

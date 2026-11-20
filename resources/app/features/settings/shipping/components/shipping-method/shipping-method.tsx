@@ -26,6 +26,7 @@ import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipp
 import { useBaseCurrencySymbol, useConfirmDelete } from '@/hooks';
 import { EditPenIcon, TrashIcon } from '@/icons/common';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
+import { getItemActionMessage } from '@/services/helpers';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -87,7 +88,9 @@ export const ShippingMethod = ({
         void saveShippingZones({
           zones: updatedZones,
           shippingSettingsData,
-          toastMessage: __('Shipping method deleted', 'kirki-ecommerce'),
+          toastMessage:
+            getItemActionMessage('deleted', item.name) ||
+            __('Shipping method deleted', 'kirki-ecommerce'),
         });
       },
     );

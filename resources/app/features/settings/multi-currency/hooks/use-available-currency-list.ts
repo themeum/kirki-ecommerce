@@ -70,9 +70,12 @@ export const useAvailableCurrencyList = (): UseAvailableCurrencyListResult => {
     if (item.id === undefined) {
       return;
     }
-    deleteCurrencyMutate(item.id, {
-      onSuccess: () => refetch(),
-    });
+    deleteCurrencyMutate(
+      { id: item.id, name: item.code },
+      {
+        onSuccess: () => refetch(),
+      },
+    );
   };
 
   const handleToggleCurrencyItem = (item: CurrencyListItem) => {

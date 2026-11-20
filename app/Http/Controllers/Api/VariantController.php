@@ -179,7 +179,7 @@ class VariantController
 
         return response()->json([
             'data' => VariantResource::collection($updated_variants),
-            'message' => __('Inventory updated', 'kirki-ecommerce'),
+            'message' => __('Variants updated', 'kirki-ecommerce'),
         ]);
     }
 

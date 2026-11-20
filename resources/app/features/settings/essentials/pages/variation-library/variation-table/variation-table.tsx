@@ -1,6 +1,14 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { Trash2 } from 'lucide-react';
-import { type Dispatch, type MouseEvent, type SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
+import {
+  type Dispatch,
+  type MouseEvent,
+  type SetStateAction,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useOutletContext } from 'react-router';
 
 import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
@@ -58,7 +66,7 @@ const VariationTable = ({ results = [], selectedItem, updateDataList }: Variatio
       setUnsavedDataStatus(true);
       confirmAction({
         action: () => {
-          deleteValue({ attribute_id: selectedItem.id, value_id: item.id });
+          deleteValue({ attribute_id: selectedItem.id, value_id: item.id, name: item.value });
         },
         otherProps: {
           variant: 'delete',

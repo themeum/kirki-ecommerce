@@ -28,7 +28,6 @@ import {
 import { useUpdateOnlinePaymentMutation } from '@/features/settings/payment/services/payment';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { dispatchToastMessage } from '@/utils/common';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
@@ -78,9 +77,6 @@ const OnlinePaymentEditPopup = ({ editedItem, isOpen, onClose }: OnlinePaymentEd
             is_enabled: true,
           },
         },
-      });
-      dispatchToastMessage('success', {
-        title: __('Payment gateway updated', 'kirki-ecommerce'),
       });
       handleClose();
     } catch (error) {

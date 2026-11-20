@@ -26,10 +26,10 @@ import {
 } from '@/features/settings/shipping/services/shipping';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
 import { useConfirmDelete } from '@/hooks';
+import { getItemActionMessage } from '@/services/helpers';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import { dispatchToastMessage } from '@/utils/common';
 import { __, sprintf } from '@/wpi18n';
 
 type BoxAction = {
@@ -154,9 +154,12 @@ const ShippingBox = () => {
           ),
         },
         () => {
-          deleteBox(item?.id, {
-            onSuccess: () => refetch(),
-          });
+          deleteBox(
+            { id: item?.id, name: item?.name },
+            {
+              onSuccess: () => refetch(),
+            },
+          );
         },
       );
     } else {
@@ -165,14 +168,17 @@ const ShippingBox = () => {
         is_default: !item?.is_default,
       };
       updateBox(
-        { id: item?.id, data },
+        {
+          id: item?.id,
+          data,
+          successMessage: item?.is_default
+            ? getItemActionMessage('removed-as-default', item?.name) ||
+              __('Shipping box removed as default', 'kirki-ecommerce')
+            : getItemActionMessage('set-as-default', item?.name) ||
+              __('Shipping box set as default', 'kirki-ecommerce'),
+        },
         {
           onSuccess: () => {
-            dispatchToastMessage('success', {
-              title: item?.is_default
-                ? __('Shipping box unset as default', 'kirki-ecommerce')
-                : __('Shipping box set as default', 'kirki-ecommerce'),
-            });
             void refetch();
           },
         },

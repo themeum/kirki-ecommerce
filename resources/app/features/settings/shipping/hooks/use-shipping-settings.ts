@@ -28,6 +28,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import type { Region, RegionsDialogFormPayload } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
+import { getItemActionMessage } from '@/services/helpers';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors } from '@/types/pages/common';
 import { uuid } from '@/utils';
@@ -118,7 +119,10 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
    * The zone list is updated locally first and rolled back if the request
    * fails, keeping the switch honest about what is actually stored.
    */
-  const commitZones = async (updater: (prev: ShippingZone[]) => ShippingZone[]) => {
+  const commitZones = async (
+    updater: (prev: ShippingZone[]) => ShippingZone[],
+    successMessage: string,
+  ) => {
     const previousZones = (form.getValues('shipping_zones') as ShippingZone[]) || [];
     const updatedZones = updater(previousZones);
 
@@ -128,6 +132,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
       await updateSettings({
         key: 'shipping',
         data: { shipping_zones: updatedZones },
+        successMessage,
       });
       form.reset(form.getValues());
     } catch (error) {
@@ -144,6 +149,9 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
       await updateSettings({
         key: 'shipping',
         data: { shipping_zones: updatedZones },
+        successMessage:
+          getItemActionMessage('deleted', item.title) ||
+          __('Shipping zone deleted', 'kirki-ecommerce'),
       });
       form.reset({
         ...form.getValues(),
@@ -158,7 +166,15 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
     getZoneShippingMethods(shippingZonesObj, zoneId, baseCurrencySymbol);
 
   const handleToggleMethod = async (method: ShippingMethodData) => {
-    await commitZones((prev) => toggleMethod(prev, method.zoneId, method.id));
+    const isEnabled = !(method.is_enabled ?? true);
+    await commitZones(
+      (prev) => toggleMethod(prev, method.zoneId, method.id),
+      isEnabled
+        ? getItemActionMessage('activated', method.name) ||
+            __('Shipping method activated', 'kirki-ecommerce')
+        : getItemActionMessage('deactivated', method.name) ||
+            __('Shipping method deactivated', 'kirki-ecommerce'),
+    );
   };
 
   const handleEditMethod = (method: ShippingMethodData) => {
@@ -189,6 +205,9 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
           await updateSettings({
             key: 'shipping',
             data: { shipping_zones: updatedZones },
+            successMessage:
+              getItemActionMessage('deleted', method.name) ||
+              __('Shipping method deleted', 'kirki-ecommerce'),
           });
           form.reset({
             ...form.getValues(),
@@ -212,8 +231,14 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
 
   const handleToggleZoneItem = async (item: ShippingZone) => {
     const newValue = !item.is_enabled;
-    await commitZones((prev) =>
-      prev.map((zone) => (zone.id === item.id ? { ...zone, is_enabled: newValue } : zone)),
+    await commitZones(
+      (prev) =>
+        prev.map((zone) => (zone.id === item.id ? { ...zone, is_enabled: newValue } : zone)),
+      newValue
+        ? getItemActionMessage('activated', item.title) ||
+            __('Shipping zone activated', 'kirki-ecommerce')
+        : getItemActionMessage('deactivated', item.title) ||
+            __('Shipping zone deactivated', 'kirki-ecommerce'),
     );
   };
 
@@ -233,6 +258,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
       await updateSettings({
         key: 'shipping',
         data: { shipping_zones: updatedZones },
+        successMessage: __('Shipping zone created', 'kirki-ecommerce'),
       });
       setShowCreateZonePopup(false);
       void navigate(
