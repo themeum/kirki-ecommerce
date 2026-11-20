@@ -283,8 +283,8 @@ const styles = defineStyles({
   },
   closeButton: {
     position: 'absolute',
-    top: theme.spacing[3],
-    right: theme.spacing[2],
+    top: theme.spacing[1],
+    right: theme.spacing[1],
   },
   header: {
     display: 'flex',
@@ -295,7 +295,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
     paddingRight: theme.spacing[12],
     borderBottom: `1px solid ${theme.colors.border.secondary}`,
-    minHeight: 56,
+    // minHeight: 56,
   },
   footer: {
     display: 'flex',
@@ -321,7 +321,8 @@ const styles = defineStyles({
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing[2],
-    padding: theme.spacing[4],
+    paddingInline: theme.spacing[4],
+    paddingBlock: theme.spacing[2],
     overflowY: 'auto',
   },
 });
