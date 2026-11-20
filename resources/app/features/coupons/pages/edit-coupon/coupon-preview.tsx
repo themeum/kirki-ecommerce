@@ -41,6 +41,9 @@ const PreviewTitle = () => {
   const formatCurrency = useFormatCurrency();
   const { control } = useFormContext<CouponFormInput>();
   const values = useWatch({ control });
+
+  const title = values.title?.trim();
+
   const handleCopyCode = async () => {
     if (!values.code) {
       return;
@@ -48,6 +51,23 @@ const PreviewTitle = () => {
 
     await copyToClipboard(values.code);
   };
+
+  if (values.method === 'automatic') {
+    return (
+      <Flex justify="space-between" align="center">
+        <Text variant="heading4" weight="semibold" color={title ? 'emphasis' : 'disabled'}>
+          {title || __('Untitled coupon', 'kirki-ecommerce')}
+        </Text>
+        {hasDiscountAmount(values.discount_type, values.discount_amount) && (
+          <Badge variant="destructive">
+            {isPercentageDiscount(values.discount_value_type)
+              ? sprintf('%s%% OFF', values.discount_amount ?? '')
+              : sprintf('%s OFF', formatCurrency(values.discount_amount ?? 0))}
+          </Badge>
+        )}
+      </Flex>
+    );
+  }
 
   return (
     <>
@@ -71,7 +91,7 @@ const PreviewTitle = () => {
 
       <Flex justify="space-between" align="center">
         <Text variant="small" weight="normal">
-          {values.title?.trim() || __('Untitled coupon', 'kirki-ecommerce')}
+          {title || __('Untitled coupon', 'kirki-ecommerce')}
         </Text>
         {hasDiscountAmount(values.discount_type, values.discount_amount) && (
           <Badge variant="destructive">
