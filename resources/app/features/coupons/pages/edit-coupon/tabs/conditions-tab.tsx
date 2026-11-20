@@ -17,7 +17,7 @@ import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type ConditionRowProps = {
-  checkboxName: 'has_usage_limit' | 'has_customer_limit' | 'is_stackable';
+  checkboxName: 'has_usage_limit' | 'has_customer_limit' | 'is_combinable';
   inputName?: 'usage_limit' | 'customer_limit';
   label: string;
   tooltip: string;
@@ -87,7 +87,7 @@ const ConditionsTab = () => {
         </Text>
       </CardHeader>
       <CardContent>
-        <Flex direction="column" gap={0}>
+        <Flex direction="column">
           <ConditionRow
             checkboxName="has_usage_limit"
             inputName="usage_limit"
@@ -115,7 +115,7 @@ const ConditionsTab = () => {
             color={theme.colors.border.tertiary}
           />
           <ConditionRow
-            checkboxName="is_stackable"
+            checkboxName="is_combinable"
             label={__('Combine with other discounts', 'kirki-ecommerce')}
             tooltip={__('This coupon can be used with other discounts.', 'kirki-ecommerce')}
           />

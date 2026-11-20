@@ -102,7 +102,7 @@ const CouponFormShape = z.object({
       (isEmptyValue(values.customer_limit) || Number(values.customer_limit) <= 0),
     __('Customer usage limit required', 'kirki-ecommerce'),
   ),
-  is_stackable: z.boolean().default(false),
+  is_combinable: z.boolean().default(false),
   eligible_item_type: requiredWhen(
     CouponEligibleItemTypeSchema.nullish().default('all-products'),
     (values) =>
@@ -179,7 +179,7 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
     usage_limit: values.has_usage_limit ? values.usage_limit : null,
     has_customer_limit: values.has_customer_limit,
     customer_limit: values.has_customer_limit ? values.customer_limit : null,
-    is_stackable: values.is_stackable,
+    is_combinable: values.is_combinable,
     product_ids:
       eligibleItemType === 'specific-products'
         ? (values.products ?? []).map((product) => product.productId)
