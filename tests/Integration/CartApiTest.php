@@ -706,6 +706,76 @@ class CartApiTest extends RestTestCase
     }
 
     /**
+     * A coupon that is not combinable is rejected when the cart already has a coupon.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_applying_a_non_combinable_coupon_to_a_cart_with_a_coupon_is_rejected(): void
+    {
+        $this->prepare_variant();
+        $this->add_cart_item();
+
+        $first_code = 'FIRST-' . wp_generate_password(6, false);
+        $this->create_coupon($first_code);
+        $solo_code = 'SOLO-' . wp_generate_password(6, false);
+        $this->create_coupon($solo_code, ['is_combinable' => false]);
+
+        $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $first_code], $this->cart_headers));
+        $response = $this->request('POST', 'cart/coupon', ['code' => $solo_code], $this->cart_headers);
+
+        $this->assertGreaterThanOrEqual(400, $response->get_status());
+        $this->assertEquals('This coupon cannot be combined with the coupons already applied.', $this->normalize_response_data($response->get_data())['message']);
+        $cart = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers));
+        $this->assertNotNull($this->find_coupon_in_response($cart['data'], $first_code));
+        $this->assertNull($this->find_coupon_in_response($cart['data'], $solo_code));
+    }
+
+    /**
+     * Any coupon is rejected when the cart already has a coupon that is not combinable.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_applying_a_coupon_to_a_cart_with_a_non_combinable_coupon_is_rejected(): void
+    {
+        $this->prepare_variant();
+        $this->add_cart_item();
+
+        $solo_code = 'SOLO-' . wp_generate_password(6, false);
+        $this->create_coupon($solo_code, ['is_combinable' => false]);
+        $other_code = 'OTHER-' . wp_generate_password(6, false);
+        $this->create_coupon($other_code);
+
+        $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $solo_code], $this->cart_headers));
+        $response = $this->request('POST', 'cart/coupon', ['code' => $other_code], $this->cart_headers);
+
+        $this->assertGreaterThanOrEqual(400, $response->get_status());
+        $cart = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers));
+        $this->assertNotNull($this->find_coupon_in_response($cart['data'], $solo_code));
+        $this->assertNull($this->find_coupon_in_response($cart['data'], $other_code));
+    }
+
+    /**
+     * A single non-combinable coupon is applied when the cart has no other coupon.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_a_non_combinable_coupon_is_applied_to_a_cart_without_coupons(): void
+    {
+        $this->prepare_variant();
+        $this->add_cart_item();
+
+        $solo_code = 'SOLO-' . wp_generate_password(6, false);
+        $this->create_coupon($solo_code, ['is_combinable' => false]);
+
+        $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $solo_code], $this->cart_headers));
+
+        $this->assertNotNull($this->find_coupon_in_response($applied['data'], $solo_code));
+    }
+
+    /**
      * A signed-in shopper with no customer record yet counts as registered for
      * a registered-customers-only coupon.
      *

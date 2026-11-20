@@ -53,6 +53,7 @@ class CouponListResource extends Resource
             'usage_limit' => $this->usage_limit,
             'current_usage_count' => $this->current_usage_count,
             'is_active' => $this->is_active,
+            'is_combinable' => filter_var($this->is_combinable ?? true, FILTER_VALIDATE_BOOLEAN),
             'status' => $this->get_status(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

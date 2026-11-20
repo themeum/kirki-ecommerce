@@ -19,10 +19,13 @@ use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
 use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Tax\Strategies\AbstractTaxStrategy;
 use Kirki\Ecommerce\App\Tax\Strategies\StoredRateTaxStrategy;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\Framework\Exceptions\UniqueConstraintViolationException;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 
 use function Kirki\Ecommerce\Framework\collection;
 
@@ -103,9 +106,10 @@ class RecalculateCartAction
     /**
      * Calculate coupon discounts for the context.
      *
-     * Coupons found invalid are also detached from the stored cart, when the context has one.
-     * When the store does not accept coupon codes, every coupon is detached from
-     * the stored cart and no discount applies.
+     * For a stored cart, automatic coupons that are valid for the cart are attached to it
+     * first, and coupons found invalid are detached from it. When the store does not accept
+     * coupon codes, every code coupon is detached from the stored cart; automatic coupons
+     * stay, because the setting is about codes that a shopper types.
      *
      * @since 1.0.0
      *
@@ -114,10 +118,12 @@ class RecalculateCartAction
      */
     protected function get_discount_result(CalculationContextDTO $context): DiscountCalculationResultDTO
     {
-        if ($context->cart_id && !Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.can_apply_coupon_code', true)) {
-            $this->remove_cart_coupons($context);
+        if ($context->cart_id) {
+            if (!Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.can_apply_coupon_code', true)) {
+                $this->remove_cart_coupons($context);
+            }
 
-            return new DiscountCalculationResultDTO();
+            $this->attach_automatic_coupons($context);
         }
 
         $stored_codes = $context->stored ? array_keys($context->stored->coupons) : [];
@@ -135,7 +141,44 @@ class RecalculateCartAction
     }
 
     /**
-     * Detach every coupon from the context's stored cart.
+     * Attach the automatic coupons that are valid for the context's cart.
+     *
+     * Each coupon goes through the same validation as a code that a shopper types, against
+     * the coupons that are already applied. A coupon that fails validation is skipped
+     * without an error. The context's coupon codes include the attached coupons afterwards.
+     *
+     * @since 1.0.1
+     *
+     * @param CalculationContextDTO $context Calculation context with a cart.
+     * @return void
+     */
+    protected function attach_automatic_coupons(CalculationContextDTO $context)
+    {
+        $applied_codes = $context->coupon_codes;
+
+        foreach ($this->coupon_service->get_automatic_coupons($applied_codes) as $coupon) {
+            try {
+                $this->discount_service->validate_coupon($coupon, $context, $applied_codes);
+            } catch (ValidationException $e) {
+                continue;
+            }
+
+            try {
+                $this->cart_service->add_coupon($context->cart_id, $coupon->id);
+            } catch (UniqueConstraintViolationException $e) {
+                // A parallel request attached the coupon first: it is on the cart either way.
+            }
+
+            $applied_codes[] = $coupon->code;
+        }
+
+        $context->coupon_codes = $applied_codes;
+    }
+
+    /**
+     * Detach every code coupon from the context's stored cart.
+     *
+     * Automatic coupons stay on the cart and in the context's coupon codes.
      *
      * @since 1.0.1
      *
@@ -148,11 +191,12 @@ class RecalculateCartAction
             return;
         }
 
-        $coupon_ids = collection($this->resolve_coupons($context->coupon_codes))->pluck('id')->to_array();
+        $removable_coupons = collection($this->resolve_coupons($context->coupon_codes))
+            ->reject(fn($coupon) => $coupon->method === CouponMethod::AUTOMATIC);
 
-        $this->cart_service->remove_coupons($context->cart_id, $coupon_ids);
+        $this->cart_service->remove_coupons($context->cart_id, $removable_coupons->pluck('id')->to_array());
 
-        $context->coupon_codes = [];
+        $context->coupon_codes = array_values(array_udiff($context->coupon_codes, $removable_coupons->pluck('code')->to_array(), 'strcasecmp'));
     }
 
     /**

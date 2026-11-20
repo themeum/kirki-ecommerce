@@ -3112,7 +3112,7 @@ class SeedCatalog
             [
                 'method' => 'automatic',
                 'title' => 'Buy 2 Get 1 Free Accessories',
-                'code' => null,
+                'code' => 'AUTOB2G1',
                 'discount_type' => 'buy-x-get-y',
                 'discount_target' => 'products',
                 'discount_value_type' => 'percentage',

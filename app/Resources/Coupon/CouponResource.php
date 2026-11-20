@@ -58,6 +58,7 @@ class CouponResource extends Resource
             'target_country_type' => $this->target_country_type ?? TargetCountryType::ALL_COUNTRIES,
             'target_countries' => $this->target_countries,
             'first_time_buyer_only' => filter_var($this->first_time_buyer_only, FILTER_VALIDATE_BOOLEAN),
+            'is_combinable' => filter_var($this->is_combinable ?? true, FILTER_VALIDATE_BOOLEAN),
             'customer_include_eligibility' => $this->customer_include_eligibility ?? CustomerIncludeEligibility::EVERYONE,
             'customer_exclude_eligibility' => $this->customer_exclude_eligibility ?? CustomerExcludeEligibility::NONE,
             'has_usage_limit' => filter_var($this->has_usage_limit, FILTER_VALIDATE_BOOLEAN),
