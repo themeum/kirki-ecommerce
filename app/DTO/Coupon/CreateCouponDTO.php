@@ -71,6 +71,9 @@ class CreateCouponDTO extends DTO
     /** @var bool */
     public $first_time_buyer_only = false;
 
+    /** @var bool */
+    public $is_combinable = true;
+
     /** @var string */
     public $customer_include_eligibility = CustomerIncludeEligibility::EVERYONE;
 

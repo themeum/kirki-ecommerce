@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\Tests\Integration;
 use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
@@ -621,6 +622,81 @@ class OrderEditApiTest extends RestTestCase
 
         $this->assertEquals(1, OrderCoupon::where('order_id', $order['id'])->count());
         $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+    }
+
+    public function test_a_new_coupon_is_rejected_when_the_stored_coupon_is_not_combinable(): void
+    {
+        $stored = $this->create_percentage_coupon(10);
+        $stored->update(['is_combinable' => false]);
+        $order = $this->create_order(['coupon_codes' => [$stored->code]]);
+        $added = $this->create_percentage_coupon(5);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'coupon_codes' => [$stored->code, $added->code],
+        ])));
+
+        $codes = OrderCoupon::where('order_id', $order['id'])->get()->pluck('code')->to_array();
+        $this->assertSame([$stored->code], $codes);
+        $this->assertEquals(0, Coupon::find($added->id)->current_usage_count);
+    }
+
+    public function test_a_non_combinable_coupon_is_rejected_when_the_order_already_has_a_coupon(): void
+    {
+        $stored = $this->create_percentage_coupon(10);
+        $order = $this->create_order(['coupon_codes' => [$stored->code]]);
+        $added = $this->create_percentage_coupon(5);
+        $added->update(['is_combinable' => false]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'coupon_codes' => [$stored->code, $added->code],
+        ])));
+
+        $codes = OrderCoupon::where('order_id', $order['id'])->get()->pluck('code')->to_array();
+        $this->assertSame([$stored->code], $codes);
+    }
+
+    public function test_a_manual_order_and_its_preview_do_not_take_an_automatic_coupon_on_their_own(): void
+    {
+        $automatic = $this->create_percentage_coupon(10);
+        $automatic->update(['method' => CouponMethod::AUTOMATIC]);
+
+        $preview = $this->preview();
+        $order = $this->create_order();
+
+        $this->assertSame([], $preview['coupons']);
+        $this->assertSame(0, OrderCoupon::where('order_id', $order['id'])->count());
+        $this->assertEquals(0, Coupon::find($automatic->id)->current_usage_count);
+    }
+
+    public function test_an_admin_can_select_an_automatic_coupon_by_hand_and_remove_it_on_edit(): void
+    {
+        $automatic = $this->create_percentage_coupon(10);
+        $automatic->update(['method' => CouponMethod::AUTOMATIC]);
+
+        $order = $this->create_order(['coupon_codes' => [$automatic->code]]);
+        $this->assertSame([$automatic->code], OrderCoupon::where('order_id', $order['id'])->get()->pluck('code')->to_array());
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'coupon_codes' => [],
+        ])));
+
+        $this->assertSame(0, OrderCoupon::where('order_id', $order['id'])->count());
+    }
+
+    public function test_an_order_edit_does_not_add_an_automatic_coupon(): void
+    {
+        $order = $this->create_order();
+        $automatic = $this->create_percentage_coupon(10);
+        $automatic->update(['method' => CouponMethod::AUTOMATIC]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+        ])));
+
+        $this->assertSame(0, OrderCoupon::where('order_id', $order['id'])->count());
     }
 
     public function test_another_order_cannot_take_a_coupon_at_its_limit(): void

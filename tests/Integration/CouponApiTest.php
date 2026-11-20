@@ -178,6 +178,163 @@ class CouponApiTest extends RestTestCase
     }
 
     /**
+     * A coupon created without is_combinable can be combined with other coupons.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_create_coupon_without_is_combinable_defaults_to_true(): void
+    {
+        $coupon = $this->create_coupon();
+        $this->coupon_id = $coupon['id'];
+
+        $this->assertTrue($coupon['is_combinable']);
+        $this->assertTrue((bool) Coupon::find($coupon['id'])->is_combinable);
+    }
+
+    /**
+     * Create and update persist is_combinable, and both the show and list responses return it.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_coupon_is_combinable_is_saved_and_returned(): void
+    {
+        $coupon = $this->create_coupon(['is_combinable' => false]);
+        $this->coupon_id = $coupon['id'];
+
+        $this->assertFalse($coupon['is_combinable']);
+
+        $show = $this->assert_api_success($this->request('GET', 'coupons/' . $this->coupon_id));
+        $this->assertFalse($show['data']['is_combinable']);
+
+        $list = $this->assert_api_success($this->request('GET', 'coupons', ['limit' => 100]));
+        $listed = array_values(array_filter($list['data']['results'], fn($item) => $item['id'] === $this->coupon_id));
+        $this->assertCount(1, $listed);
+        $this->assertFalse($listed[0]['is_combinable']);
+
+        $update = $this->assert_api_success($this->request('PUT', 'coupons/' . $this->coupon_id, $this->coupon_payload([
+            'id' => $this->coupon_id,
+            'code' => $coupon['code'],
+            'is_combinable' => true,
+        ])));
+        $this->assertTrue($update['data']['is_combinable']);
+    }
+
+    /**
+     * An update that does not send is_combinable keeps the stored value.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_update_coupon_without_is_combinable_keeps_the_stored_value(): void
+    {
+        $coupon = $this->create_coupon(['is_combinable' => false]);
+        $this->coupon_id = $coupon['id'];
+
+        $this->assert_api_success($this->request('PUT', 'coupons/' . $this->coupon_id, $this->coupon_payload([
+            'id' => $this->coupon_id,
+            'code' => $coupon['code'],
+            'title' => 'Renamed',
+        ])));
+
+        $this->assertFalse((bool) Coupon::find($this->coupon_id)->is_combinable);
+    }
+
+    /**
+     * An automatic coupon created without a code gets a generated code.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_create_automatic_coupon_without_code_generates_a_code(): void
+    {
+        $coupon = $this->create_coupon(['method' => CouponMethod::AUTOMATIC, 'code' => null]);
+        $this->coupon_id = $coupon['id'];
+        $other = $this->create_coupon(['method' => CouponMethod::AUTOMATIC, 'code' => null]);
+
+        $this->assertNotEmpty($coupon['code']);
+        $this->assertSame($coupon['code'], Coupon::find($coupon['id'])->code);
+        $this->assertNotSame($coupon['code'], $other['code']);
+    }
+
+    /**
+     * An automatic coupon created with a code keeps that code.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_create_automatic_coupon_with_code_keeps_the_code(): void
+    {
+        $code = 'AUTO-' . wp_generate_password(6, false);
+        $coupon = $this->create_coupon(['method' => CouponMethod::AUTOMATIC, 'code' => $code]);
+        $this->coupon_id = $coupon['id'];
+
+        $this->assertSame($code, $coupon['code']);
+    }
+
+    /**
+     * A code coupon still needs a code.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_create_code_coupon_without_code_is_rejected(): void
+    {
+        $response = $this->request('POST', 'coupons', $this->coupon_payload(['method' => CouponMethod::CODE, 'code' => null]));
+
+        $this->assert_api_error($response, 422);
+    }
+
+    /**
+     * An update that sends no code keeps the code of an automatic coupon.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_update_automatic_coupon_without_code_keeps_the_stored_code(): void
+    {
+        $coupon = $this->create_coupon(['method' => CouponMethod::AUTOMATIC, 'code' => null]);
+        $this->coupon_id = $coupon['id'];
+
+        $update = $this->assert_api_success($this->request('PUT', 'coupons/' . $this->coupon_id, $this->coupon_payload([
+            'id' => $this->coupon_id,
+            'method' => CouponMethod::AUTOMATIC,
+            'code' => null,
+            'title' => 'Renamed',
+        ])));
+
+        $this->assertSame($coupon['code'], $update['data']['code']);
+        $this->assertSame($coupon['code'], Coupon::find($this->coupon_id)->code);
+    }
+
+    /**
+     * A coupon that changes to the automatic method without a code gets a generated code.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_update_coupon_to_automatic_without_a_stored_code_generates_a_code(): void
+    {
+        $coupon = Coupon::create($this->coupon_payload([
+            'method' => CouponMethod::AUTOMATIC,
+            'code' => null,
+            'base_discount_amount_fixed' => null,
+            'discount_amount_percentage' => 10,
+        ]));
+        $this->coupon_id = $coupon->id;
+
+        $update = $this->assert_api_success($this->request('PUT', 'coupons/' . $this->coupon_id, $this->coupon_payload([
+            'id' => $this->coupon_id,
+            'method' => CouponMethod::AUTOMATIC,
+            'code' => null,
+        ])));
+
+        $this->assertNotEmpty($update['data']['code']);
+        $this->assertSame($update['data']['code'], Coupon::find($this->coupon_id)->code);
+    }
+
+    /**
      * Delete coupon removes record.
      *
      * @return void
