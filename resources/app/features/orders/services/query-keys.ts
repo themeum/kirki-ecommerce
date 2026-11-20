@@ -18,6 +18,7 @@ const orderKeys = {
   shippingMethods: () => [...orderKeys.all, 'shipping-methods'] as const,
   shippingCarriers: (orderId: string | number) =>
     [...orderKeys.detail(orderId), 'shipping-carriers'] as const,
+  lastUsedShippingCarrier: () => [...orderKeys.all, 'last-used-shipping-carrier'] as const,
 };
 
 export { orderKeys };

@@ -55,7 +55,7 @@ const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
 
   if (variant === 'heading1') {
     return (
-      <h1 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+      <h1 ref={ref as Ref<HTMLHeadingElement>} data-text="true" css={textCss} {...rest}>
         {children}
       </h1>
     );
@@ -63,7 +63,7 @@ const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
 
   if (variant === 'heading2') {
     return (
-      <h2 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+      <h2 ref={ref as Ref<HTMLHeadingElement>} data-text="true" css={textCss} {...rest}>
         {children}
       </h2>
     );
@@ -71,7 +71,7 @@ const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
 
   if (variant === 'heading3') {
     return (
-      <h3 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+      <h3 ref={ref as Ref<HTMLHeadingElement>} data-text="true" css={textCss} {...rest}>
         {children}
       </h3>
     );
@@ -79,7 +79,7 @@ const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
 
   if (variant === 'heading4') {
     return (
-      <h4 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+      <h4 ref={ref as Ref<HTMLHeadingElement>} data-text="true" css={textCss} {...rest}>
         {children}
       </h4>
     );
@@ -87,7 +87,7 @@ const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
 
   if (variant === 'heading5') {
     return (
-      <h5 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+      <h5 ref={ref as Ref<HTMLHeadingElement>} data-text="true" css={textCss} {...rest}>
         {children}
       </h5>
     );
@@ -95,14 +95,14 @@ const Text = forwardRef<HTMLElement, TextProps>((props, ref) => {
 
   if (variant === 'heading6') {
     return (
-      <h6 ref={ref as Ref<HTMLHeadingElement>} css={textCss} {...rest}>
+      <h6 ref={ref as Ref<HTMLHeadingElement>} data-text="true" css={textCss} {...rest}>
         {children}
       </h6>
     );
   }
 
   return (
-    <div ref={ref as Ref<HTMLDivElement>} css={textCss} {...rest}>
+    <div ref={ref as Ref<HTMLDivElement>} data-text="true" css={textCss} {...rest}>
       {children}
     </div>
   );

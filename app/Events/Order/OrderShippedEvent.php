@@ -21,6 +21,9 @@ class OrderShippedEvent
     /** @var Order */
     public $order;
 
+    /** @var bool */
+    public $notify_customer;
+
     /**
      * Create the event for a shipped order.
      *
@@ -28,8 +31,9 @@ class OrderShippedEvent
      *
      * @param Order $order The shipped order.
      */
-    public function __construct(Order $order)
+    public function __construct(Order $order, bool $notify_customer = false)
     {
         $this->order = $order;
+        $this->notify_customer = $notify_customer;
     }
 }

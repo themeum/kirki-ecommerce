@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { isTrackingNumberAdded } from '@/features/orders/lib/shipping-tracking';
 import { getTrackingTemplateError } from '@/features/settings';
 import { prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { __ } from '@/wpi18n';
@@ -31,15 +32,18 @@ const AddTrackingFormShape = z.object({
   ),
 });
 
-export const AddTrackingFormSchema = prepareFormSchema(AddTrackingFormShape).transform((values) =>
-  values.carrier === OTHER_CARRIER_VALUE
+export const AddTrackingFormSchema = prepareFormSchema(AddTrackingFormShape).transform((values) => {
+  if (!isTrackingNumberAdded(values)) {
+    return {};
+  }
+  return values.carrier === OTHER_CARRIER_VALUE
     ? {
         carrier: values.other_name,
         tracking_number: values.tracking_number,
         tracking_url: values.other_url,
       }
-    : { carrier_id: values.carrier, tracking_number: values.tracking_number },
-);
+    : { carrier_id: values.carrier, tracking_number: values.tracking_number };
+});
 
 export type AddTrackingFormInput = z.input<typeof AddTrackingFormSchema>;
 

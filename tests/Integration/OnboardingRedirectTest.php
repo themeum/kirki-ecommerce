@@ -23,6 +23,7 @@ class OnboardingRedirectTest extends RestTestCase
         parent::setUp();
 
         add_filter('wp_redirect', [$this, 'throw_redirect']);
+        add_filter('wp_inline_script_attributes', [$this, 'throw_script_redirect'], 10, 2);
     }
 
     /**
@@ -34,6 +35,7 @@ class OnboardingRedirectTest extends RestTestCase
     protected function tearDown(): void
     {
         remove_filter('wp_redirect', [$this, 'throw_redirect']);
+        remove_filter('wp_inline_script_attributes', [$this, 'throw_script_redirect'], 10);
         unset($_GET['activate-multi']);
         delete_transient(Onboarding::ACTIVATION_REDIRECT_TRANSIENT);
 
@@ -136,6 +138,27 @@ class OnboardingRedirectTest extends RestTestCase
     public function throw_redirect($location)
     {
         throw new RuntimeException($location);
+    }
+
+    /**
+     * Throw the location of a script redirect instead of printing the script.
+     *
+     * Headers are already sent under PHPUnit, so the redirect is printed as an inline script.
+     *
+     * @param array  $attributes Script tag attributes.
+     * @param string $data       Inline script source.
+     *
+     * @return array
+     * @throws RuntimeException When the script is a redirect, carrying the location.
+     * @since 1.0.2
+     */
+    public function throw_script_redirect($attributes, $data)
+    {
+        if (preg_match("/window\\.location\\.href = '(.*)';/", (string) $data, $matches)) {
+            throw new RuntimeException(trim(stripslashes($matches[1]), '"'));
+        }
+
+        return $attributes;
     }
 
     /**

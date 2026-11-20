@@ -69,25 +69,25 @@ foreach ($media as $media_item) {
             <div class="kecom-product-gallery" x-data="imageSlider({ images: kirki_ecommerce.product_images || [] })">
                 <div class="kecom-product-main-image">
                     <template x-if="currentImage.url">
-                        <img :src="currentImage.url" alt="<?php echo esc_attr($product['title']); ?>">
+                        <img x-bind:src="currentImage.url" alt="<?php echo esc_attr($product['title']); ?>">
                     </template>
                     <template x-if="!currentImage.url">
                         <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>" alt="<?php echo esc_attr($product['title']); ?>">
                     </template>
                     <?php if (count($images) > 1) : ?>
-                        <button class="kecom-product-nav-btn kecom-product-nav-prev" @click="prev" aria-label="<?php esc_attr_e('Previous image', 'kirki-ecommerce'); ?>">
+                        <button class="kecom-product-nav-btn kecom-product-nav-prev" x-on:click="prev" aria-label="<?php esc_attr_e('Previous image', 'kirki-ecommerce'); ?>">
                             <?php Icon::render('arrow-left', array('size' => 20)); ?>
                         </button>
-                        <button class="kecom-product-nav-btn kecom-product-nav-next" @click="next" aria-label="<?php esc_attr_e('Next image', 'kirki-ecommerce'); ?>">
+                        <button class="kecom-product-nav-btn kecom-product-nav-next" x-on:click="next" aria-label="<?php esc_attr_e('Next image', 'kirki-ecommerce'); ?>">
                             <?php Icon::render('arrow-right', array('size' => 20)); ?>
                         </button>
                     <?php endif; ?>
                 </div>
                 <?php if (count($images) > 1) : ?>
                     <div class="kecom-product-thumbnails">
-                        <template x-for="(image, index) in images" :key="image.id">
-                            <div class="kecom-product-thumbnail" :class="{ 'active': currentIndex === index }" @click="goTo(index)">
-                                <img :src="image.url" :alt="'<?php echo esc_js(__('Thumbnail', 'kirki-ecommerce')); ?> ' + (index + 1)">
+                        <template x-for="(image, index) in images" x-bind:key="image.id">
+                            <div class="kecom-product-thumbnail" x-bind:class="{ 'active': currentIndex === index }" x-on:click="goTo(index)">
+                                <img x-bind:src="image.url" x-bind:alt="'<?php echo esc_js(__('Thumbnail', 'kirki-ecommerce')); ?> ' + (index + 1)">
                             </div>
                         </template>
                     </div>
@@ -139,22 +139,22 @@ foreach ($media as $media_item) {
                                         <button 
                                             type="button"
                                             class="kecom-product-variant-color"
-                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'unavailable': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
-                                            :style="{ 'background-color': '<?php echo esc_js($item['color'] ?? $item['value']); ?>' }"
-                                            :aria-pressed="isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
-                                            :aria-label="'<?php echo esc_js($attr_name . ': ' . $item['value']); ?>' + (!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? ' (<?php echo esc_js(__('unavailable', 'kirki-ecommerce')); ?>)' : '')"
-                                            :title="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? '<?php echo esc_js(__('Out of stock', 'kirki-ecommerce')); ?>' : null"
-                                            @click="selectAttribute('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
+                                            x-bind:class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'unavailable': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
+                                            x-bind:style="{ 'background-color': '<?php echo esc_js($item['color'] ?? $item['value']); ?>' }"
+                                            x-bind:aria-pressed="isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
+                                            x-bind:aria-label="'<?php echo esc_js($attr_name . ': ' . $item['value']); ?>' + (!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? ' (<?php echo esc_js(__('unavailable', 'kirki-ecommerce')); ?>)' : '')"
+                                            x-bind:title="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? '<?php echo esc_js(__('Out of stock', 'kirki-ecommerce')); ?>' : null"
+                                            x-on:click="selectAttribute('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                         ></button>
                                     <?php else : ?>
                                         <button 
                                             type="button"
                                             class="kecom-product-variant-option"
-                                            :class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'unavailable': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
-                                            :aria-pressed="isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
-                                            :aria-label="'<?php echo esc_js($attr_name . ': ' . $item['value']); ?>' + (!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? ' (<?php echo esc_js(__('unavailable', 'kirki-ecommerce')); ?>)' : '')"
-                                            :title="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? '<?php echo esc_js(__('Out of stock', 'kirki-ecommerce')); ?>' : null"
-                                            @click="selectAttribute('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
+                                            x-bind:class="{ 'selected': isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>'), 'unavailable': !isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') }"
+                                            x-bind:aria-pressed="isAttributeSelected('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
+                                            x-bind:aria-label="'<?php echo esc_js($attr_name . ': ' . $item['value']); ?>' + (!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? ' (<?php echo esc_js(__('unavailable', 'kirki-ecommerce')); ?>)' : '')"
+                                            x-bind:title="!isAttributeAvailable('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>') ? '<?php echo esc_js(__('Out of stock', 'kirki-ecommerce')); ?>' : null"
+                                            x-on:click="selectAttribute('<?php echo esc_js($attr_name); ?>', '<?php echo esc_js($item['value']); ?>')"
                                             x-text="'<?php echo esc_js($item['value']); ?>'"
                                         ></button>
                                     <?php endif; ?>
@@ -180,8 +180,8 @@ foreach ($media as $media_item) {
                             class="kecom-quantity-btn"
                             type="button"
                             aria-label="<?php esc_attr_e('Decrease', 'kirki-ecommerce'); ?>"
-                            :disabled="!selectedVariant?.available || isMin"
-                            @click="decrement"
+                            x-bind:disabled="!selectedVariant?.available || isMin"
+                            x-on:click="decrement"
                         >
                             <?php Icon::render('minus'); ?>
                         </button>
@@ -189,12 +189,12 @@ foreach ($media as $media_item) {
                         <input
                             class="kecom-quantity-input"
                             type="number"
-                            :value="quantity"
-                            @change="handleBlur($el)"
+                            x-bind:value="quantity"
+                            x-on:change="handleBlur($el)"
                             onwheel="this.blur()"
                             min="1"
-                            :max="max"
-                            :disabled="!selectedVariant?.available"
+                            x-bind:max="max"
+                            x-bind:disabled="!selectedVariant?.available"
                             aria-label="<?php esc_attr_e('Quantity', 'kirki-ecommerce'); ?>"
                             id="quantity-input"
                         >
@@ -203,8 +203,8 @@ foreach ($media as $media_item) {
                             class="kecom-quantity-btn"
                             type="button"
                             aria-label="<?php esc_attr_e('Increase', 'kirki-ecommerce'); ?>"
-                            :disabled="!selectedVariant?.available || isMax"
-                            @click="increment"
+                            x-bind:disabled="!selectedVariant?.available || isMax"
+                            x-on:click="increment"
                         >
                             <?php Icon::render('plus'); ?>
                         </button>
@@ -216,12 +216,12 @@ foreach ($media as $media_item) {
                     <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
                     imageUrl = val || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>';
                 })">
-                        <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || !hasMatchingVariant || loading" :class="{ 'kecom-btn-loading': loading }">
+                        <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" x-on:click="add(document.getElementById('quantity-input')?.value || 1)" x-bind:disabled="!selectedVariant?.available || !hasMatchingVariant || loading" x-bind:class="{ 'kecom-btn-loading': loading }">
                             <?php Icon::render('shopping-cart'); ?>
                             <span x-text="selectedVariant?.available && hasMatchingVariant ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
                         </button>
                     </div>
-                    <a class="kecom-btn kecom-btn-block kecom-btn-outline kecom-product-wishlist" href="<?php echo is_user_logged_in() ? '#' : esc_url(Url::get_login_url()) ?>" @click="wishlistItem(selectedVariantId)" :class="{ 'active': isWishlisted }">
+                    <a class="kecom-btn kecom-btn-block kecom-btn-outline kecom-product-wishlist" href="<?php echo is_user_logged_in() ? '#' : esc_url(Url::get_login_url()) ?>" x-on:click="wishlistItem(selectedVariantId)" x-bind:class="{ 'active': isWishlisted }">
                         <?php Icon::render('heart'); ?>
                         <?php esc_html_e('Add to Wishlist', 'kirki-ecommerce'); ?>
                     </a>
@@ -235,20 +235,20 @@ foreach ($media as $media_item) {
         <div class="kecom-container">
             <div class="kecom-product-tabs" x-data="tabs({ activeTab: 'description' })">
                 <div class="kecom-product-tab-header">
-                    <button class="kecom-product-tab-btn" :class="{ 'active': activeTab === 'description' }" @click="activeTab = 'description'"><?php esc_html_e('Description', 'kirki-ecommerce'); ?></button>
+                    <button class="kecom-product-tab-btn" x-bind:class="{ 'active': activeTab === 'description' }" x-on:click="activeTab = 'description'"><?php esc_html_e('Description', 'kirki-ecommerce'); ?></button>
                     <?php if (count($additional_info) > 0) : ?>
                         <?php foreach ($additional_info as $index => $info) : ?>
-                            <button class="kecom-product-tab-btn" :class="{ 'active': activeTab === 'info-<?php echo esc_attr($index); ?>' }" @click="activeTab = 'info-<?php echo esc_attr($index); ?>'"><?php echo esc_html($info['title']); ?></button>
+                            <button class="kecom-product-tab-btn" x-bind:class="{ 'active': activeTab === 'info-<?php echo esc_attr($index); ?>' }" x-on:click="activeTab = 'info-<?php echo esc_attr($index); ?>'"><?php echo esc_html($info['title']); ?></button>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
                 
-                <div class="kecom-product-tab-content" :class="{ 'active': activeTab === 'description' }">
+                <div class="kecom-product-tab-content" x-bind:class="{ 'active': activeTab === 'description' }">
                     <?php echo wp_kses_post($product['description'] ?? ''); ?>
                 </div>
 
                 <?php foreach ($additional_info as $index => $info) : ?>
-                    <div class="kecom-product-tab-content" :class="{ 'active': activeTab === 'info-<?php echo esc_attr($index); ?>' }">
+                    <div class="kecom-product-tab-content" x-bind:class="{ 'active': activeTab === 'info-<?php echo esc_attr($index); ?>' }">
                         <?php echo esc_html($info['description']); ?>
                     </div>
                 <?php endforeach; ?>

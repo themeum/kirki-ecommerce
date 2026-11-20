@@ -25,7 +25,7 @@ const OverviewCard = (props: OverviewCardProps) => {
 
   return (
     <Card cssOverride={styles.card}>
-      <Flex align="center" justify="space-between" gap={2} cssOverride={styles.header}>
+      <Flex align="center" justify="space-between" gap={2}>
         <OverviewTitle info={info}>
           <Text variant="heading6" weight="semibold">
             {title}
@@ -54,8 +54,8 @@ const HIDDEN_PARTS = '& [data-overview-action], & [data-card-menu], & [data-tool
 
 const styles = defineStyles({
   card: {
-    padding: 0,
-    gap: 0,
+    padding: theme.spacing[4],
+    gap: theme.spacing[2],
     overflow: 'hidden',
     [HIDDEN_PARTS]: {
       opacity: 0,
@@ -76,9 +76,5 @@ const styles = defineStyles({
         opacity: 1,
       },
     },
-  },
-  header: {
-    minHeight: '60px',
-    padding: `0 ${theme.spacing[3]} ${theme.spacing[2]} ${theme.spacing[3]}`,
   },
 });

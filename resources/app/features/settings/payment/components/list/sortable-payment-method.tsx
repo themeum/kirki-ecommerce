@@ -181,7 +181,6 @@ const styles = defineStyles({
       opacity: 0,
     },
     '&:hover, &:focus-within, &[data-actions-open="true"]': {
-      backgroundColor: theme.colors.background.surfaceAlt,
       '& [data-slot="payment-method-icon"]': {
         opacity: 0,
       },

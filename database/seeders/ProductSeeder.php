@@ -28,7 +28,7 @@ class ProductSeeder extends Seeder
     /**
      * Names of the curated Color attribute values the product catalog rotates through.
      *
-     * AttributeSeeder now creates its attributes from the Shopify-derived catalog, so
+     * AttributeSeeder now creates its attributes from the catalog, so
      * value ids are not known ahead of time - names are resolved to ids at run time by
      * resolve_attributes() instead of being hardcoded.
      *
@@ -242,7 +242,7 @@ class ProductSeeder extends Seeder
      * Resolve the Color/Size/Shoe size attribute and value ids the curated catalog rotates
      * through, and every category id by slug.
      *
-     * AttributeSeeder and CategorySeeder create these from the Shopify-derived catalog, so
+     * AttributeSeeder and CategorySeeder create these from the catalog, so
      * their ids are not known ahead of time - this resolves them once by name/slug instead
      * of assuming a fixed insert order.
      *

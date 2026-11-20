@@ -66,18 +66,19 @@ type QuickActionsProps = {
 
 const QuickActions = (props: QuickActionsProps) => {
   const { actions } = props;
-  const [primary, ...secondary] = actions.filter((item) => item.visible).map((item) => item.key);
+  const visible = actions.filter((item) => item.visible).map((item) => item.key);
 
-  if (!primary) {
+  if (visible.length === 0) {
     return null;
   }
 
   return (
     <>
-      {secondary.map((action) => (
-        <QuickActionButton key={action} action={action} isPrimary={false} />
-      ))}
-      <QuickActionButton action={primary} isPrimary />
+      {visible
+        .map((action, index) => (
+          <QuickActionButton key={action} action={action} isPrimary={index === 0} />
+        ))
+        .reverse()}
     </>
   );
 };

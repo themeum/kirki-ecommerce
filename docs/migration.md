@@ -62,6 +62,11 @@ what they cannot link is reported.
 Product images are not copied. A product points to the same WordPress media that
 WooCommerce used.
 
+An order line uses the same media. WooCommerce does not store an image on an order
+line, so the migration takes the current image of the variation, or of the product
+when the variation has none. If the merchant changed the image after the order, the
+order line shows the new image. A line with no image, and a fee line, has none.
+
 ---
 
 ## 3. How a migration runs

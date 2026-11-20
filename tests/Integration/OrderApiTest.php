@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
@@ -41,6 +42,7 @@ use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
@@ -140,6 +142,82 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals('flat_rate', $payload['data']['shipping_method_type']);
 
         $this->order_id = $payload['data']['id'];
+    }
+
+    /**
+     * Every order returns the shipping method details stored when it was made;
+     * the pickup details are null for a method that is not local pickup.
+     *
+     * @return void
+     * @since 1.0.2
+     */
+    public function test_order_returns_the_stored_shipping_meta(): void
+    {
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::SHIPPING_SETTINGS,
+            'data' => [
+                'shipping_zones' => [
+                    [
+                        'id' => 'zone-test',
+                        'is_enabled' => true,
+                        'title' => 'Test Zone',
+                        'regions' => [['country' => 'US', 'states' => []]],
+                        'shipping_methods' => [
+                            [
+                                'id' => 'method-0001',
+                                'is_enabled' => true,
+                                'name' => 'Standard Delivery',
+                                'type' => ShippingMethodTypes::FLAT_RATE,
+                                'base_amount' => 10,
+                                'is_taxable' => false,
+                                'description' => 'Ships in 3 days.',
+                                'shipping_rules' => [],
+                            ],
+                            [
+                                'id' => 'method-pickup',
+                                'is_enabled' => true,
+                                'name' => 'Store pickup',
+                                'type' => ShippingMethodTypes::LOCAL_PICKUP,
+                                'base_amount' => 0,
+                                'is_taxable' => false,
+                                'description' => 'Bring your order number.',
+                                'address' => '221 Market St, San Francisco',
+                                'has_pick_time' => true,
+                                'pickup_time_start' => '10:00',
+                                'pickup_time_end' => '18:00',
+                                'shipping_rules' => [],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]));
+        static::forget_singleton(ShippingService::class);
+
+        $pickup_order = $this->assert_api_success(
+            $this->request('POST', 'orders', $this->order_payload(['shipping_method' => 'method-pickup'])),
+            201
+        );
+
+        $this->assertSame([
+            'description' => 'Bring your order number.',
+            'is_taxable' => false,
+            'address' => '221 Market St, San Francisco',
+            'has_pick_time' => true,
+            'pickup_time_start' => '10:00',
+            'pickup_time_end' => '18:00',
+        ], $pickup_order['data']['shipping_meta']);
+
+        $flat_rate_order = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload()), 201);
+
+        $this->assertSame([
+            'description' => 'Ships in 3 days.',
+            'is_taxable' => false,
+            'address' => null,
+            'has_pick_time' => false,
+            'pickup_time_start' => null,
+            'pickup_time_end' => null,
+        ], $flat_rate_order['data']['shipping_meta']);
     }
 
     /**

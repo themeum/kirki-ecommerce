@@ -8,6 +8,7 @@ import { orderKeys } from '@/features/orders';
 import type { OrderActionPayload } from '@/features/orders/lib/order-actions';
 import type { Order } from '@/features/orders/schemas/catalog/order';
 import {
+  LastUsedShippingCarrierSchema,
   OrderCalculationSchema,
   OrderEditInfoSchema,
   OrderListItemSchema,
@@ -74,6 +75,12 @@ const getOrderShippingCarriers = (orderId: string | number) => {
   return apiClient
     .get(endpoints.ORDER_SHIPPING_CARRIERS(orderId))
     .then((response) => parseData(z.array(OrderShippingCarrierSchema), response));
+};
+
+const getLastUsedShippingCarrier = () => {
+  return apiClient
+    .get(endpoints.LAST_USED_SHIPPING_CARRIER)
+    .then((response) => parseData(LastUsedShippingCarrierSchema, response));
 };
 
 const updateOrder = ({ id, data }: { id: number; data: OrderFormPayload }) => {
@@ -182,6 +189,7 @@ const useOrderActionMutation = () => {
       void queryClient.invalidateQueries({ queryKey: orderKeys.detail(variables.id) });
       void queryClient.invalidateQueries({ queryKey: orderKeys.editInfo(variables.id) });
       void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.lastUsedShippingCarrier() });
     },
     onError(error) {
       toastMutationError(error);
@@ -196,6 +204,13 @@ const useOrderShippingCarriersQuery = (orderId: string | number) => {
   });
 };
 
+const useLastUsedShippingCarrierQuery = () => {
+  return useQuery({
+    queryKey: orderKeys.lastUsedShippingCarrier(),
+    queryFn: getLastUsedShippingCarrier,
+  });
+};
+
 const useOrderCalculationQuery = (payload: OrderCalculationRequestPayload, enabled = true) => {
   return useQuery({
     queryKey: orderKeys.calculation(payload),
@@ -207,6 +222,7 @@ const useOrderCalculationQuery = (payload: OrderCalculationRequestPayload, enabl
 
 export {
   useCreateOrderMutation,
+  useLastUsedShippingCarrierQuery,
   useOrderActionMutation,
   useOrderCalculationQuery,
   useOrderEditInfoQuery,

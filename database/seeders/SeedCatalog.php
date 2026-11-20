@@ -86,7 +86,7 @@ class SeedCatalog
     }
 
     /**
-     * Shopify Standard Product Taxonomy categories, capped at two levels (vertical and
+     * Standard Product Taxonomy categories, capped at two levels (vertical and
      * subcategory) and limited to physical-product verticals - digital/service-only
      * verticals (Software, Services, Product Add-Ons, Gift Cards, Bundles, Mature,
      * Uncategorized) and non-physical subcategories (e.g. Event Tickets, Online Courses)
@@ -389,7 +389,7 @@ class SeedCatalog
     }
 
     /**
-     * The most widely used attributes Shopify's Standard Product Taxonomy defines for the
+     * The most widely used attributes Standard Product Taxonomy defines for the
      * physical-product categories in get_categories(), deduplicated by name across
      * categories. Curated down from the taxonomy's full attribute set by keeping only
      * attributes referenced by two or more categories, plus Size and Shoe size (kept

@@ -43,7 +43,7 @@ $invalid_items = $cart['invalid_items'] ?? [];
                     <div class="kecom-alert kecom-alert-warning kecom-mb-10">
                         <?php Icon::render('information-fill', ['size' => 20]); ?>
                         <p><?php esc_html_e('Remove unavailable items to complete checkout.', 'kirki-ecommerce'); ?></p>
-                        <a href="#" class="kecom-alert-item-remove" x-text="loading ? '' : removeLinkText" :class="loading ? 'kecom-btn-loading' : ''" @click.prevent="removeInvalidItems()"></a>
+                        <a href="#" class="kecom-alert-item-remove" x-text="loading ? '' : removeLinkText" x-bind:class="loading ? 'kecom-btn-loading' : ''" x-on:click.prevent="removeInvalidItems()"></a>
                     </div>
                 </template>
                 <?php foreach ($items as $item) : ?>

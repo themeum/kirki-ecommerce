@@ -12,30 +12,30 @@
  *     align: 'auto',
  *     onChange(item) { console.log(item); },
  *   })"
- *   @click.outside="close()"
- *   @keydown.escape.window="close(true)"
+ *   x-on:click.outside="close()"
+ *   x-on:keydown.escape.window="close(true)"
  *   >
  *     <!-- Trigger -->
- *     <button type="button" x-ref="trigger" @click="toggle()" :aria-expanded="isOpen" aria-haspopup="listbox">
+ *     <button type="button" x-ref="trigger" x-on:click="toggle()" x-bind:aria-expanded="isOpen" aria-haspopup="listbox">
  *       <span x-text="selectedItem?.label ?? placeholder"></span>
  *       <span x-show="selectedItem?.sublabel" x-text="selectedItem?.sublabel"></span>
  *     </button>
  *
  *     <!-- Panel -->
- *     <div x-ref="menu" x-show="isOpen" :class="{ 'kecom-dropdown-menu-end': isAlignEnd }" x-cloak role="listbox" :aria-activedescendant="activeId">
+ *     <div x-ref="menu" x-show="isOpen" x-bind:class="{ 'kecom-dropdown-menu-end': isAlignEnd }" x-cloak role="listbox" x-bind:aria-activedescendant="activeId">
  *       <!-- Optional search -->
- *       <input type="text" x-ref="search" x-model="query" @keydown="onSearchKeydown" placeholder="Search…">
+ *       <input type="text" x-ref="search" x-model="query" x-on:keydown="onSearchKeydown" placeholder="Search…">
  *
  *       <!-- Items -->
  *       <ul>
- *         <template x-for="item in filteredItems" :key="item.value">
+ *         <template x-for="item in filteredItems" x-bind:key="item.value">
  *           <li
- *             :id="itemId(item)"
+ *             x-bind:id="itemId(item)"
  *             role="option"
- *             :aria-selected="isSelected(item)"
- *             :class="{ 'is-active': isSelected(item), 'is-focused': isFocused(item) }"
- *             @click="select(item)"
- *             @mouseenter="focusedIndex = filteredItems.indexOf(item)"
+ *             x-bind:aria-selected="isSelected(item)"
+ *             x-bind:class="{ 'is-active': isSelected(item), 'is-focused': isFocused(item) }"
+ *             x-on:click="select(item)"
+ *             x-on:mouseenter="focusedIndex = filteredItems.indexOf(item)"
  *           >
  *             <span x-text="item.label"></span>
  *             <span x-show="item.sublabel" x-text="item.sublabel"></span>

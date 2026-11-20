@@ -61,6 +61,11 @@ export const endpoints = {
   DASHBOARD_OVERVIEW: '/dashboard/overview',
   DASHBOARD_ATTENTION: '/dashboard/attention',
 
+  HOME_FIRST_SALE: '/home/first-sale',
+  HOME_FIRST_SALE_CELEBRATED: '/home/first-sale/celebrated',
+  HOME_FIRST_SALE_DISMISS: '/home/first-sale/dismiss',
+  HOME_FIRST_SALE_FULFILL: '/home/first-sale/fulfill',
+
   ANALYTICS_METRIC: (key: string) => `/analytics/metrics/${key}`,
   ANALYTICS_REGIONS: '/analytics/regions',
 
@@ -118,6 +123,7 @@ export const endpoints = {
   CALCULATE_ORDER: '/calculate/order',
   ORDER_ACTIVITIES: (orderId: string | number) => `/orders/${orderId}/activities`,
   ORDER_SHIPPING_CARRIERS: (orderId: string | number) => `/orders/${orderId}/shipping-carriers`,
+  LAST_USED_SHIPPING_CARRIER: '/shipping-carriers/last-used',
   ORDER_ACTIVITY: (orderId: string | number, activityId: string | number) =>
     `/orders/${orderId}/activities/${activityId}`,
 } as const;

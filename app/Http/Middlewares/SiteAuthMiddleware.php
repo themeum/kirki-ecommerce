@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Handle site authentication
+ * Handle site authentication
  *
  * @package Kirki\Ecommerce\App\Http\Middlewares
  * @author Themeum <support@themeum.com>
@@ -50,6 +50,5 @@ class SiteAuthMiddleware implements Middleware
 
         $login_url = Url::get_login_url();
         Url::redirect($login_url);
-        exit;
     }
 }

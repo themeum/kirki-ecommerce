@@ -43,10 +43,7 @@ const FilterPopup = memo(() => {
         filterObject={draft}
         onChange={(val) => setDraftValue('category_ids', val)}
       />
-      <StatusFilter
-        filterObject={draft}
-        onChange={(val) => setDraftValue('status', String(val))}
-      />
+      <StatusFilter filterObject={draft} onChange={(val) => setDraftValue('status', String(val))} />
       <InventoryTypeFilter
         filterObject={draft}
         onChange={(val) => setDraftValue('availability_status', String(val))}

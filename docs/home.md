@@ -7,7 +7,8 @@ sell. When every checklist step is complete, the checklist is replaced by a stor
 overview that the merchant can customize: key numbers for a period, recent
 orders, top selling products, the work that needs them and the variants to
 restock. While setup is not done, a gallery of storefront templates shows below
-the checklist.
+the checklist. When the store has an order, a one-time "first sale" card and
+confetti celebration show at the top of the page in both modes.
 
 - [1. Quick start](#1-quick-start)
 - [2. The page](#2-the-page)
@@ -16,11 +17,12 @@ the checklist.
 - [5. Preconfigured steps](#5-preconfigured-steps)
 - [6. Loading sample data](#6-loading-sample-data)
 - [7. Store overview](#7-store-overview)
-- [8. Storage](#8-storage)
-- [9. REST API](#9-rest-api)
-- [10. Resetting the checklist in development](#10-resetting-the-checklist-in-development)
-- [11. Requirements and limitations](#11-requirements-and-limitations)
-- [12. Where this differs from WooCommerce](#12-where-this-differs-from-woocommerce)
+- [8. First sale](#8-first-sale)
+- [9. Storage](#9-storage)
+- [10. REST API](#10-rest-api)
+- [11. Resetting in development](#11-resetting-in-development)
+- [12. Requirements and limitations](#12-requirements-and-limitations)
+- [13. Where this differs from WooCommerce](#13-where-this-differs-from-woocommerce)
 
 ---
 
@@ -37,6 +39,7 @@ store overview (section 7) from then on.
 | Part | What it shows |
 |---|---|
 | Heading | While setup is not done: "Let's get you started", with a **View Live Site** link that opens the site URL in a new tab and a primary **Add Product** button that opens the create product page. After: "Welcome, {name}", the period subtitle, the merchant's quick actions and the **Customize home** button (section 7). |
+| First sale card | Only while the store has a first order that this admin did not close, and nobody clicked **Fulfill order** (section 8). At the top, in both modes. |
 | Setup checklist | Only while setup is not done. "X out of N complete", a percentage, a progress bar and the steps (section 3). |
 | Store overview | Only after every checklist step is complete, in place of the checklist (section 7). |
 | Template gallery | Only while setup is not done, below the checklist. Three square template cards (194 × 194 px, with a 150 px cover image). Each card has a **Coming soon** badge at its top-right corner. The cards cannot be clicked. |
@@ -312,7 +315,71 @@ name, the variant name and "N left", and opens that variant's inventory page.
 **View inventory** opens the Inventory list with the **Low stock** filter. With no
 such variant, the card reads "Nothing is low on stock."
 
-## 8. Storage
+## 8. First sale
+
+When the store has its first order, Home celebrates it once for each admin and
+shows a card that leads the team to fulfil that order.
+
+### The first order
+
+The store's oldest order by creation time (the lower id first when two orders
+have the same time) that is **not archived**. Every payment status and
+fulfillment status counts, and so do orders that an admin created and orders
+that were imported. If that order is deleted, the next oldest order is the
+first order.
+
+### The card
+
+A full-width card at the top of the page content: above the setup checklist
+while setup is not done, and above the first overview section after. It is not
+a section of the Customize home sheet.
+
+- A blue bag icon in a light-blue squircle. A small red dot pops onto the bag
+  when the card appears, and again when the pointer moves over the card.
+- **You made your first sale!**
+- "**{customer}** ordered **{total}** ({order number}). Every store starts with
+  one order. This one is yours." The total is in the order's own currency. The
+  order number is shown as stored, with the store's order prefix (`#` by
+  default), and opens the order. An order without a customer name reads "A
+  customer".
+- **Fulfill order** and **Close** (X).
+
+The card shows for an admin while all of these are true:
+
+| Rule | Ends when |
+|---|---|
+| A first order exists | Every order is deleted or archived |
+| The store is not done | Any admin clicks **Fulfill order** |
+| This admin did not close the card | This admin clicks **Close** |
+
+- **Close** hides the card for the admin who clicks it. Other admins still see
+  it. If the request fails, an error toast shows and the card stays hidden
+  until the page reloads.
+- **Fulfill order** marks the store as done, removes every admin's close
+  record, and opens the order detail page. After that, no admin sees the card.
+  If the request fails, an error toast shows and the order still opens.
+  Fulfilling the order on the order page, without this button, does not hide
+  the card.
+
+Stores that already had orders before this feature also show the card, once
+for each admin, with their oldest order.
+
+### The celebration
+
+When the card shows for an admin who was not celebrated yet, a confetti burst
+plays over the page: about 150 pieces fire from the two bottom corners, arc up
+and flutter down. A few pieces land on the top edge of the card and of one
+other card, rest there for a few seconds, then tip off and fall. The canvas
+does not take clicks, is hidden from screen readers, and removes itself when
+the last piece leaves the screen or when the admin leaves Home.
+
+The admin is recorded as celebrated when the confetti starts, so a reload does
+not play it again. If that request fails, it plays again on the next visit. The
+confetti plays only together with the card: an admin who closed the card, or
+who first opens Home after **Fulfill order**, never sees it. It plays also when
+the operating system's "Reduce motion" setting is on.
+
+## 9. Storage
 
 One option, `kirki_ecommerce_setup_checklist`:
 
@@ -324,6 +391,20 @@ One option, `kirki_ecommerce_setup_checklist`:
 ```
 
 The option is created the first time a step completes, or at store setup.
+
+The first-sale state (section 8) is one more option, `kirki_ecommerce_first_sale`,
+that is not autoloaded:
+
+```php
+[
+    'done_at'    => null,               // Unix time of the first "Fulfill order" click
+    'celebrated' => [1 => 1794900000],  // user id => Unix time of the first celebration
+    'dismissed'  => [5 => 1794903700],  // user id => Unix time of the close; emptied by "Fulfill order"
+]
+```
+
+The option is created by the first celebration, close or fulfill. A missing or
+unreadable value counts as empty.
 
 The Home layout is **not** stored on the server. The browser keeps it in local
 storage, per browser:
@@ -341,7 +422,7 @@ uses Short for a missing or unknown amount format.
 A value that cannot be read gives the default layout. When local storage is
 blocked, Home works and keeps the layout until the page closes.
 
-## 9. REST API
+## 10. REST API
 
 All routes require a user who can manage the store (`manage_options`) and a valid
 REST nonce.
@@ -443,6 +524,39 @@ The attention endpoint takes no date range. The queries are in
 `Order::scope_only_needing_attention()` and the stock conditions are
 `Variant::scope_only_out_of_stock()` and `Variant::scope_only_low_stock()`.
 
+### First sale
+
+| Method | Route | Does |
+|---|---|---|
+| `GET` | `/wp-json/kirki/ecommerce/v1/home/first-sale` | Returns the state for the current user. |
+| `POST` | `/wp-json/kirki/ecommerce/v1/home/first-sale/celebrated` | Records the current user as celebrated. Keeps an earlier time. |
+| `POST` | `/wp-json/kirki/ecommerce/v1/home/first-sale/dismiss` | Records the current user's close. Keeps an earlier time. |
+| `POST` | `/wp-json/kirki/ecommerce/v1/home/first-sale/fulfill` | Marks the store as done (keeps an earlier time) and removes every close record. |
+
+All four return the state for the current user:
+
+```json
+{
+  "data": {
+    "is_visible": true,
+    "should_celebrate": true,
+    "order": {
+      "id": 12,
+      "order_number": "#2026-2236",
+      "customer_name": "Ibrahim Fischer",
+      "base_total_money_object": { "raw": 43.88, "display": "£43.88", "currency": { "code": "GBP", "symbol": "£" } }
+    }
+  },
+  "message": "First sale retrieved successfully."
+}
+```
+
+`is_visible` is true when a first order exists, the store is not done and the
+current user did not close the card. `should_celebrate` is true when the card
+is visible and the current user was not celebrated. `order` is `null` when the
+store has no first order. The order fields use the same resource as the order
+list. The rules are in `app/Services/FirstSaleService.php`.
+
 ### Other API additions used by Home
 
 | Route | Addition |
@@ -451,7 +565,7 @@ The attention endpoint takes no date range. The queries are in
 | `GET /orders` | `attention=to_ship` or `attention=to_collect`. The order list reads it from its address and shows it as a removable chip. Another value returns `422`. |
 | `GET /variants` | `inventory_type=low_stock`. The Inventory list offers it as **Low stock**. |
 
-## 10. Resetting the checklist in development
+## 11. Resetting in development
 
 Delete the option to clear every completion and the preconfigured snapshot:
 
@@ -463,14 +577,21 @@ The next Home load checks the rules again. Steps whose data still exists complet
 again at once. This also brings back the checklist in place of the store overview
 until every step completes again.
 
-## 11. Requirements and limitations
+Delete the first-sale option to show the card and play the celebration again
+for every admin:
+
+```bash
+wp option delete kirki_ecommerce_first_sale
+```
+
+## 12. Requirements and limitations
 
 - **The checklist cannot be dismissed.** It goes away only when every step is
   completed. Then the store overview replaces it for good.
 - **Completion is not a health check.** A sticky step stays checked after its data
   is removed, for example after all payment methods are disabled.
 - **Earlier completions stay.** A step that completed under an earlier, looser
-  rule stays completed. Reset the checklist (section 10) to check it again.
+  rule stays completed. Reset the checklist (section 11) to check it again.
 - **The "Cash on delivery" button only opens Payment settings.** It does not enable
   Cash on Delivery.
 - **No CSV import.** Step 1 has only **Add products** and **Load sample data**.
@@ -494,8 +615,17 @@ until every step completes again.
 - **No Goal section and no import.** The Goal section and an Import products
   quick action are not built yet.
 - **No caching.** Each section runs its queries on each Home visit.
+- **The first-sale card ends only on its button.** Fulfilling the order
+  elsewhere does not hide it. Each admin can close it.
+- **First sale on an existing store.** A store that already had orders when it
+  updated celebrates its oldest order, which can be old or imported.
+- **The confetti ignores "Reduce motion".** It plays also when the operating
+  system asks for less motion.
+- **Two admins at the same moment.** The first-sale state is one option. If two
+  admins write it at the same moment, one write can be lost, so one admin can
+  see the card or the celebration once more.
 
-## 12. Where this differs from WooCommerce
+## 13. Where this differs from WooCommerce
 
 ### Task list
 
@@ -529,3 +659,8 @@ until every step completes again.
   B, T) are English in every language. Recent orders show the full order total.
 - **No extension API.** The sections, checks and quick actions are fixed. There
   is no filter or hook that adds one.
+
+### First sale
+
+- **WooCommerce has no first-sale card or celebration.** Its Home shows the
+  first order only in its activity panels and order lists.

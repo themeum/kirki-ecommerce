@@ -7,6 +7,7 @@ import {
   SheetContent,
   SheetFooter,
   SheetHeader,
+  SheetSeparator,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
@@ -98,12 +99,13 @@ const CustomizeSheet = (props: CustomizeSheetProps) => {
   const visibleCardCount = layout.cards.filter((item) => item.visible).length;
 
   return (
-    <Sheet floatable={{ storageKey: SHEET_STORAGE_KEY }}>
+    <Sheet floating storageKey={SHEET_STORAGE_KEY}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent aria-describedby={undefined}>
         <SheetHeader>
           <SheetTitle>{__('Customize analytics', 'kirki-ecommerce')}</SheetTitle>
         </SheetHeader>
+        <SheetSeparator />
         <div css={scoped(styles.body)}>
           <SortableGroup
             heading={__('Key metrics', 'kirki-ecommerce')}
@@ -139,12 +141,15 @@ const CustomizeSheet = (props: CustomizeSheetProps) => {
           />
           <AmountsGroup value={layout.amounts} example={amountExample} onChange={setAmounts} />
         </div>
+        <SheetSeparator />
         <SheetFooter cssOverride={styles.footer}>
           <Button variant="link" onClick={reset}>
             {__('Reset to default', 'kirki-ecommerce')}
           </Button>
           <SheetClose asChild>
-            <Button variant="primary">{__('Done', 'kirki-ecommerce')}</Button>
+            <Button variant="primary" size="sm">
+              {__('Done', 'kirki-ecommerce')}
+            </Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>
@@ -164,7 +169,6 @@ const styles = defineStyles({
     flex: '1 1 auto',
     minHeight: 0,
     overflowY: 'auto',
-    padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
   },
   group: {
     display: 'flex',

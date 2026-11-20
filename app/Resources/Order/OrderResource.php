@@ -133,6 +133,7 @@ class OrderResource extends Resource
             'shipping_method' => $this->shipping_method,
             'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
             'shipping_method_type' => $this->shipping_metadata['shipping_method']['type'] ?? null,
+            'shipping_meta' => $this->prepare_shipping_meta(),
             'order_notes' => $this->order_notes,
             'flags' => $this->flags,
 
@@ -529,5 +530,29 @@ class OrderResource extends Resource
         }
 
         return $tax_lines;
+    }
+
+    /**
+     * Prepare the shipping method details stored in the order's shipping snapshot.
+     *
+     * The pickup keys are `null` for methods that are not local pickup. Orders placed
+     * before the snapshot kept these details get `null` values.
+     *
+     * @since 1.0.2
+     *
+     * @return array{description: string|null, is_taxable: bool|null, address: string|null, pickup_time_start: string|null, pickup_time_end: string|null}
+     */
+    protected function prepare_shipping_meta()
+    {
+        $shipping_method = $this->shipping_metadata['shipping_method'] ?? [];
+
+        return [
+            'description' => $shipping_method['description'] ?? null,
+            'is_taxable' => $shipping_method['is_taxable'] ?? null,
+            'address' => $shipping_method['address'] ?? null,
+            'has_pick_time' => $shipping_method['has_pick_time'] ?? false,
+            'pickup_time_start' => $shipping_method['pickup_time_start'] ?? null,
+            'pickup_time_end' => $shipping_method['pickup_time_end'] ?? null,
+        ];
     }
 }
