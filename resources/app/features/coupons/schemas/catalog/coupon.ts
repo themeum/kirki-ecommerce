@@ -6,47 +6,35 @@ import { ProductListItemWithVariantsSchema } from '@/features/products/schemas/c
 import { MoneyAmountSchema } from '@/schemas/shared/api';
 import { RegionSchema } from '@/schemas/shared/region';
 
-export const CouponStatusSchema = z.enum([
-  'active',
-  'scheduled',
-  'inactive',
-  'expired',
-]);
+const CouponStatusSchema = z.enum(['active', 'scheduled', 'inactive', 'expired']);
 
-export type CouponStatus = z.infer<typeof CouponStatusSchema>;
+type CouponStatus = z.infer<typeof CouponStatusSchema>;
 
-export const CouponDiscountTypeSchema = z.enum([
-  'amount-off',
-  'free-shipping',
-  'buy-x-get-y',
-]);
+const CouponDiscountTypeSchema = z.enum(['amount-off', 'free-shipping', 'buy-x-get-y']);
 
-export type CouponDiscountType = z.infer<typeof CouponDiscountTypeSchema>;
+type CouponDiscountType = z.infer<typeof CouponDiscountTypeSchema>;
 
-export const CouponMethodSchema = z.enum(['code', 'automatic']);
+const CouponMethodSchema = z.enum(['code', 'automatic']);
 
-export type CouponMethod = z.infer<typeof CouponMethodSchema>;
+type CouponMethod = z.infer<typeof CouponMethodSchema>;
 
-export const CouponDiscountTargetSchema = z.enum(['order', 'products']);
+const CouponDiscountTargetSchema = z.enum(['order', 'products']);
 
-export type CouponDiscountTarget = z.infer<typeof CouponDiscountTargetSchema>;
+type CouponDiscountTarget = z.infer<typeof CouponDiscountTargetSchema>;
 
-export const CouponEligibleItemTypeSchema = z.enum([
+const CouponEligibleItemTypeSchema = z.enum([
   'all-products',
   'specific-products',
   'specific-categories',
 ]);
 
-export type CouponEligibleItemType = z.infer<typeof CouponEligibleItemTypeSchema>;
+type CouponEligibleItemType = z.infer<typeof CouponEligibleItemTypeSchema>;
 
-export const CouponTargetCountryTypeSchema = z.enum([
-  'all-countries',
-  'specific-countries',
-]);
+const CouponTargetCountryTypeSchema = z.enum(['all-countries', 'specific-countries']);
 
-export type CouponTargetCountryType = z.infer<typeof CouponTargetCountryTypeSchema>;
+type CouponTargetCountryType = z.infer<typeof CouponTargetCountryTypeSchema>;
 
-export const CouponCustomerIncludeEligibilitySchema = z.enum([
+const CouponCustomerIncludeEligibilitySchema = z.enum([
   'everyone',
   'customers',
   'guests',
@@ -54,9 +42,9 @@ export const CouponCustomerIncludeEligibilitySchema = z.enum([
   'specific-groups',
 ]);
 
-export type CouponCustomerIncludeEligibility = z.infer<typeof CouponCustomerIncludeEligibilitySchema>;
+type CouponCustomerIncludeEligibility = z.infer<typeof CouponCustomerIncludeEligibilitySchema>;
 
-export const CouponCustomerExcludeEligibilitySchema = z.enum([
+const CouponCustomerExcludeEligibilitySchema = z.enum([
   'none',
   'customers',
   'guests',
@@ -64,22 +52,20 @@ export const CouponCustomerExcludeEligibilitySchema = z.enum([
   'specific-groups',
 ]);
 
-export type CouponCustomerExcludeEligibility = z.infer<typeof CouponCustomerExcludeEligibilitySchema>;
+type CouponCustomerExcludeEligibility = z.infer<typeof CouponCustomerExcludeEligibilitySchema>;
 
-export const CouponDiscountValueTypeSchema = z.enum(['fixed', 'percentage']);
+const CouponDiscountValueTypeSchema = z.enum(['fixed', 'percentage']);
 
-export type CouponDiscountValueType = z.infer<
-  typeof CouponDiscountValueTypeSchema
->;
+type CouponDiscountValueType = z.infer<typeof CouponDiscountValueTypeSchema>;
 
-export const CouponCollectionRefSchema = z.object({
+const CouponCollectionRefSchema = z.object({
   id: z.number(),
   title: z.string(),
 });
 
-export type CouponCollectionRef = z.infer<typeof CouponCollectionRefSchema>;
+type CouponCollectionRef = z.infer<typeof CouponCollectionRefSchema>;
 
-export const CouponSchema = z.object({
+const CouponSchema = z.object({
   id: z.number(),
   method: CouponMethodSchema,
   title: z.string(),
@@ -121,9 +107,9 @@ export const CouponSchema = z.object({
   updated_at: z.string().nullish(),
 });
 
-export type Coupon = z.infer<typeof CouponSchema>;
+type Coupon = z.infer<typeof CouponSchema>;
 
-export const CouponListItemSchema = CouponSchema.pick({
+const CouponListItemSchema = CouponSchema.pick({
   id: true,
   method: true,
   title: true,
@@ -152,7 +138,34 @@ export const CouponListItemSchema = CouponSchema.pick({
   updated_at: true,
 });
 
-export type CouponListItem = z.infer<typeof CouponListItemSchema>;
+type CouponListItem = z.infer<typeof CouponListItemSchema>;
 
-export type { InventoryVariant, ProductAttribute, ProductVariant } from '@/features/products';
+export {
+  CouponCollectionRefSchema,
+  CouponCustomerExcludeEligibilitySchema,
+  CouponCustomerIncludeEligibilitySchema,
+  CouponDiscountTargetSchema,
+  CouponDiscountTypeSchema,
+  CouponDiscountValueTypeSchema,
+  CouponEligibleItemTypeSchema,
+  CouponListItemSchema,
+  CouponMethodSchema,
+  CouponSchema,
+  CouponStatusSchema,
+  CouponTargetCountryTypeSchema,
+};
 
+export type {
+  Coupon,
+  CouponCollectionRef,
+  CouponCustomerExcludeEligibility,
+  CouponCustomerIncludeEligibility,
+  CouponDiscountTarget,
+  CouponDiscountType,
+  CouponDiscountValueType,
+  CouponEligibleItemType,
+  CouponListItem,
+  CouponMethod,
+  CouponStatus,
+  CouponTargetCountryType,
+};

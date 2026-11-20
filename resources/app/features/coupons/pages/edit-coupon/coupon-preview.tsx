@@ -1,5 +1,4 @@
 import { Copy } from 'lucide-react';
-import { useCallback } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import SwitchField from '@/components/form/switch-field';
@@ -10,10 +9,17 @@ import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import {
-  hasDiscountAmount,
+  hasDiscount,
   isAmountOff,
   isPercentageDiscount,
 } from '@/features/coupons/lib/coupon-preview';
+import type {
+  CouponCustomerExcludeEligibility,
+  CouponCustomerIncludeEligibility,
+  CouponDiscountTarget,
+  CouponDiscountType,
+  CouponDiscountValueType,
+} from '@/features/coupons/schemas/catalog/coupon';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { useFormatCurrency } from '@/hooks/use-base-currency';
 import {
@@ -27,10 +33,74 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { copyToClipboard } from '@/utils';
+import { isDefined } from '@/utils/object';
 import { __, _n, sprintf } from '@/wpi18n';
 
 const formatDisplayDate = (date?: string | null, time?: string | null) =>
   formatDateValue(mergeDateAndTime(date ?? '', time ?? ''), DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
+
+const describeCustomerIncludeEligibility = (eligibility?: CouponCustomerIncludeEligibility) => {
+  switch (eligibility) {
+    case 'customers':
+      return __('Included all customers', 'kirki-ecommerce');
+    case 'specific-customers':
+      return __('Included specific customers', 'kirki-ecommerce');
+    case 'specific-groups':
+      return __('Included specific groups', 'kirki-ecommerce');
+    case 'guests':
+      return __('Included only guests', 'kirki-ecommerce');
+    case 'everyone':
+      return __('Included everyone', 'kirki-ecommerce');
+    default:
+      return '';
+  }
+};
+
+const describeCustomerExcludeEligibility = (eligibility?: CouponCustomerExcludeEligibility) => {
+  switch (eligibility) {
+    case 'customers':
+      return __('Excluded all customers', 'kirki-ecommerce');
+    case 'specific-customers':
+      return __('Excluded specific customers', 'kirki-ecommerce');
+    case 'specific-groups':
+      return __('Excluded specific groups', 'kirki-ecommerce');
+    case 'guests':
+      return __('Excluded only guests', 'kirki-ecommerce');
+    default:
+      return '';
+  }
+};
+
+const describeDiscountValue = ({
+  formatCurrency,
+  ...values
+}: {
+  discount_type?: CouponDiscountType;
+  discount_amount?: string | number | null;
+  discount_value_type?: CouponDiscountValueType | null;
+  discount_target?: CouponDiscountTarget | null;
+  formatCurrency: (amount: string | number) => string;
+}): string => {
+  if (!hasDiscount(values.discount_type, values.discount_amount)) {
+    return __('Discount value not set yet', 'kirki-ecommerce');
+  }
+
+  if (isPercentageDiscount(values.discount_value_type)) {
+    return values.discount_target === 'products'
+      ? sprintf(__('%s%% off selected products', 'kirki-ecommerce'), values.discount_amount ?? '0')
+      : sprintf(__('%s%% off entire order', 'kirki-ecommerce'), values.discount_amount ?? '0');
+  }
+
+  return values.discount_target === 'products'
+    ? sprintf(
+        __('%s off selected products', 'kirki-ecommerce'),
+        formatCurrency(values.discount_amount ?? 0),
+      )
+    : sprintf(
+        __('%s off entire order', 'kirki-ecommerce'),
+        formatCurrency(values.discount_amount ?? 0),
+      );
+};
 
 type PreviewSectionProps = {
   title: string;
@@ -58,7 +128,7 @@ const PreviewTitle = () => {
         <Text variant="heading4" weight="semibold" color={title ? 'emphasis' : 'disabled'}>
           {title || __('Untitled coupon', 'kirki-ecommerce')}
         </Text>
-        {hasDiscountAmount(values.discount_type, values.discount_amount) && (
+        {hasDiscount(values.discount_type, values.discount_amount) && (
           <Badge variant="destructive">
             {isPercentageDiscount(values.discount_value_type)
               ? sprintf('%s%% OFF', values.discount_amount ?? '')
@@ -93,7 +163,7 @@ const PreviewTitle = () => {
         <Text variant="small" weight="normal">
           {title || __('Untitled coupon', 'kirki-ecommerce')}
         </Text>
-        {hasDiscountAmount(values.discount_type, values.discount_amount) && (
+        {hasDiscount(values.discount_type, values.discount_amount) && (
           <Badge variant="destructive">
             {isPercentageDiscount(values.discount_value_type)
               ? sprintf('%s%% OFF', values.discount_amount ?? '')
@@ -154,67 +224,28 @@ const CouponPreview = () => {
 
   const activeFrom = formatDisplayDate(values?.start_date, values.start_time ?? START_OF_DAY_TIME);
   const detailsLines = [
-    hasDiscountAmount(values.discount_type, values.discount_amount)
-      ? isPercentageDiscount(values.discount_value_type)
-        ? values.discount_target === 'products'
-          ? sprintf(
-              __('%s%% off selected products', 'kirki-ecommerce'),
-              values.discount_amount ?? '',
-            )
-          : sprintf(__('%s%% off entire order', 'kirki-ecommerce'), values.discount_amount ?? '')
-        : values.discount_target === 'products'
-          ? sprintf(
-              __('%s off selected products', 'kirki-ecommerce'),
-              formatCurrency(values.discount_amount ?? 0),
-            )
-          : sprintf(
-              __('%s off entire order', 'kirki-ecommerce'),
-              formatCurrency(values.discount_amount ?? 0),
-            )
-      : __('Discount value not set yet', 'kirki-ecommerce'),
+    describeDiscountValue({
+      discount_type: values.discount_type,
+      discount_amount: values.discount_amount,
+      discount_target: values.discount_target,
+      discount_value_type: values.discount_value_type,
+      formatCurrency,
+    }),
     activeFrom
-      ? `${__('Active from', 'kirki-ecommerce')} ${activeFrom}`
+      ? sprintf(
+          /* translators: %s: discount start from */
+          __('Active from %s', 'kirki-ecommerce'),
+          activeFrom,
+        )
       : __('Start date not set yet', 'kirki-ecommerce'),
   ];
-
-  const includeCustomerEligibility = useCallback(() => {
-    switch (values.customer_include_eligibility) {
-      case 'customers':
-        return __('Included all customers', 'kirki-ecommerce');
-      case 'specific-customers':
-        return __('Included specific customers', 'kirki-ecommerce');
-      case 'specific-groups':
-        return __('Included specific groups', 'kirki-ecommerce');
-      case 'guests':
-        return __('Included only guests', 'kirki-ecommerce');
-      case 'everyone':
-        return __('Included everyone', 'kirki-ecommerce');
-      default:
-        return '';
-    }
-  }, [values.customer_include_eligibility]);
-
-  const excludeCustomerEligibility = useCallback(() => {
-    switch (values.customer_exclude_eligibility) {
-      case 'customers':
-        return __('Excluded all customers', 'kirki-ecommerce');
-      case 'specific-customers':
-        return __('Excluded specific customers', 'kirki-ecommerce');
-      case 'specific-groups':
-        return __('Excluded specific groups', 'kirki-ecommerce');
-      case 'guests':
-        return __('Excluded only guests', 'kirki-ecommerce');
-      default:
-        return '';
-    }
-  }, [values.customer_exclude_eligibility]);
 
   const targetingLines = [
     values.target_country_type === 'specific-countries'
       ? __('Specific countries', 'kirki-ecommerce')
       : __('All countries', 'kirki-ecommerce'),
-    includeCustomerEligibility(),
-    excludeCustomerEligibility(),
+    describeCustomerIncludeEligibility(values.customer_include_eligibility),
+    describeCustomerExcludeEligibility(values.customer_exclude_eligibility),
   ];
 
   const conditionsLines = [
@@ -253,7 +284,7 @@ const CouponPreview = () => {
               </Flex>
             </Flex>
 
-            {validUntil && (
+            {isDefined(validUntil) && (
               <Flex justify="space-between" align="center">
                 <Text variant="small" color="primary">
                   {__('Valid until', 'kirki-ecommerce')}
