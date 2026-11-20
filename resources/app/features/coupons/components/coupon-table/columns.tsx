@@ -11,7 +11,11 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { getCouponBadgeInfo } from '@/features/coupons/lib/coupon-badge';
-import type { CouponListItem } from '@/features/coupons/schemas/catalog/coupon';
+import type {
+  CouponDiscountType,
+  CouponListItem,
+  CouponMethod,
+} from '@/features/coupons/schemas/catalog/coupon';
 import {
   useCouponActionMutation,
   useDeleteCouponMutation,
@@ -34,7 +38,7 @@ const CouponTitleCell = ({ item }: { item: CouponListItem }) => {
           void navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: item.id }));
         }}
       >
-        <Text variant="tiny">{item.title || '--'}</Text>
+        <Text variant="tiny">{item.title}</Text>
       </button>
     </Flex>
   );
@@ -105,12 +109,43 @@ const CouponRowActionsCell = ({ item }: { item: CouponListItem }) => {
 
 CouponRowActionsCell.displayName = 'CouponRowActionsCell';
 
+const resolveDiscountTypeLabel = (type: CouponDiscountType) => {
+  switch (type) {
+    case 'amount-off':
+      return __('Amount off', 'kirki-ecommerce');
+    case 'free-shipping':
+      return __('Free shipping', 'kirki-ecommerce');
+    case 'buy-x-get-y':
+      return __('Buy X get Y', 'kirki-ecommerce');
+    default:
+      return type;
+  }
+};
+
+const resolveMethodLabel = (method: CouponMethod) => {
+  switch (method) {
+    case 'code':
+      return __('Code', 'kirki-ecommerce');
+    case 'automatic':
+      return __('Automatic', 'kirki-ecommerce');
+    default:
+      return method;
+  }
+};
+
 const couponColumns: ColumnDef<CouponListItem>[] = [
   {
     id: 'title',
     header: __('Title', 'kirki-ecommerce'),
     enableSorting: true,
     cell: ({ row }) => <CouponTitleCell item={row.original} />,
+  },
+  {
+    id: 'code',
+    header: __('Code', 'kirki-ecommerce'),
+    enableSorting: true,
+    cell: ({ row }) => (row.original.method === 'code' ? row.original.code || '--' : '--'),
+    meta: { cssOverride: { userSelect: 'text' } },
   },
   {
     id: 'status',
@@ -125,13 +160,13 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
     id: 'method',
     header: __('Method', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => row.original.method,
+    cell: ({ row }) => resolveMethodLabel(row.original.method),
   },
   {
     id: 'discount_type',
     header: __('Type', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => row.original.discount_type,
+    cell: ({ row }) => resolveDiscountTypeLabel(row.original.discount_type),
   },
   {
     id: 'current_usage_count',

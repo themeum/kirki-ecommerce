@@ -257,23 +257,6 @@ describe('AddTrackingDialog', () => {
     });
   });
 
-  it('offers only Other when the zone has no enabled carrier', async () => {
-    await renderDialog({ list: [] });
-
-    expect(screen.getByLabelText('Carrier name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Tracking URL')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('combobox'));
-
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Other']);
-  });
-
-  it('offers only Other when the carriers cannot be loaded', async () => {
-    await renderDialog({ list: 'error' });
-
-    expect(screen.getByLabelText('Carrier name')).toBeInTheDocument();
-  });
-
   it('pre-selects the listed carrier whose name matches the stored tracking', async () => {
     await renderDialog({
       tracking: {

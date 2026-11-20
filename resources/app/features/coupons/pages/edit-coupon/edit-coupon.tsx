@@ -274,7 +274,8 @@ const styles = defineStyles({
     color: theme.colors.text.critical,
   },
   sidebar: {
-    flexBasis: '30%',
+    flex: '0 0 30%',
+    minWidth: 0,
     position: 'sticky',
     top: '96px',
     alignSelf: 'flex-start',
