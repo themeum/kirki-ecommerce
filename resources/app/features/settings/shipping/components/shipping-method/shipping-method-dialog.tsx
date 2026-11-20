@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactNode, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { toast } from 'sonner';
 
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
@@ -19,6 +18,7 @@ import {
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
+import { toast } from '@/components/ui/toast/toast';
 import FlatRateSettings from '@/features/settings/shipping/components/shipping-method/flat-rate-settings';
 import LocalPickupSettings from '@/features/settings/shipping/components/shipping-method/local-pickup-settings';
 import RateByWeightSettings from '@/features/settings/shipping/components/shipping-method/rate-by-weight-settings';

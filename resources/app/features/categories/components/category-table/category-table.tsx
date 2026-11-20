@@ -91,7 +91,7 @@ const CategoryTable = ({ data, isLoading = false }: ListingTableProps<Category>)
                         'kirki-ecommerce',
                       ),
                     },
-                    () => deleteMutation.mutate(row.original.id),
+                    () => deleteMutation.mutate({ id: row.original.id, name: row.original.name }),
                   ),
               },
             ]}

@@ -6,7 +6,9 @@ import { toastMutationError } from '@/services/helpers';
 
 const { toastError } = vi.hoisted(() => ({ toastError: vi.fn() }));
 
-vi.mock('sonner', () => ({ toast: { error: toastError, success: vi.fn() } }));
+vi.mock('@/components/ui/toast/toast', () => ({
+  toast: { error: toastError, success: vi.fn() },
+}));
 
 const STOCK_MESSAGE = 'Not enough stock for variant: 12';
 

@@ -11,6 +11,8 @@ import type { ShippingProfileFormPayload } from '@/features/settings/shipping/sc
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -142,9 +144,13 @@ const useUpdateShippingProfileMutation = () => {
 const useDeleteShippingProfileMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteShippingProfile,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Shipping profile deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<string | number>) => deleteShippingProfile(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Shipping profile deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: shippingKeys.profiles.all });
     },
     onError(error) {
@@ -170,9 +176,17 @@ const useCreateShippingBoxMutation = () => {
 const useUpdateShippingBoxMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateShippingBox,
+    mutationFn: ({
+      id,
+      data,
+    }: Parameters<typeof updateShippingBox>[0] & { successMessage?: string }) =>
+      updateShippingBox({ id, data }),
     onSuccess(response, variables) {
-      toastMutationSuccess(response.message || __('Shipping box updated', 'kirki-ecommerce'));
+      toastMutationSuccess(
+        variables.successMessage ||
+          response.message ||
+          __('Shipping box updated', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: shippingKeys.boxes.lists() });
       void queryClient.invalidateQueries({
         queryKey: shippingKeys.boxes.detail(variables.id),
@@ -187,9 +201,13 @@ const useUpdateShippingBoxMutation = () => {
 const useDeleteShippingBoxMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteShippingBox,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Shipping box deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<string | number>) => deleteShippingBox(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Shipping box deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: shippingKeys.boxes.lists() });
     },
     onError(error) {

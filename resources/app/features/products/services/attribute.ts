@@ -11,6 +11,8 @@ import type { VariationValueFormPayload } from '@/features/products/schemas/form
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -177,9 +179,13 @@ const useBatchAttributeValuesMutation = () => {
 const useDeleteAttributeMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteAttribute,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Attribute deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<number>) => deleteAttribute(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Attribute deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
     },
     onError(error) {
@@ -223,9 +229,17 @@ const useUpdateAttributeValueMutation = () => {
 const useDeleteAttributeValueMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteAttributeValue,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Attribute value deleted', 'kirki-ecommerce'));
+    mutationFn: ({
+      attribute_id,
+      value_id,
+    }: Parameters<typeof deleteAttributeValue>[0] & { name?: string | null }) =>
+      deleteAttributeValue({ attribute_id, value_id }),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Attribute value deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: attributeKeys.details() });
       void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });

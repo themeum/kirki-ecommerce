@@ -66,6 +66,7 @@ const CouponRowActionsCell = ({ item }: { item: CouponListItem }) => {
               void couponActionMutation.mutateAsync({
                 id: item.id,
                 action: 'duplicate',
+                name: item.title || item.code,
               });
             },
           },
@@ -78,6 +79,7 @@ const CouponRowActionsCell = ({ item }: { item: CouponListItem }) => {
               void couponActionMutation.mutateAsync({
                 id: item.id,
                 action: item?.is_active ? 'deactivate' : 'activate',
+                name: item.title || item.code,
               });
             },
           },
@@ -96,7 +98,7 @@ const CouponRowActionsCell = ({ item }: { item: CouponListItem }) => {
                   ),
                 },
                 () => {
-                  void deleteMutation.mutateAsync(item.id);
+                  void deleteMutation.mutateAsync({ id: item.id, name: item.title || item.code });
                 },
               ),
           },

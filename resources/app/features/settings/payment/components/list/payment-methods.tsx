@@ -104,11 +104,19 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
     const isEnabled = Boolean(method.is_enabled);
 
     if (method.is_offline) {
-      setEnabledOfflinePayment({ id: method.id, data: { is_enabled: !isEnabled } });
+      setEnabledOfflinePayment({
+        id: method.id,
+        data: { is_enabled: !isEnabled },
+        name: method.name,
+      });
       return;
     }
 
-    setEnabledOnlinePayment({ id: method.id, data: { is_enabled: !isEnabled } });
+    setEnabledOnlinePayment({
+      id: method.id,
+      data: { is_enabled: !isEnabled },
+      name: method.name,
+    });
   };
 
   const handleDelete = (method: PaymentMethod) => {
@@ -122,7 +130,7 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
           ),
         },
         () => {
-          deleteOfflinePayment(method.id);
+          deleteOfflinePayment({ id: method.id, name: method.name });
         },
       );
       return;
@@ -138,7 +146,7 @@ const PaymentMethods = (props: PaymentMethodsProps) => {
         ),
       },
       () => {
-        uninstallOnlinePayment(method.id);
+        uninstallOnlinePayment({ id: method.id, name: method.name });
       },
     );
   };

@@ -15,6 +15,8 @@ import type { CouponFormPayload } from '@/features/coupons/schemas/forms/coupon-
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -115,12 +117,23 @@ const couponAction = ({
   });
 };
 
+const COUPON_ACTION_RESULTS = {
+  activate: 'activated',
+  deactivate: 'deactivated',
+  duplicate: 'duplicated',
+} as const;
+
 const useCouponActionMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: couponAction,
+    mutationFn: ({ id, action }: Parameters<typeof couponAction>[0] & { name?: string | null }) =>
+      couponAction({ id, action }),
     onSuccess(response, variables) {
-      toastMutationSuccess(response.message || __('Coupon updated', 'kirki-ecommerce'));
+      toastMutationSuccess(
+        getItemActionMessage(COUPON_ACTION_RESULTS[variables.action], variables.name) ||
+          response.message ||
+          __('Coupon updated', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: couponKeys.infiniteList() });
       void queryClient.invalidateQueries({
@@ -140,9 +153,13 @@ const deleteCoupon = (id: number) => {
 const useDeleteCouponMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteCoupon,
-    onSuccess(response, id) {
-      toastMutationSuccess(response.message || __('Coupon deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<number>) => deleteCoupon(id),
+    onSuccess(response, { id, name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Coupon deleted', 'kirki-ecommerce'),
+      );
 
       void queryClient.invalidateQueries({ queryKey: couponKeys.detail(id) });
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });

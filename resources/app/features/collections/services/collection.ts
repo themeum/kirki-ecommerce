@@ -7,6 +7,8 @@ import type { CollectionFormPayload } from '@/features/collections/schemas/forms
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -106,9 +108,13 @@ const useUpdateCollectionMutation = () => {
 const useDeleteCollectionMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteCollection,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Collection deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<number>) => deleteCollection(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Collection deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
     },
     onError(error) {

@@ -12,6 +12,8 @@ import { apiClient } from '@/libs/api';
 import { settingsKeys } from '@/libs/query-keys';
 import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -128,9 +130,13 @@ const useUpdateCurrencyMutation = () => {
 const useDeleteCurrencyMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteCurrency,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Currency removed', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<number>) => deleteCurrency(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('removed', name) ||
+          response.message ||
+          __('Currency removed', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },

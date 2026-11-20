@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
-import { toast } from 'sonner';
 
 import RegionsField from '@/components/form/regions-field';
 import TextField from '@/components/form/text-field';
@@ -10,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import { toast } from '@/components/ui/toast/toast';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
@@ -112,6 +112,7 @@ const ShippingZonePage = () => {
       await saveSettings({
         key: 'shipping',
         data: { shipping_zones: updatedZones },
+        successMessage: __('Shipping zone updated', 'kirki-ecommerce'),
       });
       setShippingZonesObj(updatedZones);
       form.reset(payload);

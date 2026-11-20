@@ -85,7 +85,7 @@ class OnlinePaymentController
 
         return response()->json([
             'data' => OnlinePaymentResource::make($data),
-            'message' => __('Payment gateway updated', 'kirki-ecommerce'),
+            'message' => __('Payment gateway updated to the latest version', 'kirki-ecommerce'),
         ]);
     }
 
@@ -170,11 +170,12 @@ class OnlinePaymentController
      */
     public function set_enabled(Request $request)
     {
-        $is_updated = $this->service->set_enabled($request->string('id'), $request->bool('is_enabled', false));
+        $is_enabled = $request->bool('is_enabled', false);
+        $is_updated = $this->service->set_enabled($request->string('id'), $is_enabled);
 
         return response()->json([
             'data' => $is_updated,
-            'message' => __('Payment method updated', 'kirki-ecommerce'),
+            'message' => $is_enabled ? __('Payment method activated', 'kirki-ecommerce') : __('Payment method deactivated', 'kirki-ecommerce'),
         ]);
     }
 }

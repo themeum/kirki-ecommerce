@@ -1,6 +1,6 @@
 import { format, formatDistanceToNow, isValid, parse } from 'date-fns';
-import { toast } from 'sonner';
 
+import { toast } from '@/components/ui/toast/toast';
 import type {
   DateFormatType,
   ProfitData,
@@ -58,7 +58,7 @@ export const dispatchToastMessage = (
   variant: ToastVariant = 'success',
   config: ToastMessageConfig = {},
 ): void => {
-  const { title, duration = 2000 } = config;
+  const { title, duration } = config;
   const message = title ?? '';
 
   const options = { duration };
@@ -78,7 +78,7 @@ export const dispatchToastMessage = (
     return;
   }
 
-  toast(message, options);
+  toast.info(message, options);
 };
 
 export const calculateProfit = (fieldName: string, data: ProfitData): string | undefined => {

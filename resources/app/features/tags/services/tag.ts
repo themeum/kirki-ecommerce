@@ -7,6 +7,8 @@ import type { TagFormPayload } from '@/features/tags/schemas/forms/tag-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -89,9 +91,13 @@ const useUpdateTagMutation = () => {
 const useDeleteTagMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteTag,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Tag deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<number>) => deleteTag(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Tag deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: tagKeys.lists() });
     },
     onError(error) {

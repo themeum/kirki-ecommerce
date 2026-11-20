@@ -3,7 +3,6 @@ import { ChevronLeft } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FormProvider, type Resolver, useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router';
-import { toast } from 'sonner';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Badge from '@/components/ui/badge';
@@ -13,6 +12,7 @@ import Flex from '@/components/ui/flex';
 import FullPageContainer from '@/components/ui/full-page-container';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
+import { toast } from '@/components/ui/toast/toast';
 import { useAppConfig } from '@/contexts/app-config-context';
 import type { FillCommitPayload } from '@/features/bulk-edit/contexts/cell-selection-context';
 import { useColumnVisibility } from '@/features/bulk-edit/hooks/use-column-visibility';

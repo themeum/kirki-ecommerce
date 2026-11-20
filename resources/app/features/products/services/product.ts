@@ -13,6 +13,8 @@ import type { ProductFormPayload } from '@/features/products/schemas/forms/produ
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -152,12 +154,28 @@ const useUpdateProductMutation = () => {
   });
 };
 
+type ProductBulkVariables = BulkActionParams<ProductListFilter> & { name?: string | null };
+
+const getSingleProductMessage = (
+  action: 'moved-to-trash' | 'restored',
+  { ids, name }: ProductBulkVariables,
+) => {
+  if (ids?.length !== 1) {
+    return undefined;
+  }
+  return getItemActionMessage(action, name);
+};
+
 const useDuplicateProductMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: duplicateProduct,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Product duplicated', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<string | number>) => duplicateProduct(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('duplicated', name) ||
+          response.message ||
+          __('Product duplicated', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
     },
@@ -170,10 +188,12 @@ const useDuplicateProductMutation = () => {
 const useDeleteProductMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteProduct,
-    onSuccess(response) {
+    mutationFn: ({ id }: NamedItemVariables<string | number>) => deleteProduct(id),
+    onSuccess(response, { name }) {
       toastMutationSuccess(
-        response.message || __('Product deleted permanently', 'kirki-ecommerce'),
+        getItemActionMessage('deleted-permanently', name) ||
+          response.message ||
+          __('Product deleted permanently', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
@@ -213,9 +233,13 @@ const useBulkDeleteProductsMutation = () => {
 const useBulkTrashProductsMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: bulkTrashProducts,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Products moved to trash', 'kirki-ecommerce'), {
+    mutationFn: (variables: ProductBulkVariables) => bulkTrashProducts(variables),
+    onSuccess(response, variables) {
+      const message =
+        getSingleProductMessage('moved-to-trash', variables) ||
+        response.message ||
+        __('Products moved to trash', 'kirki-ecommerce');
+      toastMutationSuccess(message, {
         description: __('Restore them any time from the Trashed filter.', 'kirki-ecommerce'),
       });
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
@@ -234,9 +258,13 @@ const useBulkTrashProductsMutation = () => {
 const useBulkRestoreProductsMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: bulkTrashProducts,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Products restored', 'kirki-ecommerce'));
+    mutationFn: (variables: ProductBulkVariables) => bulkTrashProducts(variables),
+    onSuccess(response, variables) {
+      toastMutationSuccess(
+        getSingleProductMessage('restored', variables) ||
+          response.message ||
+          __('Products restored', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
       void queryClient.invalidateQueries({

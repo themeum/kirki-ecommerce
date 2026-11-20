@@ -13,6 +13,8 @@ import type { CustomerListFilter } from '@/features/customers/types';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import {
+  getItemActionMessage,
+  type NamedItemVariables,
   parseData,
   parseMessage,
   parseResponse,
@@ -146,9 +148,13 @@ const useUpdateCustomerMutation = () => {
 const useDeleteCustomerMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteCustomer,
-    onSuccess(response) {
-      toastMutationSuccess(response.message || __('Customer deleted', 'kirki-ecommerce'));
+    mutationFn: ({ id }: NamedItemVariables<number>) => deleteCustomer(id),
+    onSuccess(response, { name }) {
+      toastMutationSuccess(
+        getItemActionMessage('deleted', name) ||
+          response.message ||
+          __('Customer deleted', 'kirki-ecommerce'),
+      );
       void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
     },
     onError(error) {

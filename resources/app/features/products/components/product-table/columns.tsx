@@ -70,7 +70,7 @@ const ProductActionsCell = ({ item }: { item: ProductListItem }) => {
   const previewUrl = item.preview_url;
 
   const handleDuplicate = async () => {
-    const response = await duplicateMutation.mutateAsync(item.id);
+    const response = await duplicateMutation.mutateAsync({ id: item.id, name: item.title });
 
     if (isDefined(response.data.id)) {
       void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: response.data.id }));
@@ -108,13 +108,14 @@ const ProductActionsCell = ({ item }: { item: ProductListItem }) => {
             ? {
                 label: __('Restore', 'kirki-ecommerce'),
                 icon: <RotateCcw size={16} />,
-                onClick: () => restoreMutation.mutate({ action: 'restore', ids: [item.id] }),
+                onClick: () =>
+                  restoreMutation.mutate({ action: 'restore', ids: [item.id], name: item.title }),
               }
             : {
                 label: __('Move to trash', 'kirki-ecommerce'),
                 icon: <Trash2 size={16} />,
                 destructive: true,
-                onClick: () => trashMutation.mutate({ ids: [item.id] }),
+                onClick: () => trashMutation.mutate({ ids: [item.id], name: item.title }),
               },
         ]}
       />

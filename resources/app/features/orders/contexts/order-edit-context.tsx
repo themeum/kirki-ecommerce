@@ -3,8 +3,8 @@ import { createContext, type ReactNode, useEffect, useMemo, useRef, useState } f
 import type { UseFormReturn } from 'react-hook-form';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
-import { toast } from 'sonner';
 
+import { toast } from '@/components/ui/toast/toast';
 import { RouteConfig } from '@/config/route-config';
 import { toOrderFormAddresses } from '@/features/orders/lib/order-address';
 import {

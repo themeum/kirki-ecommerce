@@ -254,9 +254,17 @@ class OrderController
 
         $this->service->partial_update_order($id, $data);
 
+        $message = __('Order updated', 'kirki-ecommerce');
+
+        if (array_keys($data) === ['order_notes']) {
+            $message = __('Order note updated', 'kirki-ecommerce');
+        } elseif (array_keys($data) === ['flags']) {
+            $message = __('Order flags updated', 'kirki-ecommerce');
+        }
+
         return response()->json([
             'data' => OrderResource::make($this->service->find_order($id)),
-            'message' => __('Order updated', 'kirki-ecommerce'),
+            'message' => $message,
         ]);
     }
 

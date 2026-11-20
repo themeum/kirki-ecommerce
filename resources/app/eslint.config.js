@@ -102,18 +102,33 @@ const CONTROLLER_FIELD_DIRS = [
   'features/**/components/fields/**/*.{ts,tsx}',
 ];
 
+const CONTROLLER_IMPORT_RESTRICTION = {
+  selector:
+    "ImportDeclaration[source.value='react-hook-form'] > ImportSpecifier[imported.name='Controller']",
+  message:
+    'Bind inputs through a field component, not a Controller. Generic fields live in components/form/; fields needing feature data live in features/<feature>/components/fields/.',
+};
+
+// Toasts go through @/components/ui/toast/toast, which owns the design, the
+// countdown and the pause rules; sonner's own toast() would skip all three.
+// It shares the `no-restricted-syntax` entry with the Controller restriction
+// for the same replace-not-merge reason described above, so each config below
+// lists every restriction that applies to its files.
+const SONNER_TOAST_IMPORT_RESTRICTION = {
+  selector:
+    "ImportDeclaration[source.value='sonner'] > ImportSpecifier[imported.name='toast']",
+  message:
+    "Show toasts through `toast` from '@/components/ui/toast/toast', not from sonner.",
+};
+
 const controllerOnlyInFieldsConfig = {
   name: 'kirki/controller-only-in-fields',
   files: ['**/*.{ts,tsx}'],
   rules: {
     'no-restricted-syntax': [
       'error',
-      {
-        selector:
-          "ImportDeclaration[source.value='react-hook-form'] > ImportSpecifier[imported.name='Controller']",
-        message:
-          'Bind inputs through a field component, not a Controller. Generic fields live in components/form/; fields needing feature data live in features/<feature>/components/fields/.',
-      },
+      CONTROLLER_IMPORT_RESTRICTION,
+      SONNER_TOAST_IMPORT_RESTRICTION,
     ],
   },
 };
@@ -122,7 +137,15 @@ const controllerFieldAllowlistConfig = {
   name: 'kirki/controller-field-allowlist',
   files: CONTROLLER_FIELD_DIRS,
   rules: {
-    'no-restricted-syntax': 'off',
+    'no-restricted-syntax': ['error', SONNER_TOAST_IMPORT_RESTRICTION],
+  },
+};
+
+const sonnerToastAllowlistConfig = {
+  name: 'kirki/sonner-toast-allowlist',
+  files: ['components/ui/toast/**/*.{ts,tsx}'],
+  rules: {
+    'no-restricted-syntax': ['error', CONTROLLER_IMPORT_RESTRICTION],
   },
 };
 
@@ -350,6 +373,7 @@ export default tseslint.config(
   sharedNoFeatureImportConfig,
   controllerOnlyInFieldsConfig,
   controllerFieldAllowlistConfig,
+  sonnerToastAllowlistConfig,
 
   {
     // `lazy(() => import(...))` needs a concrete file target for its own
