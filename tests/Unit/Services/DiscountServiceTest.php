@@ -33,7 +33,15 @@ class DiscountServiceTest extends TestCase
     {
         parent::setUp();
         $this->order_service = $this->createMock(OrderService::class);
-        $this->service = new DiscountService($this->order_service);
+        $this->service = new class ($this->order_service) extends DiscountService {
+            /** @var Coupon[] Coupon records that the service finds by code, instead of a database lookup. */
+            public array $known_coupons = [];
+
+            protected function find_applied_coupons(array $codes)
+            {
+                return collection($this->known_coupons)->filter(fn($coupon) => in_array($coupon->code, $codes, true));
+            }
+        };
     }
 
     public function test_calculate_applies_free_shipping_discount_when_shipping_subtotal_is_positive(): void
@@ -122,6 +130,95 @@ class DiscountServiceTest extends TestCase
         $this->assertEquals('SHIP1', $result->coupon_results[0]->coupon->code);
         $this->assertCount(1, $result->invalid_coupons);
         $this->assertEquals('SHIP2', $result->invalid_coupons[0]->code);
+    }
+
+    public function test_calculate_applies_two_combinable_coupons_together(): void
+    {
+        $context = $this->make_amount_off_context(10000);
+        $first = $this->make_amount_off_coupon('FIRST', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $second = $this->make_amount_off_coupon('SECOND', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $first->is_combinable = true;
+        $second->is_combinable = true;
+        $this->service->known_coupons = [$first, $second];
+
+        $result = $this->service->calculate($context, [$first, $second]);
+
+        $this->assertCount(2, $result->coupon_results);
+        $this->assertSame([], $result->invalid_coupons);
+    }
+
+    public function test_calculate_rejects_a_non_combinable_coupon_that_comes_after_another_coupon(): void
+    {
+        $context = $this->make_amount_off_context(10000);
+        $first = $this->make_amount_off_coupon('FIRST', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $second = $this->make_amount_off_coupon('SECOND', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $second->is_combinable = false;
+        $this->service->known_coupons = [$first, $second];
+
+        $result = $this->service->calculate($context, [$first, $second]);
+
+        $this->assertSame([$second], $result->invalid_coupons);
+        $this->assertCount(1, $result->coupon_results);
+        $this->assertSame('FIRST', $result->coupon_results[0]->coupon->code);
+    }
+
+    public function test_calculate_rejects_a_coupon_that_comes_after_a_non_combinable_coupon(): void
+    {
+        $context = $this->make_amount_off_context(10000);
+        $first = $this->make_amount_off_coupon('FIRST', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $second = $this->make_amount_off_coupon('SECOND', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $first->is_combinable = false;
+        $this->service->known_coupons = [$first, $second];
+
+        $result = $this->service->calculate($context, [$first, $second]);
+
+        $this->assertSame([$second], $result->invalid_coupons);
+        $this->assertSame('FIRST', $result->coupon_results[0]->coupon->code);
+    }
+
+    public function test_calculate_applies_a_single_non_combinable_coupon(): void
+    {
+        $context = $this->make_amount_off_context(10000);
+        $only = $this->make_amount_off_coupon('ONLY', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $only->is_combinable = false;
+        $this->service->known_coupons = [$only];
+
+        $result = $this->service->calculate($context, [$only]);
+
+        $this->assertSame([], $result->invalid_coupons);
+        $this->assertCount(1, $result->coupon_results);
+    }
+
+    public function test_validate_coupon_rejects_a_coupon_when_a_non_combinable_coupon_is_already_applied(): void
+    {
+        $context = $this->make_amount_off_context(10000);
+        $applied = $this->make_amount_off_coupon('APPLIED', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $applied->is_combinable = false;
+        $new = $this->make_amount_off_coupon('NEW', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $this->service->known_coupons = [$applied];
+        $context->coupon_codes = ['APPLIED'];
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('cannot be combined');
+
+        $this->service->validate_coupon($new, $context);
+    }
+
+    public function test_a_stored_non_combinable_coupon_stays_and_a_new_coupon_is_rejected(): void
+    {
+        $context = $this->make_stored_context([
+            $this->make_stored_coupon('STORED', DiscountTarget::ORDER, ['discount_rate' => 10], [10 => 100]),
+        ], [$this->make_line(1, 1000, 1, 10)]);
+        $stored_record = $this->make_amount_off_coupon('STORED', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+        $stored_record->is_combinable = false;
+        $this->service->known_coupons = [$stored_record];
+        $new = $this->make_amount_off_coupon('NEW', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 10);
+
+        $result = $this->service->calculate($context, [$new]);
+
+        $this->assertSame([$new], $result->invalid_coupons);
+        $this->assertCount(1, $result->coupon_results);
+        $this->assertSame([1 => 100], $result->item_discounts);
     }
 
     public function test_first_time_buyer_rejects_guest_without_email(): void

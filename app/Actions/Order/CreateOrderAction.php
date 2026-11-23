@@ -164,15 +164,17 @@ class CreateOrderAction
 
         $this->resolve_billing_and_shipping_addresses($dto);
 
+        $cart_id = null;
+
         if (!$dto->is_manual) {
             if (!empty($dto->cart_token) || !empty($dto->user_id)) {
-                $this->resolve_checkout_cart($dto);
+                $cart_id = $this->resolve_checkout_cart($dto);
             }
 
             $can_apply_coupon_code = Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.can_apply_coupon_code', true);
 
             if (!$can_apply_coupon_code) {
-                $dto->coupon_codes = [];
+                $dto->coupon_codes = $this->coupon_service->filter_automatic_coupon_codes($dto->coupon_codes);
             }
         }
 
@@ -186,6 +188,7 @@ class CreateOrderAction
         }
 
         $context = $this->context_service->build($dto->to_calculation_input(), null);
+        $context->cart_id = $cart_id;
 
         throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
@@ -361,10 +364,10 @@ class CreateOrderAction
      * @since 1.0.0
      *
      * @param CreateOrderPayloadDTO $dto Order payload, modified in place.
-     * @return void
+     * @return int The ID of the cart that was loaded.
      * @throws ValidationException When the cart is missing or empty.
      */
-    protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
+    protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): int
     {
         $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
 
@@ -388,6 +391,8 @@ class CreateOrderAction
         if (empty($dto->shipping_method) && !empty($cart->shipping_method)) {
             $dto->shipping_method = $cart->shipping_method;
         }
+
+        return (int) $cart->id;
     }
 
     /**

@@ -264,32 +264,55 @@ class DiscountService
     }
 
     /**
-     * Reject a coupon that's already applied, and serve as the seam for a
-     * future coupon-combinability rule.
+     * Reject a coupon that is already applied or cannot be combined with the applied coupons.
      *
-     * Every other combination is allowed today, except a second free shipping
-     * coupon - a future rule (reading `coupons.combinations`) plugs in here
-     * without touching calculation math.
+     * A coupon with `is_combinable` set to false cannot be applied next to another coupon, and no
+     * coupon can be applied next to one that is not combinable. The coupon that is already applied
+     * stays; the new coupon is rejected. A second free shipping coupon is also rejected.
      *
      * @since 1.0.0
      *
      * @param Coupon   $coupon                       Coupon to check.
      * @param string[] $already_applied_coupon_codes Codes of coupons already applied.
      * @return void
-     * @throws ValidationException When the coupon is a duplicate, or a free shipping coupon is already applied.
+     * @throws ValidationException When the coupon is a duplicate, cannot be combined, or a free shipping coupon is already applied.
      */
     protected function validate_against_other_applied_coupons(Coupon $coupon, array $already_applied_coupon_codes)
     {
         throw_if(in_array($coupon->code, $already_applied_coupon_codes, true), __('This coupon is already applied.', 'kirki-ecommerce'), ValidationException::class);
 
-        if ($coupon->discount_type === DiscountType::FREE_SHIPPING && !empty($already_applied_coupon_codes)) {
-            $has_existing_free_shipping = Coupon::query()
-                ->where_in('code', $already_applied_coupon_codes)
-                ->where('discount_type', DiscountType::FREE_SHIPPING)
-                ->exists();
+        if (empty($already_applied_coupon_codes)) {
+            return;
+        }
+
+        $combination_error = __('This coupon cannot be combined with the coupons already applied.', 'kirki-ecommerce');
+
+        throw_if($coupon->is_combinable === false, $combination_error, ValidationException::class);
+
+        $applied_coupons = $this->find_applied_coupons($already_applied_coupon_codes);
+
+        throw_if($applied_coupons->contains(fn($applied_coupon) => $applied_coupon->is_combinable === false), $combination_error, ValidationException::class);
+
+        if ($coupon->discount_type === DiscountType::FREE_SHIPPING) {
+            $has_existing_free_shipping = $applied_coupons->contains(fn($applied_coupon) => $applied_coupon->discount_type === DiscountType::FREE_SHIPPING);
 
             throw_if($has_existing_free_shipping, __('A free shipping coupon is already applied.', 'kirki-ecommerce'), ValidationException::class);
         }
+    }
+
+    /**
+     * Load the coupons that are already applied, by code.
+     *
+     * A code with no coupon record, such as a coupon that was deleted after it was stored on an order, is skipped.
+     *
+     * @since 1.0.3
+     *
+     * @param string[] $codes Codes of coupons already applied.
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of Coupon models.
+     */
+    protected function find_applied_coupons(array $codes)
+    {
+        return Coupon::query()->where_in('code', $codes)->get();
     }
 
     /**

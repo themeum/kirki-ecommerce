@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\App\Concerns\ResolvesLineItemPricing;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Supports\Tax;
@@ -222,6 +223,7 @@ class CartResource extends Resource
 
             return [
                 'code' => $coupon->code,
+                'method' => $coupon->method ?? CouponMethod::CODE,
                 'title' => $coupon->title,
                 'discount_type' => $coupon->discount_type,
                 'discount_target' => $coupon->discount_target,

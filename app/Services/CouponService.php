@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Constants\DateTimeFormats;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Coupon\CouponFilterDTO;
@@ -160,10 +161,57 @@ class CouponService
     }
 
     /**
+     * Get the active automatic coupons that a cart can still receive.
+     *
+     * Only the stored flags are checked here: the coupon dates and conditions are
+     * validated against the cart by the caller. A coupon without a code is skipped,
+     * because carts and orders identify their coupons by code.
+     *
+     * @since 1.0.3
+     *
+     * @param string[] $applied_codes Codes of coupons already applied, left out of the result.
+     * @return Collection Collection of Coupon models.
+     */
+    public function get_attachable_automatic_coupons(array $applied_codes = [])
+    {
+        $query = Coupon::with(['categories', 'products.categories', 'customers'])
+            ->where('method', CouponMethod::AUTOMATIC)
+            ->where('is_active', true)
+            ->where('code', '!=', '');
+
+        if (!empty($applied_codes)) {
+            $query->where_not_in('code', $applied_codes);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Get the codes, out of the given codes, that belong to automatic coupons.
+     *
+     * @since 1.0.3
+     *
+     * @param string[] $codes Coupon codes to check.
+     * @return string[] The codes of automatic coupons.
+     */
+    public function filter_automatic_coupon_codes(array $codes)
+    {
+        if (empty($codes)) {
+            return [];
+        }
+
+        return Coupon::where('method', CouponMethod::AUTOMATIC)
+            ->where_in('code', $codes)
+            ->pluck('code')
+            ->to_array();
+    }
+
+    /**
      * Create a new coupon (used internally by CreateCouponAction).
      *
      * Stores the discount amount as a fixed base amount or a percentage,
-     * depending on the discount value type.
+     * depending on the discount value type. An automatic coupon saved without
+     * a code gets a generated code.
      *
      * @since 1.0.0
      *
@@ -175,6 +223,10 @@ class CouponService
         $attributes = $data->to_array();
         $attributes['created_by'] = user()->get_id();
         $attributes['updated_by'] = user()->get_id();
+
+        if ($attributes['method'] === CouponMethod::AUTOMATIC && empty($attributes['code'])) {
+            $attributes['code'] = $this->generate_new_code();
+        }
 
         if ($attributes['discount_value_type'] === DiscountValueType::FIXED) {
             $attributes['base_discount_amount_fixed'] = $attributes['discount_amount'];
@@ -189,7 +241,8 @@ class CouponService
      * Update a coupon (used internally by UpdateCouponAction).
      *
      * Related product, category and customer IDs in the payload are not
-     * persisted here.
+     * persisted here. A payload without a code keeps the stored code; an automatic
+     * coupon that has no code yet gets a generated code.
      *
      * @since 1.0.0
      *
@@ -205,6 +258,14 @@ class CouponService
 
         $attributes = $data->except(['id', 'discount_amount', 'category_ids', 'product_ids', 'customer_ids', 'exclude_customer_ids', 'reward_product_ids']);
         $attributes['updated_by'] = user()->get_id();
+
+        if (empty($attributes['code'])) {
+            if (!empty($coupon->code)) {
+                unset($attributes['code']);
+            } elseif ($data->method === CouponMethod::AUTOMATIC) {
+                $attributes['code'] = $this->generate_new_code();
+            }
+        }
 
         if ($data->discount_value_type === DiscountValueType::FIXED) {
             $attributes['base_discount_amount_fixed'] = $data->discount_amount;
