@@ -11,14 +11,14 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 /**
  * Adds the coupons.is_combinable column, which tells if a coupon can be applied together with other coupons.
  *
- * @since 1.0.1
+ * @since 1.0.3
  */
 class AddIsCombinableToCouponsTable implements Migration
 {
     /**
      * Add the is_combinable column. Existing coupons get true, so they keep stacking.
      *
-     * @since 1.0.1
+     * @since 1.0.3
      *
      * @return void
      */
@@ -36,7 +36,7 @@ class AddIsCombinableToCouponsTable implements Migration
     /**
      * Drop the is_combinable column.
      *
-     * @since 1.0.1
+     * @since 1.0.3
      *
      * @return void
      */

@@ -709,7 +709,7 @@ class CartApiTest extends RestTestCase
      * A coupon that is not combinable is rejected when the cart already has a coupon.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_applying_a_non_combinable_coupon_to_a_cart_with_a_coupon_is_rejected(): void
     {
@@ -735,7 +735,7 @@ class CartApiTest extends RestTestCase
      * Any coupon is rejected when the cart already has a coupon that is not combinable.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_applying_a_coupon_to_a_cart_with_a_non_combinable_coupon_is_rejected(): void
     {
@@ -760,7 +760,7 @@ class CartApiTest extends RestTestCase
      * A single non-combinable coupon is applied when the cart has no other coupon.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_a_non_combinable_coupon_is_applied_to_a_cart_without_coupons(): void
     {

@@ -181,7 +181,7 @@ class CouponApiTest extends RestTestCase
      * A coupon cannot be created without is_combinable.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_create_coupon_without_is_combinable_is_rejected(): void
     {
@@ -197,7 +197,7 @@ class CouponApiTest extends RestTestCase
      * Create and update persist is_combinable, and both the show and list responses return it.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_coupon_is_combinable_is_saved_and_returned(): void
     {
@@ -226,7 +226,7 @@ class CouponApiTest extends RestTestCase
      * A coupon cannot be updated without is_combinable.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_update_coupon_without_is_combinable_is_rejected(): void
     {
@@ -246,7 +246,7 @@ class CouponApiTest extends RestTestCase
      * An automatic coupon created without a code gets a generated code.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_create_automatic_coupon_without_code_generates_a_code(): void
     {
@@ -263,7 +263,7 @@ class CouponApiTest extends RestTestCase
      * An automatic coupon created with a code keeps that code.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_create_automatic_coupon_with_code_keeps_the_code(): void
     {
@@ -278,7 +278,7 @@ class CouponApiTest extends RestTestCase
      * A code coupon still needs a code.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_create_code_coupon_without_code_is_rejected(): void
     {
@@ -291,7 +291,7 @@ class CouponApiTest extends RestTestCase
      * An update that sends no code keeps the code of an automatic coupon.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_update_automatic_coupon_without_code_keeps_the_stored_code(): void
     {
@@ -313,7 +313,7 @@ class CouponApiTest extends RestTestCase
      * A coupon that changes to the automatic method without a code gets a generated code.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_update_coupon_to_automatic_without_a_stored_code_generates_a_code(): void
     {

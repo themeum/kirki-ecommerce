@@ -10,7 +10,6 @@ use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;
 use Kirki\Ecommerce\App\Concerns\PreparesOrderItems;
 use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Constants\AddressType;
-use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
@@ -175,7 +174,7 @@ class CreateOrderAction
             $can_apply_coupon_code = Settings::get(OptionKeys::CHECKOUT_SETTINGS . '.checkout_configuration.can_apply_coupon_code', true);
 
             if (!$can_apply_coupon_code) {
-                $dto->coupon_codes = $this->filter_automatic_coupon_codes($dto->coupon_codes);
+                $dto->coupon_codes = $this->coupon_service->filter_automatic_coupon_codes($dto->coupon_codes);
             }
         }
 
@@ -242,24 +241,6 @@ class CreateOrderAction
         OrderPlacedEvent::dispatch($order);
 
         return $order;
-    }
-
-    /**
-     * Keep only the codes of automatic coupons.
-     *
-     * A store that does not accept coupon codes still gives its automatic coupons.
-     *
-     * @since 1.0.1
-     *
-     * @param string[] $codes Coupon codes of the checkout.
-     * @return string[] The codes that belong to automatic coupons.
-     */
-    protected function filter_automatic_coupon_codes(array $codes)
-    {
-        return array_values($this->coupon_service->find_by_codes($codes)
-            ->filter(fn($coupon) => $coupon->method === CouponMethod::AUTOMATIC)
-            ->pluck('code')
-            ->to_array());
     }
 
     /**

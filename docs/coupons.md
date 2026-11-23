@@ -66,7 +66,7 @@ coupon saved through the API always has a code.
 
 ## 3. Automatic coupons
 
-Available from version 1.0.1.
+Available from version 1.0.3.
 
 ### 3.1 Storefront cart
 

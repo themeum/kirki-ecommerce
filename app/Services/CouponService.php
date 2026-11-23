@@ -167,19 +167,43 @@ class CouponService
      * validated against the cart by the caller. A coupon without a code is skipped,
      * because carts and orders identify their coupons by code.
      *
-     * @since 1.0.1
+     * @since 1.0.3
      *
      * @param string[] $applied_codes Codes of coupons already applied, left out of the result.
      * @return Collection Collection of Coupon models.
      */
     public function get_attachable_automatic_coupons(array $applied_codes = [])
     {
-        return Coupon::with(['categories', 'products.categories', 'customers'])
+        $query = Coupon::with(['categories', 'products.categories', 'customers'])
             ->where('method', CouponMethod::AUTOMATIC)
             ->where('is_active', true)
-            ->get()
-            ->filter(fn($coupon) => !empty($coupon->code) && !in_array($coupon->code, $applied_codes, true))
-            ->values();
+            ->where('code', '!=', '');
+
+        if (!empty($applied_codes)) {
+            $query->where_not_in('code', $applied_codes);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Get the codes, out of the given codes, that belong to automatic coupons.
+     *
+     * @since 1.0.3
+     *
+     * @param string[] $codes Coupon codes to check.
+     * @return string[] The codes of automatic coupons.
+     */
+    public function filter_automatic_coupon_codes(array $codes)
+    {
+        if (empty($codes)) {
+            return [];
+        }
+
+        return Coupon::where('method', CouponMethod::AUTOMATIC)
+            ->where_in('code', $codes)
+            ->pluck('code')
+            ->to_array();
     }
 
     /**

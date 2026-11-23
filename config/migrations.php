@@ -95,5 +95,7 @@ return [
 
     // Since v1.0.1
     DropProductSchemasTable::class,
+
+    // Since v1.0.3
     AddIsCombinableToCouponsTable::class,
 ];

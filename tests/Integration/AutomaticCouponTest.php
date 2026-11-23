@@ -39,7 +39,7 @@ class AutomaticCouponTest extends RestTestCase
      * Prepare a product, a shipping method and an enabled offline payment method.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     protected function setUp(): void
     {
@@ -74,7 +74,7 @@ class AutomaticCouponTest extends RestTestCase
      * A valid automatic coupon is on the cart and in its totals.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_a_valid_automatic_coupon_is_attached_to_the_cart(): void
     {
@@ -91,7 +91,7 @@ class AutomaticCouponTest extends RestTestCase
      * An automatic coupon that fails validation is left off the cart, without an error.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_an_automatic_coupon_that_is_not_valid_is_not_attached(): void
     {
@@ -110,7 +110,7 @@ class AutomaticCouponTest extends RestTestCase
      * An inactive automatic coupon, and a coupon that needs its code typed, are not attached.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_inactive_automatic_coupons_and_code_coupons_are_not_attached(): void
     {
@@ -125,10 +125,26 @@ class AutomaticCouponTest extends RestTestCase
     }
 
     /**
+     * An automatic coupon without a code is not attached, because carts identify coupons by code.
+     *
+     * @return void
+     * @since 1.0.3
+     */
+    public function test_an_automatic_coupon_without_a_code_is_not_attached(): void
+    {
+        $this->create_automatic_coupon(['code' => null]);
+        $this->create_automatic_coupon(['code' => '']);
+
+        $this->add_item_to_cart();
+
+        $this->assertSame(0, CartCoupon::query()->count());
+    }
+
+    /**
      * Calculating the cart again does not attach the same coupon twice.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_an_automatic_coupon_is_attached_once(): void
     {
@@ -145,7 +161,7 @@ class AutomaticCouponTest extends RestTestCase
      * An attached automatic coupon is detached when it stops being valid, and attached again when it is valid again.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_an_automatic_coupon_is_detached_when_invalid_and_attached_again_when_valid(): void
     {
@@ -168,7 +184,7 @@ class AutomaticCouponTest extends RestTestCase
      * A non-combinable automatic coupon is not attached next to a coupon that is already applied.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_a_non_combinable_automatic_coupon_is_not_attached_next_to_an_applied_coupon(): void
     {
@@ -187,7 +203,7 @@ class AutomaticCouponTest extends RestTestCase
      * A shopper cannot remove an automatic coupon from the cart.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_a_shopper_cannot_remove_an_automatic_coupon(): void
     {
@@ -206,7 +222,7 @@ class AutomaticCouponTest extends RestTestCase
      * A store that does not accept coupon codes still gives its automatic coupons.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_automatic_coupons_stay_when_coupon_codes_are_disabled(): void
     {
@@ -230,7 +246,7 @@ class AutomaticCouponTest extends RestTestCase
      * A cart calculation looks for automatic coupons with one query.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_a_cart_calculation_makes_one_automatic_coupon_lookup(): void
     {
@@ -263,7 +279,7 @@ class AutomaticCouponTest extends RestTestCase
      * The checkout saves the automatic coupon on the order, and the order counts its use.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_checkout_saves_the_automatic_coupon_on_the_order(): void
     {
@@ -280,7 +296,7 @@ class AutomaticCouponTest extends RestTestCase
      * The checkout attaches an automatic coupon that the cart never saw.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_checkout_attaches_an_automatic_coupon_that_the_cart_never_saw(): void
     {
@@ -298,7 +314,7 @@ class AutomaticCouponTest extends RestTestCase
      * The checkout leaves out an automatic coupon that stopped being valid, and does not fail.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_checkout_leaves_out_an_automatic_coupon_that_is_no_longer_valid(): void
     {
@@ -318,7 +334,7 @@ class AutomaticCouponTest extends RestTestCase
      * The checkout of a store that does not accept coupon codes still takes the automatic coupon.
      *
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     public function test_checkout_keeps_the_automatic_coupon_when_coupon_codes_are_disabled(): void
     {
@@ -340,7 +356,7 @@ class AutomaticCouponTest extends RestTestCase
      * Put the test product in the signed-in shopper's cart.
      *
      * @return array<string, mixed> The cart as the API returns it.
-     * @since 1.0.1
+     * @since 1.0.3
      */
     protected function add_item_to_cart(): array
     {
@@ -355,7 +371,7 @@ class AutomaticCouponTest extends RestTestCase
      * @param array<string, mixed> $cart Cart data.
      * @param string               $code Coupon code.
      * @return array<string, mixed>|null
-     * @since 1.0.1
+     * @since 1.0.3
      */
     protected function find_coupon_in_response(array $cart, string $code): ?array
     {
@@ -373,7 +389,7 @@ class AutomaticCouponTest extends RestTestCase
      *
      * @param array<string, mixed> $overrides Coupon fields to override.
      * @return Coupon
-     * @since 1.0.1
+     * @since 1.0.3
      */
     protected function create_automatic_coupon(array $overrides = []): Coupon
     {
@@ -385,7 +401,7 @@ class AutomaticCouponTest extends RestTestCase
      *
      * @param array<string, mixed> $overrides Coupon fields to override.
      * @return array<string, mixed>
-     * @since 1.0.1
+     * @since 1.0.3
      */
     protected function coupon_attributes(array $overrides = []): array
     {
@@ -407,7 +423,7 @@ class AutomaticCouponTest extends RestTestCase
      *
      * @param bool $is_enabled Whether coupon codes are accepted.
      * @return array<string, mixed> The checkout settings before the change.
-     * @since 1.0.1
+     * @since 1.0.3
      */
     protected function set_coupon_codes_enabled(bool $is_enabled): array
     {
@@ -426,7 +442,7 @@ class AutomaticCouponTest extends RestTestCase
      *
      * @param array<string, mixed> $snapshot The checkout settings before the change.
      * @return void
-     * @since 1.0.1
+     * @since 1.0.3
      */
     protected function restore_checkout_settings(array $snapshot): void
     {
@@ -446,7 +462,7 @@ class AutomaticCouponTest extends RestTestCase
      *
      * @param array<string, mixed> $overrides Fields to override.
      * @return array<string, mixed>
-     * @since 1.0.1
+     * @since 1.0.3
      */
     protected function order_payload(array $overrides = []): array
     {

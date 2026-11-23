@@ -305,7 +305,7 @@ class DiscountService
      *
      * A code with no coupon record, such as a coupon that was deleted after it was stored on an order, is skipped.
      *
-     * @since 1.0.1
+     * @since 1.0.3
      *
      * @param string[] $codes Codes of coupons already applied.
      * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of Coupon models.

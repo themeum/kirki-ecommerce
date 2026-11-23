@@ -147,7 +147,7 @@ class RecalculateCartAction
      * the coupons that are already applied. A coupon that fails validation is skipped
      * without an error. The context's coupon codes include the attached coupons afterwards.
      *
-     * @since 1.0.1
+     * @since 1.0.3
      *
      * @param CalculationContextDTO $context Calculation context with a cart.
      * @return void
