@@ -73,7 +73,7 @@ class UpdateCouponDTO extends DTO
     /** @var bool */
     public $first_time_buyer_only = false;
 
-    /** @var bool|null Null keeps the stored value, so a client that does not know the field cannot reset it. */
+    /** @var bool */
     public $is_combinable;
 
     /** @var string */

@@ -86,9 +86,11 @@ The store checks the coupons again on every cart calculation:
 
 ### 3.2 Checkout
 
-The order takes the coupons that are on the cart. The store validates them
-again when it creates the order. A coupon that is invalid at that time is left
-out of the order. The shopper sees no error.
+The order takes the coupons that are on the cart. When the store creates the
+order, it also attaches the automatic coupons that are valid for the cart, even
+if the shopper did not load the cart after the coupon became valid. The store
+validates all coupons again at that time. A coupon that is invalid at that time
+is left out of the order. The shopper sees no error.
 
 ### 3.3 Removing a coupon
 
@@ -129,23 +131,21 @@ its code out of `coupon_codes` in the update request.
 
 ### 4.1 The column
 
-`coupons.is_combinable` is a boolean. The default is `true`. The migration sets
-`true` on all existing coupons, so they keep stacking as before.
+`coupons.is_combinable` is a boolean. The column cannot be null and its database
+default is `true`. The migration sets `true` on all existing coupons, so they
+keep stacking as before.
 
 The column is allowed on `code` coupons and on `automatic` coupons.
 
 ### 4.2 REST API
 
-Set the field `is_combinable` in these requests:
+The field `is_combinable` is required in these requests. A request without it
+fails validation with HTTP 422.
 
 - `POST` coupons (create)
 - `PUT` coupons (update)
 
 The list response and the show response return the field.
-
-A `PUT` request without the field keeps the stored value.
-
-The admin form has no control for this field yet. A later change will add it.
 
 ### 4.3 The rule
 
@@ -212,5 +212,5 @@ coupon from a typed one.
   between automatic coupons. The store attaches all valid coupons, in database
   order, as far as combinability allows.
 - **No opt-out.** A shopper cannot opt out of an automatic coupon.
-- **No admin control yet.** The admin UI has no control for `is_combinable`.
-  Use the REST API.
+- **Required field.** Coupon create and update requests must send
+  `is_combinable`. A client that does not send it gets HTTP 422.

@@ -156,7 +156,7 @@ class RecalculateCartAction
     {
         $applied_codes = $context->coupon_codes;
 
-        foreach ($this->coupon_service->get_automatic_coupons($applied_codes) as $coupon) {
+        foreach ($this->coupon_service->get_attachable_automatic_coupons($applied_codes) as $coupon) {
             try {
                 $this->discount_service->validate_coupon($coupon, $context, $applied_codes);
             } catch (ValidationException $e) {

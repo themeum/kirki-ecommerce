@@ -1737,6 +1737,7 @@ class CartApiTest extends RestTestCase
             'customer_include_eligibility' => CustomerIncludeEligibility::EVERYONE,
             'customer_exclude_eligibility' => CustomerExcludeEligibility::NONE,
             'is_active' => true,
+            'is_combinable' => true,
         ], $overrides));
 
         $payload = $this->assert_api_success($response, 201);

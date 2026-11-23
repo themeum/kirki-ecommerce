@@ -6,16 +6,16 @@ Lets a merchant mark a coupon, of any method, as not combinable with other coupo
 
 ## Requirements
 
-### Requirement: A coupon has an is_combinable setting that defaults to true
-The system SHALL store an `is_combinable` setting for every coupon, for both `code` and `automatic` coupons. The setting SHALL be `true` for every existing coupon and for every new coupon that does not set it.
+### Requirement: A coupon has a required is_combinable setting that defaults to true in the database
+The system SHALL store an `is_combinable` setting for every coupon, for both `code` and `automatic` coupons. The column SHALL NOT be null and SHALL default to `true`. The setting SHALL be `true` for every existing coupon. A coupon create or update request SHALL include `is_combinable`.
 
 #### Scenario: Existing coupons keep stacking
 - **WHEN** a store upgrades to the version that adds the setting
 - **THEN** every existing coupon has `is_combinable` set to `true` and the cart behaves as before the upgrade
 
-#### Scenario: New coupon without the setting
-- **WHEN** a coupon is created without an `is_combinable` value
-- **THEN** the coupon is saved with `is_combinable` set to `true`
+#### Scenario: Request without the setting
+- **WHEN** a coupon is created or updated without an `is_combinable` value
+- **THEN** the system rejects the request with HTTP 422 and does not change the coupon
 
 #### Scenario: Admin sets the setting
 - **WHEN** an admin creates or updates a coupon with `is_combinable` set to `false`

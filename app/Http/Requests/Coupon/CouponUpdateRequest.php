@@ -71,7 +71,7 @@ class CouponUpdateRequest extends Request
             'target_country_type' => 'string|in:' . TargetCountryType::join() . '|nullable',
             'target_countries' => 'required_if:target_country_type,' . TargetCountryType::SPECIFIC_COUNTRIES . '|array|nullable',
             'first_time_buyer_only' => 'boolean|nullable',
-            'is_combinable' => 'boolean|nullable',
+            'is_combinable' => 'required|boolean',
             'customer_include_eligibility' => 'string|in:' . CustomerIncludeEligibility::join() . '|nullable',
             'customer_exclude_eligibility' => 'string|in:' . CustomerExcludeEligibility::join() . '|nullable',
             'has_usage_limit' => 'boolean|nullable',

@@ -172,7 +172,7 @@ class CouponService
      * @param string[] $applied_codes Codes of coupons already applied, left out of the result.
      * @return Collection Collection of Coupon models.
      */
-    public function get_automatic_coupons(array $applied_codes = [])
+    public function get_attachable_automatic_coupons(array $applied_codes = [])
     {
         return Coupon::with(['categories', 'products.categories', 'customers'])
             ->where('method', CouponMethod::AUTOMATIC)
@@ -217,8 +217,8 @@ class CouponService
      * Update a coupon (used internally by UpdateCouponAction).
      *
      * Related product, category and customer IDs in the payload are not
-     * persisted here. A payload without `is_combinable` or without a code keeps the
-     * stored value; an automatic coupon that has no code yet gets a generated code.
+     * persisted here. A payload without a code keeps the stored code; an automatic
+     * coupon that has no code yet gets a generated code.
      *
      * @since 1.0.0
      *
@@ -234,10 +234,6 @@ class CouponService
 
         $attributes = $data->except(['id', 'discount_amount', 'category_ids', 'product_ids', 'customer_ids', 'exclude_customer_ids', 'reward_product_ids']);
         $attributes['updated_by'] = user()->get_id();
-
-        if (($attributes['is_combinable'] ?? null) === null) {
-            unset($attributes['is_combinable']);
-        }
 
         if (empty($attributes['code'])) {
             if (!empty($coupon->code)) {

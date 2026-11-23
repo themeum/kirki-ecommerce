@@ -178,18 +178,19 @@ class CouponApiTest extends RestTestCase
     }
 
     /**
-     * A coupon created without is_combinable can be combined with other coupons.
+     * A coupon cannot be created without is_combinable.
      *
      * @return void
      * @since 1.0.1
      */
-    public function test_create_coupon_without_is_combinable_defaults_to_true(): void
+    public function test_create_coupon_without_is_combinable_is_rejected(): void
     {
-        $coupon = $this->create_coupon();
-        $this->coupon_id = $coupon['id'];
+        $payload = $this->coupon_payload();
+        unset($payload['is_combinable']);
 
-        $this->assertTrue($coupon['is_combinable']);
-        $this->assertTrue((bool) Coupon::find($coupon['id'])->is_combinable);
+        $response = $this->request('POST', 'coupons', $payload);
+
+        $this->assert_api_error($response, 422);
     }
 
     /**
@@ -222,22 +223,22 @@ class CouponApiTest extends RestTestCase
     }
 
     /**
-     * An update that does not send is_combinable keeps the stored value.
+     * A coupon cannot be updated without is_combinable.
      *
      * @return void
      * @since 1.0.1
      */
-    public function test_update_coupon_without_is_combinable_keeps_the_stored_value(): void
+    public function test_update_coupon_without_is_combinable_is_rejected(): void
     {
         $coupon = $this->create_coupon(['is_combinable' => false]);
         $this->coupon_id = $coupon['id'];
 
-        $this->assert_api_success($this->request('PUT', 'coupons/' . $this->coupon_id, $this->coupon_payload([
-            'id' => $this->coupon_id,
-            'code' => $coupon['code'],
-            'title' => 'Renamed',
-        ])));
+        $payload = $this->coupon_payload(['id' => $this->coupon_id, 'code' => $coupon['code']]);
+        unset($payload['is_combinable']);
 
+        $response = $this->request('PUT', 'coupons/' . $this->coupon_id, $payload);
+
+        $this->assert_api_error($response, 422);
         $this->assertFalse((bool) Coupon::find($this->coupon_id)->is_combinable);
     }
 
@@ -647,6 +648,7 @@ class CouponApiTest extends RestTestCase
             'customer_include_eligibility' => CustomerIncludeEligibility::EVERYONE,
             'customer_exclude_eligibility' => CustomerExcludeEligibility::NONE,
             'is_active' => true,
+            'is_combinable' => true,
         ];
 
         return array_merge($payload, $overrides);

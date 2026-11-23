@@ -277,6 +277,24 @@ class AutomaticCouponTest extends RestTestCase
     }
 
     /**
+     * The checkout attaches an automatic coupon that the cart never saw.
+     *
+     * @return void
+     * @since 1.0.1
+     */
+    public function test_checkout_attaches_an_automatic_coupon_that_the_cart_never_saw(): void
+    {
+        $this->add_item_to_cart();
+        $coupon = $this->create_automatic_coupon();
+        $this->assertSame(0, CartCoupon::where('coupon_id', $coupon->id)->count());
+
+        $order = $this->assert_api_success($this->request('POST', 'checkout', $this->order_payload()), 201)['data'];
+
+        $this->assertSame([$coupon->code], OrderCoupon::where('order_id', $order['id'])->get()->pluck('code')->to_array());
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+    }
+
+    /**
      * The checkout leaves out an automatic coupon that stopped being valid, and does not fail.
      *
      * @return void
