@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Services;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Models\Product;
@@ -24,6 +25,7 @@ use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
@@ -37,6 +39,20 @@ use function Kirki\Ecommerce\Framework\with_prefix;
 class ProductService
 {
     use HasSortableColumns;
+
+    /**
+     * Default number of products on one storefront shop page.
+     *
+     * @var int
+     */
+    protected const SHOP_PER_PAGE_DEFAULT = 12;
+
+    /**
+     * Highest number of products on one storefront shop page.
+     *
+     * @var int
+     */
+    protected const SHOP_PER_PAGE_MAX = 100;
 
     /**
      * @inheritDoc
@@ -647,12 +663,9 @@ class ProductService
     public function shop_page_data(array $filters = [])
     {
         $filters_dto = ProductListFilterDTO::from_array($filters);
+        $per_page = FilterHook::apply(DevHookNames::SHOP_PER_PAGE_LIMIT, static::SHOP_PER_PAGE_DEFAULT, $filters);
 
-        /**
-         * @TODO: Currently fixed at 12 for the 4×3 layout.
-         * This will be made dynamic based on the layout selected by the user.
-         */
-        $filters_dto->limit = 12;
+        $filters_dto->limit = $this->resolve_shop_per_page_limit($per_page);
         $filters_dto->status = 'published';
         $filters_dto->page = intval($filters['current_page'] ?? 1);
         $filters_dto->sort_order = null;
@@ -663,6 +676,32 @@ class ProductService
             'products' => $products,
             'filters'  => $filters,
         ];
+    }
+
+    /**
+     * Turn a filtered shop page size into a usable page size.
+     *
+     * A numeric value is cast to an integer and limited to 100. A value below 1 or
+     * not numeric gives the default of 12.
+     *
+     * @since 1.0.3
+     *
+     * @param mixed $per_page The value returned by the `kirki_ecommerce_shop_per_page` filter.
+     * @return int
+     */
+    protected function resolve_shop_per_page_limit($per_page)
+    {
+        if (!is_numeric($per_page)) {
+            return static::SHOP_PER_PAGE_DEFAULT;
+        }
+
+        $per_page = (int) $per_page;
+
+        if ($per_page < 1) {
+            return static::SHOP_PER_PAGE_DEFAULT;
+        }
+
+        return min($per_page, static::SHOP_PER_PAGE_MAX);
     }
 
     /**

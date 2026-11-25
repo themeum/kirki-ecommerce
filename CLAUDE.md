@@ -131,6 +131,14 @@ this plugin "Kirki".
 
 ---
 
+## 1d. Ponytail Mode
+
+At the start of each session, and for each coding task (write, fix, refactor,
+review, choose a dependency), use the `/ponytail:ponytail` skill at the
+**full** compression level.
+
+---
+
 ## 2. PHP Coding Standards
 
 Full standards live in `.claude/rules/php-standards.md`, which loads when

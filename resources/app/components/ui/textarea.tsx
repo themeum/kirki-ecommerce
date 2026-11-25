@@ -37,7 +37,7 @@ const styles = defineStyles({
     border: `1px solid ${theme.colors.border.secondary}`,
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-    resize: 'none',
+    resize: 'vertical',
     height: 'auto',
     ...theme.typography.small(),
     color: theme.colors.text.primary,
