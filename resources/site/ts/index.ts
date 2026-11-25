@@ -7,6 +7,7 @@
 // Import Alpine.js
 import Alpine from 'alpinejs';
 
+import { themeCart } from './api/theme-cart';
 // Import components
 import { accountAddresses } from './components/account-addresses';
 import { accountDashboard } from './components/account-dashboard';
@@ -64,6 +65,9 @@ Alpine.data('miniCart', miniCart);
 Alpine.data('wishlist', wishlist);
 Alpine.data('pagination', pagination);
 Alpine.data('accountWishlist', accountWishlist);
+
+// Cart API for themes
+window.kecomCart = themeCart;
 
 // Initialize Alpine
 window.Alpine = Alpine;

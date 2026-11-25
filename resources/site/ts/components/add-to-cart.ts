@@ -7,10 +7,15 @@
  *           x-on:click="add" x-bind:disabled="loading" x-bind:class="{ 'kecom-btn-loading': loading }"
  *           x-text="buttonText">
  *   </button>
+ *
+ * Optional `sourceEl` is passed on in the `kecom:cart:item-added` event, so a theme can
+ * animate from that element. `showSuccessToast: false` hides the success toast only;
+ * a failed add still shows its error toast.
  */
 
 import { cartApi } from '../api/cart';
 import { Cookie } from '../cookie';
+import { emit, EVENTS } from '../events';
 import { toast } from '../services/toast/runtime';
 import type { CartItem } from '../types';
 import { config } from '../utils';
@@ -23,6 +28,8 @@ export type AddToCartConfig = {
   buttonText?: string;
   imageUrl?: string;
   containerClass?: string;
+  sourceEl?: HTMLElement | null;
+  showSuccessToast?: boolean;
 };
 
 export function addToCart(componentConfig: AddToCartConfig) {
@@ -88,15 +95,25 @@ export function addToCart(componentConfig: AddToCartConfig) {
           this.imageUrl ||
           (typeof product?.media === 'string' ? product.media : product?.media?.[0]?.url || '');
 
-        toast.action(toastTitle, 5000, {
-          description: toastDescription,
-          thumbnail: toastThumbnail || undefined,
-          actionUrl: this.cartUrl,
-          containerClass: this.containerClass,
-          actionText: __('View Cart', 'kirki-ecommerce'),
-        });
+        if (componentConfig.showSuccessToast !== false) {
+          toast.action(toastTitle, 5000, {
+            description: toastDescription,
+            thumbnail: toastThumbnail || undefined,
+            actionUrl: this.cartUrl,
+            containerClass: this.containerClass,
+            actionText: __('View Cart', 'kirki-ecommerce'),
+          });
+        }
 
         document.dispatchEvent(new CustomEvent('kecom:cart-updated', { detail: data }));
+
+        emit(EVENTS.CART_ITEM_ADDED, {
+          variantId: this.variantId,
+          quantity,
+          imageUrl: toastThumbnail || '',
+          sourceEl: componentConfig.sourceEl ?? null,
+          cart: data,
+        });
 
         // Update cart_variant_ids in window.kirki_ecommerce after successful add
         const cartVariantIds = config.cart_variant_ids || [];
