@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 use function Kirki\Ecommerce\App\settings;
 use function Kirki\Ecommerce\Framework\collection;
@@ -53,7 +54,7 @@ class PaymentManager
      */
     public function init_registry()
     {
-        $providers = apply_filters(
+        $providers = FilterHook::apply(
             DevHookNames::PAYMENT_PROVIDERS,
             array_merge(
                 OfflinePaymentFactory::make(),

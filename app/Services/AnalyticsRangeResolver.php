@@ -42,20 +42,12 @@ class AnalyticsRangeResolver
     /**
      * Get today's date in the time zone of the browser.
      *
-     * The `kirki_ecommerce_analytics_today` filter can freeze the date.
-     *
      * @since 1.0.0
      *
      * @return string Date in Y-m-d format.
      */
     public function today()
     {
-        $frozen = apply_filters('kirki_ecommerce_analytics_today', null);
-
-        if (is_string($frozen) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $frozen)) {
-            return $frozen;
-        }
-
         return Date::now(client_timezone())->to_date_string();
     }
 

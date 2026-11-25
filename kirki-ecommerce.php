@@ -19,6 +19,8 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\KirkiEcommerce;
+use Kirki\Ecommerce\Framework\Wordpress\ActionHook;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 /**
  * The kirki ecommerce plugin version
@@ -98,7 +100,7 @@ register_deactivation_hook(KIRKI_ECOMMERCE_PLUGIN_FILE, [KirkiEcommerce::class, 
 register_uninstall_hook(KIRKI_ECOMMERCE_PLUGIN_FILE, [KirkiEcommerce::class, 'handle_uninstallation']);
 
 // Booting the plugin application
-add_action('init', 'kirki_ecommerce_boot_application', 0);
+ActionHook::add('init', 'kirki_ecommerce_boot_application', 0);
 
 function kirki_ecommerce_boot_application()
 {
@@ -108,7 +110,7 @@ function kirki_ecommerce_boot_application()
     require_once KIRKI_ECOMMERCE_PLUGIN_PATH . 'bootstrap/app.php';
 }
 
-add_filter('plugin_row_meta', 'kirki_ecommerce_plugin_row_meta', 10, 2);
+FilterHook::add('plugin_row_meta', 'kirki_ecommerce_plugin_row_meta', 10, 2);
 
 /**
  * Add the plugin row meta

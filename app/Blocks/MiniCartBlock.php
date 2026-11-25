@@ -12,6 +12,7 @@
 namespace Kirki\Ecommerce\App\Blocks;
 
 use Kirki\Ecommerce\App\Services\MiniCartService;
+use Kirki\Ecommerce\Framework\Wordpress\ActionHook;
 
 defined('ABSPATH') || exit;
 
@@ -39,7 +40,7 @@ class MiniCartBlock
     public function __construct(MiniCartService $service)
     {
         $this->service = $service;
-        add_action('init', [$this, 'register']);
+        ActionHook::add('init', [$this, 'register']);
     }
 
     /**

@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Setup\OnBoardingSeeder;
 use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\Utils;
+use Kirki\Ecommerce\Framework\Wordpress\ActionHook;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -74,7 +75,7 @@ class StoreSetupService
 
         $this->setup_checklist_service->record_preconfigured();
 
-        do_action(DevHookNames::STORE_CREATED, $data->to_array());
+        ActionHook::fire(DevHookNames::STORE_CREATED, $data->to_array());
     }
 
     /**

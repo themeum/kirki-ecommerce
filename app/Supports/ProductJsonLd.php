@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\Framework\Supports\Str;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
@@ -40,7 +41,7 @@ class ProductJsonLd
         $product = view_data();
         $data = static::build($seo, $product);
 
-        return apply_filters(DevHookNames::PRODUCT_JSON_LD, $data, $seo, $product);
+        return FilterHook::apply(DevHookNames::PRODUCT_JSON_LD, $data, $seo, $product);
     }
 
     /**

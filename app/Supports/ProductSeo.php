@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 use function Kirki\Ecommerce\Framework\request;
 use function Kirki\Ecommerce\Framework\view_data;
@@ -34,7 +35,7 @@ class ProductSeo
      */
     public static function is_enabled()
     {
-        return (bool) apply_filters(DevHookNames::SEO_HEAD_ENABLED, true);
+        return (bool) FilterHook::apply(DevHookNames::SEO_HEAD_ENABLED, true);
     }
 
     /**
@@ -65,7 +66,7 @@ class ProductSeo
             'is_preview' => request()->bool('preview', false),
         ]);
 
-        return apply_filters(DevHookNames::PRODUCT_SEO_DATA, $data, $product);
+        return FilterHook::apply(DevHookNames::PRODUCT_SEO_DATA, $data, $product);
     }
 
     /**

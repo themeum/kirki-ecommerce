@@ -41,6 +41,13 @@ Never read `$_GET`/`$_POST`/`$_SERVER`/`$_COOKIE`/`$_FILES` directly. Use:
 Both unslash and sanitize via `Sanitizer` internally — never wrap their
 output in another `wp_unslash()`/`sanitize_*()` call.
 
+Never call `apply_filters`/`add_filter`/`do_action`/`add_action` directly. Use
+`FilterHook::apply()`/`FilterHook::add()` and `ActionHook::fire()`/`ActionHook::add()`
+from `Kirki\Ecommerce\Framework\Wordpress`. They take the same arguments.
+`composer phpcs:hooks` (also in CI) enforces this. `tests/` and the gateway
+plugins (`payments/`, `gateways/`) keep the native calls, because they act as
+third parties.
+
 ### Classes and Files
 
 - Class names: **PascalCase** (`CartService`, `PaymentManager`)

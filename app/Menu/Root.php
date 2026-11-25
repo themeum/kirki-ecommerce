@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Menu;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\Framework\Wordpress\ActionHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\Framework\Wordpress\Menu;
@@ -45,7 +46,7 @@ class Root extends Menu
 
         parent::__construct();
 
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets'], 20);
+        ActionHook::add('admin_enqueue_scripts', [$this, 'enqueue_admin_assets'], 20);
     }
 
     /**

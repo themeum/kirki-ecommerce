@@ -20,6 +20,7 @@ use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 use function Kirki\Ecommerce\Framework\request;
 
@@ -68,7 +69,7 @@ class Template
      */
     public static function override(string $name, Request $request)
     {
-        return apply_filters(DevHookNames::TEMPLATE_OVERRIDE, null, $name, $request);
+        return FilterHook::apply(DevHookNames::TEMPLATE_OVERRIDE, null, $name, $request);
     }
 
     /**

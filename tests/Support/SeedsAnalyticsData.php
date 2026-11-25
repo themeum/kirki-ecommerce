@@ -9,12 +9,15 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Services\AnalyticsQueryService;
+use Kirki\Ecommerce\App\Services\AnalyticsRangeResolver;
+
+use function Kirki\Ecommerce\Framework\app;
 
 /**
  * Seeds orders, refunds and customers for the analytics tests and calls the analytics endpoint.
  *
- * Every timestamp passed in is UTC, as the plugin saves them. "Today" is frozen with the
- * `kirki_ecommerce_analytics_today` filter (see the test contract in the analytics-foundation design).
+ * Every timestamp passed in is UTC, as the plugin saves them. "Today" is frozen with a
+ * fixed-date range resolver bound in the container (see freeze_today()).
  *
  * @since 1.0.0
  */
@@ -54,7 +57,23 @@ trait SeedsAnalyticsData
     }
 
     /**
-     * Freeze "today" (a Y-m-d date in the site time zone).
+     * Forget the fixed-date range resolver, so later tests get the real date.
+     *
+     * A test class that uses this trait and has its own tearDown() hides this method,
+     * so that tearDown() must forget the resolver itself.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function tearDown(): void
+    {
+        app()->forget_instance(AnalyticsRangeResolver::class);
+
+        parent::tearDown();
+    }
+
+    /**
+     * Freeze "today" (a Y-m-d date) by binding a fixed-date range resolver in the container.
      *
      * @param string $date Date to use as today.
      *
@@ -63,8 +82,30 @@ trait SeedsAnalyticsData
      */
     protected function freeze_today(string $date): void
     {
-        remove_all_filters('kirki_ecommerce_analytics_today');
-        add_filter('kirki_ecommerce_analytics_today', fn() => $date);
+        app()->instance(AnalyticsRangeResolver::class, new class ($date) extends AnalyticsRangeResolver {
+            /** @var string */
+            protected $frozen_today;
+
+            /**
+             * Keep the fixed date.
+             *
+             * @param string $today Date to use as today.
+             */
+            public function __construct(string $today)
+            {
+                $this->frozen_today = $today;
+            }
+
+            /**
+             * Get the fixed date.
+             *
+             * @return string Date in Y-m-d format.
+             */
+            public function today()
+            {
+                return $this->frozen_today;
+            }
+        });
     }
 
     /**

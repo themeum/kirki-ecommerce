@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\HtmlStyle;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -121,7 +122,7 @@ class EnqueueAdminScripts extends BaseHook
             true
         );
 
-        add_filter('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
+        FilterHook::add('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
     }
 
     /**
@@ -218,7 +219,7 @@ class EnqueueAdminScripts extends BaseHook
 
         $this->add_script_translations($manifest, $bundle_handle);
 
-        add_filter('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
+        FilterHook::add('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
     }
 
     /**

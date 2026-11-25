@@ -14,6 +14,7 @@ namespace Kirki\Ecommerce\App\Supports;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 use WP_User;
 
 /**
@@ -293,7 +294,7 @@ class Url
      */
     protected static function filter_safe_url($redirect_url)
     {
-        add_filter('wp_safe_redirect_fallback', function ($url) use ($redirect_url) {
+        FilterHook::add('wp_safe_redirect_fallback', function ($url) use ($redirect_url) {
             return static::is_valid_url($redirect_url) ? $redirect_url : $url;
         }, 1, 1);
     }

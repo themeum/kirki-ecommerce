@@ -79,6 +79,7 @@
     ],
     "phpcs:wporg": "phpcs --standard=phpcs-wporg.xml.dist",
     "phpcs:docblocks": "phpcs --sniffs=KirkiEcommerce.Commenting.RequiredDocblock app database",
+    "phpcs:hooks": "phpcs --sniffs=Generic.PHP.ForbiddenFunctions app bootstrap config database resources/views routes kirki-ecommerce.php",
     "test": "bash bin/phpunit --testsuite Unit --testdox && bash bin/phpunit --testsuite Integration --testdox",
     "test:unit": "bash bin/phpunit --testsuite Unit --testdox",
     "test:integration": "bash bin/phpunit --testsuite Integration --testdox",

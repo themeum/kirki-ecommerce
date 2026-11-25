@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Menu;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\Framework\Wordpress\ActionHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
 use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
@@ -61,7 +62,7 @@ class Separator extends Menu
             $this->position
         );
 
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_styles']);
+        ActionHook::add('admin_enqueue_scripts', [$this, 'enqueue_admin_styles']);
     }
 
     /**

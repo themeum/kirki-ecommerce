@@ -17,4 +17,23 @@
         <include-pattern>*/app/*</include-pattern>
         <include-pattern>*/database/*</include-pattern>
     </rule>
+
+    <!-- Plugin code fires and registers hooks through the framework hook classes. Tests and gateway plugins keep the native calls. -->
+    <rule ref="Generic.PHP.ForbiddenFunctions">
+        <properties>
+            <property name="forbiddenFunctions" type="array">
+                <element key="apply_filters" value="FilterHook::apply"/>
+                <element key="add_filter" value="FilterHook::add"/>
+                <element key="do_action" value="ActionHook::fire"/>
+                <element key="add_action" value="ActionHook::add"/>
+            </property>
+        </properties>
+        <include-pattern>*/app/*</include-pattern>
+        <include-pattern>*/bootstrap/*</include-pattern>
+        <include-pattern>*/config/*</include-pattern>
+        <include-pattern>*/database/*</include-pattern>
+        <include-pattern>*/resources/views/*</include-pattern>
+        <include-pattern>*/routes/*</include-pattern>
+        <include-pattern>*/kirki-ecommerce.php</include-pattern>
+    </rule>
 </ruleset>

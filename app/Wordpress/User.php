@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Constants\UserRoles;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerEmailConfirmationMail;
 use Kirki\Ecommerce\App\Services\MailerService;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Wordpress\ActionHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\Capabilities;
 use Kirki\Ecommerce\Framework\Wordpress\User as FrameworkUser;
 
@@ -129,7 +130,7 @@ class User extends FrameworkUser
         $updated = update_user_meta($this->get_id(), static::META_EMAIL_VERIFIED, 1);
 
         if ($updated) {
-            do_action(DevHookNames::USER_EMAIL_VERIFIED, $this);
+            ActionHook::fire(DevHookNames::USER_EMAIL_VERIFIED, $this);
         }
 
         return $updated;

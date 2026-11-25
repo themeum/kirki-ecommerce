@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Services\MailerService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Wordpress\ActionHook;
 
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
@@ -138,7 +139,7 @@ class EmailTemplateController
 
         $mail_error = '';
 
-        add_action('wp_mail_failed', function ($error) use (&$mail_error) {
+        ActionHook::add('wp_mail_failed', function ($error) use (&$mail_error) {
             $mail_error = $error->get_error_message();
         });
 

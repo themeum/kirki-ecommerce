@@ -349,9 +349,6 @@ tables as they are at that moment.
   a browser sends about 6 at a time to one site over HTTP/1.1, so the last
   cards can wait for a free connection. Hidden cards send no request.
 
-For developers, the filter `kirki_ecommerce_analytics_today` (a `Y-m-d` date
-that replaces today) is used by the tests.
-
 ---
 
 ## 7. Limits

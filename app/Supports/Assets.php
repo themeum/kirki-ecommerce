@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Services\SetupChecklistService;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -126,7 +127,7 @@ class Assets
             'is_setup_complete' => app(SetupChecklistService::class)->is_complete(),
         ];
 
-        $config_data = apply_filters(DevHookNames::CONFIG_DATA, $config_data);
+        $config_data = FilterHook::apply(DevHookNames::CONFIG_DATA, $config_data);
 
         return sprintf(
             'window.kirki_ecommerce = %s;',

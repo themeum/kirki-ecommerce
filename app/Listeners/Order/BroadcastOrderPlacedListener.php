@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Events\Order\OrderPlacedEvent;
 use Kirki\Ecommerce\Framework\Listener;
+use Kirki\Ecommerce\Framework\Wordpress\ActionHook;
 
 /**
  * Listener for OrderPlacedEvent that exposes the placed order to third-party
@@ -26,6 +27,6 @@ class BroadcastOrderPlacedListener extends Listener
      */
     public function handle(OrderPlacedEvent $event)
     {
-        do_action(DevHookNames::ORDER_PLACED, $event->order->id, $event->order);
+        ActionHook::fire(DevHookNames::ORDER_PLACED, $event->order->id, $event->order);
     }
 }

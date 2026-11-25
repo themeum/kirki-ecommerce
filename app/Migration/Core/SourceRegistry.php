@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Migration\Constants\MigrationHookNames;
 use Kirki\Ecommerce\App\Migration\Contracts\MigrationSource;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 /**
  * Holds the migration sources: the built-in ones and any added through the sources filter.
@@ -33,7 +34,7 @@ class SourceRegistry
          *
          * @param MigrationSource[] $sources The sources.
          */
-        $sources = apply_filters(MigrationHookNames::SOURCES, []);
+        $sources = FilterHook::apply(MigrationHookNames::SOURCES, []);
 
         foreach ($sources as $source) {
             if ($source instanceof MigrationSource) {

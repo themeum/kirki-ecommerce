@@ -151,7 +151,8 @@ Before you call a native WordPress or PHP function, check whether
 `themeum/framework` already wraps it. If it does, use the framework version.
 Examples: `Cache` (not transients), `Http` (not `wp_remote_*`), `File` (not
 `unlink`/`hash_file`), `Extension` (not `Plugin_Upgrader`), `Superglobals` and
-`Request` (not `$_GET`/`$_POST`).
+`Request` (not `$_GET`/`$_POST`), `FilterHook`/`ActionHook` (not
+`apply_filters`/`add_filter`/`do_action`/`add_action`).
 
 Do not read a `KIRKI_ECOMMERCE_*` constant directly when `app()` gives the
 same value. Examples: `app()->version()` (not `KIRKI_ECOMMERCE_VERSION`),

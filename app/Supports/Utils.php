@@ -23,6 +23,7 @@ use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
+use Kirki\Ecommerce\Framework\Wordpress\FilterHook;
 
 /**
  * General-purpose helpers for nonces, site pages, account routes and status badges.
@@ -80,7 +81,7 @@ class Utils
             $pages['advance.pages.' . $key] = $name;
         }
 
-        $pages = apply_filters(DevHookNames::SITE_PAGES, $pages);
+        $pages = FilterHook::apply(DevHookNames::SITE_PAGES, $pages);
 
         return $pages;
     }
@@ -178,7 +179,7 @@ class Utils
             ],
         ];
 
-        $route_config = apply_filters(DevHookNames::ACCOUNT_ROUTE_CONFIG, $route_config);
+        $route_config = FilterHook::apply(DevHookNames::ACCOUNT_ROUTE_CONFIG, $route_config);
 
         return $route_config;
     }
@@ -204,7 +205,7 @@ class Utils
             }
         }
 
-        $menu_items = apply_filters(DevHookNames::ACCOUNT_MENU_ITEMS, $menu_items);
+        $menu_items = FilterHook::apply(DevHookNames::ACCOUNT_MENU_ITEMS, $menu_items);
 
         return $menu_items;
     }

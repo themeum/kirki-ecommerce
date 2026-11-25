@@ -14,6 +14,7 @@ use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderTax;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Services\AnalyticsRangeResolver;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Queue\QueueManager;
@@ -48,7 +49,7 @@ class AnalyticsMetricsTest extends RestTestCase
     }
 
     /**
-     * Drop a faked queue manager if a test created one.
+     * Drop a faked queue manager if a test created one, and the fixed-date range resolver.
      *
      * @return void
      * @since 1.0.0
@@ -56,6 +57,7 @@ class AnalyticsMetricsTest extends RestTestCase
     protected function tearDown(): void
     {
         static::forget_singleton(QueueManager::class);
+        app()->forget_instance(AnalyticsRangeResolver::class);
 
         parent::tearDown();
     }
