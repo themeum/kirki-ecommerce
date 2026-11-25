@@ -10,6 +10,7 @@
  */
 
 import type { Variant } from './components/variant-selector';
+import type { Cart } from './types';
 
 // ── Event detail shapes ───────────────────────────────────────────────────────
 
@@ -49,6 +50,9 @@ export const EVENTS = {
 
   /** Fired when the account wishlist is refreshed. */
   ACCOUNT_WISHLIST_REMOVED: 'kecom:account:wishlist-removed',
+
+  /** Fired by addToCart after the server accepts an add, after `kecom:cart-updated`. */
+  CART_ITEM_ADDED: 'kecom:cart:item-added',
 } as const;
 
 export type Events = {
@@ -91,6 +95,15 @@ export type Events = {
 
   /** Fired when the account wishlist is refreshed. */
   [EVENTS.ACCOUNT_WISHLIST_REMOVED]: void;
+
+  /** Fired by addToCart after the server accepts an add, after `kecom:cart-updated`. */
+  [EVENTS.CART_ITEM_ADDED]: {
+    variantId: number;
+    quantity: number;
+    imageUrl: string;
+    sourceEl: HTMLElement | null;
+    cart: Cart;
+  };
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

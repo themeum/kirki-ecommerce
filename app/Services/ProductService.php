@@ -653,7 +653,8 @@ class ProductService
     /**
      * Get the products and filters for the storefront shop page.
      *
-     * Lists 12 published products per page.
+     * Lists published products, 12 per page unless the `kirki_ecommerce_shop_per_page`
+     * filter changes it.
      *
      * @since 1.0.0
      *
@@ -663,9 +664,21 @@ class ProductService
     public function shop_page_data(array $filters = [])
     {
         $filters_dto = ProductListFilterDTO::from_array($filters);
-        $per_page = FilterHook::apply(DevHookNames::SHOP_PER_PAGE_LIMIT, static::SHOP_PER_PAGE_DEFAULT, $filters);
 
-        $filters_dto->limit = $this->resolve_shop_per_page_limit($per_page);
+        /**
+         * Filter the number of products on one storefront shop page.
+         *
+         * Applies to the shop page and to `GET /shop/products`. A value above 100 becomes 100,
+         * and a value below 1 or not numeric becomes 12.
+         *
+         * @since 1.0.3
+         *
+         * @param int                  $per_page Products per page. Default 12.
+         * @param array<string, mixed> $filters  Sanitized shop request filters.
+         */
+        $per_page = FilterHook::apply(DevHookNames::SHOP_PER_PAGE, static::SHOP_PER_PAGE_DEFAULT, $filters);
+
+        $filters_dto->limit = $this->resolve_shop_per_page($per_page);
         $filters_dto->status = 'published';
         $filters_dto->page = intval($filters['current_page'] ?? 1);
         $filters_dto->sort_order = null;
@@ -689,7 +702,7 @@ class ProductService
      * @param mixed $per_page The value returned by the `kirki_ecommerce_shop_per_page` filter.
      * @return int
      */
-    protected function resolve_shop_per_page_limit($per_page)
+    protected function resolve_shop_per_page($per_page)
     {
         if (!is_numeric($per_page)) {
             return static::SHOP_PER_PAGE_DEFAULT;

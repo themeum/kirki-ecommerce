@@ -1,5 +1,6 @@
 // Shared TypeScript interfaces for the site bundle
 
+import type { ThemeCart } from './api/theme-cart';
 import type { AddressItem } from './components/account-addresses';
 
 export type ShippingMethod = {
@@ -80,6 +81,8 @@ declare global {
       };
     };
     Alpine: any;
+    /** Cart API for themes. See docs/storefront-extension-points.md. */
+    kecomCart: ThemeCart;
   }
 }
 
