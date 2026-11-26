@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Services;
 defined('ABSPATH') || exit;
 
 use Brick\Math\RoundingMode;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Models\Coupon;
@@ -746,6 +747,7 @@ class DiscountService
         $coupon = new Coupon();
         $coupon->id = $stored->coupon_id;
         $coupon->code = $stored->code;
+        $coupon->method = $stored->method ?? CouponMethod::CODE;
         $coupon->title = $stored->title;
         $coupon->discount_type = $stored->discount_type;
         $coupon->discount_target = $stored->discount_target;

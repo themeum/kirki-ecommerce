@@ -22,6 +22,7 @@ class OrderCoupon extends Model
         'coupon_id',
         'customer_id',
         'code',
+        'method',
         'title',
         'discount_type',
         'discount_target',

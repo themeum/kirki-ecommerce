@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Exception;
 use Kirki\Ecommerce\App\Concerns\ResolvesLineItemPricing;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
@@ -45,6 +46,7 @@ class OrderResource extends Resource
     {
         $items = $this->items;
         $order_coupons = $this->order_coupons ?: collection();
+        $coupons = $this->format_coupon_results($order_coupons);
 
         $invoiced_items_subtotal = $this->get_items_subtotal($items);
         $invoiced_order_discount = $this->get_order_coupon_discount($order_coupons);
@@ -72,7 +74,9 @@ class OrderResource extends Resource
                 'invoiced_order_discount_money_object' => Money::prepare_amount_object_from_minor($invoiced_order_discount, $this->currency_code),
                 'invoiced_order_total_money_object' => Money::prepare_amount_object_from_minor($invoiced_items_subtotal - $invoiced_order_discount, $this->currency_code),
                 'invoiced_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_tax_total, $this->currency_code),
-                'coupons' => $this->format_coupon_results($order_coupons),
+                'coupons' => $coupons,
+                'applied_coupons' => $this->filter_applied_coupons($coupons),
+                'order_targeted_coupons' => $this->filter_order_targeted_coupons($coupons),
                 'invoiced_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($invoiced_shipping_amount, $this->currency_code),
                 'invoiced_shipping_strikethrough_money_object' => Money::prepare_amount_object_from_minor($invoiced_shipping_strikethrough, $this->currency_code),
                 'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_total, $this->currency_code),
@@ -205,6 +209,7 @@ class OrderResource extends Resource
         return $order_coupons->map(function ($order_coupon) {
             return array_merge([
                 'code' => $order_coupon->code,
+                'method' => $order_coupon->method ?? CouponMethod::CODE,
                 'title' => $order_coupon->title,
                 'discount_type' => $order_coupon->discount_type,
                 'discount_target' => $order_coupon->discount_target,

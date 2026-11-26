@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Concerns;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
@@ -150,6 +151,7 @@ trait PersistsOrderCoupons
         $order_coupon_dto->coupon_id = $kept_order_coupon->coupon_id;
         $order_coupon_dto->customer_id = $kept_order_coupon->customer_id;
         $order_coupon_dto->code = $kept_order_coupon->code;
+        $order_coupon_dto->method = $kept_order_coupon->method ?? CouponMethod::CODE;
         $order_coupon_dto->title = $kept_order_coupon->title;
         $order_coupon_dto->discount_type = $kept_order_coupon->discount_type;
         $order_coupon_dto->discount_target = $kept_order_coupon->discount_target;
@@ -178,6 +180,7 @@ trait PersistsOrderCoupons
         $order_coupon_dto->coupon_id = $coupon->id;
         $order_coupon_dto->customer_id = $order->customer_id;
         $order_coupon_dto->code = $coupon->code;
+        $order_coupon_dto->method = $coupon->method ?? CouponMethod::CODE;
         $order_coupon_dto->title = $coupon->title;
         $order_coupon_dto->discount_type = $coupon->discount_type;
         $order_coupon_dto->discount_target = $coupon->discount_target;

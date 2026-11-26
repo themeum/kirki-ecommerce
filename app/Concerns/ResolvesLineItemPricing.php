@@ -4,6 +4,9 @@ namespace Kirki\Ecommerce\App\Concerns;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
+
 /**
  * Resolves a line item's display prices from its catalog figures.
  *
@@ -123,5 +126,35 @@ trait ResolvesLineItemPricing
         $quantity = max(1, (int) $quantity);
 
         return intdiv($line_amount + $quantity - 1, $quantity);
+    }
+
+    /**
+     * Get the formatted coupons that the shopper or admin applied: every coupon whose method is not automatic.
+     *
+     * @since 1.0.3
+     *
+     * @param array<int, array<string, mixed>> $coupons Formatted coupons, each with a `method` key.
+     * @return array<int, array<string, mixed>> The coupons that are not automatic, at any target.
+     */
+    protected function filter_applied_coupons(array $coupons)
+    {
+        return array_values(array_filter($coupons, function ($coupon) {
+            return ($coupon['method'] ?? CouponMethod::CODE) !== CouponMethod::AUTOMATIC;
+        }));
+    }
+
+    /**
+     * Get the formatted coupons that discount the whole order, at any method. Item-specific coupons are left out.
+     *
+     * @since 1.0.3
+     *
+     * @param array<int, array<string, mixed>> $coupons Formatted coupons, each with a `discount_target` key.
+     * @return array<int, array<string, mixed>> The coupons that target the whole order.
+     */
+    protected function filter_order_targeted_coupons(array $coupons)
+    {
+        return array_values(array_filter($coupons, function ($coupon) {
+            return ($coupon['discount_target'] ?? null) === DiscountTarget::ORDER;
+        }));
     }
 }

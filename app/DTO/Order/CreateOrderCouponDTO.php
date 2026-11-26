@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\DTO\Order;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\Framework\DTO;
 
 /**
@@ -24,6 +25,9 @@ class CreateOrderCouponDTO extends DTO
 
     /** @var string */
     public $code;
+
+    /** @var string How the coupon was redeemed: `code` or `automatic` */
+    public $method = CouponMethod::CODE;
 
     /** @var string */
     public $title;

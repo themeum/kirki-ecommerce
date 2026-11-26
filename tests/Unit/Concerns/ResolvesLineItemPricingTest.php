@@ -3,6 +3,8 @@
 namespace Kirki\Ecommerce\Tests\Unit\Concerns;
 
 use Kirki\Ecommerce\App\Concerns\ResolvesLineItemPricing;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
@@ -15,6 +17,8 @@ class ResolvesLineItemPricingTest extends TestCase
                 get_strikethrough_amount as public;
                 get_order_item_strikethrough_amounts as public;
                 get_unit_amount as public;
+                filter_applied_coupons as public;
+                filter_order_targeted_coupons as public;
             }
         };
     }
@@ -76,5 +80,49 @@ class ResolvesLineItemPricingTest extends TestCase
         $this->assertSame(334, $resolver->get_unit_amount(1000, 3));
         $this->assertSame(3850, $resolver->get_unit_amount(7700, 2));
         $this->assertNull($resolver->get_unit_amount(null, 2));
+    }
+
+    protected function make_formatted_coupons(): array
+    {
+        return [
+            ['code' => 'CODE-ORDER', 'method' => CouponMethod::CODE, 'discount_target' => DiscountTarget::ORDER],
+            ['code' => 'CODE-PRODUCTS', 'method' => CouponMethod::CODE, 'discount_target' => DiscountTarget::PRODUCTS],
+            ['code' => 'AUTO-ORDER', 'method' => CouponMethod::AUTOMATIC, 'discount_target' => DiscountTarget::ORDER],
+            ['code' => 'AUTO-PRODUCTS', 'method' => CouponMethod::AUTOMATIC, 'discount_target' => DiscountTarget::PRODUCTS],
+        ];
+    }
+
+    public function test_applied_coupons_are_the_non_automatic_coupons_at_any_target(): void
+    {
+        $applied = $this->make_resolver()->filter_applied_coupons($this->make_formatted_coupons());
+
+        $this->assertSame(['CODE-ORDER', 'CODE-PRODUCTS'], array_column($applied, 'code'));
+    }
+
+    public function test_order_targeted_coupons_are_the_order_coupons_at_any_method(): void
+    {
+        $targeted = $this->make_resolver()->filter_order_targeted_coupons($this->make_formatted_coupons());
+
+        $this->assertSame(['CODE-ORDER', 'AUTO-ORDER'], array_column($targeted, 'code'));
+    }
+
+    public function test_the_coupon_lists_are_reindexed_so_they_stay_json_lists(): void
+    {
+        // The first coupon is filtered out of each list, so a kept key would start at 1.
+        $coupons = array_reverse($this->make_formatted_coupons());
+
+        $this->assertSame([0, 1], array_keys($this->make_resolver()->filter_applied_coupons($coupons)));
+        $this->assertSame([0, 1], array_keys($this->make_resolver()->filter_order_targeted_coupons($coupons)));
+    }
+
+    public function test_the_coupon_lists_are_empty_without_a_match_or_a_coupon(): void
+    {
+        $resolver = $this->make_resolver();
+        $automatic_products = [['code' => 'A', 'method' => CouponMethod::AUTOMATIC, 'discount_target' => DiscountTarget::PRODUCTS]];
+
+        $this->assertSame([], $resolver->filter_applied_coupons($automatic_products));
+        $this->assertSame([], $resolver->filter_order_targeted_coupons($automatic_products));
+        $this->assertSame([], $resolver->filter_applied_coupons([]));
+        $this->assertSame([], $resolver->filter_order_targeted_coupons([]));
     }
 }

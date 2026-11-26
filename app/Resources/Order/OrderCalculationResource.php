@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Concerns\FormatsShippingOptions;
 use Kirki\Ecommerce\App\Concerns\FormatsVariantStock;
 use Kirki\Ecommerce\App\Concerns\ResolvesLineItemPricing;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
@@ -55,6 +56,7 @@ class OrderCalculationResource extends Resource
         $order_discount = $this->get_order_coupon_discount($result->coupon_results);
         $shipping_amount = $result->base_shipping_subtotal - $result->base_shipping_discount;
         $order_total = $items_subtotal - $order_discount;
+        $coupons = $this->format_coupon_results($result->coupon_results);
 
         return [
             'is_tax_inclusive' => $context->stored ? $context->stored->is_tax_inclusive : (bool) Settings::get('tax.is_tax_inclusive_price', false),
@@ -79,7 +81,9 @@ class OrderCalculationResource extends Resource
             'tax_lines' => $this->format_tax_breakdown(
                 array_merge($this->flatten_item_tax_lines($result), $result->shipping_tax_lines)
             ),
-            'coupons' => $this->format_coupon_results($result->coupon_results),
+            'coupons' => $coupons,
+            'applied_coupons' => $this->filter_applied_coupons($coupons),
+            'order_targeted_coupons' => $this->filter_order_targeted_coupons($coupons),
 
             'items_count' => $result->items_count,
             'items' => $this->prepare_items($result->items, $result),
@@ -142,6 +146,7 @@ class OrderCalculationResource extends Resource
 
             return [
                 'code' => $coupon->code,
+                'method' => $coupon->method ?? CouponMethod::CODE,
                 'title' => $coupon->title,
                 'discount_type' => $coupon->discount_type,
                 'discount_target' => $coupon->discount_target,

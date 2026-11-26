@@ -200,6 +200,47 @@ class AutomaticCouponTest extends RestTestCase
     }
 
     /**
+     * The cart lists the code coupons and the order-targeted coupons apart from the full coupon list.
+     *
+     * @return void
+     * @since 1.0.3
+     */
+    public function test_the_cart_lists_the_coupon_groups_apart(): void
+    {
+        $automatic_order = $this->create_automatic_coupon();
+        $automatic_products = $this->create_automatic_coupon(['discount_target' => DiscountTarget::PRODUCTS]);
+        $code_order = Coupon::create($this->coupon_attributes(['method' => CouponMethod::CODE]));
+        $code_products = Coupon::create($this->coupon_attributes(['method' => CouponMethod::CODE, 'discount_target' => DiscountTarget::PRODUCTS]));
+        $this->add_item_to_cart();
+
+        $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code_order->code]));
+        $cart = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code_products->code]))['data'];
+        $pricing = $cart['pricing'];
+
+        $this->assertEqualsCanonicalizing(
+            [$automatic_order->code, $automatic_products->code, $code_order->code, $code_products->code],
+            array_column($pricing['coupons'], 'code')
+        );
+        $this->assertEqualsCanonicalizing([$code_order->code, $code_products->code], array_column($pricing['applied_coupons'], 'code'));
+        $this->assertEqualsCanonicalizing([$automatic_order->code, $code_order->code], array_column($pricing['order_targeted_coupons'], 'code'));
+    }
+
+    /**
+     * A cart with no coupon has empty coupon lists.
+     *
+     * @return void
+     * @since 1.0.3
+     */
+    public function test_a_cart_with_no_coupon_has_empty_coupon_lists(): void
+    {
+        $pricing = $this->add_item_to_cart()['pricing'];
+
+        $this->assertSame([], $pricing['coupons']);
+        $this->assertSame([], $pricing['applied_coupons']);
+        $this->assertSame([], $pricing['order_targeted_coupons']);
+    }
+
+    /**
      * A shopper cannot remove an automatic coupon from the cart.
      *
      * @return void
@@ -289,6 +330,7 @@ class AutomaticCouponTest extends RestTestCase
         $order = $this->assert_api_success($this->request('POST', 'checkout', $this->order_payload()), 201)['data'];
 
         $this->assertSame([$coupon->code], OrderCoupon::where('order_id', $order['id'])->get()->pluck('code')->to_array());
+        $this->assertSame([CouponMethod::AUTOMATIC], OrderCoupon::where('order_id', $order['id'])->get()->pluck('method')->to_array());
         $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
     }
 
