@@ -9,7 +9,6 @@
 use Kirki\Ecommerce\App\Supports\Icon;
 
 defined('ABSPATH') || exit;
-extract($data);
 ?>
 
 <!-- Coupon Form -->
@@ -40,7 +39,7 @@ extract($data);
 
     <div x-show="appliedCoupons?.length > 0" class="kecom-applied-coupons" x-cloak>
         <template x-for="appliedCoupon in appliedCoupons" x-bind:key="appliedCoupon.code">
-            <div class="kecom-tag">
+            <div x-show="appliedCoupon.method === 'code'" class="kecom-tag">
                 <span class="kecom-tag-icon">
                     <?php Icon::render('tag', ['size' => 16]); ?>
                 </span>

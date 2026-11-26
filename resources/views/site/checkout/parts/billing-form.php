@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Billing Form Part
  *
@@ -8,7 +9,8 @@
 use function Kirki\Ecommerce\Framework\include_view;
 
 defined('ABSPATH') || exit;
-extract($data);
+
+$countries = $data['countries'] ?? [];
 ?>
 
 <!-- Billing Section -->

@@ -14,8 +14,7 @@ use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
 
-extract($data);
-
+$cart = $data['cart'];
 $cart_items  = $cart['items'] ?? [];
 $items_count = $cart['items_count'] ?? count($cart_items);
 ?>
@@ -25,10 +24,12 @@ $items_count = $cart['items_count'] ?? count($cart_items);
     <div class="kecom-products-section-title">
         <h2 class="kecom-section-title">
             <?php esc_html_e('Order Summary', 'kirki-ecommerce'); ?>
-            <span class="kecom-text-subdued">(<?php
-            /* translators: %d: Number of cart items */
-            echo esc_html(sprintf(_n('%d item', '%d items', $items_count, 'kirki-ecommerce'), $items_count));
-            ?>)</span>
+            <span class="kecom-text-subdued">
+                <?php
+                /* translators: %d: Number of cart items */
+                echo esc_html(sprintf(_n('(%d item)', '(%d items)', $items_count, 'kirki-ecommerce'), $items_count));
+                ?>
+            </span>
         </h2>
         <a href="<?php echo esc_url(Url::get_cart_url()); ?>" class="kecom-products-section-modify" aria-label="<?php esc_attr_e('Modify cart', 'kirki-ecommerce'); ?>">
             <?php Icon::render('pen-line', ['size' => 16]); ?>
@@ -51,7 +52,7 @@ $items_count = $cart['items_count'] ?? count($cart_items);
 
             $quantity = $item['quantity'] ?? 1;
             $attributes = $product['attributes'] ?? [];
-            ?>
+        ?>
             <div class="kecom-product-item">
                 <div class="kecom-product-image-wrapper">
                     <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product['title'] ?? ''); ?>" class="kecom-product-image">
