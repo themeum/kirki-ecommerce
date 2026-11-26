@@ -62,6 +62,13 @@ one:
 An automatic coupon with no code is never attached. The rules above mean that a
 coupon saved through the API always has a code.
 
+An order keeps the method that its coupon had at checkout. The column
+`order_coupons.method` has the same two values and the default `code`. Order
+coupons that exist before version 1.0.3 have no method, so they read as `code`.
+This is correct, because automatic coupons are not released before 1.0.3. If the
+coupon changes method later, the order does not change. An order edit keeps the
+stored method of a coupon that stays on the order.
+
 ---
 
 ## 3. Automatic coupons
@@ -197,6 +204,37 @@ The combinability rule is the same on every path.
 The cart response lists each applied coupon in `pricing.coupons`. Each entry has
 a `method` field (`code` or `automatic`), so a client can tell an automatic
 coupon from a typed one.
+
+### 5.1 Coupon lists in the price payloads
+
+Four payloads give the same two lists next to the full `coupons` list. The full
+list does not change.
+
+| List | Contains |
+|---|---|
+| `applied_coupons` | Coupons with `method` not `automatic`, at any target. |
+| `order_targeted_coupons` | Coupons with `discount_target` `order`, at any method. A coupon for specific products is not in this list. |
+
+| Payload | Where the lists are |
+|---|---|
+| Cart | In `pricing`, after `coupons`. |
+| Storefront order (customer-facing) | In `pricing`, after `coupons`. |
+| Admin order (`GET /orders/{id}`) | At the root, after `coupons`. This payload has no `pricing` block. |
+| Order calculation (`POST /calculate/order`) | At the root, after `coupons`. This payload has no `pricing` block. |
+
+Each entry has the same shape as an entry of `coupons`. Every `coupons` entry
+now has a `method` field in all four payloads. A list with no match is empty.
+
+| Coupon | `coupons` | `applied_coupons` | `order_targeted_coupons` |
+|---|---|---|---|
+| `code`, target `order` | yes | yes | yes |
+| `code`, target `products` | yes | yes | no |
+| `automatic`, target `order` | yes | no | yes |
+| `automatic`, target `products` | yes | no | no |
+
+An order coupon that is stored without a method reads as `code`. When an order
+is edited in the preview, a coupon that is on the stored order keeps its stored
+method.
 
 ---
 

@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Resources\Order;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\ResolvesLineItemPricing;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Resource;
@@ -35,6 +36,7 @@ class OrderResource extends Resource
     {
         $items = $this->items;
         $order_coupons = $this->order_coupons ?: collection();
+        $coupons = $this->format_coupon_results($order_coupons);
 
         $items_subtotal = $this->get_items_subtotal($items);
         $order_discount = $this->get_order_coupon_discount($order_coupons);
@@ -92,7 +94,9 @@ class OrderResource extends Resource
             'tax_lines' => $this->format_tax_breakdown(
                 array_merge($this->flatten_item_tax_lines($items), ($this->shipping_taxes ?: collection())->all())
             ),
-            'coupons' => $this->format_coupon_results($order_coupons),
+            'coupons' => $coupons,
+            'applied_coupons' => $this->filter_applied_coupons($coupons),
+            'order_targeted_coupons' => $this->filter_order_targeted_coupons($coupons),
 
             'items_count' => $this->items_count,
             'items' => $this->prepare_items($items, $order_coupons),
@@ -246,6 +250,7 @@ class OrderResource extends Resource
                 'id' => $order_coupon->id,
                 'coupon_id' => $order_coupon->coupon_id,
                 'code' => $order_coupon->code,
+                'method' => $order_coupon->method ?? CouponMethod::CODE,
                 'title' => $order_coupon->title,
                 'discount_type' => $order_coupon->discount_type,
                 'discount_target' => $order_coupon->discount_target,

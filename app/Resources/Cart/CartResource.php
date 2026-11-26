@@ -84,6 +84,7 @@ class CartResource extends Resource
         $items_subtotal = $this->get_items_subtotal($result->items);
         $order_discount = $this->get_order_coupon_discount($result->coupon_results);
         $shipping_amount = $this->base_shipping_subtotal - $this->base_shipping_discount;
+        $coupons = $this->format_coupon_results($result->coupon_results, $this->base_currency_code, $display_currency);
 
         return [
             'id' => $this->id,
@@ -103,7 +104,9 @@ class CartResource extends Resource
                 'display_order_discount_money_object' => Money::prepare_amount_object_from_minor($order_discount, $this->base_currency_code, $display_currency),
                 'display_order_total_money_object' => Money::prepare_amount_object_from_minor($items_subtotal - $order_discount, $this->base_currency_code, $display_currency),
                 'display_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->base_tax_total, $this->base_currency_code, $display_currency),
-                'coupons' => $this->format_coupon_results($result->coupon_results, $this->base_currency_code, $display_currency),
+                'coupons' => $coupons,
+                'applied_coupons' => $this->filter_applied_coupons($coupons),
+                'order_targeted_coupons' => $this->filter_order_targeted_coupons($coupons),
                 'display_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($shipping_amount, $this->base_currency_code, $display_currency),
                 'display_shipping_strikethrough_money_object' => Money::prepare_amount_object_from_minor($this->base_shipping_subtotal, $this->base_currency_code, $display_currency),
                 'display_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total, $this->base_currency_code, $display_currency),

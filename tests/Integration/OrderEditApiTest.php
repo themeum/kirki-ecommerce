@@ -18,6 +18,7 @@ use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
+use Kirki\Ecommerce\App\DTO\Order\CreateOrderCouponDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
@@ -30,12 +31,15 @@ use Kirki\Ecommerce\App\Models\OrderItemCoupon;
 use Kirki\Ecommerce\App\Models\OrderTax;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\CurrencyService;
+use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\EnablesPaymentProviders;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
+use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -655,6 +659,141 @@ class OrderEditApiTest extends RestTestCase
 
         $codes = OrderCoupon::where('order_id', $order['id'])->get()->pluck('code')->to_array();
         $this->assertSame([$stored->code], $codes);
+    }
+
+    public function test_an_order_coupon_records_the_method_of_its_coupon(): void
+    {
+        $code_coupon = $this->create_percentage_coupon(10);
+        $automatic = $this->create_percentage_coupon(5);
+        $automatic->update(['method' => CouponMethod::AUTOMATIC]);
+
+        $order = $this->create_order(['coupon_codes' => [$code_coupon->code, $automatic->code]]);
+
+        $methods = OrderCoupon::where('order_id', $order['id'])->get()->pluck('method', 'code')->to_array();
+        $this->assertSame([
+            $code_coupon->code => CouponMethod::CODE,
+            $automatic->code => CouponMethod::AUTOMATIC,
+        ], $methods);
+    }
+
+    public function test_an_order_coupon_with_no_method_reads_as_code(): void
+    {
+        $this->assertTrue(Schema::has_column('kirki_ecommerce_order_coupons', 'method'));
+
+        $order = $this->create_order();
+        $row = [
+            'order_id' => $order['id'],
+            'code' => 'OLD10',
+            'title' => 'Old coupon',
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::ORDER,
+        ];
+
+        // A row written without the column, as before the migration.
+        $this->assertSame(CouponMethod::CODE, OrderCoupon::find(OrderCoupon::create($row)->id)->method);
+
+        // A DTO that is not given a method, as in the WooCommerce import.
+        $row = array_merge($row, ['code' => 'IMPORTED10', 'invoiced_discount_amount' => 0, 'base_discount_amount' => 0]);
+        $order_coupon = app(OrderService::class)->create_order_coupon(new CreateOrderCouponDTO($row));
+        $this->assertSame(CouponMethod::CODE, OrderCoupon::find($order_coupon->id)->method);
+    }
+
+    public function test_a_stored_coupon_keeps_its_method_when_the_coupon_changes_method(): void
+    {
+        $coupon = $this->create_percentage_coupon(10);
+        $coupon->update(['method' => CouponMethod::AUTOMATIC]);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+
+        $coupon->update(['method' => CouponMethod::CODE]);
+
+        $payload = $this->order_payload(['items' => [$this->line($order, 2)], 'coupon_codes' => [$coupon->code]]);
+        $preview = $this->preview(array_merge($payload, ['order_id' => $order['id']]));
+        $this->assertSame([CouponMethod::AUTOMATIC], array_column($preview['coupons'], 'method'));
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $payload));
+
+        $this->assertSame(CouponMethod::AUTOMATIC, OrderCoupon::where('order_id', $order['id'])->first()->method);
+    }
+
+    public function test_the_admin_order_and_the_calculation_list_the_coupon_groups_apart(): void
+    {
+        $coupons = $this->create_coupons_of_every_group();
+        $payload = $this->order_payload(['coupon_codes' => array_values($coupons)]);
+        $order = $this->create_order(['coupon_codes' => array_values($coupons)]);
+
+        $stored = $this->assert_api_success($this->request('GET', 'orders/' . $order['id']))['data'];
+        $preview = $this->preview($payload);
+
+        foreach ([$stored, $preview] as $data) {
+            $this->assertEqualsCanonicalizing(array_values($coupons), array_column($data['coupons'], 'code'));
+            $this->assertEqualsCanonicalizing([$coupons['code_order'], $coupons['code_products']], array_column($data['applied_coupons'], 'code'));
+            $this->assertEqualsCanonicalizing([$coupons['code_order'], $coupons['automatic_order']], array_column($data['order_targeted_coupons'], 'code'));
+            $this->assertSame([CouponMethod::CODE], array_unique(array_column($data['applied_coupons'], 'method')));
+        }
+    }
+
+    public function test_the_storefront_order_lists_the_coupon_groups_apart(): void
+    {
+        $coupons = $this->create_coupons_of_every_group();
+        $order = $this->create_order(['coupon_codes' => array_values($coupons)]);
+
+        $pricing = OrderResource::make(app(OrderService::class)->find_order_by_uuid($order['uuid']))['pricing'];
+
+        $this->assertEqualsCanonicalizing(array_values($coupons), array_column($pricing['coupons'], 'code'));
+        $this->assertEqualsCanonicalizing([$coupons['code_order'], $coupons['code_products']], array_column($pricing['applied_coupons'], 'code'));
+        $this->assertEqualsCanonicalizing([$coupons['code_order'], $coupons['automatic_order']], array_column($pricing['order_targeted_coupons'], 'code'));
+    }
+
+    public function test_an_order_with_no_coupon_has_empty_coupon_groups(): void
+    {
+        $order = $this->create_order();
+
+        $stored = $this->assert_api_success($this->request('GET', 'orders/' . $order['id']))['data'];
+        $pricing = OrderResource::make(app(OrderService::class)->find_order_by_uuid($order['uuid']))['pricing'];
+
+        foreach ([$stored, $this->preview(), $pricing] as $data) {
+            $this->assertSame([], $data['applied_coupons']);
+            $this->assertSame([], $data['order_targeted_coupons']);
+        }
+    }
+
+    public function test_a_coupon_stored_without_a_method_is_a_code_coupon_in_the_payloads(): void
+    {
+        $order = $this->create_order();
+        OrderCoupon::create([
+            'order_id' => $order['id'],
+            'code' => 'OLD10',
+            'title' => 'Old coupon',
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::ORDER,
+            'invoiced_discount_amount' => 0,
+            'base_discount_amount' => 0,
+        ]);
+
+        $stored = $this->assert_api_success($this->request('GET', 'orders/' . $order['id']))['data'];
+        $pricing = OrderResource::make(app(OrderService::class)->find_order_by_uuid($order['uuid']))['pricing'];
+
+        foreach ([$stored, $pricing] as $data) {
+            $this->assertSame([CouponMethod::CODE], array_column($data['coupons'], 'method'));
+            $this->assertSame(['OLD10'], array_column($data['applied_coupons'], 'code'));
+            $this->assertSame(['OLD10'], array_column($data['order_targeted_coupons'], 'code'));
+        }
+    }
+
+    public function test_a_stored_automatic_coupon_is_order_targeted_and_not_applied_in_an_edit_preview(): void
+    {
+        $coupon = $this->create_percentage_coupon(10);
+        $coupon->update(['method' => CouponMethod::AUTOMATIC]);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+
+        $preview = $this->preview($this->order_payload([
+            'order_id' => $order['id'],
+            'items' => [$this->line($order, 1)],
+            'coupon_codes' => [$coupon->code],
+        ]));
+
+        $this->assertSame([], $preview['applied_coupons']);
+        $this->assertSame([$coupon->code], array_column($preview['order_targeted_coupons'], 'code'));
     }
 
     public function test_a_manual_order_and_its_preview_do_not_take_an_automatic_coupon_on_their_own(): void
@@ -1917,6 +2056,26 @@ class OrderEditApiTest extends RestTestCase
     protected function delete_product(int $product_id): void
     {
         Product::query()->where('id', $product_id)->delete();
+    }
+
+    /**
+     * Create one active coupon for each method and target pair: code or automatic, order-wide or per product.
+     *
+     * @return array<string, string> Coupon codes, keyed `code_order`, `code_products`, `automatic_order` and `automatic_products`.
+     */
+    protected function create_coupons_of_every_group(): array
+    {
+        $codes = [];
+
+        foreach ([CouponMethod::CODE, CouponMethod::AUTOMATIC] as $method) {
+            foreach ([DiscountTarget::ORDER, DiscountTarget::PRODUCTS] as $target) {
+                $coupon = $this->create_amount_off_coupon($target, DiscountValueType::PERCENTAGE, 5);
+                $coupon->update(['method' => $method]);
+                $codes[$method . '_' . $target] = $coupon->code;
+            }
+        }
+
+        return $codes;
     }
 
     /**
